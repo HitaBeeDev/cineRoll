@@ -1,0 +1,48 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Film {
+  id               String      @id @default(cuid())
+  slug             String      @unique
+  tmdbId           Int?        @unique
+  imdbId           String?     @unique
+  title            String
+  year             Int
+  runtime          Int?
+  genres           String[]
+  plot             String?
+  director         String?
+  cast             Json        @default("[]")
+  language         String?
+  posterUrl        String?
+  backdropUrl      String?
+  trailerUrl       String?
+  imdbRating       Float?
+  rtScore          Int?
+  oscarNominations Int         @default(0)
+  oscarWins        Int         @default(0)
+  oscarCategories  Json        @default("[]")
+  ggNominations    Int         @default(0)
+  ggWins           Int         @default(0)
+  ggCategories     Json        @default("[]")
+  isPickOfDay      Boolean     @default(false)
+  pickOfDayDate    DateTime?
+  rollEvents       RollEvent[]
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+}
+
+model RollEvent {
+  id       String   @id @default(cuid())
+  filmId   String
+  film     Film     @relation(fields: [filmId], references: [id])
+  rolledAt DateTime @default(now())
+
+  @@index([filmId, rolledAt])
+}
