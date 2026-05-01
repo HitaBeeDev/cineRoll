@@ -18,7 +18,7 @@
   "author": "",
   "license": "ISC",
   "lint-staged": {
-    "*.{ts,tsx}": [
+    "{backend,packages}/**/*.{ts,tsx}": [
       "eslint --max-warnings 0"
     ]
   },
