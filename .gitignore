@@ -52,3 +52,6 @@ Thumbs.db
 data/films-enriched.json
 data/films-final.json
 data/enrichment-errors.csv
+
+# Docs
+CineRoll-fullstack-checklist.md
