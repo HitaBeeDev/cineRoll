@@ -1,14 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Dices, Star, Trophy, CalendarDays, ExternalLink, RotateCcw } from "lucide-react";
+import { Dices, Star, Trophy, ExternalLink, RotateCcw } from "lucide-react";
 import type { Film } from "@cineroll/types";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/toast";
+import { PickOfDay } from "@/components/pick-of-day";
 import { cn } from "@/lib/utils";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
@@ -19,28 +20,11 @@ async function fetchRandom(): Promise<Film> {
   return res.json() as Promise<Film>;
 }
 
-async function fetchPickOfDay(): Promise<Film | null> {
-  const res = await fetch(`${API_URL}/api/pick-of-day`);
-  if (!res.ok) return null;
-  const data: unknown = await res.json();
-  if (!data || typeof data !== "object" || !("id" in data)) return null;
-  return data as Film;
-}
-
 export default function HomePage() {
   const { toast } = useToast();
   const [film, setFilm] = useState<Film | null>(null);
-  const [pod, setPod] = useState<Film | null>(null);
   const [isRolling, setIsRolling] = useState(false);
-  const [isPodLoading, setIsPodLoading] = useState(true);
   const [hasRolled, setHasRolled] = useState(false);
-
-  useEffect(() => {
-    fetchPickOfDay()
-      .then(setPod)
-      .catch(() => setPod(null))
-      .finally(() => setIsPodLoading(false));
-  }, []);
 
   async function handleRoll() {
     setIsRolling(true);
@@ -87,7 +71,7 @@ export default function HomePage() {
           <Button
             size="lg"
             variant="primary"
-            onClick={handleRoll}
+            onClick={() => void handleRoll()}
             disabled={isRolling}
             aria-label={isRolling ? "Rolling…" : "Roll for a random film"}
             className={cn(
@@ -132,7 +116,7 @@ export default function HomePage() {
                   <Button
                     variant="secondary"
                     size="md"
-                    onClick={handleRoll}
+                    onClick={() => void handleRoll()}
                     disabled={isRolling}
                     className="gap-2"
                   >
@@ -143,7 +127,7 @@ export default function HomePage() {
               </motion.div>
             )}
 
-            {!isRolling && !film && !hasRolled && (
+            {!isRolling && !hasRolled && (
               <motion.div
                 key="empty"
                 initial={{ opacity: 0 }}
@@ -157,33 +141,7 @@ export default function HomePage() {
           </AnimatePresence>
         </div>
 
-        {/* Pick of the Day */}
-        <section className="w-full flex flex-col gap-4">
-          <div className="flex items-center gap-2">
-            <CalendarDays className="h-5 w-5 text-amber-400" aria-hidden />
-            <h2 className="text-base font-semibold text-zinc-200 tracking-wide uppercase text-xs">
-              Pick of the Day
-            </h2>
-          </div>
-
-          {isPodLoading ? (
-            <PodSkeleton />
-          ) : pod ? (
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.35 }}
-            >
-              <PodCard film={pod} />
-            </motion.div>
-          ) : (
-            <div className="flex items-center justify-center rounded-2xl border border-dashed border-zinc-800 p-10 text-center">
-              <p className="text-zinc-500 text-sm">
-                No pick today — roll to discover something great!
-              </p>
-            </div>
-          )}
-        </section>
+        <PickOfDay />
       </main>
     </div>
   );
@@ -223,7 +181,7 @@ function RollResultCard({ film }: { film: Film }) {
           <p className="mt-1 text-sm text-zinc-400">
             {film.year}
             {film.director ? ` · Directed by ${film.director}` : ""}
-            {film.runtime ? ` · ${film.runtime} min` : ""}
+            {film.runtime != null ? ` · ${film.runtime} min` : ""}
           </p>
         </div>
 
@@ -272,76 +230,6 @@ function RollResultCard({ film }: { film: Film }) {
   );
 }
 
-function PodCard({ film }: { film: Film }) {
-  return (
-    <div
-      className={cn(
-        "flex flex-col sm:flex-row gap-5",
-        "rounded-2xl border border-amber-400/15 bg-zinc-900 p-5",
-        "shadow-lg shadow-amber-900/10"
-      )}
-    >
-      <div className="relative mx-auto w-32 shrink-0 sm:mx-0 sm:w-28 rounded-xl overflow-hidden border border-zinc-800 aspect-[2/3]">
-        {film.posterUrl ? (
-          <Image
-            src={film.posterUrl}
-            alt={`${film.title} poster`}
-            fill
-            sizes="(max-width: 640px) 128px, 112px"
-            className="object-cover"
-          />
-        ) : (
-          <div className="absolute inset-0 flex items-center justify-center bg-zinc-800">
-            <span className="text-xs text-zinc-600">No poster</span>
-          </div>
-        )}
-      </div>
-
-      <div className="flex flex-col gap-2 min-w-0 flex-1">
-        <div>
-          <h3 className="text-lg font-bold text-zinc-50 leading-tight">{film.title}</h3>
-          <p className="text-sm text-zinc-400 mt-0.5">{film.year}</p>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2">
-          {film.imdbRating != null && (
-            <span className="flex items-center gap-1 text-amber-400 font-semibold text-xs">
-              <Star className="h-3.5 w-3.5 fill-amber-400" aria-hidden />
-              {film.imdbRating.toFixed(1)}
-            </span>
-          )}
-          {film.genres.slice(0, 2).map((g) => (
-            <span
-              key={g}
-              className="rounded-full border border-zinc-700 px-2 py-0.5 text-xs text-zinc-300"
-            >
-              {g}
-            </span>
-          ))}
-        </div>
-
-        {film.plot && (
-          <p className="text-sm text-zinc-400 leading-relaxed line-clamp-2 mt-1">
-            {film.plot}
-          </p>
-        )}
-
-        <Link
-          href={`/film/${film.slug}`}
-          className={cn(
-            "inline-flex items-center gap-1.5 self-start mt-auto",
-            "text-xs font-medium text-amber-400 hover:text-amber-300 transition-colors",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 rounded"
-          )}
-        >
-          View details
-          <ExternalLink className="h-3.5 w-3.5" aria-hidden />
-        </Link>
-      </div>
-    </div>
-  );
-}
-
 function RollResultSkeleton() {
   return (
     <div className="flex flex-col sm:flex-row gap-5 sm:gap-6 rounded-2xl border border-zinc-800 bg-zinc-900 p-5 sm:p-6">
@@ -357,24 +245,6 @@ function RollResultSkeleton() {
         <Skeleton className="h-4 w-full rounded-lg mt-1" />
         <Skeleton className="h-4 w-5/6 rounded-lg" />
         <Skeleton className="h-4 w-2/3 rounded-lg" />
-      </div>
-    </div>
-  );
-}
-
-function PodSkeleton() {
-  return (
-    <div className="flex flex-col sm:flex-row gap-5 rounded-2xl border border-zinc-800 bg-zinc-900 p-5">
-      <Skeleton className="mx-auto w-32 shrink-0 sm:mx-0 sm:w-28 aspect-[2/3] rounded-xl" />
-      <div className="flex flex-col gap-2 flex-1">
-        <Skeleton className="h-6 w-2/3 rounded-lg" />
-        <Skeleton className="h-4 w-1/4 rounded-lg" />
-        <div className="flex gap-2 mt-1">
-          <Skeleton className="h-5 w-10 rounded-full" />
-          <Skeleton className="h-5 w-14 rounded-full" />
-        </div>
-        <Skeleton className="h-4 w-full rounded-lg mt-1" />
-        <Skeleton className="h-4 w-4/5 rounded-lg" />
       </div>
     </div>
   );
