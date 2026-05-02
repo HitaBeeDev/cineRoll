@@ -49,9 +49,13 @@ Thumbs.db
 *.swo
 
 # Data
-data/films-enriched.json
-data/films-final.json
-data/enrichment-errors.csv
+backend/data/*.csv
+backend/data/*.xlsx
+backend/data/*.xls
+backend/data/films-enriched.json
+backend/data/films-final.json
+backend/data/enrichment-errors.csv
+!backend/data/.gitkeep
 
 # Docs
 CineRoll-fullstack-checklist.md
