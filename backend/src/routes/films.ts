@@ -17,7 +17,10 @@ const filmListSelect = Prisma.sql`
   "Film"."genres",
   "Film"."posterUrl",
   "Film"."imdbRating",
-  "Film"."oscarWins"
+  "Film"."oscarNominations",
+  "Film"."oscarWins",
+  "Film"."ggNominations",
+  "Film"."ggWins"
 `;
 
 const filmDetailSelect = {
@@ -50,12 +53,16 @@ const filmDetailSelect = {
 
 const listQuerySchema = z.object({
   search: z.string().trim().min(1).max(120).optional(),
+  person: z.string().trim().min(1).max(120).optional(),
+  director: z.string().trim().min(1).max(120).optional(),
+  awardBody: z.enum(["oscar", "goldenglobe", "both"]).default("both"),
   genre: z.string().trim().min(1).max(80).optional(),
   decadeMin: z.coerce.number().int().min(1800).max(2200).optional(),
   decadeMax: z.coerce.number().int().min(1800).max(2200).optional(),
   awardYear: z.coerce.number().int().min(1800).max(2200).optional(),
   category: z.string().trim().min(1).max(120).optional(),
   winnerOnly: z.coerce.boolean().optional(),
+  nominatedOnly: z.coerce.boolean().optional(),
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(100).default(12),
 }).refine(
@@ -69,11 +76,48 @@ const listQuerySchema = z.object({
   },
 );
 
+type ListQuery = z.infer<typeof listQuerySchema>;
+
 const slugParamsSchema = z.object({
   slug: z.string().trim().min(1).max(180),
 });
 
-function awardFilter(query: z.infer<typeof listQuerySchema>) {
+function awardJsonSources(awardBody: ListQuery["awardBody"]) {
+  if (awardBody === "oscar") {
+    return [Prisma.sql`"Film"."oscarCategories"`];
+  }
+
+  if (awardBody === "goldenglobe") {
+    return [Prisma.sql`"Film"."ggCategories"`];
+  }
+
+  return [
+    Prisma.sql`"Film"."oscarCategories"`,
+    Prisma.sql`"Film"."ggCategories"`,
+  ];
+}
+
+function awardExists(
+  awardBody: ListQuery["awardBody"],
+  awardConditions: Prisma.Sql[] = [],
+) {
+  const whereSql =
+    awardConditions.length > 0
+      ? Prisma.sql`WHERE ${Prisma.join(awardConditions, " AND ")}`
+      : Prisma.empty;
+
+  const existsClauses = awardJsonSources(awardBody).map(source => Prisma.sql`
+    EXISTS (
+      SELECT 1
+      FROM jsonb_array_elements(${source}) AS award
+      ${whereSql}
+    )
+  `);
+
+  return Prisma.sql`(${Prisma.join(existsClauses, " OR ")})`;
+}
+
+function awardFilter(query: ListQuery) {
   const awardConditions: Prisma.Sql[] = [];
 
   if (query.awardYear !== undefined) {
@@ -88,30 +132,19 @@ function awardFilter(query: z.infer<typeof listQuerySchema>) {
     awardConditions.push(Prisma.sql`(award->>'won')::BOOLEAN = true`);
   }
 
-  if (awardConditions.length === 0) {
+  if (
+    query.awardBody === "both" &&
+    query.nominatedOnly !== true &&
+    awardConditions.length === 0
+  ) {
     return undefined;
   }
 
-  const joined = Prisma.join(awardConditions, " AND ");
-
-  return Prisma.sql`
-    (
-      EXISTS (
-        SELECT 1
-        FROM jsonb_array_elements("Film"."oscarCategories") AS award
-        WHERE ${joined}
-      )
-      OR EXISTS (
-        SELECT 1
-        FROM jsonb_array_elements("Film"."ggCategories") AS award
-        WHERE ${joined}
-      )
-    )
-  `;
+  return awardExists(query.awardBody, awardConditions);
 }
 
 filmsRouter.get("/", validate(listQuerySchema), async (req, res) => {
-  const query = getValidated<z.infer<typeof listQuerySchema>>(req, "query");
+  const query = getValidated<ListQuery>(req, "query");
   const where: Prisma.Sql[] = [];
 
   if (query.search) {
@@ -120,18 +153,19 @@ filmsRouter.get("/", validate(listQuerySchema), async (req, res) => {
       (
         "Film"."title" ILIKE ${searchLike}
         OR "Film"."title" % ${query.search}
-        OR EXISTS (
-          SELECT 1
-          FROM jsonb_array_elements("Film"."oscarCategories") AS award
-          WHERE award->>'nominee' ILIKE ${searchLike}
-        )
-        OR EXISTS (
-          SELECT 1
-          FROM jsonb_array_elements("Film"."ggCategories") AS award
-          WHERE award->>'nominee' ILIKE ${searchLike}
-        )
       )
     `);
+  }
+
+  if (query.person) {
+    const personLike = `%${query.person}%`;
+    where.push(awardExists(query.awardBody, [
+      Prisma.sql`award->>'nominee' ILIKE ${personLike}`,
+    ]));
+  }
+
+  if (query.director) {
+    where.push(Prisma.sql`"Film"."director" ILIKE ${`%${query.director}%`}`);
   }
 
   if (query.genre) {

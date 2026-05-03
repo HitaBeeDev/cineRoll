@@ -177,8 +177,6 @@ Monorepo with `cineroll/` root containing:
 - [x] Verify in Neon PostgreSQL console that row count matches films-final.json length
 - [x] Spot-check 5 films by querying database
 
-///////////////////////////////////////////////////
-
 ### 5d. Database Performance Optimization
 
 - [x] Create database indexes on frequently queried columns:
@@ -193,6 +191,8 @@ Monorepo with `cineroll/` root containing:
 - [x] Implement query caching if needed (Redis) for frequently accessed data like "Pick of the Day": not needed at current measured query times; revisit when API traffic or Neon analytics shows repeated slow reads
 
 ---
+
+///////////////////////////////////////////////////
 
 ## 6. Backend — API Routes & Performance
 
@@ -210,6 +210,7 @@ Monorepo with `cineroll/` root containing:
     - `genre` — film genre
     - `decadeMin`/`decadeMax` — release decade range
     - `page`, `limit`
+      //////////////////////////////////////////////////////////////////////
   - [ ] GET /api/films/categories — return distinct list of all award categories in the dataset (used to populate category dropdown in UI)
   - [ ] GET /api/films/award-years — return sorted list of all distinct ceremony years in the dataset (used to populate award year dropdown)
   - [x] GET /api/films/:slug (get single film by slug with full details including all AwardRecord arrays)
