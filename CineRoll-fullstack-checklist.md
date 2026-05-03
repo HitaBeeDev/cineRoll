@@ -340,7 +340,7 @@ Monorepo with `cineroll/` root containing:
   - Oscar nominations and wins (organized by category and year)
   - Golden Globe nominations and wins (organized by category and year)
   - Total award counts
-- [ ] Embed or link YouTube trailer if available
+- [x] Embed or link YouTube trailer if available
 - [ ] Add SEO metadata: dynamic title, description, Open Graph images, Twitter cards
 - [ ] Create 404 page if film slug not found
 - [ ] Make responsive: stack all content vertically on mobile, use grid layout on desktop

@@ -1,11 +1,22 @@
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, Star, Trophy, Clock, Globe, Users, Clapperboard, ExternalLink } from "lucide-react";
+import { ArrowLeft, Star, Trophy, Clock, Globe, Users, Clapperboard, ExternalLink, PlayCircle } from "lucide-react";
 import type { Film, AwardRecord } from "@cineroll/types";
 import { cn } from "@/lib/utils";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
+
+function extractYouTubeId(url: string): string | null {
+  try {
+    const u = new URL(url);
+    if (u.hostname === "youtu.be") return u.pathname.slice(1) || null;
+    if (u.hostname.includes("youtube.com")) return u.searchParams.get("v");
+  } catch {
+    // invalid URL
+  }
+  return null;
+}
 
 async function fetchFilm(slug: string): Promise<Film | null> {
   const res = await fetch(`${API_URL}/api/films/${encodeURIComponent(slug)}`, {
@@ -47,6 +58,7 @@ export default async function FilmPage({
   if (!film) notFound();
 
   const hasBackdrop = Boolean(film.backdropUrl);
+  const youtubeId = film.trailerUrl ? extractYouTubeId(film.trailerUrl) : null;
   const oscarAwards = (film.oscarCategories as AwardRecord[]) ?? [];
   const ggAwards = (film.ggCategories as AwardRecord[]) ?? [];
   const hasAwards = film.oscarNominations > 0 || film.ggNominations > 0;
@@ -194,16 +206,36 @@ export default async function FilmPage({
                 </div>
               )}
 
-              {/* Trailer link */}
-              {film.trailerUrl && (
+            </div>
+          </div>
+
+          {/* Trailer */}
+          {film.trailerUrl && (
+            <section className="mt-10">
+              <h2 className="flex items-center gap-2 text-xs font-semibold tracking-widest uppercase text-zinc-500 mb-3">
+                <PlayCircle className="h-3.5 w-3.5" aria-hidden />
+                Trailer
+              </h2>
+              {youtubeId ? (
+                <div className="overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900">
+                  <div className="relative aspect-video w-full">
+                    <iframe
+                      src={`https://www.youtube-nocookie.com/embed/${youtubeId}`}
+                      title={`${film.title} trailer`}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      allowFullScreen
+                      className="absolute inset-0 h-full w-full"
+                    />
+                  </div>
+                </div>
+              ) : (
                 <a
                   href={film.trailerUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className={cn(
-                    "inline-flex items-center justify-center sm:justify-start gap-2 self-center sm:self-start",
-                    "rounded-xl border border-zinc-700 bg-zinc-800 hover:bg-zinc-700 transition-colors",
-                    "px-4 py-2 text-sm font-medium text-zinc-100",
+                    "inline-flex items-center gap-2 rounded-xl border border-zinc-700 bg-zinc-800",
+                    "hover:bg-zinc-700 transition-colors px-4 py-2 text-sm font-medium text-zinc-100",
                     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
                   )}
                 >
@@ -211,8 +243,23 @@ export default async function FilmPage({
                   Watch Trailer
                 </a>
               )}
-            </div>
-          </div>
+              {youtubeId && (
+                <a
+                  href={film.trailerUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={cn(
+                    "inline-flex items-center gap-1.5 mt-2",
+                    "text-xs text-zinc-500 hover:text-zinc-300 transition-colors",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 rounded"
+                  )}
+                >
+                  <ExternalLink className="h-3 w-3" aria-hidden />
+                  Watch on YouTube
+                </a>
+              )}
+            </section>
+          )}
 
           {/* Plot */}
           {film.plot && (
