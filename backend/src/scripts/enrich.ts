@@ -27,15 +27,16 @@ const TMDB_BASE = 'https://api.themoviedb.org/3';
 const OMDB_BASE = 'https://www.omdbapi.com';
 
 const DATA_DIR = path.resolve(__dirname, '../../data');
-const RAW_CSV = path.join(DATA_DIR, 'films-raw.csv');
+const OSCAR_CSV = path.join(DATA_DIR, 'oscar-raw.csv');
+const GG_CSV = path.join(DATA_DIR, 'goldenglobe-raw.csv');
 const ENRICHED_JSON = path.join(DATA_DIR, 'films-enriched.json');
 const ERRORS_CSV = path.join(DATA_DIR, 'enrichment-errors.csv');
 
-// CSV row shape: Id, Award Year, OSCie Name, Release Year, Type Of Award, Award Winner, Award Nominee
+// CSV row shape: Id, Award Year, Movie Name, Release Year, Type Of Award, Award Winner, Award Nominee
 interface CsvRow {
   'Id': string;
   'Award Year': string;
-  'OSCie Name': string;
+  'Movie Name': string;
   'Release Year': string;
   'Type Of Award': string;
   'Award Winner': string;
@@ -138,24 +139,36 @@ async function main() {
     process.exit(1);
   }
 
-  if (!fs.existsSync(RAW_CSV)) {
-    console.error(`CSV not found: ${RAW_CSV}`);
+  if (!fs.existsSync(OSCAR_CSV)) {
+    console.error(`CSV not found: ${OSCAR_CSV}`);
+    process.exit(1);
+  }
+  if (!fs.existsSync(GG_CSV)) {
+    console.error(`CSV not found: ${GG_CSV}`);
     process.exit(1);
   }
 
-  const rawRows = parseCsv(RAW_CSV);
-  console.log(`Loaded ${rawRows.length} rows from films-raw.csv\n`);
+  const oscarRows = parseCsv(OSCAR_CSV);
+  const ggRows = parseCsv(GG_CSV);
+  console.log(`Loaded ${oscarRows.length} Oscar rows, ${ggRows.length} Golden Globe rows\n`);
 
   // Group rows by (title + release year)
   type FilmKey = string;
   const oscarMap = new Map<FilmKey, CsvRow[]>();
   const ggMap = new Map<FilmKey, CsvRow[]>();
 
-  for (const row of rawRows) {
-    const key = `${row['OSCie Name'].toLowerCase().trim()}|${row['Release Year'].trim()}`;
+  for (const row of oscarRows) {
+    const key = `${row['Movie Name'].toLowerCase().trim()}|${row['Release Year'].trim()}`;
     const existing = oscarMap.get(key) ?? [];
     existing.push(row);
     oscarMap.set(key, existing);
+  }
+
+  for (const row of ggRows) {
+    const key = `${row['Movie Name'].toLowerCase().trim()}|${row['Release Year'].trim()}`;
+    const existing = ggMap.get(key) ?? [];
+    existing.push(row);
+    ggMap.set(key, existing);
   }
 
   // Collect unique films across both CSVs
@@ -165,7 +178,7 @@ async function main() {
     const [titleLower, year] = key.split('|');
     // Get original-casing title from first row
     const sampleRow = oscarMap.get(key)?.[0] ?? ggMap.get(key)?.[0];
-    const title = sampleRow?.['OSCie Name'] ?? titleLower ?? '';
+    const title = sampleRow?.['Movie Name'] ?? titleLower ?? '';
     if (title && year) uniqueFilms.push({ title, year });
   }
 
