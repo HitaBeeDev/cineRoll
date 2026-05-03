@@ -332,7 +332,10 @@ function AwardSection({
 
       {records.length > 0 && (
         <div className="flex flex-col gap-1.5">
-          {records.map((r, i) => (
+          {records
+            .slice()
+            .sort((a, b) => a.awardYear - b.awardYear || (b.won ? 1 : 0) - (a.won ? 1 : 0) || a.category.localeCompare(b.category))
+            .map((r, i) => (
             <div
               key={i}
               className={cn(

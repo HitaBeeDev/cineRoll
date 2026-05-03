@@ -336,7 +336,7 @@ Monorepo with `cineroll/` root containing:
   - Full plot synopsis
   - IMDB and Rotten Tomatoes ratings with icons
   - Language information
-- [ ] Display awards information:
+- [x] Display awards information:
   - Oscar nominations and wins (organized by category and year)
   - Golden Globe nominations and wins (organized by category and year)
   - Total award counts
