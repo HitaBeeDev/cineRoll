@@ -217,7 +217,7 @@ Monorepo with `cineroll/` root containing:
 
 - [x] Create `backend/src/routes/random.ts` with:
   - [x] GET /api/random (return a random film from database — no filters)
-  - [ ] GET /api/random accepts all the same filter params as /api/films — when filters are present, pick one random film from the matching set; when no filters, pick from full dataset
+  - [x] GET /api/random accepts all the same filter params as /api/films — when filters are present, pick one random film from the matching set; when no filters, pick from full dataset
         //////////////////////////////////////////////////////////////////////
 
 - [x] Create `backend/src/routes/roll.ts` with:

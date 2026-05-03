@@ -1,0 +1,133 @@
+import { Prisma } from "@prisma/client";
+import { z } from "zod";
+
+export const listQuerySchema = z.object({
+  search: z.string().trim().min(1).max(120).optional(),
+  person: z.string().trim().min(1).max(120).optional(),
+  director: z.string().trim().min(1).max(120).optional(),
+  awardBody: z.enum(["oscar", "goldenglobe", "both"]).default("both"),
+  genre: z.string().trim().min(1).max(80).optional(),
+  decadeMin: z.coerce.number().int().min(1800).max(2200).optional(),
+  decadeMax: z.coerce.number().int().min(1800).max(2200).optional(),
+  awardYear: z.coerce.number().int().min(1800).max(2200).optional(),
+  category: z.string().trim().min(1).max(120).optional(),
+  winnerOnly: z.coerce.boolean().optional(),
+  nominatedOnly: z.coerce.boolean().optional(),
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(12),
+}).refine(
+  query =>
+    query.decadeMin === undefined ||
+    query.decadeMax === undefined ||
+    query.decadeMin <= query.decadeMax,
+  {
+    message: "decadeMin must be less than or equal to decadeMax",
+    path: ["decadeMin"],
+  },
+);
+
+export type ListQuery = z.infer<typeof listQuerySchema>;
+
+export function awardJsonSources(awardBody: ListQuery["awardBody"]) {
+  if (awardBody === "oscar") {
+    return [Prisma.sql`"Film"."oscarCategories"`];
+  }
+  if (awardBody === "goldenglobe") {
+    return [Prisma.sql`"Film"."ggCategories"`];
+  }
+  return [
+    Prisma.sql`"Film"."oscarCategories"`,
+    Prisma.sql`"Film"."ggCategories"`,
+  ];
+}
+
+export function awardExists(
+  awardBody: ListQuery["awardBody"],
+  awardConditions: Prisma.Sql[] = [],
+) {
+  const whereSql =
+    awardConditions.length > 0
+      ? Prisma.sql`WHERE ${Prisma.join(awardConditions, " AND ")}`
+      : Prisma.empty;
+
+  const existsClauses = awardJsonSources(awardBody).map(source => Prisma.sql`
+    EXISTS (
+      SELECT 1
+      FROM jsonb_array_elements(${source}) AS award
+      ${whereSql}
+    )
+  `);
+
+  return Prisma.sql`(${Prisma.join(existsClauses, " OR ")})`;
+}
+
+function awardFilter(query: ListQuery) {
+  const awardConditions: Prisma.Sql[] = [];
+
+  if (query.awardYear !== undefined) {
+    awardConditions.push(Prisma.sql`(award->>'awardYear')::INT = ${query.awardYear}`);
+  }
+
+  if (query.category) {
+    awardConditions.push(Prisma.sql`award->>'category' ILIKE ${`%${query.category}%`}`);
+  }
+
+  if (query.winnerOnly === true) {
+    awardConditions.push(Prisma.sql`(award->>'won')::BOOLEAN = true`);
+  }
+
+  if (
+    query.awardBody === "both" &&
+    query.nominatedOnly !== true &&
+    awardConditions.length === 0
+  ) {
+    return undefined;
+  }
+
+  return awardExists(query.awardBody, awardConditions);
+}
+
+export function buildWhereClause(query: ListQuery): Prisma.Sql {
+  const where: Prisma.Sql[] = [];
+
+  if (query.search) {
+    const searchLike = `%${query.search}%`;
+    where.push(Prisma.sql`
+      (
+        "Film"."title" ILIKE ${searchLike}
+        OR "Film"."title" % ${query.search}
+      )
+    `);
+  }
+
+  if (query.person) {
+    where.push(awardExists(query.awardBody, [
+      Prisma.sql`award->>'nominee' ILIKE ${`%${query.person}%`}`,
+    ]));
+  }
+
+  if (query.director) {
+    where.push(Prisma.sql`"Film"."director" ILIKE ${`%${query.director}%`}`);
+  }
+
+  if (query.genre) {
+    where.push(Prisma.sql`"Film"."genres" @> ARRAY[${query.genre}]::TEXT[]`);
+  }
+
+  if (query.decadeMin !== undefined) {
+    where.push(Prisma.sql`"Film"."year" >= ${query.decadeMin}`);
+  }
+
+  if (query.decadeMax !== undefined) {
+    where.push(Prisma.sql`"Film"."year" <= ${query.decadeMax}`);
+  }
+
+  const awards = awardFilter(query);
+  if (awards) {
+    where.push(awards);
+  }
+
+  return where.length > 0
+    ? Prisma.sql`WHERE ${Prisma.join(where, " AND ")}`
+    : Prisma.empty;
+}
