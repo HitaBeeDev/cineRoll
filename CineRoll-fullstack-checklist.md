@@ -142,8 +142,6 @@ Monorepo with `cineroll/` root containing:
   - `Award Winner` = person/studio name if they won, `NaN` if nominated only
 - [x] Prepare `backend/data/films-goldenglobe.csv` — same column structure, `Id` format: `GG-{year}-{nn}`
 
-///////////////////////////////////////////////////
-
 ### 5a. Enrichment Script — Fetch Data from TMDB & OMDB APIs
 
 - [x] Install CSV parsing library (csv-parse) in backend
@@ -168,6 +166,8 @@ Monorepo with `cineroll/` root containing:
 - [x] Fix any failed films by correcting title spelling in source CSVs, then re-run
 - [x] Validate output: verify all slugs are unique, spot-check entries for data quality
 - [x] Save validated result as `backend/data/films-final.json` (do not overwrite after seeding)
+
+///////////////////////////////////////////////////
 
 ### 5c. Seed Database
 

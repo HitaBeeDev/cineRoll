@@ -117,6 +117,7 @@ function rowToAwardRecord(row: CsvRow): AwardRecord {
 async function tmdbSearch(title: string, year: string): Promise<number | null> {
   const url = `${TMDB_BASE}/search/movie?api_key=${TMDB_KEY}&query=${encodeURIComponent(title)}&year=${year}&language=en-US`;
   const res = await fetch(url);
+  if (!res.ok) throw new Error(`TMDB search failed: ${res.status} ${res.statusText}`);
   const data = (await res.json()) as { results?: Array<{ id: number; release_date?: string }> };
   if (!data.results?.length) return null;
   const exact = data.results.find(r => r.release_date?.startsWith(year));
@@ -128,13 +129,22 @@ async function tmdbSearch(title: string, year: string): Promise<number | null> {
 async function tmdbDetails(tmdbId: number): Promise<Record<string, unknown>> {
   const url = `${TMDB_BASE}/movie/${tmdbId}?api_key=${TMDB_KEY}&append_to_response=credits,videos`;
   const res = await fetch(url);
+  if (!res.ok) throw new Error(`TMDB details failed: ${res.status} ${res.statusText}`);
   return res.json() as Promise<Record<string, unknown>>;
 }
 
 async function omdbDetails(imdbId: string): Promise<Record<string, unknown>> {
   const url = `${OMDB_BASE}/?i=${imdbId}&apikey=${OMDB_KEY}`;
   const res = await fetch(url);
-  return res.json() as Promise<Record<string, unknown>>;
+  if (!res.ok) throw new Error(`OMDB lookup failed: ${res.status} ${res.statusText}`);
+
+  const data = await res.json() as Record<string, unknown>;
+  if (data.Response === 'False') {
+    const message = typeof data.Error === 'string' ? data.Error : 'Unknown OMDB error';
+    throw new Error(`OMDB lookup failed: ${message}`);
+  }
+
+  return data;
 }
 
 async function main() {
