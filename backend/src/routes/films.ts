@@ -1,6 +1,7 @@
 import { Prisma } from "@prisma/client";
 import { Router } from "express";
 import { z } from "zod";
+import { setPublicCache } from "../lib/cache";
 import { prisma } from "../lib/prisma";
 import { HttpError } from "../middleware/errorHandler";
 import { getValidated, validate } from "../middleware/validate";
@@ -170,6 +171,7 @@ filmsRouter.get("/", validate(listQuerySchema), async (req, res) => {
 
   const total = Number(countRows[0]?.count ?? 0);
 
+  setPublicCache(res, 300);
   res.json({
     films,
     total,
@@ -189,5 +191,6 @@ filmsRouter.get("/:slug", validate(slugParamsSchema, "params"), async (req, res)
     throw new HttpError(404, "Film not found", "FILM_NOT_FOUND");
   }
 
+  setPublicCache(res, 86_400);
   res.json(film);
 });

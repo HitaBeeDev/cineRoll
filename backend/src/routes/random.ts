@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { setPublicCache } from "../lib/cache";
 import { prisma } from "../lib/prisma";
 import { HttpError } from "../middleware/errorHandler";
 
@@ -34,5 +35,6 @@ randomRouter.get("/", async (_req, res) => {
     throw new HttpError(404, "No films found", "NO_FILMS_FOUND");
   }
 
+  setPublicCache(res, 60);
   res.json(film);
 });

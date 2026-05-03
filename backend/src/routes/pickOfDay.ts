@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { setPublicCache } from "../lib/cache";
 import { prisma } from "../lib/prisma";
 import { HttpError } from "../middleware/errorHandler";
 
@@ -47,5 +48,6 @@ pickOfDayRouter.get("/", async (_req, res) => {
     throw new HttpError(404, "No pick of the day found", "PICK_OF_DAY_NOT_FOUND");
   }
 
+  setPublicCache(res, 3_600);
   res.json(film);
 });
