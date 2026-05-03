@@ -23,6 +23,8 @@
     "@cineroll/types": "*",
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
+    "@types/compression": "^1.8.1",
+    "compression": "^1.8.1",
     "cors": "^2.8.6",
     "csv-parse": "^6.2.1",
     "csv-stringify": "^6.7.0",

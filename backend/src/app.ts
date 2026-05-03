@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import compression from "compression";
 import helmet from "helmet";
 import morgan from "morgan";
 import { config } from "./config";
@@ -10,6 +11,7 @@ export const app = express();
 
 app.use(helmet());
 app.use(cors({ origin: config.frontendUrl, credentials: true }));
+app.use(compression());
 app.use(morgan("dev"));
 app.use(express.json());
 
