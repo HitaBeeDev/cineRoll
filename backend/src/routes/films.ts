@@ -18,6 +18,34 @@ const filmListSelect = Prisma.sql`
   "Film"."oscarWins"
 `;
 
+const filmDetailSelect = {
+  id: true,
+  slug: true,
+  tmdbId: true,
+  imdbId: true,
+  title: true,
+  year: true,
+  runtime: true,
+  genres: true,
+  plot: true,
+  director: true,
+  cast: true,
+  language: true,
+  posterUrl: true,
+  backdropUrl: true,
+  trailerUrl: true,
+  imdbRating: true,
+  rtScore: true,
+  oscarNominations: true,
+  oscarWins: true,
+  oscarCategories: true,
+  ggNominations: true,
+  ggWins: true,
+  ggCategories: true,
+  isPickOfDay: true,
+  pickOfDayDate: true,
+};
+
 const listQuerySchema = z.object({
   search: z.string().trim().min(1).max(120).optional(),
   genre: z.string().trim().min(1).max(80).optional(),
@@ -152,7 +180,10 @@ filmsRouter.get("/", validate(listQuerySchema), async (req, res) => {
 
 filmsRouter.get("/:slug", validate(slugParamsSchema, "params"), async (req, res) => {
   const { slug } = getValidated<z.infer<typeof slugParamsSchema>>(req, "params");
-  const film = await prisma.film.findUnique({ where: { slug } });
+  const film = await prisma.film.findUnique({
+    where: { slug },
+    select: filmDetailSelect,
+  });
 
   if (!film) {
     throw new HttpError(404, "Film not found", "FILM_NOT_FOUND");

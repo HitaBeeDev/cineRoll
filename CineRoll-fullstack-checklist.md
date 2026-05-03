@@ -218,7 +218,7 @@ Monorepo with `cineroll/` root containing:
 - [x] Use Helmet middleware to add security headers without impacting performance
 - [x] Implement pagination for list endpoints (max 100 items per request, default 12)
 - [x] Return only necessary fields from database: don't send entire objects if not needed
-- [ ] Use Prisma select to limit database columns returned: `{ select: { id: true, title: true, ... } }`
+- [x] Use Prisma select to limit database columns returned: `{ select: { id: true, title: true, ... } }`
 - [ ] Add HTTP caching headers: set Cache-Control headers appropriately for different endpoints
   - Pick of the day: cache for 1 hour
   - Random film: cache for 1 minute
