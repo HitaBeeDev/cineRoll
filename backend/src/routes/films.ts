@@ -56,6 +56,18 @@ const slugParamsSchema = z.object({
   slug: z.string().trim().min(1).max(180),
 });
 
+filmsRouter.get("/genres", async (_req, res) => {
+  const rows = await prisma.$queryRaw<{ genre: string }[]>`
+    SELECT DISTINCT unnest("Film"."genres") AS genre
+    FROM "Film"
+    WHERE array_length("Film"."genres", 1) > 0
+    ORDER BY genre ASC
+  `;
+
+  setPublicCache(res, 3600);
+  res.json({ genres: rows.map(r => r.genre) });
+});
+
 filmsRouter.get("/award-years", async (_req, res) => {
   const rows = await prisma.$queryRaw<{ awardYear: number }[]>`
     SELECT DISTINCT (award->>'awardYear')::INT AS "awardYear"

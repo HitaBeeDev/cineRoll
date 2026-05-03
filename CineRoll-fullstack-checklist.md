@@ -228,7 +228,6 @@ Monorepo with `cineroll/` root containing:
   - [x] Prisma queries to fetch data from database
   - [x] Error handling with appropriate HTTP status codes
   - [x] Consistent response format
-        //////////////////////////////////////////////////////////////////////
 - [x] Create `backend/src/middleware/errorHandler.ts` to catch all errors and return consistent error responses
 - [x] Create `backend/src/middleware/validate.ts` to validate requests against Zod schemas
 - [x] Mount all routes in `backend/src/app.ts`
@@ -303,14 +302,16 @@ Monorepo with `cineroll/` root containing:
 
 ### Filtered Roll (Roll Within a Filtered Set)
 
-- [ ] When the user has active filters, the Roll button should pick randomly from matching films only, not the full dataset
-- [ ] Backend: add GET /api/random endpoint support for all filter params (same params as /api/films) — pick one random film from the filtered result set
-- [ ] Frontend: pass active filter state from the Filter Bar into the Roll API call
-- [ ] Display a subtle indicator when Roll is operating on a filtered set (e.g. "Rolling from 47 matching films")
-- [ ] If filters return zero films, disable Roll button and show "No films match — adjust your filters"
-- [ ] With no filters active, Roll behaves exactly as before (pure random from full dataset)
+- [x] When the user has active filters, the Roll button should pick randomly from matching films only, not the full dataset
+- [x] Backend: add GET /api/random endpoint support for all filter params (same params as /api/films) — pick one random film from the filtered result set
+- [x] Frontend: pass active filter state from the Filter Bar into the Roll API call
+- [x] Display a subtle indicator when Roll is operating on a filtered set (e.g. "Rolling from 47 matching films")
+- [x] If filters return zero films, disable Roll button and show "No films match — adjust your filters"
+- [x] With no filters active, Roll behaves exactly as before (pure random from full dataset)
 
 ---
+
+//////////////////////////////////////////////////////////////////////
 
 ## 10. Frontend — Pick of the Day
 

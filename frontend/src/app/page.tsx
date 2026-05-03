@@ -1,44 +1,77 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { Dices, Star, Trophy, ExternalLink, RotateCcw } from "lucide-react";
-import type { Film } from "@cineroll/types";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/toast";
+import { FilterBar } from "@/components/filter-bar";
 import { PickOfDay } from "@/components/pick-of-day";
+import { fetchRandom, fetchFilms, fetchGenres, type RollFilm } from "@/lib/api";
+import { useFilters } from "@/hooks/useFilters";
 import { cn } from "@/lib/utils";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
-
-async function fetchRandom(): Promise<Film> {
-  const res = await fetch(`${API_URL}/api/random`);
-  if (!res.ok) throw new Error("Failed to fetch random film");
-  return res.json() as Promise<Film>;
-}
 
 export default function HomePage() {
   const { toast } = useToast();
-  const [film, setFilm] = useState<Film | null>(null);
+  const { filters, setFilter, hasActiveFilters } = useFilters();
+  const [film, setFilm] = useState<RollFilm | null>(null);
   const [isRolling, setIsRolling] = useState(false);
   const [hasRolled, setHasRolled] = useState(false);
+  const [filteredCount, setFilteredCount] = useState<number | null>(null);
+  const [isCountLoading, setIsCountLoading] = useState(false);
+  const [genres, setGenres] = useState<string[]>([]);
+
+  useEffect(() => {
+    void fetchGenres().then(setGenres);
+  }, []);
+
+  useEffect(() => {
+    if (!hasActiveFilters) return;
+
+    let cancelled = false;
+    const timer = setTimeout(() => {
+      setIsCountLoading(true);
+      void fetchFilms(filters, 1)
+        .then(result => {
+          if (!cancelled) setFilteredCount(result.total);
+        })
+        .catch(() => {
+          if (!cancelled) setFilteredCount(null);
+        })
+        .finally(() => {
+          if (!cancelled) setIsCountLoading(false);
+        });
+    }, 300);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [filters, hasActiveFilters]);
+
+  // When no filters are active, treat count as null regardless of stale state
+  const effectiveCount = hasActiveFilters ? filteredCount : null;
+  const isRollDisabled = isRolling || (hasActiveFilters && effectiveCount === 0 && !isCountLoading);
 
   async function handleRoll() {
     setIsRolling(true);
     setFilm(null);
     try {
-      const result = await fetchRandom();
-      setFilm(result);
+      const result = await fetchRandom(filters);
+      setFilm(result.film);
+      setFilteredCount(result.total);
       setHasRolled(true);
-    } catch {
-      toast({
-        variant: "error",
-        title: "Roll failed",
-        description: "Couldn't fetch a random film. Please try again.",
-      });
+    } catch (err) {
+      const code = err instanceof Error ? (err as Error & { code?: string }).code : undefined;
+      if (code === "NO_FILMS_FOUND") {
+        setFilteredCount(0);
+        toast({ variant: "error", title: "No matches", description: "No films match your filters — try adjusting them." });
+      } else {
+        toast({ variant: "error", title: "Roll failed", description: "Couldn't fetch a random film. Please try again." });
+      }
     } finally {
       setIsRolling(false);
     }
@@ -68,11 +101,12 @@ export default function HomePage() {
           <p className="text-zinc-400 text-base sm:text-lg max-w-xs sm:max-w-sm">
             Roll for a random award-winning film you might have missed.
           </p>
+
           <Button
             size="lg"
             variant="primary"
             onClick={() => void handleRoll()}
-            disabled={isRolling}
+            disabled={isRollDisabled}
             aria-label={isRolling ? "Rolling…" : "Roll for a random film"}
             className={cn(
               "mt-3 gap-3 px-10 h-14 text-lg sm:h-16 sm:text-xl sm:px-14",
@@ -85,6 +119,19 @@ export default function HomePage() {
             />
             {isRolling ? "Rolling…" : "Roll"}
           </Button>
+
+          <RollIndicator
+            hasActiveFilters={hasActiveFilters}
+            count={effectiveCount}
+            loading={isCountLoading}
+          />
+
+          <FilterBar
+            filters={filters}
+            genres={genres}
+            onFiltersChange={setFilter}
+            className="w-full"
+          />
         </section>
 
         {/* Roll result */}
@@ -117,7 +164,7 @@ export default function HomePage() {
                     variant="secondary"
                     size="md"
                     onClick={() => void handleRoll()}
-                    disabled={isRolling}
+                    disabled={isRollDisabled}
                     className="gap-2"
                   >
                     <RotateCcw className="h-4 w-4" aria-hidden />
@@ -147,7 +194,39 @@ export default function HomePage() {
   );
 }
 
-function RollResultCard({ film }: { film: Film }) {
+function RollIndicator({
+  hasActiveFilters,
+  count,
+  loading,
+}: {
+  hasActiveFilters: boolean;
+  count: number | null;
+  loading: boolean;
+}) {
+  if (!hasActiveFilters) return null;
+
+  if (loading || count === null) {
+    return <p className="text-xs text-zinc-500 min-h-[1rem]">Checking filters…</p>;
+  }
+
+  if (count === 0) {
+    return (
+      <p className="text-xs text-red-400 min-h-[1rem]">
+        No films match — adjust your filters
+      </p>
+    );
+  }
+
+  return (
+    <p className="text-xs text-zinc-400 min-h-[1rem]">
+      Rolling from{" "}
+      <span className="font-semibold text-amber-400">{count}</span>{" "}
+      {count === 1 ? "film" : "films"}
+    </p>
+  );
+}
+
+function RollResultCard({ film }: { film: RollFilm }) {
   return (
     <div
       className={cn(
