@@ -218,8 +218,6 @@ Monorepo with `cineroll/` root containing:
 - [x] Create `backend/src/routes/random.ts` with:
   - [x] GET /api/random (return a random film from database — no filters)
   - [x] GET /api/random accepts all the same filter params as /api/films — when filters are present, pick one random film from the matching set; when no filters, pick from full dataset
-        //////////////////////////////////////////////////////////////////////
-
 - [x] Create `backend/src/routes/roll.ts` with:
   - [x] POST /api/roll (log a roll event when user clicks Roll button)
 - [x] Create `backend/src/routes/pickOfDay.ts` with:
@@ -230,6 +228,7 @@ Monorepo with `cineroll/` root containing:
   - [x] Prisma queries to fetch data from database
   - [x] Error handling with appropriate HTTP status codes
   - [x] Consistent response format
+        //////////////////////////////////////////////////////////////////////
 - [x] Create `backend/src/middleware/errorHandler.ts` to catch all errors and return consistent error responses
 - [x] Create `backend/src/middleware/validate.ts` to validate requests against Zod schemas
 - [x] Mount all routes in `backend/src/app.ts`
