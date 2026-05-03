@@ -215,6 +215,22 @@ filmsRouter.get("/", validate(listQuerySchema), async (req, res) => {
   });
 });
 
+filmsRouter.get("/categories", async (_req, res) => {
+  const rows = await prisma.$queryRaw<{ category: string }[]>`
+    SELECT DISTINCT award->>'category' AS category
+    FROM "Film", jsonb_array_elements("Film"."oscarCategories") AS award
+    WHERE award->>'category' IS NOT NULL
+    UNION
+    SELECT DISTINCT award->>'category' AS category
+    FROM "Film", jsonb_array_elements("Film"."ggCategories") AS award
+    WHERE award->>'category' IS NOT NULL
+    ORDER BY category ASC
+  `;
+
+  setPublicCache(res, 3600);
+  res.json({ categories: rows.map(r => r.category) });
+});
+
 filmsRouter.get("/:slug", validate(slugParamsSchema, "params"), async (req, res) => {
   const { slug } = getValidated<z.infer<typeof slugParamsSchema>>(req, "params");
   const film = await prisma.film.findUnique({

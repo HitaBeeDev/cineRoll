@@ -210,10 +210,14 @@ Monorepo with `cineroll/` root containing:
     - `genre` — film genre
     - `decadeMin`/`decadeMax` — release decade range
     - `page`, `limit`
-      //////////////////////////////////////////////////////////////////////
-  - [ ] GET /api/films/categories — return distinct list of all award categories in the dataset (used to populate category dropdown in UI)
+
+  - [x] GET /api/films/categories — return distinct list of all award categories in the dataset (used to populate category dropdown in UI)
+
+        //////////////////////////////////////////////////////////////////////
+
   - [ ] GET /api/films/award-years — return sorted list of all distinct ceremony years in the dataset (used to populate award year dropdown)
   - [x] GET /api/films/:slug (get single film by slug with full details including all AwardRecord arrays)
+
 - [x] Create `backend/src/routes/random.ts` with:
   - [x] GET /api/random (return a random film from database — no filters)
   - [ ] GET /api/random accepts all the same filter params as /api/films — when filters are present, pick one random film from the matching set; when no filters, pick from full dataset
@@ -644,7 +648,7 @@ Run this section after the app is fully built and deployed. Lighthouse results o
 ### Backend
 
 - [ ] Backend API returns proper error responses for invalid requests
-- [ ] GET /api/films/categories returns distinct category list
+- [x] GET /api/films/categories returns distinct category list
 - [ ] GET /api/films/award-years returns sorted ceremony year list
 
 ### Deployment
