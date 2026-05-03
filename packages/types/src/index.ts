@@ -1,8 +1,11 @@
-export interface AwardCategory {
+export interface AwardRecord {
+  awardYear: number;
   category: string;
-  year: number;
+  nominee: string;
   won: boolean;
 }
+
+export type AwardCategory = AwardRecord;
 
 export interface Film {
   id: string;
@@ -10,6 +13,8 @@ export interface Film {
   tmdbId: number | null;
   imdbId: string | null;
   title: string;
+  releaseYear: number;
+  /** Alias used by the current database/API shape. */
   year: number;
   runtime: number | null;
   genres: string[];
@@ -24,10 +29,10 @@ export interface Film {
   rtScore: number | null;
   oscarNominations: number;
   oscarWins: number;
-  oscarCategories: AwardCategory[];
+  oscarCategories: AwardRecord[];
   ggNominations: number;
   ggWins: number;
-  ggCategories: AwardCategory[];
+  ggCategories: AwardRecord[];
   isPickOfDay: boolean;
   pickOfDayDate: string | null;
 }
@@ -35,11 +40,22 @@ export interface Film {
 export interface RollEvent {
   id: string;
   filmId: string;
+  timestamp: string;
+  /** Alias used by the current database/API shape. */
   rolledAt: string;
 }
 
+export type AwardBody = "oscar" | "goldenglobe" | "both";
+
 export interface FilterState {
   search: string;
+  person: string;
+  director: string;
+  awardBody: AwardBody;
+  winnerOnly: boolean;
+  nominatedOnly: boolean;
+  category: string;
+  awardYear: number | null;
   genre: string;
   decadeMin: number;
   decadeMax: number;
