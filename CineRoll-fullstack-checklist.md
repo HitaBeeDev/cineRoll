@@ -224,7 +224,7 @@ Monorepo with `cineroll/` root containing:
   - [x] Random film: cache for 1 minute
   - [x] Search results: cache for 5 minutes
   - [x] Film detail: cache for 24 hours
-- [ ] Test API response times: search should complete in under 200ms, single lookups under 100ms
+- [x] Test API response times: search should complete in under 200ms, single lookups under 100ms
 - [ ] Monitor backend performance: check server logs for slow requests
 
 ---
