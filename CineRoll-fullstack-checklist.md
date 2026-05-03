@@ -342,9 +342,9 @@ Monorepo with `cineroll/` root containing:
   - Total award counts
 - [x] Embed or link YouTube trailer if available
 - [x] Add SEO metadata: dynamic title, description, Open Graph images, Twitter cards
-- [ ] Create 404 page if film slug not found
-- [ ] Make responsive: stack all content vertically on mobile, use grid layout on desktop
-- [ ] Add "Back to Browse" or "Roll Again" navigation buttons
+- [x] Create 404 page if film slug not found
+- [x] Make responsive: stack all content vertically on mobile, use grid layout on desktop
+- [x] Add "Back to Browse" or "Roll Again" navigation buttons
 
 ---
 
@@ -669,6 +669,103 @@ Run this section after the app is fully built and deployed. Lighthouse results o
 - Page load time: First Contentful Paint < 2 seconds
 - Code coverage: > 70% (aim for > 80%)
 - Accessibility: WCAG AA compliance
+
+---
+
+---
+
+## 17. Google Search Ranking (SEO)
+
+Run this section after deployment. These steps go beyond Lighthouse's basic SEO score and target actual Google ranking for searches like "oscar nominated films filter", "random award winning movie", "golden globe movies by actor", etc.
+
+### Structured Data — Help Google Understand Your Content
+
+- [ ] Add **Movie schema** (JSON-LD) to every film detail page: title, description, dateCreated, genre, director, actor, aggregateRating (IMDB score). This enables rich results in Google (star ratings shown in search snippets)
+- [ ] Add **BreadcrumbList schema** to film detail pages so Google shows breadcrumb paths in results (e.g. CineRoll › Browse › The Godfather)
+- [ ] Add **WebSite schema** with a `SearchAction` on the home page so Google can surface a sitelinks search box directly in search results
+- [ ] Add **FAQPage schema** on the home/browse page with questions like "How do I find Oscar-winning films by actor?" to capture featured snippet real estate
+- [ ] Test all structured data using [Google's Rich Results Test](https://search.google.com/test/rich-results) — fix any errors before going live
+- [ ] Validate with [Schema.org Validator](https://validator.schema.org/) as well
+
+### Google Search Console — Submit & Monitor
+
+- [ ] Create a Google Search Console property and verify ownership (add verification meta tag or DNS TXT record)
+- [ ] Submit your `sitemap.xml` in Search Console → Sitemaps
+- [ ] Request indexing for the home page, browse page, and a sample film page via URL Inspection tool
+- [ ] Monitor the Coverage report weekly for crawl errors or pages blocked by robots.txt
+- [ ] Check the Core Web Vitals report in Search Console — it shows field data from real users, not just Lighthouse lab data
+- [ ] Set up email alerts in Search Console for manual actions or security issues
+
+### Sitemap — Make Every Page Discoverable
+
+- [ ] Generate a dynamic `sitemap.xml` from Next.js that includes: home, browse, and all `/film/[slug]` pages (use `generateSitemaps` in App Router or a next-sitemap package)
+- [ ] Include `<lastmod>` dates in the sitemap so Google knows when pages were last updated
+- [ ] Split into sitemap index if there are over 1000 film pages
+- [ ] Reference the sitemap in `robots.txt`: `Sitemap: https://yourdomain.com/sitemap.xml`
+- [ ] Ping Google after deploy: `https://www.google.com/ping?sitemap=https://yourdomain.com/sitemap.xml`
+
+### Page Content — Give Google Something to Rank
+
+- [ ] Each film detail page must have unique text content beyond just metadata — include full plot, full award history, cast list. Thin pages don't rank.
+- [ ] Write keyword-rich `<title>` tags for each page type:
+  - Home: "CineRoll — Roll a Random Award-Winning Film | Oscar & Golden Globe Filter"
+  - Browse: "Browse Oscar & Golden Globe Films — Filter by Actor, Category, Year | CineRoll"
+  - Film detail: "[Film Title] ([Year]) — Oscar & Golden Globe History | CineRoll"
+- [ ] Write unique `<meta name="description">` for each page (150–160 chars), including the film's award count and a call to action
+- [ ] Add an `<h1>` on every page that matches the primary keyword for that page — never leave it as a generic title
+- [ ] On the browse/home page, add a short paragraph (100–150 words) explaining what CineRoll does, using natural language with keywords like "Oscar-nominated films", "filter by award year", "random Golden Globe winner"
+- [ ] Add text-based award summaries on film cards in the browse grid (not just images) — Google can't read images
+
+### Internal Linking — Connect Your Pages
+
+- [ ] On every film detail page, link to related films: same director, same genre, same ceremony year (e.g. "Other 1994 Oscar nominees")
+- [ ] From the home page, link to pre-filtered browse views: "Browse all Best Picture winners", "Browse Coen Brothers films"
+- [ ] Add a footer with links to key browse filters (top genres, top decades, top categories)
+- [ ] Ensure every film card in the browse grid links to the film's detail page with a descriptive anchor (film title, not "click here")
+
+### URL & Crawlability
+
+- [ ] Confirm all film slugs are human-readable and keyword-rich (e.g. `/film/the-godfather-1972`, not `/film/abc123`)
+- [ ] Add `<link rel="canonical">` on every page to prevent duplicate content from URL parameter variations
+- [ ] Ensure paginated browse pages use canonical or `rel="next"` / `rel="prev"` links so Google understands pagination
+- [ ] Verify `robots.txt` allows crawling of all pages you want indexed; block `/api/*` to avoid indexing API routes
+- [ ] Test crawlability with Google Search Console URL Inspection — confirm "Page is indexable"
+
+### Mobile-First — Google Indexes Mobile Version
+
+- [ ] Confirm no content is hidden on mobile that is visible on desktop — Google uses the mobile version for indexing
+- [ ] Check that font sizes are readable on mobile without zooming (minimum 16px body text)
+- [ ] Verify tap targets (buttons, links) are at least 48×48px on mobile
+- [ ] Test with Google's Mobile-Friendly Test tool
+
+### Performance as a Ranking Signal
+
+- [ ] Achieve Core Web Vitals "Good" thresholds on mobile (from real field data, not just Lighthouse):
+  - LCP < 2.5s
+  - INP < 200ms
+  - CLS < 0.1
+- [ ] Enable ISR (Incremental Static Regeneration) for film detail pages in Next.js so they serve as fast static HTML to Googlebot
+- [ ] Ensure TTFB (Time to First Byte) is under 600ms for the home page — slow TTFB directly hurts crawl budget
+
+### Backlinks & Authority — Get Other Sites to Link to You
+
+- [ ] Add the live URL to your GitHub profile and repository README
+- [ ] Share on LinkedIn, Twitter/X, and any relevant communities (r/webdev, r/movies) — social signals help initial indexing
+- [ ] Submit to portfolio aggregators and developer showcases (Hacker News "Show HN", Product Hunt, etc.)
+- [ ] Write a short blog post or dev.to article about building CineRoll — link back to the site (content marketing + backlink)
+- [ ] Add to your portfolio site with a descriptive link (not just "CineRoll" — use "Oscar & Golden Globe film discovery app")
+
+### Bing & Other Search Engines
+
+- [ ] Submit to **Bing Webmaster Tools** as well — Bing powers Yahoo and DuckDuckGo, adding meaningful traffic
+- [ ] Verify site in Bing, submit sitemap, and check for crawl errors
+
+### Ongoing Monitoring
+
+- [ ] Check Google Search Console → Performance → Queries weekly to see which searches bring visitors
+- [ ] Set up Google Analytics 4 to track organic traffic separately from direct/referral
+- [ ] Monitor ranking for target queries using a free rank tracker (Google Search Console works for basic tracking)
+- [ ] If a page ranks on page 2–3 for a relevant query, improve its content and internal links to push it to page 1
 
 ---
 

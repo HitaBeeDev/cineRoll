@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowLeft, Star, Trophy, Clock, Globe, Users, Clapperboard, ExternalLink, PlayCircle } from "lucide-react";
 import type { Film, AwardRecord } from "@cineroll/types";
 import { cn } from "@/lib/utils";
+import { RollAgainButton } from "@/components/roll-again-button";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 
@@ -88,16 +89,18 @@ export default async function FilmPage({
     <div className="flex flex-col min-h-screen bg-zinc-950 text-zinc-100">
       <header className="sticky top-0 z-10 flex items-center justify-between px-5 sm:px-8 py-4 border-b border-zinc-800/60 bg-zinc-950/90 backdrop-blur-sm">
         <Link
-          href="/"
+          href="/browse"
           className={cn(
             "flex items-center gap-2 text-sm text-zinc-400 hover:text-zinc-100 transition-colors",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 rounded"
           )}
         >
           <ArrowLeft className="h-4 w-4" aria-hidden />
-          Back
+          Browse
         </Link>
-        <span className="text-xl font-bold tracking-tight text-amber-400">CineRoll</span>
+        <Link href="/" className="text-xl font-bold tracking-tight text-amber-400 hover:text-amber-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 rounded">
+          CineRoll
+        </Link>
         <div className="w-14" aria-hidden />
       </header>
 
@@ -230,141 +233,164 @@ export default async function FilmPage({
             </div>
           </div>
 
-          {/* Trailer */}
-          {film.trailerUrl && (
-            <section className="mt-10">
-              <h2 className="flex items-center gap-2 text-xs font-semibold tracking-widest uppercase text-zinc-500 mb-3">
-                <PlayCircle className="h-3.5 w-3.5" aria-hidden />
-                Trailer
-              </h2>
-              {youtubeId ? (
-                <div className="overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900">
-                  <div className="relative aspect-video w-full">
-                    <iframe
-                      src={`https://www.youtube-nocookie.com/embed/${youtubeId}`}
-                      title={`${film.title} trailer`}
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                      allowFullScreen
-                      className="absolute inset-0 h-full w-full"
-                    />
+          {/* Two-column grid on desktop: left = trailer + plot, right = cast + awards + links */}
+          <div className="mt-10 grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-x-10 gap-y-10">
+            {/* Left column */}
+            <div className="flex flex-col gap-10">
+              {/* Trailer */}
+              {film.trailerUrl && (
+                <section>
+                  <h2 className="flex items-center gap-2 text-xs font-semibold tracking-widest uppercase text-zinc-500 mb-3">
+                    <PlayCircle className="h-3.5 w-3.5" aria-hidden />
+                    Trailer
+                  </h2>
+                  {youtubeId ? (
+                    <div className="overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900">
+                      <div className="relative aspect-video w-full">
+                        <iframe
+                          src={`https://www.youtube-nocookie.com/embed/${youtubeId}`}
+                          title={`${film.title} trailer`}
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                          allowFullScreen
+                          className="absolute inset-0 h-full w-full"
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <a
+                      href={film.trailerUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={cn(
+                        "inline-flex items-center gap-2 rounded-xl border border-zinc-700 bg-zinc-800",
+                        "hover:bg-zinc-700 transition-colors px-4 py-2 text-sm font-medium text-zinc-100",
+                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
+                      )}
+                    >
+                      <ExternalLink className="h-4 w-4" aria-hidden />
+                      Watch Trailer
+                    </a>
+                  )}
+                  {youtubeId && (
+                    <a
+                      href={film.trailerUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={cn(
+                        "inline-flex items-center gap-1.5 mt-2",
+                        "text-xs text-zinc-500 hover:text-zinc-300 transition-colors",
+                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 rounded"
+                      )}
+                    >
+                      <ExternalLink className="h-3 w-3" aria-hidden />
+                      Watch on YouTube
+                    </a>
+                  )}
+                </section>
+              )}
+
+              {/* Plot */}
+              {film.plot && (
+                <section>
+                  <h2 className="text-xs font-semibold tracking-widest uppercase text-zinc-500 mb-3">
+                    Plot
+                  </h2>
+                  <p className="text-zinc-300 leading-relaxed">{film.plot}</p>
+                </section>
+              )}
+            </div>
+
+            {/* Right column */}
+            <div className="flex flex-col gap-10">
+              {/* Cast */}
+              {film.cast.length > 0 && (
+                <section>
+                  <h2 className="flex items-center gap-2 text-xs font-semibold tracking-widest uppercase text-zinc-500 mb-3">
+                    <Users className="h-3.5 w-3.5" aria-hidden />
+                    Cast
+                  </h2>
+                  <div className="flex flex-wrap gap-2">
+                    {film.cast.map((name) => (
+                      <span
+                        key={name}
+                        className="rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-1.5 text-sm text-zinc-300"
+                      >
+                        {name}
+                      </span>
+                    ))}
                   </div>
-                </div>
-              ) : (
-                <a
-                  href={film.trailerUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={cn(
-                    "inline-flex items-center gap-2 rounded-xl border border-zinc-700 bg-zinc-800",
-                    "hover:bg-zinc-700 transition-colors px-4 py-2 text-sm font-medium text-zinc-100",
-                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
-                  )}
-                >
-                  <ExternalLink className="h-4 w-4" aria-hidden />
-                  Watch Trailer
-                </a>
+                </section>
               )}
-              {youtubeId && (
-                <a
-                  href={film.trailerUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={cn(
-                    "inline-flex items-center gap-1.5 mt-2",
-                    "text-xs text-zinc-500 hover:text-zinc-300 transition-colors",
-                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 rounded"
-                  )}
-                >
-                  <ExternalLink className="h-3 w-3" aria-hidden />
-                  Watch on YouTube
-                </a>
-              )}
-            </section>
-          )}
 
-          {/* Plot */}
-          {film.plot && (
-            <section className="mt-10">
-              <h2 className="text-xs font-semibold tracking-widest uppercase text-zinc-500 mb-3">
-                Plot
-              </h2>
-              <p className="text-zinc-300 leading-relaxed">{film.plot}</p>
-            </section>
-          )}
-
-          {/* Cast */}
-          {film.cast.length > 0 && (
-            <section className="mt-10">
-              <h2 className="flex items-center gap-2 text-xs font-semibold tracking-widest uppercase text-zinc-500 mb-3">
-                <Users className="h-3.5 w-3.5" aria-hidden />
-                Cast
-              </h2>
-              <div className="flex flex-wrap gap-2">
-                {film.cast.map((name) => (
-                  <span
-                    key={name}
-                    className="rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-1.5 text-sm text-zinc-300"
-                  >
-                    {name}
-                  </span>
-                ))}
-              </div>
-            </section>
-          )}
-
-          {/* Awards */}
-          {hasAwards && (
-            <section className="mt-10">
-              <h2 className="flex items-center gap-2 text-xs font-semibold tracking-widest uppercase text-zinc-500 mb-4">
-                <Trophy className="h-3.5 w-3.5" aria-hidden />
-                Awards
-              </h2>
-              <div className="flex flex-col gap-6">
-                {film.oscarNominations > 0 && (
-                  <AwardSection
-                    title="Academy Awards"
-                    wins={film.oscarWins}
-                    nominations={film.oscarNominations}
-                    records={oscarAwards}
-                  />
-                )}
-                {film.ggNominations > 0 && (
-                  <AwardSection
-                    title="Golden Globes"
-                    wins={film.ggWins}
-                    nominations={film.ggNominations}
-                    records={ggAwards}
-                  />
-                )}
-              </div>
-            </section>
-          )}
-
-          {/* External links */}
-          {(film.imdbId) && (
-            <section className="mt-10">
-              <h2 className="text-xs font-semibold tracking-widest uppercase text-zinc-500 mb-3">
-                External Links
-              </h2>
-              <div className="flex flex-wrap gap-3">
-                {film.imdbId && (
-                  <a
-                    href={`https://www.imdb.com/title/${film.imdbId}/`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={cn(
-                      "inline-flex items-center gap-2 rounded-lg border border-zinc-700 bg-zinc-900",
-                      "px-4 py-2 text-sm text-zinc-300 hover:text-zinc-100 hover:border-zinc-600 transition-colors",
-                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
+              {/* Awards */}
+              {hasAwards && (
+                <section>
+                  <h2 className="flex items-center gap-2 text-xs font-semibold tracking-widest uppercase text-zinc-500 mb-4">
+                    <Trophy className="h-3.5 w-3.5" aria-hidden />
+                    Awards
+                  </h2>
+                  <div className="flex flex-col gap-6">
+                    {film.oscarNominations > 0 && (
+                      <AwardSection
+                        title="Academy Awards"
+                        wins={film.oscarWins}
+                        nominations={film.oscarNominations}
+                        records={oscarAwards}
+                      />
                     )}
-                  >
-                    <ExternalLink className="h-3.5 w-3.5" aria-hidden />
-                    IMDb
-                  </a>
-                )}
-              </div>
-            </section>
-          )}
+                    {film.ggNominations > 0 && (
+                      <AwardSection
+                        title="Golden Globes"
+                        wins={film.ggWins}
+                        nominations={film.ggNominations}
+                        records={ggAwards}
+                      />
+                    )}
+                  </div>
+                </section>
+              )}
+
+              {/* External links */}
+              {film.imdbId && (
+                <section>
+                  <h2 className="text-xs font-semibold tracking-widest uppercase text-zinc-500 mb-3">
+                    External Links
+                  </h2>
+                  <div className="flex flex-wrap gap-3">
+                    <a
+                      href={`https://www.imdb.com/title/${film.imdbId}/`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={cn(
+                        "inline-flex items-center gap-2 rounded-lg border border-zinc-700 bg-zinc-900",
+                        "px-4 py-2 text-sm text-zinc-300 hover:text-zinc-100 hover:border-zinc-600 transition-colors",
+                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
+                      )}
+                    >
+                      <ExternalLink className="h-3.5 w-3.5" aria-hidden />
+                      IMDb
+                    </a>
+                  </div>
+                </section>
+              )}
+            </div>
+          </div>
+
+          {/* Bottom navigation */}
+          <div className="mt-14 pt-8 border-t border-zinc-800 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link
+              href="/browse"
+              className={cn(
+                "inline-flex items-center justify-center gap-2 rounded-xl border border-zinc-700",
+                "px-5 py-2.5 text-sm font-medium text-zinc-300 hover:text-zinc-100 hover:border-zinc-500 transition-colors",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
+              )}
+            >
+              <ArrowLeft className="h-4 w-4" aria-hidden />
+              Back to Browse
+            </Link>
+            <RollAgainButton />
+          </div>
         </div>
       </main>
     </div>
