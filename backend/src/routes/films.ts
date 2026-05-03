@@ -12,6 +12,7 @@ const filmListSelect = Prisma.sql`
   "Film"."id",
   "Film"."slug",
   "Film"."title",
+  "Film"."year" AS "releaseYear",
   "Film"."year",
   "Film"."genres",
   "Film"."posterUrl",
@@ -25,7 +26,7 @@ const filmDetailSelect = {
   tmdbId: true,
   imdbId: true,
   title: true,
-  year: true,
+  releaseYear: true,
   runtime: true,
   genres: true,
   plot: true,
@@ -192,5 +193,5 @@ filmsRouter.get("/:slug", validate(slugParamsSchema, "params"), async (req, res)
   }
 
   setPublicCache(res, 86_400);
-  res.json(film);
+  res.json({ ...film, year: film.releaseYear });
 });

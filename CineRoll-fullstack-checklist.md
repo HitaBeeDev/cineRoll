@@ -117,8 +117,6 @@ Monorepo with `cineroll/` root containing:
 
 ---
 
-///////////////////////////////////////////////////
-
 ## 4. Backend — Database & Prisma
 
 - [x] Create `backend/prisma/schema.prisma` with Prisma schema definition
@@ -132,6 +130,8 @@ Monorepo with `cineroll/` root containing:
 - [x] Create `backend/src/lib/prisma.ts` as a singleton instance of Prisma client for reuse across routes
 
 ---
+
+///////////////////////////////////////////////////
 
 ## 5. Backend — Film Data Pipeline
 

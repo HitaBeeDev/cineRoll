@@ -12,7 +12,7 @@ model Film {
   tmdbId           Int?        @unique
   imdbId           String?     @unique
   title            String
-  year             Int
+  releaseYear      Int         @map("year")
   runtime          Int?
   genres           String[]
   plot             String?
@@ -41,7 +41,7 @@ model RollEvent {
   id       String   @id @default(cuid())
   filmId   String
   film     Film     @relation(fields: [filmId], references: [id])
-  rolledAt DateTime @default(now())
+  timestamp DateTime @default(now()) @map("rolledAt")
 
-  @@index([filmId, rolledAt])
+  @@index([filmId, timestamp], map: "RollEvent_filmId_rolledAt_idx")
 }

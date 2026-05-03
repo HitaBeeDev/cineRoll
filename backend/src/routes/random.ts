@@ -9,7 +9,7 @@ const randomFilmSelect = {
   id: true,
   slug: true,
   title: true,
-  year: true,
+  releaseYear: true,
   runtime: true,
   genres: true,
   plot: true,
@@ -36,5 +36,5 @@ randomRouter.get("/", async (_req, res) => {
   }
 
   setPublicCache(res, 60);
-  res.json(film);
+  res.json({ ...film, year: film.releaseYear });
 });

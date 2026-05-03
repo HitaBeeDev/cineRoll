@@ -26,5 +26,5 @@ rollRouter.post("/", validate(rollBodySchema, "body"), async (req, res) => {
     data: { filmId },
   });
 
-  res.status(201).json(event);
+  res.status(201).json({ ...event, rolledAt: event.timestamp });
 });

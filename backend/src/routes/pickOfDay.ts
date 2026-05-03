@@ -9,7 +9,7 @@ const pickOfDaySelect = {
   id: true,
   slug: true,
   title: true,
-  year: true,
+  releaseYear: true,
   runtime: true,
   genres: true,
   plot: true,
@@ -49,5 +49,5 @@ pickOfDayRouter.get("/", async (_req, res) => {
   }
 
   setPublicCache(res, 3_600);
-  res.json(film);
+  res.json({ ...film, year: film.releaseYear });
 });
