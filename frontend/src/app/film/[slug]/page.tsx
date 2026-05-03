@@ -37,13 +37,34 @@ export async function generateMetadata({
   const film = await fetchFilm(slug);
   if (!film) return { title: "Film Not Found" };
 
+  const title = `${film.title} (${film.year})`;
+
+  const rawDescription = film.plot
+    ?? `${film.title}${film.director ? `, directed by ${film.director}` : ""}.`;
+  const description =
+    rawDescription.length > 155
+      ? `${rawDescription.slice(0, 152)}…`
+      : rawDescription;
+
+  // Prefer backdrop for large-image social cards (landscape); fall back to poster
+  const socialImage = film.backdropUrl ?? film.posterUrl;
+
   return {
-    title: `${film.title} (${film.year})`,
-    description: film.plot ?? `Details for ${film.title}.`,
+    title,
+    description,
     openGraph: {
-      title: `${film.title} (${film.year})`,
-      description: film.plot ?? undefined,
-      images: film.posterUrl ? [film.posterUrl] : [],
+      title,
+      description,
+      type: "video.movie",
+      images: socialImage
+        ? [{ url: socialImage, alt: `${film.title} (${film.year})` }]
+        : [],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: socialImage ? [socialImage] : [],
     },
   };
 }
