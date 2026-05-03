@@ -279,7 +279,7 @@ Monorepo with `cineroll/` root containing:
   - Input/TextField component (for search)
   - Select component (for genre/decade filters)
   - Toast/Alert component (for error messages)
-- [x] Create a Filter Bar component that combines search input, genre select, and decade range sliders
+- [ ] Create a Filter Bar component — redesigned with award-first layout: person search, award body pills, won/nominated status pills, category dropdown, award year, genre, decade slider
 - [x] Create a Film Card component that displays poster, title, year, rating
 - [x] Apply consistent styling using design tokens (colors, spacing, fonts)
 - [x] Ensure all components have proper TypeScript types
@@ -309,6 +309,22 @@ Monorepo with `cineroll/` root containing:
 - [x] If filters return zero films, disable Roll button and show "No films match — adjust your filters"
 - [x] With no filters active, Roll behaves exactly as before (pure random from full dataset)
 
+### Home Page Filter Panel (Award-First Design)
+
+Filter section sits **above** the Roll button. All filters are optional — user sets what they want, then hits Roll. The "Rolling from N films" counter updates live as filters change.
+
+- [ ] Filter panel placed above Roll button (JSX done, full wiring in progress)
+- [ ] **Person / cast / director search** — single text input; searches across cast, directors, and award nominee names — e.g. "Meryl Streep" rolls only films she appeared in or was nominated for; wire to `person` param on /api/random
+- [ ] **Award body pills** — Oscar / Golden Globe / Both; wire to `awardBody` param
+- [ ] **Status pills** — All / Won / Nominated; wire to `winnerOnly` and `nominatedOnly` params
+- [ ] **Category dropdown** — populate dynamically from GET /api/films/categories (currently hardcoded placeholder list); wire to `category` param
+- [ ] **Award Year** — number input for ceremony year (e.g. 1994); wire to `awardYear` param; optionally populate options from GET /api/films/award-years
+- [ ] **Genre dropdown** — already wired; confirm it works with award filters combined
+- [ ] **Decade range slider** — already wired; confirm it works with award filters combined
+- [ ] **Active filter chips** — show one dismissible chip per active filter so the user can see and remove individual selections
+- [ ] **Clear all filters** button — resets everything to default in one click
+- [ ] Verify all filters combine correctly end-to-end: e.g. "Meryl Streep + Oscar + Won + Best Actress" returns the right films
+
 ---
 
 ## 10. Frontend — Pick of the Day
@@ -322,8 +338,6 @@ Monorepo with `cineroll/` root containing:
 - [x] Make responsive for all screen sizes
 
 ---
-
-//////////////////////////////////////////////////////////////////////
 
 ## 11. Frontend — Film Detail Pages
 
@@ -348,24 +362,28 @@ Monorepo with `cineroll/` root containing:
 
 ---
 
+//////////////////////////////////////////////////////////////////////
+
 ## 12. Frontend — Browse, Filter & Filtered Roll
 
 This is the core feature of CineRoll. The filter system is what separates the app from a simple random-picker and makes it portfolio-level. Every dimension in the award dataset should be an operable filter.
 
 ### Filter Bar
 
-- [ ] Create `src/app/browse/page.tsx` (browse page) — this page is where the full filter UI lives
-- [ ] **Person search** — free-text input that searches nominee and winner names across all AwardRecord entries (actors, actresses, directors, producers, composers, etc.). Typing "Meryl Streep" returns every film she was ever nominated or awarded for.
-- [ ] **Director search** — separate free-text field for director name (sourced from TMDB director field on Film)
-- [ ] **Film title search** — free-text input for film title
-- [ ] **Award body selector** — toggle or multi-select: Oscar only / Golden Globes only / Both
-- [ ] **Win status toggle** — three states: "All" (nominations + wins), "Won only", "Nominated only"
-- [ ] **Category dropdown** — filterable list of every distinct award category in the dataset (Best Picture, Best Director, Best Actress in a Leading Role, Best Screenplay, etc.); populated dynamically from the database
-- [ ] **Ceremony year dropdown** — filter by the year of the ceremony (awardYear field on AwardRecord), e.g. "1994 Oscars" or "2003 Golden Globes"; range from earliest to latest year in dataset
-- [ ] **Genre multi-select** — filter by film genre (from TMDB genres)
-- [ ] **Decade range** — release decade slider (1920s – 2020s)
-- [ ] **Active filter chips** — show each active filter as a dismissible chip so users know what's applied; clicking × removes that filter
-- [ ] **Clear all filters** button — resets to unfiltered state
+The same award-first filter panel used on the home page is also the core of the browse page. Filters are shared via the `FilterBar` component and `useFilters` hook.
+
+- [ ] Create `src/app/browse/page.tsx` (browse page) — full filter UI + paginated results grid
+- [ ] **Person / cast / director search** — free-text input searching nominee/winner names and director; same as home page filter (shared component)
+- [ ] **Film title search** — separate text input for film title (browse page only, in addition to person search)
+- [ ] **Award body selector** — Oscar / Golden Globe / Both pills (shared component)
+- [ ] **Win status toggle** — All / Won / Nominated pills (shared component)
+- [ ] **Category dropdown** — populated from GET /api/films/categories (shared component)
+- [ ] **Ceremony year** — filter by award ceremony year (shared component)
+- [ ] **Genre dropdown** — (shared component)
+- [ ] **Decade range slider** — (shared component)
+- [ ] **Active filter chips** — dismissible chip per active filter (shared component)
+- [ ] **Clear all filters** button (shared component)
+- [ ] Sync all filter state to URL query params so filtered browse views are shareable/bookmarkable
 
 ### Search & Filter Behavior
 
@@ -391,9 +409,12 @@ This is the core feature of CineRoll. The filter system is what separates the ap
 
 ### API Integration
 
-- [ ] Create `src/lib/api.ts` API client with typed function for `/api/films` that accepts the full FilterState
-- [ ] Create `src/hooks/useFilters.ts` to manage filter state and URL sync
-- [ ] FilterState must cover: `search` (film title), `person` (nominee/winner name), `director`, `awardBody` (oscar | goldenglobe | both), `winnerOnly` (boolean), `nominatedOnly` (boolean), `category`, `awardYear`, `genre`, `decadeMin`, `decadeMax`, `page`
+- [x] Create `src/lib/api.ts` API client with typed functions for `/api/films` and `/api/random` accepting full FilterState
+- [x] Create `src/hooks/useFilters.ts` to manage filter state
+- [ ] Add URL sync to `useFilters` — read/write all filter params to URL query string so browse views are shareable
+- [x] FilterState covers: `search`, `person`, `director`, `awardBody`, `winnerOnly`, `nominatedOnly`, `category`, `awardYear`, `genre`, `decadeMin`, `decadeMax`, `page`
+- [ ] Fetch category list from GET /api/films/categories and pass into FilterBar (currently hardcoded)
+- [ ] Fetch award years from GET /api/films/award-years and use for award year picker
 
 ---
 

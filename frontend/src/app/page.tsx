@@ -102,6 +102,19 @@ export default function HomePage() {
             Roll for a random award-winning film you might have missed.
           </p>
 
+          <FilterBar
+            filters={filters}
+            genres={genres}
+            onFiltersChange={setFilter}
+            className="w-full"
+          />
+
+          <RollIndicator
+            hasActiveFilters={hasActiveFilters}
+            count={effectiveCount}
+            loading={isCountLoading}
+          />
+
           <Button
             size="lg"
             variant="primary"
@@ -109,7 +122,7 @@ export default function HomePage() {
             disabled={isRollDisabled}
             aria-label={isRolling ? "Rolling…" : "Roll for a random film"}
             className={cn(
-              "mt-3 gap-3 px-10 h-14 text-lg sm:h-16 sm:text-xl sm:px-14",
+              "mt-1 gap-3 px-10 h-14 text-lg sm:h-16 sm:text-xl sm:px-14",
               "rounded-2xl shadow-lg shadow-amber-400/20"
             )}
           >
@@ -119,19 +132,6 @@ export default function HomePage() {
             />
             {isRolling ? "Rolling…" : "Roll"}
           </Button>
-
-          <RollIndicator
-            hasActiveFilters={hasActiveFilters}
-            count={effectiveCount}
-            loading={isCountLoading}
-          />
-
-          <FilterBar
-            filters={filters}
-            genres={genres}
-            onFiltersChange={setFilter}
-            className="w-full"
-          />
         </section>
 
         {/* Roll result */}
