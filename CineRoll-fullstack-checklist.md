@@ -242,8 +242,8 @@ Monorepo with `cineroll/` root containing:
 - [x] Create frontend `.env.local` with NEXT_PUBLIC_API_URL (backend API URL)
 - [x] Create frontend `.env.example` as template
 - [x] Setup global styles using Tailwind CSS
-- [ ] Define CSS variables for color scheme, spacing, typography
-- [ ] Create root layout in `src/app/layout.tsx` with head, body, and theme provider setup
+- [x] Define CSS variables for color scheme, spacing, typography
+- [x] Create root layout in `src/app/layout.tsx` with head, body, and theme provider setup
 - [x] Add ESLint configuration to frontend
 
 ---
