@@ -328,8 +328,8 @@ Monorepo with `cineroll/` root containing:
 ## 11. Frontend — Film Detail Pages
 
 - [x] Create `src/app/film/[slug]/page.tsx` dynamic route
-- [ ] Fetch film data by slug from `/api/films/:slug` endpoint
-- [ ] Display complete film information:
+- [x] Fetch film data by slug from `/api/films/:slug` endpoint
+- [x] Display complete film information:
   - Large poster and backdrop images
   - Title, year, runtime, genres
   - Director and main cast
