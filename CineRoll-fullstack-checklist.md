@@ -167,8 +167,6 @@ Monorepo with `cineroll/` root containing:
 - [x] Validate output: verify all slugs are unique, spot-check entries for data quality
 - [x] Save validated result as `backend/data/films-final.json` (do not overwrite after seeding)
 
-///////////////////////////////////////////////////
-
 ### 5c. Seed Database
 
 - [x] Create `backend/src/scripts/seed.ts` that:
@@ -178,6 +176,8 @@ Monorepo with `cineroll/` root containing:
 - [x] Run seed script: `npm run db:seed --workspace=backend`
 - [x] Verify in Neon PostgreSQL console that row count matches films-final.json length
 - [x] Spot-check 5 films by querying database
+
+///////////////////////////////////////////////////
 
 ### 5d. Database Performance Optimization
 
