@@ -4,18 +4,20 @@
 
 ## Application Summary
 
-**CineRoll** is a film discovery web app built around a single core interaction: press **Roll**, get a random award-winning film you might have missed.
+**CineRoll** is a film discovery web app whose core value is **deep award-data filtering**. Users can slice the full catalogue by every dimension the dataset provides — nominee name, director, award body, category, win/nomination status, ceremony year, genre, and decade — and then either browse results or roll a random film from within that filtered set.
 
 ### What it does
 
-- **Roll** — The main feature. One button returns a random film from the curated dataset, complete with poster, ratings, director, cast, plot, and award history.
-- **Pick of the Day** — A manually curated featured film shown on the home page each day, selected from the dataset.
-- **Browse & Search** — Users can explore the full catalogue filtered by title search, genre, and decade range, with paginated results.
-- **Film Detail Pages** — Each film has a dedicated page (`/film/:slug`) showing full metadata: backdrop, trailer, IMDB/RT ratings, Oscar and Golden Globe history by category and year.
+- **Advanced Award Filtering** — The primary feature. Users compose filters from: award body (Oscar / Golden Globe), win vs. nomination status, specific category (Best Picture, Best Director, Best Actress, etc.), ceremony year, nominee or winner name, director name, genre, and release decade. Any combination of filters can be active at once.
+- **Filtered Roll** — Once filters are set, the Roll button picks a random film from within the filtered results. "Roll me a Cate Blanchett Oscar-nominated film from the 2000s" is a valid interaction.
+- **Pure Roll (no filters)** — With no filters active, Roll returns a completely random film from the full dataset. Simple discovery without setup.
+- **Browse & Paginate** — Filtered results are shown as a paginated grid so users can explore instead of (or in addition to) rolling.
+- **Film Detail Pages** — Each film has a dedicated page (`/film/:slug`) showing full metadata: backdrop, trailer, IMDB/RT ratings, and a complete Oscar and Golden Globe history broken down by category and year.
+- **Pick of the Day** — A manually curated featured film shown on the home page each day.
 
 ### The Dataset
 
-Two hand-curated CSV files — one for Oscar records, one for Golden Globe records. Each row is a single nomination or win with: a unique award ID (`OSC-` / `GG-` prefix), the ceremony year, the film title, the film's release year, the award category, the nominee's name, and whether they won. The enrich script groups these records by film, calculates counts, and enriches each unique film via TMDB (poster, backdrop, runtime, genres, director, cast, trailer) and OMDB (IMDB rating, Rotten Tomatoes score). The final dataset is seeded into PostgreSQL.
+Two hand-curated CSV files — one for Oscar records, one for Golden Globe records. Each row is a single nomination or win with: a unique award ID (`OSC-` / `GG-` prefix), the ceremony year, the film title, the film's release year, the award category, the nominee's name, and whether they won. The enrich script groups these records by film, calculates counts, and enriches each unique film via TMDB (poster, backdrop, runtime, genres, director, cast, trailer) and OMDB (IMDB rating, Rotten Tomatoes score). The final dataset is seeded into PostgreSQL. **Every AwardRecord stored for each film — nominee name, category, year, win flag — is a filterable dimension available to the user.**
 
 ### Stack
 
@@ -56,10 +58,11 @@ Monorepo with `cineroll/` root containing:
 9. Frontend — Roll Feature
 10. Frontend — Pick of the Day
 11. Frontend — Film Detail Pages
-12. Frontend — Browse & Search
+12. Frontend — Browse, Filter & Filtered Roll
 13. Frontend — Pages & Routing
 14. Deployment
 15. Documentation
+16. Performance & Lighthouse Audit
 
 ---
 
@@ -72,7 +75,7 @@ Monorepo with `cineroll/` root containing:
 - [x] Install root-level dev dependencies: Husky (for git hooks), lint-staged (for pre-commit linting), commitlint (for commit message validation), and concurrently (to run frontend + backend together)
 - [x] Initialize Husky to set up git hooks infrastructure
 - [x] Configure commit message linting with Conventional Commits format (feat:, fix:, docs:, etc.)
-- [ ] Add pre-commit hook to run linting on staged TypeScript and TSX files
+- [x] Add pre-commit hook to run linting on staged TypeScript and TSX files
 - [x] Create root `tsconfig.base.json` with strict TypeScript settings (strict mode, noUncheckedIndexedAccess, exactOptionalPropertyTypes, etc.)
 - [x] Add workspace scripts to root `package.json`: `npm run dev` (runs backend + frontend concurrently), `npm run build`, `npm run lint`, `npm run type-check`
 - [x] Verify monorepo is working by running `npm ls --workspaces`; should list all three workspaces
@@ -88,7 +91,7 @@ Monorepo with `cineroll/` root containing:
   - AwardRecord interface: `{ awardYear: number; category: string; nominee: string; won: boolean }` — one record per nomination/win, stored in oscarCategories / ggCategories JSON arrays
   - Film interface (id, slug, tmdbId, imdbId, title, releaseYear, runtime, genres array, plot, director, cast array, language, poster URL, backdrop URL, trailer URL, IMDB rating, Rotten Tomatoes score, Oscar nominations/wins/categories, Golden Globe nominations/wins/categories, pick of day flag and date)
   - RollEvent interface (id, filmId, timestamp)
-  - FilterState interface (search — matches film title OR nominee name, genre, decadeMin/Max, awardYear, category, winnerOnly toggle, page number)
+  - FilterState interface: `search` (film title), `person` (nominee/winner name — searches all AwardRecord entries), `director` (director name), `awardBody` ("oscar" | "goldenglobe" | "both"), `winnerOnly` (boolean), `nominatedOnly` (boolean), `category` (award category string), `awardYear` (ceremony year number), `genre` (string), `decadeMin`/`decadeMax` (release decade), `page` (number)
   - PaginatedFilms interface (films array, total count, current page, total pages)
   - ApiError interface (error message, error code)
 - [x] Build the types package: run TypeScript compiler
@@ -193,10 +196,24 @@ Monorepo with `cineroll/` root containing:
 
 - [x] Create `backend/src/routes/index.ts` that exports a router with all sub-routes mounted
 - [x] Create `backend/src/routes/films.ts` with:
-  - [x] GET /api/films (search with filters: `search` — matches film title OR nominee name, `genre`, `decadeMin`/`decadeMax` — release year range, `awardYear` — ceremony year, `category` — award category, `winnerOnly` — boolean to show only films where someone won vs all nominees, `page`, `limit`)
+  - [x] GET /api/films (search with filters — all combinable):
+    - `search` — film title text search
+    - `person` — nominee or winner name (searches all AwardRecord entries across oscarCategories + ggCategories)
+    - `director` — director name (matches Film.director field)
+    - `awardBody` — "oscar" | "goldenglobe" | "both"
+    - `winnerOnly` — boolean, show only films with at least one win
+    - `nominatedOnly` — boolean, show films with nominations (won or not)
+    - `category` — award category string (e.g. "Best Actress in a Leading Role")
+    - `awardYear` — ceremony year (matches AwardRecord.awardYear)
+    - `genre` — film genre
+    - `decadeMin`/`decadeMax` — release decade range
+    - `page`, `limit`
+  - [ ] GET /api/films/categories — return distinct list of all award categories in the dataset (used to populate category dropdown in UI)
+  - [ ] GET /api/films/award-years — return sorted list of all distinct ceremony years in the dataset (used to populate award year dropdown)
   - [x] GET /api/films/:slug (get single film by slug with full details including all AwardRecord arrays)
 - [x] Create `backend/src/routes/random.ts` with:
-  - [x] GET /api/random (return a random film from database)
+  - [x] GET /api/random (return a random film from database — no filters)
+  - [ ] GET /api/random accepts all the same filter params as /api/films — when filters are present, pick one random film from the matching set; when no filters, pick from full dataset
 - [x] Create `backend/src/routes/roll.ts` with:
   - [x] POST /api/roll (log a roll event when user clicks Roll button)
 - [x] Create `backend/src/routes/pickOfDay.ts` with:
@@ -248,7 +265,7 @@ Monorepo with `cineroll/` root containing:
 
 ---
 
-## 8. Frontend — Base Components & Performance Optimization
+## 8. Frontend — Base Components
 
 - [x] Create reusable UI components in `src/components/ui/`:
   - Button component (primary, secondary variants, sizes)
@@ -264,89 +281,6 @@ Monorepo with `cineroll/` root containing:
 - [x] Ensure all components have proper TypeScript types
 - [x] Ensure accessibility: ARIA labels, semantic HTML, keyboard navigation
 
-### Performance: Image Optimization (Lighthouse Metric: LCP)
-
-- [ ] Use Next.js Image component for all images (poster, backdrop, etc.) instead of HTML img tag
-- [ ] Image component automatically handles: lazy loading, responsive srcset, format optimization (WebP), caching
-- [ ] Set explicit width and height on all Next.js Image components to prevent layout shift
-- [ ] Configure image sizes in `next.config.js` to serve appropriately sized images for different breakpoints
-- [ ] Use TMDB image optimization: prioritize small poster sizes, use thumbnail for initial load then higher resolution
-- [ ] Add placeholder blur while images load (blurDataURL or placeholder="blur")
-- [ ] Test: run Lighthouse, verify Largest Contentful Paint (LCP) is under 2.5 seconds
-
-### Performance: Code Splitting & Bundle Size (Lighthouse Metric: FID/INP)
-
-- [ ] Use dynamic imports for heavy components (FilmModal, FilmDetail, etc.) with React.lazy()
-- [ ] Use Suspense boundaries with loading fallbacks for dynamic imports
-- [ ] Split API calls: don't load unnecessary data on initial page load
-- [ ] Defer non-critical JavaScript: analytics, tracking scripts should load after hydration
-- [ ] Remove unused dependencies: audit package.json for unused packages
-- [ ] Use tree-shaking: import only what you need from libraries
-- [ ] Check bundle size: use `next/bundle-analyzer` or similar tool
-- [ ] Target: keep main bundle under 200KB gzipped, all chunks under 250KB gzipped
-- [ ] Test: run Lighthouse, verify First Input Delay (FID) under 100ms
-
-### Performance: CSS Optimization (Lighthouse Metric: CLS)
-
-- [ ] Minimize CSS using Tailwind CSS (production build automatically purges unused styles)
-- [ ] Avoid inline styles; use Tailwind classes instead
-- [ ] Minimize custom CSS in global styles
-- [ ] Set explicit dimensions (width/height) on all media elements to prevent Cumulative Layout Shift (CLS)
-- [ ] Test: run Lighthouse, verify CLS score (should be near 0)
-
-### Performance: Font Optimization (Lighthouse Metric: LCP)
-
-- [ ] Use system fonts or preload Google Fonts in `next.config.js`
-- [ ] Use `font-display: swap` for custom fonts to prevent blank text (FOIT)
-- [ ] Limit fonts: maximum 2-3 font families for production
-- [ ] Use variable fonts to reduce file size
-- [ ] Test: Lighthouse should show no font-related performance issues
-
-### Accessibility (Lighthouse Metric: Accessibility Score)
-
-- [ ] Audit color contrast ratios: ensure minimum 4.5:1 for normal text, 3:1 for large text (WCAG AA)
-- [ ] Use semantic HTML: proper heading hierarchy (h1, h2, h3), use `<button>` for buttons, `<a>` for links
-- [ ] Add ARIA labels to interactive elements (buttons, form inputs, modals)
-- [ ] Implement keyboard navigation: Tab through all interactive elements, Enter/Space to activate
-- [ ] Test with screen reader: navigate entire page using keyboard only
-- [ ] Images should have alt text (Next.js Image component requires alt)
-- [ ] Ensure focus indicators are visible (don't remove default outline)
-- [ ] Test: run axe DevTools extension, fix all accessibility violations
-
-### SEO (Lighthouse Metric: SEO Score)
-
-- [ ] Add meta viewport tag (Next.js does this by default)
-- [ ] Add page titles: unique title for each page
-- [ ] Add meta descriptions: unique description for each page (under 160 characters)
-- [ ] Add Open Graph tags: og:title, og:description, og:image for social sharing
-- [ ] Add Twitter Card tags: twitter:card, twitter:title, twitter:description for Twitter sharing
-- [ ] Use semantic HTML headings: one h1 per page, proper h2/h3 hierarchy
-- [ ] Create robots.txt (allow search engines to crawl)
-- [ ] Create sitemap.xml (list all pages for search engines)
-- [ ] Add canonical tags if needed (prevent duplicate content)
-- [ ] Test: run Lighthouse, verify SEO score is 90+
-
-### Best Practices (Lighthouse Metric: Best Practices)
-
-- [ ] Use HTTPS everywhere (Vercel enforces this)
-- [ ] Set security headers: X-Frame-Options, X-Content-Type-Options, X-XSS-Protection
-- [ ] No console errors or warnings in browser console
-- [ ] Use CSP (Content Security Policy) headers
-- [ ] Avoid deprecated APIs
-- [ ] Use modern JavaScript (no need for transpiling unnecessarily old targets)
-- [ ] Test: run Lighthouse, verify Best Practices score is 90+
-
-### Lighthouse Testing & Iteration
-
-- [ ] Install Lighthouse CI or use Lighthouse in Chrome DevTools
-- [ ] Run Lighthouse audit on each page: home, browse, film detail
-- [ ] Target scores: Performance 90+, Accessibility 90+, Best Practices 90+, SEO 90+
-- [ ] Test on mobile and desktop separately (mobile is usually stricter)
-- [ ] Monitor performance on actual slow connections: test with Chrome DevTools throttling (Slow 4G)
-- [ ] Use WebPageTest or similar tool for real-world performance testing
-- [ ] Set up CI/CD to fail builds if Lighthouse scores drop below threshold
-- [ ] Document any unavoidable performance trade-offs and why
-
 ---
 
 ## 9. Frontend — Roll Feature
@@ -361,6 +295,15 @@ Monorepo with `cineroll/` root containing:
 - [x] Show fallback message if no pick of day is set
 - [x] Add error handling with toast notification if API fails
 - [x] Make responsive: adjust button sizes and spacing for mobile
+
+### Filtered Roll (Roll Within a Filtered Set)
+
+- [ ] When the user has active filters, the Roll button should pick randomly from matching films only, not the full dataset
+- [ ] Backend: add GET /api/random endpoint support for all filter params (same params as /api/films) — pick one random film from the filtered result set
+- [ ] Frontend: pass active filter state from the Filter Bar into the Roll API call
+- [ ] Display a subtle indicator when Roll is operating on a filtered set (e.g. "Rolling from 47 matching films")
+- [ ] If filters return zero films, disable Roll button and show "No films match — adjust your filters"
+- [ ] With no filters active, Roll behaves exactly as before (pure random from full dataset)
 
 ---
 
@@ -399,27 +342,52 @@ Monorepo with `cineroll/` root containing:
 
 ---
 
-## 12. Frontend — Browse & Search
+## 12. Frontend — Browse, Filter & Filtered Roll
 
-- [ ] Create `src/app/browse/page.tsx` (browse page)
-- [ ] Implement Filter Bar with:
-  - Text search input — searches both film titles and nominee/winner names (e.g. searching "Janet Gaynor" returns her films)
-  - Genre multi-select dropdown
-  - Decade range slider for release year (1920–2030)
-  - Award year dropdown (filter by ceremony year, e.g. "1929 Oscars")
-  - Category dropdown (Actor, Actress, Directing, Writing, etc.)
-  - Winner/Nominee toggle — show only films where a category was won, or all nominees
-- [ ] Sync filter state with URL query parameters so filters are shareable
-- [ ] Implement pagination: display 12 films per page
-- [ ] Create API function to call `/api/films?search=...&genre=...&decadeMin=...&decadeMax=...&awardYear=...&category=...&winnerOnly=...&page=...`
-- [ ] Display results in responsive grid: 2 columns on mobile, 3 on tablet, 6 on desktop
-- [ ] Show total film count and current page info
-- [ ] Add loading skeletons while fetching results
-- [ ] Handle empty results: show "No films found" message
-- [ ] Implement pagination buttons: Previous, Next, with page number display
-- [ ] Disable Previous button on page 1, disable Next on last page
-- [ ] Make search real-time but debounced (don't call API on every keystroke)
-- [ ] Make each film card clickable to open full detail page or modal
+This is the core feature of CineRoll. The filter system is what separates the app from a simple random-picker and makes it portfolio-level. Every dimension in the award dataset should be an operable filter.
+
+### Filter Bar
+
+- [ ] Create `src/app/browse/page.tsx` (browse page) — this page is where the full filter UI lives
+- [ ] **Person search** — free-text input that searches nominee and winner names across all AwardRecord entries (actors, actresses, directors, producers, composers, etc.). Typing "Meryl Streep" returns every film she was ever nominated or awarded for.
+- [ ] **Director search** — separate free-text field for director name (sourced from TMDB director field on Film)
+- [ ] **Film title search** — free-text input for film title
+- [ ] **Award body selector** — toggle or multi-select: Oscar only / Golden Globes only / Both
+- [ ] **Win status toggle** — three states: "All" (nominations + wins), "Won only", "Nominated only"
+- [ ] **Category dropdown** — filterable list of every distinct award category in the dataset (Best Picture, Best Director, Best Actress in a Leading Role, Best Screenplay, etc.); populated dynamically from the database
+- [ ] **Ceremony year dropdown** — filter by the year of the ceremony (awardYear field on AwardRecord), e.g. "1994 Oscars" or "2003 Golden Globes"; range from earliest to latest year in dataset
+- [ ] **Genre multi-select** — filter by film genre (from TMDB genres)
+- [ ] **Decade range** — release decade slider (1920s – 2020s)
+- [ ] **Active filter chips** — show each active filter as a dismissible chip so users know what's applied; clicking × removes that filter
+- [ ] **Clear all filters** button — resets to unfiltered state
+
+### Search & Filter Behavior
+
+- [ ] All filters are combinable: "Cate Blanchett" + "Oscar" + "Won" + "2000s" is a valid compound query
+- [ ] Sync all filter state to URL query parameters so filtered views are shareable and bookmarkable
+- [ ] Make text inputs debounced (300ms) — don't fire API on every keystroke
+- [ ] Show result count: "47 films match your filters" (update as filters change)
+- [ ] When result count is zero, show "No films match — try adjusting your filters" with a suggested reset
+
+### Results Grid
+
+- [ ] Display results in responsive grid: 2 columns mobile, 3 tablet, 4–6 desktop
+- [ ] Each film card shows: poster, title, release year, award summary (e.g. "3 Oscar wins · 1 Golden Globe nomination")
+- [ ] Add loading skeletons while fetching
+- [ ] Implement pagination: 12 films per page; Previous / Next buttons with page number
+- [ ] Make each film card clickable → navigate to /film/:slug detail page
+
+### Filtered Roll from Browse
+
+- [ ] "Roll from these results" button visible when filters are active — picks one random film from the filtered set and navigates to its detail page or shows it inline
+- [ ] Button is disabled and shows "No matches" when filter set is empty
+- [ ] Button label shows count: "Roll from 47 films"
+
+### API Integration
+
+- [ ] Create `src/lib/api.ts` API client with typed function for `/api/films` that accepts the full FilterState
+- [ ] Create `src/hooks/useFilters.ts` to manage filter state and URL sync
+- [ ] FilterState must cover: `search` (film title), `person` (nominee/winner name), `director`, `awardBody` (oscar | goldenglobe | both), `winnerOnly` (boolean), `nominatedOnly` (boolean), `category`, `awardYear`, `genre`, `decadeMin`, `decadeMax`, `page`
 
 ---
 
@@ -552,6 +520,87 @@ Monorepo with `cineroll/` root containing:
 
 ---
 
+## 16. Performance & Lighthouse Audit
+
+Run this section after the app is fully built and deployed. Lighthouse results on a live production URL are the only meaningful scores — dev server numbers are not valid.
+
+### Image Optimization (Lighthouse Metric: LCP)
+
+- [ ] Use Next.js Image component for all images (poster, backdrop, etc.) instead of HTML img tag
+- [ ] Set explicit width and height on all Next.js Image components to prevent layout shift
+- [ ] Configure image sizes in `next.config.js` to serve appropriately sized images for different breakpoints
+- [ ] Use TMDB image optimization: prioritize small poster sizes, use thumbnail for initial load then higher resolution
+- [ ] Add placeholder blur while images load (blurDataURL or placeholder="blur")
+- [ ] Test: run Lighthouse, verify Largest Contentful Paint (LCP) is under 2.5 seconds
+
+### Code Splitting & Bundle Size (Lighthouse Metric: FID/INP)
+
+- [ ] Use dynamic imports for heavy components (FilmModal, FilmDetail, etc.) with React.lazy()
+- [ ] Use Suspense boundaries with loading fallbacks for dynamic imports
+- [ ] Split API calls: don't load unnecessary data on initial page load
+- [ ] Defer non-critical JavaScript: analytics, tracking scripts should load after hydration
+- [ ] Remove unused dependencies: audit package.json for unused packages
+- [ ] Check bundle size: use `next/bundle-analyzer` or similar tool
+- [ ] Target: keep main bundle under 200KB gzipped, all chunks under 250KB gzipped
+- [ ] Test: run Lighthouse, verify First Input Delay (FID) under 100ms
+
+### CSS & Layout Stability (Lighthouse Metric: CLS)
+
+- [ ] Minimize CSS using Tailwind CSS (production build automatically purges unused styles)
+- [ ] Avoid inline styles; use Tailwind classes instead
+- [ ] Set explicit dimensions (width/height) on all media elements to prevent Cumulative Layout Shift (CLS)
+- [ ] Test: run Lighthouse, verify CLS score (should be near 0)
+
+### Font Optimization (Lighthouse Metric: LCP)
+
+- [ ] Use system fonts or preload Google Fonts in `next.config.js`
+- [ ] Use `font-display: swap` for custom fonts to prevent blank text (FOIT)
+- [ ] Limit fonts: maximum 2-3 font families for production
+- [ ] Use variable fonts to reduce file size
+
+### Accessibility (Lighthouse Metric: Accessibility Score)
+
+- [ ] Audit color contrast ratios: ensure minimum 4.5:1 for normal text, 3:1 for large text (WCAG AA)
+- [ ] Use semantic HTML: proper heading hierarchy (h1, h2, h3), use `<button>` for buttons, `<a>` for links
+- [ ] Add ARIA labels to interactive elements (buttons, form inputs, modals)
+- [ ] Implement keyboard navigation: Tab through all interactive elements, Enter/Space to activate
+- [ ] Test with screen reader: navigate entire page using keyboard only
+- [ ] Ensure all images have alt text
+- [ ] Ensure focus indicators are visible (don't remove default outline)
+- [ ] Test: run axe DevTools extension, fix all accessibility violations
+
+### SEO (Lighthouse Metric: SEO Score)
+
+- [ ] Add page titles: unique title for each page
+- [ ] Add meta descriptions: unique description for each page (under 160 characters)
+- [ ] Add Open Graph tags: og:title, og:description, og:image for social sharing
+- [ ] Add Twitter Card tags: twitter:card, twitter:title, twitter:description for Twitter sharing
+- [ ] Use semantic HTML headings: one h1 per page, proper h2/h3 hierarchy
+- [ ] Create robots.txt (allow search engines to crawl)
+- [ ] Create sitemap.xml (list all pages for search engines)
+- [ ] Add canonical tags if needed (prevent duplicate content)
+- [ ] Test: run Lighthouse, verify SEO score is 90+
+
+### Best Practices (Lighthouse Metric: Best Practices)
+
+- [ ] Set security headers: X-Frame-Options, X-Content-Type-Options, X-XSS-Protection
+- [ ] No console errors or warnings in browser console
+- [ ] Use CSP (Content Security Policy) headers
+- [ ] Avoid deprecated APIs
+- [ ] Test: run Lighthouse, verify Best Practices score is 90+
+
+### Lighthouse Testing & Iteration
+
+- [ ] Run Lighthouse audit on the live production URL for each page: home, browse, film detail
+- [ ] Target scores: Performance 90+, Accessibility 90+, Best Practices 90+, SEO 90+
+- [ ] Test on mobile and desktop separately (mobile is usually stricter)
+- [ ] Monitor on slow connections: test with Chrome DevTools throttling (Slow 4G)
+- [ ] Use WebPageTest or similar tool for real-world performance testing
+- [ ] Set up CI/CD to fail builds if Lighthouse scores drop below threshold
+- [ ] Document any unavoidable performance trade-offs and why
+
+---
+
 ## ✅ Success Verification Checklist
 
 - [ ] All npm workspace dependencies install successfully
@@ -559,16 +608,41 @@ Monorepo with `cineroll/` root containing:
 - [ ] Linting passes (`npm run lint`)
 - [ ] Development server runs: `npm run dev` starts both backend and frontend
 - [ ] Database is seeded with 2000+ films
-- [ ] Frontend home page loads and displays a random film on "Roll"
-- [ ] Browse page loads with search and filter functionality working
-- [ ] Film detail page displays complete information when visiting /film/:slug
+
+### Roll (no filters)
+- [ ] Frontend home page loads and Roll returns a random film with no filters active
+
+### Award Filtering (core feature)
+- [ ] Searching a person name (e.g. "Meryl Streep") returns only films she was nominated or awarded for
+- [ ] Searching a director name returns only films they directed that are in the award dataset
+- [ ] Selecting "Oscar only" hides films that only have Golden Globe data and vice versa
+- [ ] "Won only" filter returns films with at least one win in the selected award body
+- [ ] Selecting a category (e.g. "Best Actress in a Leading Role") filters to films with a record in that category
+- [ ] Selecting a ceremony year (e.g. 1994) returns only films nominated/won at that specific ceremony
+- [ ] All filters combine correctly: person + award body + win status + category + ceremony year all active simultaneously
+- [ ] Active filter chips display and each can be removed individually
+- [ ] Filter state persists in URL and can be shared/bookmarked
+
+### Filtered Roll
+- [ ] With filters active, Roll picks a random film from within the filtered result set
+- [ ] "Roll from N films" label updates as filters change
+- [ ] Roll is disabled and shows message when filtered set is empty
+
+### Browse & Detail
+- [ ] Browse page loads, paginated grid shows with loading skeletons
+- [ ] Film detail page displays complete Oscar and Golden Globe history broken down by category and year
 - [ ] Dark mode toggle works and persists on page reload
 - [ ] All pages are responsive on mobile, tablet, and desktop
+
+### Backend
 - [ ] Backend API returns proper error responses for invalid requests
+- [ ] GET /api/films/categories returns distinct category list
+- [ ] GET /api/films/award-years returns sorted ceremony year list
+
+### Deployment
 - [ ] Deployment to Vercel and Railway succeeds with no build errors
 - [ ] Frontend and backend are properly configured with environment variables
 - [ ] Health check endpoint responds successfully
-- [ ] End-to-end test: Roll → see result → click to detail page → view full information → works on mobile
 - [ ] Documentation is complete and accurate
 - [ ] Case study is written and portfolio-ready
 
