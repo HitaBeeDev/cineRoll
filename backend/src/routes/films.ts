@@ -215,6 +215,22 @@ filmsRouter.get("/", validate(listQuerySchema), async (req, res) => {
   });
 });
 
+filmsRouter.get("/award-years", async (_req, res) => {
+  const rows = await prisma.$queryRaw<{ awardYear: number }[]>`
+    SELECT DISTINCT (award->>'awardYear')::INT AS "awardYear"
+    FROM "Film", jsonb_array_elements("Film"."oscarCategories") AS award
+    WHERE award->>'awardYear' IS NOT NULL
+    UNION
+    SELECT DISTINCT (award->>'awardYear')::INT AS "awardYear"
+    FROM "Film", jsonb_array_elements("Film"."ggCategories") AS award
+    WHERE award->>'awardYear' IS NOT NULL
+    ORDER BY "awardYear" ASC
+  `;
+
+  setPublicCache(res, 3600);
+  res.json({ awardYears: rows.map(r => r.awardYear) });
+});
+
 filmsRouter.get("/categories", async (_req, res) => {
   const rows = await prisma.$queryRaw<{ category: string }[]>`
     SELECT DISTINCT award->>'category' AS category
