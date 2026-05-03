@@ -117,6 +117,8 @@ Monorepo with `cineroll/` root containing:
 
 ---
 
+///////////////////////////////////////////////////
+
 ## 4. Backend — Database & Prisma
 
 - [x] Create `backend/prisma/schema.prisma` with Prisma schema definition
@@ -610,9 +612,11 @@ Run this section after the app is fully built and deployed. Lighthouse results o
 - [ ] Database is seeded with 2000+ films
 
 ### Roll (no filters)
+
 - [ ] Frontend home page loads and Roll returns a random film with no filters active
 
 ### Award Filtering (core feature)
+
 - [ ] Searching a person name (e.g. "Meryl Streep") returns only films she was nominated or awarded for
 - [ ] Searching a director name returns only films they directed that are in the award dataset
 - [ ] Selecting "Oscar only" hides films that only have Golden Globe data and vice versa
@@ -624,22 +628,26 @@ Run this section after the app is fully built and deployed. Lighthouse results o
 - [ ] Filter state persists in URL and can be shared/bookmarked
 
 ### Filtered Roll
+
 - [ ] With filters active, Roll picks a random film from within the filtered result set
 - [ ] "Roll from N films" label updates as filters change
 - [ ] Roll is disabled and shows message when filtered set is empty
 
 ### Browse & Detail
+
 - [ ] Browse page loads, paginated grid shows with loading skeletons
 - [ ] Film detail page displays complete Oscar and Golden Globe history broken down by category and year
 - [ ] Dark mode toggle works and persists on page reload
 - [ ] All pages are responsive on mobile, tablet, and desktop
 
 ### Backend
+
 - [ ] Backend API returns proper error responses for invalid requests
 - [ ] GET /api/films/categories returns distinct category list
 - [ ] GET /api/films/award-years returns sorted ceremony year list
 
 ### Deployment
+
 - [ ] Deployment to Vercel and Railway succeeds with no build errors
 - [ ] Frontend and backend are properly configured with environment variables
 - [ ] Health check endpoint responds successfully

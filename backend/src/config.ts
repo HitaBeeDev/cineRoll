@@ -13,4 +13,6 @@ export const config = {
   slowQueryThresholdMs: parseInt(process.env["SLOW_QUERY_THRESHOLD_MS"] ?? "100", 10),
   slowRequestThresholdMs: parseInt(process.env["SLOW_REQUEST_THRESHOLD_MS"] ?? "200", 10),
   frontendUrl: process.env["FRONTEND_URL"] ?? "http://localhost:3000",
+  tmdbApiKey: required("TMDB_API_KEY"),
+  omdbApiKey: required("OMDB_API_KEY"),
 };
