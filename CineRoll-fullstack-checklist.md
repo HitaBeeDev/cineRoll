@@ -216,7 +216,7 @@ Monorepo with `cineroll/` root containing:
 
 - [x] Implement response compression: enable gzip compression for all API responses
 - [x] Use Helmet middleware to add security headers without impacting performance
-- [ ] Implement pagination for list endpoints (max 100 items per request, default 12)
+- [x] Implement pagination for list endpoints (max 100 items per request, default 12)
 - [ ] Return only necessary fields from database: don't send entire objects if not needed
 - [ ] Use Prisma select to limit database columns returned: `{ select: { id: true, title: true, ... } }`
 - [ ] Add HTTP caching headers: set Cache-Control headers appropriately for different endpoints
