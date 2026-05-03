@@ -131,18 +131,18 @@ Monorepo with `cineroll/` root containing:
 
 ---
 
-///////////////////////////////////////////////////
-
 ## 5. Backend — Film Data Pipeline
 
 ### 5.0 Data File Preparation
 
 - [x] Create `backend/data/` directory
 - [x] Add data files to root `.gitignore` so they don't get committed
-- [ ] Prepare `backend/data/films-oscar.csv` — one row per Oscar nomination/win with columns: `Id, Award Year, OSCie Name, Release Year, Type Of Award, Award Winner, Award Nominee`
+- [x] Prepare `backend/data/films-oscar.csv` — one row per Oscar nomination/win with columns: `Id, Award Year, OSCie Name, Release Year, Type Of Award, Award Winner, Award Nominee`
   - `Id` format: `OSC-{year}-{nn}` (e.g. `OSC-1929-01`)
   - `Award Winner` = person/studio name if they won, `NaN` if nominated only
-- [ ] Prepare `backend/data/films-goldenglobe.csv` — same column structure, `Id` format: `GG-{year}-{nn}`
+- [x] Prepare `backend/data/films-goldenglobe.csv` — same column structure, `Id` format: `GG-{year}-{nn}`
+
+///////////////////////////////////////////////////
 
 ### 5a. Enrichment Script — Fetch Data from TMDB & OMDB APIs
 

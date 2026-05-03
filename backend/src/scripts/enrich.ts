@@ -27,16 +27,16 @@ const TMDB_BASE = 'https://api.themoviedb.org/3';
 const OMDB_BASE = 'https://www.omdbapi.com';
 
 const DATA_DIR = path.resolve(__dirname, '../../data');
-const OSCAR_CSV = path.join(DATA_DIR, 'oscar-raw.csv');
-const GG_CSV = path.join(DATA_DIR, 'goldenglobe-raw.csv');
+const OSCAR_CSV = path.join(DATA_DIR, 'films-oscar.csv');
+const GG_CSV = path.join(DATA_DIR, 'films-goldenglobe.csv');
 const ENRICHED_JSON = path.join(DATA_DIR, 'films-enriched.json');
 const ERRORS_CSV = path.join(DATA_DIR, 'enrichment-errors.csv');
 
-// CSV row shape: Id, Award Year, Movie Name, Release Year, Type Of Award, Award Winner, Award Nominee
+// CSV row shape: Id, Award Year, OSCie Name, Release Year, Type Of Award, Award Winner, Award Nominee
 interface CsvRow {
   'Id': string;
   'Award Year': string;
-  'Movie Name': string;
+  'OSCie Name': string;
   'Release Year': string;
   'Type Of Award': string;
   'Award Winner': string;
@@ -99,6 +99,10 @@ function parseCsv(filePath: string): CsvRow[] {
   return parse(raw, { columns: true, skip_empty_lines: true, trim: true }) as CsvRow[];
 }
 
+function filmTitle(row: CsvRow): string {
+  return row['OSCie Name'];
+}
+
 function rowToAwardRecord(row: CsvRow): AwardRecord {
   const winner = row['Award Winner']?.trim();
   const won = !!winner && winner !== 'NaN' && winner !== '';
@@ -158,14 +162,14 @@ async function main() {
   const ggMap = new Map<FilmKey, CsvRow[]>();
 
   for (const row of oscarRows) {
-    const key = `${row['Movie Name'].toLowerCase().trim()}|${row['Release Year'].trim()}`;
+    const key = `${filmTitle(row).toLowerCase().trim()}|${row['Release Year'].trim()}`;
     const existing = oscarMap.get(key) ?? [];
     existing.push(row);
     oscarMap.set(key, existing);
   }
 
   for (const row of ggRows) {
-    const key = `${row['Movie Name'].toLowerCase().trim()}|${row['Release Year'].trim()}`;
+    const key = `${filmTitle(row).toLowerCase().trim()}|${row['Release Year'].trim()}`;
     const existing = ggMap.get(key) ?? [];
     existing.push(row);
     ggMap.set(key, existing);
@@ -178,7 +182,7 @@ async function main() {
     const [titleLower, year] = key.split('|');
     // Get original-casing title from first row
     const sampleRow = oscarMap.get(key)?.[0] ?? ggMap.get(key)?.[0];
-    const title = sampleRow?.['Movie Name'] ?? titleLower ?? '';
+    const title = sampleRow ? filmTitle(sampleRow) : (titleLower ?? '');
     if (title && year) uniqueFilms.push({ title, year });
   }
 
