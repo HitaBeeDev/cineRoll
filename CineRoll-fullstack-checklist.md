@@ -191,26 +191,26 @@ Monorepo with `cineroll/` root containing:
 
 ## 6. Backend — API Routes & Performance
 
-- [ ] Create `backend/src/routes/index.ts` that exports a router with all sub-routes mounted
-- [ ] Create `backend/src/routes/films.ts` with:
-  - GET /api/films (search with filters: `search` — matches film title OR nominee name, `genre`, `decadeMin`/`decadeMax` — release year range, `awardYear` — ceremony year, `category` — award category, `winnerOnly` — boolean to show only films where someone won vs all nominees, `page`, `limit`)
-  - GET /api/films/:slug (get single film by slug with full details including all AwardRecord arrays)
-- [ ] Create `backend/src/routes/random.ts` with:
-  - GET /api/random (return a random film from database)
-- [ ] Create `backend/src/routes/roll.ts` with:
-  - POST /api/roll (log a roll event when user clicks Roll button)
-- [ ] Create `backend/src/routes/pickOfDay.ts` with:
-  - GET /api/pick-of-day (get today's featured film, return 404 if none set)
-- [ ] For each route, implement:
-  - Request validation using Zod schemas (validate query params, request body)
-  - Authorization checks if needed
-  - Prisma queries to fetch data from database
-  - Error handling with appropriate HTTP status codes
-  - Consistent response format
-- [ ] Create `backend/src/middleware/errorHandler.ts` to catch all errors and return consistent error responses
-- [ ] Create `backend/src/middleware/validate.ts` to validate requests against Zod schemas
-- [ ] Mount all routes in `backend/src/app.ts`
-- [ ] Test all endpoints using Postman or similar tool
+- [x] Create `backend/src/routes/index.ts` that exports a router with all sub-routes mounted
+- [x] Create `backend/src/routes/films.ts` with:
+  - [x] GET /api/films (search with filters: `search` — matches film title OR nominee name, `genre`, `decadeMin`/`decadeMax` — release year range, `awardYear` — ceremony year, `category` — award category, `winnerOnly` — boolean to show only films where someone won vs all nominees, `page`, `limit`)
+  - [x] GET /api/films/:slug (get single film by slug with full details including all AwardRecord arrays)
+- [x] Create `backend/src/routes/random.ts` with:
+  - [x] GET /api/random (return a random film from database)
+- [x] Create `backend/src/routes/roll.ts` with:
+  - [x] POST /api/roll (log a roll event when user clicks Roll button)
+- [x] Create `backend/src/routes/pickOfDay.ts` with:
+  - [x] GET /api/pick-of-day (get today's featured film, return 404 if none set)
+- [x] For each route, implement:
+  - [x] Request validation using Zod schemas (validate query params, request body)
+  - [x] Authorization checks if needed
+  - [x] Prisma queries to fetch data from database
+  - [x] Error handling with appropriate HTTP status codes
+  - [x] Consistent response format
+- [x] Create `backend/src/middleware/errorHandler.ts` to catch all errors and return consistent error responses
+- [x] Create `backend/src/middleware/validate.ts` to validate requests against Zod schemas
+- [x] Mount all routes in `backend/src/app.ts`
+- [x] Test all endpoints using Postman or similar tool
 
 ### API Response Optimization (For Lighthouse Performance Score)
 
