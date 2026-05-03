@@ -4,10 +4,25 @@ import * as dotenv from 'dotenv';
 import { parse } from 'csv-parse/sync';
 import { stringify } from 'csv-stringify/sync';
 
-dotenv.config({ path: path.resolve(__dirname, '../../.env.local') });
+const ENV_FILE = path.resolve(__dirname, '../../.env');
+const ENV_LOCAL_FILE = path.resolve(__dirname, '../../.env.local');
 
-const TMDB_KEY = process.env.TMDB_API_KEY;
-const OMDB_KEY = process.env.OMDB_API_KEY;
+function readEnvFile(filePath: string): Record<string, string> {
+  if (!fs.existsSync(filePath)) return {};
+  return dotenv.parse(fs.readFileSync(filePath));
+}
+
+function firstNonEmpty(...values: Array<string | undefined>): string | undefined {
+  return values.find(value => value?.trim());
+}
+
+const env = {
+  base: readEnvFile(ENV_FILE),
+  local: readEnvFile(ENV_LOCAL_FILE),
+};
+
+const TMDB_KEY = firstNonEmpty(process.env.TMDB_API_KEY, env.local.TMDB_API_KEY, env.base.TMDB_API_KEY);
+const OMDB_KEY = firstNonEmpty(process.env.OMDB_API_KEY, env.local.OMDB_API_KEY, env.base.OMDB_API_KEY);
 const TMDB_BASE = 'https://api.themoviedb.org/3';
 const OMDB_BASE = 'https://www.omdbapi.com';
 
@@ -16,21 +31,21 @@ const RAW_CSV = path.join(DATA_DIR, 'films-raw.csv');
 const ENRICHED_JSON = path.join(DATA_DIR, 'films-enriched.json');
 const ERRORS_CSV = path.join(DATA_DIR, 'enrichment-errors.csv');
 
-interface RawFilm {
-  title: string;
-  year: string;
-  language?: string;
-  oscarNominations?: string;
-  oscarWins?: string;
-  oscarCategories?: string;
-  ggNominations?: string;
-  ggWins?: string;
-  ggCategories?: string;
+// CSV row shape: Id, Award Year, OSCie Name, Release Year, Type Of Award, Award Winner, Award Nominee
+interface CsvRow {
+  'Id': string;
+  'Award Year': string;
+  'OSCie Name': string;
+  'Release Year': string;
+  'Type Of Award': string;
+  'Award Winner': string;
+  'Award Nominee': string;
 }
 
-interface AwardCategory {
+interface AwardRecord {
+  awardYear: number;
   category: string;
-  year: number;
+  nominee: string;
   won: boolean;
 }
 
@@ -53,10 +68,10 @@ interface EnrichedFilm {
   rtScore: number | null;
   oscarNominations: number;
   oscarWins: number;
-  oscarCategories: AwardCategory[];
+  oscarCategories: AwardRecord[];
   ggNominations: number;
   ggWins: number;
-  ggCategories: AwardCategory[];
+  ggCategories: AwardRecord[];
   isPickOfDay: boolean;
   pickOfDayDate: string | null;
 }
@@ -76,6 +91,22 @@ function slugify(title: string): string {
     .replace(/\s+/g, '-')
     .replace(/-+/g, '-')
     .replace(/^-|-$/g, '');
+}
+
+function parseCsv(filePath: string): CsvRow[] {
+  const raw = fs.readFileSync(filePath, 'utf-8');
+  return parse(raw, { columns: true, skip_empty_lines: true, trim: true }) as CsvRow[];
+}
+
+function rowToAwardRecord(row: CsvRow): AwardRecord {
+  const winner = row['Award Winner']?.trim();
+  const won = !!winner && winner !== 'NaN' && winner !== '';
+  return {
+    awardYear: parseInt(row['Award Year'], 10),
+    category: row['Type Of Award'],
+    nominee: row['Award Nominee'] ?? '',
+    won,
+  };
 }
 
 async function tmdbSearch(title: string, year: string): Promise<number | null> {
@@ -101,15 +132,6 @@ async function omdbDetails(imdbId: string): Promise<Record<string, unknown>> {
   return res.json() as Promise<Record<string, unknown>>;
 }
 
-function parseAwardCategories(raw: string | undefined): AwardCategory[] {
-  if (!raw?.trim()) return [];
-  try {
-    return JSON.parse(raw) as AwardCategory[];
-  } catch {
-    return [];
-  }
-}
-
 async function main() {
   if (!TMDB_KEY || !OMDB_KEY) {
     console.error('Missing API keys — fill in TMDB_API_KEY and OMDB_API_KEY in backend/.env.local');
@@ -117,23 +139,47 @@ async function main() {
   }
 
   if (!fs.existsSync(RAW_CSV)) {
-    console.error(`films-raw.csv not found at ${RAW_CSV}`);
+    console.error(`CSV not found: ${RAW_CSV}`);
     process.exit(1);
   }
 
-  const raw = fs.readFileSync(RAW_CSV, 'utf-8');
-  const films = parse(raw, { columns: true, skip_empty_lines: true, trim: true }) as RawFilm[];
-  console.log(`Loaded ${films.length} films from films-raw.csv\n`);
+  const rawRows = parseCsv(RAW_CSV);
+  console.log(`Loaded ${rawRows.length} rows from films-raw.csv\n`);
+
+  // Group rows by (title + release year)
+  type FilmKey = string;
+  const oscarMap = new Map<FilmKey, CsvRow[]>();
+  const ggMap = new Map<FilmKey, CsvRow[]>();
+
+  for (const row of rawRows) {
+    const key = `${row['OSCie Name'].toLowerCase().trim()}|${row['Release Year'].trim()}`;
+    const existing = oscarMap.get(key) ?? [];
+    existing.push(row);
+    oscarMap.set(key, existing);
+  }
+
+  // Collect unique films across both CSVs
+  const allKeys = new Set<FilmKey>([...oscarMap.keys(), ...ggMap.keys()]);
+  const uniqueFilms: Array<{ title: string; year: string }> = [];
+  for (const key of allKeys) {
+    const [titleLower, year] = key.split('|');
+    // Get original-casing title from first row
+    const sampleRow = oscarMap.get(key)?.[0] ?? ggMap.get(key)?.[0];
+    const title = sampleRow?.['OSCie Name'] ?? titleLower ?? '';
+    if (title && year) uniqueFilms.push({ title, year });
+  }
+
+  console.log(`Unique films to enrich: ${uniqueFilms.length}\n`);
 
   const enriched: EnrichedFilm[] = [];
   const errors: ErrorRow[] = [];
   const usedSlugs = new Set<string>();
 
   let i = 0;
-  for (const film of films) {
+  for (const { title, year } of uniqueFilms) {
     i++;
-    const { title, year } = film;
-    console.log(`[${i}/${films.length}] ${title} (${year})`);
+    const key = `${title.toLowerCase().trim()}|${year.trim()}`;
+    console.log(`[${i}/${uniqueFilms.length}] ${title} (${year})`);
 
     try {
       await delay(250);
@@ -141,7 +187,7 @@ async function main() {
 
       if (!tmdbId) {
         errors.push({ title, year, reason: 'No TMDB match found' });
-        console.log(`  ✗ No TMDB match`);
+        console.log('  ✗ No TMDB match');
         continue;
       }
 
@@ -155,7 +201,6 @@ async function main() {
 
       const director = crew.find(c => c.job === 'Director')?.name ?? null;
       const cast = castRaw.slice(0, 10).map(c => c.name);
-
       const trailer = videos.find(v => v.type === 'Trailer' && v.site === 'YouTube');
       const trailerUrl = trailer ? `https://www.youtube.com/watch?v=${trailer.key}` : null;
 
@@ -180,6 +225,9 @@ async function main() {
       const posterPath = details.poster_path as string | null | undefined;
       const backdropPath = details.backdrop_path as string | null | undefined;
 
+      const oscarRecords = (oscarMap.get(key) ?? []).map(rowToAwardRecord);
+      const ggRecords = (ggMap.get(key) ?? []).map(rowToAwardRecord);
+
       enriched.push({
         slug,
         tmdbId,
@@ -191,18 +239,18 @@ async function main() {
         plot: (details.overview as string | null | undefined) ?? null,
         director,
         cast,
-        language: film.language ?? (details.original_language as string | null | undefined) ?? null,
+        language: (details.original_language as string | null | undefined) ?? null,
         posterUrl: posterPath ? `https://image.tmdb.org/t/p/w500${posterPath}` : null,
         backdropUrl: backdropPath ? `https://image.tmdb.org/t/p/w1280${backdropPath}` : null,
         trailerUrl,
         imdbRating,
         rtScore,
-        oscarNominations: parseInt(film.oscarNominations ?? '0', 10),
-        oscarWins: parseInt(film.oscarWins ?? '0', 10),
-        oscarCategories: parseAwardCategories(film.oscarCategories),
-        ggNominations: parseInt(film.ggNominations ?? '0', 10),
-        ggWins: parseInt(film.ggWins ?? '0', 10),
-        ggCategories: parseAwardCategories(film.ggCategories),
+        oscarNominations: oscarRecords.length,
+        oscarWins: oscarRecords.filter(r => r.won).length,
+        oscarCategories: oscarRecords,
+        ggNominations: ggRecords.length,
+        ggWins: ggRecords.filter(r => r.won).length,
+        ggCategories: ggRecords,
         isPickOfDay: false,
         pickOfDayDate: null,
       });
@@ -220,6 +268,8 @@ async function main() {
   if (errors.length > 0) {
     const errorsCsv = stringify(errors, { header: true, columns: ['title', 'year', 'reason'] });
     fs.writeFileSync(ERRORS_CSV, errorsCsv, 'utf-8');
+  } else if (fs.existsSync(ERRORS_CSV)) {
+    fs.unlinkSync(ERRORS_CSV);
   }
 
   console.log('\n--- Summary ---');
