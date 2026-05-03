@@ -1,0 +1,370 @@
+import { notFound } from "next/navigation";
+import Image from "next/image";
+import Link from "next/link";
+import { ArrowLeft, Star, Trophy, Clock, Globe, Users, Clapperboard, ExternalLink } from "lucide-react";
+import type { Film, AwardRecord } from "@cineroll/types";
+import { cn } from "@/lib/utils";
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
+
+async function fetchFilm(slug: string): Promise<Film | null> {
+  const res = await fetch(`${API_URL}/api/films/${encodeURIComponent(slug)}`, {
+    next: { revalidate: 86400 },
+  });
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error(`Failed to fetch film: ${res.status}`);
+  const data = await res.json() as Film;
+  return data;
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const film = await fetchFilm(slug);
+  if (!film) return { title: "Film Not Found" };
+
+  return {
+    title: `${film.title} (${film.year})`,
+    description: film.plot ?? `Details for ${film.title}.`,
+    openGraph: {
+      title: `${film.title} (${film.year})`,
+      description: film.plot ?? undefined,
+      images: film.posterUrl ? [film.posterUrl] : [],
+    },
+  };
+}
+
+export default async function FilmPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const film = await fetchFilm(slug);
+  if (!film) notFound();
+
+  const hasBackdrop = Boolean(film.backdropUrl);
+  const oscarAwards = (film.oscarCategories as AwardRecord[]) ?? [];
+  const ggAwards = (film.ggCategories as AwardRecord[]) ?? [];
+  const hasAwards = film.oscarNominations > 0 || film.ggNominations > 0;
+
+  return (
+    <div className="flex flex-col min-h-screen bg-zinc-950 text-zinc-100">
+      <header className="sticky top-0 z-10 flex items-center justify-between px-5 sm:px-8 py-4 border-b border-zinc-800/60 bg-zinc-950/90 backdrop-blur-sm">
+        <Link
+          href="/"
+          className={cn(
+            "flex items-center gap-2 text-sm text-zinc-400 hover:text-zinc-100 transition-colors",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 rounded"
+          )}
+        >
+          <ArrowLeft className="h-4 w-4" aria-hidden />
+          Back
+        </Link>
+        <span className="text-xl font-bold tracking-tight text-amber-400">CineRoll</span>
+        <div className="w-14" aria-hidden />
+      </header>
+
+      <main className="flex-1">
+        {/* Backdrop */}
+        {hasBackdrop && (
+          <div className="relative h-52 sm:h-72 md:h-96 w-full overflow-hidden" aria-hidden>
+            <Image
+              src={film.backdropUrl!}
+              alt=""
+              fill
+              sizes="100vw"
+              className="object-cover object-center brightness-50"
+              priority
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-zinc-950/40 to-zinc-950" />
+          </div>
+        )}
+
+        <div
+          className={cn(
+            "max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-20",
+            hasBackdrop ? "-mt-20 sm:-mt-28 relative" : "pt-10"
+          )}
+        >
+          {/* Poster + core info */}
+          <div className="flex flex-col sm:flex-row gap-6 sm:gap-8">
+            {/* Poster */}
+            <div
+              className={cn(
+                "relative mx-auto sm:mx-0 shrink-0 rounded-2xl overflow-hidden border border-zinc-700",
+                "w-36 sm:w-44 md:w-52 aspect-[2/3]",
+                hasBackdrop && "shadow-2xl shadow-black/70"
+              )}
+            >
+              {film.posterUrl ? (
+                <Image
+                  src={film.posterUrl}
+                  alt={`${film.title} poster`}
+                  fill
+                  sizes="(max-width: 640px) 144px, (max-width: 768px) 176px, 208px"
+                  className="object-cover"
+                  priority
+                />
+              ) : (
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-zinc-800">
+                  <Clapperboard className="h-8 w-8 text-zinc-600" aria-hidden />
+                  <span className="text-xs text-zinc-600">No poster</span>
+                </div>
+              )}
+            </div>
+
+            {/* Info */}
+            <div className="flex flex-col gap-4 min-w-0 flex-1 text-center sm:text-left">
+              {film.isPickOfDay && (
+                <p className="text-xs font-semibold tracking-widest uppercase text-amber-400">
+                  Pick of the Day
+                </p>
+              )}
+
+              <div>
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-zinc-50 leading-tight">
+                  {film.title}
+                </h1>
+                <div className="mt-2 flex flex-wrap justify-center sm:justify-start items-center gap-x-2 gap-y-1 text-sm text-zinc-400">
+                  <span>{film.year}</span>
+                  {film.runtime != null && (
+                    <>
+                      <span className="text-zinc-700" aria-hidden>·</span>
+                      <span className="flex items-center gap-1">
+                        <Clock className="h-3.5 w-3.5" aria-hidden />
+                        {film.runtime} min
+                      </span>
+                    </>
+                  )}
+                  {film.language && (
+                    <>
+                      <span className="text-zinc-700" aria-hidden>·</span>
+                      <span className="flex items-center gap-1">
+                        <Globe className="h-3.5 w-3.5" aria-hidden />
+                        {film.language}
+                      </span>
+                    </>
+                  )}
+                </div>
+                {film.director && (
+                  <p className="mt-1 text-sm text-zinc-400">
+                    Directed by{" "}
+                    <span className="text-zinc-200 font-medium">{film.director}</span>
+                  </p>
+                )}
+              </div>
+
+              {/* Ratings */}
+              <div className="flex flex-wrap justify-center sm:justify-start items-center gap-3">
+                {film.imdbRating != null && (
+                  <div className="flex items-center gap-1.5 rounded-lg border border-amber-400/20 bg-amber-400/5 px-3 py-1.5">
+                    <Star className="h-4 w-4 fill-amber-400 text-amber-400" aria-hidden />
+                    <span className="text-sm font-bold text-amber-400 tabular-nums">
+                      {film.imdbRating.toFixed(1)}
+                    </span>
+                    <span className="text-xs text-zinc-500">IMDb</span>
+                  </div>
+                )}
+                {film.rtScore != null && (
+                  <div className="flex items-center gap-1.5 rounded-lg border border-zinc-700 bg-zinc-800/60 px-3 py-1.5">
+                    <span className="text-sm" aria-hidden>🍅</span>
+                    <span className="text-sm font-bold text-zinc-200 tabular-nums">
+                      {film.rtScore}%
+                    </span>
+                    <span className="text-xs text-zinc-500">RT</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Genres */}
+              {film.genres.length > 0 && (
+                <div className="flex flex-wrap justify-center sm:justify-start gap-2">
+                  {film.genres.map((g) => (
+                    <span
+                      key={g}
+                      className="rounded-full border border-zinc-700 px-3 py-1 text-xs text-zinc-300"
+                    >
+                      {g}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {/* Trailer link */}
+              {film.trailerUrl && (
+                <a
+                  href={film.trailerUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={cn(
+                    "inline-flex items-center justify-center sm:justify-start gap-2 self-center sm:self-start",
+                    "rounded-xl border border-zinc-700 bg-zinc-800 hover:bg-zinc-700 transition-colors",
+                    "px-4 py-2 text-sm font-medium text-zinc-100",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
+                  )}
+                >
+                  <ExternalLink className="h-4 w-4" aria-hidden />
+                  Watch Trailer
+                </a>
+              )}
+            </div>
+          </div>
+
+          {/* Plot */}
+          {film.plot && (
+            <section className="mt-10">
+              <h2 className="text-xs font-semibold tracking-widest uppercase text-zinc-500 mb-3">
+                Plot
+              </h2>
+              <p className="text-zinc-300 leading-relaxed">{film.plot}</p>
+            </section>
+          )}
+
+          {/* Cast */}
+          {film.cast.length > 0 && (
+            <section className="mt-10">
+              <h2 className="flex items-center gap-2 text-xs font-semibold tracking-widest uppercase text-zinc-500 mb-3">
+                <Users className="h-3.5 w-3.5" aria-hidden />
+                Cast
+              </h2>
+              <div className="flex flex-wrap gap-2">
+                {film.cast.map((name) => (
+                  <span
+                    key={name}
+                    className="rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-1.5 text-sm text-zinc-300"
+                  >
+                    {name}
+                  </span>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* Awards */}
+          {hasAwards && (
+            <section className="mt-10">
+              <h2 className="flex items-center gap-2 text-xs font-semibold tracking-widest uppercase text-zinc-500 mb-4">
+                <Trophy className="h-3.5 w-3.5" aria-hidden />
+                Awards
+              </h2>
+              <div className="flex flex-col gap-6">
+                {film.oscarNominations > 0 && (
+                  <AwardSection
+                    title="Academy Awards"
+                    wins={film.oscarWins}
+                    nominations={film.oscarNominations}
+                    records={oscarAwards}
+                  />
+                )}
+                {film.ggNominations > 0 && (
+                  <AwardSection
+                    title="Golden Globes"
+                    wins={film.ggWins}
+                    nominations={film.ggNominations}
+                    records={ggAwards}
+                  />
+                )}
+              </div>
+            </section>
+          )}
+
+          {/* External links */}
+          {(film.imdbId) && (
+            <section className="mt-10">
+              <h2 className="text-xs font-semibold tracking-widest uppercase text-zinc-500 mb-3">
+                External Links
+              </h2>
+              <div className="flex flex-wrap gap-3">
+                {film.imdbId && (
+                  <a
+                    href={`https://www.imdb.com/title/${film.imdbId}/`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={cn(
+                      "inline-flex items-center gap-2 rounded-lg border border-zinc-700 bg-zinc-900",
+                      "px-4 py-2 text-sm text-zinc-300 hover:text-zinc-100 hover:border-zinc-600 transition-colors",
+                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
+                    )}
+                  >
+                    <ExternalLink className="h-3.5 w-3.5" aria-hidden />
+                    IMDb
+                  </a>
+                )}
+              </div>
+            </section>
+          )}
+        </div>
+      </main>
+    </div>
+  );
+}
+
+function AwardSection({
+  title,
+  wins,
+  nominations,
+  records,
+}: {
+  title: string;
+  wins: number;
+  nominations: number;
+  records: AwardRecord[];
+}) {
+  return (
+    <div>
+      <div className="flex items-center gap-3 mb-3">
+        <span className="text-sm font-semibold text-zinc-200">{title}</span>
+        <span className="text-xs text-zinc-500">
+          {wins > 0 ? (
+            <span className="text-amber-400 font-medium">
+              {wins} {wins === 1 ? "win" : "wins"}
+            </span>
+          ) : null}
+          {wins > 0 && nominations > wins ? " · " : null}
+          {nominations > wins ? `${nominations} nominations` : null}
+          {wins > 0 && nominations === wins ? ` across ${nominations} nominations` : null}
+        </span>
+      </div>
+
+      {records.length > 0 && (
+        <div className="flex flex-col gap-1.5">
+          {records.map((r, i) => (
+            <div
+              key={i}
+              className={cn(
+                "flex items-start gap-2.5 rounded-lg px-3 py-2",
+                r.won
+                  ? "border border-amber-400/15 bg-amber-400/5"
+                  : "border border-zinc-800 bg-zinc-900/60"
+              )}
+            >
+              <Trophy
+                className={cn(
+                  "mt-0.5 h-3.5 w-3.5 shrink-0",
+                  r.won ? "text-amber-400" : "text-zinc-700"
+                )}
+                aria-hidden
+              />
+              <div className="min-w-0">
+                <p className={cn("text-xs font-medium", r.won ? "text-amber-400" : "text-zinc-400")}>
+                  {r.category}
+                  {r.won && (
+                    <span className="ml-1.5 font-normal text-zinc-500">· Won</span>
+                  )}
+                </p>
+                {r.nominee && (
+                  <p className="text-xs text-zinc-500 mt-0.5">{r.nominee}</p>
+                )}
+                <p className="text-xs text-zinc-700 mt-0.5">{r.awardYear} ceremony</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}

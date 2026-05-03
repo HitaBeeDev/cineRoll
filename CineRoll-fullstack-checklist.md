@@ -311,8 +311,6 @@ Monorepo with `cineroll/` root containing:
 
 ---
 
-//////////////////////////////////////////////////////////////////////
-
 ## 10. Frontend — Pick of the Day
 
 - [x] Create component to display pick of the day on home page
@@ -324,6 +322,8 @@ Monorepo with `cineroll/` root containing:
 - [x] Make responsive for all screen sizes
 
 ---
+
+//////////////////////////////////////////////////////////////////////
 
 ## 11. Frontend — Film Detail Pages
 
