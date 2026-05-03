@@ -12,6 +12,7 @@
     "db:migrate": "prisma migrate dev",
     "db:generate": "prisma generate",
     "db:seed": "npx tsx src/scripts/seed.ts",
+    "db:perf": "npx tsx src/scripts/perf.ts",
     "enrich": "npx tsx src/scripts/enrich.ts"
   },
   "keywords": [],
