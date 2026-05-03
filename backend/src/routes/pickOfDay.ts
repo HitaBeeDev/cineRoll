@@ -4,6 +4,24 @@ import { HttpError } from "../middleware/errorHandler";
 
 export const pickOfDayRouter = Router();
 
+const pickOfDaySelect = {
+  id: true,
+  slug: true,
+  title: true,
+  year: true,
+  runtime: true,
+  genres: true,
+  plot: true,
+  director: true,
+  posterUrl: true,
+  backdropUrl: true,
+  imdbRating: true,
+  rtScore: true,
+  oscarNominations: true,
+  oscarWins: true,
+  pickOfDayDate: true,
+};
+
 pickOfDayRouter.get("/", async (_req, res) => {
   const start = new Date();
   start.setHours(0, 0, 0, 0);
@@ -22,6 +40,7 @@ pickOfDayRouter.get("/", async (_req, res) => {
       { pickOfDayDate: "desc" },
       { updatedAt: "desc" },
     ],
+    select: pickOfDaySelect,
   });
 
   if (!film) {

@@ -7,6 +7,17 @@ import { getValidated, validate } from "../middleware/validate";
 
 export const filmsRouter = Router();
 
+const filmListSelect = Prisma.sql`
+  "Film"."id",
+  "Film"."slug",
+  "Film"."title",
+  "Film"."year",
+  "Film"."genres",
+  "Film"."posterUrl",
+  "Film"."imdbRating",
+  "Film"."oscarWins"
+`;
+
 const listQuerySchema = z.object({
   search: z.string().trim().min(1).max(120).optional(),
   genre: z.string().trim().min(1).max(80).optional(),
@@ -115,7 +126,7 @@ filmsRouter.get("/", validate(listQuerySchema), async (req, res) => {
 
   const [films, countRows] = await Promise.all([
     prisma.$queryRaw`
-      SELECT *
+      SELECT ${filmListSelect}
       FROM "Film"
       ${whereSql}
       ORDER BY "Film"."year" DESC, "Film"."title" ASC
