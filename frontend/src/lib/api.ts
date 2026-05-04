@@ -73,3 +73,10 @@ export async function fetchGenres(): Promise<string[]> {
   const data = await res.json() as { genres: string[] };
   return data.genres;
 }
+
+export async function fetchCategories(): Promise<string[]> {
+  const res = await fetch(`${API_URL}/api/films/categories`);
+  if (!res.ok) return [];
+  const data = await res.json() as { categories: string[] };
+  return data.categories;
+}

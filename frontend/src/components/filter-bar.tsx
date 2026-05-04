@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import * as SliderPrimitive from "@radix-ui/react-slider";
-import { Search } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -17,40 +17,25 @@ import type { FilterState, AwardBody } from "@cineroll/types";
 interface FilterBarProps {
   filters: FilterState;
   genres: string[];
+  categories: string[];
   onFiltersChange: (updates: Partial<FilterState>) => void;
+  onClearFilters: () => void;
   className?: string;
 }
 
 const DECADE_MIN = 1900;
 const DECADE_MAX = 2030;
 
-const AWARD_CATEGORIES = [
-  "Best Picture",
-  "Best Director",
-  "Best Actor",
-  "Best Actress",
-  "Best Supporting Actor",
-  "Best Supporting Actress",
-  "Best Original Screenplay",
-  "Best Adapted Screenplay",
-  "Best Cinematography",
-  "Best Film Editing",
-  "Best Original Score",
-  "Best Visual Effects",
-  "Best Animated Feature",
-  "Best International Feature Film",
-  "Best Motion Picture - Drama",
-  "Best Motion Picture - Musical or Comedy",
-  "Best Actor in a Motion Picture - Drama",
-  "Best Actress in a Motion Picture - Drama",
-];
-
 export function FilterBar({
   filters,
   genres,
+  categories,
   onFiltersChange,
+  onClearFilters,
   className,
 }: FilterBarProps) {
+  const activeChips = getActiveFilterChips(filters, onFiltersChange);
+
   return (
     <div
       aria-label="Filter films"
@@ -154,7 +139,7 @@ export function FilterBar({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="_all">All categories</SelectItem>
-              {AWARD_CATEGORIES.map((cat) => (
+              {categories.map((cat) => (
                 <SelectItem key={cat} value={cat}>
                   {cat}
                 </SelectItem>
@@ -248,8 +233,131 @@ export function FilterBar({
           />
         </div>
       </div>
+
+      {activeChips.length > 0 && (
+        <div className="flex flex-col gap-2 border-t border-border pt-4">
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-sm font-medium text-foreground">
+              Active filters
+            </span>
+            <button
+              type="button"
+              onClick={onClearFilters}
+              className={cn(
+                "text-xs font-medium text-muted transition-colors",
+                "hover:text-foreground",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
+              )}
+            >
+              Clear all
+            </button>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {activeChips.map((chip) => (
+              <button
+                key={chip.key}
+                type="button"
+                onClick={chip.onRemove}
+                className={cn(
+                  "inline-flex h-7 items-center gap-1.5 rounded-full border border-border",
+                  "bg-background px-2.5 text-xs font-medium text-foreground",
+                  "transition-colors hover:border-muted hover:bg-surface-muted",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                )}
+                aria-label={`Remove ${chip.label} filter`}
+              >
+                <span>{chip.label}</span>
+                <X className="h-3 w-3 text-muted" aria-hidden />
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
+}
+
+type ActiveFilterChip = {
+  key: string;
+  label: string;
+  onRemove: () => void;
+};
+
+function getActiveFilterChips(
+  filters: FilterState,
+  onFiltersChange: (updates: Partial<FilterState>) => void,
+): ActiveFilterChip[] {
+  const chips: ActiveFilterChip[] = [];
+
+  if (filters.person.trim()) {
+    chips.push({
+      key: "person",
+      label: `Person: ${filters.person.trim()}`,
+      onRemove: () => onFiltersChange({ person: "", page: 1 }),
+    });
+  }
+
+  if (filters.awardBody !== "both") {
+    chips.push({
+      key: "awardBody",
+      label: filters.awardBody === "oscar" ? "Oscar" : "Golden Globe",
+      onRemove: () => onFiltersChange({ awardBody: "both", page: 1 }),
+    });
+  }
+
+  if (filters.winnerOnly) {
+    chips.push({
+      key: "winnerOnly",
+      label: "Won",
+      onRemove: () =>
+        onFiltersChange({ winnerOnly: false, nominatedOnly: false, page: 1 }),
+    });
+  } else if (filters.nominatedOnly) {
+    chips.push({
+      key: "nominatedOnly",
+      label: "Nominated",
+      onRemove: () => onFiltersChange({ nominatedOnly: false, page: 1 }),
+    });
+  }
+
+  if (filters.category.trim()) {
+    chips.push({
+      key: "category",
+      label: filters.category.trim(),
+      onRemove: () => onFiltersChange({ category: "", page: 1 }),
+    });
+  }
+
+  if (filters.awardYear != null) {
+    chips.push({
+      key: "awardYear",
+      label: `Award year: ${filters.awardYear}`,
+      onRemove: () => onFiltersChange({ awardYear: null, page: 1 }),
+    });
+  }
+
+  if (filters.genre.trim()) {
+    chips.push({
+      key: "genre",
+      label: filters.genre.trim(),
+      onRemove: () => onFiltersChange({ genre: "", page: 1 }),
+    });
+  }
+
+  if (filters.decadeMin !== DECADE_MIN || filters.decadeMax !== DECADE_MAX) {
+    chips.push({
+      key: "decade",
+      label: `${filters.decadeMin}-${filters.decadeMax}`,
+      onRemove: () =>
+        onFiltersChange({
+          decadeMin: DECADE_MIN,
+          decadeMax: DECADE_MAX,
+          page: 1,
+        }),
+    });
+  }
+
+  return chips;
 }
 
 interface DecadeRangeSliderProps {

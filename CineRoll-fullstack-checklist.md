@@ -322,17 +322,17 @@ Monorepo with `cineroll/` root containing:
 
 Filter section sits **above** the Roll button. All filters are optional — user sets what they want, then hits Roll. The "Rolling from N films" counter updates live as filters change.
 
-- [ ] Filter panel placed above Roll button (JSX done, full wiring in progress)
-- [ ] **Person / cast / director search** — single text input; searches across cast, directors, and award nominee names — e.g. "Meryl Streep" rolls only films she appeared in or was nominated for; wire to `person` param on /api/random
-- [ ] **Award body pills** — Oscar / Golden Globe / Both; wire to `awardBody` param
-- [ ] **Status pills** — All / Won / Nominated; wire to `winnerOnly` and `nominatedOnly` params
-- [ ] **Category dropdown** — populate dynamically from GET /api/films/categories (currently hardcoded placeholder list); wire to `category` param
-- [ ] **Award Year** — number input for ceremony year (e.g. 1994); wire to `awardYear` param; optionally populate options from GET /api/films/award-years
-- [ ] **Genre dropdown** — already wired; confirm it works with award filters combined
-- [ ] **Decade range slider** — already wired; confirm it works with award filters combined
-- [ ] **Active filter chips** — show one dismissible chip per active filter so the user can see and remove individual selections
-- [ ] **Clear all filters** button — resets everything to default in one click
-- [ ] Verify all filters combine correctly end-to-end: e.g. "Meryl Streep + Oscar + Won + Best Actress" returns the right films
+- [x] Filter panel placed above Roll button (JSX done, full wiring in progress)
+- [x] **Person / cast / director search** — single text input; searches across cast, directors, and award nominee names — e.g. "Meryl Streep" rolls only films she appeared in or was nominated for; wire to `person` param on /api/random
+- [x] **Award body pills** — Oscar / Golden Globe / Both; wire to `awardBody` param
+- [x] **Status pills** — All / Won / Nominated; wire to `winnerOnly` and `nominatedOnly` params
+- [x] **Category dropdown** — populate dynamically from GET /api/films/categories (currently hardcoded placeholder list); wire to `category` param
+- [x] **Award Year** — number input for ceremony year (e.g. 1994); wire to `awardYear` param; optionally populate options from GET /api/films/award-years
+- [x] **Genre dropdown** — already wired; confirm it works with award filters combined
+- [x] **Decade range slider** — already wired; confirm it works with award filters combined
+- [x] **Active filter chips** — show one dismissible chip per active filter so the user can see and remove individual selections
+- [x] **Clear all filters** button — resets everything to default in one click
+- [x] Verify all filters combine correctly end-to-end: e.g. "Meryl Streep + Oscar + Won + Best Actress" returns the right films
 
 ---
 

@@ -10,22 +10,30 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/toast";
 import { FilterBar } from "@/components/filter-bar";
 import { PickOfDay } from "@/components/pick-of-day";
-import { fetchRandom, fetchFilms, fetchGenres, type RollFilm } from "@/lib/api";
+import {
+  fetchRandom,
+  fetchFilms,
+  fetchGenres,
+  fetchCategories,
+  type RollFilm,
+} from "@/lib/api";
 import { useFilters } from "@/hooks/useFilters";
 import { cn } from "@/lib/utils";
 
 export default function HomePage() {
   const { toast } = useToast();
-  const { filters, setFilter, hasActiveFilters } = useFilters();
+  const { filters, setFilter, resetFilters, hasActiveFilters } = useFilters();
   const [film, setFilm] = useState<RollFilm | null>(null);
   const [isRolling, setIsRolling] = useState(false);
   const [hasRolled, setHasRolled] = useState(false);
   const [filteredCount, setFilteredCount] = useState<number | null>(null);
   const [isCountLoading, setIsCountLoading] = useState(false);
   const [genres, setGenres] = useState<string[]>([]);
+  const [categories, setCategories] = useState<string[]>([]);
 
   useEffect(() => {
     void fetchGenres().then(setGenres);
+    void fetchCategories().then(setCategories);
   }, []);
 
   useEffect(() => {
@@ -54,7 +62,8 @@ export default function HomePage() {
 
   // When no filters are active, treat count as null regardless of stale state
   const effectiveCount = hasActiveFilters ? filteredCount : null;
-  const isRollDisabled = isRolling || (hasActiveFilters && effectiveCount === 0 && !isCountLoading);
+  const effectiveCountLoading = hasActiveFilters && isCountLoading;
+  const isRollDisabled = isRolling || (hasActiveFilters && effectiveCount === 0 && !effectiveCountLoading);
 
   async function handleRoll() {
     setIsRolling(true);
@@ -105,14 +114,16 @@ export default function HomePage() {
           <FilterBar
             filters={filters}
             genres={genres}
+            categories={categories}
             onFiltersChange={setFilter}
+            onClearFilters={resetFilters}
             className="w-full"
           />
 
           <RollIndicator
             hasActiveFilters={hasActiveFilters}
             count={effectiveCount}
-            loading={isCountLoading}
+            loading={effectiveCountLoading}
           />
 
           <Button

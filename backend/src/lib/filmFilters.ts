@@ -129,12 +129,22 @@ export function buildWhereClause(
 
   if (query.person) {
     const personLike = `%${query.person}%`;
-    where.push(awardExists(query.awardBody, [
-      Prisma.sql`(
-        award->>'nominee' ILIKE ${personLike}
-        OR award->>'winner' ILIKE ${personLike}
-      )`,
-    ]));
+    where.push(Prisma.sql`
+      (
+        "Film"."director" ILIKE ${personLike}
+        OR EXISTS (
+          SELECT 1
+          FROM jsonb_array_elements_text("Film"."cast") AS "castName"
+          WHERE "castName" ILIKE ${personLike}
+        )
+        OR ${awardExists(query.awardBody, [
+          Prisma.sql`(
+            award->>'nominee' ILIKE ${personLike}
+            OR award->>'winner' ILIKE ${personLike}
+          )`,
+        ])}
+      )
+    `);
   }
 
   if (query.director) {
