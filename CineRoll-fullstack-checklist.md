@@ -189,20 +189,18 @@ Monorepo with `cineroll/` root containing:
 
 ### 5d. Database Performance Optimization
 
-- [ ] Create database indexes on frequently queried columns:
-  - [ ] Index on `title` column for search queries (`Film_title_idx`)
-  - [ ] Index on `year` column for filtering by decade (`Film_year_idx`)
-  - [ ] Index on `genres` (array column) for genre filtering (`Film_genres_gin_idx`)
-  - [ ] Full-text search index using PostgreSQL pg_trgm extension for typo-tolerant search (`Film_title_trgm_idx`)
-  - [ ] Unique index on `slug` column for fast lookups by slug (`Film_slug_key`, created by Prisma unique constraint)
-- [ ] Enable connection pooling: backend now uses `DATABASE_POOL_SIZE=25` by default via the Prisma PostgreSQL adapter; keep Neon configured to use the pooled connection endpoint with a pool size in the 25-50 range for production traffic
-- [ ] Test database query performance: `npm run db:perf --workspace=backend` passes with search queries under 100ms and detail lookups under 50ms
-- [ ] Monitor slow queries using PostgreSQL slow query log or Neon analytics: backend now emits slow Prisma query warnings for queries over `SLOW_QUERY_THRESHOLD_MS=100`; Neon analytics should remain the production monitoring source
-- [ ] Implement query caching if needed (Redis) for frequently accessed data like "Pick of the Day": not needed at current measured query times; revisit when API traffic or Neon analytics shows repeated slow reads
+- [x] Create database indexes on frequently queried columns:
+  - [x] Index on `title` column for search queries (`Film_title_idx`)
+  - [x] Index on `year` column for filtering by decade (`Film_year_idx`)
+  - [x] Index on `genres` (array column) for genre filtering (`Film_genres_gin_idx`)
+  - [x] Full-text search index using PostgreSQL pg_trgm extension for typo-tolerant search (`Film_title_trgm_idx`)
+  - [x] Unique index on `slug` column for fast lookups by slug (`Film_slug_key`, created by Prisma unique constraint)
+- [x] Enable connection pooling: backend now uses `DATABASE_POOL_SIZE=25` by default via the Prisma PostgreSQL adapter; keep Neon configured to use the pooled connection endpoint with a pool size in the 25-50 range for production traffic
+- [x] Test database query performance: `npm run db:perf --workspace=backend` passes with search queries under 100ms and detail lookups under 50ms
+- [x] Monitor slow queries using PostgreSQL slow query log or Neon analytics: backend now emits slow Prisma query warnings for queries over `SLOW_QUERY_THRESHOLD_MS=100`; Neon analytics should remain the production monitoring source
+- [x] Implement query caching if needed (Redis) for frequently accessed data like "Pick of the Day": not needed at current measured query times; revisit when API traffic or Neon analytics shows repeated slow reads
 
 ---
-
-///////////////////////////////////////////////////
 
 ## 6. Backend — API Routes & Performance
 
@@ -807,7 +805,7 @@ Run this section after the app is fully built and deployed. Lighthouse results o
 
 - [ ] Sign in with Google redirects to Google OAuth and returns a valid session
 - [ ] Sign out clears the session and hides the profile/watchlist links
-- [ ] Unauthenticated requests to /api/user/* return 401
+- [ ] Unauthenticated requests to /api/user/\* return 401
 
 ### Watchlist & Watch History
 
