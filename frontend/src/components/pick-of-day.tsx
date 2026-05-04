@@ -12,38 +12,32 @@ import {
   ExternalLink,
   RefreshCw,
   Clapperboard,
+  Sparkles,
 } from "lucide-react";
-import type { Film } from "@cineroll/types";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { fetchPickOfDay, type PickOfDayFilm } from "@/lib/api";
 import { cn } from "@/lib/utils";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 
 type Status = "loading" | "success" | "empty" | "error";
 
 export function PickOfDay() {
-  const [film, setFilm] = useState<Film | null>(null);
+  const [film, setFilm] = useState<PickOfDayFilm | null>(null);
   const [status, setStatus] = useState<Status>("loading");
 
   const load = useCallback(async () => {
     setStatus("loading");
     try {
-      const res = await fetch(`${API_URL}/api/pick-of-day`);
-      if (res.status === 404) {
+      const result = await fetchPickOfDay();
+      if (!result) {
         setFilm(null);
         setStatus("empty");
         return;
       }
-      if (!res.ok) throw new Error();
-      const data: unknown = await res.json();
-      if (!data || typeof data !== "object" || !("id" in data)) {
-        setStatus("empty");
-        return;
-      }
-      setFilm(data as Film);
+      setFilm(result);
       setStatus("success");
     } catch {
+      setFilm(null);
       setStatus("error");
     }
   }, []);
@@ -97,7 +91,7 @@ export function PickOfDay() {
   );
 }
 
-function PickOfDayCard({ film }: { film: Film }) {
+function PickOfDayCard({ film }: { film: PickOfDayFilm }) {
   const pickDate = film.pickOfDayDate
     ? new Date(film.pickOfDayDate).toLocaleDateString("en-US", {
         month: "long",
@@ -106,6 +100,7 @@ function PickOfDayCard({ film }: { film: Film }) {
     : null;
 
   const hasBackdrop = Boolean(film.backdropUrl);
+  const whyPicked = getWhyPicked(film);
 
   return (
     <div
@@ -221,7 +216,16 @@ function PickOfDayCard({ film }: { film: Film }) {
             </p>
           )}
 
-          {/* Why it stands out — award context */}
+          <div className="flex items-start gap-2 rounded-lg border border-amber-400/10 bg-amber-400/5 px-3 py-2">
+            <Sparkles className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-400" aria-hidden />
+            <div className="flex flex-col gap-1">
+              <p className="text-xs font-semibold uppercase tracking-wide text-amber-400/80">
+                Why this pick
+              </p>
+              <p className="text-xs text-zinc-300 leading-snug">{whyPicked}</p>
+            </div>
+          </div>
+
           {(film.oscarWins > 0 || film.oscarNominations > 0) && (
             <div className="flex items-start gap-2 rounded-lg border border-amber-400/10 bg-amber-400/5 px-3 py-2">
               <Trophy className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-400" aria-hidden />
@@ -256,6 +260,31 @@ function PickOfDayCard({ film }: { film: Film }) {
       </div>
     </div>
   );
+}
+
+function getWhyPicked(film: PickOfDayFilm): string {
+  if (film.oscarWins > 0) {
+    return `${film.title} earned ${film.oscarWins} Academy Award ${film.oscarWins === 1 ? "win" : "wins"}, making it a strong spotlight from the awards shelf.`;
+  }
+
+  if (film.oscarNominations > 0) {
+    return `${film.title} was recognized with ${film.oscarNominations} Academy Award ${film.oscarNominations === 1 ? "nomination" : "nominations"}, so today's roll starts with proven awards pedigree.`;
+  }
+
+  if (film.imdbRating != null && film.imdbRating >= 8) {
+    return `${film.title} stands out with a ${film.imdbRating.toFixed(1)} IMDb rating and a place in CineRoll's curated film pool.`;
+  }
+
+  if (film.rtScore != null && film.rtScore >= 85) {
+    return `${film.title} brings strong critical reception with an ${film.rtScore}% Rotten Tomatoes score.`;
+  }
+
+  const primaryGenre = film.genres[0];
+  if (primaryGenre) {
+    return `${film.title} is today's ${primaryGenre.toLowerCase()} spotlight from CineRoll's curated award-film collection.`;
+  }
+
+  return `${film.title} is today's spotlight from CineRoll's curated award-film collection.`;
 }
 
 function PickOfDaySkeleton() {

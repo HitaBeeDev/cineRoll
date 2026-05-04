@@ -26,6 +26,26 @@ export type RollFilm = Pick<
 
 export type RandomResult = { film: RollFilm; total: number };
 
+export type PickOfDayFilm = Pick<
+  Film,
+  | "id"
+  | "slug"
+  | "title"
+  | "year"
+  | "releaseYear"
+  | "runtime"
+  | "genres"
+  | "plot"
+  | "director"
+  | "posterUrl"
+  | "backdropUrl"
+  | "imdbRating"
+  | "rtScore"
+  | "oscarNominations"
+  | "oscarWins"
+  | "pickOfDayDate"
+>;
+
 export function filtersToParams(filters: Partial<FilterState>): URLSearchParams {
   const params = new URLSearchParams();
   if (filters.search?.trim()) params.set("search", filters.search.trim());
@@ -65,6 +85,13 @@ export async function fetchFilms(filters: Partial<FilterState>, limit = 12): Pro
   const res = await fetch(`${API_URL}/api/films?${params}`);
   if (!res.ok) throw new Error("Failed to fetch films");
   return res.json() as Promise<PaginatedFilms>;
+}
+
+export async function fetchPickOfDay(): Promise<PickOfDayFilm | null> {
+  const res = await fetch(`${API_URL}/api/pick-of-day`);
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error("Failed to fetch pick of the day");
+  return res.json() as Promise<PickOfDayFilm>;
 }
 
 export async function fetchGenres(): Promise<string[]> {

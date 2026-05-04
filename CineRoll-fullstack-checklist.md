@@ -339,13 +339,13 @@ Filter section sits **above** the Roll button. All filters are optional — user
 
 ## 10. Frontend — Pick of the Day
 
-- [ ] Create component to display pick of the day on home page
-- [ ] Call /api/pick-of-day endpoint on page load
-- [ ] Display film details: poster, title, year, plot, why it was picked
-- [ ] Show fallback message if no pick is set ("No pick today, roll to discover!")
-- [ ] Add navigation link to full film detail page
-- [ ] Handle loading and error states
-- [ ] Make responsive for all screen sizes
+- [x] Create component to display pick of the day on home page
+- [x] Call /api/pick-of-day endpoint on page load
+- [x] Display film details: poster, title, year, plot, why it was picked
+- [x] Show fallback message if no pick is set ("No pick today, roll to discover!")
+- [x] Add navigation link to full film detail page
+- [x] Handle loading and error states
+- [x] Make responsive for all screen sizes
 
 ---
 
