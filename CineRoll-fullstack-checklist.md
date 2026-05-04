@@ -204,9 +204,9 @@ Monorepo with `cineroll/` root containing:
 
 ## 6. Backend — API Routes & Performance
 
-- [ ] Create `backend/src/routes/index.ts` that exports a router with all sub-routes mounted
-- [ ] Create `backend/src/routes/films.ts` with:
-  - [ ] GET /api/films (search with filters — all combinable):
+- [x] Create `backend/src/routes/index.ts` that exports a router with all sub-routes mounted
+- [x] Create `backend/src/routes/films.ts` with:
+  - [x] GET /api/films (search with filters — all combinable):
     - `search` — film title text search
     - `person` — nominee or winner name (searches all AwardRecord entries across oscarCategories + ggCategories)
     - `director` — director name (matches Film.director field)
@@ -219,9 +219,9 @@ Monorepo with `cineroll/` root containing:
     - `decadeMin`/`decadeMax` — release decade range
     - `page`, `limit`
 
-  - [ ] GET /api/films/categories — return distinct list of all award categories in the dataset (used to populate category dropdown in UI)
-  - [ ] GET /api/films/award-years — return sorted list of all distinct ceremony years in the dataset (used to populate award year dropdown)
-  - [ ] GET /api/films/:slug (get single film by slug with full details including all AwardRecord arrays)
+  - [x] GET /api/films/categories — return distinct list of all award categories in the dataset (used to populate category dropdown in UI)
+  - [x] GET /api/films/award-years — return sorted list of all distinct ceremony years in the dataset (used to populate award year dropdown)
+  - [x] GET /api/films/:slug (get single film by slug with full details including all AwardRecord arrays)
 
 - [ ] Create `backend/src/routes/random.ts` with:
   - [ ] GET /api/random (return a random film from database — no filters)

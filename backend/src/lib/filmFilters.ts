@@ -1,6 +1,14 @@
 import { Prisma } from "@prisma/client";
 import { z } from "zod";
 
+const queryBooleanSchema = z.preprocess(value => {
+  if (typeof value === "string") {
+    if (value.toLowerCase() === "true") return true;
+    if (value.toLowerCase() === "false") return false;
+  }
+  return value;
+}, z.boolean());
+
 export const listQuerySchema = z.object({
   search: z.string().trim().min(1).max(120).optional(),
   person: z.string().trim().min(1).max(120).optional(),
@@ -11,8 +19,8 @@ export const listQuerySchema = z.object({
   decadeMax: z.coerce.number().int().min(1800).max(2200).optional(),
   awardYear: z.coerce.number().int().min(1800).max(2200).optional(),
   category: z.string().trim().min(1).max(120).optional(),
-  winnerOnly: z.coerce.boolean().optional(),
-  nominatedOnly: z.coerce.boolean().optional(),
+  winnerOnly: queryBooleanSchema.optional(),
+  nominatedOnly: queryBooleanSchema.optional(),
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(100).default(12),
 }).refine(
@@ -101,8 +109,12 @@ export function buildWhereClause(query: ListQuery): Prisma.Sql {
   }
 
   if (query.person) {
+    const personLike = `%${query.person}%`;
     where.push(awardExists(query.awardBody, [
-      Prisma.sql`award->>'nominee' ILIKE ${`%${query.person}%`}`,
+      Prisma.sql`(
+        award->>'nominee' ILIKE ${personLike}
+        OR award->>'winner' ILIKE ${personLike}
+      )`,
     ]));
   }
 
