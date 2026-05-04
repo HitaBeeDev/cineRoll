@@ -62,14 +62,15 @@ Monorepo with `cineroll/` root containing:
 10. Frontend — Pick of the Day
 11. Frontend — Film Detail Pages
 12. Frontend — Browse, Filter & Filtered Roll
-13. Frontend — Pages & Routing
-14. Auth & User System
-15. Watchlist & Watch History
-16. Profile & Personalized Recommendations
-17. Deployment
-18. Documentation
-19. Performance & Lighthouse Audit
-20. Google Search Ranking (SEO)
+13. Internationalization (i18n)
+14. Frontend — Pages & Routing
+15. Auth & User System
+16. Watchlist & Watch History
+17. Profile & Personalized Recommendations
+18. Deployment
+19. Documentation
+20. Performance & Lighthouse Audit
+21. Google Search Ranking (SEO)
 
 ---
 
@@ -351,28 +352,26 @@ Filter section sits **above** the Roll button. All filters are optional — user
 
 ## 11. Frontend — Film Detail Pages
 
-- [ ] Create `src/app/film/[slug]/page.tsx` dynamic route
-- [ ] Fetch film data by slug from `/api/films/:slug` endpoint
-- [ ] Display complete film information:
+- [x] Create `src/app/film/[slug]/page.tsx` dynamic route
+- [x] Fetch film data by slug from `/api/films/:slug` endpoint
+- [x] Display complete film information:
   - Large poster and backdrop images
   - Title, year, runtime, genres
   - Director and main cast
   - Full plot synopsis
   - IMDB and Rotten Tomatoes ratings with icons
   - Language information
-- [ ] Display awards information:
+- [x] Display awards information:
   - Oscar nominations and wins (organized by category and year)
   - Golden Globe nominations and wins (organized by category and year)
   - Total award counts
-- [ ] Embed or link YouTube trailer if available
-- [ ] Add SEO metadata: dynamic title, description, Open Graph images, Twitter cards
-- [ ] Create 404 page if film slug not found
-- [ ] Make responsive: stack all content vertically on mobile, use grid layout on desktop
-- [ ] Add "Back to Browse" or "Roll Again" navigation buttons
+- [x] Embed or link YouTube trailer if available
+- [x] Add SEO metadata: dynamic title, description, Open Graph images, Twitter cards
+- [x] Create 404 page if film slug not found
+- [x] Make responsive: stack all content vertically on mobile, use grid layout on desktop
+- [x] Add "Back to Browse" or "Roll Again" navigation buttons
 
 ---
-
-//////////////////////////////////////////////////////////////////////
 
 ## 12. Frontend — Browse, Filter & Filtered Roll
 
@@ -428,7 +427,74 @@ The same award-first filter panel used on the home page is also the core of the 
 
 ---
 
-## 13. Frontend — Pages & Routing
+## 13. Internationalization (i18n)
+
+The app auto-detects the user's language from their browser locale and renders the UI in that language. Users can switch to any supported language at any time, and their preference is remembered across sessions.
+
+### Supported Languages (starter set)
+
+English (`en`), Spanish (`es`), French (`fr`), German (`de`), Persian/Farsi (`fa`), Japanese (`ja`), Portuguese (`pt`).
+
+### Setup & Configuration
+
+- [ ] Install `next-intl` in frontend: `npm install next-intl --workspace=frontend`
+- [ ] Create `frontend/messages/` directory with one JSON file per language: `en.json`, `es.json`, `fr.json`, `de.json`, `fa.json`, `ja.json`, `pt.json`
+- [ ] Create `frontend/src/i18n/request.ts` to configure locale detection (reads `Accept-Language` header via `next-intl` middleware)
+- [ ] Add `next-intl` middleware in `frontend/src/middleware.ts` to detect locale from browser headers and redirect to the appropriate locale prefix (e.g. `/en/...`, `/es/...`)
+- [ ] Configure `next-intl` plugin in `next.config.js`
+- [ ] Migrate `frontend/src/app/` to locale routing: move all pages under `src/app/[locale]/` (e.g. `src/app/[locale]/layout.tsx`, `src/app/[locale]/page.tsx`, etc.)
+- [ ] Wrap the root layout in `NextIntlClientProvider` so all components have access to translations
+- [ ] Add `dir="rtl"` to the `<html>` root when the active locale is a right-to-left language (e.g. `fa`); add `dir="ltr"` for all others
+
+### Language Detection & Persistence
+
+- [ ] Primary detection: `next-intl` middleware reads the `Accept-Language` browser header
+- [ ] Fallback: if the detected locale is not in the supported list, default to `en`
+- [ ] On manual language switch, write the chosen locale to a cookie (e.g. `NEXT_LOCALE`) so it overrides browser detection on return visits
+- [ ] Verify priority order: cookie → `Accept-Language` → default `en`
+
+### Language Switcher Component
+
+- [ ] Create `src/components/LanguageSwitcher.tsx` — a dropdown listing all supported languages with their native names (e.g. "Español", "Français", "فارسی")
+- [ ] Show the currently active language
+- [ ] On selection, set the `NEXT_LOCALE` cookie and navigate to the same page under the new locale prefix (use `useRouter` + `usePathname` from `next-intl`)
+- [ ] Add `LanguageSwitcher` to the site header / navigation bar
+
+### Translation Files
+
+- [ ] Create `messages/en.json` as the source of truth — organize keys by feature area:
+  - `common` — shared labels (Save, Cancel, Loading, etc.)
+  - `nav` — navigation links (Home, Browse, Profile, Sign in, Sign out)
+  - `home` — Roll button, "Pick of the Day" heading, filter section labels
+  - `filters` — all pill labels, dropdown placeholders, input placeholders, active chip labels, "Clear all" button
+  - `browse` — result count text ("N films match your filters"), pagination, empty states
+  - `film` — section headings (Awards, Cast, etc.), rating labels, "Roll again" button
+  - `auth` — sign-in prompt, button labels
+  - `watchlist` — headings, stat labels, empty states, action buttons
+  - `profile` — user greeting, recommendation headings, stats
+  - `errors` — API error messages and toast notifications
+- [ ] Translate all keys into each supported language file (`es.json`, `fr.json`, `de.json`, `fa.json`, `ja.json`, `pt.json`)
+- [ ] Replace every hardcoded UI string in existing components with `useTranslations()` hook calls
+
+### SEO — Localized Metadata & Sitemap
+
+- [ ] Export localized `generateMetadata` from each `[locale]` page so `<title>` and `<meta description>` are in the active language
+- [ ] Update `sitemap.xml` to include locale-prefixed URLs (e.g. `/en/film/...`, `/es/film/...`) and add `<xhtml:link>` alternate tags for each language variant
+- [ ] Add `<link rel="alternate" hreflang="...">` tags to the `<head>` for all locale variants of each page (helps Google serve the right language to the right user)
+
+### Testing
+
+- [ ] Auto-detection: open the app in a browser set to Spanish → UI should render in Spanish without any manual selection
+- [ ] Fallback: set browser to an unsupported locale → UI falls back to English
+- [ ] Language switcher: select French → page reloads in French, `NEXT_LOCALE` cookie is set to `fr`
+- [ ] Persistence: reload page → French is still active (cookie overrides browser header)
+- [ ] RTL layout: switch to Farsi → text flows right-to-left, layout mirrors correctly (no overflow or alignment issues)
+- [ ] No hardcoded strings remain: search all component files for UI-facing string literals and confirm each is replaced with a `useTranslations()` call
+- [ ] Verify `npm run type-check` still passes after all component changes
+
+---
+
+## 14. Frontend — Pages & Routing
 
 - [ ] Create `src/app/layout.tsx` (root layout with navigation)
 - [ ] Create `src/app/page.tsx` (home page with Roll feature)
@@ -449,9 +515,9 @@ The same award-first filter panel used on the home page is also the core of the 
 
 ---
 
-## 14. Auth & User System
+## 15. Auth & User System
 
-This section must be completed before building watchlist/history (section 15) and profile (section 16), as both depend on authenticated user identity.
+This section must be completed before building watchlist/history (section 16) and profile (section 17), as both depend on authenticated user identity.
 
 ### 14a. Backend — Auth Models
 
@@ -482,9 +548,9 @@ This section must be completed before building watchlist/history (section 15) an
 
 ---
 
-## 15. Watchlist & Watch History
+## 16. Watchlist & Watch History
 
-Depends on: section 14 (auth must be working before this section).
+Depends on: section 15 (auth must be working before this section).
 
 ### 15a. Backend — Database Models
 
@@ -530,9 +596,9 @@ Depends on: section 14 (auth must be working before this section).
 
 ---
 
-## 16. Profile & Personalized Recommendations
+## 17. Profile & Personalized Recommendations
 
-Depends on: sections 14 and 15 (auth + watchlist/history data must exist to generate recommendations).
+Depends on: sections 15 and 16 (auth + watchlist/history data must exist to generate recommendations).
 
 ### 16a. Backend — Recommendations API
 
@@ -563,7 +629,7 @@ Depends on: sections 14 and 15 (auth + watchlist/history data must exist to gene
 
 ---
 
-## 17. Deployment
+## 18. Deployment
 
 ### Frontend Deployment to Vercel
 
@@ -618,7 +684,7 @@ Depends on: sections 14 and 15 (auth + watchlist/history data must exist to gene
 
 ---
 
-## 18. Documentation
+## 19. Documentation
 
 - [ ] Create `README.md` at repository root with:
   - Project overview and purpose
@@ -684,7 +750,7 @@ Depends on: sections 14 and 15 (auth + watchlist/history data must exist to gene
 
 ---
 
-## 19. Performance & Lighthouse Audit
+## 20. Performance & Lighthouse Audit
 
 Run this section after the app is fully built and deployed. Lighthouse results on a live production URL are the only meaningful scores — dev server numbers are not valid.
 
@@ -851,7 +917,7 @@ Run this section after the app is fully built and deployed. Lighthouse results o
 
 ---
 
-## 20. Google Search Ranking (SEO)
+## 21. Google Search Ranking (SEO)
 
 Run this section after deployment. These steps go beyond Lighthouse's basic SEO score and target actual Google ranking for searches like "oscar nominated films filter", "random award winning movie", "golden globe movies by actor", etc.
 
