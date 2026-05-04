@@ -145,18 +145,18 @@ Monorepo with `cineroll/` root containing:
 
 ### 5.0 Data File Preparation
 
-- [ ] Create `backend/data/` directory
-- [ ] Add data files to root `.gitignore` so they don't get committed
-- [ ] Prepare `backend/data/films-oscar.csv` — one row per Oscar nomination/win with columns: `Id, Award Year, OSCie Name, Release Year, Type Of Award, Award Winner, Award Nominee`
+- [x] Create `backend/data/` directory
+- [x] Add data files to root `.gitignore` so they don't get committed
+- [x] Prepare `backend/data/films-oscar.csv` — one row per Oscar nomination/win with columns: `Id, Award Year, OSCie Name, Release Year, Type Of Award, Award Winner, Award Nominee`
   - `Id` format: `OSC-{year}-{nn}` (e.g. `OSC-1929-01`)
   - `Award Winner` = person/studio name if they won, `NaN` if nominated only
-- [ ] Prepare `backend/data/films-goldenglobe.csv` — same column structure, `Id` format: `GG-{year}-{nn}`
+- [x] Prepare `backend/data/films-goldenglobe.csv` — same column structure, `Id` format: `GG-{year}-{nn}`
 
 ### 5a. Enrichment Script — Fetch Data from TMDB & OMDB APIs
 
-- [ ] Install CSV parsing library (csv-parse) in backend
-- [ ] Create `backend/.env.local` with TMDB_API_KEY and OMDB_API_KEY (these are only for enrichment, not used at runtime)
-- [ ] Update `backend/src/scripts/enrich.ts` script to:
+- [x] Install CSV parsing library (csv-parse) in backend
+- [x] Create `backend/.env.local` with TMDB_API_KEY and OMDB_API_KEY (these are only for enrichment, not used at runtime)
+- [x] Update `backend/src/scripts/enrich.ts` script to:
   - Load environment variables from .env.local
   - Read both `films-oscar.csv` and `films-goldenglobe.csv`
   - Group rows by (film title + release year) to get unique films
@@ -171,11 +171,11 @@ Monorepo with `cineroll/` root containing:
   - Write all successfully enriched films to films-enriched.json
   - Write failed films to enrichment-errors.csv with reason
   - Log summary: how many enriched, how many errors
-- [ ] Run enrichment script
-- [ ] Review enrichment-errors.csv to see which films failed to match
-- [ ] Fix any failed films by correcting title spelling in source CSVs, then re-run
-- [ ] Validate output: verify all slugs are unique, spot-check entries for data quality
-- [ ] Save validated result as `backend/data/films-final.json` (do not overwrite after seeding)
+- [x] Run enrichment script
+- [x] Review enrichment-errors.csv to see which films failed to match
+- [x] Fix any failed films by correcting title spelling in source CSVs, then re-run
+- [x] Validate output: verify all slugs are unique, spot-check entries for data quality
+- [x] Save validated result as `backend/data/films-final.json` (do not overwrite after seeding)
 
 ### 5c. Seed Database
 

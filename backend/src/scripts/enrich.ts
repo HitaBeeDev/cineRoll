@@ -237,16 +237,29 @@ async function main() {
 
       if (imdbId) {
         await delay(250);
-        const omdb = await omdbDetails(imdbId);
-        const imdbRaw = omdb.imdbRating as string | undefined;
-        if (imdbRaw && imdbRaw !== 'N/A') imdbRating = parseFloat(imdbRaw);
-        const ratings = omdb.Ratings as Array<{ Source: string; Value: string }> | undefined;
-        const rtRaw = ratings?.find(r => r.Source === 'Rotten Tomatoes')?.Value;
-        if (rtRaw) rtScore = parseInt(rtRaw.replace('%', ''), 10);
+        try {
+          const omdb = await omdbDetails(imdbId);
+          const imdbRaw = omdb.imdbRating as string | undefined;
+          if (imdbRaw && imdbRaw !== 'N/A') imdbRating = parseFloat(imdbRaw);
+          const ratings = omdb.Ratings as Array<{ Source: string; Value: string }> | undefined;
+          const rtRaw = ratings?.find(r => r.Source === 'Rotten Tomatoes')?.Value;
+          if (rtRaw) rtScore = parseInt(rtRaw.replace('%', ''), 10);
+        } catch (err: unknown) {
+          const msg = err instanceof Error ? err.message : String(err);
+          console.warn(`  ! OMDB skipped: ${msg}`);
+        }
       }
 
       let slug = slugify(title);
-      if (usedSlugs.has(slug)) slug = `${slug}-${year}`;
+      if (usedSlugs.has(slug)) {
+        const baseSlug = slug;
+        slug = `${baseSlug}-${year}`;
+        let suffix = 2;
+        while (usedSlugs.has(slug)) {
+          slug = `${baseSlug}-${year}-${suffix}`;
+          suffix++;
+        }
+      }
       usedSlugs.add(slug);
 
       const posterPath = details.poster_path as string | null | undefined;
