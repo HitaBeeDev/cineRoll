@@ -298,16 +298,16 @@ Monorepo with `cineroll/` root containing:
 
 ## 9. Frontend — Roll Feature
 
-- [ ] Create `src/app/page.tsx` (home page)
-- [ ] Add large "Roll" button that triggers API call to /api/random
-- [ ] Display loading state while fetching
-- [ ] Display film card with poster, title, year, rating
-- [ ] Add "Roll Again" button to fetch another random film
-- [ ] Implement smooth animations for result reveal using Framer Motion
-- [ ] Display "Pick of the Day" section that calls /api/pick-of-day endpoint
-- [ ] Show fallback message if no pick of day is set
-- [ ] Add error handling with toast notification if API fails
-- [ ] Make responsive: adjust button sizes and spacing for mobile
+- [x] Create `src/app/page.tsx` (home page)
+- [x] Add large "Roll" button that triggers API call to /api/random
+- [x] Display loading state while fetching
+- [x] Display film card with poster, title, year, rating
+- [x] Add "Roll Again" button to fetch another random film
+- [x] Implement smooth animations for result reveal using Framer Motion
+- [x] Display "Pick of the Day" section that calls /api/pick-of-day endpoint
+- [x] Show fallback message if no pick of day is set
+- [x] Add error handling with toast notification if API fails
+- [x] Make responsive: adjust button sizes and spacing for mobile
 
 ### Filtered Roll (Roll Within a Filtered Set)
 

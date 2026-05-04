@@ -30,6 +30,11 @@ export function PickOfDay() {
     setStatus("loading");
     try {
       const res = await fetch(`${API_URL}/api/pick-of-day`);
+      if (res.status === 404) {
+        setFilm(null);
+        setStatus("empty");
+        return;
+      }
       if (!res.ok) throw new Error();
       const data: unknown = await res.json();
       if (!data || typeof data !== "object" || !("id" in data)) {
