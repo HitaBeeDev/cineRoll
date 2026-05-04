@@ -73,3 +73,25 @@ export interface ApiError {
   error: string;
   code: string;
 }
+
+export interface User {
+  id: string;
+  email: string;
+  name: string | null;
+  image: string | null;
+}
+
+export interface WatchlistEntry {
+  id: string;
+  userId: string;
+  filmId: string;
+  addedAt: string;
+}
+
+export interface WatchedEntry {
+  id: string;
+  userId: string;
+  filmId: string;
+  watchedAt: string;
+  doNotSuggest: boolean;
+}
