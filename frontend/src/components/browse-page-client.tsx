@@ -266,9 +266,7 @@ function filtersFromSearchParams(params: URLSearchParams): FilterState {
   const decadeMin = numberParam(params.get("decadeMin"));
   const decadeMax = numberParam(params.get("decadeMax"));
   const imdbRatingMin = numberParam(params.get("imdbRatingMin"));
-  const imdbRatingMax = numberParam(params.get("imdbRatingMax"));
   const rtScoreMin = numberParam(params.get("rtScoreMin"));
-  const rtScoreMax = numberParam(params.get("rtScoreMax"));
   const page = numberParam(params.get("page"));
 
   return {
@@ -288,9 +286,7 @@ function filtersFromSearchParams(params: URLSearchParams): FilterState {
     decadeMin: decadeMin ?? DEFAULT_FILTERS.decadeMin,
     decadeMax: decadeMax ?? DEFAULT_FILTERS.decadeMax,
     imdbRatingMin: imdbRatingMin ?? DEFAULT_FILTERS.imdbRatingMin,
-    imdbRatingMax: imdbRatingMax ?? DEFAULT_FILTERS.imdbRatingMax,
     rtScoreMin: rtScoreMin ?? DEFAULT_FILTERS.rtScoreMin,
-    rtScoreMax: rtScoreMax ?? DEFAULT_FILTERS.rtScoreMax,
     page: page && page > 0 ? page : DEFAULT_FILTERS.page,
   };
 }

@@ -5,11 +5,6 @@ import type { FilterState } from "@cineroll/types";
 
 const DEFAULT_DECADE_MIN = 1900;
 const DEFAULT_DECADE_MAX = 2030;
-export const DEFAULT_IMDB_MIN = 0;
-export const DEFAULT_IMDB_MAX = 10;
-export const DEFAULT_RT_MIN = 0;
-export const DEFAULT_RT_MAX = 100;
-
 export const DEFAULT_FILTERS: FilterState = {
   search: "",
   person: "",
@@ -22,10 +17,8 @@ export const DEFAULT_FILTERS: FilterState = {
   genre: "",
   decadeMin: DEFAULT_DECADE_MIN,
   decadeMax: DEFAULT_DECADE_MAX,
-  imdbRatingMin: DEFAULT_IMDB_MIN,
-  imdbRatingMax: DEFAULT_IMDB_MAX,
-  rtScoreMin: DEFAULT_RT_MIN,
-  rtScoreMax: DEFAULT_RT_MAX,
+  imdbRatingMin: 0,
+  rtScoreMin: 0,
   page: 1,
 };
 
@@ -56,10 +49,8 @@ export function useFilters(initial?: Partial<FilterState>) {
       !!filters.genre ||
       filters.decadeMin !== DEFAULT_DECADE_MIN ||
       filters.decadeMax !== DEFAULT_DECADE_MAX ||
-      filters.imdbRatingMin !== DEFAULT_IMDB_MIN ||
-      filters.imdbRatingMax !== DEFAULT_IMDB_MAX ||
-      filters.rtScoreMin !== DEFAULT_RT_MIN ||
-      filters.rtScoreMax !== DEFAULT_RT_MAX,
+      filters.imdbRatingMin > 0 ||
+      filters.rtScoreMin > 0,
     [filters],
   );
 

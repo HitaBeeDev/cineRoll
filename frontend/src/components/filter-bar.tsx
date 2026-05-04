@@ -13,12 +13,6 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import type { FilterState, AwardBody } from "@cineroll/types";
-import {
-  DEFAULT_IMDB_MIN,
-  DEFAULT_IMDB_MAX,
-  DEFAULT_RT_MIN,
-  DEFAULT_RT_MAX,
-} from "@/hooks/useFilters";
 
 interface FilterBarProps {
   filters: FilterState;
@@ -240,52 +234,49 @@ export function FilterBar({
         </div>
       </div>
 
-      {/* IMDb + RT ratings */}
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-col gap-1.5">
-          <div className="flex items-center justify-between">
-            <label id="imdb-label" className="text-sm font-medium text-foreground">
-              IMDb Rating
-            </label>
-            <span className="tabular-nums text-xs text-muted">
-              {filters.imdbRatingMin === DEFAULT_IMDB_MIN && filters.imdbRatingMax === DEFAULT_IMDB_MAX
-                ? "Any"
-                : `${filters.imdbRatingMin}–${filters.imdbRatingMax}`}
-            </span>
-          </div>
-          <DecadeRangeSlider
-            min={DEFAULT_IMDB_MIN}
-            max={DEFAULT_IMDB_MAX}
-            step={0.5}
-            value={[filters.imdbRatingMin, filters.imdbRatingMax]}
-            onValueChange={([imdbRatingMin, imdbRatingMax]) =>
-              onFiltersChange({ imdbRatingMin, imdbRatingMax, page: 1 })
-            }
-            aria-labelledby="imdb-label"
-          />
+      {/* IMDb rating */}
+      <div className="flex flex-col gap-2">
+        <span className="text-sm font-medium text-foreground">IMDb Rating</span>
+        <div className="flex flex-wrap gap-2">
+          {([0, 6, 6.5, 7, 7.5, 8, 8.5, 9] as const).map((val) => (
+            <button
+              key={val}
+              type="button"
+              aria-pressed={filters.imdbRatingMin === val}
+              onClick={() => onFiltersChange({ imdbRatingMin: val, page: 1 })}
+              className={cn(
+                "rounded-full px-4 py-1.5 text-sm font-medium border transition-colors",
+                filters.imdbRatingMin === val
+                  ? "bg-accent text-accent-foreground border-accent"
+                  : "bg-transparent text-muted border-border hover:border-muted hover:text-foreground"
+              )}
+            >
+              {val === 0 ? "Any" : `${val}+`}
+            </button>
+          ))}
         </div>
+      </div>
 
-        <div className="flex flex-col gap-1.5">
-          <div className="flex items-center justify-between">
-            <label id="rt-label" className="text-sm font-medium text-foreground">
-              Rotten Tomatoes
-            </label>
-            <span className="tabular-nums text-xs text-muted">
-              {filters.rtScoreMin === DEFAULT_RT_MIN && filters.rtScoreMax === DEFAULT_RT_MAX
-                ? "Any"
-                : `${filters.rtScoreMin}%–${filters.rtScoreMax}%`}
-            </span>
-          </div>
-          <DecadeRangeSlider
-            min={DEFAULT_RT_MIN}
-            max={DEFAULT_RT_MAX}
-            step={5}
-            value={[filters.rtScoreMin, filters.rtScoreMax]}
-            onValueChange={([rtScoreMin, rtScoreMax]) =>
-              onFiltersChange({ rtScoreMin, rtScoreMax, page: 1 })
-            }
-            aria-labelledby="rt-label"
-          />
+      {/* Rotten Tomatoes score */}
+      <div className="flex flex-col gap-2">
+        <span className="text-sm font-medium text-foreground">Rotten Tomatoes</span>
+        <div className="flex flex-wrap gap-2">
+          {([0, 50, 60, 70, 80, 90, 95] as const).map((val) => (
+            <button
+              key={val}
+              type="button"
+              aria-pressed={filters.rtScoreMin === val}
+              onClick={() => onFiltersChange({ rtScoreMin: val, page: 1 })}
+              className={cn(
+                "rounded-full px-4 py-1.5 text-sm font-medium border transition-colors",
+                filters.rtScoreMin === val
+                  ? "bg-accent text-accent-foreground border-accent"
+                  : "bg-transparent text-muted border-border hover:border-muted hover:text-foreground"
+              )}
+            >
+              {val === 0 ? "Any" : `${val}%+`}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -420,29 +411,19 @@ function getActiveFilterChips(
     });
   }
 
-  if (filters.imdbRatingMin !== DEFAULT_IMDB_MIN || filters.imdbRatingMax !== DEFAULT_IMDB_MAX) {
+  if (filters.imdbRatingMin > 0) {
     chips.push({
       key: "imdb",
-      label: `IMDb ${filters.imdbRatingMin}–${filters.imdbRatingMax}`,
-      onRemove: () =>
-        onFiltersChange({
-          imdbRatingMin: DEFAULT_IMDB_MIN,
-          imdbRatingMax: DEFAULT_IMDB_MAX,
-          page: 1,
-        }),
+      label: `IMDb ${filters.imdbRatingMin}+`,
+      onRemove: () => onFiltersChange({ imdbRatingMin: 0, page: 1 }),
     });
   }
 
-  if (filters.rtScoreMin !== DEFAULT_RT_MIN || filters.rtScoreMax !== DEFAULT_RT_MAX) {
+  if (filters.rtScoreMin > 0) {
     chips.push({
       key: "rt",
-      label: `RT ${filters.rtScoreMin}%–${filters.rtScoreMax}%`,
-      onRemove: () =>
-        onFiltersChange({
-          rtScoreMin: DEFAULT_RT_MIN,
-          rtScoreMax: DEFAULT_RT_MAX,
-          page: 1,
-        }),
+      label: `RT ${filters.rtScoreMin}%+`,
+      onRemove: () => onFiltersChange({ rtScoreMin: 0, page: 1 }),
     });
   }
 
