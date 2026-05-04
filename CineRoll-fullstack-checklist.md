@@ -227,10 +227,10 @@ Monorepo with `cineroll/` root containing:
   - [x] GET /api/random (return a random film from database — no filters)
   - [x] GET /api/random accepts all the same filter params as /api/films — when filters are present, pick one random film from the matching set; when no filters, pick from full dataset
   - [x] Accept optional `userId` param — when provided, exclude films the user has marked `doNotSuggest=true`
-- [ ] Create `backend/src/routes/roll.ts` with:
-  - [ ] POST /api/roll (log a roll event when user clicks Roll button)
-- [ ] Create `backend/src/routes/pickOfDay.ts` with:
-  - [ ] GET /api/pick-of-day (get today's featured film, return 404 if none set)
+- [x] Create `backend/src/routes/roll.ts` with:
+  - [x] POST /api/roll (log a roll event when user clicks Roll button)
+- [x] Create `backend/src/routes/pickOfDay.ts` with:
+  - [x] GET /api/pick-of-day (get today's featured film, return 404 if none set)
 - [ ] For each route, implement:
   - [ ] Request validation using Zod schemas (validate query params, request body)
   - [ ] Authorization checks if needed
