@@ -1,6 +1,6 @@
 import { Prisma } from "@prisma/client";
 import { Router } from "express";
-import { buildWhereClause, ListQuery, listQuerySchema } from "../lib/filmFilters";
+import { buildWhereClause, RandomQuery, randomQuerySchema } from "../lib/filmFilters";
 import { setPublicCache } from "../lib/cache";
 import { prisma } from "../lib/prisma";
 import { HttpError } from "../middleware/errorHandler";
@@ -44,9 +44,35 @@ const randomSelect = Prisma.sql`
   "Film"."ggWins"
 `;
 
-randomRouter.get("/", validate(listQuerySchema), async (req, res) => {
-  const query = getValidated<ListQuery>(req, "query");
-  const whereSql = buildWhereClause(query);
+async function getDoNotSuggestFilmIds(userId: string): Promise<string[]> {
+  const tableRows = await prisma.$queryRaw<{ exists: boolean }[]>`
+    SELECT to_regclass('public."WatchedFilm"') IS NOT NULL AS "exists"
+  `;
+
+  if (tableRows[0]?.exists !== true) return [];
+
+  const rows = await prisma.$queryRaw<{ filmId: string }[]>`
+    SELECT "filmId"
+    FROM "WatchedFilm"
+    WHERE "userId" = ${userId}
+      AND "doNotSuggest" = true
+  `;
+
+  return rows.map(row => row.filmId);
+}
+
+randomRouter.get("/", validate(randomQuerySchema), async (req, res) => {
+  const query = getValidated<RandomQuery>(req, "query");
+  const additionalConditions: Prisma.Sql[] = [];
+
+  if (query.userId) {
+    const excludedFilmIds = await getDoNotSuggestFilmIds(query.userId);
+    if (excludedFilmIds.length > 0) {
+      additionalConditions.push(Prisma.sql`"Film"."id" NOT IN (${Prisma.join(excludedFilmIds)})`);
+    }
+  }
+
+  const whereSql = buildWhereClause(query, additionalConditions);
 
   const [films, countRows] = await Promise.all([
     prisma.$queryRaw<RandomFilmRow[]>`

@@ -223,10 +223,10 @@ Monorepo with `cineroll/` root containing:
   - [x] GET /api/films/award-years — return sorted list of all distinct ceremony years in the dataset (used to populate award year dropdown)
   - [x] GET /api/films/:slug (get single film by slug with full details including all AwardRecord arrays)
 
-- [ ] Create `backend/src/routes/random.ts` with:
-  - [ ] GET /api/random (return a random film from database — no filters)
-  - [ ] GET /api/random accepts all the same filter params as /api/films — when filters are present, pick one random film from the matching set; when no filters, pick from full dataset
-  - [ ] Accept optional `userId` param — when provided, exclude films the user has marked `doNotSuggest=true`
+- [x] Create `backend/src/routes/random.ts` with:
+  - [x] GET /api/random (return a random film from database — no filters)
+  - [x] GET /api/random accepts all the same filter params as /api/films — when filters are present, pick one random film from the matching set; when no filters, pick from full dataset
+  - [x] Accept optional `userId` param — when provided, exclude films the user has marked `doNotSuggest=true`
 - [ ] Create `backend/src/routes/roll.ts` with:
   - [ ] POST /api/roll (log a roll event when user clicks Roll button)
 - [ ] Create `backend/src/routes/pickOfDay.ts` with:

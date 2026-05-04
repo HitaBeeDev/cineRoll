@@ -9,7 +9,7 @@ const queryBooleanSchema = z.preprocess(value => {
   return value;
 }, z.boolean());
 
-export const listQuerySchema = z.object({
+const listQueryBaseSchema = z.object({
   search: z.string().trim().min(1).max(120).optional(),
   person: z.string().trim().min(1).max(120).optional(),
   director: z.string().trim().min(1).max(120).optional(),
@@ -23,6 +23,21 @@ export const listQuerySchema = z.object({
   nominatedOnly: queryBooleanSchema.optional(),
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(100).default(12),
+});
+
+export const listQuerySchema = listQueryBaseSchema.refine(
+  query =>
+    query.decadeMin === undefined ||
+    query.decadeMax === undefined ||
+    query.decadeMin <= query.decadeMax,
+  {
+    message: "decadeMin must be less than or equal to decadeMax",
+    path: ["decadeMin"],
+  },
+);
+
+export const randomQuerySchema = listQueryBaseSchema.extend({
+  userId: z.string().trim().min(1).max(180).optional(),
 }).refine(
   query =>
     query.decadeMin === undefined ||
@@ -35,6 +50,7 @@ export const listQuerySchema = z.object({
 );
 
 export type ListQuery = z.infer<typeof listQuerySchema>;
+export type RandomQuery = z.infer<typeof randomQuerySchema>;
 
 export function awardJsonSources(awardBody: ListQuery["awardBody"]) {
   if (awardBody === "oscar") {
@@ -95,8 +111,11 @@ function awardFilter(query: ListQuery) {
   return awardExists(query.awardBody, awardConditions);
 }
 
-export function buildWhereClause(query: ListQuery): Prisma.Sql {
-  const where: Prisma.Sql[] = [];
+export function buildWhereClause(
+  query: ListQuery,
+  additionalConditions: Prisma.Sql[] = [],
+): Prisma.Sql {
+  const where: Prisma.Sql[] = [...additionalConditions];
 
   if (query.search) {
     const searchLike = `%${query.search}%`;
