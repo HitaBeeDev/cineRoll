@@ -381,18 +381,18 @@ This is the core feature of CineRoll. The filter system is what separates the ap
 
 The same award-first filter panel used on the home page is also the core of the browse page. Filters are shared via the `FilterBar` component and `useFilters` hook.
 
-- [ ] Create `src/app/browse/page.tsx` (browse page) — full filter UI + paginated results grid
-- [ ] **Person / cast / director search** — free-text input searching nominee/winner names and director; same as home page filter (shared component)
-- [ ] **Film title search** — separate text input for film title (browse page only, in addition to person search)
-- [ ] **Award body selector** — Oscar / Golden Globe / Both pills (shared component)
-- [ ] **Win status toggle** — All / Won / Nominated pills (shared component)
-- [ ] **Category dropdown** — populated from GET /api/films/categories (shared component)
-- [ ] **Ceremony year** — filter by award ceremony year (shared component)
-- [ ] **Genre dropdown** — (shared component)
-- [ ] **Decade range slider** — (shared component)
-- [ ] **Active filter chips** — dismissible chip per active filter (shared component)
-- [ ] **Clear all filters** button (shared component)
-- [ ] Sync all filter state to URL query params so filtered browse views are shareable/bookmarkable
+- [x] Create `src/app/browse/page.tsx` (browse page) — full filter UI + paginated results grid
+- [x] **Person / cast / director search** — free-text input searching nominee/winner names and director; same as home page filter (shared component)
+- [x] **Film title search** — separate text input for film title (browse page only, in addition to person search)
+- [x] **Award body selector** — Oscar / Golden Globe / Both pills (shared component)
+- [x] **Win status toggle** — All / Won / Nominated pills (shared component)
+- [x] **Category dropdown** — populated from GET /api/films/categories (shared component)
+- [x] **Ceremony year** — filter by award ceremony year (shared component)
+- [x] **Genre dropdown** — (shared component)
+- [x] **Decade range slider** — (shared component)
+- [x] **Active filter chips** — dismissible chip per active filter (shared component)
+- [x] **Clear all filters** button (shared component)
+- [x] Sync all filter state to URL query params so filtered browse views are shareable/bookmarkable
 
 ### Search & Filter Behavior
 

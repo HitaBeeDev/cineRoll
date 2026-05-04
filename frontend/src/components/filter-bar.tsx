@@ -289,6 +289,14 @@ function getActiveFilterChips(
 ): ActiveFilterChip[] {
   const chips: ActiveFilterChip[] = [];
 
+  if (filters.search.trim()) {
+    chips.push({
+      key: "search",
+      label: `Title: ${filters.search.trim()}`,
+      onRemove: () => onFiltersChange({ search: "", page: 1 }),
+    });
+  }
+
   if (filters.person.trim()) {
     chips.push({
       key: "person",
