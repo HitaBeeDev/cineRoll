@@ -19,7 +19,7 @@
 
 ### The Dataset
 
-Two hand-curated CSV files — one for Oscar records, one for Golden Globe records. Each row is a single nomination or win with: a unique award ID (`OSC-` / `GG-` prefix), the ceremony year, the film title, the film's release year, the award category, the nominee's name, and whether they won. The enrich script groups these records by film, calculates counts, and enriches each unique film via TMDB (poster, backdrop, runtime, genres, director, cast, trailer) and OMDB (IMDB rating, Rotten Tomatoes score). The final dataset is seeded into PostgreSQL. **Every AwardRecord stored for each film — nominee name, category, year, win flag — is a filterable dimension available to the user.**
+Hand-curated CSV files — Oscar records split by decade (`movie names - oscar 1929-1939.csv`, `movie names - oscar 1940s.csv`, etc.) and one file for Golden Globe records. Each row is a single nomination or win with: a unique award ID (`OSC-` / `GG-` prefix), the ceremony year, the film title, the film's release year, the award category, the nominee's name, and whether they won. The enrich script groups these records by film, calculates counts, and enriches each unique film via TMDB (poster, backdrop, runtime, genres, director, cast, trailer) and OMDB (IMDB rating, Rotten Tomatoes score). The final dataset is seeded into PostgreSQL. **Every AwardRecord stored for each film — nominee name, category, year, win flag — is a filterable dimension available to the user.**
 
 ### Stack
 
@@ -147,9 +147,10 @@ Monorepo with `cineroll/` root containing:
 
 - [x] Create `backend/data/` directory
 - [x] Add data files to root `.gitignore` so they don't get committed
-- [x] Prepare `backend/data/films-oscar.csv` — one row per Oscar nomination/win with columns: `Id, Award Year, OSCie Name, Release Year, Type Of Award, Award Winner, Award Nominee`
+- [x] Prepare Oscar CSV files in `backend/data/` — one file per decade, named `movie names - oscar DECADE.csv` (e.g. `movie names - oscar 1929-1939.csv`, `movie names - oscar 1940s.csv`). Each file has one row per nomination/win with columns: `Id, Award Year, Movie Name, Release Year, Type Of Award, Award Winner, Award Nominee`
   - `Id` format: `OSC-{year}-{nn}` (e.g. `OSC-1929-01`)
   - `Award Winner` = person/studio name if they won, `NaN` if nominated only
+  - The enrich script auto-discovers all files matching `movie names - oscar *.csv` — add new decade files and re-run
 - [x] Prepare `backend/data/films-goldenglobe.csv` — same column structure, `Id` format: `GG-{year}-{nn}`
 
 ### 5a. Enrichment Script — Fetch Data from TMDB & OMDB APIs
@@ -158,7 +159,7 @@ Monorepo with `cineroll/` root containing:
 - [x] Create `backend/.env.local` with TMDB_API_KEY and OMDB_API_KEY (these are only for enrichment, not used at runtime)
 - [x] Update `backend/src/scripts/enrich.ts` script to:
   - Load environment variables from .env.local
-  - Read both `films-oscar.csv` and `films-goldenglobe.csv`
+  - Auto-discover and read all `movie names - oscar *.csv` decade files, then read `films-goldenglobe.csv`
   - Group rows by (film title + release year) to get unique films
   - For each unique film, build `oscarCategories` and `ggCategories` arrays of `AwardRecord` objects: `{ awardYear, category, nominee, won }`
   - Calculate `oscarNominations`, `oscarWins`, `ggNominations`, `ggWins` counts from grouped rows

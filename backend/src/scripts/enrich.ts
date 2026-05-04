@@ -27,16 +27,15 @@ const TMDB_BASE = 'https://api.themoviedb.org/3';
 const OMDB_BASE = 'https://www.omdbapi.com';
 
 const DATA_DIR = path.resolve(__dirname, '../../data');
-const OSCAR_CSV = path.join(DATA_DIR, 'films-oscar.csv');
 const GG_CSV = path.join(DATA_DIR, 'films-goldenglobe.csv');
 const ENRICHED_JSON = path.join(DATA_DIR, 'films-enriched.json');
 const ERRORS_CSV = path.join(DATA_DIR, 'enrichment-errors.csv');
 
-// CSV row shape: Id, Award Year, OSCie Name, Release Year, Type Of Award, Award Winner, Award Nominee
+// CSV row shape: Id, Award Year, Movie Name, Release Year, Type Of Award, Award Winner, Award Nominee
 interface CsvRow {
   'Id': string;
   'Award Year': string;
-  'OSCie Name': string;
+  'Movie Name': string;
   'Release Year': string;
   'Type Of Award': string;
   'Award Winner': string;
@@ -100,7 +99,7 @@ function parseCsv(filePath: string): CsvRow[] {
 }
 
 function filmTitle(row: CsvRow): string {
-  return row['OSCie Name'];
+  return row['Movie Name'];
 }
 
 function rowToAwardRecord(row: CsvRow): AwardRecord {
@@ -153,8 +152,13 @@ async function main() {
     process.exit(1);
   }
 
-  if (!fs.existsSync(OSCAR_CSV)) {
-    console.error(`CSV not found: ${OSCAR_CSV}`);
+  const oscarCsvFiles = fs.readdirSync(DATA_DIR)
+    .filter(f => /^movie names - oscar .+\.csv$/i.test(f))
+    .sort()
+    .map(f => path.join(DATA_DIR, f));
+
+  if (oscarCsvFiles.length === 0) {
+    console.error(`No Oscar CSV files found in ${DATA_DIR} (expected files like "movie names - oscar 1929-1939.csv")`);
     process.exit(1);
   }
   if (!fs.existsSync(GG_CSV)) {
@@ -162,9 +166,14 @@ async function main() {
     process.exit(1);
   }
 
-  const oscarRows = parseCsv(OSCAR_CSV);
+  const oscarRows: CsvRow[] = [];
+  for (const csvFile of oscarCsvFiles) {
+    const rows = parseCsv(csvFile);
+    oscarRows.push(...rows);
+    console.log(`Loaded ${rows.length} Oscar rows from ${path.basename(csvFile)}`);
+  }
   const ggRows = parseCsv(GG_CSV);
-  console.log(`Loaded ${oscarRows.length} Oscar rows, ${ggRows.length} Golden Globe rows\n`);
+  console.log(`Total Oscar rows: ${oscarRows.length}, Golden Globe rows: ${ggRows.length}\n`);
 
   // Group rows by (title + release year)
   type FilmKey = string;
