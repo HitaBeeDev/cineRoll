@@ -311,12 +311,12 @@ Monorepo with `cineroll/` root containing:
 
 ### Filtered Roll (Roll Within a Filtered Set)
 
-- [ ] When the user has active filters, the Roll button should pick randomly from matching films only, not the full dataset
-- [ ] Backend: add GET /api/random endpoint support for all filter params (same params as /api/films) — pick one random film from the filtered result set
-- [ ] Frontend: pass active filter state from the Filter Bar into the Roll API call
-- [ ] Display a subtle indicator when Roll is operating on a filtered set (e.g. "Rolling from 47 matching films")
-- [ ] If filters return zero films, disable Roll button and show "No films match — adjust your filters"
-- [ ] With no filters active, Roll behaves exactly as before (pure random from full dataset)
+- [x] When the user has active filters, the Roll button should pick randomly from matching films only, not the full dataset
+- [x] Backend: add GET /api/random endpoint support for all filter params (same params as /api/films) — pick one random film from the filtered result set
+- [x] Frontend: pass active filter state from the Filter Bar into the Roll API call
+- [x] Display a subtle indicator when Roll is operating on a filtered set (e.g. "Rolling from 47 matching films")
+- [x] If filters return zero films, disable Roll button and show "No films match — adjust your filters"
+- [x] With no filters active, Roll behaves exactly as before (pure random from full dataset)
 
 ### Home Page Filter Panel (Award-First Design)
 
