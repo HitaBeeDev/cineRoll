@@ -18,6 +18,8 @@ const listQueryBaseSchema = z.object({
   decadeMin: z.coerce.number().int().min(1800).max(2200).optional(),
   decadeMax: z.coerce.number().int().min(1800).max(2200).optional(),
   awardYear: z.coerce.number().int().min(1800).max(2200).optional(),
+  imdbRatingMin: z.coerce.number().min(0).max(10).optional(),
+  rtScoreMin: z.coerce.number().int().min(0).max(100).optional(),
   category: z.string().trim().min(1).max(120).optional(),
   winnerOnly: queryBooleanSchema.optional(),
   nominatedOnly: queryBooleanSchema.optional(),
@@ -161,6 +163,16 @@ export function buildWhereClause(
 
   if (query.decadeMax !== undefined) {
     where.push(Prisma.sql`"Film"."year" <= ${query.decadeMax}`);
+  }
+
+  if (query.imdbRatingMin !== undefined) {
+    where.push(Prisma.sql`"Film"."imdbRating" IS NOT NULL`);
+    where.push(Prisma.sql`"Film"."imdbRating" >= ${query.imdbRatingMin}`);
+  }
+
+  if (query.rtScoreMin !== undefined) {
+    where.push(Prisma.sql`"Film"."rtScore" IS NOT NULL`);
+    where.push(Prisma.sql`"Film"."rtScore" >= ${query.rtScoreMin}`);
   }
 
   const awards = awardFilter(query);

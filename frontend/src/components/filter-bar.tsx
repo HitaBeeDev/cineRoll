@@ -13,6 +13,12 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import type { FilterState, AwardBody } from "@cineroll/types";
+import {
+  DEFAULT_IMDB_MIN,
+  DEFAULT_IMDB_MAX,
+  DEFAULT_RT_MIN,
+  DEFAULT_RT_MAX,
+} from "@/hooks/useFilters";
 
 interface FilterBarProps {
   filters: FilterState;
@@ -234,6 +240,55 @@ export function FilterBar({
         </div>
       </div>
 
+      {/* IMDb + RT ratings */}
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-1.5">
+          <div className="flex items-center justify-between">
+            <label id="imdb-label" className="text-sm font-medium text-foreground">
+              IMDb Rating
+            </label>
+            <span className="tabular-nums text-xs text-muted">
+              {filters.imdbRatingMin === DEFAULT_IMDB_MIN && filters.imdbRatingMax === DEFAULT_IMDB_MAX
+                ? "Any"
+                : `${filters.imdbRatingMin}–${filters.imdbRatingMax}`}
+            </span>
+          </div>
+          <DecadeRangeSlider
+            min={DEFAULT_IMDB_MIN}
+            max={DEFAULT_IMDB_MAX}
+            step={0.5}
+            value={[filters.imdbRatingMin, filters.imdbRatingMax]}
+            onValueChange={([imdbRatingMin, imdbRatingMax]) =>
+              onFiltersChange({ imdbRatingMin, imdbRatingMax, page: 1 })
+            }
+            aria-labelledby="imdb-label"
+          />
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <div className="flex items-center justify-between">
+            <label id="rt-label" className="text-sm font-medium text-foreground">
+              Rotten Tomatoes
+            </label>
+            <span className="tabular-nums text-xs text-muted">
+              {filters.rtScoreMin === DEFAULT_RT_MIN && filters.rtScoreMax === DEFAULT_RT_MAX
+                ? "Any"
+                : `${filters.rtScoreMin}%–${filters.rtScoreMax}%`}
+            </span>
+          </div>
+          <DecadeRangeSlider
+            min={DEFAULT_RT_MIN}
+            max={DEFAULT_RT_MAX}
+            step={5}
+            value={[filters.rtScoreMin, filters.rtScoreMax]}
+            onValueChange={([rtScoreMin, rtScoreMax]) =>
+              onFiltersChange({ rtScoreMin, rtScoreMax, page: 1 })
+            }
+            aria-labelledby="rt-label"
+          />
+        </div>
+      </div>
+
       {activeChips.length > 0 && (
         <div className="flex flex-col gap-2 border-t border-border pt-4">
           <div className="flex items-center justify-between gap-3">
@@ -365,12 +420,39 @@ function getActiveFilterChips(
     });
   }
 
+  if (filters.imdbRatingMin !== DEFAULT_IMDB_MIN || filters.imdbRatingMax !== DEFAULT_IMDB_MAX) {
+    chips.push({
+      key: "imdb",
+      label: `IMDb ${filters.imdbRatingMin}–${filters.imdbRatingMax}`,
+      onRemove: () =>
+        onFiltersChange({
+          imdbRatingMin: DEFAULT_IMDB_MIN,
+          imdbRatingMax: DEFAULT_IMDB_MAX,
+          page: 1,
+        }),
+    });
+  }
+
+  if (filters.rtScoreMin !== DEFAULT_RT_MIN || filters.rtScoreMax !== DEFAULT_RT_MAX) {
+    chips.push({
+      key: "rt",
+      label: `RT ${filters.rtScoreMin}%–${filters.rtScoreMax}%`,
+      onRemove: () =>
+        onFiltersChange({
+          rtScoreMin: DEFAULT_RT_MIN,
+          rtScoreMax: DEFAULT_RT_MAX,
+          page: 1,
+        }),
+    });
+  }
+
   return chips;
 }
 
 interface DecadeRangeSliderProps {
   min: number;
   max: number;
+  step?: number;
   value: [number, number];
   onValueChange: (value: [number, number]) => void;
   "aria-labelledby"?: string;
@@ -379,6 +461,7 @@ interface DecadeRangeSliderProps {
 function DecadeRangeSlider({
   min,
   max,
+  step = 10,
   value,
   onValueChange,
   "aria-labelledby": ariaLabelledBy,
@@ -387,7 +470,7 @@ function DecadeRangeSlider({
     <SliderPrimitive.Root
       min={min}
       max={max}
-      step={10}
+      step={step}
       value={value}
       onValueChange={(vals) => onValueChange(vals as [number, number])}
       aria-labelledby={ariaLabelledBy}

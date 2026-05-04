@@ -63,6 +63,7 @@ Monorepo with `cineroll/` root containing:
 11. Frontend — Film Detail Pages
 12. Frontend — Browse, Filter & Filtered Roll
 13. Internationalization (i18n)
+13.5. Rating Filters (IMDb & Rotten Tomatoes)
 14. Frontend — Pages & Routing
 15. Auth & User System
 16. Watchlist & Watch History
@@ -491,6 +492,31 @@ English (`en`), Spanish (`es`), French (`fr`), German (`de`), Persian/Farsi (`fa
 - [ ] RTL layout: switch to Farsi → text flows right-to-left, layout mirrors correctly (no overflow or alignment issues)
 - [ ] No hardcoded strings remain: search all component files for UI-facing string literals and confirm each is replaced with a `useTranslations()` call
 - [ ] Verify `npm run type-check` still passes after all component changes
+
+---
+
+## 13.5. Rating Filters (IMDb & Rotten Tomatoes)
+
+Add two range-slider filters to both the backend query layer and the frontend filter bar — one for IMDb rating (0–10) and one for Rotten Tomatoes score (0–100).
+
+### Shared Types
+
+- [x] Add `imdbRatingMin`, `imdbRatingMax`, `rtScoreMin`, `rtScoreMax` (all `number`) to `FilterState` in `packages/types/src/index.ts`
+- [x] Rebuild the types package: `npm run build --workspace=packages/types`
+
+### Backend
+
+- [x] Add `imdbRatingMin`, `imdbRatingMax` (coerced float, 0–10), `rtScoreMin`, `rtScoreMax` (coerced int, 0–100) to `listQueryBaseSchema` in `backend/src/lib/filmFilters.ts`
+- [x] Add WHERE clause conditions in `buildWhereClause`: when either bound is provided, add `"Film"."imdbRating" IS NOT NULL` (or `rtScore`) plus the range comparisons so null-rated films are excluded when a rating filter is active
+
+### Frontend
+
+- [x] Update `filtersToParams` in `frontend/src/lib/api.ts` to serialize the four rating params to URL only when non-default (imdbRatingMin > 0, imdbRatingMax < 10, rtScoreMin > 0, rtScoreMax < 100)
+- [x] Add `DEFAULT_IMDB_MIN` (0), `DEFAULT_IMDB_MAX` (10), `DEFAULT_RT_MIN` (0), `DEFAULT_RT_MAX` (100) constants and the four fields to `DEFAULT_FILTERS` in `frontend/src/hooks/useFilters.ts`; include all four in `hasActiveFilters`
+- [x] Add IMDb range slider (step 0.5, shows "Any" at defaults) and RT range slider (step 5, shows "Any" at defaults) to `FilterBar` in `frontend/src/components/filter-bar.tsx`, placed after the Genre + Decade section
+- [x] Add active filter chips for IMDb (label: `IMDb 7–10`) and RT (label: `RT 70%–100%`) with individual remove handlers
+- [x] Make `DecadeRangeSlider` accept an optional `step` prop (default 10) so it can be reused for both rating sliders
+- [x] Parse `imdbRatingMin`, `imdbRatingMax`, `rtScoreMin`, `rtScoreMax` from URL search params in `filtersFromSearchParams` inside `frontend/src/components/browse-page-client.tsx`
 
 ---
 

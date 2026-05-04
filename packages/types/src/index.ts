@@ -59,6 +59,8 @@ export interface FilterState {
   genre: string;
   decadeMin: number;
   decadeMax: number;
+  imdbRatingMin: number;
+  rtScoreMin: number;
   page: number;
 }
 

@@ -63,6 +63,12 @@ export function filtersToParams(filters: Partial<FilterState>): URLSearchParams 
   if (filters.decadeMax != null && filters.decadeMax !== DEFAULT_DECADE_MAX) {
     params.set("decadeMax", String(filters.decadeMax));
   }
+  if (filters.imdbRatingMin != null && filters.imdbRatingMin > 0) {
+    params.set("imdbRatingMin", String(filters.imdbRatingMin));
+  }
+  if (filters.rtScoreMin != null && filters.rtScoreMin > 0) {
+    params.set("rtScoreMin", String(filters.rtScoreMin));
+  }
   return params;
 }
 
