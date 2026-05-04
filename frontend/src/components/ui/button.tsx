@@ -16,22 +16,22 @@ export interface ButtonProps
 
 const variants: Record<Variant, string> = {
   primary: cn(
-    "bg-amber-400 text-zinc-950 font-semibold",
-    "hover:bg-amber-300",
-    "active:bg-amber-500 active:scale-[0.97]",
-    "disabled:bg-zinc-800 disabled:text-zinc-600"
+    "bg-accent text-accent-foreground font-semibold",
+    "hover:brightness-110",
+    "active:brightness-95 active:scale-[0.97]",
+    "disabled:bg-surface-muted disabled:text-muted"
   ),
   secondary: cn(
-    "border border-zinc-700 text-zinc-200 bg-transparent",
-    "hover:border-zinc-500 hover:bg-zinc-800/60",
-    "active:bg-zinc-700 active:scale-[0.97]",
-    "disabled:border-zinc-800 disabled:text-zinc-700"
+    "border border-border text-foreground bg-transparent",
+    "hover:border-muted hover:bg-surface-muted/60",
+    "active:bg-surface-muted active:scale-[0.97]",
+    "disabled:border-surface-muted disabled:text-muted"
   ),
   ghost: cn(
-    "text-zinc-400 bg-transparent",
-    "hover:text-zinc-100 hover:bg-zinc-800/60",
-    "active:bg-zinc-700 active:scale-[0.97]",
-    "disabled:text-zinc-700"
+    "text-muted bg-transparent",
+    "hover:text-foreground hover:bg-surface-muted/60",
+    "active:bg-surface-muted active:scale-[0.97]",
+    "disabled:text-muted/60"
   ),
 };
 
@@ -59,8 +59,8 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         className={cn(
           "inline-flex items-center justify-center font-medium",
           "transition-all duration-150 cursor-pointer select-none whitespace-nowrap",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400",
-          "focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
+          "focus-visible:ring-offset-2 focus-visible:ring-offset-background",
           "disabled:pointer-events-none",
           variants[variant],
           sizes[size],

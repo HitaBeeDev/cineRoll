@@ -280,7 +280,7 @@ Monorepo with `cineroll/` root containing:
 
 ## 8. Frontend — Base Components
 
-- [ ] Create reusable UI components in `src/components/ui/`:
+- [x] Create reusable UI components in `src/components/ui/`:
   - Button component (primary, secondary variants, sizes)
   - Card component (for film cards)
   - Skeleton component (loading placeholders)
@@ -288,11 +288,11 @@ Monorepo with `cineroll/` root containing:
   - Input/TextField component (for search)
   - Select component (for genre/decade filters)
   - Toast/Alert component (for error messages)
-- [ ] Create a Filter Bar component — redesigned with award-first layout: person search, award body pills, won/nominated status pills, category dropdown, award year, genre, decade slider
-- [ ] Create a Film Card component that displays poster, title, year, rating
-- [ ] Apply consistent styling using design tokens (colors, spacing, fonts)
-- [ ] Ensure all components have proper TypeScript types
-- [ ] Ensure accessibility: ARIA labels, semantic HTML, keyboard navigation
+- [x] Create a Filter Bar component — redesigned with award-first layout: person search, award body pills, won/nominated status pills, category dropdown, award year, genre, decade slider
+- [x] Create a Film Card component that displays poster, title, year, rating
+- [x] Apply consistent styling using design tokens (colors, spacing, fonts)
+- [x] Ensure all components have proper TypeScript types
+- [x] Ensure accessibility: ARIA labels, semantic HTML, keyboard navigation
 
 ---
 

@@ -55,7 +55,7 @@ export function FilterBar({
     <div
       aria-label="Filter films"
       className={cn(
-        "w-full rounded-2xl border border-zinc-800 bg-zinc-900/60 p-5 flex flex-col gap-5",
+        "w-full rounded-lg border border-border bg-surface/60 p-5 flex flex-col gap-5",
         className
       )}
     >
@@ -70,7 +70,7 @@ export function FilterBar({
 
       {/* Award body */}
       <div className="flex flex-col gap-2">
-        <span className="text-sm font-medium text-zinc-300">Award</span>
+        <span className="text-sm font-medium text-foreground">Award</span>
         <div className="flex flex-wrap gap-2">
           {(
             [
@@ -82,12 +82,13 @@ export function FilterBar({
             <button
               key={value}
               type="button"
+              aria-pressed={filters.awardBody === value}
               onClick={() => onFiltersChange({ awardBody: value, page: 1 })}
               className={cn(
                 "rounded-full px-4 py-1.5 text-sm font-medium border transition-colors",
                 filters.awardBody === value
-                  ? "bg-amber-400 text-zinc-950 border-amber-400"
-                  : "bg-transparent text-zinc-400 border-zinc-700 hover:border-zinc-500 hover:text-zinc-200"
+                  ? "bg-accent text-accent-foreground border-accent"
+                  : "bg-transparent text-muted border-border hover:border-muted hover:text-foreground"
               )}
             >
               {label}
@@ -98,7 +99,7 @@ export function FilterBar({
 
       {/* Won / Nominated */}
       <div className="flex flex-col gap-2">
-        <span className="text-sm font-medium text-zinc-300">Status</span>
+        <span className="text-sm font-medium text-foreground">Status</span>
         <div className="flex flex-wrap gap-2">
           {[
             { label: "All", winnerOnly: false, nominatedOnly: false },
@@ -112,14 +113,15 @@ export function FilterBar({
               <button
                 key={label}
                 type="button"
+                aria-pressed={active}
                 onClick={() =>
                   onFiltersChange({ winnerOnly, nominatedOnly, page: 1 })
                 }
                 className={cn(
                   "rounded-full px-4 py-1.5 text-sm font-medium border transition-colors",
                   active
-                    ? "bg-amber-400 text-zinc-950 border-amber-400"
-                    : "bg-transparent text-zinc-400 border-zinc-700 hover:border-zinc-500 hover:text-zinc-200"
+                    ? "bg-accent text-accent-foreground border-accent"
+                    : "bg-transparent text-muted border-border hover:border-muted hover:text-foreground"
                 )}
               >
                 {label}
@@ -134,7 +136,7 @@ export function FilterBar({
         <div className="flex-1 min-w-[180px]">
           <label
             id="category-label"
-            className="mb-1.5 block text-sm font-medium text-zinc-300"
+            className="mb-1.5 block text-sm font-medium text-foreground"
           >
             Category
           </label>
@@ -162,10 +164,14 @@ export function FilterBar({
         </div>
 
         <div className="w-[130px]">
-          <label className="mb-1.5 block text-sm font-medium text-zinc-300">
+          <label
+            htmlFor="award-year-filter"
+            className="mb-1.5 block text-sm font-medium text-foreground"
+          >
             Award Year
           </label>
           <input
+            id="award-year-filter"
             type="number"
             min={1927}
             max={2030}
@@ -178,9 +184,9 @@ export function FilterBar({
               })
             }
             className={cn(
-              "w-full rounded-xl border border-zinc-700 bg-zinc-900 px-3 py-2",
-              "text-sm text-zinc-100 placeholder:text-zinc-600",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400",
+              "w-full rounded-lg border border-border bg-surface px-3 py-2",
+              "text-sm text-foreground placeholder:text-muted/70",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
               "transition-colors"
             )}
           />
@@ -192,7 +198,7 @@ export function FilterBar({
         <div className="w-[180px]">
           <label
             id="genre-label"
-            className="mb-1.5 block text-sm font-medium text-zinc-300"
+            className="mb-1.5 block text-sm font-medium text-foreground"
           >
             Genre
           </label>
@@ -204,9 +210,8 @@ export function FilterBar({
                 page: 1,
               })
             }
-            aria-labelledby="genre-label"
           >
-            <SelectTrigger>
+            <SelectTrigger aria-labelledby="genre-label">
               <SelectValue placeholder="All genres" />
             </SelectTrigger>
             <SelectContent>
@@ -224,11 +229,11 @@ export function FilterBar({
           <div className="flex items-center justify-between">
             <label
               id="decade-label"
-              className="text-sm font-medium text-zinc-300"
+              className="text-sm font-medium text-foreground"
             >
               Decade
             </label>
-            <span className="tabular-nums text-xs text-zinc-500">
+            <span className="tabular-nums text-xs text-muted">
               {filters.decadeMin}–{filters.decadeMax}
             </span>
           </div>
@@ -272,26 +277,26 @@ function DecadeRangeSlider({
       aria-labelledby={ariaLabelledBy}
       className="relative flex h-10 w-full touch-none select-none items-center"
     >
-      <SliderPrimitive.Track className="relative h-px w-full grow overflow-hidden rounded-full bg-zinc-800">
-        <SliderPrimitive.Range className="absolute h-full bg-amber-400" />
+      <SliderPrimitive.Track className="relative h-px w-full grow overflow-hidden rounded-full bg-border">
+        <SliderPrimitive.Range className="absolute h-full bg-accent" />
       </SliderPrimitive.Track>
       <SliderPrimitive.Thumb
         aria-label={`Minimum decade: ${value[0]}`}
         className={cn(
-          "block h-3.5 w-3.5 rounded-full border-2 border-amber-400 bg-zinc-950",
-          "transition-transform duration-100 hover:scale-125 hover:border-amber-300",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400",
-          "focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950",
+          "block h-3.5 w-3.5 rounded-full border-2 border-accent bg-background",
+          "transition-transform duration-100 hover:scale-125",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
+          "focus-visible:ring-offset-2 focus-visible:ring-offset-background",
           "disabled:pointer-events-none disabled:opacity-50"
         )}
       />
       <SliderPrimitive.Thumb
         aria-label={`Maximum decade: ${value[1]}`}
         className={cn(
-          "block h-3.5 w-3.5 rounded-full border-2 border-amber-400 bg-zinc-950",
-          "transition-transform duration-100 hover:scale-125 hover:border-amber-300",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400",
-          "focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950",
+          "block h-3.5 w-3.5 rounded-full border-2 border-accent bg-background",
+          "transition-transform duration-100 hover:scale-125",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
+          "focus-visible:ring-offset-2 focus-visible:ring-offset-background",
           "disabled:pointer-events-none disabled:opacity-50"
         )}
       />
