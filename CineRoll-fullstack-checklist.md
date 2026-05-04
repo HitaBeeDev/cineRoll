@@ -231,16 +231,16 @@ Monorepo with `cineroll/` root containing:
   - [x] POST /api/roll (log a roll event when user clicks Roll button)
 - [x] Create `backend/src/routes/pickOfDay.ts` with:
   - [x] GET /api/pick-of-day (get today's featured film, return 404 if none set)
-- [ ] For each route, implement:
-  - [ ] Request validation using Zod schemas (validate query params, request body)
-  - [ ] Authorization checks if needed
-  - [ ] Prisma queries to fetch data from database
-  - [ ] Error handling with appropriate HTTP status codes
-  - [ ] Consistent response format
-- [ ] Create `backend/src/middleware/errorHandler.ts` to catch all errors and return consistent error responses
-- [ ] Create `backend/src/middleware/validate.ts` to validate requests against Zod schemas
-- [ ] Mount all routes in `backend/src/app.ts`
-- [ ] Test all endpoints using Postman or similar tool
+- [x] For each route, implement:
+  - [x] Request validation using Zod schemas (validate query params, request body)
+  - [x] Authorization checks if needed
+  - [x] Prisma queries to fetch data from database
+  - [x] Error handling with appropriate HTTP status codes
+  - [x] Consistent response format
+- [x] Create `backend/src/middleware/errorHandler.ts` to catch all errors and return consistent error responses
+- [x] Create `backend/src/middleware/validate.ts` to validate requests against Zod schemas
+- [x] Mount all routes in `backend/src/app.ts`
+- [x] Test all endpoints using Postman or similar tool
 
 ### API Response Optimization (For Lighthouse Performance Score)
 
