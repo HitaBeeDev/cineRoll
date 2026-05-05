@@ -405,11 +405,11 @@ The same award-first filter panel used on the home page is also the core of the 
 
 ### Results Grid
 
-- [ ] Display results in responsive grid: 2 columns mobile, 3 tablet, 4–6 desktop
-- [ ] Each film card shows: poster, title, release year, award summary (e.g. "3 Oscar wins · 1 Golden Globe nomination")
-- [ ] Add loading skeletons while fetching
-- [ ] Implement pagination: 12 films per page; Previous / Next buttons with page number
-- [ ] Make each film card clickable → navigate to /film/:slug detail page
+- [x] Display results in responsive grid: 2 columns mobile, 3 tablet, 4–6 desktop
+- [x] Each film card shows: poster, title, release year, award summary (e.g. "3 Oscar wins · 1 Golden Globe nomination")
+- [x] Add loading skeletons while fetching
+- [x] Implement pagination: 12 films per page; Previous / Next buttons with page number
+- [x] Make each film card clickable → navigate to /film/:slug detail page
 
 ### Filtered Roll from Browse
 

@@ -4,6 +4,21 @@ import { Star, Trophy } from "lucide-react";
 import type { Film } from "@cineroll/types";
 import { cn } from "@/lib/utils";
 
+function buildAwardSummary(film: Film): string | null {
+  const parts: string[] = [];
+  if (film.oscarWins > 0) {
+    parts.push(`${film.oscarWins} Oscar ${film.oscarWins === 1 ? "win" : "wins"}`);
+  } else if (film.oscarNominations > 0) {
+    parts.push(`${film.oscarNominations} Oscar ${film.oscarNominations === 1 ? "nom" : "noms"}`);
+  }
+  if (film.ggWins > 0) {
+    parts.push(`${film.ggWins} Golden Globe ${film.ggWins === 1 ? "win" : "wins"}`);
+  } else if (film.ggNominations > 0) {
+    parts.push(`${film.ggNominations} Golden Globe ${film.ggNominations === 1 ? "nom" : "noms"}`);
+  }
+  return parts.length > 0 ? parts.join(" · ") : null;
+}
+
 interface FilmCardProps {
   film: Film;
   className?: string;
@@ -69,11 +84,12 @@ export function FilmCard({ film, className }: FilmCardProps) {
           {film.title}
         </h3>
         <p className="mt-0.5 text-xs text-zinc-400">{film.year}</p>
-        {film.genres.length > 0 && (
-          <p className="mt-0.5 line-clamp-1 text-xs text-zinc-500">
-            {film.genres.slice(0, 2).join(" · ")}
-          </p>
-        )}
+        {(() => {
+          const summary = buildAwardSummary(film);
+          return summary ? (
+            <p className="mt-0.5 line-clamp-1 text-xs text-zinc-500">{summary}</p>
+          ) : null;
+        })()}
       </div>
     </Link>
   );
