@@ -11,7 +11,7 @@ import { FilterBar } from "@/components/filter-bar";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DEFAULT_FILTERS, useFilters } from "@/hooks/useFilters";
-import { fetchCategories, fetchFilms, fetchGenres, fetchRandom, filtersToParams } from "@/lib/api";
+import { fetchAwardYears, fetchCategories, fetchFilms, fetchGenres, fetchRandom, filtersToParams } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
 const PAGE_SIZE = 24;
@@ -29,6 +29,7 @@ export function BrowsePageClient() {
   const { filters, setFilter, resetFilters, hasActiveFilters } = useFilters(initialFilters);
   const [genres, setGenres] = useState<string[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
+  const [awardYears, setAwardYears] = useState<number[]>([]);
   const [result, setResult] = useState<PaginatedFilms | null>(null);
   const [status, setStatus] = useState<LoadStatus>("loading");
   const [isRolling, setIsRolling] = useState(false);
@@ -37,6 +38,7 @@ export function BrowsePageClient() {
   useEffect(() => {
     void fetchGenres().then(setGenres);
     void fetchCategories().then(setCategories);
+    void fetchAwardYears().then(setAwardYears);
   }, []);
 
   useEffect(() => {
@@ -149,6 +151,7 @@ export function BrowsePageClient() {
               filters={filters}
               genres={genres}
               categories={categories}
+              awardYears={awardYears}
               onFiltersChange={setFilters}
               onClearFilters={resetFilters}
             />

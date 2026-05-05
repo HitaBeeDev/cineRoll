@@ -11,6 +11,7 @@ import { useToast } from "@/components/ui/toast";
 import { FilterBar } from "@/components/filter-bar";
 import { PickOfDay } from "@/components/pick-of-day";
 import {
+  fetchAwardYears,
   fetchRandom,
   fetchFilms,
   fetchGenres,
@@ -30,10 +31,12 @@ export default function HomePage() {
   const [isCountLoading, setIsCountLoading] = useState(false);
   const [genres, setGenres] = useState<string[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
+  const [awardYears, setAwardYears] = useState<number[]>([]);
 
   useEffect(() => {
     void fetchGenres().then(setGenres);
     void fetchCategories().then(setCategories);
+    void fetchAwardYears().then(setAwardYears);
   }, []);
 
   useEffect(() => {
@@ -115,6 +118,7 @@ export default function HomePage() {
             filters={filters}
             genres={genres}
             categories={categories}
+            awardYears={awardYears}
             onFiltersChange={setFilter}
             onClearFilters={resetFilters}
             className="w-full"

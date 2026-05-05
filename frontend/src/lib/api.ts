@@ -113,3 +113,10 @@ export async function fetchCategories(): Promise<string[]> {
   const data = await res.json() as { categories: string[] };
   return data.categories;
 }
+
+export async function fetchAwardYears(): Promise<number[]> {
+  const res = await fetch(`${API_URL}/api/films/award-years`);
+  if (!res.ok) return [];
+  const data = await res.json() as { awardYears: number[] };
+  return data.awardYears;
+}

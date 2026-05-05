@@ -18,6 +18,7 @@ interface FilterBarProps {
   filters: FilterState;
   genres: string[];
   categories: string[];
+  awardYears?: number[];
   onFiltersChange: (updates: Partial<FilterState>) => void;
   onClearFilters: () => void;
   className?: string;
@@ -30,6 +31,7 @@ export function FilterBar({
   filters,
   genres,
   categories,
+  awardYears = [],
   onFiltersChange,
   onClearFilters,
   className,
@@ -150,31 +152,32 @@ export function FilterBar({
 
         <div className="w-[130px]">
           <label
-            htmlFor="award-year-filter"
+            id="award-year-label"
             className="mb-1.5 block text-sm font-medium text-foreground"
           >
             Award Year
           </label>
-          <input
-            id="award-year-filter"
-            type="number"
-            min={1927}
-            max={2030}
-            placeholder="e.g. 1994"
-            value={filters.awardYear ?? ""}
-            onChange={(e) =>
+          <Select
+            value={filters.awardYear != null ? String(filters.awardYear) : "_all"}
+            onValueChange={(value) =>
               onFiltersChange({
-                awardYear: e.target.value ? Number(e.target.value) : null,
+                awardYear: value === "_all" ? null : Number(value),
                 page: 1,
               })
             }
-            className={cn(
-              "w-full rounded-lg border border-border bg-surface px-3 py-2",
-              "text-sm text-foreground placeholder:text-muted/70",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
-              "transition-colors"
-            )}
-          />
+          >
+            <SelectTrigger aria-labelledby="award-year-label">
+              <SelectValue placeholder="All years" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="_all">All years</SelectItem>
+              {awardYears.map((year) => (
+                <SelectItem key={year} value={String(year)}>
+                  {year}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
