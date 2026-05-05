@@ -443,7 +443,7 @@ English (`en`), Spanish (`es`), French (`fr`), German (`de`), Persian/Farsi (`fa
 - [x] Create `frontend/src/i18n/request.ts` to configure locale detection (reads `Accept-Language` header via `next-intl` middleware)
 - [x] Add `next-intl` middleware in `frontend/src/middleware.ts` to detect locale from browser headers and redirect to the appropriate locale prefix (e.g. `/en/...`, `/es/...`)
 - [x] Configure `next-intl` plugin in `next.config.js`
-- [ ] Migrate `frontend/src/app/` to locale routing: move all pages under `src/app/[locale]/` (e.g. `src/app/[locale]/layout.tsx`, `src/app/[locale]/page.tsx`, etc.)
+- [x] Migrate `frontend/src/app/` to locale routing: move all pages under `src/app/[locale]/` (e.g. `src/app/[locale]/layout.tsx`, `src/app/[locale]/page.tsx`, etc.)
 - [ ] Wrap the root layout in `NextIntlClientProvider` so all components have access to translations
 - [ ] Add `dir="rtl"` to the `<html>` root when the active locale is a right-to-left language (e.g. `fa`); add `dir="ltr"` for all others
 

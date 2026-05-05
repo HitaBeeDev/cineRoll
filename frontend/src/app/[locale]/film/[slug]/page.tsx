@@ -32,7 +32,7 @@ async function fetchFilm(slug: string): Promise<Film | null> {
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ locale: string; slug: string }>;
 }) {
   const { slug } = await params;
   const film = await fetchFilm(slug);
@@ -73,7 +73,7 @@ export async function generateMetadata({
 export default async function FilmPage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ locale: string; slug: string }>;
 }) {
   const { slug } = await params;
   const film = await fetchFilm(slug);
