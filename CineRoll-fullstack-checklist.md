@@ -397,11 +397,11 @@ The same award-first filter panel used on the home page is also the core of the 
 
 ### Search & Filter Behavior
 
-- [ ] All filters are combinable: "Cate Blanchett" + "Oscar" + "Won" + "2000s" is a valid compound query
-- [ ] Sync all filter state to URL query parameters so filtered views are shareable and bookmarkable
-- [ ] Make text inputs debounced (300ms) — don't fire API on every keystroke
-- [ ] Show result count: "47 films match your filters" (update as filters change)
-- [ ] When result count is zero, show "No films match — try adjusting your filters" with a suggested reset
+- [x] All filters are combinable: "Cate Blanchett" + "Oscar" + "Won" + "2000s" is a valid compound query
+- [x] Sync all filter state to URL query parameters so filtered views are shareable and bookmarkable
+- [x] Make text inputs debounced (300ms) — don't fire API on every keystroke
+- [x] Show result count: "47 films match your filters" (update as filters change)
+- [x] When result count is zero, show "No films match — try adjusting your filters" with a suggested reset
 
 ### Results Grid
 

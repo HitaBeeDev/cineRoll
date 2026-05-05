@@ -76,7 +76,7 @@ export function BrowsePageClient() {
             setStatus("error");
           }
         });
-    }, 250);
+    }, 300);
 
     return () => {
       cancelled = true;
@@ -149,7 +149,7 @@ export function BrowsePageClient() {
                 {status === "loading" && "Loading films..."}
                 {status === "error" && "Could not load films."}
                 {status === "success" &&
-                  `${total.toLocaleString()} ${total === 1 ? "film" : "films"}`}
+                  `${total.toLocaleString()} ${total === 1 ? "film" : "films"} match your filters`}
               </div>
 
               {status === "success" && total > 0 && (
@@ -178,9 +178,9 @@ export function BrowsePageClient() {
             {status === "success" && result && result.films.length === 0 && (
               <div className="flex min-h-72 flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-zinc-800 px-6 py-12 text-center">
                 <Clapperboard className="h-8 w-8 text-zinc-700" aria-hidden />
-                <p className="text-sm text-zinc-500">No films match these filters.</p>
+                <p className="text-sm text-zinc-500">No films match — try adjusting your filters</p>
                 <Button variant="ghost" size="sm" onClick={resetFilters}>
-                  Clear filters
+                  Reset filters
                 </Button>
               </div>
             )}
