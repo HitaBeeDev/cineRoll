@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { ArrowLeft, ArrowRight, Clapperboard, Search } from "lucide-react";
+import { ArrowLeft, ArrowRight, Clapperboard, Dices, Search } from "lucide-react";
 import type { FilterState, PaginatedFilms } from "@cineroll/types";
 import { Button } from "@/components/ui/button";
 import { FilmCard } from "@/components/film-card";
@@ -11,7 +11,7 @@ import { FilterBar } from "@/components/filter-bar";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DEFAULT_FILTERS, useFilters } from "@/hooks/useFilters";
-import { fetchCategories, fetchFilms, fetchGenres, filtersToParams } from "@/lib/api";
+import { fetchCategories, fetchFilms, fetchGenres, fetchRandom, filtersToParams } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
 const PAGE_SIZE = 24;
@@ -26,11 +26,12 @@ export function BrowsePageClient() {
     () => filtersFromSearchParams(searchParams),
     [searchParams],
   );
-  const { filters, setFilter, resetFilters } = useFilters(initialFilters);
+  const { filters, setFilter, resetFilters, hasActiveFilters } = useFilters(initialFilters);
   const [genres, setGenres] = useState<string[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [result, setResult] = useState<PaginatedFilms | null>(null);
   const [status, setStatus] = useState<LoadStatus>("loading");
+  const [isRolling, setIsRolling] = useState(false);
   const lastSyncedQuery = useRef<string | null>(null);
 
   useEffect(() => {
@@ -88,6 +89,16 @@ export function BrowsePageClient() {
     (updates: Partial<FilterState>) => setFilter(updates),
     [setFilter],
   );
+
+  async function handleRoll() {
+    setIsRolling(true);
+    try {
+      const data = await fetchRandom(filters);
+      router.push(`/film/${data.film.slug}`);
+    } catch {
+      setIsRolling(false);
+    }
+  }
 
   const total = result?.total ?? 0;
   const page = result?.page ?? filters.page;
@@ -152,12 +163,29 @@ export function BrowsePageClient() {
                   `${total.toLocaleString()} ${total === 1 ? "film" : "films"} match your filters`}
               </div>
 
-              {status === "success" && total > 0 && (
-                <p className="text-xs text-zinc-500">
-                  Showing {showingStart.toLocaleString()}-
-                  {showingEnd.toLocaleString()} of {total.toLocaleString()}
-                </p>
-              )}
+              <div className="flex items-center gap-3">
+                {hasActiveFilters && status === "success" && (
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    disabled={total === 0 || isRolling}
+                    onClick={() => void handleRoll()}
+                  >
+                    <Dices className={cn("h-4 w-4", isRolling && "animate-spin")} aria-hidden />
+                    {isRolling
+                      ? "Rolling…"
+                      : total === 0
+                        ? "No matches"
+                        : `Roll from ${total.toLocaleString()} ${total === 1 ? "film" : "films"}`}
+                  </Button>
+                )}
+                {status === "success" && total > 0 && (
+                  <p className="text-xs text-zinc-500">
+                    Showing {showingStart.toLocaleString()}–
+                    {showingEnd.toLocaleString()} of {total.toLocaleString()}
+                  </p>
+                )}
+              </div>
             </div>
 
             {status === "loading" && <BrowseSkeleton />}
