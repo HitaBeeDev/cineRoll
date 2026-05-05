@@ -439,7 +439,7 @@ English (`en`), Spanish (`es`), French (`fr`), German (`de`), Persian/Farsi (`fa
 ### Setup & Configuration
 
 - [x] Install `next-intl` in frontend: `npm install next-intl --workspace=frontend`
-- [ ] Create `frontend/messages/` directory with one JSON file per language: `en.json`, `es.json`, `fr.json`, `de.json`, `fa.json`, `ja.json`, `pt.json`
+- [x] Create `frontend/messages/` directory with one JSON file per language: `en.json`, `es.json`, `fr.json`, `de.json`, `fa.json`, `ja.json`, `pt.json`
 - [ ] Create `frontend/src/i18n/request.ts` to configure locale detection (reads `Accept-Language` header via `next-intl` middleware)
 - [ ] Add `next-intl` middleware in `frontend/src/middleware.ts` to detect locale from browser headers and redirect to the appropriate locale prefix (e.g. `/en/...`, `/es/...`)
 - [ ] Configure `next-intl` plugin in `next.config.js`
