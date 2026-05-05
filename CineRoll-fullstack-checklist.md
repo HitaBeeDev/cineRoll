@@ -451,7 +451,7 @@ English (`en`), Spanish (`es`), French (`fr`), German (`de`), Persian/Farsi (`fa
 
 - [x] Primary detection: `next-intl` middleware reads the `Accept-Language` browser header
 - [x] Fallback: if the detected locale is not in the supported list, default to `en`
-- [ ] On manual language switch, write the chosen locale to a cookie (e.g. `NEXT_LOCALE`) so it overrides browser detection on return visits
+- [x] On manual language switch, write the chosen locale to a cookie (e.g. `NEXT_LOCALE`) so it overrides browser detection on return visits
 - [ ] Verify priority order: cookie → `Accept-Language` → default `en`
 
 ### Language Switcher Component
