@@ -3,6 +3,8 @@ import * as path from 'path';
 import * as dotenv from 'dotenv';
 import * as xlsx from 'xlsx';
 import { stringify } from 'csv-stringify/sync';
+import sharp from 'sharp';
+import { Vibrant } from 'node-vibrant/node';
 
 const ENV_FILE = path.resolve(__dirname, '../../.env');
 const ENV_LOCAL_FILE = path.resolve(__dirname, '../../.env.local');
@@ -70,6 +72,7 @@ interface EnrichedFilm {
   cast: string[];
   language: string | null;
   posterUrl: string | null;
+  posterColor: string | null;
   backdropUrl: string | null;
   trailerUrl: string | null;
   imdbRating: number | null;
@@ -238,6 +241,30 @@ async function omdbDetails(imdbId: string): Promise<Record<string, unknown>> {
   return data;
 }
 
+async function extractDominantPosterColor(posterUrl: string | null): Promise<string | null> {
+  if (!posterUrl) return null;
+
+  try {
+    const res = await fetch(posterUrl);
+    if (!res.ok) throw new Error(`Poster download failed: ${res.status} ${res.statusText}`);
+
+    const image = Buffer.from(await res.arrayBuffer());
+    const preparedImage = await sharp(image)
+      .resize(160, 160, { fit: 'inside', withoutEnlargement: true })
+      .toBuffer();
+    const palette = await Vibrant.from(preparedImage).getPalette();
+    const swatch = Object.values(palette)
+      .filter(swatch => swatch !== null)
+      .sort((a, b) => b.population - a.population)[0];
+
+    return swatch?.hex.toUpperCase() ?? null;
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.warn(`  ! Poster color skipped: ${msg}`);
+    return null;
+  }
+}
+
 function contentTypeFromGenres(genres: string[], runtime: number | null): string {
   const normalized = genres.map(genre => genre.toLowerCase());
   if (normalized.includes('documentary')) return 'documentary';
@@ -397,6 +424,8 @@ async function main() {
 
       const posterPath = details.poster_path as string | null | undefined;
       const backdropPath = details.backdrop_path as string | null | undefined;
+      const posterUrl = posterPath ? `https://image.tmdb.org/t/p/w500${posterPath}` : null;
+      const posterColor = await extractDominantPosterColor(posterUrl);
 
       const oscarRecords = awardRecordsFor(filmRows, 'oscar');
       const ggRecords = awardRecordsFor(filmRows, 'goldenglobe');
@@ -417,7 +446,8 @@ async function main() {
         director,
         cast,
         language: (details.original_language as string | null | undefined) ?? null,
-        posterUrl: posterPath ? `https://image.tmdb.org/t/p/w500${posterPath}` : null,
+        posterUrl,
+        posterColor,
         backdropUrl: backdropPath ? `https://image.tmdb.org/t/p/w1280${backdropPath}` : null,
         trailerUrl,
         imdbRating,

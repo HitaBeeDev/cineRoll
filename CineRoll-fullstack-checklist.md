@@ -225,11 +225,11 @@ Monorepo with `cineroll/` root containing:
 
 ### 5b. Film Color Extraction (at seed time)
 
-- [ ] Install color extraction library in backend: `npm install sharp node-vibrant --workspace=backend`
-- [ ] In the enrich script, after fetching the TMDB poster URL, download the poster image and extract the dominant color using `node-vibrant`
-- [ ] Store the dominant hex color (e.g. `#8B4513`) as a `posterColor` string field on the Film model
+- [x] Install color extraction library in backend: `npm install sharp node-vibrant --workspace=backend`
+- [x] In the enrich script, after fetching the TMDB poster URL, download the poster image and extract the dominant color using `node-vibrant`
+- [x] Store the dominant hex color (e.g. `#8B4513`) as a `posterColor` string field on the Film model
 - [ ] Add `posterColor` (String, nullable) to the Prisma Film model and run migration
-- [ ] Fallback: if extraction fails (no poster, network error), store `null`; frontend falls back to a neutral default color
+- [x] Fallback: if extraction fails (no poster, network error), store `null`; frontend falls back to a neutral default color
 
 ### 5c. Seed Database
 

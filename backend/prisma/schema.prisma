@@ -22,6 +22,7 @@ model Film {
   cast              Json        @default("[]")
   language          String?
   posterUrl         String?
+  posterColor       String?
   backdropUrl       String?
   trailerUrl        String?
   imdbRating        Float?

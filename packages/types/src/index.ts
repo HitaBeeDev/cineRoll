@@ -25,6 +25,7 @@ export interface Film {
   cast: string[];
   language: string | null;
   posterUrl: string | null;
+  posterColor: string | null;
   backdropUrl: string | null;
   trailerUrl: string | null;
   imdbRating: number | null;

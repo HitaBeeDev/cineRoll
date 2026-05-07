@@ -15,6 +15,7 @@ const pickOfDaySelect = {
   plot: true,
   director: true,
   posterUrl: true,
+  posterColor: true,
   backdropUrl: true,
   imdbRating: true,
   rtScore: true,
