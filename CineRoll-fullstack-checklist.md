@@ -171,15 +171,15 @@ Monorepo with `cineroll/` root containing:
 
 ## 4. Backend — Database & Prisma
 
-- [ ] Create `backend/prisma/schema.prisma` with Prisma schema definition
-- [ ] Define Film model with all fields: id (primary key), slug (unique), TMDB ID, IMDB ID, title, **originalTitle** (String, nullable — original language title from TMDB, null if same as English title), releaseYear (the film's release year), runtime, genres (array), **contentType** (string), plot, director, cast (array), language, poster URL, backdrop URL, trailer URL, IMDB rating, Rotten Tomatoes score, Oscar fields (nominations count, wins count, categories JSON array of AwardRecord), Golden Globe fields (nominations count, wins count, categories JSON array of AwardRecord), **Cannes fields** (nominations count, wins count, categories JSON array of AwardRecord), pick of day flag and date, timestamps
-- [ ] Define RollEvent model with id, filmId (foreign key to Film), and timestamp
-- [ ] Define relationships: RollEvent belongs to Film, Film has many RollEvents
-- [ ] Set up Prisma to use PostgreSQL database
+- [x] Create `backend/prisma/schema.prisma` with Prisma schema definition
+- [x] Define Film model with all fields: id (primary key), slug (unique), TMDB ID, IMDB ID, title, **originalTitle** (String, nullable — original language title from TMDB, null if same as English title), releaseYear (the film's release year), runtime, genres (array), **contentType** (string), plot, director, cast (array), language, poster URL, backdrop URL, trailer URL, IMDB rating, Rotten Tomatoes score, Oscar fields (nominations count, wins count, categories JSON array of AwardRecord), Golden Globe fields (nominations count, wins count, categories JSON array of AwardRecord), **Cannes fields** (nominations count, wins count, categories JSON array of AwardRecord), pick of day flag and date, timestamps
+- [x] Define RollEvent model with id, filmId (foreign key to Film), and timestamp
+- [x] Define relationships: RollEvent belongs to Film, Film has many RollEvents
+- [x] Set up Prisma to use PostgreSQL database
 - [ ] Run Prisma migration to create database schema: `prisma migrate dev --name init`
 - [ ] Verify database tables are created in Neon PostgreSQL console
-- [ ] Regenerate Prisma client: `prisma generate`
-- [ ] Create `backend/src/lib/prisma.ts` as a singleton instance of Prisma client for reuse across routes
+- [x] Regenerate Prisma client: `prisma generate`
+- [x] Create `backend/src/lib/prisma.ts` as a singleton instance of Prisma client for reuse across routes
 
 ---
 

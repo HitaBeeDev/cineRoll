@@ -1,0 +1,7 @@
+-- AlterTable
+ALTER TABLE "Film"
+ADD COLUMN "originalTitle" TEXT,
+ADD COLUMN "contentType" TEXT NOT NULL DEFAULT 'movie',
+ADD COLUMN "cannesNominations" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN "cannesWins" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN "cannesCategories" JSONB NOT NULL DEFAULT '[]';
