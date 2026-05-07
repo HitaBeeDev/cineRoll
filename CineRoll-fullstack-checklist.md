@@ -4,22 +4,26 @@
 
 ## Application Summary
 
-**CineRoll** is a film discovery web app whose core value is **deep award-data filtering**. Users can slice the full catalogue by every dimension the dataset provides — nominee name, director, award body, category, win/nomination status, ceremony year, genre, and decade — and then either browse results or roll a random film from within that filtered set.
+**CineRoll** is a film discovery web app whose core value is **deep award-data filtering**. Users can slice the full catalogue by every dimension the dataset provides — nominee name, director, award body, category, win/nomination status, ceremony year, genre, content type, and decade — and then either browse results or roll a random film from within that filtered set.
 
 ### What it does
 
-- **Advanced Award Filtering** — The primary feature. Users compose filters from: award body (Oscar / Golden Globe), win vs. nomination status, specific category (Best Picture, Best Director, Best Actress, etc.), ceremony year, nominee or winner name, director name, genre, and release decade. Any combination of filters can be active at once.
+- **Advanced Award Filtering** — The primary feature. Users compose filters from: award body (Oscar / Golden Globe / Cannes), win vs. nomination status, specific category (Best Picture, Best Director, Best Actress, etc.), ceremony year, nominee or winner name, director name, genre, content type (movie, documentary, animation, etc.), and release decade. Any combination of filters can be active at once.
 - **Filtered Roll** — Once filters are set, the Roll button picks a random film from within the filtered results. "Roll me a Cate Blanchett Oscar-nominated film from the 2000s" is a valid interaction.
 - **Pure Roll (no filters)** — With no filters active, Roll returns a completely random film from the full dataset. Simple discovery without setup.
 - **Browse & Paginate** — Filtered results are shown as a paginated grid so users can explore instead of (or in addition to) rolling.
-- **Film Detail Pages** — Each film has a dedicated page (`/film/:slug`) showing full metadata: backdrop, trailer, IMDB/RT ratings, and a complete Oscar and Golden Globe history broken down by category and year.
-- **Pick of the Day** — A manually curated featured film shown on the home page each day.
-- **Watchlist & Watch History** — Logged-in users can save films to a watchlist or mark them as watched (with an option to exclude from future rolls).
+- **Film Detail Pages** — Each film has a dedicated page (`/film/:slug`) showing full metadata: backdrop, trailer, IMDB/RT ratings, and a **complete award history across all award bodies** (Oscars, Golden Globes, Cannes, etc.) broken down by category and year.
+- **Pick of the Day** — An algorithmically selected film shown on the home page each day, automatically chosen from site statistics: the most rolled / most watchlisted / most trending film in the past 24–48 hours. No manual curation needed.
+- **Watchlist & Watch History** — Logged-in users can save films to a watchlist or mark them as watched (with "Not Interested" or "Watched" quick buttons after every roll; option to exclude from future rolls).
+- **User Ratings** — Logged-in users can rate films they have watched (1–5 stars).
+- **Film Comments** — Logged-in users can leave comments on films they have watched.
+- **Feedback / Suggestions** — A public section at the bottom of the site where anyone can submit ideas, bugs, or suggestions to the team.
 - **Personalized Recommendations** — On the user's profile page, film suggestions are generated from their watch history and watchlist — separate from the manually curated Pick of the Day.
+- **PWA / Mobile Install** — First-time mobile visitors are shown a friendly prompt explaining how to add CineRoll to their home screen so they can access it like a native app.
 
 ### The Dataset
 
-Hand-curated CSV files — Oscar records split by decade (`movie names - oscar 1929-1939.csv`, `movie names - oscar 1940s.csv`, etc.) and one file for Golden Globe records. Each row is a single nomination or win with: a unique award ID (`OSC-` / `GG-` prefix), the ceremony year, the film title, the film's release year, the award category, the nominee's name, and whether they won. The enrich script groups these records by film, calculates counts, and enriches each unique film via TMDB (poster, backdrop, runtime, genres, director, cast, trailer) and OMDB (IMDB rating, Rotten Tomatoes score). The final dataset is seeded into PostgreSQL. **Every AwardRecord stored for each film — nominee name, category, year, win flag — is a filterable dimension available to the user.**
+Hand-curated **Excel (.xlsx) files** — Oscar records, Golden Globe records, and Cannes records. Each file contains one row per nomination or win with: a unique award ID (`OSC-` / `GG-` / `CN-` prefix), the ceremony year, the film title, the film's release year, the award category, the nominee's name, and whether they won. The enrich script reads Excel files directly (no CSV conversion needed), groups records by film across all three award bodies, and enriches each unique film via TMDB (poster, backdrop, runtime, genres, content type, director, cast, trailer) and OMDB (IMDB rating, Rotten Tomatoes score). The final dataset is seeded into PostgreSQL. **Every AwardRecord stored for each film — award body, nominee name, category, year, win flag — is a filterable dimension available to the user.** A single film may have Oscar, Golden Globe, and Cannes records simultaneously; all are shown together on its detail page.
 
 ### Stack
 
@@ -54,24 +58,57 @@ Monorepo with `cineroll/` root containing:
 2. Shared Types Package
 3. Backend — Project Setup
 4. Backend — Database & Prisma
-5. Backend — Film Data Pipeline
-6. Backend — API Routes
+5. Backend — Film Data Pipeline (Excel + Oscar + Golden Globes + Cannes + Film Color Theming)
+6. Backend — API Routes (incl. Autocomplete + Person endpoints)
 7. Frontend — Project Setup
-8. Frontend — Base Components
-9. Frontend — Roll Feature
-10. Frontend — Pick of the Day
-11. Frontend — Film Detail Pages
-12. Frontend — Browse, Filter & Filtered Roll
+7b. Cinematic Design System & UI/UX
+8. Frontend — Base Components (Night Mode Pill, Login/Sign Up Buttons)
+8b. The Snob Test (viral quiz — no auth needed)
+8c. First-Visit Onboarding
+9. Frontend — Roll Feature (Mood Presets, Share, Spacebar, Not Interested/Watched, Session History, Time Capsule Roll)
+9b. Roll Battle (Swipe to Decide)
+9c. Blind Roll — Film Quiz Mode
+9d. Natural Language Roll (AI — Claude API)
+10. Frontend — Pick of the Day (Algorithmic)
+11. Frontend — Film Detail Pages (all award bodies + Trailer Modal + Color Theming + Similar Films + Original Title)
+11b. Tonight's Pick — Shareable Card
+11c. Person Detail Pages (/person/:slug)
+12. Frontend — Browse, Filter & Filtered Roll (content type filter + Autocomplete)
+12b. Marathon Planner
+12c. Filter UX — Making It Feel Exciting
 13. Internationalization (i18n)
 13.5. Rating Filters (IMDb & Rotten Tomatoes)
+13.6. Runtime Filter (Quick Watch / Standard / Long Haul / Epic)
 14. Frontend — Pages & Routing
-15. Auth & User System
+15. Auth & User System (Email OTP Verification + Google OAuth)
 16. Watchlist & Watch History
+16b. Custom Lists (beyond Watchlist)
 17. Profile & Personalized Recommendations
-18. Deployment
-19. Documentation
-20. Performance & Lighthouse Audit
-21. Google Search Ranking (SEO)
+17b. User Ratings for Watched Films
+17c. Film Comments (authenticated users)
+17d. Feedback / Suggestions Section (public footer form)
+17e. Completionist Tracker
+17f. CineRoll Wrapped
+17g. Public Taste Profile (/u/:username)
+18. Admin Panel
+19. Stats & Discovery Page
+19b. Weekly Community Challenge
+20. Weekly Email Pick (opt-in newsletter)
+21. Data Privacy & Security
+22. PWA & Mobile Homescreen Install (incl. Push Notifications)
+23. Deployment
+24. Documentation
+25. Performance & Lighthouse Audit
+26. Google Search Ranking (SEO)
+26b. Award Hub Pages (/awards/oscars, /awards/golden-globes, /awards/cannes)
+26c. Blog & Pillar Content Strategy
+27. Legal Pages (Privacy Policy, Terms of Service, Cookie Policy)
+32. CI/CD Pipeline (GitHub Actions)
+33. Automated Testing (Playwright E2E + Vitest)
+28. GDPR & Account Deletion
+29. Content Moderation
+30. Uptime Monitoring
+31. Error Tracking (Sentry)
 
 ---
 
@@ -93,127 +130,142 @@ Monorepo with `cineroll/` root containing:
 
 ## 2. Shared Types Package
 
-- [x] Create `packages/types/src/` directory structure
-- [x] Create `packages/types/package.json` that exports the compiled types from dist folder
-- [x] Create `packages/types/tsconfig.json` that extends the root tsconfig and outputs compiled types
-- [x] Create `packages/types/src/index.ts` with TypeScript interfaces for all data models:
-  - AwardRecord interface: `{ awardYear: number; category: string; nominee: string; won: boolean }` — one record per nomination/win, stored in oscarCategories / ggCategories JSON arrays
-  - Film interface (id, slug, tmdbId, imdbId, title, releaseYear, runtime, genres array, plot, director, cast array, language, poster URL, backdrop URL, trailer URL, IMDB rating, Rotten Tomatoes score, Oscar nominations/wins/categories, Golden Globe nominations/wins/categories, pick of day flag and date)
+- [ ] Create `packages/types/src/` directory structure
+- [ ] Create `packages/types/package.json` that exports the compiled types from dist folder
+- [ ] Create `packages/types/tsconfig.json` that extends the root tsconfig and outputs compiled types
+- [ ] Create `packages/types/src/index.ts` with TypeScript interfaces for all data models:
+  - AwardRecord interface: `{ awardBody: "oscar" | "goldenglobe" | "cannes"; awardYear: number; category: string; nominee: string; won: boolean }` — one record per nomination/win, stored in oscarCategories / ggCategories / cannesCategories JSON arrays
+  - Film interface (id, slug, tmdbId, imdbId, title, releaseYear, runtime, genres array, **contentType** string, plot, director, cast array, language, poster URL, backdrop URL, trailer URL, IMDB rating, Rotten Tomatoes score, Oscar nominations/wins/categories, Golden Globe nominations/wins/categories, **Cannes nominations/wins/categories**, pick of day flag and date)
   - RollEvent interface (id, filmId, timestamp)
-  - FilterState interface: `search` (film title), `person` (nominee/winner name — searches all AwardRecord entries), `director` (director name), `awardBody` ("oscar" | "goldenglobe" | "both"), `winnerOnly` (boolean), `nominatedOnly` (boolean), `category` (award category string), `awardYear` (ceremony year number), `genre` (string), `decadeMin`/`decadeMax` (release decade), `page` (number)
+  - FilterState interface: `search` (film title), `person` (nominee/winner name — searches all AwardRecord entries), `director` (director name), `awardBody` ("oscar" | "goldenglobe" | "cannes" | "all"), `winnerOnly` (boolean), `nominatedOnly` (boolean), `category` (award category string), `awardYear` (ceremony year number), `genre` (string), **`contentType`** (string — "movie" | "documentary" | "animation" | "short" | etc.), `decadeMin`/`decadeMax` (release decade), `page` (number)
   - PaginatedFilms interface (films array, total count, current page, total pages)
   - ApiError interface (error message, error code)
   - User interface (id, email, name, image)
   - WatchlistEntry interface (id, userId, filmId, addedAt)
   - WatchedEntry interface (id, userId, filmId, watchedAt, doNotSuggest)
-- [x] Build the types package: run TypeScript compiler
-- [x] Verify compiled types exist in `packages/types/dist/` with both JS and .d.ts files
+  - **UserRating interface** (id, userId, filmId, rating Float 1.0–10.0 step 0.5, createdAt, updatedAt)
+  - **FilmComment interface** (id, userId, filmId, body text, createdAt, updatedAt, user name/avatar)
+  - **SiteFeedback interface** (id, email optional, body text, createdAt)
+- [ ] Build the types package: run TypeScript compiler
+- [ ] Verify compiled types exist in `packages/types/dist/` with both JS and .d.ts files
 
 ---
 
 ## 3. Backend — Project Setup
 
-- [x] Create backend folder and initialize npm project
-- [x] Set backend `package.json` name to @cineroll/backend
-- [x] Add shared types package as a dependency in backend
-- [x] Install backend production dependencies: Express (web framework), CORS (cross-origin requests), Helmet (security headers), Morgan (request logging), dotenv (environment variables), Prisma client (ORM), and Zod (validation)
-- [x] Install backend dev dependencies: TypeScript, ts-node-dev (development server), type definitions for Express/Node/CORS/Morgan, Prisma CLI, and tsx (TypeScript executor)
-- [x] Create backend `tsconfig.json` that extends root tsconfig with output directory, root directory, and module settings
-- [x] Add scripts to backend `package.json`: dev (run dev server), build (compile TypeScript), start (run production build), lint (run ESLint), type-check (check TypeScript), db:migrate (run Prisma migrations), db:generate (regenerate Prisma client), db:seed (seed database), enrich (run enrichment script)
-- [x] Create backend `.env` file with DATABASE_URL (Neon PostgreSQL connection string), PORT (4000), FRONTEND_URL (for CORS), TMDB_API_KEY, and OMDB_API_KEY
-- [x] Create backend `.env.example` as a template showing what environment variables are needed
-- [x] Create backend folder structure: src/ with subdirectories for routes, middleware, lib, scripts
-- [x] Create `backend/src/index.ts` as entry point that initializes Express server
-- [x] Create `backend/src/app.ts` with Express app setup (middleware, routes, error handling)
-- [x] Create `backend/src/config.ts` to load and validate environment variables
+- [ ] Create backend folder and initialize npm project
+- [ ] Set backend `package.json` name to @cineroll/backend
+- [ ] Add shared types package as a dependency in backend
+- [ ] Install backend production dependencies: Express (web framework), CORS (cross-origin requests), Helmet (security headers), Morgan (request logging), dotenv (environment variables), Prisma client (ORM), and Zod (validation)
+- [ ] Install backend dev dependencies: TypeScript, ts-node-dev (development server), type definitions for Express/Node/CORS/Morgan, Prisma CLI, and tsx (TypeScript executor)
+- [ ] Create backend `tsconfig.json` that extends root tsconfig with output directory, root directory, and module settings
+- [ ] Add scripts to backend `package.json`: dev (run dev server), build (compile TypeScript), start (run production build), lint (run ESLint), type-check (check TypeScript), db:migrate (run Prisma migrations), db:generate (regenerate Prisma client), db:seed (seed database), enrich (run enrichment script)
+- [ ] Create backend `.env` file with DATABASE_URL (Neon PostgreSQL connection string), PORT (4000), FRONTEND_URL (for CORS), TMDB_API_KEY, and OMDB_API_KEY
+- [ ] Create backend `.env.example` as a template showing what environment variables are needed
+- [ ] Create backend folder structure: src/ with subdirectories for routes, middleware, lib, scripts
+- [ ] Create `backend/src/index.ts` as entry point that initializes Express server
+- [ ] Create `backend/src/app.ts` with Express app setup (middleware, routes, error handling)
+- [ ] Create `backend/src/config.ts` to load and validate environment variables
 
 ---
 
 ## 4. Backend — Database & Prisma
 
-- [x] Create `backend/prisma/schema.prisma` with Prisma schema definition
-- [x] Define Film model with all fields: id (primary key), slug (unique), TMDB ID, IMDB ID, title, releaseYear (the film's release year), runtime, genres (array), plot, director, cast (array), language, poster URL, backdrop URL, trailer URL, IMDB rating, Rotten Tomatoes score, Oscar fields (nominations count, wins count, categories JSON array of AwardRecord), Golden Globe fields (nominations count, wins count, categories JSON array of AwardRecord), pick of day flag and date, timestamps
-- [x] Define RollEvent model with id, filmId (foreign key to Film), and timestamp
-- [x] Define relationships: RollEvent belongs to Film, Film has many RollEvents
-- [x] Set up Prisma to use PostgreSQL database
+- [ ] Create `backend/prisma/schema.prisma` with Prisma schema definition
+- [ ] Define Film model with all fields: id (primary key), slug (unique), TMDB ID, IMDB ID, title, **originalTitle** (String, nullable — original language title from TMDB, null if same as English title), releaseYear (the film's release year), runtime, genres (array), **contentType** (string), plot, director, cast (array), language, poster URL, backdrop URL, trailer URL, IMDB rating, Rotten Tomatoes score, Oscar fields (nominations count, wins count, categories JSON array of AwardRecord), Golden Globe fields (nominations count, wins count, categories JSON array of AwardRecord), **Cannes fields** (nominations count, wins count, categories JSON array of AwardRecord), pick of day flag and date, timestamps
+- [ ] Define RollEvent model with id, filmId (foreign key to Film), and timestamp
+- [ ] Define relationships: RollEvent belongs to Film, Film has many RollEvents
+- [ ] Set up Prisma to use PostgreSQL database
 - [ ] Run Prisma migration to create database schema: `prisma migrate dev --name init`
 - [ ] Verify database tables are created in Neon PostgreSQL console
-- [x] Regenerate Prisma client: `prisma generate`
-- [x] Create `backend/src/lib/prisma.ts` as a singleton instance of Prisma client for reuse across routes
+- [ ] Regenerate Prisma client: `prisma generate`
+- [ ] Create `backend/src/lib/prisma.ts` as a singleton instance of Prisma client for reuse across routes
 
 ---
 
-## 5. Backend — Film Data Pipeline
+## 5. Backend — Film Data Pipeline (Excel + Oscar + Golden Globes + Cannes)
 
 ### 5.0 Data File Preparation
 
-- [x] Create `backend/data/` directory
-- [x] Add data files to root `.gitignore` so they don't get committed
-- [x] Prepare Oscar CSV files in `backend/data/` — one file per decade, named `movie names - oscar DECADE.csv` (e.g. `movie names - oscar 1929-1939.csv`, `movie names - oscar 1940s.csv`). Each file has one row per nomination/win with columns: `Id, Award Year, Movie Name, Release Year, Type Of Award, Award Winner, Award Nominee`
+- [ ] Create `backend/data/` directory
+- [ ] Add **all data files** to root `.gitignore` so they are never committed — only the owner can access raw data (see Section 18: Data Privacy & Security for how to ensure this even if files were accidentally committed)
+- [ ] Prepare Oscar data as **Excel (.xlsx)** file(s) in `backend/data/` — no CSV conversion needed. Columns: `Id, Award Year, Movie Name, Release Year, Type Of Award, Award Winner, Award Nominee`
   - `Id` format: `OSC-{year}-{nn}` (e.g. `OSC-1929-01`)
-  - `Award Winner` = person/studio name if they won, `NaN` if nominated only
-  - The enrich script auto-discovers all files matching `movie names - oscar *.csv` — add new decade files and re-run
-- [x] Prepare `backend/data/films-goldenglobe.csv` — same column structure, `Id` format: `GG-{year}-{nn}`
+  - `Award Winner` = person/studio name if they won, empty/NaN if nominated only
+- [ ] Prepare Golden Globe data as Excel (.xlsx) — same column structure, `Id` format: `GG-{year}-{nn}`
+- [ ] Prepare Cannes data as Excel (.xlsx) — same column structure, `Id` format: `CN-{year}-{nn}`
+- [ ] Install Excel parsing library in backend: `npm install xlsx --workspace=backend`
+- [ ] Update enrich script to auto-discover and read all `.xlsx` files in `backend/data/` (Oscar, Golden Globe, Cannes) — **all three files share the same column structure** (`Id, Award Year, Movie Name, Release Year, Type Of Award, Award Winner, Award Nominee`); the `Id` prefix (`OSC-` / `GG-` / `CN-`) determines the award body automatically
+- [ ] After pipeline runs and data is seeded, **remove all intermediate/old unused files** from `backend/data/` (e.g. old CSV files, old JSON drafts). Never delete original `.xlsx` source files.
 
 ### 5a. Enrichment Script — Fetch Data from TMDB & OMDB APIs
 
-- [x] Install CSV parsing library (csv-parse) in backend
-- [x] Create `backend/.env.local` with TMDB_API_KEY and OMDB_API_KEY (these are only for enrichment, not used at runtime)
-- [x] Update `backend/src/scripts/enrich.ts` script to:
+- [ ] Install Excel parsing library in backend: `npm install xlsx --workspace=backend` (replaces csv-parse)
+- [ ] Create `backend/.env.local` with TMDB_API_KEY and OMDB_API_KEY (these are only for enrichment, not used at runtime)
+- [ ] Update `backend/src/scripts/enrich.ts` script to:
   - Load environment variables from .env.local
-  - Auto-discover and read all `movie names - oscar *.csv` decade files, then read `films-goldenglobe.csv`
-  - Group rows by (film title + release year) to get unique films
-  - For each unique film, build `oscarCategories` and `ggCategories` arrays of `AwardRecord` objects: `{ awardYear, category, nominee, won }`
-  - Calculate `oscarNominations`, `oscarWins`, `ggNominations`, `ggWins` counts from grouped rows
+  - Auto-discover and read all `.xlsx` files in `backend/data/`: Oscar file(s), Golden Globe file, and Cannes file
+  - Group rows by (film title + release year) to get unique films across all three award bodies
+  - For each unique film, build `oscarCategories`, `ggCategories`, and `cannesCategories` arrays of `AwardRecord` objects: `{ awardBody, awardYear, category, nominee, won }`
+  - Calculate `oscarNominations`, `oscarWins`, `ggNominations`, `ggWins`, `cannesNominations`, `cannesWins` counts
   - Search TMDB API using film title and release year to get TMDB ID
   - If no match found, log error to enrichment-errors.csv and continue to next film
-  - If match found, fetch full TMDB movie details to get: runtime, genres, director, cast (top 10), IMDB ID, poster, backdrop, and trailer URL
+  - If match found, fetch full TMDB movie details to get: runtime, genres, **content type** (movie / documentary / animation / etc.), **original title** (`original_title` field from TMDB — store only if different from the English title), director, cast (top 10), IMDB ID, poster, backdrop, and trailer URL
   - Use IMDB ID to query OMDB API for: IMDB rating and Rotten Tomatoes score
   - Generate a unique slug for the film (lowercase title with hyphens, append year if duplicate)
   - Add rate limiting between API calls (250ms delay) to respect rate limits
   - Write all successfully enriched films to films-enriched.json
   - Write failed films to enrichment-errors.csv with reason
   - Log summary: how many enriched, how many errors
-- [x] Run enrichment script
-- [x] Review enrichment-errors.csv to see which films failed to match
-- [x] Fix any failed films by correcting title spelling in source CSVs, then re-run
-- [x] Validate output: verify all slugs are unique, spot-check entries for data quality
-- [x] Save validated result as `backend/data/films-final.json` (do not overwrite after seeding)
+- [ ] Run enrichment script
+- [ ] Review enrichment-errors.csv to see which films failed to match
+- [ ] Fix any failed films by correcting title spelling in source CSVs, then re-run
+- [ ] Validate output: verify all slugs are unique, spot-check entries for data quality
+- [ ] Save validated result as `backend/data/films-final.json` (do not overwrite after seeding)
+
+### 5b. Film Color Extraction (at seed time)
+
+- [ ] Install color extraction library in backend: `npm install sharp node-vibrant --workspace=backend`
+- [ ] In the enrich script, after fetching the TMDB poster URL, download the poster image and extract the dominant color using `node-vibrant`
+- [ ] Store the dominant hex color (e.g. `#8B4513`) as a `posterColor` string field on the Film model
+- [ ] Add `posterColor` (String, nullable) to the Prisma Film model and run migration
+- [ ] Fallback: if extraction fails (no poster, network error), store `null`; frontend falls back to a neutral default color
 
 ### 5c. Seed Database
 
-- [x] Create `backend/src/scripts/seed.ts` that:
+- [ ] Create `backend/src/scripts/seed.ts` that:
   - Reads films-final.json
   - Loops through each film and inserts into PostgreSQL using Prisma (upsert to handle re-runs)
   - Handles JSON fields for cast, award categories properly
-- [x] Run seed script: `npm run db:seed --workspace=backend`
-- [x] Verify in Neon PostgreSQL console that row count matches films-final.json length
-- [x] Spot-check 5 films by querying database
+- [ ] Run seed script: `npm run db:seed --workspace=backend`
+- [ ] Verify in Neon PostgreSQL console that row count matches films-final.json length
+- [ ] Spot-check 5 films by querying database
 
 ### 5d. Database Performance Optimization
 
-- [x] Create database indexes on frequently queried columns:
-  - [x] Index on `title` column for search queries (`Film_title_idx`)
-  - [x] Index on `year` column for filtering by decade (`Film_year_idx`)
-  - [x] Index on `genres` (array column) for genre filtering (`Film_genres_gin_idx`)
-  - [x] Full-text search index using PostgreSQL pg_trgm extension for typo-tolerant search (`Film_title_trgm_idx`)
-  - [x] Unique index on `slug` column for fast lookups by slug (`Film_slug_key`, created by Prisma unique constraint)
-- [x] Enable connection pooling: backend now uses `DATABASE_POOL_SIZE=25` by default via the Prisma PostgreSQL adapter; keep Neon configured to use the pooled connection endpoint with a pool size in the 25-50 range for production traffic
-- [x] Test database query performance: `npm run db:perf --workspace=backend` passes with search queries under 100ms and detail lookups under 50ms
-- [x] Monitor slow queries using PostgreSQL slow query log or Neon analytics: backend now emits slow Prisma query warnings for queries over `SLOW_QUERY_THRESHOLD_MS=100`; Neon analytics should remain the production monitoring source
-- [x] Implement query caching if needed (Redis) for frequently accessed data like "Pick of the Day": not needed at current measured query times; revisit when API traffic or Neon analytics shows repeated slow reads
+- [ ] Create database indexes on frequently queried columns:
+  - [ ] Index on `title` column for search queries (`Film_title_idx`)
+  - [ ] Index on `year` column for filtering by decade (`Film_year_idx`)
+  - [ ] Index on `genres` (array column) for genre filtering (`Film_genres_gin_idx`)
+  - [ ] Full-text search index using PostgreSQL pg_trgm extension for typo-tolerant search (`Film_title_trgm_idx`)
+  - [ ] Unique index on `slug` column for fast lookups by slug (`Film_slug_key`, created by Prisma unique constraint)
+- [ ] Enable connection pooling: backend now uses `DATABASE_POOL_SIZE=25` by default via the Prisma PostgreSQL adapter; keep Neon configured to use the pooled connection endpoint with a pool size in the 25-50 range for production traffic
+- [ ] Test database query performance: `npm run db:perf --workspace=backend` passes with search queries under 100ms and detail lookups under 50ms
+- [ ] Monitor slow queries using PostgreSQL slow query log or Neon analytics: backend now emits slow Prisma query warnings for queries over `SLOW_QUERY_THRESHOLD_MS=100`; Neon analytics should remain the production monitoring source
+- [ ] Implement query caching if needed (Redis) for frequently accessed data like "Pick of the Day": not needed at current measured query times; revisit when API traffic or Neon analytics shows repeated slow reads
 
 ---
 
 ## 6. Backend — API Routes & Performance
 
-- [x] Create `backend/src/routes/index.ts` that exports a router with all sub-routes mounted
-- [x] Create `backend/src/routes/films.ts` with:
-  - [x] GET /api/films (search with filters — all combinable):
+- [ ] Create `backend/src/routes/index.ts` that exports a router with all sub-routes mounted
+- [ ] Create `backend/src/routes/films.ts` with:
+  - [ ] GET /api/films (search with filters — all combinable):
     - `search` — film title text search
     - `person` — nominee or winner name (searches all AwardRecord entries across oscarCategories + ggCategories)
     - `director` — director name (matches Film.director field)
-    - `awardBody` — "oscar" | "goldenglobe" | "both"
+    - `awardBody` — "oscar" | "goldenglobe" | "cannes" | "all"
+    - `contentType` — content type string (e.g. "movie", "documentary", "animation")
     - `winnerOnly` — boolean, show only films with at least one win
     - `nominatedOnly` — boolean, show films with nominations (won or not)
     - `category` — award category string (e.g. "Best Actress in a Leading Role")
@@ -222,68 +274,188 @@ Monorepo with `cineroll/` root containing:
     - `decadeMin`/`decadeMax` — release decade range
     - `page`, `limit`
 
-  - [x] GET /api/films/categories — return distinct list of all award categories in the dataset (used to populate category dropdown in UI)
-  - [x] GET /api/films/award-years — return sorted list of all distinct ceremony years in the dataset (used to populate award year dropdown)
-  - [x] GET /api/films/:slug (get single film by slug with full details including all AwardRecord arrays)
+  - [ ] GET /api/films/categories — return distinct list of all award categories in the dataset (used to populate category dropdown in UI)
+  - [ ] GET /api/films/award-years — return sorted list of all distinct ceremony years in the dataset (used to populate award year dropdown)
+  - [ ] GET /api/films/:slug (get single film by slug with full details including all AwardRecord arrays)
 
-- [x] Create `backend/src/routes/random.ts` with:
-  - [x] GET /api/random (return a random film from database — no filters)
-  - [x] GET /api/random accepts all the same filter params as /api/films — when filters are present, pick one random film from the matching set; when no filters, pick from full dataset
-  - [x] Accept optional `userId` param — when provided, exclude films the user has marked `doNotSuggest=true`
-- [x] Create `backend/src/routes/roll.ts` with:
-  - [x] POST /api/roll (log a roll event when user clicks Roll button)
-- [x] Create `backend/src/routes/pickOfDay.ts` with:
-  - [x] GET /api/pick-of-day (get today's featured film, return 404 if none set)
-- [x] For each route, implement:
-  - [x] Request validation using Zod schemas (validate query params, request body)
-  - [x] Authorization checks if needed
-  - [x] Prisma queries to fetch data from database
-  - [x] Error handling with appropriate HTTP status codes
-  - [x] Consistent response format
-- [x] Create `backend/src/middleware/errorHandler.ts` to catch all errors and return consistent error responses
-- [x] Create `backend/src/middleware/validate.ts` to validate requests against Zod schemas
-- [x] Mount all routes in `backend/src/app.ts`
-- [x] Test all endpoints using Postman or similar tool
+- [ ] Create `backend/src/routes/random.ts` with:
+  - [ ] GET /api/random (return a random film from database — no filters)
+  - [ ] GET /api/random accepts all the same filter params as /api/films — when filters are present, pick one random film from the matching set; when no filters, pick from full dataset
+  - [ ] Accept optional `userId` param — when provided, exclude films the user has marked `doNotSuggest=true`
+- [ ] Create `backend/src/routes/roll.ts` with:
+  - [ ] POST /api/roll (log a roll event when user clicks Roll button)
+- [ ] Create `backend/src/routes/pickOfDay.ts` with:
+  - [ ] GET /api/pick-of-day — **auto-select** today's film algorithmically: query RollEvent + WatchlistEntry counts from the last 48 hours, pick the film with the highest combined score; cache result for 1 hour; return 404 only if database is empty
+- [ ] For each route, implement:
+  - [ ] Request validation using Zod schemas (validate query params, request body)
+  - [ ] Authorization checks if needed
+  - [ ] Prisma queries to fetch data from database
+  - [ ] Error handling with appropriate HTTP status codes
+  - [ ] Consistent response format
+- [ ] Create `backend/src/middleware/errorHandler.ts` to catch all errors and return consistent error responses
+- [ ] Create `backend/src/middleware/validate.ts` to validate requests against Zod schemas
+- [ ] Mount all routes in `backend/src/app.ts`
+- [ ] Test all endpoints using Postman or similar tool
 
 ### API Response Optimization (For Lighthouse Performance Score)
 
-- [x] Implement response compression: enable gzip compression for all API responses
-- [x] Use Helmet middleware to add security headers without impacting performance
-- [x] Implement pagination for list endpoints (max 100 items per request, default 12)
-- [x] Return only necessary fields from database: don't send entire objects if not needed
-- [x] Use Prisma select to limit database columns returned: `{ select: { id: true, title: true, ... } }`
-- [x] Add HTTP caching headers: set Cache-Control headers appropriately for different endpoints
-  - [x] Pick of the day: cache for 1 hour
-  - [x] Random film: cache for 1 minute
-  - [x] Search results: cache for 5 minutes
-  - [x] Film detail: cache for 24 hours
-- [x] Test API response times: search should complete in under 200ms, single lookups under 100ms
-- [x] Monitor backend performance: check server logs for slow requests
+- [ ] Implement response compression: enable gzip compression for all API responses
+- [ ] Use Helmet middleware to add security headers without impacting performance
+- [ ] Implement pagination for list endpoints (max 100 items per request, default 12)
+- [ ] Return only necessary fields from database: don't send entire objects if not needed
+- [ ] Use Prisma select to limit database columns returned: `{ select: { id: true, title: true, ... } }`
+- [ ] Add HTTP caching headers: set Cache-Control headers appropriately for different endpoints
+  - [ ] Pick of the day: cache for 1 hour
+  - [ ] Random film: cache for 1 minute
+  - [ ] Search results: cache for 5 minutes
+  - [ ] Film detail: cache for 24 hours
+- [ ] Test API response times: search should complete in under 200ms, single lookups under 100ms
+- [ ] Monitor backend performance: check server logs for slow requests
 
 ---
 
 ## 7. Frontend — Project Setup
 
-- [x] Create frontend folder
-- [x] Initialize Next.js project (with App Router, TypeScript, Tailwind CSS)
-- [x] Set frontend package name to @cineroll/frontend in package.json
-- [x] Add shared types package as a dependency
-- [x] Install additional frontend dependencies: Framer Motion (animations), Radix UI (accessible components), lucide-react (icons)
-- [x] Create frontend `tsconfig.json` that extends root tsconfig
-- [x] Configure Next.js `next.config.js` to allow image optimization from TMDB
-- [x] Create frontend folder structure: src/ with subdirectories for app (pages), components, hooks, lib, styles, types
-- [x] Create frontend `.env.local` with NEXT_PUBLIC_API_URL (backend API URL)
-- [x] Create frontend `.env.example` as template
-- [x] Setup global styles using Tailwind CSS
-- [x] Define CSS variables for color scheme, spacing, typography
-- [x] Create root layout in `src/app/layout.tsx` with head, body, and theme provider setup
-- [x] Add ESLint configuration to frontend
+- [ ] Create frontend folder
+- [ ] Initialize Next.js project (with App Router, TypeScript, Tailwind CSS)
+- [ ] Set frontend package name to @cineroll/frontend in package.json
+- [ ] Add shared types package as a dependency
+- [ ] Install additional frontend dependencies: Framer Motion (animations), Radix UI (accessible components), lucide-react (icons)
+- [ ] Create frontend `tsconfig.json` that extends root tsconfig
+- [ ] Configure Next.js `next.config.js` to allow image optimization from TMDB
+- [ ] Create frontend folder structure: src/ with subdirectories for app (pages), components, hooks, lib, styles, types
+- [ ] Create frontend `.env.local` with NEXT_PUBLIC_API_URL (backend API URL)
+- [ ] Create frontend `.env.example` as template
+- [ ] Setup global styles using Tailwind CSS
+- [ ] Define CSS variables for color scheme, spacing, typography
+- [ ] Create root layout in `src/app/layout.tsx` with head, body, and theme provider setup
+- [ ] Add ESLint configuration to frontend
 
 ---
 
-## 8. Frontend — Base Components
+## 7b. Cinematic Design System & UI/UX
 
-- [x] Create reusable UI components in `src/components/ui/`:
+Establish the visual language before building any component. Every screen should feel like it belongs in a cinema — dark, rich, dramatic, and alive. This section defines the design foundation the entire app is built on.
+
+---
+
+### Color System
+
+- [ ] **Primary background:** near-black with a subtle blue-black tint (`#09090f`) — not pure black, which feels flat; the blue-black gives depth like a darkened cinema
+- [ ] **Surface colors (cards, panels):** `#111118` (base surface), `#1a1a24` (elevated surface), `#22222f` (hover/active surface) — layered so the UI has clear depth hierarchy
+- [ ] **Primary accent — Cinematic Gold:** `#D4AF37` — used for wins, highlights, the Roll button glow, active filter states; feels like an Oscar statuette
+- [ ] **Secondary accent — Deep Crimson:** `#8B1A1A` — used sparingly for nominated-only states, destructive actions, dramatic emphasis
+- [ ] **Text hierarchy:** `#F5F5F0` (primary — warm white, not harsh), `#A0A0B0` (secondary — muted lavender-grey), `#5a5a70` (tertiary — disabled/placeholder)
+- [ ] **Film backdrop overlay gradient:** `linear-gradient(to top, #09090f 0%, #09090f 25%, transparent 60%)` — applied over every backdrop image so text is always readable and the image still breathes
+- [ ] **Define all values as CSS custom properties** in `globals.css` so they work across Tailwind utilities and raw CSS; expose them as Tailwind theme tokens in `tailwind.config`
+
+---
+
+### Typography
+
+- [ ] **Display font (film titles, hero headline):** install and configure a cinematic serif — `Playfair Display` or `DM Serif Display` via `next/font`; use for H1, film title on detail pages, result card title
+- [ ] **UI font (all interface text):** `Geist` (already in project) or `Inter` — clean, modern, readable at small sizes
+- [ ] **Type scale:**
+  - Hero H1: `clamp(2.5rem, 6vw, 5rem)` — scales fluidly so it fills the viewport on every screen size
+  - Film title on detail page: `clamp(2rem, 4vw, 3.5rem)` — large enough to feel like a poster
+  - Section headings H2: `1.75rem`, weight 600
+  - Body: `1rem`, line-height `1.7` — generous leading for readability
+  - Filter labels / chips: `0.8125rem` (13px), weight 500, letter-spacing `0.03em`
+- [ ] **Film titles always use the serif display font** everywhere they appear — on cards, detail pages, roll results, Snob Test — consistency makes every title feel like a proper film credit
+- [ ] **Letter spacing on all-caps labels** (award badges, category tags): `0.08em` — mimics credit block typography on film posters
+
+---
+
+### Hero Section
+
+The most important screen in the app. The Roll button must feel like pressing play in a real cinema.
+
+- [ ] **Full-bleed backdrop image** fills the entire above-the-fold area — on first load, pick a random high-quality backdrop from the top 20 most-rolled films; the image covers 100vh with `object-fit: cover`
+- [ ] **Backdrop transitions when a film is rolled** — when the user hits Roll and a result comes back, the hero backdrop cross-fades to the rolled film's backdrop image using Framer Motion `AnimatePresence` (400ms ease); the transition is the cinematic reveal
+- [ ] **Layered gradient overlay** over the backdrop: bottom-to-top dark gradient (text area) + a very subtle vignette on all four edges + an optional noise/grain texture overlay at 3–5% opacity for a film-grain feel
+- [ ] **Hero headline** uses the serif display font at maximum size: *"Roll Your Next Award-Winning Film"* — set in two lines with a natural break so it reads as a poster headline, not a sentence
+- [ ] **Subheading** in muted warm white below the headline: *"Oscar · Golden Globe · Cannes — filtered exactly how you want"* — smaller, lighter weight, letter-spaced
+- [ ] **The Roll button is the centrepiece** — large (min 64px height, generous padding), gold gradient background (`#D4AF37` → `#B8962E`), dark text, slightly rounded corners; on hover: lifts with a `box-shadow` glow in gold; on press: subtle scale-down (0.97); must be impossible to miss on any device
+- [ ] **"or press Space" hint** appears below the Roll button in tiny muted text — fades in 1 second after page load so it doesn't compete on arrival
+- [ ] **Animated backdrop grain overlay** — a looping CSS animation very slowly drifts the noise texture (2px drift over 8s) to suggest the film is alive, not a static screenshot; imperceptible on first glance, cinematic on second
+- [ ] **On mobile:** hero is at minimum 85vh tall; the Roll button anchors to the bottom of the visible area so the thumb reaches it naturally; headline font size reduces fluidly with `clamp`
+
+---
+
+### Roll Reveal Animation
+
+The moment between clicking Roll and seeing the result is the most important interaction in the app. Make it feel like a curtain rising.
+
+- [ ] **Step 1 — Click response (0–100ms):** Roll button scales down to 0.97 immediately on press; the hero backdrop begins a 200ms fade to a near-black overlay — the cinema goes dark
+- [ ] **Step 2 — Loading state (100ms – API response):** a subtle horizontal progress bar pulses across the bottom of the hero (not a spinner — a cinematic loading bar like a film projector warming up); copy under the button reads *"Finding your film…"*
+- [ ] **Step 3 — Reveal (API response arrives):** the new film's backdrop image fades in behind the overlay (400ms); the overlay fades out simultaneously; the film result card animates up from the bottom of the screen with a spring motion (`y: 40 → 0`, `opacity: 0 → 1`, 500ms spring); the film title appears with a subtle stagger — year first (small, fades in), then title (large serif, fades in 100ms later)
+- [ ] **Step 4 — Settle:** the result card is fully visible; the Roll button reappears below the card with the label "Roll Again"; the backdrop stays as the rolled film's backdrop until the user rolls again
+- [ ] **If the API fails:** the overlay fades back out, the backdrop returns to the default, and a toast appears: *"Couldn't connect — check your connection and try again"*
+
+---
+
+### Film Cards
+
+Cards appear in the browse grid, the Similar Films section, the Snob Test, and the Roll history drawer.
+
+- [ ] **Tall poster-ratio cards** — aspect ratio `2:3` (same as a film poster); never landscape, never square; posters fill the entire card face
+- [ ] **No visible border in resting state** — the card floats over the background with a subtle shadow (`0 4px 24px rgba(0,0,0,0.5)`); border only appears on hover/focus
+- [ ] **Hover state** — card lifts slightly (`translateY(-4px)`), shadow deepens, a gold border ring fades in (`border: 1px solid #D4AF37 at 60% opacity`); the poster image scales to 1.04 (slight zoom, clipped to card bounds); an overlay gradient slides up from the bottom revealing: film title (serif), year, award badge (e.g. "3 Oscar wins"), and a "Roll Similar →" ghost button
+- [ ] **Award badge** — top-left corner of every card; small pill showing the highest award (Oscar statuette icon + "Won" or "Nominated"); gold background for wins, dark surface with gold text for nominations
+- [ ] **Skeleton state** — while loading, show the card in skeleton form: the same 2:3 ratio, a shimmer animation in `#1a1a24 → #22222f → #1a1a24` cycling at 1.5s — no layout shift when the real card arrives
+- [ ] **Focus state for accessibility** — keyboard-focused card gets a clearly visible gold outline (`outline: 2px solid #D4AF37, outline-offset: 3px`) — same as hover but without the lift
+
+---
+
+### Navigation & Header
+
+- [ ] **Transparent header over the hero** — on the homepage, the nav sits over the hero backdrop with no background; the CineRoll logo and links are in warm white
+- [ ] **On scroll: nav transitions to a frosted-glass panel** — `backdrop-filter: blur(20px)` + `background: rgba(9,9,15,0.85)` — appears when the user scrolls past 80px; transition is 200ms ease; never a hard jump
+- [ ] **On film detail pages:** header is always the frosted-glass state (no transparent phase) because the backdrop is behind page content, not the header
+- [ ] **CineRoll wordmark** uses the serif display font in Cinematic Gold — small, elegant, not a heavy logo; feels like a distributor credit on a film poster
+- [ ] **Navigation links** are minimal: Home · Browse · Snob Test · Stats — no dropdowns; links use the muted secondary text colour and brighten to warm white on hover
+- [ ] **Mobile nav** — hamburger menu slides in a full-screen dark overlay with large, tap-friendly navigation items; overlay closes on tap-outside or Escape
+
+---
+
+### Film Detail Page
+
+- [ ] **Full-bleed backdrop image** as the page hero — same treatment as the homepage hero (gradient overlay, grain texture); the film title and metadata float over it in the bottom third
+- [ ] **Parallax scroll on the backdrop** — as the user scrolls down, the backdrop moves at 40% of the scroll speed (CSS `background-attachment: fixed` or Framer Motion scroll-linked transform) — creates depth and separates the hero from the content below
+- [ ] **Film title on the detail page uses the serif display font at maximum dramatic size** — if the title is long, it wraps gracefully; always left-aligned; the original title (if different) appears beneath it in smaller italic serif
+- [ ] **posterColor theming** — the film's extracted dominant poster color is used as: a faint radial glow behind the poster image, a subtle tint on the awards section heading, the active color on the trailer play button; applied as a CSS custom property `--film-accent` so all themed elements update from one value
+- [ ] **Awards section** — each award body (Oscar / Golden Globe / Cannes) has its own styled block with the relevant icon; wins are displayed with a gold fill, nominations with a muted outline; the layout reads like a credits block on a film
+- [ ] **Trailer** — the thumbnail has a large centered play button with a gold ring; clicking it opens a Framer Motion modal (backdrop blur behind) with the embedded YouTube player; the modal entrance is a scale-up from 0.9 to 1.0 with a 300ms spring
+- [ ] **"Watch Tonight" / share button** — fixed position on desktop (bottom-right corner), sticky above the keyboard on mobile — always reachable without scrolling back up
+
+---
+
+### Motion & Animation Principles
+
+Apply these rules consistently across every component so the app feels coherent, not random.
+
+- [ ] **Duration scale:** micro-interactions 100–150ms · UI transitions 200–300ms · cinematic reveals 400–600ms · nothing longer than 700ms except intentional slow reveals
+- [ ] **Easing:** use `ease-out` for things entering the screen (decelerating = natural arrival); use `ease-in` for things leaving (accelerating = natural departure); use `spring` (stiffness 300, damping 28) for physical interactions like card lifts and button presses
+- [ ] **No layout animations without Framer Motion `layout` prop** — never let content jump when items are added/removed; always use `AnimatePresence` for conditional elements
+- [ ] **Reduce motion:** wrap all non-essential animations in a `useReducedMotion()` check (Framer Motion provides this); users with `prefers-reduced-motion: reduce` get instant transitions, no parallax, no grain animation
+- [ ] **Page transitions:** between routes, use a simple opacity fade (200ms) — not a slide, not a zoom; keeps it feeling editorial rather than app-like
+- [ ] **Stagger children** in lists — when the browse grid loads, film cards appear with a 40ms stagger between each (first card at 0ms, second at 40ms, etc.) so the grid "builds in" rather than all appearing at once
+
+---
+
+### Overall Atmosphere Checklist
+
+- [ ] **Film grain texture overlay** — a subtle SVG noise filter applied as a `::before` pseudo-element on the `<body>` at 3% opacity; gives the whole app a cinematic texture that makes it feel different from every other web app
+- [ ] **No pure white anywhere** — use `#F5F5F0` (warm white) for primary text; pure white (`#FFFFFF`) only in logo or award icons where maximum contrast is needed
+- [ ] **Consistent border radius:** cards `12px` · buttons `8px` · chips/pills `999px` (fully rounded) · modals `16px` — never mix styles within the same component
+- [ ] **Spacing system:** base unit `4px`; all spacing is a multiple of 4; section padding is `64px` desktop / `40px` mobile; card gaps are `16px` desktop / `12px` mobile
+- [ ] **Run the full app at arm's length and squint** — if it doesn't look like a dark-mode cinema product at a glance, the atmosphere is not there yet; this is the final gut-check before marking this section complete
+
+---
+
+## 8. Frontend — Base Components (incl. Night Mode Pill, Login/Sign Up Buttons)
+
+- [ ] Create reusable UI components in `src/components/ui/`:
   - Button component (primary, secondary variants, sizes)
   - Card component (for film cards)
   - Skeleton component (loading placeholders)
@@ -291,86 +463,302 @@ Monorepo with `cineroll/` root containing:
   - Input/TextField component (for search)
   - Select component (for genre/decade filters)
   - Toast/Alert component (for error messages)
-- [x] Create a Filter Bar component — redesigned with award-first layout: person search, award body pills, won/nominated status pills, category dropdown, award year, genre, decade slider
-- [x] Create a Film Card component that displays poster, title, year, rating
-- [x] Apply consistent styling using design tokens (colors, spacing, fonts)
-- [x] Ensure all components have proper TypeScript types
-- [x] Ensure accessibility: ARIA labels, semantic HTML, keyboard navigation
+- [ ] Create a Filter Bar component — redesigned with award-first layout: person search, award body pills (Oscar / Golden Globe / Cannes / All), won/nominated status pills, category dropdown, award year, genre, content type dropdown, decade slider
+- [ ] Create a Film Card component that displays poster, title, year, rating
+- [ ] **Night Mode Pill** — add a dark/light mode toggle styled as a pill (moon/sun icon) in the header/navbar; persist preference to localStorage; default to system preference
+- [ ] **Login / Sign Up buttons** — add "Sign In" and "Sign Up" CTA buttons in the header when the user is not authenticated; replace with user avatar + menu when logged in
+- [ ] Apply consistent styling using design tokens (colors, spacing, fonts)
+- [ ] Ensure all components have proper TypeScript types
+- [ ] Ensure accessibility: ARIA labels, semantic HTML, keyboard navigation
 
 ---
 
-## 9. Frontend — Roll Feature
+## 8b. The Snob Test (Viral Quiz — No Auth Needed)
 
-- [x] Create `src/app/page.tsx` (home page)
-- [x] Add large "Roll" button that triggers API call to /api/random
-- [x] Display loading state while fetching
-- [x] Display film card with poster, title, year, rating
-- [x] Add "Roll Again" button to fetch another random film
-- [x] Implement smooth animations for result reveal using Framer Motion
-- [x] Display "Pick of the Day" section that calls /api/pick-of-day endpoint
-- [x] Show fallback message if no pick of day is set
-- [x] Add error handling with toast notification if API fails
-- [x] Make responsive: adjust button sizes and spacing for mobile
+A standalone quiz page (`/snob-test`) that works without any account. Users tick which films they've seen, get a score and a shareable title. The highest-ROI feature for driving initial traffic — people share their score, friends come to compare.
+
+### Backend
+
+- [ ] Create GET /api/snob-test/films — return 20 films sampled from the dataset: spread across decades, genres, and award bodies; weight toward well-known titles so the quiz feels fair; shuffle on every request
+- [ ] Create POST /api/snob-test/score — body: `{ seenFilmIds: string[] }`; return: score (0–100), title (see below), breakdown by decade and award body; no auth required, no data stored
+
+**Score titles (based on % seen):**
+- 0–10% → "Certified Normie"
+- 11–25% → "Casual Watcher"
+- 26–45% → "Film Enthusiast"
+- 46–65% → "Award Season Regular"
+- 66–80% → "Serious Cinephile"
+- 81–95% → "Film School Graduate"
+- 96–100% → "The Snob"
+
+### Frontend
+
+- [ ] Create `src/app/snob-test/page.tsx` — full-screen quiz experience
+- [ ] Step 1: show 20 film posters in a 4×5 grid; user taps each one they've seen (tap = highlight with checkmark); no right/wrong, just selection
+- [ ] Step 2: "See My Score" button submits selections and reveals result screen:
+  - Giant score title ("Serious Cinephile") with a brief description
+  - Score percentage with animated progress bar fill
+  - Breakdown: "You've seen X% of Oscar winners, Y% of Cannes picks, Z% of films from the 2000s"
+  - "Take the test again" button (reshuffles films)
+  - "Find films to fill the gaps" → links to `/browse` filtered to films they haven't seen
+- [ ] **Shareable result card**: generate an OG image (or CSS-only card) with the score title and percentage; "Share my score" button copies a link or opens native share sheet on mobile
+- [ ] If the user is logged in, offer "Save your seen films to your profile" — one click syncs checked films to their WatchedFilm list
+- [ ] Add `/snob-test` to main navigation with a label like "Test Yourself"
+- [ ] Add structured data and a strong meta description for SEO: "How many award-winning films have you actually seen? Take the CineRoll Snob Test."
+
+---
+
+## 8c. First-Visit Onboarding
+
+On the very first visit, guide the user through a quick taste-matching flow so the app feels personalized immediately.
+
+- [ ] Detect first visit via `localStorage` flag (`cineroll_onboarded`); if not set, show onboarding before the main home page
+- [ ] Fetch 8 random films from /api/films (varied decades and genres) to use as the "taste cards"
+- [ ] Show a full-screen step: "Which of these have you seen?" — display the 8 film posters as a grid; user taps any they've watched
+- [ ] On "Done" (or skip), save the tapped films to the user's watched list (if logged in) or to localStorage (if not logged in — sync on next sign-in)
+- [ ] After onboarding, redirect to home page; the roll and recommendations are now pre-seeded with their taste
+- [ ] Set `cineroll_onboarded = true` in localStorage so onboarding never shows again
+- [ ] "Skip" link always visible — never force the flow
+
+---
+
+## 9. Frontend — Roll Feature (Mood Presets, Share, Spacebar, Not Interested/Watched, Session History, Time Capsule Roll)
+
+- [ ] Create `src/app/page.tsx` (home page)
+- [ ] Add large "Roll" button that triggers API call to /api/random
+- [ ] Display loading state while fetching
+- [ ] Display film card with poster, title, year, rating
+- [ ] Add "Roll Again" button to fetch another random film
+- [ ] Implement smooth animations for result reveal using Framer Motion
+- [ ] Display "Pick of the Day" section that calls /api/pick-of-day endpoint (auto-selected by algorithm)
+- [ ] Show fallback message if no pick of day is set
+- [ ] Add error handling with toast notification if API fails
+- [ ] Make responsive: adjust button sizes and spacing for mobile
 
 ### Filtered Roll (Roll Within a Filtered Set)
 
-- [x] When the user has active filters, the Roll button should pick randomly from matching films only, not the full dataset
-- [x] Backend: add GET /api/random endpoint support for all filter params (same params as /api/films) — pick one random film from the filtered result set
-- [x] Frontend: pass active filter state from the Filter Bar into the Roll API call
-- [x] Display a subtle indicator when Roll is operating on a filtered set (e.g. "Rolling from 47 matching films")
-- [x] If filters return zero films, disable Roll button and show "No films match — adjust your filters"
-- [x] With no filters active, Roll behaves exactly as before (pure random from full dataset)
+- [ ] When the user has active filters, the Roll button should pick randomly from matching films only, not the full dataset
+- [ ] Backend: add GET /api/random endpoint support for all filter params (same params as /api/films) — pick one random film from the filtered result set
+- [ ] Frontend: pass active filter state from the Filter Bar into the Roll API call
+- [ ] Display a subtle indicator when Roll is operating on a filtered set (e.g. "Rolling from 47 matching films")
+- [ ] If filters return zero films, disable Roll button and show "No films match — adjust your filters"
+- [ ] With no filters active, Roll behaves exactly as before (pure random from full dataset)
+
+### Mood / Quick Roll Presets
+
+Pre-set filter combinations displayed as pill buttons above the main filter panel. One click loads a named filter state and immediately enables Roll.
+
+- [ ] Create a `MOOD_PRESETS` constant array: each preset has a label and a partial `FilterState` (e.g. `{ decadeMin: 1990, decadeMax: 1999 }` for "Something from the 90s")
+- [ ] Starter presets: "Something from the 90s", "Female director", "Under 2 hours", "Oscar Best Picture winner", "Cannes Palme d'Or", "Golden Globe drama winner", "Hidden gem (1 nomination only)"
+- [ ] Clicking a preset pill applies its filters to the filter state and highlights the active preset
+- [ ] Clicking an active preset deactivates it and resets its filters
+- [ ] Presets and manual filters can coexist — clicking a preset just sets filters, user can then refine further
+
+### Shareable Roll Result
+
+- [ ] After a roll, show a **"Share this film"** button (share icon) below the film card
+- [ ] Clicking it copies a link to clipboard: `/film/:slug?from=roll`; show "Link copied!" toast
+- [ ] Also allow sharing the current filtered browse view: "Share these filters" button on browse page copies the full URL with query params
+- [ ] Add Open Graph meta tags to film detail pages so shared links preview nicely on social media (poster image, title, award summary)
+
+### Keyboard Shortcut — Spacebar to Roll
+
+- [ ] On the home page, pressing **Spacebar** triggers the Roll action (same as clicking the Roll button)
+- [ ] Only fires when no text input is focused (prevent conflict with typing in filter fields)
+- [ ] Show a subtle keyboard hint label next to the Roll button: "or press Space"
+- [ ] On roll result, pressing **Spacebar** again rolls another film ("Roll Again")
+
+### Session Roll History ("Back" Panel)
+
+A slide-out drawer tracking every film rolled this session. Zero backend — uses `sessionStorage` only.
+
+- [ ] On every roll, push the film object into a `sessionStorage` key (`roll_history`) — keep the last 10 entries, drop the oldest when full
+- [ ] Add a "History" button (clock/history icon) in the top-right corner of the roll section; clicking it slides open a drawer
+- [ ] Drawer shows the last 10 rolled films as small cards (poster thumbnail, title, year) in reverse order (most recent first)
+- [ ] Clicking a card in the drawer navigates to that film's detail page
+- [ ] History clears automatically when the browser tab is closed (sessionStorage behaviour)
+- [ ] If history is empty, show "No rolls yet this session" in the drawer
+
+### Time Capsule Roll
+
+A fun special roll mode that picks a film from a personally meaningful year.
+
+- [ ] Add a "Time Capsule" input below the main Roll button: a year text field with placeholder "Enter a year e.g. 1994"
+- [ ] When a year is entered and Roll is clicked, filter to `releaseYear = input` and pick a random film from that set
+- [ ] If no films match that year, show "No award-nominated films found for that year — try a nearby year"
+- [ ] Combine with other active filters: e.g. Time Capsule year 1990 + Oscar + Won gives a random 1990 Oscar winner
+- [ ] Show a small label on the result card: "From 1990" so the context is clear
 
 ### Home Page Filter Panel (Award-First Design)
 
 Filter section sits **above** the Roll button. All filters are optional — user sets what they want, then hits Roll. The "Rolling from N films" counter updates live as filters change.
 
-- [x] Filter panel placed above Roll button (JSX done, full wiring in progress)
-- [x] **Person / cast / director search** — single text input; searches across cast, directors, and award nominee names — e.g. "Meryl Streep" rolls only films she appeared in or was nominated for; wire to `person` param on /api/random
-- [x] **Award body pills** — Oscar / Golden Globe / Both; wire to `awardBody` param
-- [x] **Status pills** — All / Won / Nominated; wire to `winnerOnly` and `nominatedOnly` params
-- [x] **Category dropdown** — populate dynamically from GET /api/films/categories (currently hardcoded placeholder list); wire to `category` param
-- [x] **Award Year** — number input for ceremony year (e.g. 1994); wire to `awardYear` param; optionally populate options from GET /api/films/award-years
-- [x] **Genre dropdown** — already wired; confirm it works with award filters combined
-- [x] **Decade range slider** — already wired; confirm it works with award filters combined
-- [x] **Active filter chips** — show one dismissible chip per active filter so the user can see and remove individual selections
-- [x] **Clear all filters** button — resets everything to default in one click
-- [x] Verify all filters combine correctly end-to-end: e.g. "Meryl Streep + Oscar + Won + Best Actress" returns the right films
+- [ ] Filter panel placed above Roll button (JSX done, full wiring in progress)
+- [ ] **Person / cast / director search** — single text input; searches across cast, directors, and award nominee names — e.g. "Meryl Streep" rolls only films she appeared in or was nominated for; wire to `person` param on /api/random
+- [ ] **Award body pills** — Oscar / Golden Globe / Both; wire to `awardBody` param
+- [ ] **Status pills** — All / Won / Nominated; wire to `winnerOnly` and `nominatedOnly` params
+- [ ] **Category dropdown** — populate dynamically from GET /api/films/categories (currently hardcoded placeholder list); wire to `category` param
+- [ ] **Award Year** — number input for ceremony year (e.g. 1994); wire to `awardYear` param; optionally populate options from GET /api/films/award-years
+- [ ] **Genre dropdown** — already wired; confirm it works with award filters combined
+- [ ] **Decade range slider** — already wired; confirm it works with award filters combined
+- [ ] **Active filter chips** — show one dismissible chip per active filter so the user can see and remove individual selections
+- [ ] **Clear all filters** button — resets everything to default in one click
+- [ ] Verify all filters combine correctly end-to-end: e.g. "Meryl Streep + Oscar + Won + Best Actress" returns the right films
+
+---
+
+## 9b. Roll Battle (Swipe to Decide)
+
+Tinder-style head-to-head: two random films shown side by side, user picks one, repeat 5 rounds, the winner is tonight's film. No account needed. Extremely shareable and fun.
+
+- [ ] Create `src/app/roll-battle/page.tsx`
+- [ ] On load, fetch 10 random films from /api/random (used as a pool for the 5 rounds)
+- [ ] Each round: show two film poster cards side by side with title and award badge; user clicks/taps one to pick it; the winner advances to the next round (bracket style)
+- [ ] After 5 rounds, show the final winner with full film details and "Watch this tonight" CTA linking to its detail page
+- [ ] "Share my winner" button generates a shareable link: `/roll-battle/result?film=slug`
+- [ ] Smooth swipe animation between rounds using Framer Motion
+- [ ] "Try again" reshuffles from a fresh pool
+- [ ] Add "Roll Battle" to main navigation or as a prominent home page entry point
+
+---
+
+## 9c. Blind Roll — Film Quiz Mode
+
+Show only award data — no title, no poster, no plot. User guesses the film. Then the big reveal. Instantly addictive, costs zero extra data.
+
+### How it works
+
+- [ ] Create `src/app/blind-roll/page.tsx`
+- [ ] Fetch a random film from /api/random (same endpoint, no changes needed)
+- [ ] Display ONLY: award body, ceremony year, category, nominee name, won/nominated — for all award records; runtime in minutes (no title); release decade (not exact year); number of total nominations and wins
+- [ ] Show a text input: "What film is this?" with a "Reveal" button
+- [ ] On reveal: show the poster + full title with a dramatic animation; indicate if their guess was correct (simple string match, case-insensitive)
+- [ ] Score tracking: count correct guesses in the session (stored in sessionStorage); show "3/5 correct" streak counter
+- [ ] "Next film" button loads another blind roll without resetting the streak
+- [ ] Difficulty levels: Easy (show genre + decade), Medium (show decade only), Hard (show nothing except award data)
+- [ ] "Challenge a friend": share a link with the specific film's slug encoded so a friend gets the same blind roll question
+- [ ] Add "Blind Roll" to navigation as a game mode
+
+---
+
+## 9d. Natural Language Roll (AI — Claude API)
+
+Instead of dropdowns, the user describes what they want in plain English. Claude interprets the mood and maps it to filter combinations, then rolls.
+
+### Backend
+
+- [ ] Install Anthropic SDK in backend: `npm install @anthropic-ai/sdk --workspace=backend`
+- [ ] Add `ANTHROPIC_API_KEY` to `backend/.env`
+- [ ] Create POST /api/natural-roll — body: `{ prompt: string }`; pipeline:
+  1. Send the user's prompt to Claude with a system message that explains the available FilterState fields and asks Claude to return a JSON filter object
+  2. Validate Claude's response against the FilterState Zod schema; reject any invalid fields
+  3. Pass the validated filters to the same random-film query used by /api/random
+  4. Return the selected film + the interpreted filters (so the frontend can show "I searched for: Oscar winner, 1990s, drama")
+- [ ] Rate limit: max 10 natural-roll requests per user per hour to manage API costs
+- [ ] If Claude returns filters that match zero films, retry once with a relaxed prompt asking for fewer constraints
+
+### Frontend
+
+- [ ] Add a "Describe it" input mode toggle on the home page (switch between filter panel and natural language input)
+- [ ] Show a text area with placeholder examples: *"Something sad but beautiful"*, *"A film my dad would love"*, *"The most obscure Cannes winner you have"*
+- [ ] While processing, show a fun loading message: "Asking the algorithm…"
+- [ ] After roll, show the interpreted filters as chips below the result: "Searched for: Golden Globe winner · Drama · 1990s" so the user understands what happened
+- [ ] "Refine" button lets them edit the prompt and re-roll
+- [ ] If no films match: show Claude's interpreted filters and suggest adjusting the description
 
 ---
 
 ## 10. Frontend — Pick of the Day
 
-- [x] Create component to display pick of the day on home page
-- [x] Call /api/pick-of-day endpoint on page load
-- [x] Display film details: poster, title, year, plot, why it was picked
-- [x] Show fallback message if no pick is set ("No pick today, roll to discover!")
-- [x] Add navigation link to full film detail page
-- [x] Handle loading and error states
-- [x] Make responsive for all screen sizes
+- [ ] Create component to display pick of the day on home page
+- [ ] Call /api/pick-of-day endpoint on page load (returns auto-selected film)
+- [ ] Display film details: poster, title, year, plot, and a short algorithmic reason ("Trending today", "Most rolled this week")
+- [ ] Show fallback message if not enough data yet
+- [ ] Add navigation link to full film detail page
+- [ ] Handle loading and error states
+- [ ] Make responsive for all screen sizes
 
 ---
 
 ## 11. Frontend — Film Detail Pages
 
-- [x] Create `src/app/film/[slug]/page.tsx` dynamic route
-- [x] Fetch film data by slug from `/api/films/:slug` endpoint
-- [x] Display complete film information:
+- [ ] Create `src/app/film/[slug]/page.tsx` dynamic route
+- [ ] Fetch film data by slug from `/api/films/:slug` endpoint
+- [ ] Display complete film information:
   - Large poster and backdrop images
   - Title, year, runtime, genres
   - Director and main cast
   - Full plot synopsis
   - IMDB and Rotten Tomatoes ratings with icons
   - Language information
-- [x] Display awards information:
+- [ ] Display **all awards combined** in a unified awards section:
+  - A film may have Oscar, Golden Globe, and Cannes records simultaneously — show all of them
   - Oscar nominations and wins (organized by category and year)
   - Golden Globe nominations and wins (organized by category and year)
-  - Total award counts
-- [x] Embed or link YouTube trailer if available
-- [x] Add SEO metadata: dynamic title, description, Open Graph images, Twitter cards
-- [x] Create 404 page if film slug not found
-- [x] Make responsive: stack all content vertically on mobile, use grid layout on desktop
-- [x] Add "Back to Browse" or "Roll Again" navigation buttons
+  - Cannes nominations and wins (organized by category and year)
+  - Total award counts across all bodies (e.g. "5 total wins · 12 total nominations")
+  - Group by award body with clear headings; do not mix records from different bodies in the same table
+- [ ] **Trailer Modal** — clicking the trailer thumbnail opens a modal with the embedded YouTube player; user stays on the film page
+- [ ] Show a play-button overlay on the trailer thumbnail so it's obvious it's clickable
+- [ ] Modal closes on Escape key or clicking outside; pause/stop video on close
+- [ ] Fallback: if no trailer URL, show "No trailer available" placeholder
+- [ ] Add SEO metadata: dynamic title, description, Open Graph images, Twitter cards
+- [ ] Create 404 page if film slug not found
+- [ ] Make responsive: stack all content vertically on mobile, use grid layout on desktop
+- [ ] Add "Back to Browse" or "Roll Again" navigation buttons
+- [ ] **Original Title** — if `originalTitle` is set and differs from `title`, display it in smaller text directly below the main title (e.g. *Das Leben der Anderen* under "The Lives of Others"); skip if null or identical
+- [ ] **Film Color Theming** — read `posterColor` from the film object and apply it as a subtle accent: hero backdrop gradient, detail page header tint, film card left border or background wash; fall back to a neutral dark color if `posterColor` is null
+
+### Similar Films
+
+- [ ] Backend: add GET /api/films/:slug/similar — return 6 films from the dataset that share at least one of: same director, same genre, or same ceremony year; exclude the current film; ordered by most shared dimensions first
+- [ ] Frontend — Film Detail Page: add "You Might Also Like" section below the awards section
+- [ ] Display as a horizontal scrollable row of film cards (poster, title, year, award badge)
+- [ ] Each card links to its own detail page
+- [ ] Show a small tag on each card explaining why it was suggested: "Same director", "Same genre", "From the same year"
+- [ ] If fewer than 3 similar films exist, hide the section entirely
+
+---
+
+## 11b. Tonight's Pick — Shareable Card
+
+One button on any film detail page generates a beautiful branded image card ready to share on Instagram, Twitter, or WhatsApp. Every share is free marketing.
+
+- [ ] Create a `/api/og/film/:slug` endpoint that returns a dynamically generated Open Graph image using `@vercel/og` (Next.js built-in): film poster on the left, title + year + award badges on the right, CineRoll logo and URL at the bottom
+- [ ] Add a **"Share Tonight's Pick"** button on the film detail page and after every roll result
+- [ ] Clicking it:
+  - On mobile: opens the native share sheet (`navigator.share`) with the film URL and a pre-written caption: *"Watching [Film Title] tonight — [X Oscar wins, Y GG nominations] 🎬 via CineRoll"*
+  - On desktop: copies the shareable URL to clipboard and shows "Link copied!" toast
+- [ ] The shared URL (`/film/:slug?from=share`) loads the film detail page with a subtle "Shared by a CineRoll user" banner at the top — drives curiosity and signups
+- [ ] The OG image is also used automatically when the film URL is pasted into Twitter, iMessage, Slack, etc. (no extra step needed)
+- [ ] Test OG image rendering with Twitter Card Validator and Facebook Sharing Debugger
+
+---
+
+## 11c. Person Detail Pages (`/person/:slug`)
+
+A dedicated page for every director and actor in the dataset. High SEO value — searches like "meryl streep oscar nominations" map directly to this content.
+
+### Backend
+
+- [ ] Create GET /api/persons/:slug — return person data: name, all AwardRecord entries across Oscar + GG + Cannes where they appear as nominee, grouped by award body; list of films they're associated with (as nominee or director)
+- [ ] Create GET /api/persons/autocomplete?q= — used by the search bar to suggest person names
+- [ ] Generate person slugs at seed time (lowercase name with hyphens, e.g. `meryl-streep`) and store in a `Person` table or derive on the fly from AwardRecord data
+- [ ] Add `Person` model to Prisma: id, slug (unique), name, tmdbPersonId (nullable — for fetching photo from TMDB), role ("actor" | "director" | "both")
+- [ ] Enrich person records at seed time: fetch TMDB person photo and biography using TMDB Person API; store photoUrl and bio in the Person model
+
+### Frontend
+
+- [ ] Create `src/app/person/[slug]/page.tsx` dynamic route
+- [ ] Fetch person data from /api/persons/:slug
+- [ ] Display: name, photo (from TMDB), short bio
+- [ ] Awards table: all nominations and wins grouped by award body (Oscar / GG / Cannes), with film title links and category per row
+- [ ] "Films" grid: poster cards of all films this person is associated with; clicking navigates to /film/:slug
+- [ ] Add "Browse films with [Name]" button → links to `/browse?person=meryl-streep`
+- [ ] Add SEO metadata: dynamic title ("Meryl Streep — Oscar & Golden Globe Award History | CineRoll"), description listing their win/nomination counts
+- [ ] Add structured data (JSON-LD Person schema) for Google rich results
+- [ ] Create 404 page if person slug not found
+- [ ] Link to person pages from: film detail cast/director section, autocomplete results, browse filter chips
 
 ---
 
@@ -382,49 +770,137 @@ This is the core feature of CineRoll. The filter system is what separates the ap
 
 The same award-first filter panel used on the home page is also the core of the browse page. Filters are shared via the `FilterBar` component and `useFilters` hook.
 
-- [x] Create `src/app/browse/page.tsx` (browse page) — full filter UI + paginated results grid
-- [x] **Person / cast / director search** — free-text input searching nominee/winner names and director; same as home page filter (shared component)
-- [x] **Film title search** — separate text input for film title (browse page only, in addition to person search)
-- [x] **Award body selector** — Oscar / Golden Globe / Both pills (shared component)
-- [x] **Win status toggle** — All / Won / Nominated pills (shared component)
-- [x] **Category dropdown** — populated from GET /api/films/categories (shared component)
-- [x] **Ceremony year** — filter by award ceremony year (shared component)
-- [x] **Genre dropdown** — (shared component)
-- [x] **Decade range slider** — (shared component)
-- [x] **Active filter chips** — dismissible chip per active filter (shared component)
-- [x] **Clear all filters** button (shared component)
-- [x] Sync all filter state to URL query params so filtered browse views are shareable/bookmarkable
+- [ ] Create `src/app/browse/page.tsx` (browse page) — full filter UI + paginated results grid
+- [ ] **Person / cast / director search** — free-text input searching nominee/winner names and director; same as home page filter (shared component)
+- [ ] **Film title search** — separate text input for film title (browse page only, in addition to person search)
+- [ ] **Award body selector** — Oscar / Golden Globe / Both pills (shared component)
+- [ ] **Win status toggle** — All / Won / Nominated pills (shared component)
+- [ ] **Category dropdown** — populated from GET /api/films/categories (shared component)
+- [ ] **Ceremony year** — filter by award ceremony year (shared component)
+- [ ] **Genre dropdown** — (shared component)
+- [ ] **Content Type filter** — dropdown or pill group: Movie, Documentary, Animation, Short, Mini-Series, etc.; wire to `contentType` param
+- [ ] **Decade range slider** — (shared component)
+- [ ] **Active filter chips** — dismissible chip per active filter (shared component)
+- [ ] **Clear all filters** button (shared component)
+- [ ] Sync all filter state to URL query params so filtered browse views are shareable/bookmarkable
 
 ### Search & Filter Behavior
 
-- [x] All filters are combinable: "Cate Blanchett" + "Oscar" + "Won" + "2000s" is a valid compound query
-- [x] Sync all filter state to URL query parameters so filtered views are shareable and bookmarkable
-- [x] Make text inputs debounced (300ms) — don't fire API on every keystroke
-- [x] Show result count: "47 films match your filters" (update as filters change)
-- [x] When result count is zero, show "No films match — try adjusting your filters" with a suggested reset
+- [ ] All filters are combinable: "Cate Blanchett" + "Oscar" + "Won" + "2000s" is a valid compound query
+- [ ] Sync all filter state to URL query parameters so filtered views are shareable and bookmarkable
+- [ ] Make text inputs debounced (300ms) — don't fire API on every keystroke
+- [ ] **Autocomplete on person / film search** — as the user types (min 2 chars), fetch matching suggestions from a new backend endpoint and display a dropdown:
+  - GET /api/autocomplete?q=... returns up to 8 results: matching film titles, nominee/director names from the dataset
+  - Results are grouped: "Films" and "People" sections in the dropdown
+  - Clicking a suggestion fills the input and triggers a search immediately
+  - Keyboard navigable (up/down arrows, Enter to select, Escape to close)
+- [ ] Show result count: "47 films match your filters" (update as filters change)
+- [ ] When result count is zero, show "No films match — try adjusting your filters" with a suggested reset
 
 ### Results Grid
 
-- [x] Display results in responsive grid: 2 columns mobile, 3 tablet, 4–6 desktop
-- [x] Each film card shows: poster, title, release year, award summary (e.g. "3 Oscar wins · 1 Golden Globe nomination")
-- [x] Add loading skeletons while fetching
-- [x] Implement pagination: 12 films per page; Previous / Next buttons with page number
-- [x] Make each film card clickable → navigate to /film/:slug detail page
+- [ ] Display results in responsive grid: 2 columns mobile, 3 tablet, 4–6 desktop
+- [ ] Each film card shows: poster, title, release year, award summary (e.g. "3 Oscar wins · 1 Golden Globe nomination")
+- [ ] Add loading skeletons while fetching
+- [ ] Implement pagination: 12 films per page; Previous / Next buttons with page number
+- [ ] Make each film card clickable → navigate to /film/:slug detail page
 
 ### Filtered Roll from Browse
 
-- [x] "Roll from these results" button visible when filters are active — picks one random film from the filtered set and navigates to its detail page or shows it inline
-- [x] Button is disabled and shows "No matches" when filter set is empty
-- [x] Button label shows count: "Roll from 47 films"
+- [ ] "Roll from these results" button visible when filters are active — picks one random film from the filtered set and navigates to its detail page or shows it inline
+- [ ] Button is disabled and shows "No matches" when filter set is empty
+- [ ] Button label shows count: "Roll from 47 films"
 
 ### API Integration
 
-- [x] Create `src/lib/api.ts` API client with typed functions for `/api/films` and `/api/random` accepting full FilterState
-- [x] Create `src/hooks/useFilters.ts` to manage filter state
-- [x] Add URL sync to `useFilters` — read/write all filter params to URL query string so browse views are shareable
-- [x] FilterState covers: `search`, `person`, `director`, `awardBody`, `winnerOnly`, `nominatedOnly`, `category`, `awardYear`, `genre`, `decadeMin`, `decadeMax`, `page`
-- [x] Fetch category list from GET /api/films/categories and pass into FilterBar (currently hardcoded)
-- [x] Fetch award years from GET /api/films/award-years and use for award year picker
+- [ ] Create `src/lib/api.ts` API client with typed functions for `/api/films` and `/api/random` accepting full FilterState
+- [ ] Create `src/hooks/useFilters.ts` to manage filter state
+- [ ] Add URL sync to `useFilters` — read/write all filter params to URL query string so browse views are shareable
+- [ ] FilterState covers: `search`, `person`, `director`, `awardBody`, `winnerOnly`, `nominatedOnly`, `category`, `awardYear`, `genre`, `decadeMin`, `decadeMax`, `page`
+- [ ] Fetch category list from GET /api/films/categories and pass into FilterBar (currently hardcoded)
+- [ ] Fetch award years from GET /api/films/award-years and use for award year picker
+
+---
+
+## 12b. Marathon Planner
+
+"Build a movie night" — user picks a theme and the app selects 3 non-overlapping films. Shows total runtime and a shareable link.
+
+### Backend
+
+- [ ] Create GET /api/marathon — accepts same filter params as /api/films, plus `count` (default 3, max 5); returns `count` random non-overlapping films from the filtered set; total runtime included in response
+- [ ] Ensure films are truly non-overlapping (no duplicates) even if filtered set is small
+
+### Frontend
+
+- [ ] Create `src/app/marathon/page.tsx` — "Movie Night Planner" page
+- [ ] Filter panel (reuse FilterBar component) to set a theme: genre, decade, award body, person, etc.
+- [ ] "Plan My Night" button calls /api/marathon and displays 3 film cards in a row with:
+  - Poster, title, year, runtime
+  - A numbered badge ("Film 1", "Film 2", "Film 3")
+  - Total combined runtime shown at the bottom ("Total: 5h 23m")
+- [ ] "Shuffle" button re-rolls the selection within the same filters
+- [ ] "Share this marathon" button copies a URL with the filter params + the 3 film slugs encoded
+- [ ] Add `/marathon` to main navigation
+- [ ] Handle edge case: if fewer than `count` films match, show as many as available with a note
+
+---
+
+## 12c. Filter UX — Making It Feel Exciting
+
+The filter panel is CineRoll's most-used feature. It should feel like building something, not filling out a form. Every interaction — applying a filter, seeing the count change, hitting Roll — should have energy.
+
+### Visual Design of Pills & Active States
+
+- [ ] **Award body pills have icons, not just text** — add a small inline icon next to each label: Oscar statuette for Oscar, a globe for Golden Globe, a palm leaf for Cannes; use SVG icons at 14px so they stay crisp
+- [ ] **Active pills use a gold/warm gradient** instead of a generic blue outline — an Oscar pill when active should feel like winning, not like a checkbox; use a subtle gold gradient background with dark text
+- [ ] **Runtime pills (Quick Watch / Standard / Long Haul / Epic) each have a distinct color tint** when active — Quick Watch: cool blue; Standard: neutral; Long Haul: warm amber; Epic: deep purple — so the active bucket is immediately obvious at a glance
+- [ ] **Filter chips (active filter row) have entry and exit animations** — chip slides in and fades up when added; shrinks and fades out when removed; use Framer Motion `AnimatePresence` so the row reflows smoothly without jumping
+- [ ] **The filter panel header reads "Build Your Roll"** instead of "Filters" — sets the right mental model from the first word
+
+### Animated Result Count
+
+- [ ] **Animate the result count number** when it changes — use a count-up/count-down animation (e.g. `react-countup` or a custom Framer Motion variant) so "47 films" rolling down to "12 films" feels alive, not a static text swap
+- [ ] **The result count copy has personality based on the number:**
+  - 0 results → *"No films match — even we couldn't find that. Try relaxing a filter."*
+  - 1 result → *"Just 1 film. You know exactly what you want."*
+  - 2–5 results → *"[N] films. Very specific taste."*
+  - 6–20 results → *"[N] films. A good shortlist."*
+  - 21–100 results → *"[N] films. Ready to roll?"*
+  - 100+ results → *"[N] films. Feeling lucky?"*
+- [ ] Result count text animates its opacity when the number changes so the update is noticeable without being jarring
+
+### Active Filter Summary ("Your Roll Recipe")
+
+- [ ] **Below the filter chips, show a plain-language summary of the active filters** — e.g. *"Rolling from: Oscar winners · Drama · 1990s · Meryl Streep"* — reads like a sentence, not a list of form fields; update live as filters change
+- [ ] This summary line doubles as a shareable description — when the user clicks "Share these filters", the copied URL preview uses this sentence as the caption
+
+### Roll Button Behaviour
+
+- [ ] **The Roll button pulses with a subtle glow animation when filters are active** and there are results — reinforces that something is ready; stops pulsing when result count is 0
+- [ ] **When Roll is clicked with active filters**, show a brief micro-animation before the result: a fast "Searching [N] films..." flicker (150ms) that gives the impression of the algorithm working, then the result snaps in — makes the randomness feel earned
+- [ ] **The Roll button label changes based on filter state:**
+  - No filters: *"Roll"*
+  - Filters active: *"Roll from [N] films"*
+  - Zero results: *"No matches"* (disabled state)
+
+### Empty State
+
+- [ ] **Design a proper empty state for zero results** — not just red text; show: a large faded film reel or question mark icon, the personality copy from above, a "Clear all filters" primary button, and a *"or try a random film instead"* secondary link that clears filters and rolls immediately
+- [ ] Empty state animates in with Framer Motion when the count hits zero — doesn't just appear
+
+### Mood Presets as Visual Cards
+
+- [ ] **Display mood presets as horizontal scrollable cards** rather than plain text pills — each card has a blurred film poster as its background (random film from that preset's result set), the preset name in bold white text, and the result count in small text below (e.g. "312 films")
+- [ ] Cards have a hover/tap scale effect (Framer Motion `whileHover={{ scale: 1.03 }}`)
+- [ ] Active preset card gets a gold border ring to show it is selected
+- [ ] The poster background changes each time the page loads (random from the preset's set) — makes the filter panel feel alive on every visit
+
+### Filter Panel Open/Close
+
+- [ ] **Filter panel opens and closes with a smooth spring animation** (Framer Motion `spring` with `stiffness: 300, damping: 30`) — never a hard show/hide toggle
+- [ ] On mobile, filter panel slides up from the bottom as a sheet (not a dropdown) — feels native and intentional
+- [ ] A subtle backdrop blur appears behind the mobile filter sheet
 
 ---
 
@@ -438,21 +914,21 @@ English (`en`), Spanish (`es`), French (`fr`), German (`de`), Persian/Farsi (`fa
 
 ### Setup & Configuration
 
-- [x] Install `next-intl` in frontend: `npm install next-intl --workspace=frontend`
-- [x] Create `frontend/messages/` directory with one JSON file per language: `en.json`, `es.json`, `fr.json`, `de.json`, `fa.json`, `ja.json`, `pt.json`
-- [x] Create `frontend/src/i18n/request.ts` to configure locale detection (reads `Accept-Language` header via `next-intl` middleware)
-- [x] Add `next-intl` middleware in `frontend/src/middleware.ts` to detect locale from browser headers and redirect to the appropriate locale prefix (e.g. `/en/...`, `/es/...`)
-- [x] Configure `next-intl` plugin in `next.config.js`
-- [x] Migrate `frontend/src/app/` to locale routing: move all pages under `src/app/[locale]/` (e.g. `src/app/[locale]/layout.tsx`, `src/app/[locale]/page.tsx`, etc.)
-- [x] Wrap the root layout in `NextIntlClientProvider` so all components have access to translations
-- [x] Add `dir="rtl"` to the `<html>` root when the active locale is a right-to-left language (e.g. `fa`); add `dir="ltr"` for all others
+- [ ] Install `next-intl` in frontend: `npm install next-intl --workspace=frontend`
+- [ ] Create `frontend/messages/` directory with one JSON file per language: `en.json`, `es.json`, `fr.json`, `de.json`, `fa.json`, `ja.json`, `pt.json`
+- [ ] Create `frontend/src/i18n/request.ts` to configure locale detection (reads `Accept-Language` header via `next-intl` middleware)
+- [ ] Add `next-intl` middleware in `frontend/src/middleware.ts` to detect locale from browser headers and redirect to the appropriate locale prefix (e.g. `/en/...`, `/es/...`)
+- [ ] Configure `next-intl` plugin in `next.config.js`
+- [ ] Migrate `frontend/src/app/` to locale routing: move all pages under `src/app/[locale]/` (e.g. `src/app/[locale]/layout.tsx`, `src/app/[locale]/page.tsx`, etc.)
+- [ ] Wrap the root layout in `NextIntlClientProvider` so all components have access to translations
+- [ ] Add `dir="rtl"` to the `<html>` root when the active locale is a right-to-left language (e.g. `fa`); add `dir="ltr"` for all others
 
 ### Language Detection & Persistence
 
-- [x] Primary detection: `next-intl` middleware reads the `Accept-Language` browser header
-- [x] Fallback: if the detected locale is not in the supported list, default to `en`
-- [x] On manual language switch, write the chosen locale to a cookie (e.g. `NEXT_LOCALE`) so it overrides browser detection on return visits
-- [x] Verify priority order: cookie → `Accept-Language` → default `en`
+- [ ] Primary detection: `next-intl` middleware reads the `Accept-Language` browser header
+- [ ] Fallback: if the detected locale is not in the supported list, default to `en`
+- [ ] On manual language switch, write the chosen locale to a cookie (e.g. `NEXT_LOCALE`) so it overrides browser detection on return visits
+- [ ] Verify priority order: cookie → `Accept-Language` → default `en`
 
 ### Language Switcher Component
 
@@ -501,22 +977,62 @@ Add two range-slider filters to both the backend query layer and the frontend fi
 
 ### Shared Types
 
-- [x] Add `imdbRatingMin`, `imdbRatingMax`, `rtScoreMin`, `rtScoreMax` (all `number`) to `FilterState` in `packages/types/src/index.ts`
-- [x] Rebuild the types package: `npm run build --workspace=packages/types`
+- [ ] Add `imdbRatingMin`, `imdbRatingMax`, `rtScoreMin`, `rtScoreMax` (all `number`) to `FilterState` in `packages/types/src/index.ts`
+- [ ] Rebuild the types package: `npm run build --workspace=packages/types`
 
 ### Backend
 
-- [x] Add `imdbRatingMin`, `imdbRatingMax` (coerced float, 0–10), `rtScoreMin`, `rtScoreMax` (coerced int, 0–100) to `listQueryBaseSchema` in `backend/src/lib/filmFilters.ts`
-- [x] Add WHERE clause conditions in `buildWhereClause`: when either bound is provided, add `"Film"."imdbRating" IS NOT NULL` (or `rtScore`) plus the range comparisons so null-rated films are excluded when a rating filter is active
+- [ ] Add `imdbRatingMin`, `imdbRatingMax` (coerced float, 0–10), `rtScoreMin`, `rtScoreMax` (coerced int, 0–100) to `listQueryBaseSchema` in `backend/src/lib/filmFilters.ts`
+- [ ] Add WHERE clause conditions in `buildWhereClause`: when either bound is provided, add `"Film"."imdbRating" IS NOT NULL` (or `rtScore`) plus the range comparisons so null-rated films are excluded when a rating filter is active
 
 ### Frontend
 
-- [x] Update `filtersToParams` in `frontend/src/lib/api.ts` to serialize the four rating params to URL only when non-default (imdbRatingMin > 0, imdbRatingMax < 10, rtScoreMin > 0, rtScoreMax < 100)
-- [x] Add `DEFAULT_IMDB_MIN` (0), `DEFAULT_IMDB_MAX` (10), `DEFAULT_RT_MIN` (0), `DEFAULT_RT_MAX` (100) constants and the four fields to `DEFAULT_FILTERS` in `frontend/src/hooks/useFilters.ts`; include all four in `hasActiveFilters`
-- [x] Add IMDb range slider (step 0.5, shows "Any" at defaults) and RT range slider (step 5, shows "Any" at defaults) to `FilterBar` in `frontend/src/components/filter-bar.tsx`, placed after the Genre + Decade section
-- [x] Add active filter chips for IMDb (label: `IMDb 7–10`) and RT (label: `RT 70%–100%`) with individual remove handlers
-- [x] Make `DecadeRangeSlider` accept an optional `step` prop (default 10) so it can be reused for both rating sliders
-- [x] Parse `imdbRatingMin`, `imdbRatingMax`, `rtScoreMin`, `rtScoreMax` from URL search params in `filtersFromSearchParams` inside `frontend/src/components/browse-page-client.tsx`
+- [ ] Update `filtersToParams` in `frontend/src/lib/api.ts` to serialize the four rating params to URL only when non-default (imdbRatingMin > 0, imdbRatingMax < 10, rtScoreMin > 0, rtScoreMax < 100)
+- [ ] Add `DEFAULT_IMDB_MIN` (0), `DEFAULT_IMDB_MAX` (10), `DEFAULT_RT_MIN` (0), `DEFAULT_RT_MAX` (100) constants and the four fields to `DEFAULT_FILTERS` in `frontend/src/hooks/useFilters.ts`; include all four in `hasActiveFilters`
+- [ ] Add IMDb range slider (step 0.5, shows "Any" at defaults) and RT range slider (step 5, shows "Any" at defaults) to `FilterBar` in `frontend/src/components/filter-bar.tsx`, placed after the Genre + Decade section
+- [ ] Add active filter chips for IMDb (label: `IMDb 7–10`) and RT (label: `RT 70%–100%`) with individual remove handlers
+- [ ] Make `DecadeRangeSlider` accept an optional `step` prop (default 10) so it can be reused for both rating sliders
+- [ ] Parse `imdbRatingMin`, `imdbRatingMax`, `rtScoreMin`, `rtScoreMax` from URL search params in `filtersFromSearchParams` inside `frontend/src/components/browse-page-client.tsx`
+
+---
+
+## 13.6. Runtime Filter ("Quick Watch / Standard / Long Haul / Epic")
+
+Four named pill buttons replacing a raw minutes slider — users think in mood and time available, not in numbers. Consistent with the existing award body and status pill design.
+
+**Buckets:**
+| Pill label | Runtime range | The feeling |
+|---|---|---|
+| Quick Watch | under 90 min | Weeknight, low energy |
+| Standard | 90 – 130 min | Regular movie night |
+| Long Haul | 130 – 180 min | Weekend, committed |
+| Epic | 180 min + | Full event, nothing else planned |
+
+### Shared Types
+
+- [ ] Add `runtimeBucket` (`"quick" | "standard" | "longhaul" | "epic" | null`) to `FilterState` in `packages/types/src/index.ts`
+- [ ] Rebuild the types package: `npm run build --workspace=packages/types`
+
+### Backend
+
+- [ ] Add `runtimeBucket` (optional enum string) to `listQueryBaseSchema` in `backend/src/lib/filmFilters.ts`
+- [ ] In `buildWhereClause`, map each bucket to a Prisma `runtime` range condition:
+  - `"quick"` → `runtime < 90`
+  - `"standard"` → `runtime >= 90 && runtime < 130`
+  - `"longhaul"` → `runtime >= 130 && runtime < 180`
+  - `"epic"` → `runtime >= 180`
+- [ ] Films with `runtime = null` are excluded whenever any bucket is active (same pattern as rating filters)
+- [ ] Apply the same `runtimeBucket` param to `/api/random` so Roll respects the filter
+
+### Frontend
+
+- [ ] Add `runtimeBucket: null` to `DEFAULT_FILTERS` in `frontend/src/hooks/useFilters.ts`; include it in `hasActiveFilters`
+- [ ] Add `runtimeBucket` to `filtersToParams` in `frontend/src/lib/api.ts` (omit from URL when null)
+- [ ] Add `runtimeBucket` parsing in `filtersFromSearchParams` inside `frontend/src/components/browse-page-client.tsx`
+- [ ] Add the four pill buttons to `FilterBar` in `frontend/src/components/filter-bar.tsx`, placed after the Award Year filter — label: **Quick Watch · Standard · Long Haul · Epic**; only one can be active at a time (selecting a new one deselects the previous); clicking the active pill deselects it
+- [ ] Show a small runtime hint under each pill on hover/focus: "under 90 min", "90–130 min", "130–180 min", "180 min+"
+- [ ] Add an active filter chip when a bucket is selected — label uses the pill name: `Quick Watch` with an × to remove
+- [ ] Update the "Rolling from N films" live counter to reflect the runtime filter like all other filters
 
 ---
 
@@ -555,22 +1071,33 @@ This section must be completed before building watchlist/history (section 16) an
 - [ ] Create `backend/src/middleware/auth.ts` — middleware that reads the `Authorization: Bearer <token>` header, verifies the Auth.js JWT using `NEXTAUTH_SECRET`, and attaches `req.userId` to the request; returns 401 if token is missing or invalid
 - [ ] Apply auth middleware to all `/api/user/*` and `/api/recommendations` routes
 
-### 14b. Frontend — Auth.js Setup
+### 14b. Frontend — Auth.js Setup (Email Verification + Google OAuth)
+
+**Email strategy:** Use **Resend** (free tier: 3,000 emails/month) as the email provider. Auth.js Email provider sends a 6-digit verification code on sign-up/sign-in. Completely free and works for portfolio scale.
 
 - [ ] Install `next-auth` (Auth.js v5) in frontend: `npm install next-auth --workspace=frontend`
-- [ ] Install `@auth/prisma-adapter` in frontend (connects Auth.js sessions to the Prisma User model)
+- [ ] Install `@auth/prisma-adapter` in frontend
+- [ ] Install Resend SDK: `npm install resend --workspace=frontend`
+- [ ] Create a free account at resend.com; get API key; verify a sender domain (or use Resend test domain for development)
 - [ ] Create `src/auth.ts` — configure Auth.js with:
-  - Google OAuth provider (`AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`)
+  - **Email provider** — sends a 6-digit OTP code via Resend; user enters code on a verification page; this is the primary auth method and verifies the email address
+  - **Google OAuth provider** (`AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`) — optional fast sign-in; Google already verifies the email
   - Prisma adapter pointing to the shared Neon database
   - JWT strategy (so tokens can be forwarded to the Express backend)
+- [ ] Add Auth.js `VerificationToken` model to Prisma schema (required for email OTP): token, identifier, expires
+- [ ] Run Prisma migration: `add-verification-token`
 - [ ] Create `src/app/api/auth/[...nextauth]/route.ts` — Next.js route handler that delegates to Auth.js
-- [ ] Add required environment variables to `frontend/.env.local`: `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`
-- [ ] Create OAuth credentials in Google Cloud Console (Authorized redirect URI: `http://localhost:3000/api/auth/callback/google`)
-- [ ] Create `src/app/auth/signin/page.tsx` — styled sign-in page with "Sign in with Google" button; show a brief explanation of why sign-in is needed ("Save films to your watchlist and get personalized recommendations")
-- [ ] Create `src/components/AuthButton.tsx` — shows sign-in button when logged out; shows user avatar, name, and sign-out option when logged in
+- [ ] Create `src/lib/email.ts` — Resend client wrapper; `sendVerificationCode(to, code)` sends a branded HTML email with the 6-digit code
+- [ ] Add env vars to `frontend/.env.local`: `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`, `RESEND_API_KEY`, `EMAIL_FROM`
+- [ ] Create OAuth credentials in Google Cloud Console (redirect URI: `http://localhost:3000/api/auth/callback/google`)
+- [ ] Create `src/app/auth/signin/page.tsx` — two options: email input ("Send me a code") + "Continue with Google" button
+- [ ] Create `src/app/auth/verify/page.tsx` — 6-box OTP input; auto-submits when all 6 digits filled; "Resend code" link after 60 seconds
+- [ ] Create `src/components/AuthButton.tsx` — shows "Sign In" + "Sign Up" buttons when logged out; shows avatar + menu when logged in
 - [ ] Add `AuthButton` to the site header / navigation bar
-- [ ] Create `src/lib/apiWithAuth.ts` — wrapper around the API client that forwards the Auth.js JWT in the `Authorization` header for protected backend calls
-- [ ] Test: sign in with Google, verify session is created in the database, JWT is available client-side
+- [ ] Create `src/lib/apiWithAuth.ts` — forwards Auth.js JWT in `Authorization` header for protected backend calls
+- [ ] Test email sign-up: enter email → receive 6-digit code → enter code → session created, email verified
+- [ ] Test Google sign-up: OAuth flow → session created
+- [ ] Confirm unverified emails cannot access protected routes
 
 ---
 
@@ -600,15 +1127,19 @@ Depends on: section 15 (auth must be working before this section).
 
 ### 15c. Frontend — Post-Roll Action Buttons
 
-- [ ] After a roll result is displayed, render two action buttons below the film card:
-  - "Save to Watchlist" (bookmark icon, e.g. `lucide-react` Bookmark)
-  - "I've Watched This" (checkmark icon, e.g. `lucide-react` CheckCircle)
-- [ ] If the user is **not logged in**: clicking either button opens a sign-in prompt modal ("Sign in to save your watchlist and track what you've seen") with a link to `/auth/signin`
+After every roll result, show quick-action buttons immediately below the film card.
+
+- [ ] Render **two primary quick buttons** visible immediately after roll:
+  - **"Not Interested"** (thumbs-down / X icon) — marks film so it won't appear in future rolls for this user
+  - **"Watched"** (checkmark icon) — marks film as watched
+- [ ] Also render **"Save to Watchlist"** (bookmark icon) as a secondary button
+- [ ] If the user is **not logged in**: clicking any button opens a sign-in prompt modal ("Sign in to track what you've seen") with a link to `/auth/signin`
 - [ ] If the user **is logged in**:
-  - "Save to Watchlist" calls POST /api/user/watchlist; show a success toast on save; change icon to filled/active state
-  - "I've Watched This" opens an inline confirmation with a "Don't suggest this to me again" toggle, then calls POST /api/user/watched
-- [ ] On mount, check if the rolled film is already in the user's watchlist or watched list (call GET /api/user/watchlist and GET /api/user/watched), and show the correct icon states
-- [ ] Handle loading spinners and error toasts for all watchlist/watched API calls
+  - "Not Interested" calls POST /api/user/watched with `doNotSuggest: true`; show confirmation toast; film is excluded from future rolls
+  - "Watched" opens an inline confirmation with optional "Don't suggest again" toggle, then calls POST /api/user/watched
+  - "Save to Watchlist" calls POST /api/user/watchlist; icon changes to filled/active state on save
+- [ ] On mount, check existing watchlist/watched state and show correct icon states
+- [ ] Handle loading spinners and error toasts for all API calls
 - [ ] Show the same action buttons on film detail pages (`/film/[slug]`) as well
 
 ### 15d. Frontend — Watchlist Page
@@ -619,6 +1150,34 @@ Depends on: section 15 (auth must be working before this section).
 - [ ] Clicking a card navigates to the film detail page
 - [ ] Show empty state: "Your watchlist is empty — roll some films to get started"
 - [ ] Add a link to the watchlist page in the site header user menu (visible only when logged in)
+
+---
+
+## 16b. Custom Lists (Beyond Watchlist)
+
+Users can create unlimited named lists — e.g. "Watch with Mom", "Best of the 90s", "Film school homework". Same data model as Watchlist, with an added list name.
+
+### Backend
+
+- [ ] Add `UserList` model to Prisma: id, userId (FK→User), name (String), createdAt
+- [ ] Add `UserListEntry` model: id, listId (FK→UserList), filmId (FK→Film), addedAt; unique on (listId, filmId)
+- [ ] Run Prisma migration: `add-custom-lists`
+- [ ] Routes (all require auth):
+  - [ ] GET /api/user/lists — return all lists for the current user (name, film count, last updated)
+  - [ ] POST /api/user/lists — create a new list; body: `{ name: string }`; max 50 chars; max 20 lists per user
+  - [ ] DELETE /api/user/lists/:id — delete a list and all its entries
+  - [ ] PATCH /api/user/lists/:id — rename a list; body: `{ name: string }`
+  - [ ] GET /api/user/lists/:id — return all films in a list (paginated)
+  - [ ] POST /api/user/lists/:id/films — add a film to a list; body: `{ filmId: string }`
+  - [ ] DELETE /api/user/lists/:id/films/:filmId — remove a film from a list
+
+### Frontend
+
+- [ ] On film detail page and after a roll, add "Save to list" button — opens a dropdown showing all the user's lists + "Create new list" option
+- [ ] Create `src/app/profile/lists/page.tsx` — shows all the user's lists as cards (list name, film count, last 3 poster thumbnails as preview)
+- [ ] Create `src/app/profile/lists/[id]/page.tsx` — shows all films in a list with remove buttons; rename and delete list controls at the top
+- [ ] Empty state: "You haven't created any lists yet — save a film to get started"
+- [ ] Add "My Lists" link to the profile navigation
 
 ---
 
@@ -655,7 +1214,308 @@ Depends on: sections 15 and 16 (auth + watchlist/history data must exist to gene
 
 ---
 
-## 18. Deployment
+## 17b. User Ratings for Watched Films
+
+- [ ] Add `UserRating` model to Prisma schema: id, userId (FK→User), filmId (FK→Film), rating (Float — 1.0 to 10.0 in 0.5 steps, e.g. 7.5), createdAt, updatedAt; unique on (userId, filmId)
+- [ ] Run Prisma migration: `add-user-ratings`
+- [ ] Backend route (requires auth):
+  - [ ] POST /api/user/ratings — upsert a rating; body: `{ filmId, rating }`; validate: rating must be a multiple of 0.5 between 1.0 and 10.0; return 400 otherwise
+  - [ ] GET /api/user/ratings/:filmId — get current user's rating for a film
+  - [ ] DELETE /api/user/ratings/:filmId — remove rating
+- [ ] Calculate and expose **average rating** per film on the film detail endpoint (aggregate from all users)
+- [ ] Frontend — Film Detail Page:
+  - [ ] Show average rating (star display) from all users
+  - [ ] If logged in and has watched the film, show interactive **half-star rating widget (1–10, step 0.5)**; pre-fill their existing rating
+  - [ ] If not logged in, show read-only average rating with "Sign in to rate" prompt
+- [ ] Frontend — Film cards in browse grid optionally show average star rating badge
+
+---
+
+## 17c. Film Comments (Authenticated Users)
+
+Logged-in users who have watched a film can leave a comment on its detail page.
+
+### Backend
+
+- [ ] Add `FilmComment` model: id, userId (FK→User), filmId (FK→Film), body (Text), createdAt, updatedAt
+- [ ] Run Prisma migration: `add-film-comments`
+- [ ] Routes (all require auth except GET):
+  - [ ] GET /api/films/:slug/comments — return paginated comments (20 per page) with user name + avatar; public, no auth required
+  - [ ] POST /api/films/:slug/comments — create comment; body: `{ body: string }`; max 1000 chars; require auth
+  - [ ] DELETE /api/films/:slug/comments/:id — delete own comment only; require auth + ownership check
+
+### Frontend
+
+- [ ] Film detail page — Comments section below awards:
+  - [ ] Fetch and display comments list (name, avatar, date, body)
+  - [ ] If logged in: show text area + "Post Comment" button
+  - [ ] If not logged in: show "Sign in to comment" prompt
+  - [ ] Optimistically add new comment to list on submit; revert on error
+  - [ ] Show delete button only on the user's own comments
+  - [ ] Paginate if more than 20 comments
+
+---
+
+## 17d. Feedback / Suggestions Section (Public Footer Form)
+
+A public-facing section at the bottom of every page where anyone can write ideas, bug reports, or general suggestions.
+
+### Backend
+
+- [ ] Add `SiteFeedback` model: id, email (optional String), body (Text), createdAt
+- [ ] Run Prisma migration: `add-site-feedback`
+- [ ] POST /api/feedback — public endpoint (no auth required); body: `{ email?: string, body: string }`; max 2000 chars; return 201 on success
+- [ ] On successful submission, **send an email notification to the site owner** via Resend with the feedback body and submitter email if provided
+- [ ] Add `RESEND_API_KEY` and `OWNER_EMAIL` to `backend/.env`
+- [ ] Basic rate limiting on this endpoint (max 5 submissions per IP per hour) to prevent spam
+
+### Frontend
+
+- [ ] Add a **"Share Your Thoughts"** section at the very bottom of every page (before the copyright footer)
+- [ ] Show a simple form: optional email field + multiline message textarea + "Send" button
+- [ ] On success: replace form with "Thanks for your feedback!" message
+- [ ] On error: show error toast; keep form filled so user doesn't lose text
+
+---
+
+## 17e. Completionist Tracker
+
+Gamification on the profile page — progress bars for how many films the user has seen within each award category.
+
+### Backend
+
+- [ ] Create GET /api/user/progress — for the authenticated user, return:
+  - Total Oscar Best Picture nominees in dataset vs how many the user has watched
+  - Same for Best Director, Best Actress, Best Actor, Best Animated Feature, Palme d'Or, GG Best Drama, etc.
+  - Overall: "X of Y total films in dataset watched"
+- [ ] This is a pure read query — join WatchedFilm with Film's award category data; no new models needed
+
+### Frontend
+
+- [ ] Add a "Completionist" section to the profile page
+- [ ] Display progress bars for each tracked category:
+  - Label: "Best Picture nominees" · Progress: "23 / 96" · Bar: filled proportionally
+  - Categories shown: Best Picture, Best Director, Best Actress, Best Actor, Best Animated Feature, Palme d'Or, GG Best Drama Film
+- [ ] Overall progress bar at the top: "You've seen X% of all award-nominated films in CineRoll"
+- [ ] Clicking a category bar → links to `/browse` pre-filtered to that category with watched films highlighted or excluded
+- [ ] Animate the progress bars on page load (fill from 0 to current value) for visual delight
+
+---
+
+## 17f. CineRoll Wrapped
+
+Any time a logged-in user clicks "Generate My Wrapped", they get a personal stats card showing their CineRoll activity. Shareable as an image. High viral potential.
+
+### Backend
+
+- [ ] Create GET /api/user/wrapped — authenticated; return:
+  - Total films rolled (all time)
+  - Total films watched (marked as watched)
+  - Top 3 genres by watch count
+  - Top director (most films watched)
+  - Rarest film found (fewest total nominations in their watched list)
+  - Total award wins across all watched films combined
+  - Completionist highlight: highest-progress award category (e.g. "71% of Best Picture nominees")
+  - "Film of the year" — their highest-rated film
+
+### Frontend
+
+- [ ] Add "Generate My Wrapped" button on the profile page
+- [ ] Animate the stats card building up section by section (like Spotify Wrapped) using Framer Motion
+- [ ] Final card shows all stats in a visually bold, dark-themed layout with the CineRoll logo
+- [ ] **"Share my Wrapped"** button: uses `/api/og/wrapped/:userId` to generate a shareable image card; opens native share sheet on mobile, copies link on desktop
+- [ ] The shared Wrapped page (`/wrapped/:userId`) is publicly viewable — shows the user's stats with a "Create yours" CTA that drives signups
+
+---
+
+## 17g. Public Taste Profile (`/u/:username`)
+
+Every user gets a public shareable profile page showing their film taste. Like a Letterboxd profile but built entirely on award data.
+
+### Backend
+
+- [ ] Add `username` (String, unique, nullable) and `profilePublic` (Boolean, default true) fields to the `User` Prisma model
+- [ ] Run Prisma migration: `add-username-public-profile`
+- [ ] Create GET /api/users/:username — return public profile data: display name, avatar, watch stats, top genres, top directors, recent ratings, public lists; return 404 if user not found or `profilePublic = false`
+- [ ] Add PATCH /api/user/profile route (auth required): update username and profilePublic toggle
+
+### Frontend
+
+- [ ] Create `src/app/u/[username]/page.tsx` — server-rendered for SEO
+- [ ] Display: avatar, username, join date, stat row ("X films watched · Y lists · Z ratings")
+- [ ] "Taste fingerprint" section: top 3 genres, top 3 directors, favorite award body
+- [ ] Recent ratings: last 5 films rated with star scores
+- [ ] Public lists: show all public custom lists with film count and poster previews
+- [ ] Completionist highlights: top 2 progress bars
+- [ ] "Roll like [username]" button — rolls a random film from their watched/liked genres
+- [ ] On the profile settings page: let user set a username and toggle profile public/private
+- [ ] Add username field to the sign-up / onboarding flow
+
+---
+
+## 18. Admin Panel
+
+A simple password-protected internal page for the site owner only. No user-facing features — purely operational.
+
+### Backend
+
+- [ ] Add `ADMIN_SECRET` to `backend/.env` — a long random string; admin routes check for this in the `Authorization` header
+- [ ] Create `backend/src/routes/admin.ts` (all routes require `Authorization: Bearer <ADMIN_SECRET>`):
+  - [ ] GET /api/admin/stats — return: total users, total rolls today / this week, top 10 most rolled films (all time), top 10 most watchlisted films, total feedback submissions unread
+  - [ ] GET /api/admin/feedback — return all SiteFeedback entries paginated, newest first
+  - [ ] DELETE /api/admin/feedback/:id — delete a feedback entry
+  - [ ] GET /api/admin/pick-of-day — return today's algorithmically selected film (for preview)
+  - [ ] POST /api/admin/pick-of-day/override — optionally override the algorithm for today with a specific filmId; body: `{ filmId: string }`
+  - [ ] DELETE /api/admin/pick-of-day/override — remove override, revert to algorithm
+- [ ] Mount admin routes in `backend/src/app.ts` under `/api/admin`
+
+### Frontend
+
+- [ ] Create `src/app/admin/page.tsx` — protected by checking `ADMIN_SECRET` cookie set at login
+- [ ] Create `src/app/admin/login/page.tsx` — simple password input; on correct password set a `admin_token` cookie; redirect to `/admin`
+- [ ] Admin dashboard shows:
+  - [ ] Stats cards: total users, rolls today, rolls this week
+  - [ ] Top 10 most rolled films list
+  - [ ] Today's Pick of the Day preview (algorithmic pick) + optional manual override search
+  - [ ] Feedback inbox: list of submissions with email, message, date; delete button per entry
+- [ ] Admin pages are excluded from public navigation and robots.txt
+
+---
+
+## 19. Stats & Discovery Page (`/stats`)
+
+A public page surfacing interesting facts from the dataset. Great for SEO — unique text content Google can index that no other site has.
+
+### Backend
+
+- [ ] Create `backend/src/routes/stats.ts`:
+  - [ ] GET /api/stats — return pre-computed stats object:
+    - Most nominated person of all time (across Oscar + GG + Cannes)
+    - Most winning person of all time
+    - Film with the most nominations across all award bodies
+    - Film with the most wins across all award bodies
+    - Most competitive ceremony year (most total nominations)
+    - Decade breakdown: average nominations per film per decade
+    - Award body breakdown: total films in each (Oscar-only, GG-only, Cannes-only, multi-award)
+    - Top 5 most-rolled films (from RollEvent table)
+    - Top 5 most-watchlisted films
+  - [ ] Cache this endpoint for 24 hours (changes rarely)
+- [ ] Mount stats route in `backend/src/app.ts`
+
+### Frontend
+
+- [ ] Create `src/app/stats/page.tsx` — server-rendered for SEO
+- [ ] Display stats in visual cards/sections:
+  - [ ] "Most decorated person" — name, photo (TMDB), total wins
+  - [ ] "Most awarded film" — poster, title, total wins across all bodies
+  - [ ] "Most competitive year" — year, total nominations, top films that year
+  - [ ] Decade timeline bar chart (simple CSS bars, no heavy chart library)
+  - [ ] "Currently trending on CineRoll" — top 5 rolled + top 5 watchlisted this week
+- [ ] Add `/stats` to main navigation
+- [ ] Add structured data (JSON-LD) to the page for SEO
+- [ ] Each stat card links to a pre-filtered browse view (e.g. clicking "Most competitive year: 1994" opens `/browse?awardYear=1994`)
+
+---
+
+## 19b. Weekly Community Challenge
+
+Every Monday a new challenge is posted automatically. Users who complete it earn a badge. Creates weekly return visits.
+
+### Backend
+
+- [ ] Add `Challenge` model to Prisma: id, title, description, filterState (JSON — the filter combination that defines the challenge), startDate, endDate, badgeName
+- [ ] Add `ChallengeCompletion` model: id, userId (FK→User), challengeId (FK→Challenge), completedAt; unique on (userId, challengeId)
+- [ ] Seed initial 12 challenges (one per month as a rotation): e.g. "Watch a Cannes Palme d'Or winner", "Watch an Oscar Best Picture winner from before 1960", "Watch a film with 10+ nominations that won nothing"
+- [ ] Create GET /api/challenges/current — return this week's active challenge + completion count + whether the current user has completed it
+- [ ] Create POST /api/challenges/:id/complete (auth required) — mark challenge as completed; validate that the user has actually watched a film matching the challenge's filterState
+- [ ] Weekly cron job: rotate to next challenge every Monday; send push notification + email to subscribers
+
+### Frontend
+
+- [ ] Add "Weekly Challenge" card on the home page — shows the challenge title, description, completion count ("142 people completed this"), and a "I watched one!" button
+- [ ] Clicking "I watched one!" checks if the user has a watched film matching the challenge filters; if yes, marks complete and shows badge; if no, links to browse with the challenge filters pre-applied
+- [ ] Challenge badge appears on the user's public profile page
+- [ ] Challenge archive page (`/challenges`) shows all past challenges with completion counts
+
+---
+
+## 20. Weekly Email Pick (Opt-in Newsletter)
+
+Users can subscribe to receive a "Film of the Week" email every Monday, automatically generated from the same algorithm as Pick of the Day.
+
+### Backend
+
+- [ ] Add `emailSubscribed` (Boolean, default false) and `emailSubscribedAt` fields to the `User` Prisma model
+- [ ] Run Prisma migration: `add-email-subscription`
+- [ ] Create `backend/src/routes/subscription.ts` (requires auth):
+  - [ ] POST /api/user/subscribe — set `emailSubscribed = true` for current user
+  - [ ] DELETE /api/user/subscribe — set `emailSubscribed = false` (unsubscribe)
+- [ ] Create `backend/src/scripts/weeklyEmail.ts` — a script (not a route) that:
+  - Runs every Monday via a cron job (e.g. Railway cron, or a simple `node-cron` job in the backend process)
+  - Fetches this week's top film using the Pick of the Day algorithm
+  - Fetches all users where `emailSubscribed = true`
+  - Sends each subscriber a branded HTML email via Resend: film poster, title, award summary, a "Watch Now" link to the film detail page, and an unsubscribe link
+  - Logs sent count and any failures
+
+### Frontend
+
+- [ ] Add "Get weekly picks in your inbox" toggle on the user profile page
+- [ ] Toggle calls POST/DELETE /api/user/subscribe; show current subscription status
+- [ ] Unsubscribe link in the email calls DELETE /api/user/subscribe (one-click, no login required — use a signed token in the URL)
+
+---
+
+## 21. Data Privacy & Security
+
+**IMPORTANT — read this before committing any data files.**
+
+If a file is added to `.gitignore` but was already committed to git history, anyone who clones the repo can still see it by checking the git log. The `.gitignore` only stops *future* commits.
+
+### How to ensure your data files are completely private
+
+- [ ] Check whether data files were ever committed: `git log --all --full-history -- "backend/data/**"` — if output is empty, the files were never committed and `.gitignore` alone is enough
+- [ ] If files *were* committed, purge them from history using `git filter-repo --path backend/data --invert-paths` (install: `pip install git-filter-repo`)
+- [ ] After purging, force-push the cleaned history: `git push --force-with-lease`
+- [ ] Confirm `.gitignore` includes all data file patterns: `backend/data/*.xlsx`, `backend/data/*.json`, `backend/data/*.csv`
+- [ ] Add a note in `SETUP.md` that raw data files must be obtained from the owner and placed in `backend/data/` manually — they are not in the repository
+- [ ] Verify: clone the repo in a fresh directory and confirm `backend/data/` is empty
+
+---
+
+## 22. PWA & Mobile Homescreen Install
+
+On mobile, show a friendly one-time prompt teaching users how to add CineRoll to their home screen so it opens like a native app.
+
+- [ ] Create `public/manifest.json` with: name, short_name ("CineRoll"), icons (192px + 512px), theme_color, background_color, display: "standalone", start_url: "/"
+- [ ] Create app icons in `public/icons/`: 192×192 and 512×512 PNG
+- [ ] Add `<link rel="manifest">` and `<meta name="theme-color">` to the root layout `<head>`
+- [ ] Add `<meta name="apple-mobile-web-app-capable" content="yes">` for iOS Safari support
+- [ ] Add `<meta name="apple-mobile-web-app-status-bar-style">` and `<link rel="apple-touch-icon">` for iOS home screen icon
+- [ ] **Mobile install banner** — detect first visit on mobile (localStorage flag `pwa-prompt-shown`):
+  - [ ] Show a bottom-sheet or banner with step-by-step icons: "Tap the Share icon → tap 'Add to Home Screen' → tap Add" (with actual icons/images for iOS and Android separately)
+  - [ ] Include a dismiss ("Maybe later") button; set the localStorage flag on dismiss or install so prompt never shows again
+  - [ ] For Android: listen for the `beforeinstallprompt` event and show a custom "Install App" button; call `prompt()` on click
+  - [ ] For iOS: detect `navigator.standalone === false` on Safari and show the manual steps banner
+- [ ] Test on real iOS Safari and Android Chrome to confirm prompt appears correctly
+
+### Push Notifications
+
+- [ ] Request push notification permission after the user has been on the site for 30+ seconds (never on first load — too aggressive); show a soft in-app prompt first ("Get notified about your weekly film pick?") before triggering the browser permission dialog
+- [ ] Backend: install `web-push` library in backend (`npm install web-push --workspace=backend`); generate VAPID key pair and add `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_EMAIL` to `backend/.env`
+- [ ] Add `PushSubscription` model to Prisma: id, userId (FK→User, nullable — allow anonymous subscriptions), endpoint (String, unique), p256dh (String), auth (String), createdAt
+- [ ] Run Prisma migration: `add-push-subscriptions`
+- [ ] Backend route (no auth required — subscriptions can be anonymous):
+  - [ ] POST /api/push/subscribe — save a push subscription object; body: `{ subscription: PushSubscriptionJSON, userId?: string }`
+  - [ ] DELETE /api/push/subscribe — remove a subscription by endpoint
+- [ ] Frontend: create a service worker (`public/sw.js`) that handles the `push` event and shows the notification with title, body, icon, and a click URL
+- [ ] Register the service worker in the root layout on mount
+- [ ] **Weekly film pick notification** — in the `weeklyEmail.ts` script (Section 20), after sending emails also send a push notification to all subscribers: title "Your CineRoll Pick of the Week 🎬", body = film title + award summary, click → film detail page
+- [ ] **New films notification** — after running the enrich/seed pipeline, if new films were added send a push: "X new films added to CineRoll — roll to discover them"
+- [ ] Test: subscribe on desktop Chrome, trigger a test push from the backend, confirm notification appears
+
+---
+
+## 23. Deployment
 
 ### Frontend Deployment to Vercel
 
@@ -710,7 +1570,7 @@ Depends on: sections 15 and 16 (auth + watchlist/history data must exist to gene
 
 ---
 
-## 19. Documentation
+## 24. Documentation
 
 - [ ] Create `README.md` at repository root with:
   - Project overview and purpose
@@ -776,7 +1636,7 @@ Depends on: sections 15 and 16 (auth + watchlist/history data must exist to gene
 
 ---
 
-## 20. Performance & Lighthouse Audit
+## 25. Performance & Lighthouse Audit
 
 Run this section after the app is fully built and deployed. Lighthouse results on a live production URL are the only meaningful scores — dev server numbers are not valid.
 
@@ -943,9 +1803,44 @@ Run this section after the app is fully built and deployed. Lighthouse results o
 
 ---
 
-## 21. Google Search Ranking (SEO)
+## 26. Google Search Ranking (SEO)
 
 Run this section after deployment. These steps go beyond Lighthouse's basic SEO score and target actual Google ranking for searches like "oscar nominated films filter", "random award winning movie", "golden globe movies by actor", etc.
+
+> **Target queries** — ranking #1 for "Oscar movies" is impossible (IMDb/Wikipedia own it). Focus on long-tail queries where CineRoll is unique: *"filter oscar films by actor"*, *"random golden globe winning movie"*, *"oscar nominated films by year and category"*. No major site does what CineRoll does — that's your SEO moat.
+
+### Priority Order — Do These in Sequence
+
+#### Phase 1 — Before Google Can Help You At All
+
+- [ ] **Deploy to a real domain** — Google won't seriously index `localhost` or Vercel preview URLs
+- [ ] **Generate `sitemap.xml`** — use `next-sitemap` package, covers home + browse + all `/film/[slug]` pages
+- [ ] **Submit to Google Search Console** — verify ownership, submit sitemap, request indexing
+- [ ] **Enable ISR on film detail pages** — without this, Googlebot hits your backend cold every crawl and may time out
+
+#### Phase 2 — Make Google Understand Your Pages
+
+- [ ] **Keyword-rich `<title>` tags** — see "Page Content" section below for exact templates
+- [ ] **`og:image` + `meta description`** on every page — also needed for Product Hunt and social sharing
+- [ ] **Movie JSON-LD schema** on film detail pages — gives you star ratings in search snippets, a huge CTR boost
+- [ ] **Unique text content on film pages** — plot summary + full award history in readable text, not just images; thin pages don't rank
+
+#### Phase 3 — Build Authority Over Time
+
+- [ ] **Internal linking** — footer links to top filter combos ("Best Picture winners", "Coen Brothers films"), related films on every detail page
+- [ ] **Backlinks** — dev.to article, Hacker News "Show HN", Reddit r/movies, your portfolio; each one tells Google you're real
+- [ ] **Google Analytics 4** — track which queries bring traffic, double down on those
+
+#### Realistic Timeline
+
+| Timeframe | What happens |
+|---|---|
+| Day 1 after deploy | Submit sitemap, request indexing |
+| Week 2–4 | Google starts crawling your pages |
+| Month 2–3 | Film detail pages start appearing in search |
+| Month 4–6 | Long-tail queries where you're unique hit page 1 |
+
+---
 
 ### Structured Data — Help Google Understand Your Content
 
@@ -1035,6 +1930,383 @@ Run this section after deployment. These steps go beyond Lighthouse's basic SEO 
 - [ ] Set up Google Analytics 4 to track organic traffic separately from direct/referral
 - [ ] Monitor ranking for target queries using a free rank tracker (Google Search Console works for basic tracking)
 - [ ] If a page ranks on page 2–3 for a relevant query, improve its content and internal links to push it to page 1
+
+### og:image Global Strategy
+
+- [ ] Set up `/api/og/film/[slug]` endpoint using `@vercel/og` to generate dynamic OG images for every film (backdrop + title + award count overlay, 1200×630px, < 100KB)
+- [ ] Create a static branded og:image for the homepage (CineRoll logo + tagline on dark background, 1200×630px)
+- [ ] Create og:image for person pages (TMDB person photo + name + award count overlay)
+- [ ] Create static branded og:image cards for Snob Test, Browse, and Stats pages
+- [ ] Add `og:image` meta tag referencing the correct image to every page's `generateMetadata`
+- [ ] Test all og:images with Twitter Card Validator and Facebook Sharing Debugger before launch
+
+### robots.txt
+
+- [ ] Create `public/robots.txt` with these exact rules:
+  ```
+  User-agent: *
+  Allow: /
+  Disallow: /api/
+  Disallow: /admin/
+  Disallow: /auth/
+  Disallow: /profile/
+  Disallow: /u/
+  Sitemap: https://yourdomain.com/sitemap.xml
+  ```
+
+### Sitemap Index
+
+- [ ] Use sitemap **index** format (not a single flat file) — split into three child sitemaps: `sitemap-pages.xml` (home, browse, stats, awards/*), `sitemap-films.xml` (all /film/[slug] pages), `sitemap-persons.xml` (all /person/[slug] pages)
+- [ ] Set `<priority>` values: homepage 1.0, browse 0.9, award hubs 0.8, film detail 0.7, person detail 0.6, blog 0.5
+- [ ] Include `<lastmod>` on every URL so Google knows when content changed
+
+### Footer Internal Links
+
+- [ ] Add a footer section to every page with links to: Browse Oscar Winners · Browse Golden Globe Winners · Browse Cannes Winners · Best Picture Winners (blog) · Palme d'Or Winners (blog) · The Snob Test · Stats
+- [ ] Use keyword-rich anchor text on all footer links (not "click here" — use "Browse Oscar Winners")
+
+### AI Search Optimization (ChatGPT / Perplexity / Google AI Overviews)
+
+- [ ] Structure every FAQ answer to open with a **one-sentence direct answer** before expanding — AI models extract the first sentence as the citation snippet
+- [ ] Add an opening "lede" sentence to every film detail page: *"[Title] ([Year]) is a [genre] film directed by [Director] that received [X] Academy Award nominations and won [Y], including [top category]."*
+- [ ] Add an opening "lede" sentence to every person detail page: *"[Name] has [X] Academy Award nominations, [Y] wins, and [Z] Golden Globe nominations."*
+- [ ] Make the Stats page (`/stats`) heavily table and list-based — ranked data (most nominated, most winning) is heavily cited by Perplexity and Google AI Overviews
+- [ ] Add a definitional opening paragraph to each award hub page: *"The Academy Award for Best Picture is..."* — definitions get pulled directly into Google AI Overviews
+- [ ] Ensure `FAQPage`, `Movie`, and `Person` schemas are complete and error-free — these directly feed Google AI Overview extraction
+
+---
+
+## 26b. Award Hub Pages
+
+Three new pages that build topical authority and rank for award-body-level searches. These are pillar pages — each one links to hundreds of filtered browse views and blog posts.
+
+### /awards/oscars
+
+- [ ] Create `src/app/[locale]/awards/oscars/page.tsx` — server-rendered, fully static
+- [ ] H1: "Academy Award Films"
+- [ ] Opening paragraph (definitional, targets AI Overviews): "The Academy Award for Best Picture is the highest honour in the film industry, awarded annually by the Academy of Motion Picture Arts and Sciences since 1929..."
+- [ ] H2: "Browse Oscar Winners and Nominees" — embed a filtered browse grid (`?awardBody=oscar`)
+- [ ] H2: "Filter by Oscar Category" — pill links to each major category: Best Picture · Best Director · Best Actress · Best Actor · Best Supporting Actress · Best Supporting Actor · Best Animated Feature · Best International Film · Best Documentary — each links to `/browse?awardBody=oscar&category=[category]`
+- [ ] H2: "Browse by Ceremony Year" — decade links to `/browse?awardBody=oscar&awardYear=[decade]`
+- [ ] H2: "Frequently Asked Questions About the Academy Awards" — with FAQPage schema
+- [ ] Meta title: `Academy Award Winning Films — Complete Oscar Database | CineRoll`
+- [ ] Meta description: `Browse every Academy Award nominated and winning film in CineRoll's dataset. Filter by category, year, actor, or director. Roll a random Oscar film instantly.`
+- [ ] Add BreadcrumbList schema: Home → Awards → Oscars
+- [ ] Internal links: Stats page, Best Picture blog pillar, /browse with Oscar filter
+
+### /awards/golden-globes
+
+- [ ] Create `src/app/[locale]/awards/golden-globes/page.tsx` — same structure as Oscars page
+- [ ] Meta title: `Golden Globe Winning Films — Complete Database | CineRoll`
+- [ ] Meta description: `Browse every Golden Globe nominated and winning film in CineRoll's dataset. Filter by category, year, actor, or director. Roll a random Golden Globe film.`
+- [ ] Categories section: Best Drama Film · Best Musical or Comedy · Best Director · Best Actress Drama · Best Actor Drama · Best Animated Film · Best Non-English Language Film
+- [ ] Opening paragraph: "The Golden Globe Award for Best Motion Picture — Drama has been awarded annually since 1944..."
+
+### /awards/cannes
+
+- [ ] Create `src/app/[locale]/awards/cannes/page.tsx` — same structure
+- [ ] Meta title: `Cannes Film Festival Winners — Complete Palme d'Or Database | CineRoll`
+- [ ] Meta description: `Browse every Cannes Film Festival nominated and winning film in CineRoll's dataset. Filter by category, year, or director. Discover a Palme d'Or winner tonight.`
+- [ ] Opening paragraph: "The Palme d'Or is the highest prize awarded at the Cannes Film Festival, one of the world's most prestigious film events, held annually in Cannes, France since 1955..."
+- [ ] Add award hub pages to main navigation and footer
+
+---
+
+## 26c. Blog & Pillar Content Strategy
+
+These pages target high-volume list-intent searches and build topical authority. Published as Next.js static pages (not a CMS) — content is written once and stays evergreen.
+
+### Blog Infrastructure
+
+- [ ] Create `src/app/[locale]/blog/page.tsx` — blog index listing all articles with title, description, and date
+- [ ] Create `src/app/[locale]/blog/[slug]/page.tsx` — individual article pages with `generateStaticParams` so all posts are statically generated
+- [ ] Add blog to main navigation and sitemap
+- [ ] Each blog post: unique meta title + description, BreadcrumbList schema, internal links to filtered browse views and film detail pages
+
+### Pillar Pages (Month 2 — publish these first)
+
+- [ ] **"Complete Oscar Best Picture Winners List (1927–2026)"** at `/blog/oscar-best-picture-winners`
+  - Table: Year · Film · Director · Wins · Nominations — every ceremony
+  - Each film title links to its CineRoll detail page
+  - "Roll a random Best Picture winner" CTA button linking to `/browse?awardBody=oscar&category=best-picture&winnerOnly=true`
+  - Target keywords: "oscar best picture winners list", "academy award best picture all time"
+
+- [ ] **"Complete Golden Globe Best Drama Film Winners"** at `/blog/golden-globe-best-drama-winners`
+  - Same structure as Best Picture pillar
+  - Target keywords: "golden globe best drama film winners", "golden globe drama winners list"
+
+- [ ] **"Complete Cannes Palme d'Or Winners"** at `/blog/cannes-palme-dor-winners`
+  - Target keywords: "palme d'or winners list", "cannes film festival winners all time"
+
+### Supporting Articles (Months 3–6)
+
+- [ ] "Oscar Best Picture Winners by Decade" — one section per decade, links to pillar
+- [ ] "The Most Nominated Films That Never Won an Oscar"
+- [ ] "Oscar vs Golden Globe Best Picture — Where They Agree and Disagree"
+- [ ] "The 20 Best Picture Winners You Haven't Seen Yet" (links to Snob Test)
+- [ ] "How to Find Your Next Film Using Award Data" (targets "what to watch" intent)
+- [ ] "The Best Hidden Gem Oscar Films by Decade"
+- [ ] "Best Films That Won Both Oscars AND Golden Globes"
+- [ ] "The Data Behind the Oscars — What CineRoll's Dataset Reveals" ← data journalism, highly linkable
+- [ ] "Every Director Who Has Won Both the Oscar and Palme d'Or"
+- [ ] "Which Decade Had the Best Oscar Winners? A Data Analysis"
+- [ ] "[Current Year] Oscar Nominees — Every Film in the Dataset" ← publish 6 weeks before ceremony each year
+
+### Seasonal Content (publish 6 weeks before Oscar ceremony each year)
+
+- [ ] "Oscar Night Watch Guide [Year] — Which Nominated Films to See First"
+- [ ] "How Many [Year] Oscar Best Picture Nominees Have You Seen?" (links to Snob Test)
+- [ ] "[Current Year] Oscar Nominees — Every Film in CineRoll's Dataset"
+
+---
+
+## 32. CI/CD Pipeline (GitHub Actions)
+
+Automated checks that run on every push and pull request. Catches broken types, lint errors, and failed builds before they reach production — without you having to remember to run them manually.
+
+### Workflow File
+
+- [ ] Create `.github/workflows/ci.yml` that triggers on: every push to `main`, every pull request targeting `main`
+- [ ] Job: **Type Check** — runs `npm run type-check` across all workspaces; fails the pipeline if any TypeScript errors exist
+- [ ] Job: **Lint** — runs `npm run lint` across all workspaces; fails the pipeline if ESLint reports errors
+- [ ] Job: **Build** — runs `npm run build` for both frontend and backend; catches any compilation errors that only surface at build time (not dev)
+- [ ] Jobs run in parallel where possible to keep total CI time under 3 minutes
+- [ ] Cache `node_modules` between runs using `actions/cache` keyed on `package-lock.json` hash — avoids reinstalling all dependencies on every run
+
+### Branch Protection
+
+- [ ] In GitHub → Settings → Branches → Add rule for `main`:
+  - [ ] Require status checks to pass before merging (select: type-check, lint, build)
+  - [ ] Require branches to be up to date before merging
+  - [ ] Do not allow force pushes to `main`
+- [ ] This prevents any code from reaching `main` (and therefore production) unless CI passes
+
+### Dependency Security
+
+- [ ] Add a `npm audit` step to the CI workflow — runs `npm audit --audit-level=high`; fails the pipeline on any high or critical severity vulnerability
+- [ ] Run `npm audit` locally before every deploy and resolve any flagged packages
+- [ ] Set up **Dependabot** in GitHub (`.github/dependabot.yml`) to automatically open PRs when dependencies have new versions — review and merge weekly
+
+### Cost & Billing Alerts
+
+- [ ] Set a **Vercel spending limit** in the Vercel dashboard — alert by email if monthly usage exceeds your free tier
+- [ ] Set a **Railway budget alert** — Railway dashboard → Project → Settings → Spending Limit; set to $5–10 above your expected monthly cost
+- [ ] Set a **Neon compute alert** in the Neon console — alert if active compute hours approach the free tier limit
+- [ ] Review all three dashboards once a month to catch unexpected spikes
+
+---
+
+## 33. Automated Testing
+
+A minimal but meaningful test suite covering the critical paths. Not full coverage — just enough to catch regressions in the features your users depend on most.
+
+### Setup
+
+- [ ] Install **Playwright** for E2E tests in the frontend workspace: `npm install -D @playwright/test --workspace=frontend`
+- [ ] Run `npx playwright install` to download browser binaries (Chromium, Firefox, WebKit)
+- [ ] Create `frontend/playwright.config.ts` — configure base URL (`http://localhost:3000`), 3 browser projects (chromium, firefox, webkit), screenshot on failure, 30s timeout
+- [ ] Add `test:e2e` script to `frontend/package.json`: `playwright test`
+- [ ] Install **Vitest** for backend unit tests: `npm install -D vitest --workspace=backend`
+- [ ] Add `test` script to `backend/package.json`: `vitest run`
+- [ ] Add both test commands to the CI workflow (run after build job succeeds)
+
+### E2E Tests — Golden Path (must always pass)
+
+These cover the core user journey. If any of these break, the site is broken for real users.
+
+- [ ] **Roll test** — visit homepage, click the Roll button, verify a film card appears with a title, year, and poster; verify the "Roll Again" button is visible
+- [ ] **Spacebar roll** — visit homepage, press spacebar, verify a film card appears (tests keyboard shortcut)
+- [ ] **Browse test** — visit `/browse`, verify the film grid loads with at least one film card; verify the result count text is visible
+- [ ] **Filter test** — visit `/browse`, select "Oscar" award body filter, verify the result count changes and at least one card remains
+- [ ] **Film detail test** — click a film card from browse, verify the detail page loads with an H1 matching the film title, an awards section, and a plot section
+- [ ] **404 test** — visit `/film/this-film-does-not-exist`, verify the 404 page renders (not a crash)
+- [ ] **Snob Test** — visit `/snob-test`, verify 20 film posters render; click 3 of them, click "See My Score", verify a score title appears
+- [ ] **Dark/light mode** — toggle the theme pill, verify the `data-theme` attribute on `<html>` changes
+
+### E2E Tests — Auth Flow
+
+- [ ] **Sign-in page loads** — visit `/auth/signin`, verify the email input and "Continue with Google" button are visible
+- [ ] **Protected route redirect** — visit `/profile` while not logged in, verify redirect to `/auth/signin`
+
+### Backend Unit Tests
+
+- [ ] **Filter query builder** — unit test the `buildWhereClause` function (or equivalent) with: no filters (returns all), Oscar only, winner only, person name, combined filters — verify the correct Prisma `where` object is produced without hitting the database
+- [ ] **Slug generation** — unit test the slug generation utility: verify "The Godfather" + 1972 → `the-godfather-1972`; verify duplicate slugs get a suffix
+- [ ] **Score calculation** (Snob Test) — unit test the score endpoint logic: 0 seen → "Certified Normie", 20/20 seen → "The Snob"
+- [ ] **API error responses** — unit test the error handler middleware: verify it returns `{ error: string, code: string }` shape with the correct HTTP status code for each error type
+
+### Running Tests Locally
+
+- [ ] `npm run test --workspace=backend` — runs Vitest unit tests
+- [ ] `npm run dev` in one terminal, then `npm run test:e2e --workspace=frontend` in another — runs Playwright against the live dev server
+- [ ] All tests must pass before submitting a pull request (enforced by CI branch protection)
+
+---
+
+## 27. Legal Pages
+
+Required before launching with real users. Google OAuth will not approve your app for public use without a Privacy Policy URL, and Resend requires one for transactional email.
+
+### Privacy Policy
+
+- [ ] Write a Privacy Policy page at `/privacy` covering: what personal data you collect (email, name, avatar from Google OAuth; watch history; ratings; comments), why you collect it, how long you keep it, who you share it with (Neon, Railway, Vercel, Resend, TMDB/OMDB as data processors), and how users can request deletion
+- [ ] Add the Privacy Policy URL to your Google Cloud Console OAuth consent screen — without this, Google blocks public sign-in
+- [ ] Add Privacy Policy link to the site footer (visible on every page)
+
+### Terms of Service
+
+- [ ] Write a Terms of Service page at `/terms` covering: acceptable use, content ownership (users own their comments/ratings), your right to remove abusive content, disclaimer that CineRoll is not affiliated with the Academy Awards, Golden Globes, TMDB, IMDb, or OMDb
+- [ ] Add Terms of Service link to the site footer
+
+### Cookie Policy
+
+- [ ] Document what cookies CineRoll sets: Auth.js session cookie, `NEXT_LOCALE` preference cookie, `pwa-prompt-shown` and `cineroll_onboarded` localStorage flags
+- [ ] Add Cookie Policy link to the site footer or include it within the Privacy Policy
+- [ ] Add a simple cookie consent banner for EU/UK visitors — shown once on first visit, dismissed on accept; use localStorage to remember the choice; no tracking cookies are set before consent
+
+---
+
+## 28. GDPR & Account Deletion
+
+If any user is in the EU, UK, or California (CCPA), you are legally required to honor these rights.
+
+### Account Deletion (Right to Erasure)
+
+- [ ] Backend: add DELETE /api/user/account (auth required) — hard-delete the User row and cascade-delete all related data: Watchlist entries, WatchedFilm entries, UserRating entries, FilmComment entries, PushSubscription entries, UserList entries, ChallengeCompletion entries; return 204 on success
+- [ ] Frontend: add "Delete My Account" button in profile settings — show a confirmation dialog ("This will permanently delete your account and all your data. This cannot be undone.") before calling the endpoint
+- [ ] After successful deletion, sign the user out and redirect to the home page with a "Your account has been deleted" toast
+- [ ] Test: create a test account, save films, rate films, comment, then delete — verify all rows are removed from every table
+
+### Data Export (Right to Portability)
+
+- [ ] Backend: add GET /api/user/export (auth required) — return a JSON file containing all the user's data: profile info, watchlist, watched films, ratings, comments, custom lists; set `Content-Disposition: attachment; filename="cineroll-data.json"` header
+- [ ] Frontend: add "Download My Data" button in profile settings — clicking it triggers the file download
+
+### Cookie Consent
+
+- [ ] Cookie consent banner (required by GDPR): shown on first visit to EU/UK users; "Accept" stores consent in localStorage; no analytics or non-essential cookies fire before consent is given
+- [ ] Add a "Cookie Preferences" link in the footer so users can revisit their choice
+
+---
+
+## 29. Content Moderation
+
+You have user-generated content (comments, feedback form). Without moderation, one bad actor can damage the site's reputation overnight.
+
+### Comment Reporting
+
+- [ ] Add a "Report" button (flag icon) on every comment visible to all logged-in users
+- [ ] Backend: add POST /api/films/:slug/comments/:id/report (auth required) — record the report; body: `{ reason: string }` (dropdown: spam, harassment, spoiler, off-topic); store in a `CommentReport` model (id, commentId, reportedByUserId, reason, createdAt); do not allow a user to report the same comment twice
+- [ ] Backend: when a comment receives 3+ reports, automatically hide it (set `hidden = true` on `FilmComment`); hidden comments are excluded from GET /api/films/:slug/comments responses
+- [ ] Admin panel: add a "Reported Comments" tab showing all comments with at least one report; admin can delete or clear (dismiss) each report
+
+### Admin Comment Deletion
+
+- [ ] Backend: add DELETE /api/admin/comments/:id — allows admin to delete any comment regardless of author; requires `ADMIN_SECRET` header
+- [ ] Admin panel: add a delete button on each comment in the reported comments view
+
+### Feedback Spam Protection
+
+- [ ] The feedback form (section 17d) already has IP-based rate limiting — verify it is active in production
+- [ ] Add honeypot field to the feedback form: a hidden input that bots fill in but humans don't; reject any submission where the honeypot field is non-empty
+- [ ] Admin panel feedback inbox: mark submissions as read/unread so you can track which ones you've reviewed
+
+---
+
+## 30. Uptime Monitoring
+
+You need to know when Railway or Neon goes down before your users do.
+
+- [ ] Sign up for **BetterStack** (free tier) or **UptimeRobot** (free tier) — both are free for basic uptime monitoring
+- [ ] Add a monitor for the backend health check: `GET https://your-railway-domain/health` — check every 1 minute; alert by email if it fails 2 consecutive checks
+- [ ] Add a monitor for the frontend: `GET https://your-domain.com` — check every 5 minutes; alert if it returns a non-200 status
+- [ ] Add a monitor for the database: the `/health` endpoint should verify the Prisma connection (add a `prisma.$queryRaw\`SELECT 1\`` check inside the health route); if the DB is down, the health check returns 503 and the monitor alerts you
+- [ ] Configure alert recipients: your email + any co-owners
+- [ ] Set up a public status page (BetterStack provides one for free) so users can check `status.yourdomain.com` themselves during an outage
+- [ ] Test the monitors: temporarily break the health endpoint, verify an alert arrives within 2 minutes, then restore it
+
+---
+
+## 31. Error Tracking (Sentry)
+
+Sentry is mentioned in the deployment section but needs to be set up as a real, dedicated step. Without it, you will not know about 500 errors or client-side crashes your users are silently hitting.
+
+### Backend
+
+- [ ] Install Sentry SDK in backend: `npm install @sentry/node --workspace=backend`
+- [ ] Add `SENTRY_DSN` to `backend/.env` (get DSN from sentry.io after creating a project)
+- [ ] Initialize Sentry at the top of `backend/src/index.ts` before any other imports: `Sentry.init({ dsn: process.env.SENTRY_DSN, environment: process.env.NODE_ENV })`
+- [ ] Add Sentry error handler middleware in `backend/src/app.ts` after all routes: `app.use(Sentry.Handlers.errorHandler())` — this captures all unhandled Express errors automatically
+- [ ] Verify: trigger a deliberate 500 error in a route, confirm it appears in the Sentry dashboard within 30 seconds
+
+### Frontend
+
+- [ ] Install Sentry Next.js SDK in frontend: `npm install @sentry/nextjs --workspace=frontend`
+- [ ] Run the Sentry Next.js wizard: `npx @sentry/wizard@latest -i nextjs` — it creates `sentry.client.config.ts`, `sentry.server.config.ts`, and `sentry.edge.config.ts` automatically
+- [ ] Add `NEXT_PUBLIC_SENTRY_DSN` to `frontend/.env.local`
+- [ ] Verify client-side error capture: throw a deliberate error in a component, confirm it appears in Sentry
+- [ ] Set up Sentry **Alerts**: create an alert rule that sends an email when a new issue is first seen, and another when an issue occurs more than 10 times in 1 hour
+
+### Sentry Configuration
+
+- [ ] Set `tracesSampleRate: 0.1` (10% of transactions) in production to stay within the free tier limits
+- [ ] Add `ignoreErrors` for known benign errors: network timeouts, user-cancelled requests, browser extension errors
+- [ ] Configure source maps: Sentry wizard handles this automatically for Next.js; verify stack traces show original TypeScript line numbers (not compiled JS)
+- [ ] Set `environment` tag: `"production"` vs `"development"` so alerts only fire for production errors
+
+---
+
+## 🏹 Product Hunt Launch
+
+### What Product Hunt Judges in the First 30 Seconds
+
+- [ ] **Does it work?** — Everything is deployed, fast, and bug-free; visitors click the link and try it immediately
+- [ ] **Do I get it instantly?** — The hero section communicates the core value in one sentence
+- [ ] **Is there a "wow moment"?** — At least one feature users will screenshot and share
+
+---
+
+### 1. Ship the Viral-Ready Features First
+
+These unbuilt features are perfect for Product Hunt — any one of them could be the headline on launch day:
+
+- [ ] **The Snob Test** (item 8b) — a quiz people share their results from; Product Hunt loves this
+- [ ] **Roll Battle** (item 9b) — swipe to decide between two films; inherently shareable
+- [ ] **Natural Language Roll** (item 9d) — "roll me a sad French film from the 80s" — this is your live demo moment
+
+---
+
+### 2. Nail the First 5 Seconds of UX
+
+- [ ] Add a one-liner tagline under the site title — e.g. *"Discover Oscar & Golden Globe films — filtered exactly how your brain works."*
+- [ ] The Roll button must be impossible to miss and work instantly on first visit (no login required)
+
+---
+
+### 3. Prepare the Product Hunt Listing Assets
+
+- [ ] Take 3–5 screenshots in sequence that tell a story: filter → roll → detail page → award history
+- [ ] Record a demo GIF or short Loom video showing a full roll interaction in under 30 seconds
+- [ ] Write a tagline (60 chars max) — e.g. *"Roll a random Oscar film, filtered any way you want"*
+- [ ] Choose topics to tag: **Movies**, **Discovery**, **Entertainment**, **Design Tools**
+
+---
+
+### 4. Technical Must-Haves Before Launch
+
+- [ ] Deployed to Vercel + Railway with a real custom domain
+- [ ] `og:image` meta tags on every page so sharing looks good on Twitter/Slack/iMessage
+- [ ] Film detail pages using ISR (Incremental Static Regeneration) — must load fast from cold
+- [ ] Mobile layout fully polished — Product Hunt traffic is 40%+ mobile
+
+---
+
+### 5. Launch Day Strategy
+
+- [ ] Launch on **Tuesday or Wednesday** — the highest-traffic days on Product Hunt
+- [ ] Post at **12:01 AM Pacific time** to get a full 24-hour window
+- [ ] Have 10–15 people ready to upvote and comment in the **first 2 hours** — early velocity is everything
+- [ ] Write a **maker comment** explaining why you built it and what makes it different from IMDb / Letterboxd
 
 ---
 

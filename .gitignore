@@ -48,15 +48,16 @@ Thumbs.db
 *.swp
 *.swo
 
-# Data
-backend/data/*.csv
-backend/data/*.xlsx
-backend/data/*.xls
-backend/data/films-enriched.json
-backend/data/films-final.json
-backend/data/enrichment-errors.csv
-!backend/data/.gitkeep
+# Data — entire folder is private, never commit anything inside it
+backend/data/
+films-enriched.json
+films-final.json
+enrichment-errors.csv
+**/films-enriched.json
+**/films-final.json
+**/enrichment-errors.csv
 
 # Docs
 CineRoll-fullstack-checklist.md
 CLAUDE.md
+SEO-strategy.md
