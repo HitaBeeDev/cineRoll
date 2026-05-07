@@ -299,18 +299,18 @@ Monorepo with `cineroll/` root containing:
 
 ### API Response Optimization (For Lighthouse Performance Score)
 
-- [ ] Implement response compression: enable gzip compression for all API responses
-- [ ] Use Helmet middleware to add security headers without impacting performance
-- [ ] Implement pagination for list endpoints (max 100 items per request, default 12)
-- [ ] Return only necessary fields from database: don't send entire objects if not needed
-- [ ] Use Prisma select to limit database columns returned: `{ select: { id: true, title: true, ... } }`
-- [ ] Add HTTP caching headers: set Cache-Control headers appropriately for different endpoints
-  - [ ] Pick of the day: cache for 1 hour
-  - [ ] Random film: cache for 1 minute
-  - [ ] Search results: cache for 5 minutes
-  - [ ] Film detail: cache for 24 hours
-- [ ] Test API response times: search should complete in under 200ms, single lookups under 100ms
-- [ ] Monitor backend performance: check server logs for slow requests
+- [x] Implement response compression: enable gzip compression for all API responses
+- [x] Use Helmet middleware to add security headers without impacting performance
+- [x] Implement pagination for list endpoints (max 100 items per request, default 12)
+- [x] Return only necessary fields from database: don't send entire objects if not needed
+- [x] Use Prisma select to limit database columns returned: `{ select: { id: true, title: true, ... } }`
+- [x] Add HTTP caching headers: set Cache-Control headers appropriately for different endpoints
+  - [x] Pick of the day: cache for 1 hour
+  - [x] Random film: cache for 1 minute
+  - [x] Search results: cache for 5 minutes
+  - [x] Film detail: cache for 24 hours
+- [x] Test API response times: search should complete in under 200ms, single lookups under 100ms
+- [x] Monitor backend performance: check server logs for slow requests
 
 ---
 

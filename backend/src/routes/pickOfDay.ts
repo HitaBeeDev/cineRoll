@@ -29,76 +29,92 @@ const pickOfDaySelect = {
   cannesWins: true,
 };
 
+const filmColumns = /* sql */`
+  f."id", f."slug", f."title", f."originalTitle",
+  f."year" AS "releaseYear",
+  f."runtime", f."genres", f."contentType", f."plot", f."director",
+  f."posterUrl", f."posterColor", f."backdropUrl",
+  f."imdbRating", f."rtScore",
+  f."oscarNominations", f."oscarWins",
+  f."ggNominations", f."ggWins",
+  f."cannesNominations", f."cannesWins"
+`;
+
+// Cached at module load — WatchlistEntry table won't appear mid-process
+let watchlistTableExists: boolean | null = null;
+async function hasWatchlist(): Promise<boolean> {
+  if (watchlistTableExists !== null) return watchlistTableExists;
+  const rows = await prisma.$queryRaw<{ exists: boolean }[]>`
+    SELECT to_regclass('public."WatchlistEntry"') IS NOT NULL AS "exists"
+  `;
+  watchlistTableExists = rows[0]?.exists === true;
+  return watchlistTableExists;
+}
+
+type PickRow = {
+  id: string; slug: string; title: string; originalTitle: string | null;
+  releaseYear: number; runtime: number | null; genres: string[]; contentType: string;
+  plot: string | null; director: string | null; posterUrl: string | null;
+  posterColor: string | null; backdropUrl: string | null;
+  imdbRating: number | null; rtScore: number | null;
+  oscarNominations: number; oscarWins: number;
+  ggNominations: number; ggWins: number;
+  cannesNominations: number; cannesWins: number;
+};
+
 pickOfDayRouter.get("/", async (_req, res) => {
   const cutoff = new Date(Date.now() - 48 * 60 * 60 * 1000);
 
-  const watchlistTableRows = await prisma.$queryRaw<{ exists: boolean }[]>`
-    SELECT to_regclass('public."WatchlistEntry"') IS NOT NULL AS "exists"
-  `;
-  const hasWatchlistTable = watchlistTableRows[0]?.exists === true;
+  const useWatchlist = await hasWatchlist();
 
-  const scoredFilms = hasWatchlistTable
-    ? await prisma.$queryRaw<{ filmId: string; score: bigint }[]>`
-        SELECT "filmId", SUM(score)::BIGINT AS score
+  // Single query: score films from activity in last 48h, JOIN film data directly
+  const activityQuery = useWatchlist
+    ? prisma.$queryRawUnsafe<PickRow[]>(`
+        SELECT ${filmColumns}
         FROM (
-          SELECT "filmId", COUNT(*)::BIGINT AS score
-          FROM "RollEvent"
-          WHERE "rolledAt" >= ${cutoff}
+          SELECT "filmId", SUM(score) AS score
+          FROM (
+            SELECT "filmId", COUNT(*) AS score FROM "RollEvent" WHERE "rolledAt" >= $1 GROUP BY "filmId"
+            UNION ALL
+            SELECT "filmId", COUNT(*) AS score FROM "WatchlistEntry" WHERE "addedAt" >= $1 GROUP BY "filmId"
+          ) activity
           GROUP BY "filmId"
-          UNION ALL
-          SELECT "filmId", COUNT(*)::BIGINT AS score
-          FROM "WatchlistEntry"
-          WHERE "addedAt" >= ${cutoff}
-          GROUP BY "filmId"
-        ) activity
-        GROUP BY "filmId"
-        ORDER BY score DESC
-        LIMIT 1
-      `
-    : await prisma.$queryRaw<{ filmId: string; score: bigint }[]>`
-        SELECT "filmId", COUNT(*)::BIGINT AS score
-        FROM "RollEvent"
-        WHERE "rolledAt" >= ${cutoff}
-        GROUP BY "filmId"
-        ORDER BY score DESC
-        LIMIT 1
-      `;
+          ORDER BY score DESC
+          LIMIT 1
+        ) top
+        JOIN "Film" f ON f."id" = top."filmId"
+      `, cutoff)
+    : prisma.$queryRawUnsafe<PickRow[]>(`
+        SELECT ${filmColumns}
+        FROM (
+          SELECT "filmId", COUNT(*) AS score FROM "RollEvent" WHERE "rolledAt" >= $1 GROUP BY "filmId"
+          ORDER BY score DESC LIMIT 1
+        ) top
+        JOIN "Film" f ON f."id" = top."filmId"
+      `, cutoff);
 
-  const topFilmId = scoredFilms[0]?.filmId;
-
-  if (topFilmId) {
-    const film = await prisma.film.findUnique({
-      where: { id: topFilmId },
+  // Run activity query and hand-curated fallback in parallel
+  const [activityRows, handPick] = await Promise.all([
+    activityQuery,
+    prisma.film.findFirst({
+      where: {
+        OR: [{ pickOfDayDate: { gte: cutoff } }, { isPickOfDay: true }],
+      },
+      orderBy: [{ pickOfDayDate: "desc" }, { updatedAt: "desc" }],
       select: pickOfDaySelect,
-    });
-    if (film) {
-      setPublicCache(res, 3_600);
-      res.json({ ...film, year: film.releaseYear });
-      return;
-    }
-  }
+    }),
+  ]);
 
-  const previousPick = await prisma.film.findFirst({
-    where: {
-      OR: [
-        { pickOfDayDate: { gte: cutoff } },
-        { isPickOfDay: true },
-      ],
-    },
-    orderBy: [
-      { pickOfDayDate: "desc" },
-      { updatedAt: "desc" },
-    ],
-    select: pickOfDaySelect,
-  });
+  const film = activityRows[0] ?? handPick;
 
-  if (previousPick) {
+  if (film) {
     setPublicCache(res, 3_600);
-    res.json({ ...previousPick, year: previousPick.releaseYear });
+    res.json({ ...film, year: film.releaseYear });
     return;
   }
 
-  const fallback = await prisma.film.findFirst({
+  // Last resort: most-awarded film — only 404s if DB is completely empty
+  const mostAwarded = await prisma.film.findFirst({
     orderBy: [
       { oscarWins: "desc" },
       { ggWins: "desc" },
@@ -109,10 +125,10 @@ pickOfDayRouter.get("/", async (_req, res) => {
     select: pickOfDaySelect,
   });
 
-  if (!fallback) {
+  if (!mostAwarded) {
     throw new HttpError(404, "No films in database", "NO_FILMS");
   }
 
   setPublicCache(res, 3_600);
-  res.json({ ...fallback, year: fallback.releaseYear });
+  res.json({ ...mostAwarded, year: mostAwarded.releaseYear });
 });

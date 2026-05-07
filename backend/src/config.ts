@@ -8,8 +8,9 @@ const envSchema = z.object({
   SLOW_QUERY_THRESHOLD_MS: z.coerce.number().int().nonnegative().default(100),
   SLOW_REQUEST_THRESHOLD_MS: z.coerce.number().int().nonnegative().default(200),
   FRONTEND_URL: z.string().url().default("http://localhost:3000"),
-  TMDB_API_KEY: z.string().min(1, "TMDB_API_KEY is required"),
-  OMDB_API_KEY: z.string().min(1, "OMDB_API_KEY is required"),
+  // Enrichment-only — not required at runtime
+  TMDB_API_KEY: z.string().min(1).optional(),
+  OMDB_API_KEY: z.string().min(1).optional(),
 });
 
 const env = envSchema.parse(process.env);
@@ -21,6 +22,6 @@ export const config = {
   slowQueryThresholdMs: env.SLOW_QUERY_THRESHOLD_MS,
   slowRequestThresholdMs: env.SLOW_REQUEST_THRESHOLD_MS,
   frontendUrl: env.FRONTEND_URL,
-  tmdbApiKey: env.TMDB_API_KEY,
-  omdbApiKey: env.OMDB_API_KEY,
+  tmdbApiKey: env.TMDB_API_KEY ?? "",
+  omdbApiKey: env.OMDB_API_KEY ?? "",
 };
