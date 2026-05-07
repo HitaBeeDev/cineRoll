@@ -13,16 +13,20 @@ const filmListSelect = Prisma.sql`
   "Film"."id",
   "Film"."slug",
   "Film"."title",
+  "Film"."originalTitle",
   "Film"."year" AS "releaseYear",
   "Film"."year",
   "Film"."genres",
+  "Film"."contentType",
   "Film"."posterUrl",
   "Film"."posterColor",
   "Film"."imdbRating",
   "Film"."oscarNominations",
   "Film"."oscarWins",
   "Film"."ggNominations",
-  "Film"."ggWins"
+  "Film"."ggWins",
+  "Film"."cannesNominations",
+  "Film"."cannesWins"
 `;
 
 const filmDetailSelect = {
@@ -31,9 +35,11 @@ const filmDetailSelect = {
   tmdbId: true,
   imdbId: true,
   title: true,
+  originalTitle: true,
   releaseYear: true,
   runtime: true,
   genres: true,
+  contentType: true,
   plot: true,
   director: true,
   cast: true,
@@ -50,6 +56,9 @@ const filmDetailSelect = {
   ggNominations: true,
   ggWins: true,
   ggCategories: true,
+  cannesNominations: true,
+  cannesWins: true,
+  cannesCategories: true,
   isPickOfDay: true,
   pickOfDayDate: true,
 };

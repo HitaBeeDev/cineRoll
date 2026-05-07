@@ -12,10 +12,12 @@ type RandomFilmRow = {
   id: string;
   slug: string;
   title: string;
+  originalTitle: string | null;
   releaseYear: number;
   year: number;
   runtime: number | null;
   genres: string[];
+  contentType: string;
   plot: string | null;
   director: string | null;
   posterUrl: string | null;
@@ -25,16 +27,20 @@ type RandomFilmRow = {
   oscarWins: number;
   ggNominations: number;
   ggWins: number;
+  cannesNominations: number;
+  cannesWins: number;
 };
 
 const randomSelect = Prisma.sql`
   "Film"."id",
   "Film"."slug",
   "Film"."title",
+  "Film"."originalTitle",
   "Film"."year" AS "releaseYear",
   "Film"."year",
   "Film"."runtime",
   "Film"."genres",
+  "Film"."contentType",
   "Film"."plot",
   "Film"."director",
   "Film"."posterUrl",
@@ -43,7 +49,9 @@ const randomSelect = Prisma.sql`
   "Film"."oscarNominations",
   "Film"."oscarWins",
   "Film"."ggNominations",
-  "Film"."ggWins"
+  "Film"."ggWins",
+  "Film"."cannesNominations",
+  "Film"."cannesWins"
 `;
 
 async function getDoNotSuggestFilmIds(userId: string): Promise<string[]> {

@@ -14,6 +14,7 @@ export interface Film {
   tmdbId: number | null;
   imdbId: string | null;
   title: string;
+  originalTitle: string | null;
   releaseYear: number;
   /** Alias used by the current database/API shape. */
   year: number;

@@ -147,7 +147,6 @@ export function buildWhereClause(
         OR ${awardExists(query.awardBody, [
           Prisma.sql`(
             award->>'nominee' ILIKE ${personLike}
-            OR award->>'winner' ILIKE ${personLike}
           )`,
         ])}
       )

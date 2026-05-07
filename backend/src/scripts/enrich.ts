@@ -203,7 +203,7 @@ function rowToAwardRecord(row: AwardRow): AwardRecord {
     awardBody: row.awardBody,
     awardYear: row.awardYear,
     category: row.category,
-    nominee: row.awardNominee,
+    nominee: won ? winner : row.awardNominee,
     won,
   };
 }
