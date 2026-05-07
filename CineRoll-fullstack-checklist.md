@@ -153,19 +153,19 @@ Monorepo with `cineroll/` root containing:
 
 ## 3. Backend — Project Setup
 
-- [ ] Create backend folder and initialize npm project
-- [ ] Set backend `package.json` name to @cineroll/backend
-- [ ] Add shared types package as a dependency in backend
-- [ ] Install backend production dependencies: Express (web framework), CORS (cross-origin requests), Helmet (security headers), Morgan (request logging), dotenv (environment variables), Prisma client (ORM), and Zod (validation)
-- [ ] Install backend dev dependencies: TypeScript, ts-node-dev (development server), type definitions for Express/Node/CORS/Morgan, Prisma CLI, and tsx (TypeScript executor)
-- [ ] Create backend `tsconfig.json` that extends root tsconfig with output directory, root directory, and module settings
-- [ ] Add scripts to backend `package.json`: dev (run dev server), build (compile TypeScript), start (run production build), lint (run ESLint), type-check (check TypeScript), db:migrate (run Prisma migrations), db:generate (regenerate Prisma client), db:seed (seed database), enrich (run enrichment script)
-- [ ] Create backend `.env` file with DATABASE_URL (Neon PostgreSQL connection string), PORT (4000), FRONTEND_URL (for CORS), TMDB_API_KEY, and OMDB_API_KEY
-- [ ] Create backend `.env.example` as a template showing what environment variables are needed
-- [ ] Create backend folder structure: src/ with subdirectories for routes, middleware, lib, scripts
-- [ ] Create `backend/src/index.ts` as entry point that initializes Express server
-- [ ] Create `backend/src/app.ts` with Express app setup (middleware, routes, error handling)
-- [ ] Create `backend/src/config.ts` to load and validate environment variables
+- [x] Create backend folder and initialize npm project
+- [x] Set backend `package.json` name to @cineroll/backend
+- [x] Add shared types package as a dependency in backend
+- [x] Install backend production dependencies: Express (web framework), CORS (cross-origin requests), Helmet (security headers), Morgan (request logging), dotenv (environment variables), Prisma client (ORM), and Zod (validation)
+- [x] Install backend dev dependencies: TypeScript, ts-node-dev (development server), type definitions for Express/Node/CORS/Morgan, Prisma CLI, and tsx (TypeScript executor)
+- [x] Create backend `tsconfig.json` that extends root tsconfig with output directory, root directory, and module settings
+- [x] Add scripts to backend `package.json`: dev (run dev server), build (compile TypeScript), start (run production build), lint (run ESLint), type-check (check TypeScript), db:migrate (run Prisma migrations), db:generate (regenerate Prisma client), db:seed (seed database), enrich (run enrichment script)
+- [x] Create backend `.env` file with DATABASE_URL (Neon PostgreSQL connection string), PORT (4000), FRONTEND_URL (for CORS), TMDB_API_KEY, and OMDB_API_KEY
+- [x] Create backend `.env.example` as a template showing what environment variables are needed
+- [x] Create backend folder structure: src/ with subdirectories for routes, middleware, lib, scripts
+- [x] Create `backend/src/index.ts` as entry point that initializes Express server
+- [x] Create `backend/src/app.ts` with Express app setup (middleware, routes, error handling)
+- [x] Create `backend/src/config.ts` to load and validate environment variables
 
 ---
 
