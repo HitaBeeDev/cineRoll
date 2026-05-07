@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as dotenv from 'dotenv';
-import { parse } from 'csv-parse/sync';
+import * as xlsx from 'xlsx';
 import { stringify } from 'csv-stringify/sync';
 
 const ENV_FILE = path.resolve(__dirname, '../../.env');
@@ -27,22 +27,27 @@ const TMDB_BASE = 'https://api.themoviedb.org/3';
 const OMDB_BASE = 'https://www.omdbapi.com';
 
 const DATA_DIR = path.resolve(__dirname, '../../data');
-const GG_CSV = path.join(DATA_DIR, 'films-goldenglobe.csv');
+const SOURCE_DATA_DIR = path.join(DATA_DIR, 'movie excel datas');
 const ENRICHED_JSON = path.join(DATA_DIR, 'films-enriched.json');
 const ERRORS_CSV = path.join(DATA_DIR, 'enrichment-errors.csv');
 
-// CSV row shape: Id, Award Year, Movie Name, Release Year, Type Of Award, Award Winner, Award Nominee
-interface CsvRow {
-  'Id': string;
-  'Award Year': string;
-  'Movie Name': string;
-  'Release Year': string;
-  'Type Of Award': string;
-  'Award Winner': string;
-  'Award Nominee': string;
+type AwardBody = 'oscar' | 'goldenglobe' | 'cannes';
+
+interface AwardRow {
+  id: string;
+  awardBody: AwardBody;
+  awardYear: number;
+  movieName: string;
+  releaseYear: number;
+  category: string;
+  awardWinner: string;
+  awardNominee: string;
+  sourceFile: string;
+  sourceSheet: string;
 }
 
 interface AwardRecord {
+  awardBody: AwardBody;
   awardYear: number;
   category: string;
   nominee: string;
@@ -54,9 +59,12 @@ interface EnrichedFilm {
   tmdbId: number;
   imdbId: string | null;
   title: string;
+  originalTitle: string | null;
   year: number;
+  releaseYear: number;
   runtime: number | null;
   genres: string[];
+  contentType: string;
   plot: string | null;
   director: string | null;
   cast: string[];
@@ -72,6 +80,9 @@ interface EnrichedFilm {
   ggNominations: number;
   ggWins: number;
   ggCategories: AwardRecord[];
+  cannesNominations: number;
+  cannesWins: number;
+  cannesCategories: AwardRecord[];
   isPickOfDay: boolean;
   pickOfDayDate: string | null;
 }
@@ -93,22 +104,103 @@ function slugify(title: string): string {
     .replace(/^-|-$/g, '');
 }
 
-function parseCsv(filePath: string): CsvRow[] {
-  const raw = fs.readFileSync(filePath, 'utf-8');
-  return parse(raw, { columns: true, skip_empty_lines: true, trim: true }) as CsvRow[];
+function stringValue(row: Record<string, unknown>, ...keys: string[]): string {
+  for (const key of keys) {
+    const value = row[key];
+    if (value !== undefined && value !== null && String(value).trim() !== '') {
+      return String(value).trim();
+    }
+  }
+  return '';
 }
 
-function filmTitle(row: CsvRow): string {
-  return row['Movie Name'];
+function numberValue(row: Record<string, unknown>, ...keys: string[]): number | null {
+  const value = stringValue(row, ...keys);
+  if (!value) return null;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
 }
 
-function rowToAwardRecord(row: CsvRow): AwardRecord {
-  const winner = row['Award Winner']?.trim();
-  const won = !!winner && winner !== 'NaN' && winner !== '';
+function awardBodyFromId(id: string): AwardBody | null {
+  const prefix = id.split('-')[0]?.toUpperCase();
+  if (prefix === 'OSC') return 'oscar';
+  if (prefix === 'GG') return 'goldenglobe';
+  if (prefix === 'CN' || prefix === 'CAN') return 'cannes';
+  return null;
+}
+
+function discoverWorkbookFiles(directory: string): string[] {
+  const entries = fs.readdirSync(directory, { withFileTypes: true });
+  const workbookFiles: string[] = [];
+
+  for (const entry of entries) {
+    const fullPath = path.join(directory, entry.name);
+    if (entry.isDirectory()) {
+      workbookFiles.push(...discoverWorkbookFiles(fullPath));
+    } else if (/\.xlsx$/i.test(entry.name) && !entry.name.startsWith('~$')) {
+      workbookFiles.push(fullPath);
+    }
+  }
+
+  return workbookFiles.sort();
+}
+
+function parseWorkbook(filePath: string): AwardRow[] {
+  const workbook = xlsx.readFile(filePath);
+  const rows: AwardRow[] = [];
+
+  for (const sheetName of workbook.SheetNames) {
+    const sheet = workbook.Sheets[sheetName];
+    if (!sheet) continue;
+
+    const rawRows = xlsx.utils.sheet_to_json<Record<string, unknown>>(sheet, {
+      defval: '',
+      raw: false,
+    });
+
+    for (const rawRow of rawRows) {
+      const id = stringValue(rawRow, 'Id');
+      if (!id) continue;
+
+      const awardBody = awardBodyFromId(id);
+      const awardYear = numberValue(rawRow, 'Award Year');
+      const movieName = stringValue(rawRow, 'Movie Name', 'OSCie Name');
+      const releaseYear = numberValue(rawRow, 'Release Year');
+      const category = stringValue(rawRow, 'Type Of Award');
+      const awardWinner = stringValue(rawRow, 'Award Winner');
+      const awardNominee = stringValue(rawRow, 'Award Nominee');
+
+      if (!awardBody || awardYear === null || !movieName || releaseYear === null || !category) {
+        console.warn(`Skipping invalid award row in ${path.basename(filePath)}:${sheetName} id=${id}`);
+        continue;
+      }
+
+      rows.push({
+        id,
+        awardBody,
+        awardYear,
+        movieName,
+        releaseYear,
+        category,
+        awardWinner,
+        awardNominee,
+        sourceFile: path.basename(filePath),
+        sourceSheet: sheetName,
+      });
+    }
+  }
+
+  return rows;
+}
+
+function rowToAwardRecord(row: AwardRow): AwardRecord {
+  const winner = row.awardWinner.trim();
+  const won = !!winner && winner.toLowerCase() !== 'nan';
   return {
-    awardYear: parseInt(row['Award Year'], 10),
-    category: row['Type Of Award'],
-    nominee: row['Award Nominee'] ?? '',
+    awardBody: row.awardBody,
+    awardYear: row.awardYear,
+    category: row.category,
+    nominee: row.awardNominee,
     won,
   };
 }
@@ -146,63 +238,91 @@ async function omdbDetails(imdbId: string): Promise<Record<string, unknown>> {
   return data;
 }
 
+function contentTypeFromGenres(genres: string[], runtime: number | null): string {
+  const normalized = genres.map(genre => genre.toLowerCase());
+  if (normalized.includes('documentary')) return 'documentary';
+  if (normalized.includes('animation')) return 'animation';
+  if (runtime !== null && runtime <= 40) return 'short';
+  return 'movie';
+}
+
+function awardRecordsFor(rows: AwardRow[], awardBody: AwardBody): AwardRecord[] {
+  return rows.filter(row => row.awardBody === awardBody).map(rowToAwardRecord);
+}
+
+function awardRowKey(row: AwardRow): string {
+  return [
+    row.id,
+    row.awardBody,
+    row.awardYear,
+    row.movieName.toLowerCase(),
+    row.releaseYear,
+    row.category.toLowerCase(),
+    row.awardWinner.toLowerCase(),
+    row.awardNominee.toLowerCase(),
+  ].join('|');
+}
+
 async function main() {
   if (!TMDB_KEY || !OMDB_KEY) {
-    console.error('Missing API keys — fill in TMDB_API_KEY and OMDB_API_KEY in backend/.env.local');
+    console.error('Missing API keys - fill in TMDB_API_KEY and OMDB_API_KEY in backend/.env.local');
     process.exit(1);
   }
 
-  const oscarCsvFiles = fs.readdirSync(DATA_DIR)
-    .filter(f => /^movie names - oscar .+\.csv$/i.test(f))
-    .sort()
-    .map(f => path.join(DATA_DIR, f));
-
-  if (oscarCsvFiles.length === 0) {
-    console.error(`No Oscar CSV files found in ${DATA_DIR} (expected files like "movie names - oscar 1929-1939.csv")`);
-    process.exit(1);
-  }
-  if (!fs.existsSync(GG_CSV)) {
-    console.error(`CSV not found: ${GG_CSV}`);
+  if (!fs.existsSync(SOURCE_DATA_DIR)) {
+    console.error(`Source data directory not found: ${SOURCE_DATA_DIR}`);
     process.exit(1);
   }
 
-  const oscarRows: CsvRow[] = [];
-  for (const csvFile of oscarCsvFiles) {
-    const rows = parseCsv(csvFile);
-    oscarRows.push(...rows);
-    console.log(`Loaded ${rows.length} Oscar rows from ${path.basename(csvFile)}`);
-  }
-  const ggRows = parseCsv(GG_CSV);
-  console.log(`Total Oscar rows: ${oscarRows.length}, Golden Globe rows: ${ggRows.length}\n`);
+  const workbookFiles = discoverWorkbookFiles(SOURCE_DATA_DIR);
 
-  // Group rows by (title + release year)
+  if (workbookFiles.length === 0) {
+    console.error(`No Excel files found in ${SOURCE_DATA_DIR}`);
+    process.exit(1);
+  }
+
+  const awardRows: AwardRow[] = [];
+  for (const workbookFile of workbookFiles) {
+    const rows = parseWorkbook(workbookFile);
+    awardRows.push(...rows);
+    console.log(`Loaded ${rows.length} award rows from ${path.basename(workbookFile)}`);
+  }
+
+  const uniqueAwardRows = Array.from(
+    new Map(awardRows.map(row => [awardRowKey(row), row])).values(),
+  );
+
+  if (uniqueAwardRows.length !== awardRows.length) {
+    console.log(`Removed ${awardRows.length - uniqueAwardRows.length} duplicate award rows from overlapping workbooks`);
+  }
+
+  const countsByBody = uniqueAwardRows.reduce<Record<AwardBody, number>>(
+    (counts, row) => {
+      counts[row.awardBody]++;
+      return counts;
+    },
+    { oscar: 0, goldenglobe: 0, cannes: 0 },
+  );
+
+  console.log(
+    `Total rows: ${uniqueAwardRows.length} (Oscar=${countsByBody.oscar}, Golden Globe=${countsByBody.goldenglobe}, Cannes=${countsByBody.cannes})\n`,
+  );
+
   type FilmKey = string;
-  const oscarMap = new Map<FilmKey, CsvRow[]>();
-  const ggMap = new Map<FilmKey, CsvRow[]>();
+  const rowsByFilm = new Map<FilmKey, AwardRow[]>();
 
-  for (const row of oscarRows) {
-    const key = `${filmTitle(row).toLowerCase().trim()}|${row['Release Year'].trim()}`;
-    const existing = oscarMap.get(key) ?? [];
+  for (const row of uniqueAwardRows) {
+    const key = `${row.movieName.toLowerCase().trim()}|${row.releaseYear}`;
+    const existing = rowsByFilm.get(key) ?? [];
     existing.push(row);
-    oscarMap.set(key, existing);
+    rowsByFilm.set(key, existing);
   }
 
-  for (const row of ggRows) {
-    const key = `${filmTitle(row).toLowerCase().trim()}|${row['Release Year'].trim()}`;
-    const existing = ggMap.get(key) ?? [];
-    existing.push(row);
-    ggMap.set(key, existing);
-  }
-
-  // Collect unique films across both CSVs
-  const allKeys = new Set<FilmKey>([...oscarMap.keys(), ...ggMap.keys()]);
   const uniqueFilms: Array<{ title: string; year: string }> = [];
-  for (const key of allKeys) {
-    const [titleLower, year] = key.split('|');
-    // Get original-casing title from first row
-    const sampleRow = oscarMap.get(key)?.[0] ?? ggMap.get(key)?.[0];
-    const title = sampleRow ? filmTitle(sampleRow) : (titleLower ?? '');
-    if (title && year) uniqueFilms.push({ title, year });
+  for (const [key, rows] of rowsByFilm) {
+    const [, year] = key.split('|');
+    const sampleRow = rows[0];
+    if (sampleRow && year) uniqueFilms.push({ title: sampleRow.movieName, year });
   }
 
   console.log(`Unique films to enrich: ${uniqueFilms.length}\n`);
@@ -215,6 +335,7 @@ async function main() {
   for (const { title, year } of uniqueFilms) {
     i++;
     const key = `${title.toLowerCase().trim()}|${year.trim()}`;
+    const filmRows = rowsByFilm.get(key) ?? [];
     console.log(`[${i}/${uniqueFilms.length}] ${title} (${year})`);
 
     try {
@@ -223,7 +344,7 @@ async function main() {
 
       if (!tmdbId) {
         errors.push({ title, year, reason: 'No TMDB match found' });
-        console.log('  ✗ No TMDB match');
+        console.log('  x No TMDB match');
         continue;
       }
 
@@ -233,12 +354,15 @@ async function main() {
       const crew = (details.credits as { crew?: Array<{ job: string; name: string }> })?.crew ?? [];
       const castRaw = (details.credits as { cast?: Array<{ name: string }> })?.cast ?? [];
       const videos = (details.videos as { results?: Array<{ type: string; site: string; key: string }> })?.results ?? [];
-      const genres = (details.genres as Array<{ name: string }> | undefined) ?? [];
+      const genres = ((details.genres as Array<{ name: string }> | undefined) ?? []).map(genre => genre.name);
 
       const director = crew.find(c => c.job === 'Director')?.name ?? null;
       const cast = castRaw.slice(0, 10).map(c => c.name);
       const trailer = videos.find(v => v.type === 'Trailer' && v.site === 'YouTube');
       const trailerUrl = trailer ? `https://www.youtube.com/watch?v=${trailer.key}` : null;
+      const runtime = (details.runtime as number | null | undefined) ?? null;
+      const originalTitleRaw = (details.original_title as string | null | undefined) ?? null;
+      const originalTitle = originalTitleRaw && originalTitleRaw !== title ? originalTitleRaw : null;
 
       const imdbId = (details.imdb_id as string | null | undefined) ?? null;
       let imdbRating: number | null = null;
@@ -274,17 +398,21 @@ async function main() {
       const posterPath = details.poster_path as string | null | undefined;
       const backdropPath = details.backdrop_path as string | null | undefined;
 
-      const oscarRecords = (oscarMap.get(key) ?? []).map(rowToAwardRecord);
-      const ggRecords = (ggMap.get(key) ?? []).map(rowToAwardRecord);
+      const oscarRecords = awardRecordsFor(filmRows, 'oscar');
+      const ggRecords = awardRecordsFor(filmRows, 'goldenglobe');
+      const cannesRecords = awardRecordsFor(filmRows, 'cannes');
 
       enriched.push({
         slug,
         tmdbId,
         imdbId,
         title,
+        originalTitle,
         year: parseInt(year, 10),
-        runtime: (details.runtime as number | null | undefined) ?? null,
-        genres: genres.map(g => g.name),
+        releaseYear: parseInt(year, 10),
+        runtime,
+        genres,
+        contentType: contentTypeFromGenres(genres, runtime),
         plot: (details.overview as string | null | undefined) ?? null,
         director,
         cast,
@@ -300,15 +428,18 @@ async function main() {
         ggNominations: ggRecords.length,
         ggWins: ggRecords.filter(r => r.won).length,
         ggCategories: ggRecords,
+        cannesNominations: cannesRecords.length,
+        cannesWins: cannesRecords.filter(r => r.won).length,
+        cannesCategories: cannesRecords,
         isPickOfDay: false,
         pickOfDayDate: null,
       });
 
-      console.log(`  ✓ Done (tmdbId=${tmdbId}${imdbId ? `, imdb=${imdbId}` : ''})`);
+      console.log(`  ok Done (tmdbId=${tmdbId}${imdbId ? `, imdb=${imdbId}` : ''})`);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       errors.push({ title, year, reason: msg });
-      console.error(`  ✗ Error: ${msg}`);
+      console.error(`  x Error: ${msg}`);
     }
   }
 

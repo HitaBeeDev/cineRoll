@@ -24,9 +24,11 @@ async function main() {
         tmdbId: film.tmdbId as number | null,
         imdbId: film.imdbId as string | null,
         title: film.title as string,
+        originalTitle: film.originalTitle as string | null,
         releaseYear: (film.releaseYear ?? film.year) as number,
         runtime: film.runtime as number | null,
         genres: film.genres as string[],
+        contentType: (film.contentType as string | undefined) ?? "movie",
         plot: film.plot as string | null,
         director: film.director as string | null,
         cast: film.cast as object,
@@ -42,6 +44,9 @@ async function main() {
         ggNominations: film.ggNominations as number,
         ggWins: film.ggWins as number,
         ggCategories: film.ggCategories as object,
+        cannesNominations: (film.cannesNominations as number | undefined) ?? 0,
+        cannesWins: (film.cannesWins as number | undefined) ?? 0,
+        cannesCategories: (film.cannesCategories as object | undefined) ?? [],
         isPickOfDay: film.isPickOfDay as boolean,
         pickOfDayDate:
           film.pickOfDayDate != null
@@ -53,9 +58,11 @@ async function main() {
         tmdbId: film.tmdbId as number | null,
         imdbId: film.imdbId as string | null,
         title: film.title as string,
+        originalTitle: film.originalTitle as string | null,
         releaseYear: (film.releaseYear ?? film.year) as number,
         runtime: film.runtime as number | null,
         genres: film.genres as string[],
+        contentType: (film.contentType as string | undefined) ?? "movie",
         plot: film.plot as string | null,
         director: film.director as string | null,
         cast: film.cast as object,
@@ -71,6 +78,9 @@ async function main() {
         ggNominations: film.ggNominations as number,
         ggWins: film.ggWins as number,
         ggCategories: film.ggCategories as object,
+        cannesNominations: (film.cannesNominations as number | undefined) ?? 0,
+        cannesWins: (film.cannesWins as number | undefined) ?? 0,
+        cannesCategories: (film.cannesCategories as object | undefined) ?? [],
         isPickOfDay: film.isPickOfDay as boolean,
         pickOfDayDate:
           film.pickOfDayDate != null

@@ -61,38 +61,38 @@ Monorepo with `cineroll/` root containing:
 5. Backend — Film Data Pipeline (Excel + Oscar + Golden Globes + Cannes + Film Color Theming)
 6. Backend — API Routes (incl. Autocomplete + Person endpoints)
 7. Frontend — Project Setup
-7b. Cinematic Design System & UI/UX
+   7b. Cinematic Design System & UI/UX
 8. Frontend — Base Components (Night Mode Pill, Login/Sign Up Buttons)
-8b. The Snob Test (viral quiz — no auth needed)
-8c. First-Visit Onboarding
+   8b. The Snob Test (viral quiz — no auth needed)
+   8c. First-Visit Onboarding
 9. Frontend — Roll Feature (Mood Presets, Share, Spacebar, Not Interested/Watched, Session History, Time Capsule Roll)
-9b. Roll Battle (Swipe to Decide)
-9c. Blind Roll — Film Quiz Mode
-9d. Natural Language Roll (AI — Claude API)
+   9b. Roll Battle (Swipe to Decide)
+   9c. Blind Roll — Film Quiz Mode
+   9d. Natural Language Roll (AI — Claude API)
 10. Frontend — Pick of the Day (Algorithmic)
 11. Frontend — Film Detail Pages (all award bodies + Trailer Modal + Color Theming + Similar Films + Original Title)
-11b. Tonight's Pick — Shareable Card
-11c. Person Detail Pages (/person/:slug)
+    11b. Tonight's Pick — Shareable Card
+    11c. Person Detail Pages (/person/:slug)
 12. Frontend — Browse, Filter & Filtered Roll (content type filter + Autocomplete)
-12b. Marathon Planner
-12c. Filter UX — Making It Feel Exciting
+    12b. Marathon Planner
+    12c. Filter UX — Making It Feel Exciting
 13. Internationalization (i18n)
-13.5. Rating Filters (IMDb & Rotten Tomatoes)
-13.6. Runtime Filter (Quick Watch / Standard / Long Haul / Epic)
+    13.5. Rating Filters (IMDb & Rotten Tomatoes)
+    13.6. Runtime Filter (Quick Watch / Standard / Long Haul / Epic)
 14. Frontend — Pages & Routing
 15. Auth & User System (Email OTP Verification + Google OAuth)
 16. Watchlist & Watch History
-16b. Custom Lists (beyond Watchlist)
+    16b. Custom Lists (beyond Watchlist)
 17. Profile & Personalized Recommendations
-17b. User Ratings for Watched Films
-17c. Film Comments (authenticated users)
-17d. Feedback / Suggestions Section (public footer form)
-17e. Completionist Tracker
-17f. CineRoll Wrapped
-17g. Public Taste Profile (/u/:username)
+    17b. User Ratings for Watched Films
+    17c. Film Comments (authenticated users)
+    17d. Feedback / Suggestions Section (public footer form)
+    17e. Completionist Tracker
+    17f. CineRoll Wrapped
+    17g. Public Taste Profile (/u/:username)
 18. Admin Panel
 19. Stats & Discovery Page
-19b. Weekly Community Challenge
+    19b. Weekly Community Challenge
 20. Weekly Email Pick (opt-in newsletter)
 21. Data Privacy & Security
 22. PWA & Mobile Homescreen Install (incl. Push Notifications)
@@ -100,15 +100,15 @@ Monorepo with `cineroll/` root containing:
 24. Documentation
 25. Performance & Lighthouse Audit
 26. Google Search Ranking (SEO)
-26b. Award Hub Pages (/awards/oscars, /awards/golden-globes, /awards/cannes)
-26c. Blog & Pillar Content Strategy
+    26b. Award Hub Pages (/awards/oscars, /awards/golden-globes, /awards/cannes)
+    26c. Blog & Pillar Content Strategy
 27. Legal Pages (Privacy Policy, Terms of Service, Cookie Policy)
-32. CI/CD Pipeline (GitHub Actions)
-33. Automated Testing (Playwright E2E + Vitest)
-28. GDPR & Account Deletion
-29. Content Moderation
-30. Uptime Monitoring
-31. Error Tracking (Sentry)
+28. CI/CD Pipeline (GitHub Actions)
+29. Automated Testing (Playwright E2E + Vitest)
+30. GDPR & Account Deletion
+31. Content Moderation
+32. Uptime Monitoring
+33. Error Tracking (Sentry)
 
 ---
 
@@ -187,16 +187,16 @@ Monorepo with `cineroll/` root containing:
 
 ### 5.0 Data File Preparation
 
-- [ ] Create `backend/data/` directory
-- [ ] Add **all data files** to root `.gitignore` so they are never committed — only the owner can access raw data (see Section 18: Data Privacy & Security for how to ensure this even if files were accidentally committed)
-- [ ] Prepare Oscar data as **Excel (.xlsx)** file(s) in `backend/data/` — no CSV conversion needed. Columns: `Id, Award Year, Movie Name, Release Year, Type Of Award, Award Winner, Award Nominee`
+- [x] Create `backend/data/` directory
+- [x] Add **all data files** to root `.gitignore` so they are never committed — only the owner can access raw data (see Section 18: Data Privacy & Security for how to ensure this even if files were accidentally committed)
+- [x] Prepare Oscar data as **Excel (.xlsx)** file(s) in `backend/data/` — no CSV conversion needed. Columns: `Id, Award Year, Movie Name, Release Year, Type Of Award, Award Winner, Award Nominee`
   - `Id` format: `OSC-{year}-{nn}` (e.g. `OSC-1929-01`)
   - `Award Winner` = person/studio name if they won, empty/NaN if nominated only
-- [ ] Prepare Golden Globe data as Excel (.xlsx) — same column structure, `Id` format: `GG-{year}-{nn}`
-- [ ] Prepare Cannes data as Excel (.xlsx) — same column structure, `Id` format: `CN-{year}-{nn}`
-- [ ] Install Excel parsing library in backend: `npm install xlsx --workspace=backend`
-- [ ] Update enrich script to auto-discover and read all `.xlsx` files in `backend/data/` (Oscar, Golden Globe, Cannes) — **all three files share the same column structure** (`Id, Award Year, Movie Name, Release Year, Type Of Award, Award Winner, Award Nominee`); the `Id` prefix (`OSC-` / `GG-` / `CN-`) determines the award body automatically
-- [ ] After pipeline runs and data is seeded, **remove all intermediate/old unused files** from `backend/data/` (e.g. old CSV files, old JSON drafts). Never delete original `.xlsx` source files.
+- [x] Prepare Golden Globe data as Excel (.xlsx) — same column structure, `Id` format: `GG-{year}-{nn}`
+- [x] Prepare Cannes data as Excel (.xlsx) — same column structure, `Id` format: `CN-{year}-{nn}`
+- [x] Install Excel parsing library in backend: `npm install xlsx --workspace=backend`
+- [x] Update enrich script to auto-discover and read all `.xlsx` files in `backend/data/` (Oscar, Golden Globe, Cannes) — **all three files share the same column structure** (`Id, Award Year, Movie Name, Release Year, Type Of Award, Award Winner, Award Nominee`); the `Id` prefix (`OSC-` / `GG-` / `CN-`) determines the award body automatically
+- [x] After pipeline runs and data is seeded, **remove all intermediate/old unused files** from `backend/data/` (e.g. old CSV files, old JSON drafts). Never delete original `.xlsx` source files.
 
 ### 5a. Enrichment Script — Fetch Data from TMDB & OMDB APIs
 
@@ -373,8 +373,8 @@ The most important screen in the app. The Roll button must feel like pressing pl
 - [ ] **Full-bleed backdrop image** fills the entire above-the-fold area — on first load, pick a random high-quality backdrop from the top 20 most-rolled films; the image covers 100vh with `object-fit: cover`
 - [ ] **Backdrop transitions when a film is rolled** — when the user hits Roll and a result comes back, the hero backdrop cross-fades to the rolled film's backdrop image using Framer Motion `AnimatePresence` (400ms ease); the transition is the cinematic reveal
 - [ ] **Layered gradient overlay** over the backdrop: bottom-to-top dark gradient (text area) + a very subtle vignette on all four edges + an optional noise/grain texture overlay at 3–5% opacity for a film-grain feel
-- [ ] **Hero headline** uses the serif display font at maximum size: *"Roll Your Next Award-Winning Film"* — set in two lines with a natural break so it reads as a poster headline, not a sentence
-- [ ] **Subheading** in muted warm white below the headline: *"Oscar · Golden Globe · Cannes — filtered exactly how you want"* — smaller, lighter weight, letter-spaced
+- [ ] **Hero headline** uses the serif display font at maximum size: _"Roll Your Next Award-Winning Film"_ — set in two lines with a natural break so it reads as a poster headline, not a sentence
+- [ ] **Subheading** in muted warm white below the headline: _"Oscar · Golden Globe · Cannes — filtered exactly how you want"_ — smaller, lighter weight, letter-spaced
 - [ ] **The Roll button is the centrepiece** — large (min 64px height, generous padding), gold gradient background (`#D4AF37` → `#B8962E`), dark text, slightly rounded corners; on hover: lifts with a `box-shadow` glow in gold; on press: subtle scale-down (0.97); must be impossible to miss on any device
 - [ ] **"or press Space" hint** appears below the Roll button in tiny muted text — fades in 1 second after page load so it doesn't compete on arrival
 - [ ] **Animated backdrop grain overlay** — a looping CSS animation very slowly drifts the noise texture (2px drift over 8s) to suggest the film is alive, not a static screenshot; imperceptible on first glance, cinematic on second
@@ -387,10 +387,10 @@ The most important screen in the app. The Roll button must feel like pressing pl
 The moment between clicking Roll and seeing the result is the most important interaction in the app. Make it feel like a curtain rising.
 
 - [ ] **Step 1 — Click response (0–100ms):** Roll button scales down to 0.97 immediately on press; the hero backdrop begins a 200ms fade to a near-black overlay — the cinema goes dark
-- [ ] **Step 2 — Loading state (100ms – API response):** a subtle horizontal progress bar pulses across the bottom of the hero (not a spinner — a cinematic loading bar like a film projector warming up); copy under the button reads *"Finding your film…"*
+- [ ] **Step 2 — Loading state (100ms – API response):** a subtle horizontal progress bar pulses across the bottom of the hero (not a spinner — a cinematic loading bar like a film projector warming up); copy under the button reads _"Finding your film…"_
 - [ ] **Step 3 — Reveal (API response arrives):** the new film's backdrop image fades in behind the overlay (400ms); the overlay fades out simultaneously; the film result card animates up from the bottom of the screen with a spring motion (`y: 40 → 0`, `opacity: 0 → 1`, 500ms spring); the film title appears with a subtle stagger — year first (small, fades in), then title (large serif, fades in 100ms later)
 - [ ] **Step 4 — Settle:** the result card is fully visible; the Roll button reappears below the card with the label "Roll Again"; the backdrop stays as the rolled film's backdrop until the user rolls again
-- [ ] **If the API fails:** the overlay fades back out, the backdrop returns to the default, and a toast appears: *"Couldn't connect — check your connection and try again"*
+- [ ] **If the API fails:** the overlay fades back out, the backdrop returns to the default, and a toast appears: _"Couldn't connect — check your connection and try again"_
 
 ---
 
@@ -483,6 +483,7 @@ A standalone quiz page (`/snob-test`) that works without any account. Users tick
 - [ ] Create POST /api/snob-test/score — body: `{ seenFilmIds: string[] }`; return: score (0–100), title (see below), breakdown by decade and award body; no auth required, no data stored
 
 **Score titles (based on % seen):**
+
 - 0–10% → "Certified Normie"
 - 11–25% → "Casual Watcher"
 - 26–45% → "Film Enthusiast"
@@ -660,7 +661,7 @@ Instead of dropdowns, the user describes what they want in plain English. Claude
 ### Frontend
 
 - [ ] Add a "Describe it" input mode toggle on the home page (switch between filter panel and natural language input)
-- [ ] Show a text area with placeholder examples: *"Something sad but beautiful"*, *"A film my dad would love"*, *"The most obscure Cannes winner you have"*
+- [ ] Show a text area with placeholder examples: _"Something sad but beautiful"_, _"A film my dad would love"_, _"The most obscure Cannes winner you have"_
 - [ ] While processing, show a fun loading message: "Asking the algorithm…"
 - [ ] After roll, show the interpreted filters as chips below the result: "Searched for: Golden Globe winner · Drama · 1990s" so the user understands what happened
 - [ ] "Refine" button lets them edit the prompt and re-roll
@@ -706,7 +707,7 @@ Instead of dropdowns, the user describes what they want in plain English. Claude
 - [ ] Create 404 page if film slug not found
 - [ ] Make responsive: stack all content vertically on mobile, use grid layout on desktop
 - [ ] Add "Back to Browse" or "Roll Again" navigation buttons
-- [ ] **Original Title** — if `originalTitle` is set and differs from `title`, display it in smaller text directly below the main title (e.g. *Das Leben der Anderen* under "The Lives of Others"); skip if null or identical
+- [ ] **Original Title** — if `originalTitle` is set and differs from `title`, display it in smaller text directly below the main title (e.g. _Das Leben der Anderen_ under "The Lives of Others"); skip if null or identical
 - [ ] **Film Color Theming** — read `posterColor` from the film object and apply it as a subtle accent: hero backdrop gradient, detail page header tint, film card left border or background wash; fall back to a neutral dark color if `posterColor` is null
 
 ### Similar Films
@@ -727,7 +728,7 @@ One button on any film detail page generates a beautiful branded image card read
 - [ ] Create a `/api/og/film/:slug` endpoint that returns a dynamically generated Open Graph image using `@vercel/og` (Next.js built-in): film poster on the left, title + year + award badges on the right, CineRoll logo and URL at the bottom
 - [ ] Add a **"Share Tonight's Pick"** button on the film detail page and after every roll result
 - [ ] Clicking it:
-  - On mobile: opens the native share sheet (`navigator.share`) with the film URL and a pre-written caption: *"Watching [Film Title] tonight — [X Oscar wins, Y GG nominations] 🎬 via CineRoll"*
+  - On mobile: opens the native share sheet (`navigator.share`) with the film URL and a pre-written caption: _"Watching [Film Title] tonight — [X Oscar wins, Y GG nominations] 🎬 via CineRoll"_
   - On desktop: copies the shareable URL to clipboard and shows "Link copied!" toast
 - [ ] The shared URL (`/film/:slug?from=share`) loads the film detail page with a subtle "Shared by a CineRoll user" banner at the top — drives curiosity and signups
 - [ ] The OG image is also used automatically when the film URL is pasted into Twitter, iMessage, Slack, etc. (no extra step needed)
@@ -862,17 +863,17 @@ The filter panel is CineRoll's most-used feature. It should feel like building s
 
 - [ ] **Animate the result count number** when it changes — use a count-up/count-down animation (e.g. `react-countup` or a custom Framer Motion variant) so "47 films" rolling down to "12 films" feels alive, not a static text swap
 - [ ] **The result count copy has personality based on the number:**
-  - 0 results → *"No films match — even we couldn't find that. Try relaxing a filter."*
-  - 1 result → *"Just 1 film. You know exactly what you want."*
-  - 2–5 results → *"[N] films. Very specific taste."*
-  - 6–20 results → *"[N] films. A good shortlist."*
-  - 21–100 results → *"[N] films. Ready to roll?"*
-  - 100+ results → *"[N] films. Feeling lucky?"*
+  - 0 results → _"No films match — even we couldn't find that. Try relaxing a filter."_
+  - 1 result → _"Just 1 film. You know exactly what you want."_
+  - 2–5 results → _"[N] films. Very specific taste."_
+  - 6–20 results → _"[N] films. A good shortlist."_
+  - 21–100 results → _"[N] films. Ready to roll?"_
+  - 100+ results → _"[N] films. Feeling lucky?"_
 - [ ] Result count text animates its opacity when the number changes so the update is noticeable without being jarring
 
 ### Active Filter Summary ("Your Roll Recipe")
 
-- [ ] **Below the filter chips, show a plain-language summary of the active filters** — e.g. *"Rolling from: Oscar winners · Drama · 1990s · Meryl Streep"* — reads like a sentence, not a list of form fields; update live as filters change
+- [ ] **Below the filter chips, show a plain-language summary of the active filters** — e.g. _"Rolling from: Oscar winners · Drama · 1990s · Meryl Streep"_ — reads like a sentence, not a list of form fields; update live as filters change
 - [ ] This summary line doubles as a shareable description — when the user clicks "Share these filters", the copied URL preview uses this sentence as the caption
 
 ### Roll Button Behaviour
@@ -880,13 +881,13 @@ The filter panel is CineRoll's most-used feature. It should feel like building s
 - [ ] **The Roll button pulses with a subtle glow animation when filters are active** and there are results — reinforces that something is ready; stops pulsing when result count is 0
 - [ ] **When Roll is clicked with active filters**, show a brief micro-animation before the result: a fast "Searching [N] films..." flicker (150ms) that gives the impression of the algorithm working, then the result snaps in — makes the randomness feel earned
 - [ ] **The Roll button label changes based on filter state:**
-  - No filters: *"Roll"*
-  - Filters active: *"Roll from [N] films"*
-  - Zero results: *"No matches"* (disabled state)
+  - No filters: _"Roll"_
+  - Filters active: _"Roll from [N] films"_
+  - Zero results: _"No matches"_ (disabled state)
 
 ### Empty State
 
-- [ ] **Design a proper empty state for zero results** — not just red text; show: a large faded film reel or question mark icon, the personality copy from above, a "Clear all filters" primary button, and a *"or try a random film instead"* secondary link that clears filters and rolls immediately
+- [ ] **Design a proper empty state for zero results** — not just red text; show: a large faded film reel or question mark icon, the personality copy from above, a "Clear all filters" primary button, and a _"or try a random film instead"_ secondary link that clears filters and rolls immediately
 - [ ] Empty state animates in with Framer Motion when the count hits zero — doesn't just appear
 
 ### Mood Presets as Visual Cards
@@ -1469,12 +1470,12 @@ Users can subscribe to receive a "Film of the Week" email every Monday, automati
 
 **IMPORTANT — read this before committing any data files.**
 
-If a file is added to `.gitignore` but was already committed to git history, anyone who clones the repo can still see it by checking the git log. The `.gitignore` only stops *future* commits.
+If a file is added to `.gitignore` but was already committed to git history, anyone who clones the repo can still see it by checking the git log. The `.gitignore` only stops _future_ commits.
 
 ### How to ensure your data files are completely private
 
 - [ ] Check whether data files were ever committed: `git log --all --full-history -- "backend/data/**"` — if output is empty, the files were never committed and `.gitignore` alone is enough
-- [ ] If files *were* committed, purge them from history using `git filter-repo --path backend/data --invert-paths` (install: `pip install git-filter-repo`)
+- [ ] If files _were_ committed, purge them from history using `git filter-repo --path backend/data --invert-paths` (install: `pip install git-filter-repo`)
 - [ ] After purging, force-push the cleaned history: `git push --force-with-lease`
 - [ ] Confirm `.gitignore` includes all data file patterns: `backend/data/*.xlsx`, `backend/data/*.json`, `backend/data/*.csv`
 - [ ] Add a note in `SETUP.md` that raw data files must be obtained from the owner and placed in `backend/data/` manually — they are not in the repository
@@ -1807,7 +1808,7 @@ Run this section after the app is fully built and deployed. Lighthouse results o
 
 Run this section after deployment. These steps go beyond Lighthouse's basic SEO score and target actual Google ranking for searches like "oscar nominated films filter", "random award winning movie", "golden globe movies by actor", etc.
 
-> **Target queries** — ranking #1 for "Oscar movies" is impossible (IMDb/Wikipedia own it). Focus on long-tail queries where CineRoll is unique: *"filter oscar films by actor"*, *"random golden globe winning movie"*, *"oscar nominated films by year and category"*. No major site does what CineRoll does — that's your SEO moat.
+> **Target queries** — ranking #1 for "Oscar movies" is impossible (IMDb/Wikipedia own it). Focus on long-tail queries where CineRoll is unique: _"filter oscar films by actor"_, _"random golden globe winning movie"_, _"oscar nominated films by year and category"_. No major site does what CineRoll does — that's your SEO moat.
 
 ### Priority Order — Do These in Sequence
 
@@ -1833,12 +1834,12 @@ Run this section after deployment. These steps go beyond Lighthouse's basic SEO 
 
 #### Realistic Timeline
 
-| Timeframe | What happens |
-|---|---|
-| Day 1 after deploy | Submit sitemap, request indexing |
-| Week 2–4 | Google starts crawling your pages |
-| Month 2–3 | Film detail pages start appearing in search |
-| Month 4–6 | Long-tail queries where you're unique hit page 1 |
+| Timeframe          | What happens                                     |
+| ------------------ | ------------------------------------------------ |
+| Day 1 after deploy | Submit sitemap, request indexing                 |
+| Week 2–4           | Google starts crawling your pages                |
+| Month 2–3          | Film detail pages start appearing in search      |
+| Month 4–6          | Long-tail queries where you're unique hit page 1 |
 
 ---
 
@@ -1956,7 +1957,7 @@ Run this section after deployment. These steps go beyond Lighthouse's basic SEO 
 
 ### Sitemap Index
 
-- [ ] Use sitemap **index** format (not a single flat file) — split into three child sitemaps: `sitemap-pages.xml` (home, browse, stats, awards/*), `sitemap-films.xml` (all /film/[slug] pages), `sitemap-persons.xml` (all /person/[slug] pages)
+- [ ] Use sitemap **index** format (not a single flat file) — split into three child sitemaps: `sitemap-pages.xml` (home, browse, stats, awards/\*), `sitemap-films.xml` (all /film/[slug] pages), `sitemap-persons.xml` (all /person/[slug] pages)
 - [ ] Set `<priority>` values: homepage 1.0, browse 0.9, award hubs 0.8, film detail 0.7, person detail 0.6, blog 0.5
 - [ ] Include `<lastmod>` on every URL so Google knows when content changed
 
@@ -1968,10 +1969,10 @@ Run this section after deployment. These steps go beyond Lighthouse's basic SEO 
 ### AI Search Optimization (ChatGPT / Perplexity / Google AI Overviews)
 
 - [ ] Structure every FAQ answer to open with a **one-sentence direct answer** before expanding — AI models extract the first sentence as the citation snippet
-- [ ] Add an opening "lede" sentence to every film detail page: *"[Title] ([Year]) is a [genre] film directed by [Director] that received [X] Academy Award nominations and won [Y], including [top category]."*
-- [ ] Add an opening "lede" sentence to every person detail page: *"[Name] has [X] Academy Award nominations, [Y] wins, and [Z] Golden Globe nominations."*
+- [ ] Add an opening "lede" sentence to every film detail page: _"[Title] ([Year]) is a [genre] film directed by [Director] that received [X] Academy Award nominations and won [Y], including [top category]."_
+- [ ] Add an opening "lede" sentence to every person detail page: _"[Name] has [X] Academy Award nominations, [Y] wins, and [Z] Golden Globe nominations."_
 - [ ] Make the Stats page (`/stats`) heavily table and list-based — ranked data (most nominated, most winning) is heavily cited by Perplexity and Google AI Overviews
-- [ ] Add a definitional opening paragraph to each award hub page: *"The Academy Award for Best Picture is..."* — definitions get pulled directly into Google AI Overviews
+- [ ] Add a definitional opening paragraph to each award hub page: _"The Academy Award for Best Picture is..."_ — definitions get pulled directly into Google AI Overviews
 - [ ] Ensure `FAQPage`, `Movie`, and `Person` schemas are complete and error-free — these directly feed Google AI Overview extraction
 
 ---
@@ -2278,7 +2279,7 @@ These unbuilt features are perfect for Product Hunt — any one of them could be
 
 ### 2. Nail the First 5 Seconds of UX
 
-- [ ] Add a one-liner tagline under the site title — e.g. *"Discover Oscar & Golden Globe films — filtered exactly how your brain works."*
+- [ ] Add a one-liner tagline under the site title — e.g. _"Discover Oscar & Golden Globe films — filtered exactly how your brain works."_
 - [ ] The Roll button must be impossible to miss and work instantly on first visit (no login required)
 
 ---
@@ -2287,7 +2288,7 @@ These unbuilt features are perfect for Product Hunt — any one of them could be
 
 - [ ] Take 3–5 screenshots in sequence that tell a story: filter → roll → detail page → award history
 - [ ] Record a demo GIF or short Loom video showing a full roll interaction in under 30 seconds
-- [ ] Write a tagline (60 chars max) — e.g. *"Roll a random Oscar film, filtered any way you want"*
+- [ ] Write a tagline (60 chars max) — e.g. _"Roll a random Oscar film, filtered any way you want"_
 - [ ] Choose topics to tag: **Movies**, **Discovery**, **Entertainment**, **Design Tools**
 
 ---
