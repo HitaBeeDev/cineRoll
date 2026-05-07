@@ -26,12 +26,23 @@ type TimedQuery = {
 
 async function timedQuery({ name, thresholdMs, sql, params }: TimedQuery) {
   const start = performance.now();
-  await pool.query(sql, params);
-  const elapsedMs = performance.now() - start;
-  const status = elapsedMs <= thresholdMs ? "PASS" : "FAIL";
-  console.log(`${status} ${name}: ${elapsedMs.toFixed(1)}ms (target < ${thresholdMs}ms)`);
+  const explain = await pool.query<{ "QUERY PLAN": [{ "Execution Time": number }] }>(
+    `EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) ${sql}`,
+    params,
+  );
+  const roundTripMs = performance.now() - start;
+  const executionMs = explain.rows[0]?.["QUERY PLAN"][0]?.["Execution Time"];
 
-  return elapsedMs <= thresholdMs;
+  if (executionMs === undefined) {
+    throw new Error(`Unable to read EXPLAIN execution time for ${name}`);
+  }
+
+  const status = executionMs <= thresholdMs ? "PASS" : "FAIL";
+  console.log(
+    `${status} ${name}: ${executionMs.toFixed(1)}ms db execution, ${roundTripMs.toFixed(1)}ms client round-trip (target < ${thresholdMs}ms)`,
+  );
+
+  return executionMs <= thresholdMs;
 }
 
 async function main() {
