@@ -184,8 +184,8 @@ Monorepo with `cineroll/` root containing:
 - [x] Create `backend/prisma/schema.prisma` with Prisma schema definition
 - [x] Define Film model with all fields: id (primary key), slug (unique), TMDB ID, IMDB ID, title, **originalTitle** (String, nullable — original language title from TMDB, null if same as English title), releaseYear (the film's release year), runtime, genres (array), **contentType** (string — "movie" | "documentary" | "animation" | "short" | "tv-series" | "tv-mini-series"), plot, director, cast (array), language, poster URL, backdrop URL, trailer URL, IMDB rating, Rotten Tomatoes score, Oscar fields (nominations count, wins count, categories JSON array of AwardRecord), Golden Globe fields (nominations count, wins count, categories JSON array of AwardRecord), **Cannes fields** (nominations count, wins count, categories JSON array of AwardRecord), pick of day flag and date, timestamps
 - [x] Add IMDB Top 250 fields to Film model: `imdbTopMovieRank` (Int, nullable), `imdbTopTvRank` (Int, nullable), `certificate` (String, nullable — R, PG-13, TV-MA, etc.), `tvType` (String, nullable — raw IMDB type: "TV Series" | "TV Mini Series"), `tvStartYear` (Int, nullable), `tvEndYear` (Int, nullable)
-- [ ] Run migration for IMDB Top 250 fields: `npm run db:migrate --workspace=backend` (migration file: `20260507200000_add_imdb_top250_fields`)
-- [ ] Regenerate Prisma client after schema change: `npm run db:generate --workspace=backend`
+- [x] Run migration for IMDB Top 250 fields: `npm run db:migrate --workspace=backend` (migration file: `20260507200000_add_imdb_top250_fields`)
+- [x] Regenerate Prisma client after schema change: `npm run db:generate --workspace=backend`
 - [x] Define RollEvent model with id, filmId (foreign key to Film), and timestamp
 - [x] Define relationships: RollEvent belongs to Film, Film has many RollEvents
 - [x] Set up Prisma to use PostgreSQL database
@@ -284,6 +284,9 @@ The dataset now includes two IMDB Top 250 Excel files alongside the award files.
 - [x] Add TMDB TV details function: `tmdbTvDetails(tmdbId)` — calls `/tv/:id?append_to_response=credits,videos,external_ids`
 - [x] Enrich IMDB-only movies (appear in IMDB Top 250 movies but not in any award file): search TMDB movie endpoint, fetch full details, set `imdbTopMovieRank`, `certificate`, `imdbRating` from IMDB file; no OMDB call needed since rating is already known
 - [x] Enrich IMDB TV shows (all 250 shows are new — award files cover only movies): search TMDB TV endpoint, fetch full details (name, genres, overview, cast, crew, poster, backdrop, trailer, external_ids for IMDB ID), set `imdbTopTvRank`, `certificate`, `tvType`, `tvStartYear`, `tvEndYear`, `contentType`
+
+> **Tomorrow task:** the following data rebuild is intentionally deferred. The enrichment run now sees 16,137 unique award film keys plus IMDB movies/TV, so it is a long network job. Before rerunning, fix/verify `OMDB_API_KEY` in `backend/.env.local`; today OMDB returned `401 Unauthorized`, which would leave RT scores and non-Top-250 IMDB ratings sparse.
+
 - [ ] Re-run enrichment script after code changes: `npm run enrich --workspace=backend`
 - [ ] Review new enrichment-errors.csv for IMDB-only films/shows that had no TMDB match
 - [ ] Save updated output as `backend/data/films-final.json`

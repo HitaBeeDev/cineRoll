@@ -19,7 +19,12 @@ export const DEFAULT_FILTERS: FilterState = {
   decadeMin: DEFAULT_DECADE_MIN,
   decadeMax: DEFAULT_DECADE_MAX,
   imdbRatingMin: 0,
+  imdbRatingMax: null,
   rtScoreMin: 0,
+  certificate: "",
+  imdbTopMoviesOnly: false,
+  imdbTopTvOnly: false,
+  tvType: "",
   page: 1,
 };
 
@@ -52,6 +57,11 @@ export function useFilters(initial?: Partial<FilterState>) {
       filters.decadeMin !== DEFAULT_DECADE_MIN ||
       filters.decadeMax !== DEFAULT_DECADE_MAX ||
       filters.imdbRatingMin > 0 ||
+      filters.imdbRatingMax != null ||
+      !!filters.certificate ||
+      filters.imdbTopMoviesOnly ||
+      filters.imdbTopTvOnly ||
+      !!filters.tvType ||
       filters.rtScoreMin > 0,
     [filters],
   );
