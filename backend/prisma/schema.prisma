@@ -27,6 +27,12 @@ model Film {
   trailerUrl        String?
   imdbRating        Float?
   rtScore           Int?
+  imdbTopMovieRank  Int?
+  imdbTopTvRank     Int?
+  certificate       String?
+  tvType            String?
+  tvStartYear       Int?
+  tvEndYear         Int?
   oscarNominations  Int         @default(0)
   oscarWins         Int         @default(0)
   oscarCategories   Json        @default("[]")

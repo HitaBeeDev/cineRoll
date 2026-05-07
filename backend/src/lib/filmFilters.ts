@@ -20,10 +20,15 @@ const listQueryBaseSchema = z.object({
   decadeMax: z.coerce.number().int().min(1800).max(2200).optional(),
   awardYear: z.coerce.number().int().min(1800).max(2200).optional(),
   imdbRatingMin: z.coerce.number().min(0).max(10).optional(),
+  imdbRatingMax: z.coerce.number().min(0).max(10).optional(),
   rtScoreMin: z.coerce.number().int().min(0).max(100).optional(),
   category: z.string().trim().min(1).max(120).optional(),
   winnerOnly: queryBooleanSchema.optional(),
   nominatedOnly: queryBooleanSchema.optional(),
+  certificate: z.string().trim().min(1).max(20).optional(),
+  imdbTopMoviesOnly: queryBooleanSchema.optional(),
+  imdbTopTvOnly: queryBooleanSchema.optional(),
+  tvType: z.string().trim().min(1).max(60).optional(),
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(100).default(12),
 });
@@ -178,9 +183,30 @@ export function buildWhereClause(
     where.push(Prisma.sql`"Film"."imdbRating" >= ${query.imdbRatingMin}`);
   }
 
+  if (query.imdbRatingMax !== undefined) {
+    where.push(Prisma.sql`"Film"."imdbRating" IS NOT NULL`);
+    where.push(Prisma.sql`"Film"."imdbRating" <= ${query.imdbRatingMax}`);
+  }
+
   if (query.rtScoreMin !== undefined) {
     where.push(Prisma.sql`"Film"."rtScore" IS NOT NULL`);
     where.push(Prisma.sql`"Film"."rtScore" >= ${query.rtScoreMin}`);
+  }
+
+  if (query.certificate) {
+    where.push(Prisma.sql`"Film"."certificate" = ${query.certificate}`);
+  }
+
+  if (query.imdbTopMoviesOnly === true) {
+    where.push(Prisma.sql`"Film"."imdbTopMovieRank" IS NOT NULL`);
+  }
+
+  if (query.imdbTopTvOnly === true) {
+    where.push(Prisma.sql`"Film"."imdbTopTvRank" IS NOT NULL`);
+  }
+
+  if (query.tvType) {
+    where.push(Prisma.sql`"Film"."tvType" ILIKE ${`%${query.tvType}%`}`);
   }
 
   const awards = awardFilter(query);

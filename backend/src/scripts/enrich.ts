@@ -34,6 +34,7 @@ const ENRICHED_JSON = path.join(DATA_DIR, 'films-enriched.json');
 const ERRORS_CSV = path.join(DATA_DIR, 'enrichment-errors.csv');
 
 type AwardBody = 'oscar' | 'goldenglobe' | 'cannes';
+type FileType = 'award' | 'imdb-movies' | 'imdb-tv' | 'unknown';
 
 interface AwardRow {
   id: string;
@@ -54,6 +55,25 @@ interface AwardRecord {
   category: string;
   nominee: string;
   won: boolean;
+}
+
+interface ImdbMovieRow {
+  name: string;
+  rank: number;
+  year: number;
+  time: string;
+  certificate: string;
+  rating: number;
+}
+
+interface ImdbTvRow {
+  name: string;
+  rank: number;
+  startYear: number;
+  endYear: number | null;
+  certificate: string;
+  type: string;
+  rating: number;
 }
 
 interface EnrichedFilm {
@@ -77,6 +97,12 @@ interface EnrichedFilm {
   trailerUrl: string | null;
   imdbRating: number | null;
   rtScore: number | null;
+  imdbTopMovieRank: number | null;
+  imdbTopTvRank: number | null;
+  certificate: string | null;
+  tvType: string | null;
+  tvStartYear: number | null;
+  tvEndYear: number | null;
   oscarNominations: number;
   oscarWins: number;
   oscarCategories: AwardRecord[];
@@ -132,6 +158,37 @@ function awardBodyFromId(id: string): AwardBody | null {
   return null;
 }
 
+// "2h 22m" → 142, "45m" → 45, "2h" → 120
+function parseImdbRuntime(time: string): number | null {
+  if (!time) return null;
+  const match = time.match(/(?:(\d+)h\s*)?(?:(\d+)m)?/);
+  if (!match) return null;
+  const hours = parseInt(match[1] ?? '0', 10);
+  const minutes = parseInt(match[2] ?? '0', 10);
+  const total = hours * 60 + minutes;
+  return total > 0 ? total : null;
+}
+
+function contentTypeFromImdbTvType(type: string): string {
+  const lower = type.toLowerCase();
+  if (lower.includes('mini')) return 'tv-mini-series';
+  return 'tv-series';
+}
+
+function detectFileType(filePath: string): FileType {
+  const workbook = xlsx.readFile(filePath);
+  const sheetName = workbook.SheetNames[0];
+  if (!sheetName) return 'unknown';
+  const sheet = workbook.Sheets[sheetName];
+  if (!sheet) return 'unknown';
+  const rows = xlsx.utils.sheet_to_json<unknown[]>(sheet, { header: 1 });
+  const headers = ((rows[0] as unknown[]) ?? []).map(h => String(h).toLowerCase().trim());
+  if (headers.includes('id') && headers.includes('award year')) return 'award';
+  if (headers.includes('rank') && headers.includes('time') && !headers.includes('start_year')) return 'imdb-movies';
+  if (headers.includes('rank') && headers.includes('start_year')) return 'imdb-tv';
+  return 'unknown';
+}
+
 function discoverWorkbookFiles(directory: string): string[] {
   const entries = fs.readdirSync(directory, { withFileTypes: true });
   const workbookFiles: string[] = [];
@@ -148,7 +205,7 @@ function discoverWorkbookFiles(directory: string): string[] {
   return workbookFiles.sort();
 }
 
-function parseWorkbook(filePath: string): AwardRow[] {
+function parseAwardWorkbook(filePath: string): AwardRow[] {
   const workbook = xlsx.readFile(filePath);
   const rows: AwardRow[] = [];
 
@@ -196,6 +253,59 @@ function parseWorkbook(filePath: string): AwardRow[] {
   return rows;
 }
 
+function parseImdbMoviesWorkbook(filePath: string): ImdbMovieRow[] {
+  const workbook = xlsx.readFile(filePath);
+  const rows: ImdbMovieRow[] = [];
+
+  for (const sheetName of workbook.SheetNames) {
+    const sheet = workbook.Sheets[sheetName];
+    if (!sheet) continue;
+
+    const rawRows = xlsx.utils.sheet_to_json<Record<string, unknown>>(sheet, { defval: '', raw: false });
+
+    for (const raw of rawRows) {
+      const name = stringValue(raw, 'name');
+      const rank = numberValue(raw, 'rank');
+      const year = numberValue(raw, 'year');
+      const time = stringValue(raw, 'time');
+      const certificate = stringValue(raw, 'certificate');
+      const rating = numberValue(raw, 'rating');
+
+      if (!name || rank === null || year === null || rating === null) continue;
+      rows.push({ name, rank, year, time, certificate, rating });
+    }
+  }
+
+  return rows;
+}
+
+function parseImdbTvWorkbook(filePath: string): ImdbTvRow[] {
+  const workbook = xlsx.readFile(filePath);
+  const rows: ImdbTvRow[] = [];
+
+  for (const sheetName of workbook.SheetNames) {
+    const sheet = workbook.Sheets[sheetName];
+    if (!sheet) continue;
+
+    const rawRows = xlsx.utils.sheet_to_json<Record<string, unknown>>(sheet, { defval: '', raw: false });
+
+    for (const raw of rawRows) {
+      const name = stringValue(raw, 'name');
+      const rank = numberValue(raw, 'rank');
+      const startYear = numberValue(raw, 'start_year');
+      const endYear = numberValue(raw, 'end_year');
+      const certificate = stringValue(raw, 'certificate');
+      const type = stringValue(raw, 'type');
+      const rating = numberValue(raw, 'rating');
+
+      if (!name || rank === null || startYear === null || rating === null) continue;
+      rows.push({ name, rank, startYear, endYear, certificate, type, rating });
+    }
+  }
+
+  return rows;
+}
+
 function rowToAwardRecord(row: AwardRow): AwardRecord {
   const winner = row.awardWinner.trim();
   const won = !!winner && winner.toLowerCase() !== 'nan';
@@ -224,6 +334,25 @@ async function tmdbDetails(tmdbId: number): Promise<Record<string, unknown>> {
   const url = `${TMDB_BASE}/movie/${tmdbId}?api_key=${TMDB_KEY}&append_to_response=credits,videos`;
   const res = await fetch(url);
   if (!res.ok) throw new Error(`TMDB details failed: ${res.status} ${res.statusText}`);
+  return res.json() as Promise<Record<string, unknown>>;
+}
+
+async function tmdbTvSearch(name: string, startYear: number): Promise<number | null> {
+  const url = `${TMDB_BASE}/search/tv?api_key=${TMDB_KEY}&query=${encodeURIComponent(name)}&first_air_date_year=${startYear}&language=en-US`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`TMDB TV search failed: ${res.status} ${res.statusText}`);
+  const data = (await res.json()) as { results?: Array<{ id: number; first_air_date?: string }> };
+  if (!data.results?.length) return null;
+  const exact = data.results.find(r => r.first_air_date?.startsWith(String(startYear)));
+  const first = data.results[0];
+  if (!first) return null;
+  return (exact ?? first).id;
+}
+
+async function tmdbTvDetails(tmdbId: number): Promise<Record<string, unknown>> {
+  const url = `${TMDB_BASE}/tv/${tmdbId}?api_key=${TMDB_KEY}&append_to_response=credits,videos,external_ids`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`TMDB TV details failed: ${res.status} ${res.statusText}`);
   return res.json() as Promise<Record<string, unknown>>;
 }
 
@@ -290,6 +419,20 @@ function awardRowKey(row: AwardRow): string {
   ].join('|');
 }
 
+function makeSlug(title: string, year: number | string, usedSlugs: Set<string>): string {
+  let slug = slugify(title);
+  if (usedSlugs.has(slug)) {
+    slug = `${slug}-${year}`;
+    let suffix = 2;
+    while (usedSlugs.has(slug)) {
+      slug = `${slugify(title)}-${year}-${suffix}`;
+      suffix++;
+    }
+  }
+  usedSlugs.add(slug);
+  return slug;
+}
+
 async function main() {
   if (!TMDB_KEY || !OMDB_KEY) {
     console.error('Missing API keys - fill in TMDB_API_KEY and OMDB_API_KEY in backend/.env.local');
@@ -308,9 +451,49 @@ async function main() {
     process.exit(1);
   }
 
+  // Categorize files by type
+  const awardFiles: string[] = [];
+  const imdbMoviesFiles: string[] = [];
+  const imdbTvFiles: string[] = [];
+
+  for (const filePath of workbookFiles) {
+    const type = detectFileType(filePath);
+    const name = path.basename(filePath);
+    if (type === 'award') {
+      awardFiles.push(filePath);
+      console.log(`Award file: ${name}`);
+    } else if (type === 'imdb-movies') {
+      imdbMoviesFiles.push(filePath);
+      console.log(`IMDB movies file: ${name}`);
+    } else if (type === 'imdb-tv') {
+      imdbTvFiles.push(filePath);
+      console.log(`IMDB TV file: ${name}`);
+    } else {
+      console.warn(`Unknown file type (skipping): ${name}`);
+    }
+  }
+
+  // Parse IMDB lookup maps
+  const imdbMovieMap = new Map<string, ImdbMovieRow>();
+  for (const f of imdbMoviesFiles) {
+    for (const row of parseImdbMoviesWorkbook(f)) {
+      imdbMovieMap.set(`${row.name.toLowerCase().trim()}|${row.year}`, row);
+    }
+  }
+  console.log(`IMDB movie entries: ${imdbMovieMap.size}`);
+
+  const imdbTvMap = new Map<string, ImdbTvRow>();
+  for (const f of imdbTvFiles) {
+    for (const row of parseImdbTvWorkbook(f)) {
+      imdbTvMap.set(`${row.name.toLowerCase().trim()}|${row.startYear}`, row);
+    }
+  }
+  console.log(`IMDB TV entries: ${imdbTvMap.size}\n`);
+
+  // Parse award rows
   const awardRows: AwardRow[] = [];
-  for (const workbookFile of workbookFiles) {
-    const rows = parseWorkbook(workbookFile);
+  for (const workbookFile of awardFiles) {
+    const rows = parseAwardWorkbook(workbookFile);
     awardRows.push(...rows);
     console.log(`Loaded ${rows.length} award rows from ${path.basename(workbookFile)}`);
   }
@@ -352,12 +535,14 @@ async function main() {
     if (sampleRow && year) uniqueFilms.push({ title: sampleRow.movieName, year });
   }
 
-  console.log(`Unique films to enrich: ${uniqueFilms.length}\n`);
+  console.log(`Unique award films to enrich: ${uniqueFilms.length}\n`);
 
   const enriched: EnrichedFilm[] = [];
   const errors: ErrorRow[] = [];
   const usedSlugs = new Set<string>();
+  const enrichedTmdbIds = new Set<number>();
 
+  // ── Phase 1: Enrich award films ──────────────────────────────────────────────
   let i = 0;
   for (const { title, year } of uniqueFilms) {
     i++;
@@ -398,7 +583,12 @@ async function main() {
       let imdbRating: number | null = null;
       let rtScore: number | null = null;
 
-      if (imdbId) {
+      // Check IMDB Top 250 overlay for this film
+      const imdbMovieEntry = imdbMovieMap.get(`${title.toLowerCase().trim()}|${parseInt(year, 10)}`);
+      if (imdbMovieEntry) {
+        // Use IMDB file rating directly — more complete than OMDB
+        imdbRating = imdbMovieEntry.rating;
+      } else if (imdbId) {
         await delay(250);
         try {
           const omdb = await omdbDetails(imdbId);
@@ -413,17 +603,7 @@ async function main() {
         }
       }
 
-      let slug = slugify(title);
-      if (usedSlugs.has(slug)) {
-        const baseSlug = slug;
-        slug = `${baseSlug}-${year}`;
-        let suffix = 2;
-        while (usedSlugs.has(slug)) {
-          slug = `${baseSlug}-${year}-${suffix}`;
-          suffix++;
-        }
-      }
-      usedSlugs.add(slug);
+      const slug = makeSlug(title, year, usedSlugs);
 
       const posterPath = details.poster_path as string | null | undefined;
       const backdropPath = details.backdrop_path as string | null | undefined;
@@ -455,6 +635,12 @@ async function main() {
         trailerUrl,
         imdbRating,
         rtScore,
+        imdbTopMovieRank: imdbMovieEntry?.rank ?? null,
+        imdbTopTvRank: null,
+        certificate: imdbMovieEntry?.certificate || null,
+        tvType: null,
+        tvStartYear: null,
+        tvEndYear: null,
         oscarNominations: oscarRecords.length,
         oscarWins: oscarRecords.filter(r => r.won).length,
         oscarCategories: oscarRecords,
@@ -468,10 +654,236 @@ async function main() {
         pickOfDayDate: null,
       });
 
-      console.log(`  ok Done (tmdbId=${tmdbId}${imdbId ? `, imdb=${imdbId}` : ''})`);
+      enrichedTmdbIds.add(tmdbId);
+      console.log(`  ok Done (tmdbId=${tmdbId}${imdbId ? `, imdb=${imdbId}` : ''}${imdbMovieEntry ? `, IMDB #${imdbMovieEntry.rank}` : ''})`);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       errors.push({ title, year, reason: msg });
+      console.error(`  x Error: ${msg}`);
+    }
+  }
+
+  // ── Phase 2: IMDB-only movies (in IMDB Top 250 but not in any award file) ───
+  const awardFilmKeys = new Set(
+    uniqueFilms.map(f => `${f.title.toLowerCase().trim()}|${f.year.trim()}`),
+  );
+  const imdbOnlyMovies = [...imdbMovieMap.values()].filter(
+    row => !awardFilmKeys.has(`${row.name.toLowerCase().trim()}|${row.year}`),
+  );
+
+  console.log(`\nIMDB-only movies to enrich: ${imdbOnlyMovies.length}`);
+
+  let j = 0;
+  for (const row of imdbOnlyMovies) {
+    j++;
+    const year = String(row.year);
+    console.log(`[IMDB-movie ${j}/${imdbOnlyMovies.length}] ${row.name} (${year}) — IMDB #${row.rank}`);
+
+    try {
+      await delay(250);
+      const tmdbId = await tmdbSearch(row.name, year);
+
+      if (!tmdbId) {
+        errors.push({ title: row.name, year, reason: 'No TMDB match found (IMDB-only movie)' });
+        console.log('  x No TMDB match');
+        continue;
+      }
+
+      if (enrichedTmdbIds.has(tmdbId)) {
+        console.log('  ~ Already enriched via awards, skipping duplicate');
+        continue;
+      }
+
+      await delay(250);
+      const details = await tmdbDetails(tmdbId);
+
+      const crew = (details.credits as { crew?: Array<{ job: string; name: string }> })?.crew ?? [];
+      const castRaw = (details.credits as { cast?: Array<{ name: string }> })?.cast ?? [];
+      const videos = (details.videos as { results?: Array<{ type: string; site: string; key: string }> })?.results ?? [];
+      const genres = ((details.genres as Array<{ name: string }> | undefined) ?? []).map(g => g.name);
+
+      const director = crew.find(c => c.job === 'Director')?.name ?? null;
+      const cast = castRaw.slice(0, 10).map(c => c.name);
+      const trailer = videos.find(v => v.type === 'Trailer' && v.site === 'YouTube');
+      const trailerUrl = trailer ? `https://www.youtube.com/watch?v=${trailer.key}` : null;
+      const runtime = (details.runtime as number | null | undefined) ?? parseImdbRuntime(row.time);
+      const imdbId = (details.imdb_id as string | null | undefined) ?? null;
+      const originalTitleRaw = (details.original_title as string | null | undefined) ?? null;
+      const originalTitle =
+        originalTitleRaw && originalTitleRaw.toLowerCase() !== row.name.toLowerCase()
+          ? originalTitleRaw
+          : null;
+
+      // Fetch RT score from OMDB (IMDB rating already known from IMDB file)
+      let rtScore: number | null = null;
+      if (imdbId) {
+        await delay(250);
+        try {
+          const omdb = await omdbDetails(imdbId);
+          const ratings = omdb.Ratings as Array<{ Source: string; Value: string }> | undefined;
+          const rtRaw = ratings?.find(r => r.Source === 'Rotten Tomatoes')?.Value;
+          if (rtRaw) rtScore = parseInt(rtRaw.replace('%', ''), 10);
+        } catch (err: unknown) {
+          const msg = err instanceof Error ? err.message : String(err);
+          console.warn(`  ! OMDB skipped: ${msg}`);
+        }
+      }
+
+      const slug = makeSlug(row.name, year, usedSlugs);
+      const posterPath = details.poster_path as string | null | undefined;
+      const backdropPath = details.backdrop_path as string | null | undefined;
+      const posterUrl = posterPath ? `https://image.tmdb.org/t/p/w500${posterPath}` : null;
+      const posterColor = await extractDominantPosterColor(posterUrl);
+
+      enriched.push({
+        slug,
+        tmdbId,
+        imdbId,
+        title: row.name,
+        originalTitle,
+        year: row.year,
+        releaseYear: row.year,
+        runtime,
+        genres,
+        contentType: contentTypeFromGenres(genres, runtime),
+        plot: (details.overview as string | null | undefined) ?? null,
+        director,
+        cast,
+        language: (details.original_language as string | null | undefined) ?? null,
+        posterUrl,
+        posterColor,
+        backdropUrl: backdropPath ? `https://image.tmdb.org/t/p/w1280${backdropPath}` : null,
+        trailerUrl,
+        imdbRating: row.rating,
+        rtScore,
+        imdbTopMovieRank: row.rank,
+        imdbTopTvRank: null,
+        certificate: row.certificate || null,
+        tvType: null,
+        tvStartYear: null,
+        tvEndYear: null,
+        oscarNominations: 0,
+        oscarWins: 0,
+        oscarCategories: [],
+        ggNominations: 0,
+        ggWins: 0,
+        ggCategories: [],
+        cannesNominations: 0,
+        cannesWins: 0,
+        cannesCategories: [],
+        isPickOfDay: false,
+        pickOfDayDate: null,
+      });
+
+      enrichedTmdbIds.add(tmdbId);
+      console.log(`  ok Done (tmdbId=${tmdbId}, IMDB #${row.rank})`);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      errors.push({ title: row.name, year, reason: msg });
+      console.error(`  x Error: ${msg}`);
+    }
+  }
+
+  // ── Phase 3: IMDB Top 250 TV shows ──────────────────────────────────────────
+  const tvRows = [...imdbTvMap.values()];
+  console.log(`\nIMDB TV shows to enrich: ${tvRows.length}`);
+
+  let k = 0;
+  for (const row of tvRows) {
+    k++;
+    console.log(`[TV ${k}/${tvRows.length}] ${row.name} (${row.startYear}) — IMDB #${row.rank}`);
+
+    try {
+      await delay(250);
+      const tmdbId = await tmdbTvSearch(row.name, row.startYear);
+
+      if (!tmdbId) {
+        errors.push({ title: row.name, year: String(row.startYear), reason: 'No TMDB TV match found' });
+        console.log('  x No TMDB match');
+        continue;
+      }
+
+      await delay(250);
+      const details = await tmdbTvDetails(tmdbId);
+
+      const crew = (details.credits as { crew?: Array<{ job: string; name: string }> })?.crew ?? [];
+      const castRaw = (details.credits as { cast?: Array<{ name: string }> })?.cast ?? [];
+      const videos = (details.videos as { results?: Array<{ type: string; site: string; key: string }> })?.results ?? [];
+      const genres = ((details.genres as Array<{ name: string }> | undefined) ?? []).map(g => g.name);
+      const externalIds = details.external_ids as Record<string, unknown> | undefined;
+
+      const director = crew.find(c => c.job === 'Director')?.name ?? null;
+      const cast = castRaw.slice(0, 10).map(c => c.name);
+      const trailer = videos.find(v => v.type === 'Trailer' && v.site === 'YouTube');
+      const trailerUrl = trailer ? `https://www.youtube.com/watch?v=${trailer.key}` : null;
+
+      const episodeRuntimes = details.episode_run_time as number[] | undefined;
+      const runtime = episodeRuntimes?.[0] ?? null;
+
+      const imdbId = (externalIds?.imdb_id as string | null | undefined) ?? null;
+      const originalNameRaw = (details.original_name as string | null | undefined) ?? null;
+      const originalTitle =
+        originalNameRaw && originalNameRaw.toLowerCase() !== row.name.toLowerCase()
+          ? originalNameRaw
+          : null;
+
+      const firstAirDate = (details.first_air_date as string | null | undefined) ?? null;
+      const lastAirDate = (details.last_air_date as string | null | undefined) ?? null;
+      const tvStartYear = firstAirDate ? parseInt(firstAirDate.slice(0, 4), 10) : row.startYear;
+      const tvEndYear = lastAirDate ? parseInt(lastAirDate.slice(0, 4), 10) : (row.endYear ?? null);
+
+      const slug = makeSlug(row.name, row.startYear, usedSlugs);
+      const posterPath = details.poster_path as string | null | undefined;
+      const backdropPath = details.backdrop_path as string | null | undefined;
+      const posterUrl = posterPath ? `https://image.tmdb.org/t/p/w500${posterPath}` : null;
+      const posterColor = await extractDominantPosterColor(posterUrl);
+
+      const contentType = row.type ? contentTypeFromImdbTvType(row.type) : 'tv-series';
+
+      enriched.push({
+        slug,
+        tmdbId,
+        imdbId,
+        title: row.name,
+        originalTitle,
+        year: tvStartYear,
+        releaseYear: tvStartYear,
+        runtime,
+        genres,
+        contentType,
+        plot: (details.overview as string | null | undefined) ?? null,
+        director,
+        cast,
+        language: (details.original_language as string | null | undefined) ?? null,
+        posterUrl,
+        posterColor,
+        backdropUrl: backdropPath ? `https://image.tmdb.org/t/p/w1280${backdropPath}` : null,
+        trailerUrl,
+        imdbRating: row.rating,
+        rtScore: null,
+        imdbTopMovieRank: null,
+        imdbTopTvRank: row.rank,
+        certificate: row.certificate || null,
+        tvType: row.type || null,
+        tvStartYear,
+        tvEndYear,
+        oscarNominations: 0,
+        oscarWins: 0,
+        oscarCategories: [],
+        ggNominations: 0,
+        ggWins: 0,
+        ggCategories: [],
+        cannesNominations: 0,
+        cannesWins: 0,
+        cannesCategories: [],
+        isPickOfDay: false,
+        pickOfDayDate: null,
+      });
+
+      console.log(`  ok Done (tmdbId=${tmdbId}, type=${contentType})`);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      errors.push({ title: row.name, year: String(row.startYear), reason: msg });
       console.error(`  x Error: ${msg}`);
     }
   }
@@ -485,11 +897,18 @@ async function main() {
     fs.unlinkSync(ERRORS_CSV);
   }
 
+  const awardCount = enriched.filter(f => f.oscarNominations + f.ggNominations + f.cannesNominations > 0).length;
+  const imdbMovieCount = enriched.filter(f => f.imdbTopMovieRank !== null).length;
+  const tvCount = enriched.filter(f => f.imdbTopTvRank !== null).length;
+
   console.log('\n--- Summary ---');
-  console.log(`Enriched : ${enriched.length}`);
-  console.log(`Errors   : ${errors.length}`);
-  console.log(`Output   : ${ENRICHED_JSON}`);
-  if (errors.length > 0) console.log(`Error log: ${ERRORS_CSV}`);
+  console.log(`Total enriched : ${enriched.length}`);
+  console.log(`  Award films  : ${awardCount}`);
+  console.log(`  IMDB movies  : ${imdbMovieCount}`);
+  console.log(`  TV shows     : ${tvCount}`);
+  console.log(`Errors         : ${errors.length}`);
+  console.log(`Output         : ${ENRICHED_JSON}`);
+  if (errors.length > 0) console.log(`Error log      : ${ERRORS_CSV}`);
 }
 
 main().catch(err => {

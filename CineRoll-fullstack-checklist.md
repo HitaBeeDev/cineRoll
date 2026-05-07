@@ -23,7 +23,15 @@
 
 ### The Dataset
 
-Hand-curated **Excel (.xlsx) files** — Oscar records, Golden Globe records, and Cannes records. Each file contains one row per nomination or win with: a unique award ID (`OSC-` / `GG-` / `CN-` prefix), the ceremony year, the film title, the film's release year, the award category, the nominee's name, and whether they won. The enrich script reads Excel files directly (no CSV conversion needed), groups records by film across all three award bodies, and enriches each unique film via TMDB (poster, backdrop, runtime, genres, content type, director, cast, trailer) and OMDB (IMDB rating, Rotten Tomatoes score). The final dataset is seeded into PostgreSQL. **Every AwardRecord stored for each film — award body, nominee name, category, year, win flag — is a filterable dimension available to the user.** A single film may have Oscar, Golden Globe, and Cannes records simultaneously; all are shown together on its detail page.
+Hand-curated **Excel (.xlsx) files** in `backend/data/movie excel datas/`:
+
+**Award files** — Oscar records, Golden Globe records, and Cannes records. Each file contains one row per nomination or win with: a unique award ID (`OSC-` / `GG-` / `CN-` prefix), the ceremony year, the film title, the film's release year, the award category, the nominee's name, and whether they won.
+
+**IMDB Top 250 files** — two additional files added to the same directory:
+- `IMDB_top_250_movies_structured.xlsx` — columns: `name, rank, year, time, certificate, rating` (250 top-rated movies)
+- `IMDB_top_250_tvShows_structured.xlsx` — columns: `name, rank, start_year, end_year, certificate, type, rating` (250 top-rated TV shows)
+
+The enrich script auto-detects file type by column headers: award files are identified by the `Id` column; IMDB files by the `rank` column. Award films are enriched via TMDB + OMDB. IMDB data is overlaid on matching award films (title+year match sets rank, certificate, and IMDB rating). IMDB-only movies and all TV shows are enriched separately — TV shows use TMDB's `/search/tv` and `/tv/:id` endpoints. **All filterable dimensions per film**: award body, nominee, category, ceremony year, win/nomination, genre, content type (including tv-series / tv-mini-series), release decade, IMDB rating, RT score, IMDB Top 250 rank, certificate, TV type, TV start/end year.
 
 ### Stack
 
@@ -135,9 +143,9 @@ Monorepo with `cineroll/` root containing:
 - [x] Create `packages/types/tsconfig.json` that extends the root tsconfig and outputs compiled types
 - [x] Create `packages/types/src/index.ts` with TypeScript interfaces for all data models:
   - AwardRecord interface: `{ awardBody: "oscar" | "goldenglobe" | "cannes"; awardYear: number; category: string; nominee: string; won: boolean }` — one record per nomination/win, stored in oscarCategories / ggCategories / cannesCategories JSON arrays
-  - Film interface (id, slug, tmdbId, imdbId, title, releaseYear, runtime, genres array, **contentType** string, plot, director, cast array, language, poster URL, backdrop URL, trailer URL, IMDB rating, Rotten Tomatoes score, Oscar nominations/wins/categories, Golden Globe nominations/wins/categories, **Cannes nominations/wins/categories**, pick of day flag and date)
+  - Film interface (id, slug, tmdbId, imdbId, title, releaseYear, runtime, genres array, **contentType** string, plot, director, cast array, language, poster URL, backdrop URL, trailer URL, IMDB rating, Rotten Tomatoes score, Oscar nominations/wins/categories, Golden Globe nominations/wins/categories, **Cannes nominations/wins/categories**, pick of day flag and date, **imdbTopMovieRank** (number | null — IMDB Top 250 rank for movies), **imdbTopTvRank** (number | null — IMDB Top 250 rank for TV shows), **certificate** (string | null — age/content rating: R, PG-13, TV-MA, etc.), **tvType** (string | null — IMDB TV show type: "TV Series" | "TV Mini Series"; null for movies), **tvStartYear** (number | null — first air year for TV shows), **tvEndYear** (number | null — last air year for TV shows))
   - RollEvent interface (id, filmId, timestamp)
-  - FilterState interface: `search` (film title), `person` (nominee/winner name — searches all AwardRecord entries), `director` (director name), `awardBody` ("oscar" | "goldenglobe" | "cannes" | "all"), `winnerOnly` (boolean), `nominatedOnly` (boolean), `category` (award category string), `awardYear` (ceremony year number), `genre` (string), **`contentType`** (string — "movie" | "documentary" | "animation" | "short" | etc.), `decadeMin`/`decadeMax` (release decade), `page` (number)
+  - FilterState interface: `search` (film title), `person` (nominee/winner name — searches all AwardRecord entries), `director` (director name), `awardBody` ("oscar" | "goldenglobe" | "cannes" | "all"), `winnerOnly` (boolean), `nominatedOnly` (boolean), `category` (award category string), `awardYear` (ceremony year number), `genre` (string), **`contentType`** (string — "movie" | "documentary" | "animation" | "short" | "tv-series" | "tv-mini-series"), `decadeMin`/`decadeMax` (release decade), `imdbRatingMin`/`imdbRatingMax` (IMDB score range 0–10), `rtScoreMin` (Rotten Tomatoes min score), **`certificate`** (age rating string — R, PG-13, TV-MA, etc.), **`imdbTopMoviesOnly`** (boolean — only IMDB Top 250 movies), **`imdbTopTvOnly`** (boolean — only IMDB Top 250 TV shows), **`tvType`** (TV show type string), `page` (number)
   - PaginatedFilms interface (films array, total count, current page, total pages)
   - ApiError interface (error message, error code)
   - User interface (id, email, name, image)
@@ -146,6 +154,8 @@ Monorepo with `cineroll/` root containing:
   - **UserRating interface** (id, userId, filmId, rating Float 1.0–10.0 step 0.5, createdAt, updatedAt)
   - **FilmComment interface** (id, userId, filmId, body text, createdAt, updatedAt, user name/avatar)
   - **SiteFeedback interface** (id, email optional, body text, createdAt)
+- [x] Add IMDB Top 250 fields to Film interface: `imdbTopMovieRank`, `imdbTopTvRank`, `certificate`, `tvType`, `tvStartYear`, `tvEndYear`
+- [x] Add IMDB filter fields to FilterState: `certificate`, `imdbTopMoviesOnly`, `imdbTopTvOnly`, `tvType`, `imdbRatingMax`
 - [x] Build the types package: run TypeScript compiler
 - [x] Verify compiled types exist in `packages/types/dist/` with both JS and .d.ts files
 
@@ -172,7 +182,10 @@ Monorepo with `cineroll/` root containing:
 ## 4. Backend — Database & Prisma
 
 - [x] Create `backend/prisma/schema.prisma` with Prisma schema definition
-- [x] Define Film model with all fields: id (primary key), slug (unique), TMDB ID, IMDB ID, title, **originalTitle** (String, nullable — original language title from TMDB, null if same as English title), releaseYear (the film's release year), runtime, genres (array), **contentType** (string), plot, director, cast (array), language, poster URL, backdrop URL, trailer URL, IMDB rating, Rotten Tomatoes score, Oscar fields (nominations count, wins count, categories JSON array of AwardRecord), Golden Globe fields (nominations count, wins count, categories JSON array of AwardRecord), **Cannes fields** (nominations count, wins count, categories JSON array of AwardRecord), pick of day flag and date, timestamps
+- [x] Define Film model with all fields: id (primary key), slug (unique), TMDB ID, IMDB ID, title, **originalTitle** (String, nullable — original language title from TMDB, null if same as English title), releaseYear (the film's release year), runtime, genres (array), **contentType** (string — "movie" | "documentary" | "animation" | "short" | "tv-series" | "tv-mini-series"), plot, director, cast (array), language, poster URL, backdrop URL, trailer URL, IMDB rating, Rotten Tomatoes score, Oscar fields (nominations count, wins count, categories JSON array of AwardRecord), Golden Globe fields (nominations count, wins count, categories JSON array of AwardRecord), **Cannes fields** (nominations count, wins count, categories JSON array of AwardRecord), pick of day flag and date, timestamps
+- [x] Add IMDB Top 250 fields to Film model: `imdbTopMovieRank` (Int, nullable), `imdbTopTvRank` (Int, nullable), `certificate` (String, nullable — R, PG-13, TV-MA, etc.), `tvType` (String, nullable — raw IMDB type: "TV Series" | "TV Mini Series"), `tvStartYear` (Int, nullable), `tvEndYear` (Int, nullable)
+- [ ] Run migration for IMDB Top 250 fields: `npm run db:migrate --workspace=backend` (migration file: `20260507200000_add_imdb_top250_fields`)
+- [ ] Regenerate Prisma client after schema change: `npm run db:generate --workspace=backend`
 - [x] Define RollEvent model with id, filmId (foreign key to Film), and timestamp
 - [x] Define relationships: RollEvent belongs to Film, Film has many RollEvents
 - [x] Set up Prisma to use PostgreSQL database
@@ -254,6 +267,29 @@ Monorepo with `cineroll/` root containing:
 - [x] Monitor slow queries using PostgreSQL slow query log or Neon analytics: backend now emits slow Prisma query warnings for queries over `SLOW_QUERY_THRESHOLD_MS=100`; Neon analytics should remain the production monitoring source
 - [x] Implement query caching if needed (Redis) for frequently accessed data like "Pick of the Day": not needed at current measured query times; revisit when API traffic or Neon analytics shows repeated slow reads
 
+### 5e. IMDB Top 250 Integration
+
+The dataset now includes two IMDB Top 250 Excel files alongside the award files. These are identified automatically by column headers (no `Id` column; presence of `rank` column).
+
+**Movies file** — `IMDB_top_250_movies_structured.xlsx`: columns `name, rank, year, time, certificate, rating`
+**TV Shows file** — `IMDB_top_250_tvShows_structured.xlsx`: columns `name, rank, start_year, end_year, certificate, type, rating`
+
+- [x] Detect IMDB file type by reading first-row headers: award files have `Id` + `Award Year`; movie IMDB files have `rank` + `time`; TV IMDB files have `rank` + `start_year` — implement `detectFileType(filePath)` function in enrich script
+- [x] Parse IMDB movies file: extract `name, rank, year, time, certificate, rating` per row into `ImdbMovieRow` objects; build lookup map keyed by `"lowercaseTitle|year"`
+- [x] Parse IMDB TV shows file: extract `name, rank, start_year, end_year, certificate, type, rating` per row into `ImdbTvRow` objects; build lookup map keyed by `"lowercaseName|startYear"`
+- [x] Parse runtime from IMDB `time` format ("2h 22m") into integer minutes — `parseImdbRuntime(time: string): number | null`
+- [x] Map IMDB TV `type` string to `contentType` enum values: "TV Series" → "tv-series", "TV Mini Series" → "tv-mini-series"
+- [x] Overlay IMDB data onto award-enriched films: for each enriched award film, check the IMDB movie map by title+year; if found, set `imdbTopMovieRank`, `certificate`, and prefer the IMDB `rating` value over OMDB-sourced `imdbRating` (IMDB file is more complete)
+- [x] Add TMDB TV search function: `tmdbTvSearch(name, startYear)` — calls `/search/tv?query=<name>&first_air_date_year=<year>`
+- [x] Add TMDB TV details function: `tmdbTvDetails(tmdbId)` — calls `/tv/:id?append_to_response=credits,videos,external_ids`
+- [x] Enrich IMDB-only movies (appear in IMDB Top 250 movies but not in any award file): search TMDB movie endpoint, fetch full details, set `imdbTopMovieRank`, `certificate`, `imdbRating` from IMDB file; no OMDB call needed since rating is already known
+- [x] Enrich IMDB TV shows (all 250 shows are new — award files cover only movies): search TMDB TV endpoint, fetch full details (name, genres, overview, cast, crew, poster, backdrop, trailer, external_ids for IMDB ID), set `imdbTopTvRank`, `certificate`, `tvType`, `tvStartYear`, `tvEndYear`, `contentType`
+- [ ] Re-run enrichment script after code changes: `npm run enrich --workspace=backend`
+- [ ] Review new enrichment-errors.csv for IMDB-only films/shows that had no TMDB match
+- [ ] Save updated output as `backend/data/films-final.json`
+- [ ] Re-seed database: `npm run db:seed --workspace=backend`
+- [ ] Verify new fields in Neon console: spot-check 3 IMDB Top 250 movies and 3 TV shows for correct rank, certificate, tvType
+
 ---
 
 ## 6. Backend — API Routes & Performance
@@ -272,11 +308,19 @@ Monorepo with `cineroll/` root containing:
     - `awardYear` — ceremony year (matches AwardRecord.awardYear)
     - `genre` — film genre
     - `decadeMin`/`decadeMax` — release decade range
+    - `imdbRatingMin`/`imdbRatingMax` — IMDB rating range (0–10)
+    - `rtScoreMin` — minimum Rotten Tomatoes score (0–100)
+    - `certificate` — age/content rating (e.g. "R", "PG-13", "TV-MA")
+    - `imdbTopMoviesOnly` — boolean, show only IMDB Top 250 movies
+    - `imdbTopTvOnly` — boolean, show only IMDB Top 250 TV shows
+    - `tvType` — TV show type string (e.g. "TV Series", "TV Mini Series")
     - `page`, `limit`
 
+  - [x] GET /api/films/certificates — return distinct list of all content ratings in the dataset (R, PG-13, TV-MA, etc.) — used to populate certificate filter dropdown
+  - [x] GET /api/films/tv-types — return distinct list of all TV show types (TV Series, TV Mini Series) — used to populate TV type filter dropdown
   - [x] GET /api/films/categories — return distinct list of all award categories in the dataset (used to populate category dropdown in UI)
   - [x] GET /api/films/award-years — return sorted list of all distinct ceremony years in the dataset (used to populate award year dropdown)
-  - [x] GET /api/films/:slug (get single film by slug with full details including all AwardRecord arrays)
+  - [x] GET /api/films/:slug (get single film by slug with full details including all AwardRecord arrays, plus `imdbTopMovieRank`, `imdbTopTvRank`, `certificate`, `tvType`, `tvStartYear`, `tvEndYear`)
 
 - [x] Create `backend/src/routes/random.ts` with:
   - [x] GET /api/random (return a random film from database — no filters)

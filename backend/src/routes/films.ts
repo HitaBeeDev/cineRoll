@@ -21,6 +21,12 @@ const filmListSelect = Prisma.sql`
   "Film"."posterUrl",
   "Film"."posterColor",
   "Film"."imdbRating",
+  "Film"."imdbTopMovieRank",
+  "Film"."imdbTopTvRank",
+  "Film"."certificate",
+  "Film"."tvType",
+  "Film"."tvStartYear",
+  "Film"."tvEndYear",
   "Film"."oscarNominations",
   "Film"."oscarWins",
   "Film"."ggNominations",
@@ -50,6 +56,12 @@ const filmDetailSelect = {
   trailerUrl: true,
   imdbRating: true,
   rtScore: true,
+  imdbTopMovieRank: true,
+  imdbTopTvRank: true,
+  certificate: true,
+  tvType: true,
+  tvStartYear: true,
+  tvEndYear: true,
   oscarNominations: true,
   oscarWins: true,
   oscarCategories: true,
@@ -65,6 +77,30 @@ const filmDetailSelect = {
 
 const slugParamsSchema = z.object({
   slug: z.string().trim().min(1).max(180),
+});
+
+filmsRouter.get("/certificates", async (_req, res) => {
+  const rows = await prisma.$queryRaw<{ certificate: string }[]>`
+    SELECT DISTINCT "Film"."certificate"
+    FROM "Film"
+    WHERE "Film"."certificate" IS NOT NULL AND "Film"."certificate" <> ''
+    ORDER BY "Film"."certificate" ASC
+  `;
+
+  setPublicCache(res, 3600);
+  res.json({ certificates: rows.map(r => r.certificate) });
+});
+
+filmsRouter.get("/tv-types", async (_req, res) => {
+  const rows = await prisma.$queryRaw<{ tvType: string }[]>`
+    SELECT DISTINCT "Film"."tvType"
+    FROM "Film"
+    WHERE "Film"."tvType" IS NOT NULL AND "Film"."tvType" <> ''
+    ORDER BY "Film"."tvType" ASC
+  `;
+
+  setPublicCache(res, 3600);
+  res.json({ tvTypes: rows.map(r => r.tvType) });
 });
 
 filmsRouter.get("/genres", async (_req, res) => {

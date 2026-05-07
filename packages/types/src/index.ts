@@ -31,6 +31,12 @@ export interface Film {
   trailerUrl: string | null;
   imdbRating: number | null;
   rtScore: number | null;
+  imdbTopMovieRank: number | null;
+  imdbTopTvRank: number | null;
+  certificate: string | null;
+  tvType: string | null;
+  tvStartYear: number | null;
+  tvEndYear: number | null;
   oscarNominations: number;
   oscarWins: number;
   oscarCategories: AwardRecord[];
@@ -68,7 +74,12 @@ export interface FilterState {
   decadeMin: number;
   decadeMax: number;
   imdbRatingMin: number;
+  imdbRatingMax: number | null;
   rtScoreMin: number;
+  certificate: string;
+  imdbTopMoviesOnly: boolean;
+  imdbTopTvOnly: boolean;
+  tvType: string;
   page: number;
 }
 
