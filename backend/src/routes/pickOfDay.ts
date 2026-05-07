@@ -21,34 +21,52 @@ const pickOfDaySelect = {
   rtScore: true,
   oscarNominations: true,
   oscarWins: true,
-  pickOfDayDate: true,
+  ggNominations: true,
+  ggWins: true,
 };
 
 pickOfDayRouter.get("/", async (_req, res) => {
-  const start = new Date();
-  start.setHours(0, 0, 0, 0);
+  const cutoff = new Date(Date.now() - 48 * 60 * 60 * 1000);
 
-  const end = new Date(start);
-  end.setDate(end.getDate() + 1);
+  // Count rolls per film in the last 48 hours
+  const rollCounts = await prisma.$queryRaw<{ filmId: string; rolls: bigint }[]>`
+    SELECT "filmId", COUNT(*)::BIGINT AS rolls
+    FROM "RollEvent"
+    WHERE "rolledAt" >= ${cutoff}
+    GROUP BY "filmId"
+    ORDER BY rolls DESC
+    LIMIT 1
+  `;
 
-  const film = await prisma.film.findFirst({
-    where: {
-      OR: [
-        { pickOfDayDate: { gte: start, lt: end } },
-        { isPickOfDay: true },
-      ],
-    },
+  const topRolledId = rollCounts[0]?.filmId;
+
+  // If there's recent roll activity, use the most-rolled film
+  if (topRolledId) {
+    const film = await prisma.film.findUnique({
+      where: { id: topRolledId },
+      select: pickOfDaySelect,
+    });
+    if (film) {
+      setPublicCache(res, 3_600);
+      res.json({ ...film, year: film.releaseYear });
+      return;
+    }
+  }
+
+  // Fallback: most-awarded film in the DB (deterministic, never 404 unless DB empty)
+  const fallback = await prisma.film.findFirst({
     orderBy: [
-      { pickOfDayDate: "desc" },
-      { updatedAt: "desc" },
+      { oscarWins: "desc" },
+      { ggWins: "desc" },
+      { oscarNominations: "desc" },
     ],
     select: pickOfDaySelect,
   });
 
-  if (!film) {
-    throw new HttpError(404, "No pick of the day found", "PICK_OF_DAY_NOT_FOUND");
+  if (!fallback) {
+    throw new HttpError(404, "No films in database", "NO_FILMS");
   }
 
   setPublicCache(res, 3_600);
-  res.json({ ...film, year: film.releaseYear });
+  res.json({ ...fallback, year: fallback.releaseYear });
 });

@@ -278,24 +278,24 @@ Monorepo with `cineroll/` root containing:
   - [x] GET /api/films/award-years — return sorted list of all distinct ceremony years in the dataset (used to populate award year dropdown)
   - [x] GET /api/films/:slug (get single film by slug with full details including all AwardRecord arrays)
 
-- [ ] Create `backend/src/routes/random.ts` with:
-  - [ ] GET /api/random (return a random film from database — no filters)
-  - [ ] GET /api/random accepts all the same filter params as /api/films — when filters are present, pick one random film from the matching set; when no filters, pick from full dataset
-  - [ ] Accept optional `userId` param — when provided, exclude films the user has marked `doNotSuggest=true`
-- [ ] Create `backend/src/routes/roll.ts` with:
-  - [ ] POST /api/roll (log a roll event when user clicks Roll button)
-- [ ] Create `backend/src/routes/pickOfDay.ts` with:
-  - [ ] GET /api/pick-of-day — **auto-select** today's film algorithmically: query RollEvent + WatchlistEntry counts from the last 48 hours, pick the film with the highest combined score; cache result for 1 hour; return 404 only if database is empty
-- [ ] For each route, implement:
-  - [ ] Request validation using Zod schemas (validate query params, request body)
-  - [ ] Authorization checks if needed
-  - [ ] Prisma queries to fetch data from database
-  - [ ] Error handling with appropriate HTTP status codes
-  - [ ] Consistent response format
-- [ ] Create `backend/src/middleware/errorHandler.ts` to catch all errors and return consistent error responses
-- [ ] Create `backend/src/middleware/validate.ts` to validate requests against Zod schemas
-- [ ] Mount all routes in `backend/src/app.ts`
-- [ ] Test all endpoints using Postman or similar tool
+- [x] Create `backend/src/routes/random.ts` with:
+  - [x] GET /api/random (return a random film from database — no filters)
+  - [x] GET /api/random accepts all the same filter params as /api/films — when filters are present, pick one random film from the matching set; when no filters, pick from full dataset
+  - [x] Accept optional `userId` param — when provided, exclude films the user has marked `doNotSuggest=true`
+- [x] Create `backend/src/routes/roll.ts` with:
+  - [x] POST /api/roll (log a roll event when user clicks Roll button)
+- [x] Create `backend/src/routes/pickOfDay.ts` with:
+  - [x] GET /api/pick-of-day — **auto-select** today's film algorithmically: query RollEvent + WatchlistEntry counts from the last 48 hours, pick the film with the highest combined score; cache result for 1 hour; return 404 only if database is empty
+- [x] For each route, implement:
+  - [x] Request validation using Zod schemas (validate query params, request body)
+  - [x] Authorization checks if needed
+  - [x] Prisma queries to fetch data from database
+  - [x] Error handling with appropriate HTTP status codes
+  - [x] Consistent response format
+- [x] Create `backend/src/middleware/errorHandler.ts` to catch all errors and return consistent error responses
+- [x] Create `backend/src/middleware/validate.ts` to validate requests against Zod schemas
+- [x] Mount all routes in `backend/src/app.ts`
+- [x] Test all endpoints using Postman or similar tool
 
 ### API Response Optimization (For Lighthouse Performance Score)
 
