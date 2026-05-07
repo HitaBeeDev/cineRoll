@@ -207,6 +207,7 @@ Monorepo with `cineroll/` root containing:
   - `Award Winner` = person/studio name if they won, empty/NaN if nominated only
 - [x] Prepare Golden Globe data as Excel (.xlsx) — same column structure, `Id` format: `GG-{year}-{nn}`
 - [x] Prepare Cannes data as Excel (.xlsx) — same column structure, `Id` format: `CN-{year}-{nn}`
+- [x] Prepare IMDB Top 250 data as two Excel (.xlsx) files in `backend/data/`: `IMDB_top_250_movies_structured.xlsx` (columns: `name, rank, year, time, certificate, rating`) and `IMDB_top_250_tvShows_structured.xlsx` (columns: `name, rank, start_year, end_year, certificate, type, rating`) — used to populate `imdbTopMovieRank`, `imdbTopTvRank`, `certificate`, `tvType`, `tvStartYear`, `tvEndYear` on the Film model
 - [x] Install Excel parsing library in backend: `npm install xlsx --workspace=backend`
 - [x] Update enrich script to auto-discover and read all `.xlsx` files in `backend/data/` (Oscar, Golden Globe, Cannes) — **all three files share the same column structure** (`Id, Award Year, Movie Name, Release Year, Type Of Award, Award Winner, Award Nominee`); the `Id` prefix (`OSC-` / `GG-` / `CN-`) determines the award body automatically
 - [x] After pipeline runs and data is seeded, **remove all intermediate/old unused files** from `backend/data/` (e.g. old CSV files, old JSON drafts). Never delete original `.xlsx` source files.
