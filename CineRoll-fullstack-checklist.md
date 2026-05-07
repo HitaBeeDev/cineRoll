@@ -200,9 +200,9 @@ Monorepo with `cineroll/` root containing:
 
 ### 5a. Enrichment Script — Fetch Data from TMDB & OMDB APIs
 
-- [ ] Install Excel parsing library in backend: `npm install xlsx --workspace=backend` (replaces csv-parse)
-- [ ] Create `backend/.env.local` with TMDB_API_KEY and OMDB_API_KEY (these are only for enrichment, not used at runtime)
-- [ ] Update `backend/src/scripts/enrich.ts` script to:
+- [x] Install Excel parsing library in backend: `npm install xlsx --workspace=backend` (replaces csv-parse)
+- [x] Create `backend/.env.local` with TMDB_API_KEY and OMDB_API_KEY (these are only for enrichment, not used at runtime)
+- [x] Update `backend/src/scripts/enrich.ts` script to:
   - Load environment variables from .env.local
   - Auto-discover and read all `.xlsx` files in `backend/data/`: Oscar file(s), Golden Globe file, and Cannes file
   - Group rows by (film title + release year) to get unique films across all three award bodies
