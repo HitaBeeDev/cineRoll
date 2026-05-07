@@ -79,6 +79,10 @@ filmsRouter.get("/award-years", async (_req, res) => {
     SELECT DISTINCT (award->>'awardYear')::INT AS "awardYear"
     FROM "Film", jsonb_array_elements("Film"."ggCategories") AS award
     WHERE award->>'awardYear' IS NOT NULL
+    UNION
+    SELECT DISTINCT (award->>'awardYear')::INT AS "awardYear"
+    FROM "Film", jsonb_array_elements("Film"."cannesCategories") AS award
+    WHERE award->>'awardYear' IS NOT NULL
     ORDER BY "awardYear" ASC
   `;
 
@@ -94,6 +98,10 @@ filmsRouter.get("/categories", async (_req, res) => {
     UNION
     SELECT DISTINCT award->>'category' AS category
     FROM "Film", jsonb_array_elements("Film"."ggCategories") AS award
+    WHERE award->>'category' IS NOT NULL
+    UNION
+    SELECT DISTINCT award->>'category' AS category
+    FROM "Film", jsonb_array_elements("Film"."cannesCategories") AS award
     WHERE award->>'category' IS NOT NULL
     ORDER BY category ASC
   `;

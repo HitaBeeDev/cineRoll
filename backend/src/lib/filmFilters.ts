@@ -13,7 +13,8 @@ const listQueryBaseSchema = z.object({
   search: z.string().trim().min(1).max(120).optional(),
   person: z.string().trim().min(1).max(120).optional(),
   director: z.string().trim().min(1).max(120).optional(),
-  awardBody: z.enum(["oscar", "goldenglobe", "both"]).default("both"),
+  awardBody: z.enum(["oscar", "goldenglobe", "cannes", "all"]).default("all"),
+  contentType: z.string().trim().min(1).max(60).optional(),
   genre: z.string().trim().min(1).max(80).optional(),
   decadeMin: z.coerce.number().int().min(1800).max(2200).optional(),
   decadeMax: z.coerce.number().int().min(1800).max(2200).optional(),
@@ -61,9 +62,13 @@ export function awardJsonSources(awardBody: ListQuery["awardBody"]) {
   if (awardBody === "goldenglobe") {
     return [Prisma.sql`"Film"."ggCategories"`];
   }
+  if (awardBody === "cannes") {
+    return [Prisma.sql`"Film"."cannesCategories"`];
+  }
   return [
     Prisma.sql`"Film"."oscarCategories"`,
     Prisma.sql`"Film"."ggCategories"`,
+    Prisma.sql`"Film"."cannesCategories"`,
   ];
 }
 
@@ -103,7 +108,7 @@ function awardFilter(query: ListQuery) {
   }
 
   if (
-    query.awardBody === "both" &&
+    query.awardBody === "all" &&
     query.nominatedOnly !== true &&
     awardConditions.length === 0
   ) {
@@ -151,6 +156,10 @@ export function buildWhereClause(
 
   if (query.director) {
     where.push(Prisma.sql`"Film"."director" ILIKE ${`%${query.director}%`}`);
+  }
+
+  if (query.contentType) {
+    where.push(Prisma.sql`"Film"."contentType" = ${query.contentType}`);
   }
 
   if (query.genre) {
