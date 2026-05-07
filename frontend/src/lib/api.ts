@@ -51,12 +51,13 @@ export function filtersToParams(filters: Partial<FilterState>): URLSearchParams 
   if (filters.search?.trim()) params.set("search", filters.search.trim());
   if (filters.person?.trim()) params.set("person", filters.person.trim());
   if (filters.director?.trim()) params.set("director", filters.director.trim());
-  if (filters.awardBody && filters.awardBody !== "both") params.set("awardBody", filters.awardBody);
+  if (filters.awardBody && filters.awardBody !== "all") params.set("awardBody", filters.awardBody);
   if (filters.winnerOnly) params.set("winnerOnly", "true");
   if (filters.nominatedOnly) params.set("nominatedOnly", "true");
   if (filters.category?.trim()) params.set("category", filters.category.trim());
   if (filters.awardYear != null) params.set("awardYear", String(filters.awardYear));
   if (filters.genre?.trim()) params.set("genre", filters.genre.trim());
+  if (filters.contentType?.trim()) params.set("contentType", filters.contentType.trim());
   if (filters.decadeMin != null && filters.decadeMin !== DEFAULT_DECADE_MIN) {
     params.set("decadeMin", String(filters.decadeMin));
   }

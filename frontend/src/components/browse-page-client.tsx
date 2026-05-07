@@ -306,7 +306,10 @@ function filtersFromSearchParams(params: URLSearchParams): FilterState {
     person: params.get("person") ?? "",
     director: params.get("director") ?? "",
     awardBody:
-      awardBody === "oscar" || awardBody === "goldenglobe" || awardBody === "both"
+      awardBody === "oscar" ||
+      awardBody === "goldenglobe" ||
+      awardBody === "cannes" ||
+      awardBody === "all"
         ? awardBody
         : DEFAULT_FILTERS.awardBody,
     winnerOnly: params.get("winnerOnly") === "true",
@@ -314,6 +317,7 @@ function filtersFromSearchParams(params: URLSearchParams): FilterState {
     category: params.get("category") ?? "",
     awardYear,
     genre: params.get("genre") ?? "",
+    contentType: params.get("contentType") ?? "",
     decadeMin: decadeMin ?? DEFAULT_FILTERS.decadeMin,
     decadeMax: decadeMax ?? DEFAULT_FILTERS.decadeMax,
     imdbRatingMin: imdbRatingMin ?? DEFAULT_FILTERS.imdbRatingMin,

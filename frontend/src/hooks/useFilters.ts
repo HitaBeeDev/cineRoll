@@ -9,12 +9,13 @@ export const DEFAULT_FILTERS: FilterState = {
   search: "",
   person: "",
   director: "",
-  awardBody: "both",
+  awardBody: "all",
   winnerOnly: false,
   nominatedOnly: false,
   category: "",
   awardYear: null,
   genre: "",
+  contentType: "",
   decadeMin: DEFAULT_DECADE_MIN,
   decadeMax: DEFAULT_DECADE_MAX,
   imdbRatingMin: 0,
@@ -41,12 +42,13 @@ export function useFilters(initial?: Partial<FilterState>) {
       !!filters.search ||
       !!filters.person ||
       !!filters.director ||
-      filters.awardBody !== "both" ||
+      filters.awardBody !== "all" ||
       filters.winnerOnly ||
       filters.nominatedOnly ||
       !!filters.category ||
       filters.awardYear != null ||
       !!filters.genre ||
+      !!filters.contentType ||
       filters.decadeMin !== DEFAULT_DECADE_MIN ||
       filters.decadeMax !== DEFAULT_DECADE_MAX ||
       filters.imdbRatingMin > 0 ||

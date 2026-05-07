@@ -130,10 +130,10 @@ Monorepo with `cineroll/` root containing:
 
 ## 2. Shared Types Package
 
-- [ ] Create `packages/types/src/` directory structure
-- [ ] Create `packages/types/package.json` that exports the compiled types from dist folder
-- [ ] Create `packages/types/tsconfig.json` that extends the root tsconfig and outputs compiled types
-- [ ] Create `packages/types/src/index.ts` with TypeScript interfaces for all data models:
+- [x] Create `packages/types/src/` directory structure
+- [x] Create `packages/types/package.json` that exports the compiled types from dist folder
+- [x] Create `packages/types/tsconfig.json` that extends the root tsconfig and outputs compiled types
+- [x] Create `packages/types/src/index.ts` with TypeScript interfaces for all data models:
   - AwardRecord interface: `{ awardBody: "oscar" | "goldenglobe" | "cannes"; awardYear: number; category: string; nominee: string; won: boolean }` — one record per nomination/win, stored in oscarCategories / ggCategories / cannesCategories JSON arrays
   - Film interface (id, slug, tmdbId, imdbId, title, releaseYear, runtime, genres array, **contentType** string, plot, director, cast array, language, poster URL, backdrop URL, trailer URL, IMDB rating, Rotten Tomatoes score, Oscar nominations/wins/categories, Golden Globe nominations/wins/categories, **Cannes nominations/wins/categories**, pick of day flag and date)
   - RollEvent interface (id, filmId, timestamp)
@@ -146,8 +146,8 @@ Monorepo with `cineroll/` root containing:
   - **UserRating interface** (id, userId, filmId, rating Float 1.0–10.0 step 0.5, createdAt, updatedAt)
   - **FilmComment interface** (id, userId, filmId, body text, createdAt, updatedAt, user name/avatar)
   - **SiteFeedback interface** (id, email optional, body text, createdAt)
-- [ ] Build the types package: run TypeScript compiler
-- [ ] Verify compiled types exist in `packages/types/dist/` with both JS and .d.ts files
+- [x] Build the types package: run TypeScript compiler
+- [x] Verify compiled types exist in `packages/types/dist/` with both JS and .d.ts files
 
 ---
 

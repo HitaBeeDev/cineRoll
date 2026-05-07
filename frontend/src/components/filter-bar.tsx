@@ -61,9 +61,10 @@ export function FilterBar({
         <div className="flex flex-wrap gap-2">
           {(
             [
-              { value: "both", label: "Both" },
+              { value: "all", label: "All" },
               { value: "oscar", label: "Oscar" },
               { value: "goldenglobe", label: "Golden Globe" },
+              { value: "cannes", label: "Cannes" },
             ] as { value: AwardBody; label: string }[]
           ).map(({ value, label }) => (
             <button
@@ -354,11 +355,18 @@ function getActiveFilterChips(
     });
   }
 
-  if (filters.awardBody !== "both") {
+  if (filters.awardBody !== "all") {
+    const awardBodyLabels: Record<AwardBody, string> = {
+      all: "All",
+      oscar: "Oscar",
+      goldenglobe: "Golden Globe",
+      cannes: "Cannes",
+    };
+
     chips.push({
       key: "awardBody",
-      label: filters.awardBody === "oscar" ? "Oscar" : "Golden Globe",
-      onRemove: () => onFiltersChange({ awardBody: "both", page: 1 }),
+      label: awardBodyLabels[filters.awardBody],
+      onRemove: () => onFiltersChange({ awardBody: "all", page: 1 }),
     });
   }
 
