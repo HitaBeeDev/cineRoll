@@ -389,7 +389,10 @@ async function main() {
       const trailerUrl = trailer ? `https://www.youtube.com/watch?v=${trailer.key}` : null;
       const runtime = (details.runtime as number | null | undefined) ?? null;
       const originalTitleRaw = (details.original_title as string | null | undefined) ?? null;
-      const originalTitle = originalTitleRaw && originalTitleRaw !== title ? originalTitleRaw : null;
+      const originalTitle =
+        originalTitleRaw && originalTitleRaw.toLowerCase() !== title.toLowerCase()
+          ? originalTitleRaw
+          : null;
 
       const imdbId = (details.imdb_id as string | null | undefined) ?? null;
       let imdbRating: number | null = null;

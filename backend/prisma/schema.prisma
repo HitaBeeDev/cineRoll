@@ -41,6 +41,11 @@ model Film {
   rollEvents        RollEvent[]
   createdAt         DateTime    @default(now())
   updatedAt         DateTime    @updatedAt
+
+  @@index([title], map: "Film_title_idx")
+  @@index([releaseYear], map: "Film_year_idx")
+  @@index([genres], type: Gin, map: "Film_genres_gin_idx")
+  @@index([title(ops: raw("gin_trgm_ops"))], type: Gin, map: "Film_title_trgm_idx")
 }
 
 model RollEvent {
