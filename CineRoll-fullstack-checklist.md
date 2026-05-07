@@ -237,9 +237,9 @@ Monorepo with `cineroll/` root containing:
   - Reads films-final.json
   - Loops through each film and inserts into PostgreSQL using Prisma (upsert to handle re-runs)
   - Handles JSON fields for cast, award categories properly
-- [ ] Run seed script: `npm run db:seed --workspace=backend`
-- [ ] Verify in Neon PostgreSQL console that row count matches films-final.json length
-- [ ] Spot-check 5 films by querying database
+- [x] Run seed script: `npm run db:seed --workspace=backend`
+- [x] Verify in Neon PostgreSQL console that row count matches films-final.json length
+- [x] Spot-check 5 films by querying database
 
 ### 5d. Database Performance Optimization
 
