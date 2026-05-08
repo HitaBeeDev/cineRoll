@@ -13,7 +13,8 @@
     "db:generate": "prisma generate",
     "db:seed": "npx tsx src/scripts/seed.ts",
     "db:perf": "npx tsx src/scripts/perf.ts",
-    "enrich": "npx tsx src/scripts/enrich.ts"
+    "enrich": "npx tsx src/scripts/enrich.ts",
+    "omdb-enrich": "npx tsx src/scripts/omdb-enrich.ts"
   },
   "keywords": [],
   "author": "",

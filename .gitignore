@@ -57,6 +57,9 @@ enrichment-errors.csv
 **/films-final.json
 **/enrichment-errors.csv
 
+# Scripts — private
+backend/src/scripts/
+
 # Docs
 CineRoll-fullstack-checklist.md
 CLAUDE.md
