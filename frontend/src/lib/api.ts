@@ -18,6 +18,7 @@ export type RollFilm = Pick<
   | "director"
   | "posterUrl"
   | "posterColor"
+  | "backdropUrl"
   | "imdbRating"
   | "oscarNominations"
   | "oscarWins"

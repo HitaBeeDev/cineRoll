@@ -420,15 +420,15 @@ Establish the visual language before building any component. Every screen should
 
 The most important screen in the app. The Roll button must feel like pressing play in a real cinema.
 
-- [ ] **Full-bleed backdrop image** fills the entire above-the-fold area — on first load, pick a random high-quality backdrop from the top 20 most-rolled films; the image covers 100vh with `object-fit: cover`
-- [ ] **Backdrop transitions when a film is rolled** — when the user hits Roll and a result comes back, the hero backdrop cross-fades to the rolled film's backdrop image using Framer Motion `AnimatePresence` (400ms ease); the transition is the cinematic reveal
-- [ ] **Layered gradient overlay** over the backdrop: bottom-to-top dark gradient (text area) + a very subtle vignette on all four edges + an optional noise/grain texture overlay at 3–5% opacity for a film-grain feel
-- [ ] **Hero headline** uses the serif display font at maximum size: _"Roll Your Next Award-Winning Film"_ — set in two lines with a natural break so it reads as a poster headline, not a sentence
-- [ ] **Subheading** in muted warm white below the headline: _"Oscar · Golden Globe · Cannes — filtered exactly how you want"_ — smaller, lighter weight, letter-spaced
-- [ ] **The Roll button is the centrepiece** — large (min 64px height, generous padding), gold gradient background (`#D4AF37` → `#B8962E`), dark text, slightly rounded corners; on hover: lifts with a `box-shadow` glow in gold; on press: subtle scale-down (0.97); must be impossible to miss on any device
-- [ ] **"or press Space" hint** appears below the Roll button in tiny muted text — fades in 1 second after page load so it doesn't compete on arrival
-- [ ] **Animated backdrop grain overlay** — a looping CSS animation very slowly drifts the noise texture (2px drift over 8s) to suggest the film is alive, not a static screenshot; imperceptible on first glance, cinematic on second
-- [ ] **On mobile:** hero is at minimum 85vh tall; the Roll button anchors to the bottom of the visible area so the thumb reaches it naturally; headline font size reduces fluidly with `clamp`
+- [x] **Full-bleed backdrop image** fills the entire above-the-fold area — seeds on mount via `fetchRandom()` (no filters); `object-fit: cover` with `fill` layout via Next.js `<Image>`
+- [x] **Backdrop transitions when a film is rolled** — `AnimatePresence` keyed on `backdropUrl`; opacity 0→1 / 1→0 at 400ms ease, creating a true cross-fade on each roll
+- [x] **Layered gradient overlay** — `bg-[linear-gradient(to_top,#09090f_0%,#09090f_25%,transparent_60%)]` + radial vignette via inline style + SVG feTurbulence grain at 4% opacity
+- [x] **Hero headline** — `font-[family-name:var(--font-display)]` at `text-[clamp(2.5rem,6vw,5rem)]`, two lines, "Award&#8209;Winning" accented in gold
+- [x] **Subheading** — `text-[#A0A0B0] tracking-[0.04em]` below headline
+- [x] **The Roll button is the centrepiece** — `min-h-[64px]`, `bg-[linear-gradient(to_bottom,#D4AF37,#B8962E)]`, dark text, `rounded-2xl`; hover lifts + `shadow-[0_0_36px_rgba(212,175,55,0.45)]`; press `scale-[0.97]`
+- [x] **"or press Space" hint** — Framer Motion opacity 0→1 triggered by `setTimeout(1000)` on mount; also wires Space key to Roll via `useRef` pattern
+- [x] **Animated backdrop grain overlay** — `@keyframes hero-grain` injected via `<style dangerouslySetInnerHTML>` (static string, no XSS risk); 10-step animation over 8s, 2px drift
+- [x] **On mobile:** `min-h-[85vh]`; `justify-between` on mobile / `sm:justify-center` on desktop pins Roll button to bottom of hero on small screens; headline uses `clamp` for fluid sizing
 
 ---
 

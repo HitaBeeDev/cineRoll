@@ -22,6 +22,7 @@ type RandomFilmRow = {
   director: string | null;
   posterUrl: string | null;
   posterColor: string | null;
+  backdropUrl: string | null;
   imdbRating: number | null;
   oscarNominations: number;
   oscarWins: number;
@@ -45,6 +46,7 @@ const randomSelect = Prisma.sql`
   "Film"."director",
   "Film"."posterUrl",
   "Film"."posterColor",
+  "Film"."backdropUrl",
   "Film"."imdbRating",
   "Film"."oscarNominations",
   "Film"."oscarWins",
