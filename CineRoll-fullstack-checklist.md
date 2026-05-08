@@ -450,7 +450,7 @@ The moment between clicking Roll and seeing the result is the most important int
 
 Cards appear in the browse grid, the Similar Films section, the Snob Test, and the Roll history drawer.
 
-- [ ] **Tall poster-ratio cards** — aspect ratio `2:3` (same as a film poster); never landscape, never square; posters fill the entire card face
+- [x] **Tall poster-ratio cards** — aspect ratio `2:3` (same as a film poster); never landscape, never square; posters fill the entire card face
 - [ ] **No visible border in resting state** — the card floats over the background with a subtle shadow (`0 4px 24px rgba(0,0,0,0.5)`); border only appears on hover/focus
 - [ ] **Hover state** — card lifts slightly (`translateY(-4px)`), shadow deepens, a gold border ring fades in (`border: 1px solid #D4AF37 at 60% opacity`); the poster image scales to 1.04 (slight zoom, clipped to card bounds); an overlay gradient slides up from the bottom revealing: film title (serif), year, award badge (e.g. "3 Oscar wins"), and a "Roll Similar →" ghost button
 - [ ] **Award badge** — top-left corner of every card; small pill showing the highest award (Oscar statuette icon + "Won" or "Nominated"); gold background for wins, dark surface with gold text for nominations
