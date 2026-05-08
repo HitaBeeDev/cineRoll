@@ -94,6 +94,8 @@ export type PersonSuggestion = {
   count: number;
 };
 
+export type TasteCardFilm = PaginatedFilms["films"][number];
+
 export function filtersToParams(filters: Partial<FilterState>): URLSearchParams {
   const params = new URLSearchParams();
   if (filters.search?.trim()) params.set("search", filters.search.trim());
@@ -140,6 +142,17 @@ export async function fetchFilms(filters: Partial<FilterState>, limit = 12): Pro
   const res = await fetch(`${API_URL}/api/films?${params}`);
   if (!res.ok) throw new Error("Failed to fetch films");
   return res.json() as Promise<PaginatedFilms>;
+}
+
+export async function fetchOnboardingTasteCards(): Promise<PaginatedFilms["films"]> {
+  const params = new URLSearchParams({
+    sample: "onboarding",
+    limit: "8",
+  });
+  const res = await fetch(`${API_URL}/api/films?${params}`, { cache: "no-store" });
+  if (!res.ok) return [];
+  const data = await res.json() as PaginatedFilms;
+  return data.films;
 }
 
 export async function fetchPickOfDay(): Promise<PickOfDayFilm | null> {

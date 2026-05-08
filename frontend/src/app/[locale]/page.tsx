@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { Bookmark, Share2, Dices, Sparkles } from "lucide-react";
+import { Bookmark, Share2, Dices } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/toast";
 import { FilterBar } from "@/components/filter-bar";
@@ -15,7 +15,9 @@ import {
   fetchFilms,
   fetchGenres,
   fetchCategories,
+  fetchOnboardingTasteCards,
   type RollFilm,
+  type TasteCardFilm,
 } from "@/lib/api";
 import { formatRuntime } from "@/lib/format";
 import { useFilters } from "@/hooks/useFilters";
@@ -36,6 +38,7 @@ export default function HomePage() {
   const [awardYears, setAwardYears] = useState<number[]>([]);
   const [totalCount, setTotalCount] = useState<number | null>(null);
   const [onboardingState, setOnboardingState] = useState<"checking" | "show" | "done">("checking");
+  const [tasteCards, setTasteCards] = useState<TasteCardFilm[]>([]);
 
   const handleRollRef = useRef<() => Promise<void>>(async () => {});
   const filmCardRef = useRef<HTMLDivElement>(null);
@@ -53,6 +56,17 @@ export default function HomePage() {
 
     return () => window.clearTimeout(id);
   }, []);
+
+  useEffect(() => {
+    if (onboardingState !== "show") return;
+    let cancelled = false;
+    void fetchOnboardingTasteCards().then((films) => {
+      if (!cancelled) setTasteCards(films);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [onboardingState]);
 
   // Fetch filter metadata + total film count
   useEffect(() => {
@@ -174,6 +188,7 @@ export default function HomePage() {
   if (onboardingState === "show") {
     return (
       <FirstVisitOnboarding
+        tasteCards={tasteCards}
         onContinue={() => {
           try {
             window.localStorage.setItem(ONBOARDED_STORAGE_KEY, "true");
@@ -332,9 +347,15 @@ export default function HomePage() {
   );
 }
 
-function FirstVisitOnboarding({ onContinue }: { onContinue: () => void }) {
+function FirstVisitOnboarding({
+  tasteCards,
+  onContinue,
+}: {
+  tasteCards: TasteCardFilm[];
+  onContinue: () => void;
+}) {
   return (
-    <div className="flex min-h-screen flex-col bg-[#09090f] text-[#F5F5F0]">
+    <div className="flex h-screen flex-col overflow-hidden bg-[#09090f] text-[#F5F5F0]">
       <header className="flex h-16 shrink-0 items-center justify-between border-b border-[#1a1a28] px-5 sm:px-8">
         <Link
           href="/"
@@ -347,51 +368,66 @@ function FirstVisitOnboarding({ onContinue }: { onContinue: () => void }) {
         </span>
       </header>
 
-      <main className="flex flex-1 items-center px-5 py-10 sm:px-8 lg:px-10">
-        <section className="grid w-full gap-8 lg:grid-cols-12 lg:items-center">
+      <main className="flex min-h-0 flex-1 items-center px-5 py-4 sm:px-8 lg:px-10">
+        <section className="grid w-full min-h-0 gap-5 lg:grid-cols-12 lg:items-center">
           <div className="lg:col-span-7">
             <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.28em] text-[#D4AF37]">
               {"// QUICK TASTE MATCH"}
             </p>
-            <h1 className="mt-4 max-w-4xl font-[family-name:var(--font-display)] text-[clamp(3.8rem,7vw,7rem)] font-bold leading-[0.92] tracking-normal">
+            <h1 className="mt-3 max-w-4xl font-[family-name:var(--font-display)] text-[clamp(3rem,6vw,5.8rem)] font-bold leading-[0.92] tracking-normal">
               Find your
               <br />
               <span className="text-[#e8453c]">award-film lane.</span>
             </h1>
-            <p className="mt-6 max-w-2xl text-base leading-7 text-[#b8b8c6]">
+            <p className="mt-4 max-w-2xl text-sm leading-6 text-[#b8b8c6] sm:text-base">
               Start with a fast taste check, then CineRoll can make the first roll feel less random and more like your shelf.
             </p>
           </div>
 
-          <div className="lg:col-span-5">
+          <div className="min-h-0 lg:col-span-5">
             <div className="border border-[#242435] bg-[#101017]">
-              <div className="border-b border-[#242435] bg-[#0b0b12] px-5 py-4">
-                <div className="flex items-center gap-2 text-[#D4AF37]">
-                  <Sparkles className="h-4 w-4" />
-                  <span className="font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-widest">
-                    First visit setup
-                  </span>
-                </div>
+              <div className="border-b border-[#242435] bg-[#0b0b12] px-4 py-3">
+                <span className="font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-widest text-[#D4AF37]">
+                  First visit setup
+                </span>
               </div>
-              <div className="p-5">
-                <div className="grid grid-cols-3 gap-2">
-                  {["Seen", "Skipped", "Curious"].map((label) => (
-                    <div key={label} className="border border-[#242435] bg-[#09090f] px-3 py-4 text-center">
-                      <span className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#888899]">
-                        {label}
-                      </span>
-                    </div>
-                  ))}
+              <div className="p-4">
+                <div className="grid grid-cols-4 gap-2">
+                  {tasteCards.length > 0
+                    ? tasteCards.slice(0, 8).map((film) => (
+                      <div key={film.id} className="relative aspect-[2/3] overflow-hidden border border-[#242435] bg-[#09090f]">
+                        {film.posterUrl ? (
+                          <Image
+                            src={film.posterUrl}
+                            alt={`${film.title} poster`}
+                            fill
+                            sizes="120px"
+                            className="object-cover"
+                          />
+                        ) : (
+                          <div className="absolute inset-0 flex items-center justify-center p-2 text-center">
+                            <span className="font-[family-name:var(--font-display)] text-xs font-semibold leading-tight text-[#F5F5F0]">
+                              {film.title}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    ))
+                    : Array.from({ length: 8 }).map((_, index) => (
+                      <div key={index} className="relative aspect-[2/3] overflow-hidden border border-[#242435] bg-[#09090f]">
+                        <div className="absolute inset-0 animate-pulse bg-[#111118]" />
+                      </div>
+                    ))}
                 </div>
-                <p className="mt-5 text-sm leading-6 text-[#b8b8c6]">
+                <p className="mt-4 text-sm leading-5 text-[#b8b8c6]">
                   We will ask a few lightweight questions next. You can skip it anytime and still use the full app.
                 </p>
-                <div className="mt-5 rounded-2xl border-2 border-dashed border-[#e8453c]/30 p-1.5">
+                <div className="mt-4 rounded-2xl border-2 border-dashed border-[#e8453c]/30 p-1.5">
                   <button
                     type="button"
                     onClick={onContinue}
                     className={cn(
-                      "w-full rounded-xl bg-[#e8453c] px-5 py-4 text-[#F5F5F0]",
+                      "w-full rounded-xl bg-[#e8453c] px-5 py-3.5 text-[#F5F5F0]",
                       "font-[family-name:var(--font-geist-mono)] text-sm font-bold uppercase tracking-[0.2em]",
                       "transition hover:bg-[#d5342b] hover:shadow-[0_0_40px_rgba(232,69,60,0.28)]",
                       "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",

@@ -581,7 +581,7 @@ A standalone quiz page (`/snob-test`) that works without any account. Users tick
 On the very first visit, guide the user through a quick taste-matching flow so the app feels personalized immediately.
 
 - [x] Detect first visit via `localStorage` flag (`cineroll_onboarded`); if not set, show onboarding before the main home page
-- [ ] Fetch 8 random films from /api/films (varied decades and genres) to use as the "taste cards"
+- [x] Fetch 8 random films from /api/films (varied decades and genres) to use as the "taste cards"
 - [ ] Show a full-screen step: "Which of these have you seen?" — display the 8 film posters as a grid; user taps any they've watched
 - [ ] On "Done" (or skip), save the tapped films to the user's watched list (if logged in) or to localStorage (if not logged in — sync on next sign-in)
 - [ ] After onboarding, redirect to home page; the roll and recommendations are now pre-seeded with their taste
