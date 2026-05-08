@@ -510,6 +510,25 @@ Apply these rules consistently across every component so the app feels coherent,
 
 ---
 
+### Homepage Redesign (Retro-TV / Video-Store Aesthetic) ✓ Completed
+
+- [x] **Full-page two-column layout** — 12-column CSS grid (`lg:grid-cols-12`): left 7 cols (filters + hero), right 5 cols (film result card); stacks vertically on mobile
+- [x] **`h-screen overflow-hidden` outer shell** — prevents page-level scrollbar; both panels scroll independently with `[scrollbar-width:none] [&::-webkit-scrollbar]:w-0`
+- [x] **Header redesigned** — `CineRoll` logo in coral red (`#e8453c`), `NOW SHOWING` pill badge, nav pills with active red highlight, Sign In / Sign Up buttons
+- [x] **Hero headline** — three-line "One spin. / One film. / Tonight." in large display font; "One film." line in coral red accent; channel label `// CHANNEL 03 · TONIGHT` in muted monospace above
+- [x] **Filter bar redesigned** — Body + Status pills in two aligned columns; Person text input + Genre dropdown below in same column alignment; Category + Award Year selects; IMDb rating pills; RT score pills; dismissible active filter chips; preset quick-tag row
+- [x] **Decade filter removed** — replaced with Person free-text search input wired to `person` FilterState field
+- [x] **Roll button** — dashed red border theater-marquee frame (`border-2 border-dashed border-[#e8453c]/30`), coral red fill, film-strip sprocket decorations; spacebar shortcut (`Press [SPACE] to spin`)
+- [x] **Reel Pool count** — fetches total on mount (no auto-roll), shows live count in `REEL POOL · NNN · films · press [SPACE] to spin`; filtered count updates when filters are active
+- [x] **No auto-roll on page load** — empty state shows until user rolls; empty state is a full-height film-strip design (sprocket holes top/bottom, animated "What's playing / tonight?" text)
+- [x] **Result card REEL pill** — positioned top-left of the right panel, showing `REEL // FILM TITLE` in coral; `mb-5` spacing below pill
+- [x] **Result card stats** — 3-column grid showing IMDb, RT %, and total Awards (Oscar + GG + Cannes wins combined)
+- [x] **Award tags** — shows individual Oscar, Golden Globe, and Cannes nomination/win badges below stats
+- [x] **`cache: "no-store"` on random endpoint** — prevents browser caching the same film on every roll
+- [x] **`rtScore`, `cannesNominations`, `cannesWins` added to `RollFilm` type** and wired into result card
+
+---
+
 ## 8. Frontend — Base Components (incl. Night Mode Pill, Login/Sign Up Buttons)
 
 - [ ] Create reusable UI components in `src/components/ui/`:
@@ -728,6 +747,48 @@ Instead of dropdowns, the user describes what they want in plain English. Claude
 - [ ] After roll, show the interpreted filters as chips below the result: "Searched for: Golden Globe winner · Drama · 1990s" so the user understands what happened
 - [ ] "Refine" button lets them edit the prompt and re-roll
 - [ ] If no films match: show Claude's interpreted filters and suggest adjusting the description
+
+---
+
+## 9e. Daily Picks Page (`/picks`) ✓ Completed
+
+Three handpicked film slots per day, each with a different mood/filter combo. Caches to localStorage so picks are stable throughout the day and auto-refresh at midnight.
+
+- [x] Create `src/app/[locale]/picks/page.tsx`
+- [x] Three pick slots with distinct filter combos and accent colors:
+  - **Award Prestige** (coral `#e8453c`) — Oscar winner, IMDb 7.5+
+  - **World Cinema** (blue `#4a9eff`) — Cannes winner
+  - **Hidden Gem** (purple `#a78bfa`) — IMDb 7.5+, decade 1960–2005
+- [x] Full-bleed backdrop image fills each card; gradient overlay ensures text readability
+- [x] **localStorage caching** by date key `cinepicks-YYYY-MM-DD` — same picks shown all day; auto-refreshes on next calendar day
+- [x] **Reshuffle button** — forces fresh fetch with spinning `RefreshCw` icon, overwrites cache
+- [x] **Staggered Framer Motion entry** — cards animate in with `index * 0.1s` delay, spring physics
+- [x] Each card shows: pick number (large muted), slot badge (colored pill), mood label, film title, year/runtime/genre, director, IMDb + RT stats, total award wins, Watch Tonight CTA + Bookmark + Share action buttons
+- [x] Layout: full-height stacked cards on mobile; 3-column `flex-1` on desktop (`lg:flex-row`)
+- [x] "Picks" added to `SiteNavigation` navItems
+
+---
+
+## 9f. AI Discover Page (`/discover`) ✓ Completed
+
+Natural language → film search using client-side prompt parsing mapped to existing FilterState fields. No backend changes needed.
+
+- [x] Create `src/app/[locale]/discover/page.tsx`
+- [x] **Animated cycling placeholder** — 8 example prompts cycle every 3 seconds with fade transition via `AnimatePresence`
+- [x] **Client-side `parsePrompt()` function** — regex-based extraction mapping plain English to `FilterState`:
+  - Decade phrases ("80s", "from the 90s", "in 1970") → `decadeMin`/`decadeMax`
+  - Award body keywords ("oscar", "cannes", "golden globe") → `awardBody`
+  - Win/nomination status ("winner", "won", "nominated") → `winnerOnly`/`nominatedOnly`
+  - Rating hints ("highly rated", "acclaimed", "masterpiece") → `imdbRatingMin`
+  - Genre keywords ("drama", "comedy", "thriller", etc.) → `genre`
+  - Person/director names → `person` field
+  - Each matched rule appends a human-readable summary string
+- [x] **8 example prompt chips** — clickable quick-starts: "A French film that broke my heart", "Kubrick's best work", "Hidden gem from the 70s", "Cannes Palme d'Or winners", "A comedy that won big", "Scarlett Johansson films", "Best Picture winners since 2000", "Something Italian and dark"
+- [x] **"Interpreted as:" summary tags** — after parsing, colored chips show each matched filter so users understand how their prompt was read
+- [x] **Results grid** — responsive 1→2→3→4 columns; `ResultCard` component with backdrop image, film title, genre, year, director, bookmark button, IMDb rating, View Film link
+- [x] **SearchState machine** — `idle | loading | done | error` with appropriate UI for each state
+- [x] **RotateCcw reset button** — clears prompt and results, returns to idle
+- [x] "Discover" added to `SiteNavigation` navItems
 
 ---
 
