@@ -259,7 +259,7 @@ export default function HomePage() {
             "border-t border-[#1a1a28] lg:border-t-0 lg:border-l",
             "lg:w-[480px] xl:w-[520px]",
             "min-h-[400px] lg:min-h-0 lg:overflow-y-auto",
-            "p-4 lg:p-6",
+            "p-4",
           )}
         >
           <AnimatePresence mode="wait">
@@ -317,7 +317,7 @@ function FilmCard({ film }: { film: RollFilm }) {
   return (
     <div className="flex flex-col">
       {/* Channel pill */}
-      <div className="flex items-center px-3 pb-1.5 pt-3">
+      <div className="flex items-center -mx-1 -mt-1 mb-5">
         <span className="inline-flex items-center rounded-full border border-[#e8453c]/22 bg-[#e8453c]/10 px-3 py-1 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#e8453c]">
           {channelLabel}
         </span>
@@ -355,7 +355,7 @@ function FilmCard({ film }: { film: RollFilm }) {
         </p>
 
         {/* Title + bookmark */}
-        <div className="flex items-start justify-between gap-3">
+        <div className="flex items-start justify-between gap-3 mt-2">
           <h2 className="font-[family-name:var(--font-display)] text-xl font-bold leading-tight text-[#F5F5F0] sm:text-2xl">
             {film.title}
           </h2>
@@ -383,7 +383,7 @@ function FilmCard({ film }: { film: RollFilm }) {
         )}
 
         {/* Stats boxes */}
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-3 gap-2 mt-3">
           <StatBox
             label="IMDb"
             value={film.imdbRating != null ? film.imdbRating.toFixed(1) : "—"}
@@ -445,7 +445,7 @@ function FilmCard({ film }: { film: RollFilm }) {
         ) : null}
 
         {/* Action buttons */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 mt-2">
           <Link
             href={`/film/${film.slug}`}
             className={cn(
