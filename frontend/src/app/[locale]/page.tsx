@@ -270,7 +270,7 @@ export default function HomePage() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
-                transition={{ type: "spring", stiffness: 320, damping: 28 }}
+                transition={{ type: "spring", duration: 0.5, bounce: 0.16 }}
               >
                 <FilmCard film={film} />
               </motion.div>
@@ -280,6 +280,7 @@ export default function HomePage() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
                 className="flex flex-col flex-1"
               >
                 <FilmCardEmpty />
@@ -544,7 +545,7 @@ function FilmCardEmpty() {
 
         <div className="flex flex-col gap-0.5">
           <h3 className="font-[family-name:var(--font-display)] text-[2.4rem] font-bold leading-tight text-[#F5F5F0]">
-            What's playing
+            What&apos;s playing
           </h3>
           <h3 className="font-[family-name:var(--font-display)] text-[2.4rem] font-bold leading-tight text-[#e8453c]">
             tonight?

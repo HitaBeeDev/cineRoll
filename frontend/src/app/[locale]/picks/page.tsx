@@ -91,7 +91,8 @@ export default function PicksPage() {
   }, []);
 
   useEffect(() => {
-    void loadPicks();
+    const id = window.setTimeout(() => void loadPicks(), 0);
+    return () => window.clearTimeout(id);
   }, [loadPicks]);
 
   const dateLabel = new Date().toLocaleDateString("en-US", {
@@ -128,7 +129,7 @@ export default function PicksPage() {
                 ◈ Three Films · One Day ◈
               </p>
               <h1 className="font-[family-name:var(--font-display)] text-3xl font-bold text-[#F5F5F0] sm:text-4xl">
-                Today's Picks
+                Today&apos;s Picks
               </h1>
               <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest text-[#555568]">
                 {dateLabel} · Refreshes at midnight
@@ -173,7 +174,7 @@ export default function PicksPage() {
                     ))}
                   </div>
                   <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#444458]">
-                    Curating today's selection…
+                    Curating today&apos;s selection…
                   </p>
                 </div>
               </motion.div>
@@ -182,6 +183,7 @@ export default function PicksPage() {
                 key="picks"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
+                transition={{ duration: 0.25 }}
                 className="flex flex-1 flex-col lg:flex-row"
               >
                 {picks.map((pick, i) => (
@@ -209,7 +211,12 @@ function PickCard({ pick, index }: { pick: DailyPick; index: number }) {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.1, type: "spring", stiffness: 280, damping: 26 }}
+      transition={{
+        delay: index * 0.1,
+        type: "spring",
+        duration: 0.5,
+        bounce: 0.18,
+      }}
       className="group relative flex flex-1 flex-col overflow-hidden border-b border-[#1a1a28] lg:border-b-0 lg:border-r"
     >
       {/* Backdrop */}
@@ -220,7 +227,7 @@ function PickCard({ pick, index }: { pick: DailyPick; index: number }) {
             alt={film.title}
             fill
             sizes="(max-width: 1024px) 100vw, 33vw"
-            className="object-cover transition-transform duration-700 group-hover:scale-105"
+            className="object-cover transition-transform duration-[600ms] group-hover:scale-105"
             priority={index === 0}
           />
         ) : (

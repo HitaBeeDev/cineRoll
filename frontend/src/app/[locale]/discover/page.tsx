@@ -219,7 +219,7 @@ export default function DiscoverPage() {
         {/* Hero input section */}
         <div
           className={cn(
-            "flex flex-col items-center px-6 transition-all duration-500",
+            "flex flex-col items-center px-6 transition-all duration-300",
             search.status === "idle" || search.status === "loading"
               ? "justify-center flex-1 gap-8 py-16"
               : "gap-6 py-10 border-b border-[#1a1a28]",
@@ -237,7 +237,7 @@ export default function DiscoverPage() {
               <span className="text-[#e8453c]">mood for?</span>
             </h1>
             <p className="max-w-md font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest text-[#555568]">
-              Describe it in plain English — we'll find the films
+              Describe it in plain English — we&apos;ll find the films
             </p>
           </div>
 
@@ -318,6 +318,7 @@ export default function DiscoverPage() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
+              transition={{ duration: 0.45, ease: "easeOut" }}
               className="flex flex-col gap-6 px-6 py-8 sm:px-10"
             >
               {/* Interpreted as */}
@@ -368,6 +369,7 @@ export default function DiscoverPage() {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
+              transition={{ duration: 0.2 }}
               className="flex flex-col items-center gap-3 py-16 text-center"
             >
               <p className="font-[family-name:var(--font-display)] text-xl text-[#e8453c]/60">
@@ -397,7 +399,12 @@ function ResultCard({ film, index }: { film: RollFilm; index: number }) {
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.05, type: "spring", stiffness: 300, damping: 28 }}
+      transition={{
+        delay: index * 0.05,
+        type: "spring",
+        duration: 0.4,
+        bounce: 0.16,
+      }}
       className="group flex flex-col overflow-hidden rounded-xl border border-[#1e1e2a] bg-[#0d0d1a] transition-colors hover:border-[#2a2a3e]"
     >
       {/* Image */}
@@ -408,7 +415,7 @@ function ResultCard({ film, index }: { film: RollFilm; index: number }) {
             alt={film.title}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            className="object-cover transition-transform duration-[400ms] group-hover:scale-105"
           />
         ) : (
           <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a2e] to-[#09090f]" />
