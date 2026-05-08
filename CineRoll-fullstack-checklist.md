@@ -371,20 +371,20 @@ The dataset now includes two IMDB Top 250 Excel files alongside the award files.
 
 ## 7. Frontend — Project Setup
 
-- [ ] Create frontend folder
-- [ ] Initialize Next.js project (with App Router, TypeScript, Tailwind CSS)
-- [ ] Set frontend package name to @cineroll/frontend in package.json
-- [ ] Add shared types package as a dependency
-- [ ] Install additional frontend dependencies: Framer Motion (animations), Radix UI (accessible components), lucide-react (icons)
-- [ ] Create frontend `tsconfig.json` that extends root tsconfig
-- [ ] Configure Next.js `next.config.js` to allow image optimization from TMDB
-- [ ] Create frontend folder structure: src/ with subdirectories for app (pages), components, hooks, lib, styles, types
-- [ ] Create frontend `.env.local` with NEXT_PUBLIC_API_URL (backend API URL)
-- [ ] Create frontend `.env.example` as template
-- [ ] Setup global styles using Tailwind CSS
-- [ ] Define CSS variables for color scheme, spacing, typography
-- [ ] Create root layout in `src/app/layout.tsx` with head, body, and theme provider setup
-- [ ] Add ESLint configuration to frontend
+- [x] Create frontend folder
+- [x] Initialize Next.js project (with App Router, TypeScript, Tailwind CSS)
+- [x] Set frontend package name to @cineroll/frontend in package.json
+- [x] Add shared types package as a dependency
+- [x] Install additional frontend dependencies: Framer Motion (animations), Radix UI (accessible components), lucide-react (icons)
+- [x] Create frontend `tsconfig.json` that extends root tsconfig
+- [x] Configure Next.js `next.config.js` to allow image optimization from TMDB
+- [x] Create frontend folder structure: src/ with subdirectories for app (pages), components, hooks, lib, styles, types
+- [x] Create frontend `.env.local` with NEXT_PUBLIC_API_URL (backend API URL)
+- [x] Create frontend `.env.example` as template
+- [x] Setup global styles using Tailwind CSS
+- [x] Define CSS variables for color scheme, spacing, typography
+- [x] Create root layout in `src/app/layout.tsx` with head, body, and theme provider setup
+- [x] Add ESLint configuration to frontend
 
 ---
 
