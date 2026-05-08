@@ -107,6 +107,20 @@ export default function HomePage() {
       {/* ── Hero ──────────────────────────────────────────────────────── */}
       <section className="relative min-h-[85vh] sm:min-h-screen flex flex-col bg-[#09090f]">
 
+        {/* Cinema-dark overlay — fades in when rolling starts, out when done */}
+        <AnimatePresence>
+          {isRolling && (
+            <motion.div
+              key="cinema-dark"
+              className="absolute inset-0 z-30 pointer-events-none bg-[#02020a]"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.72 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2, ease: "easeIn" }}
+            />
+          )}
+        </AnimatePresence>
+
         {/* Content */}
         <div className="flex flex-col flex-1">
           <header className="flex items-center justify-between px-5 sm:px-8 py-4">
