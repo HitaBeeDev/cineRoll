@@ -82,7 +82,7 @@ export function filtersToParams(filters: Partial<FilterState>): URLSearchParams 
 export async function fetchRandom(filters?: Partial<FilterState>): Promise<RandomResult> {
   const params = filtersToParams(filters ?? {});
   const qs = params.toString();
-  const res = await fetch(`${API_URL}/api/random${qs ? `?${qs}` : ""}`);
+  const res = await fetch(`${API_URL}/api/random${qs ? `?${qs}` : ""}`, { cache: "no-store" });
   if (!res.ok) {
     const body = await res.json().catch(() => ({})) as { code?: string };
     const err = Object.assign(new Error("fetch failed"), { code: body.code ?? "UNKNOWN" });

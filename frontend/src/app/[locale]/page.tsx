@@ -30,15 +30,17 @@ export default function HomePage() {
   const [genres, setGenres] = useState<string[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [awardYears, setAwardYears] = useState<number[]>([]);
+  const [totalCount, setTotalCount] = useState<number | null>(null);
 
   const handleRollRef = useRef<() => Promise<void>>(async () => {});
   const filmCardRef = useRef<HTMLDivElement>(null);
 
-  // Fetch filter metadata
+  // Fetch filter metadata + total film count
   useEffect(() => {
     void fetchGenres().then(setGenres);
     void fetchCategories().then(setCategories);
     void fetchAwardYears().then(setAwardYears);
+    void fetchRandom().then((r) => setTotalCount(r.total)).catch(() => {});
   }, []);
 
   // Space key fires roll
@@ -142,7 +144,9 @@ export default function HomePage() {
       ? String(effectiveCount).padStart(3, "0")
       : filteredCount !== null
         ? String(filteredCount).padStart(3, "0")
-        : "···";
+        : totalCount !== null
+          ? String(totalCount).padStart(3, "0")
+          : "···";
 
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-[#09090f] text-[#F5F5F0]">
@@ -553,7 +557,7 @@ function FilmCardEmpty() {
           <div className="h-px flex-1 bg-gradient-to-l from-transparent to-[#2a2a3e]" />
         </div>
 
-        <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest text-[#555568]">
+        <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest text-[#888899]">
           Hit Roll or press Space to find out
         </p>
 
@@ -561,7 +565,7 @@ function FilmCardEmpty() {
           {["Oscar", "Cannes", "Golden Globe"].map((award) => (
             <span
               key={award}
-              className="rounded-full border border-[#1e1e2a] px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-widest text-[#444458]"
+              className="rounded-full border border-[#2a2a3e] px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-widest text-[#888899]"
             >
               {award}
             </span>
