@@ -86,6 +86,53 @@ function buildBreakdown(films: SnobTestFilm[], selectedIds: Set<string>): QuizBr
   };
 }
 
+function mostCommon<T extends string | number>(values: T[]): T | null {
+  const counts = new Map<T, number>();
+  for (const value of values) {
+    counts.set(value, (counts.get(value) ?? 0) + 1);
+  }
+  return Array.from(counts.entries()).sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
+}
+
+function buildGapHref(films: SnobTestFilm[], selectedIds: Set<string>) {
+  const unseenFilms = films.filter(film => !selectedIds.has(film.id));
+  if (unseenFilms.length === 0) return "/browse";
+
+  const params = new URLSearchParams();
+  const awardBody = mostCommon(unseenFilms.flatMap(film => getAwardBodies(film)));
+  const genre = mostCommon(unseenFilms.flatMap(film => film.genres));
+  const decade = mostCommon(unseenFilms.map(film => film.decade));
+
+  if (awardBody) params.set("awardBody", awardBody);
+  if (genre) params.set("genre", genre);
+  if (decade != null) {
+    params.set("decadeMin", String(decade));
+    params.set("decadeMax", String(decade + 9));
+  }
+
+  const query = params.toString();
+  return query ? `/browse?${query}` : "/browse";
+}
+
+function buildResultSentences(breakdown: QuizBreakdown) {
+  const topAwardBody = breakdown.awardBody[0];
+  const cannes = breakdown.awardBody.find(item => item.label === "Cannes");
+  const topDecade = [...breakdown.decade].sort((a, b) => b.total - a.total)[0];
+  const sentences: string[] = [];
+
+  if (topAwardBody) {
+    sentences.push(`You've seen ${topAwardBody.percent}% of ${topAwardBody.label} picks in this round.`);
+  }
+  if (cannes && cannes !== topAwardBody) {
+    sentences.push(`You've seen ${cannes.percent}% of Cannes picks.`);
+  }
+  if (topDecade) {
+    sentences.push(`You've seen ${topDecade.percent}% of films from the ${topDecade.label}.`);
+  }
+
+  return sentences;
+}
+
 function PosterFallback({ title, color }: { title: string; color: string | null }) {
   return (
     <div
@@ -108,6 +155,8 @@ export function SnobTestClient() {
 
   const selectedCount = selectedIds.size;
   const breakdown = useMemo(() => buildBreakdown(films, selectedIds), [films, selectedIds]);
+  const gapHref = useMemo(() => buildGapHref(films, selectedIds), [films, selectedIds]);
+  const resultSentences = useMemo(() => buildResultSentences(breakdown), [breakdown]);
 
   const loadFilms = useCallback(async () => {
     setStatus("loading");
@@ -226,7 +275,7 @@ export function SnobTestClient() {
                 </div>
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5">
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
                 {status === "loading"
                   ? Array.from({ length: 20 }).map((_, index) => (
                     <div
@@ -343,6 +392,13 @@ export function SnobTestClient() {
                       />
                     </div>
                   </div>
+                  {resultSentences.length > 0 && (
+                    <div className="mt-5 space-y-1.5 text-sm leading-6 text-[#d4d4df]">
+                      {resultSentences.map(sentence => (
+                        <p key={sentence}>{sentence}</p>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 <div className="border border-[#242435] bg-[#101017] p-5">
@@ -381,7 +437,7 @@ export function SnobTestClient() {
                     Take the test again
                   </Button>
                   <Button asChild variant="ghost" className="text-[#D4AF37] hover:bg-[#171720] hover:text-[#f1ca51]">
-                    <Link href="/browse">Find films to fill the gaps</Link>
+                    <Link href={gapHref}>Find films to fill the gaps</Link>
                   </Button>
                 </div>
               </div>
