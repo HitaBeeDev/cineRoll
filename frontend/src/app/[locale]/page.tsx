@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bookmark, Share2, X as XIcon, Eye, Dices } from "lucide-react";
+import { Bookmark, Share2, Dices } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/toast";
 import { FilterBar } from "@/components/filter-bar";
@@ -184,8 +184,8 @@ export default function HomePage() {
           <div>
             <h1
               className={cn(
-                "font-[family-name:var(--font-display)] font-bold leading-[1.02] tracking-tight",
-                "text-[clamp(2.4rem,4.5vw,4.2rem)] text-[#F5F5F0]",
+                "font-[family-name:var(--font-display)] font-bold leading-[1.0] tracking-tight",
+                "text-[clamp(3.2rem,5.8vw,5.8rem)] text-[#F5F5F0]",
               )}
             >
               One spin.
@@ -194,7 +194,7 @@ export default function HomePage() {
               <br />
               Tonight.
             </h1>
-            <p className="mt-3 max-w-sm text-sm leading-relaxed text-[#888899]">
+            <p className="mt-4 max-w-[380px] text-sm leading-relaxed text-[#888899]">
               A jukebox for award cinema. Tune the dials below, then pull the lever.
             </p>
           </div>
@@ -209,9 +209,10 @@ export default function HomePage() {
             onClearFilters={resetFilters}
           />
 
-          {/* ROLL button + pool count */}
-          <div className="flex flex-col gap-3">
-            <div className="rounded-2xl border-2 border-dashed border-[#e8453c]/28 p-1.5">
+          {/* ROLL button + pool count — side by side */}
+          <div className="flex items-center gap-4">
+            {/* Marquee-border ROLL box */}
+            <div className="flex-1 rounded-2xl border-2 border-dashed border-[#e8453c]/30 p-1.5">
               <button
                 onClick={() => void handleRoll()}
                 disabled={isRollDisabled}
@@ -219,7 +220,7 @@ export default function HomePage() {
                 className={cn(
                   "w-full rounded-xl py-[18px]",
                   "bg-[#e8453c] text-white",
-                  "font-[family-name:var(--font-geist-mono)] text-lg font-bold uppercase tracking-[0.25em]",
+                  "font-[family-name:var(--font-geist-mono)] text-xl font-bold uppercase tracking-[0.25em]",
                   "select-none transition-all duration-150",
                   "hover:bg-[#d5342b] hover:shadow-[0_0_40px_rgba(232,69,60,0.28)]",
                   "active:scale-[0.98]",
@@ -232,15 +233,21 @@ export default function HomePage() {
               </button>
             </div>
 
-            <p className="text-center font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.15em] text-[#888899]">
-              Reel Pool ·{" "}
-              <span className="font-bold text-[#e8453c]">{poolCountStr}</span>{" "}
-              films · press{" "}
-              <kbd className="rounded border border-[#222232] px-1 py-0.5 text-[9px] text-[#888899]">
-                space
-              </kbd>{" "}
-              to spin
-            </p>
+            {/* Pool counter — to the right of the ROLL box */}
+            <div className="shrink-0 flex flex-col gap-0.5">
+              <span className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#555568]">
+                Reel Pool
+              </span>
+              <span className="font-[family-name:var(--font-geist-mono)] text-[2rem] font-bold leading-none text-[#e8453c]">
+                {poolCountStr}
+              </span>
+              <span className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#555568]">
+                Films
+              </span>
+              <span className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-widest text-[#444458]">
+                Press [Space] to spin
+              </span>
+            </div>
           </div>
         </div>
 
@@ -249,42 +256,46 @@ export default function HomePage() {
           ref={filmCardRef}
           className={cn(
             "border-t border-[#1a1a28] lg:border-t-0 lg:border-l",
-            "lg:w-[460px] xl:w-[500px]",
+            "lg:w-[480px] xl:w-[520px]",
             "min-h-[400px] lg:min-h-0 lg:overflow-y-auto",
+            "p-4 lg:p-6",
           )}
         >
-          <AnimatePresence mode="wait">
-            {isRolling ? (
-              <motion.div
-                key="skeleton"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.15 }}
-              >
-                <FilmCardSkeleton />
-              </motion.div>
-            ) : film ? (
-              <motion.div
-                key={film.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                transition={{ type: "spring", stiffness: 320, damping: 28 }}
-              >
-                <FilmCard film={film} />
-              </motion.div>
-            ) : (
-              <motion.div
-                key="empty"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-              >
-                <FilmCardEmpty />
-              </motion.div>
-            )}
-          </AnimatePresence>
+          {/* Card container with border + rounded corners */}
+          <div className="rounded-2xl border border-[#1e1e2a] bg-[#0c0c18] overflow-hidden">
+            <AnimatePresence mode="wait">
+              {isRolling ? (
+                <motion.div
+                  key="skeleton"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.15 }}
+                >
+                  <FilmCardSkeleton />
+                </motion.div>
+              ) : film ? (
+                <motion.div
+                  key={film.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ type: "spring", stiffness: 320, damping: 28 }}
+                >
+                  <FilmCard film={film} />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="empty"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                >
+                  <FilmCardEmpty />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
       </div>
     </div>
@@ -439,10 +450,14 @@ function FilmCard({ film }: { film: RollFilm }) {
             Watch Tonight
           </Link>
           <ActionBtn aria-label="Mark as watched">
-            <Eye className="h-4 w-4" aria-hidden />
+            <span className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest">
+              Watched
+            </span>
           </ActionBtn>
           <ActionBtn aria-label="Pass on this film">
-            <XIcon className="h-4 w-4" aria-hidden />
+            <span className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest">
+              Pass
+            </span>
           </ActionBtn>
           <ActionBtn aria-label="Share">
             <Share2 className="h-4 w-4" aria-hidden />
@@ -476,16 +491,18 @@ function AwardTag({ children }: { children: React.ReactNode }) {
 
 function ActionBtn({
   children,
+  className,
   ...props
 }: React.ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
     <button
       type="button"
       className={cn(
-        "flex h-11 w-11 items-center justify-center rounded-xl",
+        "flex h-11 items-center justify-center rounded-xl px-3",
         "border border-[#1e1e2a] text-[#444458]",
         "transition-colors hover:border-[#2a2a3e] hover:text-[#F5F5F0]",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
+        className,
       )}
       {...props}
     >

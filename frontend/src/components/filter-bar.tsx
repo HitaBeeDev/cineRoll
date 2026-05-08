@@ -44,7 +44,7 @@ const PRESETS: { label: string; filters: Partial<FilterState> }[] = [
   { label: "Something from the 90s", filters: { decadeMin: 1990, decadeMax: 1999 } },
   { label: "Cannes Palme d'Or", filters: { awardBody: "cannes" as AwardBody, winnerOnly: true } },
   { label: "Best Picture Winner", filters: { awardBody: "oscar" as AwardBody, winnerOnly: true } },
-  { label: "Critically Acclaimed", filters: { imdbRatingMin: 8, rtScoreMin: 90 } },
+  { label: "Under 2 Hours", filters: { imdbRatingMin: 6 } },
   { label: "Hidden Gem", filters: { imdbRatingMin: 7.5 } },
   { label: "GG Drama Winner", filters: { awardBody: "goldenglobe" as AwardBody, winnerOnly: true } },
 ];
