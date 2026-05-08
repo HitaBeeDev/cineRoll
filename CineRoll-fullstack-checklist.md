@@ -350,7 +350,7 @@ The dataset now includes two IMDB Top 250 Excel files alongside the award files.
 - [x] Create `backend/src/middleware/errorHandler.ts` to catch all errors and return consistent error responses
 - [x] Create `backend/src/middleware/validate.ts` to validate requests against Zod schemas
 - [x] Mount all routes in `backend/src/app.ts`
-- [x] Test all endpoints using Postman or similar tool
+- [ ] Test all endpoints using Postman or similar tool
 
 ### API Response Optimization (For Lighthouse Performance Score)
 
@@ -364,7 +364,7 @@ The dataset now includes two IMDB Top 250 Excel files alongside the award files.
   - [x] Random film: cache for 1 minute
   - [x] Search results: cache for 5 minutes
   - [x] Film detail: cache for 24 hours
-- [x] Test API response times: search should complete in under 200ms, single lookups under 100ms
+- [ ] Test API response times: search should complete in under 200ms, single lookups under 100ms
 - [x] Monitor backend performance: check server logs for slow requests
 
 ---
