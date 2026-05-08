@@ -381,8 +381,8 @@ The dataset now includes two IMDB Top 250 Excel files alongside the award files.
 - [x] Create frontend folder structure: src/ with subdirectories for app (pages), components, hooks, lib, styles, types
 - [x] Create frontend `.env.local` with NEXT_PUBLIC_API_URL (backend API URL)
 - [x] Create frontend `.env.example` as template
-- [x] Setup global styles using Tailwind CSS
-- [x] Define CSS variables for color scheme, spacing, typography
+- [x] Setup global styles using Tailwind CSS — `globals.css` contains only `@import "tailwindcss"`; no global styles
+- [x] Define CSS variables for color scheme, spacing, typography — **intentionally skipped**: no CSS variables or global styles; all colors and spacing via Tailwind utility classes directly in component files
 - [x] Create root layout in `src/app/layout.tsx` with head, body, and theme provider setup
 - [x] Add ESLint configuration to frontend
 
