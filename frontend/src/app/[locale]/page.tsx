@@ -27,6 +27,78 @@ function hexToRgba(hex: string, alpha: number): string {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
+// Boosts saturation and normalises lightness so averaged canvas colors stay vivid
+function vibrateColor(hex: string): string {
+  let r = parseInt(hex.slice(1, 3), 16) / 255;
+  let g = parseInt(hex.slice(3, 5), 16) / 255;
+  let b = parseInt(hex.slice(5, 7), 16) / 255;
+
+  const max = Math.max(r, g, b), min = Math.min(r, g, b), d = max - min;
+  let h = 0, s = 0;
+  const l = (max + min) / 2;
+
+  if (d !== 0) {
+    s = d / (l > 0.5 ? 2 - max - min : max + min);
+    if (max === r) h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
+    else if (max === g) h = ((b - r) / d + 2) / 6;
+    else h = ((r - g) / d + 4) / 6;
+  }
+
+  const boostedS = Math.min(1, s * 2.2 + 0.25);   // push saturation hard
+  const boostedL = Math.min(0.62, Math.max(0.38, l)); // keep mid-range lightness
+
+  // HSL → RGB
+  const hue2rgb = (p: number, q: number, t: number) => {
+    const tt = ((t % 1) + 1) % 1;
+    if (tt < 1 / 6) return p + (q - p) * 6 * tt;
+    if (tt < 1 / 2) return q;
+    if (tt < 2 / 3) return p + (q - p) * (2 / 3 - tt) * 6;
+    return p;
+  };
+  const q = boostedL < 0.5 ? boostedL * (1 + boostedS) : boostedL + boostedS - boostedL * boostedS;
+  const p = 2 * boostedL - q;
+  r = hue2rgb(p, q, h + 1 / 3);
+  g = hue2rgb(p, q, h);
+  b = hue2rgb(p, q, h - 1 / 3);
+
+  return `#${[r, g, b].map(v => Math.round(v * 255).toString(16).padStart(2, "0")).join("")}`;
+}
+
+function extractColorFromImage(url: string): Promise<string | null> {
+  return new Promise((resolve) => {
+    const img = new window.Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      try {
+        const canvas = document.createElement("canvas");
+        canvas.width = 50;
+        canvas.height = 75;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) { resolve(null); return; }
+        ctx.drawImage(img, 0, 0, 50, 75);
+        const { data } = ctx.getImageData(0, 0, 50, 75);
+        let r = 0, g = 0, b = 0, count = 0;
+        for (let i = 0; i < data.length; i += 4) {
+          const pr = data[i] ?? 0;
+          const pg = data[i + 1] ?? 0;
+          const pb = data[i + 2] ?? 0;
+          const brightness = (pr + pg + pb) / 3;
+          if (brightness > 30 && brightness < 220) {
+            r += pr; g += pg; b += pb; count++;
+          }
+        }
+        if (count === 0) { resolve(null); return; }
+        const raw = `#${[r, g, b].map(v => Math.round(v / count).toString(16).padStart(2, "0")).join("")}`;
+        resolve(vibrateColor(raw));
+      } catch {
+        resolve(null);
+      }
+    };
+    img.onerror = () => resolve(null);
+    img.src = url;
+  });
+}
+
 
 export default function HomePage() {
   const { toast } = useToast();
@@ -95,7 +167,9 @@ export default function HomePage() {
       setFilm(result.film);
       setFilteredCount(result.total);
       setHasRolled(true);
-      if (result.film.posterColor) setHeroColor(result.film.posterColor);
+      const color = result.film.posterColor
+        ?? (result.film.posterUrl ? await extractColorFromImage(result.film.posterUrl) : null);
+      if (color) setHeroColor(color);
       setTimeout(() => resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
     } catch (err) {
       const code = err instanceof Error ? (err as Error & { code?: string }).code : undefined;
@@ -137,7 +211,7 @@ export default function HomePage() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.6, ease: "easeOut" }}
               style={{
-                background: `radial-gradient(ellipse 140% 75% at 50% 0%, ${hexToRgba(heroColor, 0.38)} 0%, ${hexToRgba(heroColor, 0.12)} 40%, transparent 68%)`,
+                background: `radial-gradient(ellipse 160% 95% at 50% 0%, ${hexToRgba(heroColor, 0.7)} 0%, ${hexToRgba(heroColor, 0.35)} 40%, transparent 72%)`,
               }}
             />
           )}
