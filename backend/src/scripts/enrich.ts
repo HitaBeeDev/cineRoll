@@ -356,7 +356,7 @@ async function tmdbTvDetails(tmdbId: number): Promise<Record<string, unknown>> {
   return res.json() as Promise<Record<string, unknown>>;
 }
 
-async function omdbDetails(imdbId: string): Promise<Record<string, unknown>> {
+async function _omdbDetails(imdbId: string): Promise<Record<string, unknown>> {
   const url = `${OMDB_BASE}/?i=${imdbId}&apikey=${OMDB_KEY}`;
   const res = await fetch(url);
   if (!res.ok) throw new Error(`OMDB lookup failed: ${res.status} ${res.statusText}`);
@@ -434,9 +434,12 @@ function makeSlug(title: string, year: number | string, usedSlugs: Set<string>):
 }
 
 async function main() {
-  if (!TMDB_KEY || !OMDB_KEY) {
-    console.error('Missing API keys - fill in TMDB_API_KEY and OMDB_API_KEY in backend/.env.local');
+  if (!TMDB_KEY) {
+    console.error('Missing TMDB_API_KEY — fill it in backend/.env.local');
     process.exit(1);
+  }
+  if (!OMDB_KEY) {
+    console.warn('OMDB_API_KEY not set — skipping OMDB calls; imdbRating and rtScore will be null for non-IMDB-Top-250 films');
   }
 
   if (!fs.existsSync(SOURCE_DATA_DIR)) {
@@ -586,21 +589,7 @@ async function main() {
       // Check IMDB Top 250 overlay for this film
       const imdbMovieEntry = imdbMovieMap.get(`${title.toLowerCase().trim()}|${parseInt(year, 10)}`);
       if (imdbMovieEntry) {
-        // Use IMDB file rating directly — more complete than OMDB
         imdbRating = imdbMovieEntry.rating;
-      } else if (imdbId) {
-        await delay(250);
-        try {
-          const omdb = await omdbDetails(imdbId);
-          const imdbRaw = omdb.imdbRating as string | undefined;
-          if (imdbRaw && imdbRaw !== 'N/A') imdbRating = parseFloat(imdbRaw);
-          const ratings = omdb.Ratings as Array<{ Source: string; Value: string }> | undefined;
-          const rtRaw = ratings?.find(r => r.Source === 'Rotten Tomatoes')?.Value;
-          if (rtRaw) rtScore = parseInt(rtRaw.replace('%', ''), 10);
-        } catch (err: unknown) {
-          const msg = err instanceof Error ? err.message : String(err);
-          console.warn(`  ! OMDB skipped: ${msg}`);
-        }
       }
 
       const slug = makeSlug(title, year, usedSlugs);
@@ -714,20 +703,7 @@ async function main() {
           ? originalTitleRaw
           : null;
 
-      // Fetch RT score from OMDB (IMDB rating already known from IMDB file)
-      let rtScore: number | null = null;
-      if (imdbId) {
-        await delay(250);
-        try {
-          const omdb = await omdbDetails(imdbId);
-          const ratings = omdb.Ratings as Array<{ Source: string; Value: string }> | undefined;
-          const rtRaw = ratings?.find(r => r.Source === 'Rotten Tomatoes')?.Value;
-          if (rtRaw) rtScore = parseInt(rtRaw.replace('%', ''), 10);
-        } catch (err: unknown) {
-          const msg = err instanceof Error ? err.message : String(err);
-          console.warn(`  ! OMDB skipped: ${msg}`);
-        }
-      }
+      const rtScore: number | null = null;
 
       const slug = makeSlug(row.name, year, usedSlugs);
       const posterPath = details.poster_path as string | null | undefined;

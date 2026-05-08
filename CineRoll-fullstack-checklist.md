@@ -66,7 +66,7 @@ Monorepo with `cineroll/` root containing:
 2. Shared Types Package
 3. Backend — Project Setup
 4. Backend — Database & Prisma
-5. Backend — Film Data Pipeline (Excel + Oscar + Golden Globes + Cannes + Film Color Theming)
+5. Backend — Film Data Pipeline (Excel + Oscar + Golden Globes + Cannes + IMDB Top 250 + Film Color Theming)
 6. Backend — API Routes (incl. Autocomplete + Person endpoints)
 7. Frontend — Project Setup
    7b. Cinematic Design System & UI/UX
@@ -196,7 +196,7 @@ Monorepo with `cineroll/` root containing:
 
 ---
 
-## 5. Backend — Film Data Pipeline (Excel + Oscar + Golden Globes + Cannes)
+## 5. Backend — Film Data Pipeline (Excel + Oscar + Golden Globes + Cannes + IMDB Top 250)
 
 ### 5.0 Data File Preparation
 
@@ -209,31 +209,39 @@ Monorepo with `cineroll/` root containing:
 - [x] Prepare Cannes data as Excel (.xlsx) — same column structure, `Id` format: `CN-{year}-{nn}`
 - [x] Prepare IMDB Top 250 data as two Excel (.xlsx) files in `backend/data/`: `IMDB_top_250_movies_structured.xlsx` (columns: `name, rank, year, time, certificate, rating`) and `IMDB_top_250_tvShows_structured.xlsx` (columns: `name, rank, start_year, end_year, certificate, type, rating`) — used to populate `imdbTopMovieRank`, `imdbTopTvRank`, `certificate`, `tvType`, `tvStartYear`, `tvEndYear` on the Film model
 - [x] Install Excel parsing library in backend: `npm install xlsx --workspace=backend`
-- [x] Update enrich script to auto-discover and read all `.xlsx` files in `backend/data/` (Oscar, Golden Globe, Cannes) — **all three files share the same column structure** (`Id, Award Year, Movie Name, Release Year, Type Of Award, Award Winner, Award Nominee`); the `Id` prefix (`OSC-` / `GG-` / `CN-`) determines the award body automatically
+- [ ] Update enrich script to auto-discover and read all `.xlsx` files in `backend/data/movie excel datas/` (Oscar, Golden Globe, Cannes award files + IMDB Top 250 movies + IMDB Top 250 TV shows) — award files are identified by the `Id` + `Award Year` columns; IMDB files are identified by the `rank` column; the `Id` prefix (`OSC-` / `GG-` / `CN-`) determines award body automatically
 - [x] After pipeline runs and data is seeded, **remove all intermediate/old unused files** from `backend/data/` (e.g. old CSV files, old JSON drafts). Never delete original `.xlsx` source files.
 
 ### 5a. Enrichment Script — Fetch Data from TMDB & OMDB APIs
 
 - [x] Install Excel parsing library in backend: `npm install xlsx --workspace=backend` (replaces csv-parse)
 - [x] Create `backend/.env.local` with TMDB_API_KEY and OMDB_API_KEY (these are only for enrichment, not used at runtime)
-- [x] Update `backend/src/scripts/enrich.ts` script to:
-  - Load environment variables from .env.local
-  - Auto-discover and read all `.xlsx` files in `backend/data/`: Oscar file(s), Golden Globe file, and Cannes file
-  - Group rows by (film title + release year) to get unique films across all three award bodies
-  - For each unique film, build `oscarCategories`, `ggCategories`, and `cannesCategories` arrays of `AwardRecord` objects: `{ awardBody, awardYear, category, nominee, won }`
-  - Calculate `oscarNominations`, `oscarWins`, `ggNominations`, `ggWins`, `cannesNominations`, `cannesWins` counts
-  - Search TMDB API using film title and release year to get TMDB ID
-  - If no match found, log error to enrichment-errors.csv and continue to next film
-  - If match found, fetch full TMDB movie details to get: runtime, genres, **content type** (movie / documentary / animation / etc.), **original title** (`original_title` field from TMDB — store only if different from the English title), director, cast (top 10), IMDB ID, poster, backdrop, and trailer URL
-  - Use IMDB ID to query OMDB API for: IMDB rating and Rotten Tomatoes score
-  - Generate a unique slug for the film (lowercase title with hyphens, append year if duplicate)
+- [ ] Update `backend/src/scripts/enrich.ts` script to:
+  - Load environment variables from .env.local (TMDB_API_KEY, OMDB_API_KEY)
+  - Auto-discover all `.xlsx` files in `backend/data/movie excel datas/` recursively via `discoverWorkbookFiles()`
+  - Detect file type for each workbook using `detectFileType()`: reads first-row headers — award files have `Id` + `Award Year`; IMDB movies have `rank` + `time`; IMDB TV shows have `rank` + `start_year`
+  - Parse IMDB movies file into `ImdbMovieRow` lookup map keyed by `"lowercaseTitle|year"`
+  - Parse IMDB TV shows file into `ImdbTvRow` lookup map keyed by `"lowercaseName|startYear"`
+  - Parse IMDB runtime from "2h 22m" format into integer minutes via `parseImdbRuntime()`
+  - **Phase 1 — Award films**: group award rows by (title + release year); for each unique film:
+    - Build `oscarCategories`, `ggCategories`, `cannesCategories` arrays of `AwardRecord` objects: `{ awardBody, awardYear, category, nominee, won }`
+    - Calculate `oscarNominations`, `oscarWins`, `ggNominations`, `ggWins`, `cannesNominations`, `cannesWins` counts
+    - Search TMDB movie API using film title and release year to get TMDB ID
+    - If no match found, log error to enrichment-errors.csv and continue
+    - Fetch full TMDB movie details: runtime, genres, **content type** (movie / documentary / animation / short), **original title** (only if different from English title), director, cast (top 10), IMDB ID, poster, backdrop, trailer URL
+    - Overlay IMDB Top 250 data: if title+year matches IMDB movie map, set `imdbTopMovieRank`, `certificate`, and use IMDB file `rating` as `imdbRating` (more complete than OMDB)
+    - If not in IMDB Top 250, use IMDB ID to query OMDB API for IMDB rating and Rotten Tomatoes score
+  - **Phase 2 — IMDB-only movies**: enrich movies that appear in IMDB Top 250 but not in any award file; search TMDB movie endpoint, fetch full details, set `imdbTopMovieRank`/`certificate`/`imdbRating` from IMDB file; fetch RT score from OMDB only; skip if TMDB ID already enriched in Phase 1
+  - **Phase 3 — IMDB TV shows**: enrich all 250 TV shows (award files cover only movies); search TMDB `/search/tv?first_air_date_year=<year>`; fetch `/tv/:id?append_to_response=credits,videos,external_ids`; set `imdbTopTvRank`, `certificate`, `tvType`, `tvStartYear`, `tvEndYear`, `contentType` (tv-series / tv-mini-series via `contentTypeFromImdbTvType()`)
+  - Generate a unique slug for every film (lowercase title with hyphens, append year then counter if duplicate)
   - Add rate limiting between API calls (250ms delay) to respect rate limits
   - Write all successfully enriched films to films-enriched.json
   - Write failed films to enrichment-errors.csv with reason
-  - Log summary: how many enriched, how many errors
+  - Log summary: total enriched, award films, IMDB movies, TV shows, errors
 - [x] Run enrichment script — **8,412 enriched, 7,725 errors** (errors are mostly obscure early Cannes films not on TMDB)
 - [x] Review enrichment-errors.csv — 7,180 "No TMDB match" (expected for obscure foreign/short films), remainder are year-column CSV artifacts; no fixable title issues identified
 - [x] Fix any failed films — N/A; failures are genuinely unlisted on TMDB, not spelling errors
+- [ ] **Manually add films that had no TMDB match**: open `enrichment-errors.csv`, go through the "No TMDB match" entries, and for important films (major Oscar/GG/Cannes winners that should be in the dataset), manually create their JSON entry in `films-final.json` with data filled in by hand (poster URL from another source, plot, cast, etc.)
 - [x] Validate output: all 8,412 slugs unique; fixed `originalTitle` bug (687 films had casing-only difference set as originalTitle — corrected to null); OMDB ratings sparse (857/8,412) due to free-tier 1,000/day limit — re-run tomorrow to fill in ratings
 - [x] Save validated result as `backend/data/films-final.json` (8,412 films)
 
@@ -757,6 +765,14 @@ Instead of dropdowns, the user describes what they want in plain English. Claude
 - [ ] Add "Back to Browse" or "Roll Again" navigation buttons
 - [ ] **Original Title** — if `originalTitle` is set and differs from `title`, display it in smaller text directly below the main title (e.g. _Das Leben der Anderen_ under "The Lives of Others"); skip if null or identical
 - [ ] **Film Color Theming** — read `posterColor` from the film object and apply it as a subtle accent: hero backdrop gradient, detail page header tint, film card left border or background wash; fall back to a neutral dark color if `posterColor` is null
+
+### Where to Stream
+
+- [ ] In the enrich script, after fetching TMDB movie details, make one additional call to `GET /movie/{tmdb_id}/watch/providers` (free, no new API key — uses JustWatch data via TMDB); store the result per country as a `watchProviders` JSON field on the film
+- [ ] Add `watchProviders` (Json, nullable) to the Prisma Film model and run migration
+- [ ] Include `watchProviders` in the `/api/films/:slug` response
+- [ ] Frontend — Film Detail Page: add a "Where to Watch" section showing streaming service logos (Netflix, Hulu, Disney+, etc.) for the user's country; group by flatrate (subscription), rent, and buy
+- [ ] Fall back gracefully if no providers available for the user's region: show "Not available for streaming in your region"
 
 ### Similar Films
 
