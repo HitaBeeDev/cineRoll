@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, setRequestLocale } from "next-intl/server";
+import { PageTransition } from "@/components/page-transition";
 import { Providers } from "@/components/providers";
 import { isSupportedLocale, type Locale } from "@/i18n/request";
 import "../globals.css";
@@ -64,7 +65,9 @@ export default async function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <NextIntlClientProvider messages={messages}>
-          <Providers>{children}</Providers>
+          <Providers>
+            <PageTransition>{children}</PageTransition>
+          </Providers>
         </NextIntlClientProvider>
       </body>
     </html>
