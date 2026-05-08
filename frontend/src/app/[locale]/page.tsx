@@ -107,6 +107,7 @@ export default function HomePage() {
   const [heroColor, setHeroColor] = useState<string | null>(null);
   const [isRolling, setIsRolling] = useState(false);
   const [hasRolled, setHasRolled] = useState(false);
+  const [isHeaderScrolled, setIsHeaderScrolled] = useState(false);
   const [spaceHintVisible, setSpaceHintVisible] = useState(false);
   const [filteredCount, setFilteredCount] = useState<number | null>(null);
   const [isCountLoading, setIsCountLoading] = useState(false);
@@ -124,6 +125,13 @@ export default function HomePage() {
     void fetchAwardYears().then(setAwardYears);
     const t = setTimeout(() => setSpaceHintVisible(true), 1000);
     return () => clearTimeout(t);
+  }, []);
+
+  useEffect(() => {
+    const updateHeaderState = () => setIsHeaderScrolled(window.scrollY > 80);
+    updateHeaderState();
+    window.addEventListener("scroll", updateHeaderState, { passive: true });
+    return () => window.removeEventListener("scroll", updateHeaderState);
   }, []);
 
   // Space key fires Roll without re-registering on every filter change
@@ -262,7 +270,14 @@ export default function HomePage() {
 
         {/* Content */}
         <div className="relative z-20 flex flex-col flex-1">
-          <header className="flex items-center justify-between px-5 sm:px-8 py-4 text-[#F5F5F0]">
+          <header
+            className={cn(
+              "sticky top-0 z-50 flex items-center justify-between px-5 py-4 text-[#F5F5F0] transition-[background-color,backdrop-filter,box-shadow] duration-200 ease-out sm:px-8",
+              isHeaderScrolled
+                ? "bg-[rgba(9,9,15,0.85)] shadow-[0_1px_0_rgba(245,245,240,0.08)] backdrop-blur-[20px]"
+                : "bg-transparent shadow-none backdrop-blur-0",
+            )}
+          >
             <span className="text-xl font-bold tracking-tight">CineRoll</span>
             <Link
               href="/browse"
