@@ -561,7 +561,7 @@ A standalone quiz page (`/snob-test`) that works without any account. Users tick
 
 ### Frontend
 
-- [ ] Create `src/app/snob-test/page.tsx` — full-screen quiz experience
+- [x] Create `src/app/snob-test/page.tsx` — full-screen quiz experience
 - [ ] Step 1: show 20 film posters in a 4×5 grid; user taps each one they've seen (tap = highlight with checkmark); no right/wrong, just selection
 - [ ] Step 2: "See My Score" button submits selections and reveals result screen:
   - Giant score title ("Serious Cinephile") with a brief description

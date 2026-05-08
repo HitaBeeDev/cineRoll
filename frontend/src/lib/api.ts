@@ -52,6 +52,42 @@ export type PickOfDayFilm = Pick<
   | "pickOfDayDate"
 >;
 
+export type SnobTestFilm = Pick<
+  Film,
+  | "id"
+  | "slug"
+  | "title"
+  | "originalTitle"
+  | "year"
+  | "releaseYear"
+  | "genres"
+  | "posterUrl"
+  | "posterColor"
+  | "imdbRating"
+  | "imdbTopMovieRank"
+  | "imdbTopTvRank"
+  | "oscarNominations"
+  | "oscarWins"
+  | "ggNominations"
+  | "ggWins"
+  | "cannesNominations"
+  | "cannesWins"
+> & {
+  decade: number;
+  awardBodies: Array<"oscar" | "goldenglobe" | "cannes">;
+};
+
+export type SnobTestScore = {
+  score: number;
+  title: string;
+  seen: number;
+  total: number;
+  breakdown: {
+    byDecade: Record<string, { seen: number; total: number }>;
+    byAwardBody: Record<"oscar" | "goldenglobe" | "cannes", { seen: number; total: number }>;
+  };
+};
+
 export function filtersToParams(filters: Partial<FilterState>): URLSearchParams {
   const params = new URLSearchParams();
   if (filters.search?.trim()) params.set("search", filters.search.trim());
@@ -105,6 +141,23 @@ export async function fetchPickOfDay(): Promise<PickOfDayFilm | null> {
   if (res.status === 404) return null;
   if (!res.ok) throw new Error("Failed to fetch pick of the day");
   return res.json() as Promise<PickOfDayFilm>;
+}
+
+export async function fetchSnobTestFilms(): Promise<SnobTestFilm[]> {
+  const res = await fetch(`${API_URL}/api/snob-test/films`, { cache: "no-store" });
+  if (!res.ok) throw new Error("Failed to fetch Snob Test films");
+  const data = await res.json() as { films: SnobTestFilm[] };
+  return data.films;
+}
+
+export async function scoreSnobTest(seenFilmIds: string[]): Promise<SnobTestScore> {
+  const res = await fetch(`${API_URL}/api/snob-test/score`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ seenFilmIds }),
+  });
+  if (!res.ok) throw new Error("Failed to score Snob Test");
+  return res.json() as Promise<SnobTestScore>;
 }
 
 export async function fetchGenres(): Promise<string[]> {
