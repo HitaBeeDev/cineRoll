@@ -9,6 +9,7 @@ import { RollAgainButton } from "@/components/roll-again-button";
 import { SiteNavigation } from "@/components/site-navigation";
 import { FilmDetailHero } from "@/components/film-detail-hero";
 import { FilmTrailer } from "@/components/film-trailer";
+import { WatchTonightButton } from "@/components/watch-tonight-button";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 const FALLBACK_ACCENT = "#D4AF37";
@@ -318,6 +319,7 @@ export default async function FilmPage({
             </Link>
             <RollAgainButton />
           </div>
+          <WatchTonightButton title={film.title} year={film.year} />
         </div>
       </main>
     </div>
