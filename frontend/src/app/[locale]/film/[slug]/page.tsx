@@ -98,6 +98,7 @@ export default async function FilmPage({
       <main className="flex-1">
         <FilmDetailHero
           title={film.title}
+          originalTitle={film.originalTitle}
           year={film.year}
           runtime={film.runtime}
           language={film.language}

@@ -18,6 +18,7 @@ function hexToRgba(hex: string, alpha: number): string {
 
 type FilmDetailHeroProps = {
   title: string;
+  originalTitle: string | null;
   year: number;
   runtime: number | null;
   language: string | null;
@@ -29,6 +30,7 @@ type FilmDetailHeroProps = {
 
 export function FilmDetailHero({
   title,
+  originalTitle,
   year,
   runtime,
   language,
@@ -45,6 +47,7 @@ export function FilmDetailHero({
   });
   const backdropY = useTransform(scrollYProgress, [0, 1], shouldReduceMotion ? [0, 0] : [0, 120]);
   const filmAccent = posterColor ?? FALLBACK_ACCENT;
+  const shouldShowOriginalTitle = Boolean(originalTitle && originalTitle.trim() !== title.trim());
 
   return (
     <section ref={heroRef} className="relative flex min-h-[68vh] overflow-hidden bg-[#09090f]">
@@ -84,9 +87,14 @@ export function FilmDetailHero({
               Pick of the Day
             </p>
           )}
-          <h1 className="font-[family-name:var(--font-display)] text-[clamp(2.75rem,8vw,6.5rem)] font-bold leading-[0.95] text-[#F5F5F0]">
+          <h1 className="max-w-[14ch] [overflow-wrap:anywhere] font-[family-name:var(--font-display)] text-[clamp(3rem,9vw,7.5rem)] font-bold leading-[0.92] text-[#F5F5F0] sm:max-w-[16ch]">
             {title}
           </h1>
+          {shouldShowOriginalTitle && (
+            <p className="mt-4 font-[family-name:var(--font-display)] text-xl italic leading-tight text-[#D8D8D0]/78 sm:text-2xl">
+              {originalTitle}
+            </p>
+          )}
           <div className="mt-5 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-[#D8D8D0]/82">
             <span>{year}</span>
             {runtime != null && (
