@@ -502,7 +502,7 @@ Apply these rules consistently across every component so the app feels coherent,
 
 ### Overall Atmosphere Checklist
 
-- [ ] **Film grain texture overlay** — a subtle SVG noise filter applied as a `::before` pseudo-element on the `<body>` at 3% opacity; gives the whole app a cinematic texture that makes it feel different from every other web app
+- [x] **Film grain texture overlay** — a subtle SVG noise filter applied as a `::before` pseudo-element on the `<body>` at 3% opacity; gives the whole app a cinematic texture that makes it feel different from every other web app
 - [ ] **No pure white anywhere** — use `#F5F5F0` (warm white) for primary text; pure white (`#FFFFFF`) only in logo or award icons where maximum contrast is needed
 - [ ] **Consistent border radius:** cards `12px` · buttons `8px` · chips/pills `999px` (fully rounded) · modals `16px` — never mix styles within the same component
 - [ ] **Spacing system:** base unit `4px`; all spacing is a multiple of 4; section padding is `64px` desktop / `40px` mobile; card gaps are `16px` desktop / `12px` mobile
