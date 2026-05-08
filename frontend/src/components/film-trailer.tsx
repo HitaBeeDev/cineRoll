@@ -96,15 +96,20 @@ export function FilmTrailer({
                 aria-label={`${title} trailer`}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
+                exit={{ opacity: 0, transition: { duration: 0.2, ease: "easeIn" } }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
                 onClick={() => setIsOpen(false)}
               >
                 <motion.div
                   className="relative w-full max-w-5xl rounded-2xl border border-zinc-800 bg-zinc-950 shadow-2xl shadow-black/80"
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.94 }}
-                  transition={{ type: "spring", duration: 0.3, bounce: 0.18 }}
+                  exit={{
+                    opacity: 0,
+                    scale: 0.94,
+                    transition: { duration: 0.2, ease: "easeIn" },
+                  }}
+                  transition={{ type: "spring", stiffness: 300, damping: 28 }}
                   onClick={(event) => event.stopPropagation()}
                 >
                   <button

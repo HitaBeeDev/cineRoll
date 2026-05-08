@@ -160,7 +160,8 @@ export default function PicksPage() {
                 key="loading"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
+                exit={{ opacity: 0, transition: { duration: 0.15, ease: "easeIn" } }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
                 className="flex flex-1 items-center justify-center"
               >
                 <div className="flex flex-col items-center gap-3">
@@ -183,7 +184,8 @@ export default function PicksPage() {
                 key="picks"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ duration: 0.25 }}
+                exit={{ opacity: 0, transition: { duration: 0.15, ease: "easeIn" } }}
+                transition={{ duration: 0.25, ease: "easeOut" }}
                 className="flex flex-1 flex-col lg:flex-row"
               >
                 {picks.map((pick, i) => (
@@ -214,8 +216,8 @@ function PickCard({ pick, index }: { pick: DailyPick; index: number }) {
       transition={{
         delay: index * 0.1,
         type: "spring",
-        duration: 0.5,
-        bounce: 0.18,
+        stiffness: 300,
+        damping: 28,
       }}
       className="group relative flex flex-1 flex-col overflow-hidden border-b border-[#1a1a28] lg:border-b-0 lg:border-r"
     >
@@ -227,7 +229,7 @@ function PickCard({ pick, index }: { pick: DailyPick; index: number }) {
             alt={film.title}
             fill
             sizes="(max-width: 1024px) 100vw, 33vw"
-            className="object-cover transition-transform duration-[600ms] group-hover:scale-105"
+            className="object-cover transition-transform duration-[600ms] ease-out group-hover:scale-105"
             priority={index === 0}
           />
         ) : (

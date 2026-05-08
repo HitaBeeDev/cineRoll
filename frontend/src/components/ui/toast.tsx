@@ -67,6 +67,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
               "transition-all duration-300",
               "data-[state=open]:opacity-100 data-[state=open]:translate-x-0",
               "data-[state=closed]:opacity-0 data-[state=closed]:translate-x-3",
+              "data-[state=open]:ease-out data-[state=closed]:ease-in",
               "data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)]",
               "data-[swipe=cancel]:translate-x-0 data-[swipe=cancel]:transition-transform",
               "data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=end]:opacity-0",

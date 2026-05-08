@@ -492,7 +492,7 @@ Cards appear in the browse grid, the Similar Films section, the Snob Test, and t
 Apply these rules consistently across every component so the app feels coherent, not random.
 
 - [x] **Duration scale:** micro-interactions 100–150ms · UI transitions 200–300ms · cinematic reveals 400–600ms · nothing longer than 700ms except intentional slow reveals
-- [ ] **Easing:** use `ease-out` for things entering the screen (decelerating = natural arrival); use `ease-in` for things leaving (accelerating = natural departure); use `spring` (stiffness 300, damping 28) for physical interactions like card lifts and button presses
+- [x] **Easing:** use `ease-out` for things entering the screen (decelerating = natural arrival); use `ease-in` for things leaving (accelerating = natural departure); use `spring` (stiffness 300, damping 28) for physical interactions like card lifts and button presses
 - [ ] **No layout animations without Framer Motion `layout` prop** — never let content jump when items are added/removed; always use `AnimatePresence` for conditional elements
 - [ ] **Reduce motion:** wrap all non-essential animations in a `useReducedMotion()` check (Framer Motion provides this); users with `prefers-reduced-motion: reduce` get instant transitions, no parallax, no grain animation
 - [ ] **Page transitions:** between routes, use a simple opacity fade (200ms) — not a slide, not a zoom; keeps it feeling editorial rather than app-like

@@ -259,8 +259,8 @@ export default function HomePage() {
                 key="skeleton"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.15 }}
+                exit={{ opacity: 0, transition: { duration: 0.15, ease: "easeIn" } }}
+                transition={{ duration: 0.15, ease: "easeOut" }}
               >
                 <FilmCardSkeleton />
               </motion.div>
@@ -269,8 +269,8 @@ export default function HomePage() {
                 key={film.id}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                transition={{ type: "spring", duration: 0.5, bounce: 0.16 }}
+                exit={{ opacity: 0, transition: { duration: 0.15, ease: "easeIn" } }}
+                transition={{ type: "spring", stiffness: 300, damping: 28 }}
               >
                 <FilmCard film={film} />
               </motion.div>
@@ -279,8 +279,8 @@ export default function HomePage() {
                 key="empty"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
+                exit={{ opacity: 0, transition: { duration: 0.15, ease: "easeIn" } }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
                 className="flex flex-col flex-1"
               >
                 <FilmCardEmpty />

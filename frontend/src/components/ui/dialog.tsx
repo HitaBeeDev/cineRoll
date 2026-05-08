@@ -20,6 +20,7 @@ const DialogOverlay = React.forwardRef<
       "fixed inset-0 z-50 bg-black/75 backdrop-blur-sm",
       "transition-opacity duration-200",
       "data-[state=open]:opacity-100 data-[state=closed]:opacity-0",
+      "data-[state=open]:ease-out data-[state=closed]:ease-in",
       className
     )}
     {...props}
@@ -42,6 +43,7 @@ const DialogContent = React.forwardRef<
         "transition-all duration-200",
         "data-[state=open]:opacity-100 data-[state=open]:scale-100",
         "data-[state=closed]:opacity-0 data-[state=closed]:scale-95",
+        "data-[state=open]:ease-out data-[state=closed]:ease-in",
         "focus:outline-none",
         className
       )}
