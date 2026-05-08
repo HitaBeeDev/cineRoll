@@ -121,6 +121,31 @@ export default function HomePage() {
           )}
         </AnimatePresence>
 
+        {/* Cinematic loading bar — pinned to bottom of hero, above the overlay */}
+        <AnimatePresence>
+          {isRolling && (
+            <motion.div
+              key="loading-bar"
+              className="absolute bottom-0 left-0 right-0 h-[2px] z-40 overflow-hidden pointer-events-none"
+              style={{ background: "rgba(212,175,55,0.12)" }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+            >
+              <motion.div
+                className="absolute inset-y-0 left-0 w-[40%]"
+                style={{
+                  background: "linear-gradient(to right, transparent, #D4AF37, transparent)",
+                  boxShadow: "0 0 10px rgba(212,175,55,0.7)",
+                }}
+                animate={{ x: ["-100%", "250%"] }}
+                transition={{ duration: 1.8, ease: "easeInOut", repeat: Infinity, repeatDelay: 0.15 }}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Content */}
         <div className="flex flex-col flex-1">
           <header className="flex items-center justify-between px-5 sm:px-8 py-4">
@@ -195,14 +220,31 @@ export default function HomePage() {
                 {isRolling ? "Rolling…" : "Roll"}
               </button>
 
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: spaceHintVisible ? 1 : 0 }}
-                transition={{ duration: 0.8 }}
-                className="text-[#5a5a70] text-xs"
-              >
-                or press Space
-              </motion.p>
+              <AnimatePresence mode="wait">
+                {isRolling ? (
+                  <motion.p
+                    key="finding"
+                    initial={{ opacity: 0, y: 4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -4 }}
+                    transition={{ duration: 0.15 }}
+                    className="text-[#A0A0B0] text-xs tracking-wide"
+                  >
+                    Finding your film…
+                  </motion.p>
+                ) : (
+                  <motion.p
+                    key="space"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: spaceHintVisible ? 1 : 0 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.8 }}
+                    className="text-[#5a5a70] text-xs"
+                  >
+                    or press Space
+                  </motion.p>
+                )}
+              </AnimatePresence>
             </div>
 
           </div>
