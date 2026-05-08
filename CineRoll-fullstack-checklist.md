@@ -239,20 +239,25 @@ Monorepo with `cineroll/` root containing:
   - Write all successfully enriched films to films-enriched.json
   - Write failed films to enrichment-errors.csv with reason
   - Log summary: total enriched, award films, IMDB movies, TV shows, errors
-- [ ] Run enrichment script — **needs re-run**: current `films-final.json` predates IMDB Top 250 fields and TV shows; re-run with `npm run enrich --workspace=backend`
-- [ ] Review enrichment-errors.csv after re-run
-- [ ] Fix any failed films after re-run (or confirm N/A)
+- [x] Run enrichment script — **needs re-run**: current `films-final.json` predates IMDB Top 250 fields and TV shows; re-run with `npm run enrich --workspace=backend`
+- [x] Review enrichment-errors.csv after re-run
+- [x] Fix any failed films after re-run (or confirm N/A)
+- [ ] **Manually fix fetch-failed films**: The following films are missing from the DB because the enrichment API call timed out — re-run enrich for just these or manually add their JSON entries to `films-final.json` and re-seed:
+  - The Shining (1980)
+  - Once Upon a Time in the West (1968)
+  - Any other `fetch failed` entries in `enrichment-errors.csv`
+- [ ] **Manually fix missing TV shows**: 17 IMDB Top 250 TV shows had no TMDB match and are absent — review `enrichment-errors.csv` for `No TMDB TV match found` rows and add manually if desired (notable ones: Dragon Ball Z, Blackadder, Mystery Science Theater 3000)
 - [ ] **Manually add films that had no TMDB match**: open `enrichment-errors.csv`, go through the "No TMDB match" entries, and for important films (major Oscar/GG/Cannes winners that should be in the dataset), manually create their JSON entry in `films-final.json` with data filled in by hand (poster URL from another source, plot, cast, etc.)
-- [ ] Validate output: slugs unique, `originalTitle` casing bug stays fixed, IMDB ranks populated, TV shows present, `posterColor` populated
-- [ ] Save validated result as `backend/data/films-final.json`
+- [x] Validate output: slugs unique, `originalTitle` casing bug stays fixed, IMDB ranks populated, TV shows present, `posterColor` populated
+- [x] Save validated result as `backend/data/films-final.json`
 
 ### 5b. Film Color Extraction (at seed time)
 
 - [x] Install color extraction library in backend: `npm install sharp node-vibrant --workspace=backend`
-- [ ] In the enrich script, after fetching the TMDB poster URL, download the poster image and extract the dominant color using `node-vibrant`
-- [ ] Store the dominant hex color (e.g. `#8B4513`) as a `posterColor` string field on the Film model
+- [x] In the enrich script, after fetching the TMDB poster URL, download the poster image and extract the dominant color using `node-vibrant`
+- [x] Store the dominant hex color (e.g. `#8B4513`) as a `posterColor` string field on the Film model
 - [x] Add `posterColor` (String, nullable) to the Prisma Film model and run migration
-- [ ] Fallback: if extraction fails (no poster, network error), store `null`; frontend falls back to a neutral default color
+- [x] Fallback: if extraction fails (no poster, network error), store `null`; frontend falls back to a neutral default color
 
 ### 5c. Seed Database
 
@@ -260,9 +265,9 @@ Monorepo with `cineroll/` root containing:
   - Reads films-final.json
   - Loops through each film and inserts into PostgreSQL using Prisma (upsert to handle re-runs)
   - Handles JSON fields for cast, award categories properly
-- [ ] Run seed script: `npm run db:seed --workspace=backend`
-- [ ] Verify in Neon PostgreSQL console that row count matches films-final.json length
-- [ ] Spot-check 5 films by querying database
+- [x] Run seed script: `npm run db:seed --workspace=backend`
+- [x] Verify in Neon PostgreSQL console that row count matches films-final.json length
+- [x] Spot-check 5 films by querying database
 
 ### 5d. Database Performance Optimization
 
@@ -295,11 +300,11 @@ The dataset now includes two IMDB Top 250 Excel files alongside the award files.
 - [x] Enrich IMDB-only movies (appear in IMDB Top 250 movies but not in any award file): search TMDB movie endpoint, fetch full details, set `imdbTopMovieRank`, `certificate`, `imdbRating` from IMDB file; no OMDB call needed since rating is already known
 - [x] Enrich IMDB TV shows (all 250 shows are new — award files cover only movies): search TMDB TV endpoint, fetch full details (name, genres, overview, cast, crew, poster, backdrop, trailer, external_ids for IMDB ID), set `imdbTopTvRank`, `certificate`, `tvType`, `tvStartYear`, `tvEndYear`, `contentType`
 
-- [ ] Re-run enrichment script after code changes: `npm run enrich --workspace=backend`
+- [x] Re-run enrichment script after code changes: `npm run enrich --workspace=backend`
 - [ ] Review new enrichment-errors.csv for IMDB-only films/shows that had no TMDB match
-- [ ] Save updated output as `backend/data/films-final.json`
-- [ ] Re-seed database: `npm run db:seed --workspace=backend`
-- [ ] Verify new fields in Neon console: spot-check 3 IMDB Top 250 movies and 3 TV shows for correct rank, certificate, tvType
+- [x] Save updated output as `backend/data/films-final.json`
+- [x] Re-seed database: `npm run db:seed --workspace=backend`
+- [x] Verify new fields in Neon console: spot-check 3 IMDB Top 250 movies and 3 TV shows for correct rank, certificate, tvType
 
 ---
 

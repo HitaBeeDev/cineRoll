@@ -1,9 +1,7 @@
 "use client";
 
 import * as React from "react";
-import * as SliderPrimitive from "@radix-ui/react-slider";
-import { Search, X } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { X } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -27,184 +25,152 @@ interface FilterBarProps {
 const DECADE_MIN = 1900;
 const DECADE_MAX = 2030;
 
+const AWARD_BODIES: { value: AwardBody; label: string }[] = [
+  { value: "all", label: "All" },
+  { value: "oscar", label: "Oscar" },
+  { value: "goldenglobe", label: "GG" },
+  { value: "cannes", label: "Cannes" },
+];
+
+const DECADE_OPTIONS: { value: string; label: string }[] = [
+  { value: "_any", label: "Any" },
+  ...[1920, 1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020].map((d) => ({
+    value: `${d}-${d + 9}`,
+    label: `${d}s`,
+  })),
+];
+
+const PRESETS: { label: string; filters: Partial<FilterState> }[] = [
+  { label: "Something from the 90s", filters: { decadeMin: 1990, decadeMax: 1999 } },
+  { label: "Cannes Palme d'Or", filters: { awardBody: "cannes" as AwardBody, winnerOnly: true } },
+  { label: "Best Picture Winner", filters: { awardBody: "oscar" as AwardBody, winnerOnly: true } },
+  { label: "Critically Acclaimed", filters: { imdbRatingMin: 8, rtScoreMin: 90 } },
+  { label: "Hidden Gem", filters: { imdbRatingMin: 7.5 } },
+  { label: "GG Drama Winner", filters: { awardBody: "goldenglobe" as AwardBody, winnerOnly: true } },
+];
+
 export function FilterBar({
   filters,
   genres,
-  categories,
-  awardYears = [],
   onFiltersChange,
   onClearFilters,
   className,
 }: FilterBarProps) {
   const activeChips = getActiveFilterChips(filters, onFiltersChange);
 
-  return (
-    <div
-      aria-label="Filter films"
-      className={cn(
-        "w-full rounded-lg border border-border bg-surface/60 p-5 flex flex-col gap-5",
-        className
-      )}
-    >
-      {/* Person search */}
-      <Input
-        label="Search cast, director, or person"
-        placeholder="e.g. Meryl Streep, Spielberg…"
-        value={filters.person}
-        onChange={(e) => onFiltersChange({ person: e.target.value, page: 1 })}
-        leftIcon={<Search className="h-4 w-4" />}
-      />
+  const hasDecadeFilter =
+    filters.decadeMin !== DECADE_MIN || filters.decadeMax !== DECADE_MAX;
+  const decadeValue = hasDecadeFilter
+    ? `${filters.decadeMin}-${filters.decadeMax}`
+    : "_any";
 
-      {/* Award body */}
-      <div className="flex flex-col gap-2">
-        <span className="text-sm font-medium text-foreground">Award</span>
-        <div className="flex flex-wrap gap-2">
-          {(
-            [
-              { value: "all", label: "All" },
-              { value: "oscar", label: "Oscar" },
-              { value: "goldenglobe", label: "Golden Globe" },
-              { value: "cannes", label: "Cannes" },
-            ] as { value: AwardBody; label: string }[]
-          ).map(({ value, label }) => (
-            <button
-              key={value}
-              type="button"
-              aria-pressed={filters.awardBody === value}
-              onClick={() => onFiltersChange({ awardBody: value, page: 1 })}
+  return (
+    <div aria-label="Filter films" className={cn("flex flex-col gap-4", className)}>
+
+      {/* BODY row */}
+      <FilterRow label="Body">
+        {AWARD_BODIES.map(({ value, label }) => (
+          <PillToggle
+            key={value}
+            active={filters.awardBody === value}
+            onClick={() => onFiltersChange({ awardBody: value, page: 1 })}
+          >
+            {label}
+          </PillToggle>
+        ))}
+      </FilterRow>
+
+      {/* STATUS row */}
+      <FilterRow label="Status">
+        <PillToggle
+          active={!filters.winnerOnly && !filters.nominatedOnly}
+          onClick={() =>
+            onFiltersChange({ winnerOnly: false, nominatedOnly: false, page: 1 })
+          }
+        >
+          Any
+        </PillToggle>
+        <PillToggle
+          active={filters.winnerOnly}
+          onClick={() =>
+            onFiltersChange({ winnerOnly: true, nominatedOnly: false, page: 1 })
+          }
+        >
+          Won
+        </PillToggle>
+        <PillToggle
+          active={filters.nominatedOnly && !filters.winnerOnly}
+          onClick={() =>
+            onFiltersChange({ winnerOnly: false, nominatedOnly: true, page: 1 })
+          }
+        >
+          Nominated
+        </PillToggle>
+      </FilterRow>
+
+      {/* DECADE + GENRE selects */}
+      <div className="flex gap-3">
+        <div className="flex-1">
+          <span className="mb-1.5 block font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#555568]">
+            Decade
+          </span>
+          <Select
+            value={decadeValue}
+            onValueChange={(val) => {
+              if (val === "_any") {
+                onFiltersChange({
+                  decadeMin: DECADE_MIN,
+                  decadeMax: DECADE_MAX,
+                  page: 1,
+                });
+              } else {
+                const parts = val.split("-");
+                const min = parts[0] !== undefined ? Number(parts[0]) : DECADE_MIN;
+                const max = parts[1] !== undefined ? Number(parts[1]) : DECADE_MAX;
+                onFiltersChange({ decadeMin: min, decadeMax: max, page: 1 });
+              }
+            }}
+          >
+            <SelectTrigger
               className={cn(
-                "rounded-full px-4 py-1.5 text-sm font-medium border transition-colors",
-                filters.awardBody === value
-                  ? "bg-accent text-accent-foreground border-accent"
-                  : "bg-transparent text-muted border-border hover:border-muted hover:text-foreground"
+                "h-9 border-[#1e1e2a] bg-[#0d0d1a]",
+                "font-[family-name:var(--font-geist-mono)] text-[11px] text-[#F5F5F0]",
+                "hover:border-[#2a2a3e] focus:ring-[#e8453c] focus:ring-offset-[#09090f]",
               )}
             >
-              {label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Won / Nominated */}
-      <div className="flex flex-col gap-2">
-        <span className="text-sm font-medium text-foreground">Status</span>
-        <div className="flex flex-wrap gap-2">
-          {[
-            { label: "All", winnerOnly: false, nominatedOnly: false },
-            { label: "Won", winnerOnly: true, nominatedOnly: false },
-            { label: "Nominated", winnerOnly: false, nominatedOnly: true },
-          ].map(({ label, winnerOnly, nominatedOnly }) => {
-            const active =
-              filters.winnerOnly === winnerOnly &&
-              filters.nominatedOnly === nominatedOnly;
-            return (
-              <button
-                key={label}
-                type="button"
-                aria-pressed={active}
-                onClick={() =>
-                  onFiltersChange({ winnerOnly, nominatedOnly, page: 1 })
-                }
-                className={cn(
-                  "rounded-full px-4 py-1.5 text-sm font-medium border transition-colors",
-                  active
-                    ? "bg-accent text-accent-foreground border-accent"
-                    : "bg-transparent text-muted border-border hover:border-muted hover:text-foreground"
-                )}
-              >
-                {label}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Category + Award Year */}
-      <div className="flex flex-wrap gap-4">
-        <div className="flex-1 min-w-[180px]">
-          <label
-            id="category-label"
-            className="mb-1.5 block text-sm font-medium text-foreground"
-          >
-            Category
-          </label>
-          <Select
-            value={filters.category || "_all"}
-            onValueChange={(value) =>
-              onFiltersChange({
-                category: value === "_all" ? "" : value,
-                page: 1,
-              })
-            }
-          >
-            <SelectTrigger aria-labelledby="category-label">
-              <SelectValue placeholder="All categories" />
+              <SelectValue placeholder="Any" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="_all">All categories</SelectItem>
-              {categories.map((cat) => (
-                <SelectItem key={cat} value={cat}>
-                  {cat}
+              {DECADE_OPTIONS.map(({ value, label }) => (
+                <SelectItem key={value} value={value}>
+                  {label}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
 
-        <div className="w-[130px]">
-          <label
-            id="award-year-label"
-            className="mb-1.5 block text-sm font-medium text-foreground"
-          >
-            Award Year
-          </label>
-          <Select
-            value={filters.awardYear != null ? String(filters.awardYear) : "_all"}
-            onValueChange={(value) =>
-              onFiltersChange({
-                awardYear: value === "_all" ? null : Number(value),
-                page: 1,
-              })
-            }
-          >
-            <SelectTrigger aria-labelledby="award-year-label">
-              <SelectValue placeholder="All years" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="_all">All years</SelectItem>
-              {awardYears.map((year) => (
-                <SelectItem key={year} value={String(year)}>
-                  {year}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      {/* Genre + Decade */}
-      <div className="flex flex-wrap items-end gap-4">
-        <div className="w-[180px]">
-          <label
-            id="genre-label"
-            className="mb-1.5 block text-sm font-medium text-foreground"
-          >
+        <div className="flex-1">
+          <span className="mb-1.5 block font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#555568]">
             Genre
-          </label>
+          </span>
           <Select
             value={filters.genre || "_all"}
-            onValueChange={(value) =>
-              onFiltersChange({
-                genre: value === "_all" ? "" : value,
-                page: 1,
-              })
+            onValueChange={(val) =>
+              onFiltersChange({ genre: val === "_all" ? "" : val, page: 1 })
             }
           >
-            <SelectTrigger aria-labelledby="genre-label">
-              <SelectValue placeholder="All genres" />
+            <SelectTrigger
+              className={cn(
+                "h-9 border-[#1e1e2a] bg-[#0d0d1a]",
+                "font-[family-name:var(--font-geist-mono)] text-[11px] text-[#F5F5F0]",
+                "hover:border-[#2a2a3e] focus:ring-[#e8453c] focus:ring-offset-[#09090f]",
+              )}
+            >
+              <SelectValue placeholder="All" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="_all">All genres</SelectItem>
+              <SelectItem value="_all">All</SelectItem>
               {genres.map((genre) => (
                 <SelectItem key={genre} value={genre}>
                   {genre}
@@ -213,117 +179,106 @@ export function FilterBar({
             </SelectContent>
           </Select>
         </div>
-
-        <div className="flex flex-1 min-w-[200px] flex-col gap-1.5">
-          <div className="flex items-center justify-between">
-            <label
-              id="decade-label"
-              className="text-sm font-medium text-foreground"
-            >
-              Decade
-            </label>
-            <span className="tabular-nums text-xs text-muted">
-              {filters.decadeMin}–{filters.decadeMax}
-            </span>
-          </div>
-          <DecadeRangeSlider
-            min={DECADE_MIN}
-            max={DECADE_MAX}
-            value={[filters.decadeMin, filters.decadeMax]}
-            onValueChange={([decadeMin, decadeMax]) =>
-              onFiltersChange({ decadeMin, decadeMax, page: 1 })
-            }
-            aria-labelledby="decade-label"
-          />
-        </div>
       </div>
 
-      {/* IMDb rating */}
-      <div className="flex flex-col gap-2">
-        <span className="text-sm font-medium text-foreground">IMDb Rating</span>
-        <div className="flex flex-wrap gap-2">
-          {([0, 6, 6.5, 7, 7.5, 8, 8.5, 9] as const).map((val) => (
-            <button
-              key={val}
-              type="button"
-              aria-pressed={filters.imdbRatingMin === val}
-              onClick={() => onFiltersChange({ imdbRatingMin: val, page: 1 })}
-              className={cn(
-                "rounded-full px-4 py-1.5 text-sm font-medium border transition-colors",
-                filters.imdbRatingMin === val
-                  ? "bg-accent text-accent-foreground border-accent"
-                  : "bg-transparent text-muted border-border hover:border-muted hover:text-foreground"
-              )}
-            >
-              {val === 0 ? "Any" : `${val}+`}
-            </button>
-          ))}
-        </div>
+      {/* PRESET tags */}
+      <div className="flex flex-wrap gap-2">
+        {PRESETS.map(({ label, filters: presetFilters }) => (
+          <button
+            key={label}
+            type="button"
+            onClick={() => onFiltersChange({ ...presetFilters, page: 1 })}
+            className={cn(
+              "rounded-full border border-[#1e1e2a] px-3 py-1.5",
+              "font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest",
+              "text-[#555568] transition-colors duration-150",
+              "hover:border-[#e8453c]/40 hover:text-[#F5F5F0]",
+              "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#e8453c]",
+            )}
+          >
+            {label}
+          </button>
+        ))}
       </div>
 
-      {/* Rotten Tomatoes score */}
-      <div className="flex flex-col gap-2">
-        <span className="text-sm font-medium text-foreground">Rotten Tomatoes</span>
-        <div className="flex flex-wrap gap-2">
-          {([0, 50, 60, 70, 80, 90, 95] as const).map((val) => (
-            <button
-              key={val}
-              type="button"
-              aria-pressed={filters.rtScoreMin === val}
-              onClick={() => onFiltersChange({ rtScoreMin: val, page: 1 })}
-              className={cn(
-                "rounded-full px-4 py-1.5 text-sm font-medium border transition-colors",
-                filters.rtScoreMin === val
-                  ? "bg-accent text-accent-foreground border-accent"
-                  : "bg-transparent text-muted border-border hover:border-muted hover:text-foreground"
-              )}
-            >
-              {val === 0 ? "Any" : `${val}%+`}
-            </button>
-          ))}
-        </div>
-      </div>
-
+      {/* Active filter chips */}
       {activeChips.length > 0 && (
-        <div className="flex flex-col gap-2 border-t border-border pt-4">
-          <div className="flex items-center justify-between gap-3">
-            <span className="text-sm font-medium text-foreground">
-              Active filters
-            </span>
-            <button
-              type="button"
-              onClick={onClearFilters}
-              className={cn(
-                "text-xs font-medium text-muted transition-colors",
-                "hover:text-foreground",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
-              )}
-            >
-              Clear all
-            </button>
-          </div>
-          <div className="flex flex-wrap gap-2">
+        <div className="flex items-start gap-2 pt-1">
+          <div className="flex flex-1 flex-wrap gap-1.5">
             {activeChips.map((chip) => (
               <button
                 key={chip.key}
                 type="button"
                 onClick={chip.onRemove}
                 className={cn(
-                  "inline-flex h-7 items-center gap-1.5 rounded-full border border-border",
-                  "bg-background px-2.5 text-xs font-medium text-foreground",
-                  "transition-colors hover:border-muted hover:bg-surface-muted",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                  "inline-flex h-6 items-center gap-1 rounded-full",
+                  "border border-[#1e1e2a] bg-[#0d0d1a] px-2.5",
+                  "font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-wide text-[#888899]",
+                  "transition-colors hover:border-[#e8453c]/40 hover:text-[#F5F5F0]",
+                  "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#e8453c]",
                 )}
                 aria-label={`Remove ${chip.label} filter`}
               >
-                <span>{chip.label}</span>
-                <X className="h-3 w-3 text-muted" aria-hidden />
+                {chip.label}
+                <X className="h-2.5 w-2.5 shrink-0 text-[#555568]" aria-hidden />
               </button>
             ))}
           </div>
+          <button
+            type="button"
+            onClick={onClearFilters}
+            className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#555568] transition-colors hover:text-[#e8453c] focus-visible:outline-none"
+          >
+            Clear all
+          </button>
         </div>
       )}
     </div>
+  );
+}
+
+function FilterRow({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex items-center gap-3">
+      <span className="w-[42px] shrink-0 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#555568]">
+        {label}
+      </span>
+      <div className="flex flex-wrap gap-1.5">{children}</div>
+    </div>
+  );
+}
+
+function PillToggle({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      aria-pressed={active}
+      onClick={onClick}
+      className={cn(
+        "rounded-full border px-3 py-1.5 transition-colors duration-150",
+        "font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] focus-visible:ring-offset-1 focus-visible:ring-offset-[#09090f]",
+        active
+          ? "border-[#e8453c] bg-[#e8453c] text-white"
+          : "border-[#1e1e2a] text-[#888899] hover:border-[#e8453c]/40 hover:text-[#F5F5F0]",
+      )}
+    >
+      {children}
+    </button>
   );
 }
 
@@ -362,7 +317,6 @@ function getActiveFilterChips(
       goldenglobe: "Golden Globe",
       cannes: "Cannes",
     };
-
     chips.push({
       key: "awardBody",
       label: awardBodyLabels[filters.awardBody],
@@ -396,7 +350,7 @@ function getActiveFilterChips(
   if (filters.awardYear != null) {
     chips.push({
       key: "awardYear",
-      label: `Award year: ${filters.awardYear}`,
+      label: `Year: ${filters.awardYear}`,
       onRemove: () => onFiltersChange({ awardYear: null, page: 1 }),
     });
   }
@@ -412,13 +366,9 @@ function getActiveFilterChips(
   if (filters.decadeMin !== DECADE_MIN || filters.decadeMax !== DECADE_MAX) {
     chips.push({
       key: "decade",
-      label: `${filters.decadeMin}-${filters.decadeMax}`,
+      label: `${filters.decadeMin}–${filters.decadeMax}`,
       onRemove: () =>
-        onFiltersChange({
-          decadeMin: DECADE_MIN,
-          decadeMax: DECADE_MAX,
-          page: 1,
-        }),
+        onFiltersChange({ decadeMin: DECADE_MIN, decadeMax: DECADE_MAX, page: 1 }),
     });
   }
 
@@ -439,58 +389,4 @@ function getActiveFilterChips(
   }
 
   return chips;
-}
-
-interface DecadeRangeSliderProps {
-  min: number;
-  max: number;
-  step?: number;
-  value: [number, number];
-  onValueChange: (value: [number, number]) => void;
-  "aria-labelledby"?: string;
-}
-
-function DecadeRangeSlider({
-  min,
-  max,
-  step = 10,
-  value,
-  onValueChange,
-  "aria-labelledby": ariaLabelledBy,
-}: DecadeRangeSliderProps) {
-  return (
-    <SliderPrimitive.Root
-      min={min}
-      max={max}
-      step={step}
-      value={value}
-      onValueChange={(vals) => onValueChange(vals as [number, number])}
-      aria-labelledby={ariaLabelledBy}
-      className="relative flex h-10 w-full touch-none select-none items-center"
-    >
-      <SliderPrimitive.Track className="relative h-px w-full grow overflow-hidden rounded-full bg-border">
-        <SliderPrimitive.Range className="absolute h-full bg-accent" />
-      </SliderPrimitive.Track>
-      <SliderPrimitive.Thumb
-        aria-label={`Minimum decade: ${value[0]}`}
-        className={cn(
-          "block h-3.5 w-3.5 rounded-full border-2 border-accent bg-background",
-          "transition-transform duration-100 hover:scale-125",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
-          "focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-          "disabled:pointer-events-none disabled:opacity-50"
-        )}
-      />
-      <SliderPrimitive.Thumb
-        aria-label={`Maximum decade: ${value[1]}`}
-        className={cn(
-          "block h-3.5 w-3.5 rounded-full border-2 border-accent bg-background",
-          "transition-transform duration-100 hover:scale-125",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
-          "focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-          "disabled:pointer-events-none disabled:opacity-50"
-        )}
-      />
-    </SliderPrimitive.Root>
-  );
 }

@@ -9,6 +9,7 @@ const navItems = [
   { href: "/", label: "Home" },
   { href: "/browse", label: "Browse" },
   { href: "/snob-test", label: "Snob Test" },
+  { href: "/battle", label: "Battle" },
   { href: "/stats", label: "Stats" },
 ];
 
@@ -17,21 +18,18 @@ type SiteNavigationProps = {
 };
 
 export function SiteNavigation({
-  focusRingClassName = "focus-visible:ring-[#D4AF37]",
+  focusRingClassName = "focus-visible:ring-[#e8453c]",
 }: SiteNavigationProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     if (!isOpen) return;
-
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") setIsOpen(false);
     };
-
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     window.addEventListener("keydown", onKeyDown);
-
     return () => {
       document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", onKeyDown);
@@ -40,34 +38,71 @@ export function SiteNavigation({
 
   return (
     <>
-      <nav className="hidden items-center gap-4 md:flex" aria-label="Primary navigation">
+      {/* Desktop nav */}
+      <nav className="hidden items-center gap-1.5 md:flex" aria-label="Primary navigation">
         {navItems.map((item) => (
           <Link
             key={item.href}
             href={item.href}
             className={cn(
-              "rounded text-sm font-medium text-[#A0A0B0] transition-colors hover:text-[#F5F5F0] focus-visible:outline-none focus-visible:ring-2",
+              "rounded-full border border-[#222232] px-3.5 py-1.5",
+              "font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest",
+              "text-[#888899] transition-colors duration-150",
+              "hover:border-[#e8453c]/40 hover:text-[#F5F5F0]",
+              "focus-visible:outline-none focus-visible:ring-2",
               focusRingClassName,
             )}
           >
             {item.label}
           </Link>
         ))}
+        <div className="ml-2 flex items-center gap-1.5">
+          <Link
+            href="/sign-in"
+            className={cn(
+              "rounded-full border border-[#2e2e42] px-3.5 py-1.5",
+              "font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest",
+              "text-[#F5F5F0] transition-colors duration-150",
+              "hover:border-[#F5F5F0]/30",
+              "focus-visible:outline-none focus-visible:ring-2",
+              focusRingClassName,
+            )}
+          >
+            Sign In
+          </Link>
+          <Link
+            href="/sign-up"
+            className={cn(
+              "rounded-full px-3.5 py-1.5",
+              "font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest",
+              "bg-[#e8453c] text-white transition-colors duration-150",
+              "hover:bg-[#d5342b]",
+              "focus-visible:outline-none focus-visible:ring-2",
+              focusRingClassName,
+            )}
+          >
+            Sign Up
+          </Link>
+        </div>
       </nav>
 
+      {/* Mobile hamburger */}
       <button
         type="button"
         className={cn(
-          "inline-flex h-11 w-11 items-center justify-center rounded text-[#A0A0B0] transition-colors hover:text-[#F5F5F0] focus-visible:outline-none focus-visible:ring-2 md:hidden",
+          "inline-flex h-10 w-10 items-center justify-center rounded-full",
+          "border border-[#222232] text-[#888899]",
+          "transition-colors hover:text-[#F5F5F0] focus-visible:outline-none focus-visible:ring-2 md:hidden",
           focusRingClassName,
         )}
         aria-label="Open navigation menu"
         aria-expanded={isOpen}
         onClick={() => setIsOpen(true)}
       >
-        <Menu className="h-6 w-6" aria-hidden />
+        <Menu className="h-4 w-4" aria-hidden />
       </button>
 
+      {/* Mobile overlay */}
       {isOpen && (
         <div
           className="fixed inset-0 z-[100] bg-[#050508]/96 backdrop-blur-[20px] md:hidden"
@@ -81,29 +116,33 @@ export function SiteNavigation({
             onClick={(event) => event.stopPropagation()}
           >
             <div className="flex items-center justify-between">
-              <span className="font-[family-name:var(--font-display)] text-lg font-semibold tracking-[0.08em] text-[#D4AF37]">
-                CineRoll
+              <span className="font-[family-name:var(--font-geist-mono)] text-lg font-bold tracking-[0.15em] text-[#e8453c] uppercase">
+                Cine·Roll
               </span>
               <button
                 type="button"
                 className={cn(
-                  "inline-flex h-11 w-11 items-center justify-center rounded text-[#A0A0B0] transition-colors hover:text-[#F5F5F0] focus-visible:outline-none focus-visible:ring-2",
+                  "inline-flex h-10 w-10 items-center justify-center rounded-full",
+                  "border border-[#222232] text-[#888899]",
+                  "transition-colors hover:text-[#F5F5F0] focus-visible:outline-none focus-visible:ring-2",
                   focusRingClassName,
                 )}
                 aria-label="Close navigation menu"
                 onClick={() => setIsOpen(false)}
               >
-                <X className="h-6 w-6" aria-hidden />
+                <X className="h-4 w-4" aria-hidden />
               </button>
             </div>
 
-            <nav className="flex flex-1 flex-col justify-center gap-3" aria-label="Mobile navigation">
+            <nav className="flex flex-1 flex-col justify-center gap-5" aria-label="Mobile navigation">
               {navItems.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "rounded py-4 text-3xl font-semibold text-[#A0A0B0] transition-colors hover:text-[#F5F5F0] focus-visible:outline-none focus-visible:ring-2",
+                    "font-[family-name:var(--font-geist-mono)] text-2xl font-bold uppercase tracking-widest",
+                    "text-[#555568] transition-colors hover:text-[#F5F5F0]",
+                    "focus-visible:outline-none focus-visible:ring-2",
                     focusRingClassName,
                   )}
                   onClick={() => setIsOpen(false)}
@@ -111,6 +150,22 @@ export function SiteNavigation({
                   {item.label}
                 </Link>
               ))}
+              <div className="mt-4 flex gap-3">
+                <Link
+                  href="/sign-in"
+                  className="rounded-full border border-[#2e2e42] px-5 py-2.5 font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-widest text-[#F5F5F0]"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Sign In
+                </Link>
+                <Link
+                  href="/sign-up"
+                  className="rounded-full bg-[#e8453c] px-5 py-2.5 font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-widest text-white"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Sign Up
+                </Link>
+              </div>
             </nav>
           </div>
         </div>
