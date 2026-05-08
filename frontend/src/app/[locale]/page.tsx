@@ -25,6 +25,7 @@ export default function HomePage() {
   const { toast } = useToast();
   const { filters, setFilter, resetFilters, hasActiveFilters } = useFilters();
   const [film, setFilm] = useState<RollFilm | null>(null);
+  const [backdropUrl, setBackdropUrl] = useState<string | null>(null);
   const [isRolling, setIsRolling] = useState(false);
   const [hasRolled, setHasRolled] = useState(false);
   const [spaceHintVisible, setSpaceHintVisible] = useState(false);
@@ -86,6 +87,7 @@ export default function HomePage() {
       setFilm(result.film);
       setFilteredCount(result.total);
       setHasRolled(true);
+      if (result.film.backdropUrl) setBackdropUrl(result.film.backdropUrl);
     } catch (err) {
       const code = err instanceof Error ? (err as Error & { code?: string }).code : undefined;
       if (code === "NO_FILMS_FOUND") {
@@ -106,6 +108,25 @@ export default function HomePage() {
     <div className="flex flex-col min-h-screen bg-[#09090f] text-[#F5F5F0]">
       {/* ── Hero ──────────────────────────────────────────────────────── */}
       <section className="relative min-h-[85vh] sm:min-h-screen flex flex-col bg-[#09090f]">
+
+        {/* Backdrop — cross-fades in when a film result arrives (400ms) */}
+        <AnimatePresence>
+          {backdropUrl && (
+            <motion.div
+              key={backdropUrl}
+              className="absolute inset-0"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
+            >
+              <Image src={backdropUrl} alt="" fill className="object-cover" priority unoptimized />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Text-protection gradient — keeps content readable over the backdrop */}
+        <div className="absolute inset-0 z-10 pointer-events-none bg-[linear-gradient(to_top,#09090f_0%,#09090f_20%,rgba(9,9,15,0.55)_55%,transparent_100%)]" />
 
         {/* Cinema-dark overlay — fades in when rolling starts, out when done */}
         <AnimatePresence>
@@ -147,7 +168,7 @@ export default function HomePage() {
         </AnimatePresence>
 
         {/* Content */}
-        <div className="flex flex-col flex-1">
+        <div className="relative z-20 flex flex-col flex-1">
           <header className="flex items-center justify-between px-5 sm:px-8 py-4">
             <span className="text-xl font-bold tracking-tight text-[#D4AF37]">CineRoll</span>
             <Link
@@ -270,10 +291,10 @@ export default function HomePage() {
             {!isRolling && film && (
               <motion.div
                 key={film.id}
-                initial={{ opacity: 0, y: 24 }}
+                initial={{ opacity: 0, y: 40 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -12 }}
-                transition={{ type: "spring", stiffness: 300, damping: 28 }}
+                transition={{ type: "spring", stiffness: 280, damping: 24 }}
                 className="flex flex-col gap-4"
               >
                 <RollResultCard film={film} />
@@ -375,19 +396,29 @@ function RollResultCard({ film }: { film: RollFilm }) {
 
       <div className="flex flex-col gap-3 min-w-0 flex-1">
         <div>
-          <h2
+          {/* Year line fades in first */}
+          <motion.p
+            className="text-sm text-[#A0A0B0]"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3, delay: 0 }}
+          >
+            {film.year}
+            {film.director ? ` · Directed by ${film.director}` : ""}
+            {film.runtime != null ? ` · ${film.runtime} min` : ""}
+          </motion.p>
+          {/* Title fades in 100ms later with a subtle lift */}
+          <motion.h2
             className={cn(
               "font-[family-name:var(--font-display)] font-bold leading-tight",
               "text-xl sm:text-2xl text-[#F5F5F0]",
             )}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.1 }}
           >
             {film.title}
-          </h2>
-          <p className="mt-1 text-sm text-[#A0A0B0]">
-            {film.year}
-            {film.director ? ` · Directed by ${film.director}` : ""}
-            {film.runtime != null ? ` · ${film.runtime} min` : ""}
-          </p>
+          </motion.h2>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
