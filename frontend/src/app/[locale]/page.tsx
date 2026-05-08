@@ -134,15 +134,6 @@ export default function HomePage() {
     handleRollRef.current = handleRoll;
   });
 
-  // Auto-load a film on mount so the card is never empty
-  const hasAutoRolled = useRef(false);
-  useEffect(() => {
-    if (!hasAutoRolled.current) {
-      hasAutoRolled.current = true;
-      void handleRollRef.current();
-    }
-    // intentional empty deps — runs once after first render when ref is set
-  }, []);
 
   // Pool count display
   const poolCountStr = effectiveCountLoading
@@ -254,7 +245,7 @@ export default function HomePage() {
           className={cn(
             "border-t border-[#1a1a28] lg:border-t-0 lg:border-l",
             "lg:col-span-5",
-            "min-h-[400px] lg:min-h-0 lg:overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:w-0",
+            "min-h-[400px] lg:min-h-0 lg:flex lg:flex-col lg:overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:w-0",
             "p-4",
           )}
         >
@@ -285,6 +276,7 @@ export default function HomePage() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
+                className="flex flex-col flex-1"
               >
                 <FilmCardEmpty />
               </motion.div>
@@ -523,17 +515,65 @@ function ActionBtn({
 
 function FilmCardEmpty() {
   return (
-    <div className="flex min-h-[360px] flex-col items-center justify-center gap-5 p-8 text-center">
-      <div className="rounded-full border border-[#e8453c]/18 bg-[#e8453c]/8 p-5">
-        <Dices className="h-9 w-9 text-[#e8453c]/35" aria-hidden />
+    <div className="relative flex h-full flex-1 flex-col overflow-hidden">
+      {/* Scanlines */}
+      <div
+        className="pointer-events-none absolute inset-0 z-10 opacity-[0.025]"
+        style={{ backgroundImage: "repeating-linear-gradient(0deg,#fff,#fff 1px,transparent 1px,transparent 3px)" }}
+      />
+
+      {/* Film strip — top */}
+      <div className="flex shrink-0 items-center gap-[5px] border-b border-[#1a1a28] bg-[#060610] px-3 py-[7px]">
+        {Array.from({ length: 16 }).map((_, i) => (
+          <div key={i} className="h-[10px] w-[7px] shrink-0 rounded-[2px] bg-[#111120]" />
+        ))}
       </div>
-      <div>
-        <p className="mb-2 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.25em] text-[#444458]">
-          No Film Loaded
+
+      {/* Main area */}
+      <div className="relative flex flex-1 flex-col items-center justify-center gap-5 px-8 py-10 text-center">
+        {/* Radial glow */}
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(232,69,60,0.12)_0%,transparent_70%)]" />
+
+        <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.4em] text-[#e8453c]/70">
+          ◈ Reel Ready ◈
         </p>
-        <p className="font-[family-name:var(--font-display)] text-xl text-[#222234]">
-          Spin the reel to begin
+
+        <div className="flex flex-col gap-0.5">
+          <h3 className="font-[family-name:var(--font-display)] text-[2.4rem] font-bold leading-tight text-[#F5F5F0]">
+            What's playing
+          </h3>
+          <h3 className="font-[family-name:var(--font-display)] text-[2.4rem] font-bold leading-tight text-[#e8453c]">
+            tonight?
+          </h3>
+        </div>
+
+        <div className="flex w-full items-center gap-3 px-4">
+          <div className="h-px flex-1 bg-gradient-to-r from-transparent to-[#2a2a3e]" />
+          <Dices className="h-4 w-4 text-[#e8453c]/50" aria-hidden />
+          <div className="h-px flex-1 bg-gradient-to-l from-transparent to-[#2a2a3e]" />
+        </div>
+
+        <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest text-[#555568]">
+          Hit Roll or press Space to find out
         </p>
+
+        <div className="flex gap-2">
+          {["Oscar", "Cannes", "Golden Globe"].map((award) => (
+            <span
+              key={award}
+              className="rounded-full border border-[#1e1e2a] px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-widest text-[#444458]"
+            >
+              {award}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* Film strip — bottom */}
+      <div className="flex shrink-0 items-center gap-[5px] border-t border-[#1a1a28] bg-[#060610] px-3 py-[7px]">
+        {Array.from({ length: 16 }).map((_, i) => (
+          <div key={i} className="h-[10px] w-[7px] shrink-0 rounded-[2px] bg-[#111120]" />
+        ))}
       </div>
     </div>
   );
