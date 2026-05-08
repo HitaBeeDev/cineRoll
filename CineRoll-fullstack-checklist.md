@@ -408,16 +408,11 @@ Establish the visual language before building any component. Every screen should
 
 ### Typography
 
-- [ ] **Display font (film titles, hero headline):** install and configure a cinematic serif — `Playfair Display` or `DM Serif Display` via `next/font`; use for H1, film title on detail pages, result card title
-- [ ] **UI font (all interface text):** `Geist` (already in project) or `Inter` — clean, modern, readable at small sizes
-- [ ] **Type scale:**
-  - Hero H1: `clamp(2.5rem, 6vw, 5rem)` — scales fluidly so it fills the viewport on every screen size
-  - Film title on detail page: `clamp(2rem, 4vw, 3.5rem)` — large enough to feel like a poster
-  - Section headings H2: `1.75rem`, weight 600
-  - Body: `1rem`, line-height `1.7` — generous leading for readability
-  - Filter labels / chips: `0.8125rem` (13px), weight 500, letter-spacing `0.03em`
-- [ ] **Film titles always use the serif display font** everywhere they appear — on cards, detail pages, roll results, Snob Test — consistency makes every title feel like a proper film credit
-- [ ] **Letter spacing on all-caps labels** (award badges, category tags): `0.08em` — mimics credit block typography on film posters
+- [x] **Display font (film titles, hero headline):** `Playfair Display` configured via `next/font/google` in `layout.tsx` — CSS variable `--font-display` on `<html>`; applied in components with `font-[family-name:var(--font-display)]`
+- [x] **UI font (all interface text):** `Geist` — already in project, `--font-geist-sans` variable already set on `<html>`
+- [x] **Type scale:** applied as Tailwind arbitrary values at component-build time — `text-[clamp(2.5rem,6vw,5rem)]` (hero H1), `text-[clamp(2rem,4vw,3.5rem)]` (film title), `text-[1.75rem] font-semibold` (H2), `text-base leading-[1.7]` (body), `text-[0.8125rem] font-medium tracking-[0.03em]` (filter labels)
+- [x] **Film titles always use the serif display font** — guideline enforced at component-build time; every film title gets `font-[family-name:var(--font-display)]`
+- [x] **Letter spacing on all-caps labels** (award badges, category tags): `tracking-[0.08em]` applied in component files
 
 ---
 
