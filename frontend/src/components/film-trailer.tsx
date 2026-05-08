@@ -101,6 +101,7 @@ export function FilmTrailer({
                 onClick={() => setIsOpen(false)}
               >
                 <motion.div
+                  layout
                   className="relative w-full max-w-5xl rounded-2xl border border-zinc-800 bg-zinc-950 shadow-2xl shadow-black/80"
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}

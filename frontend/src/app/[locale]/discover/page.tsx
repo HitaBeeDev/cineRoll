@@ -315,6 +315,7 @@ export default function DiscoverPage() {
         <AnimatePresence>
           {search.status === "done" && (
             <motion.div
+              layout
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 8, transition: { duration: 0.2, ease: "easeIn" } }}
@@ -345,8 +346,17 @@ export default function DiscoverPage() {
                 </span>
               </div>
 
-              {search.films.length === 0 ? (
-                <div className="flex flex-col items-center gap-3 py-16 text-center">
+              <AnimatePresence mode="wait">
+                {search.films.length === 0 ? (
+                <motion.div
+                  key="empty-results"
+                  layout
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0, transition: { duration: 0.15, ease: "easeIn" } }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                  className="flex flex-col items-center gap-3 py-16 text-center"
+                >
                   <Search className="h-8 w-8 text-[#222234]" />
                   <p className="font-[family-name:var(--font-display)] text-xl text-[#222234]">
                     No films matched your description
@@ -354,19 +364,29 @@ export default function DiscoverPage() {
                   <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest text-[#333348]">
                     Try a broader description or different keywords
                   </p>
-                </div>
+                </motion.div>
               ) : (
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                <motion.div
+                  key="result-grid"
+                  layout
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0, transition: { duration: 0.15, ease: "easeIn" } }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                  className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+                >
                   {search.films.map((film, i) => (
                     <ResultCard key={film.id} film={film} index={i} />
                   ))}
-                </div>
-              )}
+                </motion.div>
+                )}
+              </AnimatePresence>
             </motion.div>
           )}
 
           {search.status === "error" && (
             <motion.div
+              layout
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0, transition: { duration: 0.15, ease: "easeIn" } }}
@@ -398,6 +418,7 @@ function ResultCard({ film, index }: { film: RollFilm; index: number }) {
 
   return (
     <motion.div
+      layout
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{
