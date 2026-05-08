@@ -420,8 +420,8 @@ Establish the visual language before building any component. Every screen should
 
 The most important screen in the app. The Roll button must feel like pressing play in a real cinema.
 
-- [x] **Full-bleed backdrop image** fills the entire above-the-fold area — seeds on mount via `fetchRandom()` (no filters); `object-fit: cover` with `fill` layout via Next.js `<Image>`
-- [x] **Backdrop transitions when a film is rolled** — `AnimatePresence` keyed on `backdropUrl`; opacity 0→1 / 1→0 at 400ms ease, creating a true cross-fade on each roll
+- [x] **Poster-color gradient background** fills the entire above-the-fold area — on roll, the film's `posterColor` hex is extracted from the API response and rendered as a `radial-gradient` emanating from the top center; no backdrop image is used
+- [x] **Gradient cross-fades when a film is rolled** — `AnimatePresence` keyed on `heroColor`; opacity 0→1 / 1→0 at 600ms ease, so the dominant color blooms in for each new film; falls back to the `#09090f` base when `posterColor` is null
 - [x] **Layered gradient overlay** — `bg-[linear-gradient(to_top,#09090f_0%,#09090f_25%,transparent_60%)]` + radial vignette via inline style + SVG feTurbulence grain at 4% opacity
 - [x] **Hero headline** — `font-[family-name:var(--font-display)]` at `text-[clamp(2.5rem,6vw,5rem)]`, two lines, "Award&#8209;Winning" accented in gold
 - [x] **Subheading** — `text-[#A0A0B0] tracking-[0.04em]` below headline
@@ -438,11 +438,13 @@ The moment between clicking Roll and seeing the result is the most important int
 
 - [x] **Step 1 — Click response (0–100ms):** Roll button scales down to 0.97 immediately on press; the hero backdrop begins a 200ms fade to a near-black overlay — the cinema goes dark
 - [x] **Step 2 — Loading state (100ms – API response):** a subtle horizontal progress bar pulses across the bottom of the hero (not a spinner — a cinematic loading bar like a film projector warming up); copy under the button reads _"Finding your film…"_
-- [x] **Step 3 — Reveal (API response arrives):** the new film's backdrop image fades in behind the overlay (400ms); the overlay fades out simultaneously; the film result card animates up from the bottom of the screen with a spring motion (`y: 40 → 0`, `opacity: 0 → 1`, 500ms spring); the film title appears with a subtle stagger — year first (small, fades in), then title (large serif, fades in 100ms later)
-- [x] **Step 4 — Settle:** the result card is fully visible; the Roll button reappears below the card with the label "Roll Again"; the backdrop stays as the rolled film's backdrop until the user rolls again
-- [x] **If the API fails:** the overlay fades back out, the backdrop returns to the default, and a toast appears: _"Couldn't connect — check your connection and try again"_
+- [x] **Step 3 — Reveal (API response arrives):** the film's poster-color gradient blooms in from the top of the hero (600ms ease); the cinema-dark overlay fades out simultaneously; the film result card animates up from the bottom of the screen with a spring motion (`y: 40 → 0`, `opacity: 0 → 1`, 500ms spring); the film title appears with a subtle stagger — year first (small, fades in), then title (large serif, fades in 100ms later)
+- [x] **Step 4 — Settle:** the result card is fully visible; the Roll button reappears below the card with the label "Roll Again"; the poster-color gradient stays as the ambient background until the user rolls again
+- [x] **If the API fails:** the overlay fades back out, the gradient stays from the previous roll (or remains dark if first roll), and a toast appears: _"Couldn't connect — check your connection and try again"_
 
 ---
+
+//////////////////////////////////////////////////
 
 ### Film Cards
 
@@ -760,7 +762,8 @@ Instead of dropdowns, the user describes what they want in plain English. Claude
 - [ ] Make responsive: stack all content vertically on mobile, use grid layout on desktop
 - [ ] Add "Back to Browse" or "Roll Again" navigation buttons
 - [ ] **Original Title** — if `originalTitle` is set and differs from `title`, display it in smaller text directly below the main title (e.g. _Das Leben der Anderen_ under "The Lives of Others"); skip if null or identical
-- [ ] **Film Color Theming** — read `posterColor` from the film object and apply it as a subtle accent: hero backdrop gradient, detail page header tint, film card left border or background wash; fall back to a neutral dark color if `posterColor` is null
+- [x] **Film Color Theming (Roll hero)** — `posterColor` from the rolled film is used as a `radial-gradient` ambient glow in the roll hero section; `hexToRgba` converts the hex to RGBA stops (0.38 → 0.12 → transparent); falls back to dark base if null
+- [ ] **Film Color Theming (Detail page)** — read `posterColor` on detail pages and apply as: faint radial glow behind poster image, subtle tint on awards section heading, active color on trailer play button; use CSS custom property `--film-accent` so all themed elements update from one value; fall back to `#D4AF37` if null
 
 ### Where to Stream
 

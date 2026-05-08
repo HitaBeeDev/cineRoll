@@ -20,12 +20,19 @@ import {
 import { useFilters } from "@/hooks/useFilters";
 import { cn } from "@/lib/utils";
 
+function hexToRgba(hex: string, alpha: number): string {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
 
 export default function HomePage() {
   const { toast } = useToast();
   const { filters, setFilter, resetFilters, hasActiveFilters } = useFilters();
   const [film, setFilm] = useState<RollFilm | null>(null);
-  const [backdropUrl, setBackdropUrl] = useState<string | null>(null);
+  const [heroColor, setHeroColor] = useState<string | null>(null);
   const [isRolling, setIsRolling] = useState(false);
   const [hasRolled, setHasRolled] = useState(false);
   const [spaceHintVisible, setSpaceHintVisible] = useState(false);
@@ -88,7 +95,7 @@ export default function HomePage() {
       setFilm(result.film);
       setFilteredCount(result.total);
       setHasRolled(true);
-      if (result.film.backdropUrl) setBackdropUrl(result.film.backdropUrl);
+      if (result.film.posterColor) setHeroColor(result.film.posterColor);
       setTimeout(() => resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
     } catch (err) {
       const code = err instanceof Error ? (err as Error & { code?: string }).code : undefined;
@@ -96,7 +103,6 @@ export default function HomePage() {
         setFilteredCount(0);
         toast({ variant: "error", title: "No matches", description: "No films match your filters — try adjusting them." });
       } else {
-        setBackdropUrl(null);
         toast({ variant: "error", title: "Couldn't connect", description: "Check your connection and try again." });
       }
     } finally {
@@ -120,19 +126,20 @@ export default function HomePage() {
           hasRolled ? "min-h-[60vh]" : "min-h-screen",
         )}
       >
-        {/* Backdrop — cross-fades in when a film result arrives */}
+        {/* Poster-color gradient — cross-fades in when a film result arrives */}
         <AnimatePresence>
-          {backdropUrl && (
+          {heroColor && (
             <motion.div
-              key={backdropUrl}
+              key={heroColor}
               className="absolute inset-0"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.4, ease: "easeOut" }}
-            >
-              <Image src={backdropUrl} alt="" fill className="object-cover" priority unoptimized />
-            </motion.div>
+              transition={{ duration: 0.6, ease: "easeOut" }}
+              style={{
+                background: `radial-gradient(ellipse 140% 75% at 50% 0%, ${hexToRgba(heroColor, 0.38)} 0%, ${hexToRgba(heroColor, 0.12)} 40%, transparent 68%)`,
+              }}
+            />
           )}
         </AnimatePresence>
 
