@@ -9,6 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { fetchPersonSuggestions, type PersonSuggestion } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import type { FilterState, AwardBody } from "@cineroll/types";
 
@@ -52,6 +53,33 @@ export function FilterBar({
   className,
 }: FilterBarProps) {
   const activeChips = getActiveFilterChips(filters, onFiltersChange);
+  const [personSuggestions, setPersonSuggestions] = React.useState<PersonSuggestion[]>([]);
+  const [isPersonSuggestionsOpen, setIsPersonSuggestionsOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    const query = filters.person.trim();
+    if (query.length < 2) {
+      const timer = window.setTimeout(() => {
+        setPersonSuggestions([]);
+        setIsPersonSuggestionsOpen(false);
+      }, 0);
+      return () => window.clearTimeout(timer);
+    }
+
+    let cancelled = false;
+    const timer = window.setTimeout(() => {
+      void fetchPersonSuggestions(query).then((suggestions) => {
+        if (cancelled) return;
+        setPersonSuggestions(suggestions);
+        setIsPersonSuggestionsOpen(suggestions.length > 0);
+      });
+    }, 180);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [filters.person]);
 
   return (
     <div aria-label="Filter films" className={cn("flex flex-col gap-3", className)}>
@@ -108,19 +136,52 @@ export function FilterBar({
           <span className="mb-1 block font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#555568]">
             Person
           </span>
-          <input
-            type="text"
-            placeholder="Director, actor…"
-            value={filters.person}
-            onChange={(e) => onFiltersChange({ person: e.target.value, page: 1 })}
-            className={cn(
-              "h-9 w-full rounded-md border border-[#1e1e2a] bg-[#0d0d1a] px-3",
-              "font-[family-name:var(--font-geist-mono)] text-[11px] text-[#F5F5F0]",
-              "placeholder:text-[#444458] outline-none",
-              "focus:border-[#e8453c]/50 focus:ring-1 focus:ring-[#e8453c]/30",
-              "transition-colors duration-150",
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Director, actor…"
+              value={filters.person}
+              autoComplete="off"
+              onChange={(e) => onFiltersChange({ person: e.target.value, page: 1 })}
+              onFocus={() => {
+                if (personSuggestions.length > 0) setIsPersonSuggestionsOpen(true);
+              }}
+              onBlur={() => window.setTimeout(() => setIsPersonSuggestionsOpen(false), 120)}
+              className={cn(
+                "h-9 w-full rounded-md border border-[#1e1e2a] bg-[#0d0d1a] px-3",
+                "font-[family-name:var(--font-geist-mono)] text-[11px] text-[#F5F5F0]",
+                "placeholder:text-[#444458] outline-none",
+                "focus:border-[#e8453c]/50 focus:ring-1 focus:ring-[#e8453c]/30",
+                "transition-colors duration-150",
+              )}
+            />
+            {isPersonSuggestionsOpen && (
+              <div className="absolute left-0 right-0 top-[calc(100%+6px)] z-50 overflow-hidden rounded-md border border-[#2a2a3e] bg-[#0b0b12] shadow-2xl shadow-black/60">
+                {personSuggestions.map((suggestion) => (
+                  <button
+                    key={suggestion.name}
+                    type="button"
+                    onMouseDown={(event) => event.preventDefault()}
+                    onClick={() => {
+                      onFiltersChange({ person: suggestion.name, page: 1 });
+                      setIsPersonSuggestionsOpen(false);
+                    }}
+                    className={cn(
+                      "flex w-full items-center justify-between gap-3 px-3 py-2 text-left",
+                      "transition-colors hover:bg-[#151520] focus-visible:bg-[#151520] focus-visible:outline-none",
+                    )}
+                  >
+                    <span className="truncate text-sm font-medium text-[#F5F5F0]">
+                      {suggestion.name}
+                    </span>
+                    <span className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#66667a]">
+                      {suggestion.roles.slice(0, 2).join(" / ")}
+                    </span>
+                  </button>
+                ))}
+              </div>
             )}
-          />
+          </div>
         </div>
 
         <div className="flex-1">

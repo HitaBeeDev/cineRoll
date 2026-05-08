@@ -88,6 +88,12 @@ export type SnobTestScore = {
   };
 };
 
+export type PersonSuggestion = {
+  name: string;
+  roles: string[];
+  count: number;
+};
+
 export function filtersToParams(filters: Partial<FilterState>): URLSearchParams {
   const params = new URLSearchParams();
   if (filters.search?.trim()) params.set("search", filters.search.trim());
@@ -182,4 +188,14 @@ export async function fetchAwardYears(): Promise<number[]> {
   if (!res.ok) return [];
   const data = await res.json() as { awardYears: number[] };
   return data.awardYears;
+}
+
+export async function fetchPersonSuggestions(query: string): Promise<PersonSuggestion[]> {
+  const trimmed = query.trim();
+  if (trimmed.length < 2) return [];
+  const params = new URLSearchParams({ query: trimmed, limit: "8" });
+  const res = await fetch(`${API_URL}/api/films/people?${params}`);
+  if (!res.ok) return [];
+  const data = await res.json() as { people: PersonSuggestion[] };
+  return data.people;
 }
