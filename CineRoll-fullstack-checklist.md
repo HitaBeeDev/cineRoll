@@ -477,7 +477,7 @@ Cards appear in the browse grid, the Similar Films section, the Snob Test, and t
 - [x] **Film title on the detail page uses the serif display font at maximum dramatic size** — if the title is long, it wraps gracefully; always left-aligned; the original title (if different) appears beneath it in smaller italic serif
 - [x] **posterColor theming** — the film's extracted dominant poster color is used as: a faint radial glow behind the poster image, a subtle tint on the awards section heading, the active color on the trailer play button; applied as a CSS custom property `--film-accent` so all themed elements update from one value
 - [x] **Awards section** — each award body (Oscar / Golden Globe / Cannes) has its own styled block with the relevant icon; wins are displayed with a gold fill, nominations with a muted outline; the layout reads like a credits block on a film
-- [ ] **Trailer** — the thumbnail has a large centered play button with a gold ring; clicking it opens a Framer Motion modal (backdrop blur behind) with the embedded YouTube player; the modal entrance is a scale-up from 0.9 to 1.0 with a 300ms spring
+- [x] **Trailer** — the thumbnail has a large centered play button with a gold ring; clicking it opens a Framer Motion modal (backdrop blur behind) with the embedded YouTube player; the modal entrance is a scale-up from 0.9 to 1.0 with a 300ms spring
 - [ ] **"Watch Tonight" / share button** — fixed position on desktop (bottom-right corner), sticky above the keyboard on mobile — always reachable without scrolling back up
 
 ---

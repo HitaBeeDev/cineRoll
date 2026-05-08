@@ -2,12 +2,13 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import type { CSSProperties } from "react";
-import { ArrowLeft, Star, Trophy, Users, Clapperboard, ExternalLink, PlayCircle } from "lucide-react";
+import { ArrowLeft, Star, Trophy, Users, Clapperboard, ExternalLink } from "lucide-react";
 import type { Film, AwardRecord } from "@cineroll/types";
 import { cn } from "@/lib/utils";
 import { RollAgainButton } from "@/components/roll-again-button";
 import { SiteNavigation } from "@/components/site-navigation";
 import { FilmDetailHero } from "@/components/film-detail-hero";
+import { FilmTrailer } from "@/components/film-trailer";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 const FALLBACK_ACCENT = "#D4AF37";
@@ -196,55 +197,12 @@ export default async function FilmPage({
             <div className="flex flex-col gap-10">
               {/* Trailer */}
               {film.trailerUrl && (
-                <section>
-                  <h2 className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-zinc-500">
-                    <PlayCircle className="h-3.5 w-3.5 text-[var(--film-accent)]" aria-hidden />
-                    Trailer
-                  </h2>
-                  {youtubeId ? (
-                    <div className="overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900">
-                      <div className="relative aspect-video w-full">
-                        <iframe
-                          src={`https://www.youtube-nocookie.com/embed/${youtubeId}`}
-                          title={`${film.title} trailer`}
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                          allowFullScreen
-                          className="absolute inset-0 h-full w-full"
-                        />
-                      </div>
-                    </div>
-                  ) : (
-                    <a
-                      href={film.trailerUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={cn(
-                        "inline-flex items-center gap-2 rounded-xl border bg-zinc-800",
-                        "px-4 py-2 text-sm font-medium text-zinc-100 transition-colors hover:bg-zinc-700",
-                        "border-[color:color-mix(in_srgb,var(--film-accent)_45%,rgb(63_63_70))] hover:text-[var(--film-accent)]",
-                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
-                      )}
-                    >
-                      <ExternalLink className="h-4 w-4" aria-hidden />
-                      Watch Trailer
-                    </a>
-                  )}
-                  {youtubeId && (
-                    <a
-                      href={film.trailerUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={cn(
-                        "inline-flex items-center gap-1.5 mt-2",
-                        "text-xs text-zinc-500 transition-colors hover:text-[var(--film-accent)]",
-                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 rounded"
-                      )}
-                    >
-                      <ExternalLink className="h-3 w-3" aria-hidden />
-                      Watch on YouTube
-                    </a>
-                  )}
-                </section>
+                <FilmTrailer
+                  title={film.title}
+                  trailerUrl={film.trailerUrl}
+                  youtubeId={youtubeId}
+                  thumbnailUrl={film.backdropUrl ?? film.posterUrl}
+                />
               )}
 
               {/* Plot */}
