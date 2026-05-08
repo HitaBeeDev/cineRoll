@@ -110,20 +110,25 @@ export function BrowsePageClient() {
   return (
     <div className="flex min-h-screen flex-col bg-zinc-950 text-zinc-100">
       <header className="flex items-center justify-between border-b border-zinc-800/60 px-5 py-4 sm:px-8">
-        <Link
-          href="/"
-          className={cn(
-            "flex items-center gap-2 text-sm text-zinc-400 transition-colors hover:text-zinc-100",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 rounded"
-          )}
-        >
-          <ArrowLeft className="h-4 w-4" aria-hidden />
-          Home
-        </Link>
         <span className="font-[family-name:var(--font-display)] text-lg font-semibold tracking-[0.08em] text-[#D4AF37]">
           CineRoll
         </span>
-        <div className="w-14" aria-hidden />
+        <nav className="flex items-center gap-2 sm:gap-4" aria-label="Primary navigation">
+          {[
+            { href: "/", label: "Home" },
+            { href: "/browse", label: "Browse" },
+            { href: "/snob-test", label: "Snob Test" },
+            { href: "/stats", label: "Stats" },
+          ].map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="rounded text-xs font-medium text-[#A0A0B0] transition-colors hover:text-[#F5F5F0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 sm:text-sm"
+            >
+              {item.label}
+            </Link>
+          ))}
+        </nav>
       </header>
 
       <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-8 px-4 py-8 sm:px-6 lg:px-8">

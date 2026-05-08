@@ -465,7 +465,7 @@ Cards appear in the browse grid, the Similar Films section, the Snob Test, and t
 - [x] **On scroll: nav transitions to a frosted-glass panel** — `backdrop-filter: blur(20px)` + `background: rgba(9,9,15,0.85)` — appears when the user scrolls past 80px; transition is 200ms ease; never a hard jump
 - [x] **On film detail pages:** header is always the frosted-glass state (no transparent phase) because the backdrop is behind page content, not the header
 - [x] **CineRoll wordmark** uses the serif display font in Cinematic Gold — small, elegant, not a heavy logo; feels like a distributor credit on a film poster
-- [ ] **Navigation links** are minimal: Home · Browse · Snob Test · Stats — no dropdowns; links use the muted secondary text colour and brighten to warm white on hover
+- [x] **Navigation links** are minimal: Home · Browse · Snob Test · Stats — no dropdowns; links use the muted secondary text colour and brighten to warm white on hover
 - [ ] **Mobile nav** — hamburger menu slides in a full-screen dark overlay with large, tap-friendly navigation items; overlay closes on tap-outside or Escape
 
 ---
@@ -580,7 +580,9 @@ On the very first visit, guide the user through a quick taste-matching flow so t
 - [x] Create `src/app/[locale]/page.tsx` (home page under i18n routing)
 - [x] Add large "Roll" button that triggers API call to /api/random
 - [x] Display loading state while fetching
-- [x] Display film card with poster, title, year, rating, Oscar wins, genres, plot, "View full details" link
+- [ ] Display film card with poster, title, year, rating, genres, plot, "View full details" link — **incomplete**: missing nominees display and full award list coverage (see items below)
+- [ ] **Show nominees on result card** — below the award counts, list the nominee names from `oscarCategories`, `ggCategories`, and `cannesCategories` (e.g. "Best Director · Steven Spielberg · Won"); group by award body; truncate to top 5 entries with a "Show more" toggle if longer
+- [ ] **Show which lists the film appears in on the result card** — display a row of badges: Oscar, Golden Globe, Cannes, IMDB Top 250 Movies, IMDB Top 250 TV Shows — show only the badges that apply to this film; e.g. a film with `oscarNominations > 0` gets an Oscar badge, `imdbTopMovieRank !== null` gets an IMDB Top 250 badge
 - [x] Add "Roll Again" button to fetch another random film
 - [x] Implement smooth animations for result reveal using Framer Motion (spring entry, backdrop cross-fade, cinema-dark overlay, cinematic loading bar)
 - [x] Display "Pick of the Day" section that calls /api/pick-of-day endpoint (auto-selected by algorithm)
@@ -762,6 +764,8 @@ Instead of dropdowns, the user describes what they want in plain English. Claude
 - [ ] Make responsive: stack all content vertically on mobile, use grid layout on desktop
 - [ ] Add "Back to Browse" or "Roll Again" navigation buttons
 - [ ] **Original Title** — if `originalTitle` is set and differs from `title`, display it in smaller text directly below the main title (e.g. _Das Leben der Anderen_ under "The Lives of Others"); skip if null or identical
+- [ ] **IMDB page link** — if `imdbId` is set, show a clickable "View on IMDB" link (opens in new tab) on the detail page; use the IMDB logo or a recognizable label; link format: `https://www.imdb.com/title/{imdbId}/`
+- [ ] **Full cast with photos** — replace the plain cast name list with a horizontally scrollable row of cast member cards; each card shows the actor's TMDB profile photo (fetch from `/api/person/:id/images` or use TMDB's `profile_path` stored at enrich time), their name, and character name if available; fall back to a generic silhouette avatar if no photo
 - [x] **Film Color Theming (Roll hero)** — `posterColor` from the rolled film is used as a `radial-gradient` ambient glow in the roll hero section; `hexToRgba` converts the hex to RGBA stops (0.38 → 0.12 → transparent); falls back to dark base if null
 - [ ] **Film Color Theming (Detail page)** — read `posterColor` on detail pages and apply as: faint radial glow behind poster image, subtle tint on awards section heading, active color on trailer play button; use CSS custom property `--film-accent` so all themed elements update from one value; fall back to `#D4AF37` if null
 
