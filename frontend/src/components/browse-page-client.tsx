@@ -120,7 +120,9 @@ export function BrowsePageClient() {
           <ArrowLeft className="h-4 w-4" aria-hidden />
           Home
         </Link>
-        <span className="text-xl font-bold tracking-tight text-amber-400">CineRoll</span>
+        <span className="font-[family-name:var(--font-display)] text-lg font-semibold tracking-[0.08em] text-[#D4AF37]">
+          CineRoll
+        </span>
         <div className="w-14" aria-hidden />
       </header>
 

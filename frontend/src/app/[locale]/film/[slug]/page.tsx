@@ -98,7 +98,7 @@ export default async function FilmPage({
           <ArrowLeft className="h-4 w-4" aria-hidden />
           Browse
         </Link>
-        <Link href="/" className="text-xl font-bold tracking-tight text-amber-400 hover:text-amber-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 rounded">
+        <Link href="/" className="font-[family-name:var(--font-display)] text-lg font-semibold tracking-[0.08em] text-[#D4AF37] transition-colors hover:text-[#F1D27A] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 rounded">
           CineRoll
         </Link>
         <div className="w-14" aria-hidden />

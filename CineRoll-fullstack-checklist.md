@@ -464,7 +464,7 @@ Cards appear in the browse grid, the Similar Films section, the Snob Test, and t
 - [x] **Transparent header over the hero** — on the homepage, the nav sits over the hero backdrop with no background; the CineRoll logo and links are in warm white
 - [x] **On scroll: nav transitions to a frosted-glass panel** — `backdrop-filter: blur(20px)` + `background: rgba(9,9,15,0.85)` — appears when the user scrolls past 80px; transition is 200ms ease; never a hard jump
 - [x] **On film detail pages:** header is always the frosted-glass state (no transparent phase) because the backdrop is behind page content, not the header
-- [ ] **CineRoll wordmark** uses the serif display font in Cinematic Gold — small, elegant, not a heavy logo; feels like a distributor credit on a film poster
+- [x] **CineRoll wordmark** uses the serif display font in Cinematic Gold — small, elegant, not a heavy logo; feels like a distributor credit on a film poster
 - [ ] **Navigation links** are minimal: Home · Browse · Snob Test · Stats — no dropdowns; links use the muted secondary text colour and brighten to warm white on hover
 - [ ] **Mobile nav** — hamburger menu slides in a full-screen dark overlay with large, tap-friendly navigation items; overlay closes on tap-outside or Escape
 

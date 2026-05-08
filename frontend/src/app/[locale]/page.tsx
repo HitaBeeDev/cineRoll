@@ -278,7 +278,9 @@ export default function HomePage() {
                 : "bg-transparent shadow-none backdrop-blur-0",
             )}
           >
-            <span className="text-xl font-bold tracking-tight">CineRoll</span>
+            <span className="font-[family-name:var(--font-display)] text-lg font-semibold tracking-[0.08em] text-[#D4AF37]">
+              CineRoll
+            </span>
             <Link
               href="/browse"
               className="text-sm text-[#F5F5F0]/80 transition-colors hover:text-[#F5F5F0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37] rounded"
