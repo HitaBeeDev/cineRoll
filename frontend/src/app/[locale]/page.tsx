@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { Bookmark, Share2, Dices } from "lucide-react";
+import { Bookmark, Share2, Dices, Sparkles } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/toast";
 import { FilterBar } from "@/components/filter-bar";
@@ -21,6 +21,8 @@ import { formatRuntime } from "@/lib/format";
 import { useFilters } from "@/hooks/useFilters";
 import { cn } from "@/lib/utils";
 
+const ONBOARDED_STORAGE_KEY = "cineroll_onboarded";
+
 export default function HomePage() {
   const shouldReduceMotion = useReducedMotion();
   const { toast } = useToast();
@@ -33,9 +35,24 @@ export default function HomePage() {
   const [categories, setCategories] = useState<string[]>([]);
   const [awardYears, setAwardYears] = useState<number[]>([]);
   const [totalCount, setTotalCount] = useState<number | null>(null);
+  const [onboardingState, setOnboardingState] = useState<"checking" | "show" | "done">("checking");
 
   const handleRollRef = useRef<() => Promise<void>>(async () => {});
   const filmCardRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const id = window.setTimeout(() => {
+      try {
+        setOnboardingState(
+          window.localStorage.getItem(ONBOARDED_STORAGE_KEY) === "true" ? "done" : "show",
+        );
+      } catch {
+        setOnboardingState("done");
+      }
+    }, 0);
+
+    return () => window.clearTimeout(id);
+  }, []);
 
   // Fetch filter metadata + total film count
   useEffect(() => {
@@ -149,6 +166,23 @@ export default function HomePage() {
         : totalCount !== null
           ? String(totalCount).padStart(3, "0")
           : "···";
+
+  if (onboardingState === "checking") {
+    return <div className="min-h-screen bg-[#09090f]" aria-hidden />;
+  }
+
+  if (onboardingState === "show") {
+    return (
+      <FirstVisitOnboarding
+        onContinue={() => {
+          try {
+            window.localStorage.setItem(ONBOARDED_STORAGE_KEY, "true");
+          } catch {}
+          setOnboardingState("done");
+        }}
+      />
+    );
+  }
 
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-[#09090f] text-[#F5F5F0]">
@@ -294,6 +328,83 @@ export default function HomePage() {
           </AnimatePresence>
         </div>
       </div>
+    </div>
+  );
+}
+
+function FirstVisitOnboarding({ onContinue }: { onContinue: () => void }) {
+  return (
+    <div className="flex min-h-screen flex-col bg-[#09090f] text-[#F5F5F0]">
+      <header className="flex h-16 shrink-0 items-center justify-between border-b border-[#1a1a28] px-5 sm:px-8">
+        <Link
+          href="/"
+          className="font-[family-name:var(--font-geist-mono)] text-[1.1rem] font-bold uppercase tracking-[0.15em] text-[#e8453c]"
+        >
+          Cine·Roll
+        </Link>
+        <span className="hidden rounded-full border border-[#e8453c]/25 px-2.5 py-0.5 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#e8453c]/55 sm:inline-flex">
+          First Visit
+        </span>
+      </header>
+
+      <main className="flex flex-1 items-center px-5 py-10 sm:px-8 lg:px-10">
+        <section className="grid w-full gap-8 lg:grid-cols-12 lg:items-center">
+          <div className="lg:col-span-7">
+            <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.28em] text-[#D4AF37]">
+              {"// QUICK TASTE MATCH"}
+            </p>
+            <h1 className="mt-4 max-w-4xl font-[family-name:var(--font-display)] text-[clamp(3.8rem,7vw,7rem)] font-bold leading-[0.92] tracking-normal">
+              Find your
+              <br />
+              <span className="text-[#e8453c]">award-film lane.</span>
+            </h1>
+            <p className="mt-6 max-w-2xl text-base leading-7 text-[#b8b8c6]">
+              Start with a fast taste check, then CineRoll can make the first roll feel less random and more like your shelf.
+            </p>
+          </div>
+
+          <div className="lg:col-span-5">
+            <div className="border border-[#242435] bg-[#101017]">
+              <div className="border-b border-[#242435] bg-[#0b0b12] px-5 py-4">
+                <div className="flex items-center gap-2 text-[#D4AF37]">
+                  <Sparkles className="h-4 w-4" />
+                  <span className="font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-widest">
+                    First visit setup
+                  </span>
+                </div>
+              </div>
+              <div className="p-5">
+                <div className="grid grid-cols-3 gap-2">
+                  {["Seen", "Skipped", "Curious"].map((label) => (
+                    <div key={label} className="border border-[#242435] bg-[#09090f] px-3 py-4 text-center">
+                      <span className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#888899]">
+                        {label}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                <p className="mt-5 text-sm leading-6 text-[#b8b8c6]">
+                  We will ask a few lightweight questions next. You can skip it anytime and still use the full app.
+                </p>
+                <div className="mt-5 rounded-2xl border-2 border-dashed border-[#e8453c]/30 p-1.5">
+                  <button
+                    type="button"
+                    onClick={onContinue}
+                    className={cn(
+                      "w-full rounded-xl bg-[#e8453c] px-5 py-4 text-[#F5F5F0]",
+                      "font-[family-name:var(--font-geist-mono)] text-sm font-bold uppercase tracking-[0.2em]",
+                      "transition hover:bg-[#d5342b] hover:shadow-[0_0_40px_rgba(232,69,60,0.28)]",
+                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
+                    )}
+                  >
+                    Start setup
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
     </div>
   );
 }
