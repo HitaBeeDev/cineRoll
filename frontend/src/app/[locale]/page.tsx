@@ -154,7 +154,7 @@ export default function HomePage() {
         : "···";
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#09090f] text-[#F5F5F0]">
+    <div className="flex flex-col h-screen overflow-hidden bg-[#09090f] text-[#F5F5F0]">
       {/* ── Header ──────────────────────────────────────────────────── */}
       <header className="sticky top-0 z-50 flex h-16 shrink-0 items-center justify-between border-b border-[#1a1a28] bg-[#09090f] px-5 sm:px-8">
         <div className="flex items-center gap-3">
@@ -172,20 +172,20 @@ export default function HomePage() {
       </header>
 
       {/* ── Two-column body ─────────────────────────────────────────── */}
-      <div className="flex flex-1 flex-col lg:flex-row lg:h-[calc(100vh-4rem)] lg:overflow-hidden">
+      <div className="flex flex-1 flex-col lg:grid lg:grid-cols-12 lg:h-[calc(100vh-4rem)] lg:overflow-hidden">
         {/* LEFT: hero + filters + roll ──────────────────────────────── */}
-        <div className="flex flex-1 flex-col gap-3 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:w-0 px-5 py-4 sm:px-8 lg:px-10 lg:py-5">
+        <div className="flex flex-col gap-3 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:w-0 px-5 py-4 sm:px-8 lg:px-10 lg:py-5 lg:col-span-7">
           {/* Channel label */}
-          <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.25em] text-[#888899]">
+          <p className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.25em] text-[#888899]">
             {"// CHANNEL 03 · TONIGHT"}
           </p>
 
           {/* Hero headline */}
-          <div>
+          <div className="mb-7">
             <h1
               className={cn(
                 "font-[family-name:var(--font-display)] font-bold leading-[1.0] tracking-tight",
-                "text-[clamp(3.4rem,4.2vw,4.2rem)] text-[#F5F5F0]",
+                "text-[clamp(3.8rem,4.2vw,3.8rem)] text-[#F5F5F0]",
               )}
             >
               One spin.
@@ -194,10 +194,6 @@ export default function HomePage() {
               <br />
               Tonight.
             </h1>
-            <p className="mt-4 max-w-[380px] text-sm leading-relaxed text-[#888899]">
-              A jukebox for award cinema. Tune the dials below, then pull the
-              lever.
-            </p>
           </div>
 
           {/* Filters */}
@@ -257,8 +253,8 @@ export default function HomePage() {
           ref={filmCardRef}
           className={cn(
             "border-t border-[#1a1a28] lg:border-t-0 lg:border-l",
-            "lg:w-[480px] xl:w-[520px]",
-            "min-h-[400px] lg:min-h-0 lg:overflow-y-auto",
+            "lg:col-span-5",
+            "min-h-[400px] lg:min-h-0 lg:overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:w-0",
             "p-4",
           )}
         >
@@ -317,14 +313,17 @@ function FilmCard({ film }: { film: RollFilm }) {
   return (
     <div className="flex flex-col">
       {/* Channel pill */}
-      <div className="flex items-center -mx-1 -mt-1 mb-5">
+      <div className="flex items-center -mx-1 -mt-1 mb-2">
         <span className="inline-flex items-center rounded-full border border-[#e8453c]/22 bg-[#e8453c]/10 px-3 py-1 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#e8453c]">
           {channelLabel}
         </span>
       </div>
 
       {/* Backdrop / poster image */}
-      <div className="relative w-full overflow-hidden" style={{ aspectRatio: "16/9" }}>
+      <div
+        className="relative w-full overflow-hidden"
+        style={{ aspectRatio: "16/9" }}
+      >
         {imageUrl ? (
           <Image
             src={imageUrl}
@@ -355,7 +354,7 @@ function FilmCard({ film }: { film: RollFilm }) {
         </p>
 
         {/* Title + bookmark */}
-        <div className="flex items-start justify-between gap-3 mt-2">
+        <div className="flex items-start justify-between gap-3 mt-1">
           <h2 className="font-[family-name:var(--font-display)] text-xl font-bold leading-tight text-[#F5F5F0] sm:text-2xl">
             {film.title}
           </h2>
@@ -383,7 +382,7 @@ function FilmCard({ film }: { film: RollFilm }) {
         )}
 
         {/* Stats boxes */}
-        <div className="grid grid-cols-3 gap-2 mt-3">
+        <div className="grid grid-cols-3 gap-2 mt-2">
           <StatBox
             label="IMDb"
             value={film.imdbRating != null ? film.imdbRating.toFixed(1) : "—"}
@@ -445,7 +444,7 @@ function FilmCard({ film }: { film: RollFilm }) {
         ) : null}
 
         {/* Action buttons */}
-        <div className="flex items-center gap-2 mt-2">
+        <div className="flex items-center gap-2 mt-1">
           <Link
             href={`/film/${film.slug}`}
             className={cn(
