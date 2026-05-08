@@ -571,7 +571,7 @@ A standalone quiz page (`/snob-test`) that works without any account. Users tick
   - "Find films to fill the gaps" → links to `/browse` filtered to films they haven't seen
 - [x] **Shareable result card**: generate an OG image (or CSS-only card) with the score title and percentage; "Share my score" button copies a link or opens native share sheet on mobile
 - [x] If the user is logged in, offer "Save your seen films to your profile" — one click syncs checked films to their WatchedFilm list
-- [ ] Add `/snob-test` to main navigation with a label like "Test Yourself"
+- [x] Add `/snob-test` to main navigation with a label like "Test Yourself"
 - [ ] Add structured data and a strong meta description for SEO: "How many award-winning films have you actually seen? Take the CineRoll Snob Test."
 
 ---

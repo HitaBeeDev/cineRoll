@@ -11,7 +11,7 @@ const navItems = [
   { href: "/browse", label: "Browse" },
   { href: "/picks", label: "Picks" },
   { href: "/discover", label: "Discover" },
-  { href: "/snob-test", label: "Snob Test" },
+  { href: "/snob-test", label: "Test Yourself" },
   { href: "/battle", label: "Battle" },
   { href: "/stats", label: "Stats" },
 ];
