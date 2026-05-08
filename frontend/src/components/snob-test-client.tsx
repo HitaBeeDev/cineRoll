@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Check, Clapperboard, RefreshCw, Share2, Sparkles, Trophy } from "lucide-react";
+import { Check, Clapperboard, RefreshCw, Share2, Sparkles, Trophy, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SiteNavigation } from "@/components/site-navigation";
 import {
@@ -133,6 +133,25 @@ function buildResultSentences(breakdown: QuizBreakdown) {
   return sentences;
 }
 
+function buildShareUrl(score: SnobTestScore) {
+  const url = new URL(window.location.href);
+  url.searchParams.set("score", String(score.score));
+  url.searchParams.set("title", score.title);
+  url.searchParams.set("seen", String(score.seen));
+  url.searchParams.set("total", String(score.total));
+  return url.toString();
+}
+
+function buildSaveHref(selectedIds: Set<string>) {
+  const params = new URLSearchParams({
+    source: "snob-test",
+  });
+  if (selectedIds.size > 0) {
+    params.set("seenFilmIds", [...selectedIds].join(","));
+  }
+  return `/sign-up?${params.toString()}`;
+}
+
 function PosterFallback({ title, color }: { title: string; color: string | null }) {
   return (
     <div
@@ -157,6 +176,7 @@ export function SnobTestClient() {
   const breakdown = useMemo(() => buildBreakdown(films, selectedIds), [films, selectedIds]);
   const gapHref = useMemo(() => buildGapHref(films, selectedIds), [films, selectedIds]);
   const resultSentences = useMemo(() => buildResultSentences(breakdown), [breakdown]);
+  const saveHref = useMemo(() => buildSaveHref(selectedIds), [selectedIds]);
 
   const loadFilms = useCallback(async () => {
     setStatus("loading");
@@ -200,7 +220,7 @@ export function SnobTestClient() {
   async function shareScore() {
     if (!score) return;
     const text = `I scored ${score.score}% on the CineRoll Snob Test: ${score.title}`;
-    const url = window.location.href;
+    const url = buildShareUrl(score);
 
     try {
       if (navigator.share) {
@@ -401,6 +421,36 @@ export function SnobTestClient() {
                   )}
                 </div>
 
+                <div className="overflow-hidden border border-[#D4AF37]/35 bg-[#111118]">
+                  <div className="relative aspect-[1.91/1] min-h-[188px] bg-[#111118] p-5">
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(212,175,55,0.22),transparent_34%),linear-gradient(135deg,rgba(232,69,60,0.22),transparent_45%)]" />
+                    <div className="relative flex h-full flex-col justify-between">
+                      <div className="flex items-center justify-between">
+                        <span className="font-[family-name:var(--font-geist-mono)] text-[10px] font-semibold uppercase tracking-widest text-[#D4AF37]">
+                          CineRoll
+                        </span>
+                        <span className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest text-[#c9c9d4]">
+                          Snob Test
+                        </span>
+                      </div>
+                      <div>
+                        <p className="font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-widest text-[#888899]">
+                          My result
+                        </p>
+                        <h3 className="mt-2 font-[family-name:var(--font-display)] text-4xl font-bold leading-none text-[#F5F5F0]">
+                          {score.title}
+                        </h3>
+                      </div>
+                      <div className="flex items-end justify-between">
+                        <span className="text-6xl font-bold leading-none text-[#D4AF37]">{score.score}%</span>
+                        <span className="pb-1 text-sm font-medium text-[#F5F5F0]">
+                          {score.seen}/{score.total} films
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
                 <div className="border border-[#242435] bg-[#101017] p-5">
                   <h3 className="font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-widest text-[#888899]">
                     Breakdown
@@ -423,6 +473,25 @@ export function SnobTestClient() {
                 </div>
 
                 <div className="grid gap-3">
+                  <div className="border border-[#242435] bg-[#101017] p-4">
+                    <div className="flex items-start gap-3">
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-[#D4AF37] text-[#09090f]">
+                        <UserPlus className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-semibold text-[#F5F5F0]">
+                          Save your seen films
+                        </h3>
+                        <p className="mt-1 text-sm leading-5 text-[#a8a8b6]">
+                          Create a profile to keep these {selectedCount} picks in your watched list.
+                        </p>
+                      </div>
+                    </div>
+                    <Button asChild className="mt-4 w-full bg-[#D4AF37] text-[#09090f] hover:brightness-110">
+                      <Link href={saveHref}>Sign up to save</Link>
+                    </Button>
+                  </div>
+
                   <Button type="button" onClick={() => void shareScore()} className="bg-[#e8453c] text-[#F5F5F0]">
                     <Share2 className="h-4 w-4" />
                     {shareStatus === "copied" ? "Copied" : shareStatus === "failed" ? "Could not share" : "Share my score"}
