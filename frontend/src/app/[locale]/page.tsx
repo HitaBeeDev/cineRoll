@@ -184,8 +184,9 @@ export default function HomePage() {
     }
   }
 
-  // Keep ref current so the space-key handler always has the latest closure
-  handleRollRef.current = handleRoll;
+  useEffect(() => {
+    handleRollRef.current = handleRoll;
+  });
 
   return (
     <div className="flex flex-col min-h-screen bg-[#09090f] text-[#F5F5F0]">
@@ -261,11 +262,11 @@ export default function HomePage() {
 
         {/* Content */}
         <div className="relative z-20 flex flex-col flex-1">
-          <header className="flex items-center justify-between px-5 sm:px-8 py-4">
-            <span className="text-xl font-bold tracking-tight text-[#D4AF37]">CineRoll</span>
+          <header className="flex items-center justify-between px-5 sm:px-8 py-4 text-[#F5F5F0]">
+            <span className="text-xl font-bold tracking-tight">CineRoll</span>
             <Link
               href="/browse"
-              className="text-sm text-[#A0A0B0] hover:text-[#F5F5F0] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37] rounded"
+              className="text-sm text-[#F5F5F0]/80 transition-colors hover:text-[#F5F5F0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37] rounded"
             >
               Browse All
             </Link>
