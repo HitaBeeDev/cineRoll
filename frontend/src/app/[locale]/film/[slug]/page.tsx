@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+import type { CSSProperties } from "react";
 import { ArrowLeft, Star, Trophy, Users, Clapperboard, ExternalLink, PlayCircle } from "lucide-react";
 import type { Film, AwardRecord } from "@cineroll/types";
 import { cn } from "@/lib/utils";
@@ -9,6 +10,7 @@ import { SiteNavigation } from "@/components/site-navigation";
 import { FilmDetailHero } from "@/components/film-detail-hero";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
+const FALLBACK_ACCENT = "#D4AF37";
 
 function extractYouTubeId(url: string): string | null {
   try {
@@ -85,6 +87,7 @@ export default async function FilmPage({
   const oscarAwards = (film.oscarCategories as AwardRecord[]) ?? [];
   const ggAwards = (film.ggCategories as AwardRecord[]) ?? [];
   const hasAwards = film.oscarNominations > 0 || film.ggNominations > 0;
+  const filmAccentStyle = { "--film-accent": film.posterColor ?? FALLBACK_ACCENT } as CSSProperties;
 
   return (
     <div className="flex flex-col min-h-screen bg-zinc-950 text-zinc-100">
@@ -110,32 +113,39 @@ export default async function FilmPage({
 
         <div
           className="relative mx-auto -mt-16 max-w-4xl px-4 pb-20 sm:-mt-24 sm:px-6 lg:px-8"
+          style={filmAccentStyle}
         >
           {/* Poster + core info */}
           <div className="flex flex-col sm:flex-row gap-6 sm:gap-8">
             {/* Poster */}
-            <div
-              className={cn(
-                "relative mx-auto sm:mx-0 shrink-0 rounded-2xl overflow-hidden border border-zinc-700",
-                "w-36 sm:w-44 md:w-52 aspect-[2/3]",
-                "shadow-2xl shadow-black/70"
-              )}
-            >
-              {film.posterUrl ? (
-                <Image
-                  src={film.posterUrl}
-                  alt={`${film.title} poster`}
-                  fill
-                  sizes="(max-width: 640px) 144px, (max-width: 768px) 176px, 208px"
-                  className="object-cover"
-                  priority
-                />
-              ) : (
-                <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-zinc-800">
-                  <Clapperboard className="h-8 w-8 text-zinc-600" aria-hidden />
-                  <span className="text-xs text-zinc-600">No poster</span>
-                </div>
-              )}
+            <div className="relative mx-auto shrink-0 sm:mx-0">
+              <div
+                className="absolute -inset-8 rounded-full opacity-35 blur-3xl"
+                style={{ background: "radial-gradient(circle, var(--film-accent) 0%, transparent 68%)" }}
+                aria-hidden
+              />
+              <div
+                className={cn(
+                  "relative aspect-[2/3] w-36 overflow-hidden rounded-2xl border border-zinc-700",
+                  "shadow-2xl shadow-black/70 sm:w-44 md:w-52"
+                )}
+              >
+                {film.posterUrl ? (
+                  <Image
+                    src={film.posterUrl}
+                    alt={`${film.title} poster`}
+                    fill
+                    sizes="(max-width: 640px) 144px, (max-width: 768px) 176px, 208px"
+                    className="object-cover"
+                    priority
+                  />
+                ) : (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-zinc-800">
+                    <Clapperboard className="h-8 w-8 text-zinc-600" aria-hidden />
+                    <span className="text-xs text-zinc-600">No poster</span>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Info */}
@@ -186,8 +196,8 @@ export default async function FilmPage({
               {/* Trailer */}
               {film.trailerUrl && (
                 <section>
-                  <h2 className="flex items-center gap-2 text-xs font-semibold tracking-widest uppercase text-zinc-500 mb-3">
-                    <PlayCircle className="h-3.5 w-3.5" aria-hidden />
+                  <h2 className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-zinc-500">
+                    <PlayCircle className="h-3.5 w-3.5 text-[var(--film-accent)]" aria-hidden />
                     Trailer
                   </h2>
                   {youtubeId ? (
@@ -208,8 +218,9 @@ export default async function FilmPage({
                       target="_blank"
                       rel="noopener noreferrer"
                       className={cn(
-                        "inline-flex items-center gap-2 rounded-xl border border-zinc-700 bg-zinc-800",
-                        "hover:bg-zinc-700 transition-colors px-4 py-2 text-sm font-medium text-zinc-100",
+                        "inline-flex items-center gap-2 rounded-xl border bg-zinc-800",
+                        "px-4 py-2 text-sm font-medium text-zinc-100 transition-colors hover:bg-zinc-700",
+                        "border-[color:color-mix(in_srgb,var(--film-accent)_45%,rgb(63_63_70))] hover:text-[var(--film-accent)]",
                         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
                       )}
                     >
@@ -224,7 +235,7 @@ export default async function FilmPage({
                       rel="noopener noreferrer"
                       className={cn(
                         "inline-flex items-center gap-1.5 mt-2",
-                        "text-xs text-zinc-500 hover:text-zinc-300 transition-colors",
+                        "text-xs text-zinc-500 transition-colors hover:text-[var(--film-accent)]",
                         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 rounded"
                       )}
                     >
@@ -271,8 +282,8 @@ export default async function FilmPage({
               {/* Awards */}
               {hasAwards && (
                 <section>
-                  <h2 className="flex items-center gap-2 text-xs font-semibold tracking-widest uppercase text-zinc-500 mb-4">
-                    <Trophy className="h-3.5 w-3.5" aria-hidden />
+                  <h2 className="mb-4 flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-[color:color-mix(in_srgb,var(--film-accent)_72%,rgb(113_113_122))]">
+                    <Trophy className="h-3.5 w-3.5 text-[var(--film-accent)]" aria-hidden />
                     Awards
                   </h2>
                   <div className="flex flex-col gap-6">
