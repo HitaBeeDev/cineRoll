@@ -71,27 +71,46 @@ export function FilmCard({ film, className }: FilmCardProps) {
         </div>
       )}
 
-      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
-
-      <div className="absolute bottom-0 left-0 right-0 p-3">
-        {film.imdbRating != null && (
-          <div className="mb-1 flex items-center gap-1">
-            <Star className="h-3 w-3 fill-[#D4AF37] text-[#D4AF37]" />
-            <span className="tabular-nums text-xs font-semibold text-[#D4AF37]">
-              {film.imdbRating.toFixed(1)}
-            </span>
-          </div>
+      {/* Hover overlay — slides up from below the card bottom */}
+      <div
+        className={cn(
+          "absolute inset-x-0 bottom-0",
+          "translate-y-full group-hover:translate-y-0",
+          "transition-transform duration-300 ease-out",
+          "bg-gradient-to-t from-black/95 via-black/80 to-transparent",
+          "pt-14 pb-3 px-3 flex flex-col gap-1",
         )}
-        <h3 className="line-clamp-2 text-sm font-semibold leading-tight text-[#F5F5F0]">
+      >
+        <h3 className="font-[family-name:var(--font-display)] line-clamp-2 text-sm font-bold leading-tight text-[#F5F5F0]">
           {film.title}
         </h3>
-        <p className="mt-0.5 text-xs text-[#A0A0B0]">{film.year}</p>
+
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-[#A0A0B0]">{film.year}</span>
+          {film.imdbRating != null && (
+            <span className="flex items-center gap-0.5 text-xs font-semibold text-[#D4AF37]">
+              <Star className="h-3 w-3 fill-[#D4AF37]" aria-hidden />
+              {film.imdbRating.toFixed(1)}
+            </span>
+          )}
+        </div>
+
         {(() => {
           const summary = buildAwardSummary(film);
           return summary ? (
-            <p className="mt-0.5 line-clamp-1 text-xs text-[#5a5a70]">{summary}</p>
+            <p className="line-clamp-1 text-xs text-[#D4AF37]">{summary}</p>
           ) : null;
         })()}
+
+        <span
+          className={cn(
+            "mt-1.5 inline-flex w-fit items-center gap-1 rounded-lg",
+            "border border-[#F5F5F0]/25 px-2.5 py-1",
+            "text-xs font-medium text-[#F5F5F0]/80",
+          )}
+        >
+          Roll Similar →
+        </span>
       </div>
     </Link>
   );
