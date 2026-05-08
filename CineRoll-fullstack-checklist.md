@@ -473,7 +473,7 @@ Cards appear in the browse grid, the Similar Films section, the Snob Test, and t
 ### Film Detail Page
 
 - [x] **Full-bleed poster-color detail hero** — the page hero layers the film's `posterColor` ambient gradient over the backdrop image when available, with gradient overlay and grain texture; the film title and metadata float over it in the bottom third
-- [ ] **Parallax scroll on the backdrop** — as the user scrolls down, the backdrop moves at 40% of the scroll speed (CSS `background-attachment: fixed` or Framer Motion scroll-linked transform) — creates depth and separates the hero from the content below
+- [x] **Parallax scroll on the backdrop** — as the user scrolls down, the backdrop moves at 40% of the scroll speed (CSS `background-attachment: fixed` or Framer Motion scroll-linked transform) — creates depth and separates the hero from the content below
 - [ ] **Film title on the detail page uses the serif display font at maximum dramatic size** — if the title is long, it wraps gracefully; always left-aligned; the original title (if different) appears beneath it in smaller italic serif
 - [ ] **posterColor theming** — the film's extracted dominant poster color is used as: a faint radial glow behind the poster image, a subtle tint on the awards section heading, the active color on the trailer play button; applied as a CSS custom property `--film-accent` so all themed elements update from one value
 - [ ] **Awards section** — each award body (Oscar / Golden Globe / Cannes) has its own styled block with the relevant icon; wins are displayed with a gold fill, nominations with a muted outline; the layout reads like a credits block on a film
@@ -519,6 +519,7 @@ Apply these rules consistently across every component so the app feels coherent,
 - [ ] Create a Film Card component that displays poster, title, year, rating
 - [ ] **Night Mode Pill** — add a dark/light mode toggle styled as a pill (moon/sun icon) in the header/navbar; persist preference to localStorage; default to system preference
 - [ ] **Login / Sign Up buttons** — add "Sign In" and "Sign Up" CTA buttons in the header when the user is not authenticated; replace with user avatar + menu when logged in
+- [ ] Create `src/lib/format.ts` with a `formatRuntime(minutes: number | null): string` utility — converts raw minutes to human-readable "2h 22m" / "45m" / "2h" format; returns `""` if null; **used everywhere runtime is displayed — never show raw minutes**
 - [ ] Apply consistent styling using design tokens (colors, spacing, fonts)
 - [ ] Ensure all components have proper TypeScript types
 - [ ] Ensure accessibility: ARIA labels, semantic HTML, keyboard navigation
@@ -743,7 +744,7 @@ Instead of dropdowns, the user describes what they want in plain English. Claude
 - [ ] Fetch film data by slug from `/api/films/:slug` endpoint
 - [ ] Display complete film information:
   - Large poster and backdrop images
-  - Title, year, runtime, genres
+  - Title, year, runtime (formatted as "2h 22m" via `formatRuntime()`), genres
   - Director and main cast
   - Full plot synopsis
   - IMDB and Rotten Tomatoes ratings with icons
