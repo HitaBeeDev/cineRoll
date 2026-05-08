@@ -439,7 +439,7 @@ The moment between clicking Roll and seeing the result is the most important int
 - [x] **Step 1 — Click response (0–100ms):** Roll button scales down to 0.97 immediately on press; the hero backdrop begins a 200ms fade to a near-black overlay — the cinema goes dark
 - [x] **Step 2 — Loading state (100ms – API response):** a subtle horizontal progress bar pulses across the bottom of the hero (not a spinner — a cinematic loading bar like a film projector warming up); copy under the button reads _"Finding your film…"_
 - [x] **Step 3 — Reveal (API response arrives):** the new film's backdrop image fades in behind the overlay (400ms); the overlay fades out simultaneously; the film result card animates up from the bottom of the screen with a spring motion (`y: 40 → 0`, `opacity: 0 → 1`, 500ms spring); the film title appears with a subtle stagger — year first (small, fades in), then title (large serif, fades in 100ms later)
-- [ ] **Step 4 — Settle:** the result card is fully visible; the Roll button reappears below the card with the label "Roll Again"; the backdrop stays as the rolled film's backdrop until the user rolls again
+- [x] **Step 4 — Settle:** the result card is fully visible; the Roll button reappears below the card with the label "Roll Again"; the backdrop stays as the rolled film's backdrop until the user rolls again
 - [ ] **If the API fails:** the overlay fades back out, the backdrop returns to the default, and a toast appears: _"Couldn't connect — check your connection and try again"_
 
 ---

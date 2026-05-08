@@ -295,27 +295,39 @@ export default function HomePage() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -12 }}
                 transition={{ type: "spring", stiffness: 280, damping: 24 }}
-                className="flex flex-col gap-4"
+                className="flex flex-col gap-6"
               >
                 <RollResultCard film={film} />
-                <div className="flex justify-center">
+
+                {/* Roll Again — appears after the card spring has settled */}
+                <motion.div
+                  className="flex justify-center"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.35, delay: 0.45, ease: "easeOut" }}
+                >
                   <button
                     onClick={() => void handleRoll()}
                     disabled={isRollDisabled}
+                    aria-label="Roll again for a random film"
                     className={cn(
-                      "flex items-center gap-2 h-10 px-5 text-sm rounded-lg",
-                      "border border-[#22222f] text-[#F5F5F0] bg-transparent",
-                      "hover:border-[#A0A0B0] hover:bg-[#1a1a24]/60",
-                      "active:bg-[#22222f] active:scale-[0.97]",
-                      "disabled:border-[#1a1a24] disabled:text-[#5a5a70] disabled:cursor-not-allowed",
-                      "transition-all duration-150 select-none",
+                      "flex items-center gap-2.5 h-12 px-10",
+                      "bg-[linear-gradient(to_bottom,#D4AF37,#B8962E)]",
+                      "text-[#09090f] font-bold text-base",
+                      "rounded-xl shadow-lg shadow-[#D4AF37]/20",
+                      "transition-all duration-200 select-none",
+                      "hover:shadow-[0_0_24px_rgba(212,175,55,0.38)] hover:-translate-y-0.5",
+                      "active:scale-[0.97]",
+                      "disabled:opacity-50 disabled:cursor-not-allowed",
+                      "disabled:hover:translate-y-0 disabled:hover:shadow-lg",
                       "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37]",
+                      "focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090f]",
                     )}
                   >
                     <RotateCcw className="h-4 w-4" aria-hidden />
                     Roll Again
                   </button>
-                </div>
+                </motion.div>
               </motion.div>
             )}
 
