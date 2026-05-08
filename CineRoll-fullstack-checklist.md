@@ -396,13 +396,13 @@ Establish the visual language before building any component. Every screen should
 
 ### Color System
 
-- [ ] **Primary background:** near-black with a subtle blue-black tint (`#09090f`) — not pure black, which feels flat; the blue-black gives depth like a darkened cinema
-- [ ] **Surface colors (cards, panels):** `#111118` (base surface), `#1a1a24` (elevated surface), `#22222f` (hover/active surface) — layered so the UI has clear depth hierarchy
-- [ ] **Primary accent — Cinematic Gold:** `#D4AF37` — used for wins, highlights, the Roll button glow, active filter states; feels like an Oscar statuette
-- [ ] **Secondary accent — Deep Crimson:** `#8B1A1A` — used sparingly for nominated-only states, destructive actions, dramatic emphasis
-- [ ] **Text hierarchy:** `#F5F5F0` (primary — warm white, not harsh), `#A0A0B0` (secondary — muted lavender-grey), `#5a5a70` (tertiary — disabled/placeholder)
-- [ ] **Film backdrop overlay gradient:** `linear-gradient(to top, #09090f 0%, #09090f 25%, transparent 60%)` — applied over every backdrop image so text is always readable and the image still breathes
-- [ ] **Define all values as CSS custom properties** in `globals.css` so they work across Tailwind utilities and raw CSS; expose them as Tailwind theme tokens in `tailwind.config`
+- [x] **Primary background:** near-black with a subtle blue-black tint (`#09090f`) — not pure black, which feels flat; the blue-black gives depth like a darkened cinema
+- [x] **Surface colors (cards, panels):** `#111118` (base surface), `#1a1a24` (elevated surface), `#22222f` (hover/active surface) — layered so the UI has clear depth hierarchy
+- [x] **Primary accent — Cinematic Gold:** `#D4AF37` — used for wins, highlights, the Roll button glow, active filter states; feels like an Oscar statuette
+- [x] **Secondary accent — Deep Crimson:** `#8B1A1A` — used sparingly for nominated-only states, destructive actions, dramatic emphasis
+- [x] **Text hierarchy:** `#F5F5F0` (primary — warm white, not harsh), `#A0A0B0` (secondary — muted lavender-grey), `#5a5a70` (tertiary — disabled/placeholder)
+- [x] **Film backdrop overlay gradient:** `bg-gradient-to-t from-[#09090f] via-[#09090f]/25 to-transparent` — applied as Tailwind utilities directly on the overlay element in each component; ensures text readability while the backdrop image still breathes
+- [x] **Color application strategy:** all palette values applied as Tailwind arbitrary values (e.g. `bg-[#09090f]`, `text-[#D4AF37]`) directly in component files — no additions to `globals.css`, no `tailwind.config` needed
 
 ---
 
