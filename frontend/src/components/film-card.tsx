@@ -31,9 +31,10 @@ export function FilmCard({ film, className }: FilmCardProps) {
       aria-label={`${film.title} (${film.year})`}
       className={cn(
         "group relative block overflow-hidden rounded-xl",
-        "aspect-[2/3] border border-[#22222f] bg-[#111118]",
+        "aspect-[2/3] border border-transparent bg-[#111118]",
+        "shadow-[0_4px_24px_rgba(0,0,0,0.5)]",
         "transition-all duration-200 ease-out",
-        "hover:-translate-y-1 hover:shadow-xl hover:shadow-black/60",
+        "hover:-translate-y-1 hover:shadow-[0_8px_32px_rgba(0,0,0,0.7)]",
         "hover:border-[#D4AF37]/60",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37]",
         "focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090f]",
