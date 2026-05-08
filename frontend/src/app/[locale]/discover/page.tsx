@@ -275,7 +275,7 @@ export default function DiscoverPage() {
                 className={cn(
                   "m-1.5 flex items-center gap-2 rounded-xl px-4 py-2.5",
                   "font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-widest",
-                  "bg-[#e8453c] text-white transition-all",
+                  "bg-[#e8453c] text-[#F5F5F0] transition-all",
                   "hover:bg-[#d5342b] disabled:opacity-40",
                 )}
               >
@@ -488,7 +488,7 @@ function ResultCard({ film, index }: { film: RollFilm; index: number }) {
         <div className="mt-auto flex items-center gap-2 pt-2">
           <Link
             href={`/film/${film.slug}`}
-            className="flex flex-1 items-center justify-center rounded-lg bg-[#e8453c] py-2 font-[family-name:var(--font-geist-mono)] text-[9px] font-bold uppercase tracking-widest text-white transition-colors hover:bg-[#d5342b]"
+            className="flex flex-1 items-center justify-center rounded-lg bg-[#e8453c] py-2 font-[family-name:var(--font-geist-mono)] text-[9px] font-bold uppercase tracking-widest text-[#F5F5F0] transition-colors hover:bg-[#d5342b]"
           >
             View Film
           </Link>

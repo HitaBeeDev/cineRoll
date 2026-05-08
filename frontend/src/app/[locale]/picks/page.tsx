@@ -324,7 +324,7 @@ function PickCard({ pick, index }: { pick: DailyPick; index: number }) {
             href={`/film/${film.slug}`}
             className={cn(
               "flex flex-1 items-center justify-center rounded-xl py-2.5",
-              "font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-widest text-white",
+              "font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-widest text-[#F5F5F0]",
               "transition-all duration-150 hover:brightness-110",
             )}
             style={{ backgroundColor: slot.accentColor }}

@@ -85,7 +85,7 @@ export function SiteNavigation({
             className={cn(
               "rounded-full px-3.5 py-1.5",
               "font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest",
-              "bg-[#e8453c] text-white transition-colors duration-150",
+              "bg-[#e8453c] text-[#F5F5F0] transition-colors duration-150",
               "hover:bg-[#d5342b]",
               "focus-visible:outline-none focus-visible:ring-2",
               focusRingClassName,
@@ -172,7 +172,7 @@ export function SiteNavigation({
                 </Link>
                 <Link
                   href="/sign-up"
-                  className="rounded-full bg-[#e8453c] px-5 py-2.5 font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-widest text-white"
+                  className="rounded-full bg-[#e8453c] px-5 py-2.5 font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-widest text-[#F5F5F0]"
                   onClick={() => setIsOpen(false)}
                 >
                   Sign Up

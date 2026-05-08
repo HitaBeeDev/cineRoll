@@ -212,7 +212,7 @@ export default function HomePage() {
                 aria-label={isRolling ? "Rolling…" : "Roll for a random film"}
                 className={cn(
                   "w-full rounded-xl py-[18px]",
-                  "bg-[#e8453c] text-white",
+                  "bg-[#e8453c] text-[#F5F5F0]",
                   "font-[family-name:var(--font-geist-mono)] text-xl font-bold uppercase tracking-[0.25em]",
                   "select-none transition-all duration-150",
                   "hover:bg-[#d5342b] hover:shadow-[0_0_40px_rgba(232,69,60,0.28)]",
@@ -450,7 +450,7 @@ function FilmCard({ film }: { film: RollFilm }) {
             href={`/film/${film.slug}`}
             className={cn(
               "flex flex-1 items-center justify-center rounded-xl py-3",
-              "bg-[#e8453c] text-white",
+              "bg-[#e8453c] text-[#F5F5F0]",
               "font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.2em]",
               "transition-colors hover:bg-[#d5342b]",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
@@ -528,7 +528,7 @@ function FilmCardEmpty() {
       {/* Scanlines */}
       <div
         className="pointer-events-none absolute inset-0 z-10 opacity-[0.025]"
-        style={{ backgroundImage: "repeating-linear-gradient(0deg,#fff,#fff 1px,transparent 1px,transparent 3px)" }}
+        style={{ backgroundImage: "repeating-linear-gradient(0deg,#F5F5F0,#F5F5F0 1px,transparent 1px,transparent 3px)" }}
       />
 
       {/* Film strip — top */}

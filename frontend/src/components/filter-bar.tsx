@@ -335,7 +335,7 @@ function PillToggle({
         "font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] focus-visible:ring-offset-1 focus-visible:ring-offset-[#09090f]",
         active
-          ? "border-[#e8453c] bg-[#e8453c] text-white"
+          ? "border-[#e8453c] bg-[#e8453c] text-[#F5F5F0]"
           : "border-[#1e1e2a] text-[#888899] hover:border-[#e8453c]/40 hover:text-[#F5F5F0]",
       )}
     >
