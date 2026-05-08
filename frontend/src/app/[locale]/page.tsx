@@ -380,116 +380,152 @@ function FirstVisitOnboarding({
   onContinue: () => void;
 }) {
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-[#09090f] text-[#F5F5F0]">
-      <header className="flex h-16 shrink-0 items-center justify-between border-b border-[#1a1a28] px-5 sm:px-8">
+    <div className="relative flex h-screen flex-col overflow-hidden bg-[#09090f] text-[#F5F5F0]">
+      {/* Scanlines */}
+      <div
+        className="pointer-events-none absolute inset-0 z-10 opacity-[0.025]"
+        style={{ backgroundImage: "repeating-linear-gradient(0deg,#F5F5F0,#F5F5F0 1px,transparent 1px,transparent 4px)" }}
+      />
+      {/* Radial red glow at center */}
+      <div className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(ellipse_70%_55%_at_50%_52%,rgba(232,69,60,0.08)_0%,transparent_70%)]" />
+
+      {/* Header */}
+      <header className="relative z-20 flex h-14 shrink-0 items-center justify-between px-5 sm:px-8">
         <Link
           href="/"
           className="font-[family-name:var(--font-geist-mono)] text-[1.1rem] font-bold uppercase tracking-[0.15em] text-[#e8453c]"
         >
           Cine·Roll
         </Link>
-        <div className="flex items-center gap-2">
-          <span className="hidden rounded-full border border-[#e8453c]/25 px-2.5 py-0.5 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#e8453c]/55 sm:inline-flex">
-            First Visit
-          </span>
+        <span className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.28em] text-[#444458]">
+          First Visit
+        </span>
+      </header>
+
+      {/* Main */}
+      <main className="relative z-20 flex min-h-0 flex-1 flex-col items-center justify-center px-5 pb-6 sm:px-8">
+        {/* Label */}
+        <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.35em] text-[#D4AF37]">
+          {"// Calibrate your reel"}
+        </p>
+
+        {/* Headline */}
+        <h1 className="mt-3 text-center font-[family-name:var(--font-display)] text-[clamp(2.6rem,5.5vw,5rem)] font-bold leading-[0.92] tracking-tight">
+          Tell us what
+          <br />
+          you&apos;ve <span className="text-[#e8453c]">watched.</span>
+        </h1>
+
+        <p className="mt-3 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.22em] text-[#555568]">
+          Mark each film as Seen · Skipped · Curious
+        </p>
+
+        {/* Film strip */}
+        <div className="mt-7 w-full max-w-3xl">
+          {/* Perforations — top */}
+          <div className="flex overflow-hidden items-center gap-[5px] border-t border-x border-[#1e1e2e] bg-[#060610] px-3 py-[7px]">
+            {Array.from({ length: 50 }).map((_, i) => (
+              <div key={i} className="h-[8px] w-[5px] shrink-0 rounded-[2px] bg-[#111122]" />
+            ))}
+          </div>
+
+          {/* Poster row */}
+          <div className="border-x border-[#1e1e2e] bg-[#080810] px-3 py-3">
+            {tasteCardsStatus === "error" ? (
+              <div className="flex h-[clamp(100px,15vh,150px)] items-center justify-center border border-dashed border-[#2a2a3e]">
+                <div className="text-center">
+                  <p className="text-sm text-[#F5F5F0]">Could not load taste cards.</p>
+                  <button
+                    type="button"
+                    onClick={onRetryTasteCards}
+                    className="mt-2 font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-widest text-[#e8453c] transition hover:text-[#F5F5F0]"
+                  >
+                    Try again
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-8 gap-1.5">
+                {tasteCardsStatus === "ready" && tasteCards.length > 0
+                  ? tasteCards.slice(0, 8).map((film) => (
+                    <div
+                      key={film.id}
+                      className="relative overflow-hidden bg-[#09090f]"
+                      style={{ aspectRatio: "2/3" }}
+                    >
+                      {film.posterUrl ? (
+                        <Image
+                          src={film.posterUrl}
+                          alt={`${film.title} poster`}
+                          fill
+                          sizes="100px"
+                          className="object-cover"
+                        />
+                      ) : (
+                        <div className="absolute inset-0 flex items-center justify-center p-1 text-center">
+                          <span className="font-[family-name:var(--font-display)] text-[9px] font-semibold leading-tight text-[#F5F5F0]">
+                            {film.title}
+                          </span>
+                        </div>
+                      )}
+                      <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 to-transparent px-1 pb-1.5 pt-5">
+                        <p className="line-clamp-1 font-[family-name:var(--font-display)] text-[8px] font-semibold leading-tight text-white">
+                          {film.title}
+                        </p>
+                      </div>
+                    </div>
+                  ))
+                  : Array.from({ length: 8 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="animate-pulse bg-[#0d0d18]"
+                      style={{ aspectRatio: "2/3" }}
+                    />
+                  ))}
+              </div>
+            )}
+          </div>
+
+          {/* Perforations — bottom */}
+          <div className="flex overflow-hidden items-center gap-[5px] border-b border-x border-[#1e1e2e] bg-[#060610] px-3 py-[7px]">
+            {Array.from({ length: 50 }).map((_, i) => (
+              <div key={i} className="h-[8px] w-[5px] shrink-0 rounded-[2px] bg-[#111122]" />
+            ))}
+          </div>
+        </div>
+
+        {/* CTAs */}
+        <div className="mt-7 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
           <button
             type="button"
             onClick={onContinue}
             className={cn(
-              "rounded-full border border-[#e8453c]/25 px-2.5 py-0.5",
-              "font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#e8453c]/55",
-              "transition-colors hover:border-[#e8453c]/50 hover:text-[#F5F5F0]",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
+              "min-w-[210px] border-2 border-[#e8453c] bg-[#e8453c] px-8 py-4 text-[#F5F5F0]",
+              "font-[family-name:var(--font-geist-mono)] text-sm font-bold uppercase tracking-[0.25em]",
+              "transition-all hover:bg-[#d5342b] hover:border-[#d5342b] hover:shadow-[0_0_50px_rgba(232,69,60,0.35)]",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090f]",
             )}
           >
-            Skip
+            Begin Setup
+          </button>
+          <button
+            type="button"
+            onClick={onContinue}
+            className={cn(
+              "min-w-[210px] border-2 border-[#2a2a3e] bg-transparent px-8 py-4 text-[#888899]",
+              "font-[family-name:var(--font-geist-mono)] text-sm font-bold uppercase tracking-[0.25em]",
+              "transition-all hover:border-[#444458] hover:text-[#F5F5F0]",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090f]",
+            )}
+          >
+            Skip → Enter App
           </button>
         </div>
-      </header>
 
-      <main className="flex min-h-0 flex-1 items-center px-5 py-4 sm:px-8 lg:px-10">
-        <section className="grid w-full min-h-0 gap-5 lg:grid-cols-12 lg:items-center">
-          <div className="lg:col-span-7">
-            <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.28em] text-[#D4AF37]">
-              {"// QUICK TASTE MATCH"}
-            </p>
-            <h1 className="mt-3 max-w-4xl font-[family-name:var(--font-display)] text-[clamp(3rem,6vw,5.8rem)] font-bold leading-[0.92] tracking-normal">
-              Find your
-              <br />
-              <span className="text-[#e8453c]">award-film lane.</span>
-            </h1>
-            <p className="mt-4 max-w-2xl text-sm leading-6 text-[#b8b8c6] sm:text-base">
-              Start with a fast taste check, then CineRoll can make the first roll feel less random and more like your shelf.
-            </p>
-          </div>
-
-          <div className="min-h-0 lg:col-span-5">
-            <div className="border border-[#242435] bg-[#101017]">
-              <div className="border-b border-[#242435] bg-[#0b0b12] px-4 py-3">
-                <span className="font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-widest text-[#D4AF37]">
-                  {tasteCardsStatus === "loading" ? "Loading taste cards" : "First visit setup"}
-                </span>
-              </div>
-              <div className="p-4">
-                <div className="grid grid-cols-4 gap-2">
-                  {tasteCardsStatus === "ready" && tasteCards.length > 0
-                    ? tasteCards.slice(0, 8).map((film) => (
-                      <div key={film.id} className="relative aspect-[2/3] overflow-hidden border border-[#242435] bg-[#09090f]">
-                        {film.posterUrl ? (
-                          <Image
-                            src={film.posterUrl}
-                            alt={`${film.title} poster`}
-                            fill
-                            sizes="120px"
-                            className="object-cover"
-                          />
-                        ) : (
-                          <div className="absolute inset-0 flex items-center justify-center p-2 text-center">
-                            <span className="font-[family-name:var(--font-display)] text-xs font-semibold leading-tight text-[#F5F5F0]">
-                              {film.title}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                    ))
-                    : tasteCardsStatus === "error" ? (
-                      <div className="col-span-4 flex min-h-56 flex-col items-center justify-center border border-dashed border-[#2a2a3e] bg-[#09090f] p-5 text-center">
-                        <p className="text-sm font-medium text-[#F5F5F0]">Could not load taste cards.</p>
-                        <button
-                          type="button"
-                          onClick={onRetryTasteCards}
-                          className="mt-3 font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-widest text-[#e8453c] transition hover:text-[#F5F5F0]"
-                        >
-                          Try again
-                        </button>
-                      </div>
-                    ) : Array.from({ length: 8 }).map((_, index) => (
-                      <div key={index} className="relative aspect-[2/3] overflow-hidden border border-[#242435] bg-[#09090f]">
-                        <div className="absolute inset-0 animate-pulse bg-[#111118]" />
-                      </div>
-                    ))}
-                </div>
-                <p className="mt-4 text-sm leading-5 text-[#b8b8c6]">
-                  We will ask a few lightweight questions next. You can skip it anytime and still use the full app.
-                </p>
-                <div className="mt-4 rounded-2xl border-2 border-dashed border-[#e8453c]/30 p-1.5">
-                  <button
-                    type="button"
-                    onClick={onContinue}
-                    className={cn(
-                      "w-full rounded-xl bg-[#e8453c] px-5 py-3.5 text-[#F5F5F0]",
-                      "font-[family-name:var(--font-geist-mono)] text-sm font-bold uppercase tracking-[0.2em]",
-                      "transition hover:bg-[#d5342b] hover:shadow-[0_0_40px_rgba(232,69,60,0.28)]",
-                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
-                    )}
-                  >
-                    Start setup
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+        {/* Footnote */}
+        <p className="mt-4 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.22em] text-[#333345]">
+          You can always set preferences later
+        </p>
       </main>
     </div>
   );
