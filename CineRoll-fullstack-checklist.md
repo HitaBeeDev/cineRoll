@@ -28,6 +28,7 @@ Hand-curated **Excel (.xlsx) files** in `backend/data/movie excel datas/`:
 **Award files** — Oscar records, Golden Globe records, and Cannes records. Each file contains one row per nomination or win with: a unique award ID (`OSC-` / `GG-` / `CN-` prefix), the ceremony year, the film title, the film's release year, the award category, the nominee's name, and whether they won.
 
 **IMDB Top 250 files** — two additional files added to the same directory:
+
 - `IMDB_top_250_movies_structured.xlsx` — columns: `name, rank, year, time, certificate, rating` (250 top-rated movies)
 - `IMDB_top_250_tvShows_structured.xlsx` — columns: `name, rank, start_year, end_year, certificate, type, rating` (250 top-rated TV shows)
 
@@ -209,14 +210,14 @@ Monorepo with `cineroll/` root containing:
 - [x] Prepare Cannes data as Excel (.xlsx) — same column structure, `Id` format: `CN-{year}-{nn}`
 - [x] Prepare IMDB Top 250 data as two Excel (.xlsx) files in `backend/data/`: `IMDB_top_250_movies_structured.xlsx` (columns: `name, rank, year, time, certificate, rating`) and `IMDB_top_250_tvShows_structured.xlsx` (columns: `name, rank, start_year, end_year, certificate, type, rating`) — used to populate `imdbTopMovieRank`, `imdbTopTvRank`, `certificate`, `tvType`, `tvStartYear`, `tvEndYear` on the Film model
 - [x] Install Excel parsing library in backend: `npm install xlsx --workspace=backend`
-- [ ] Update enrich script to auto-discover and read all `.xlsx` files in `backend/data/movie excel datas/` (Oscar, Golden Globe, Cannes award files + IMDB Top 250 movies + IMDB Top 250 TV shows) — award files are identified by the `Id` + `Award Year` columns; IMDB files are identified by the `rank` column; the `Id` prefix (`OSC-` / `GG-` / `CN-`) determines award body automatically
+- [x] Update enrich script to auto-discover and read all `.xlsx` files in `backend/data/movie excel datas/` (Oscar, Golden Globe, Cannes award files + IMDB Top 250 movies + IMDB Top 250 TV shows) — award files are identified by the `Id` + `Award Year` columns; IMDB files are identified by the `rank` column; the `Id` prefix (`OSC-` / `GG-` / `CN-`) determines award body automatically
 - [x] After pipeline runs and data is seeded, **remove all intermediate/old unused files** from `backend/data/` (e.g. old CSV files, old JSON drafts). Never delete original `.xlsx` source files.
 
 ### 5a. Enrichment Script — Fetch Data from TMDB & OMDB APIs
 
 - [x] Install Excel parsing library in backend: `npm install xlsx --workspace=backend` (replaces csv-parse)
 - [x] Create `backend/.env.local` with TMDB_API_KEY and OMDB_API_KEY (these are only for enrichment, not used at runtime)
-- [ ] Update `backend/src/scripts/enrich.ts` script to:
+- [x] Update `backend/src/scripts/enrich.ts` script to:
   - Load environment variables from .env.local (TMDB_API_KEY, OMDB_API_KEY)
   - Auto-discover all `.xlsx` files in `backend/data/movie excel datas/` recursively via `discoverWorkbookFiles()`
   - Detect file type for each workbook using `detectFileType()`: reads first-row headers — award files have `Id` + `Award Year`; IMDB movies have `rank` + `time`; IMDB TV shows have `rank` + `start_year`
@@ -238,20 +239,20 @@ Monorepo with `cineroll/` root containing:
   - Write all successfully enriched films to films-enriched.json
   - Write failed films to enrichment-errors.csv with reason
   - Log summary: total enriched, award films, IMDB movies, TV shows, errors
-- [x] Run enrichment script — **8,412 enriched, 7,725 errors** (errors are mostly obscure early Cannes films not on TMDB)
-- [x] Review enrichment-errors.csv — 7,180 "No TMDB match" (expected for obscure foreign/short films), remainder are year-column CSV artifacts; no fixable title issues identified
-- [x] Fix any failed films — N/A; failures are genuinely unlisted on TMDB, not spelling errors
+- [ ] Run enrichment script — **needs re-run**: current `films-final.json` predates IMDB Top 250 fields and TV shows; re-run with `npm run enrich --workspace=backend`
+- [ ] Review enrichment-errors.csv after re-run
+- [ ] Fix any failed films after re-run (or confirm N/A)
 - [ ] **Manually add films that had no TMDB match**: open `enrichment-errors.csv`, go through the "No TMDB match" entries, and for important films (major Oscar/GG/Cannes winners that should be in the dataset), manually create their JSON entry in `films-final.json` with data filled in by hand (poster URL from another source, plot, cast, etc.)
-- [x] Validate output: all 8,412 slugs unique; fixed `originalTitle` bug (687 films had casing-only difference set as originalTitle — corrected to null); OMDB ratings sparse (857/8,412) due to free-tier 1,000/day limit — re-run tomorrow to fill in ratings
-- [x] Save validated result as `backend/data/films-final.json` (8,412 films)
+- [ ] Validate output: slugs unique, `originalTitle` casing bug stays fixed, IMDB ranks populated, TV shows present, `posterColor` populated
+- [ ] Save validated result as `backend/data/films-final.json`
 
 ### 5b. Film Color Extraction (at seed time)
 
 - [x] Install color extraction library in backend: `npm install sharp node-vibrant --workspace=backend`
-- [x] In the enrich script, after fetching the TMDB poster URL, download the poster image and extract the dominant color using `node-vibrant`
-- [x] Store the dominant hex color (e.g. `#8B4513`) as a `posterColor` string field on the Film model
+- [ ] In the enrich script, after fetching the TMDB poster URL, download the poster image and extract the dominant color using `node-vibrant`
+- [ ] Store the dominant hex color (e.g. `#8B4513`) as a `posterColor` string field on the Film model
 - [x] Add `posterColor` (String, nullable) to the Prisma Film model and run migration
-- [x] Fallback: if extraction fails (no poster, network error), store `null`; frontend falls back to a neutral default color
+- [ ] Fallback: if extraction fails (no poster, network error), store `null`; frontend falls back to a neutral default color
 
 ### 5c. Seed Database
 
