@@ -94,7 +94,8 @@ export default function HomePage() {
         setFilteredCount(0);
         toast({ variant: "error", title: "No matches", description: "No films match your filters — try adjusting them." });
       } else {
-        toast({ variant: "error", title: "Roll failed", description: "Couldn't fetch a random film. Please try again." });
+        setBackdropUrl(null);
+        toast({ variant: "error", title: "Couldn't connect", description: "Check your connection and try again." });
       }
     } finally {
       setIsRolling(false);
