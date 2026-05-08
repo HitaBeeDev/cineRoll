@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { motion, useReducedMotion } from "framer-motion";
 import { ArrowLeft, ArrowRight, Clapperboard, Dices, Search } from "lucide-react";
 import type { FilterState, PaginatedFilms } from "@cineroll/types";
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,7 @@ const PAGE_SIZE = 24;
 type LoadStatus = "loading" | "success" | "error";
 
 export function BrowsePageClient() {
+  const shouldReduceMotion = useReducedMotion();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -210,8 +212,19 @@ export function BrowsePageClient() {
             {status === "success" && result && result.films.length > 0 && (
               <>
                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
-                  {result.films.map((film) => (
-                    <FilmCard key={film.id} film={film} />
+                  {result.films.map((film, index) => (
+                    <motion.div
+                      key={film.id}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{
+                        delay: shouldReduceMotion ? 0 : index * 0.04,
+                        duration: shouldReduceMotion ? 0 : 0.2,
+                        ease: "easeOut",
+                      }}
+                    >
+                      <FilmCard film={film} />
+                    </motion.div>
                   ))}
                 </div>
                 <Pagination

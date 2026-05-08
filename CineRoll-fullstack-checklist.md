@@ -496,7 +496,7 @@ Apply these rules consistently across every component so the app feels coherent,
 - [x] **No layout animations without Framer Motion `layout` prop** — never let content jump when items are added/removed; always use `AnimatePresence` for conditional elements
 - [x] **Reduce motion:** wrap all non-essential animations in a `useReducedMotion()` check (Framer Motion provides this); users with `prefers-reduced-motion: reduce` get instant transitions, no parallax, no grain animation
 - [x] **Page transitions:** between routes, use a simple opacity fade (200ms) — not a slide, not a zoom; keeps it feeling editorial rather than app-like
-- [ ] **Stagger children** in lists — when the browse grid loads, film cards appear with a 40ms stagger between each (first card at 0ms, second at 40ms, etc.) so the grid "builds in" rather than all appearing at once
+- [x] **Stagger children** in lists — when the browse grid loads, film cards appear with a 40ms stagger between each (first card at 0ms, second at 40ms, etc.) so the grid "builds in" rather than all appearing at once
 
 ---
 
