@@ -87,7 +87,7 @@ export default async function FilmPage({
 
   return (
     <div className="flex flex-col min-h-screen bg-zinc-950 text-zinc-100">
-      <header className="sticky top-0 z-10 flex items-center justify-between px-5 sm:px-8 py-4 border-b border-zinc-800/60 bg-zinc-950/90 backdrop-blur-sm">
+      <header className="sticky top-0 z-50 flex items-center justify-between border-b border-zinc-800/60 bg-[rgba(9,9,15,0.85)] px-5 py-4 backdrop-blur-[20px] sm:px-8">
         <Link
           href="/browse"
           className={cn(
