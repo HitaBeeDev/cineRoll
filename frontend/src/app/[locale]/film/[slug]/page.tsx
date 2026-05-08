@@ -5,6 +5,7 @@ import { ArrowLeft, Star, Trophy, Clock, Globe, Users, Clapperboard, ExternalLin
 import type { Film, AwardRecord } from "@cineroll/types";
 import { cn } from "@/lib/utils";
 import { RollAgainButton } from "@/components/roll-again-button";
+import { SiteNavigation } from "@/components/site-navigation";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 
@@ -91,22 +92,7 @@ export default async function FilmPage({
         <Link href="/" className="font-[family-name:var(--font-display)] text-lg font-semibold tracking-[0.08em] text-[#D4AF37] transition-colors hover:text-[#F1D27A] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 rounded">
           CineRoll
         </Link>
-        <nav className="flex items-center gap-2 sm:gap-4" aria-label="Primary navigation">
-          {[
-            { href: "/", label: "Home" },
-            { href: "/browse", label: "Browse" },
-            { href: "/snob-test", label: "Snob Test" },
-            { href: "/stats", label: "Stats" },
-          ].map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="rounded text-xs font-medium text-[#A0A0B0] transition-colors hover:text-[#F5F5F0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 sm:text-sm"
-            >
-              {item.label}
-            </Link>
-          ))}
-        </nav>
+        <SiteNavigation focusRingClassName="focus-visible:ring-amber-400" />
       </header>
 
       <main className="flex-1">

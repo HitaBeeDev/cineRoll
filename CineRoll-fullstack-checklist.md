@@ -466,7 +466,7 @@ Cards appear in the browse grid, the Similar Films section, the Snob Test, and t
 - [x] **On film detail pages:** header is always the frosted-glass state (no transparent phase) because the backdrop is behind page content, not the header
 - [x] **CineRoll wordmark** uses the serif display font in Cinematic Gold — small, elegant, not a heavy logo; feels like a distributor credit on a film poster
 - [x] **Navigation links** are minimal: Home · Browse · Snob Test · Stats — no dropdowns; links use the muted secondary text colour and brighten to warm white on hover
-- [ ] **Mobile nav** — hamburger menu slides in a full-screen dark overlay with large, tap-friendly navigation items; overlay closes on tap-outside or Escape
+- [x] **Mobile nav** — hamburger menu slides in a full-screen dark overlay with large, tap-friendly navigation items; overlay closes on tap-outside or Escape
 
 ---
 

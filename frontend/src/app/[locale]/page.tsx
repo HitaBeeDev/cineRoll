@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/toast";
 import { FilterBar } from "@/components/filter-bar";
 import { PickOfDay } from "@/components/pick-of-day";
+import { SiteNavigation } from "@/components/site-navigation";
 import {
   fetchAwardYears,
   fetchRandom,
@@ -281,22 +282,7 @@ export default function HomePage() {
             <span className="font-[family-name:var(--font-display)] text-lg font-semibold tracking-[0.08em] text-[#D4AF37]">
               CineRoll
             </span>
-            <nav className="flex items-center gap-2 sm:gap-4" aria-label="Primary navigation">
-              {[
-                { href: "/", label: "Home" },
-                { href: "/browse", label: "Browse" },
-                { href: "/snob-test", label: "Snob Test" },
-                { href: "/stats", label: "Stats" },
-              ].map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="rounded text-xs font-medium text-[#A0A0B0] transition-colors hover:text-[#F5F5F0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37] sm:text-sm"
-                >
-                  {item.label}
-                </Link>
-              ))}
-            </nav>
+            <SiteNavigation />
           </header>
 
           <div className="flex-1 flex flex-col items-center justify-center px-4 py-10 max-w-2xl mx-auto w-full gap-8">

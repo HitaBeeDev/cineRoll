@@ -1,13 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft, ArrowRight, Clapperboard, Dices, Search } from "lucide-react";
 import type { FilterState, PaginatedFilms } from "@cineroll/types";
 import { Button } from "@/components/ui/button";
 import { FilmCard, FilmCardSkeleton } from "@/components/film-card";
 import { FilterBar } from "@/components/filter-bar";
+import { SiteNavigation } from "@/components/site-navigation";
 import { Input } from "@/components/ui/input";
 import { DEFAULT_FILTERS, useFilters } from "@/hooks/useFilters";
 import { fetchAwardYears, fetchCategories, fetchFilms, fetchGenres, fetchRandom, filtersToParams } from "@/lib/api";
@@ -113,22 +113,7 @@ export function BrowsePageClient() {
         <span className="font-[family-name:var(--font-display)] text-lg font-semibold tracking-[0.08em] text-[#D4AF37]">
           CineRoll
         </span>
-        <nav className="flex items-center gap-2 sm:gap-4" aria-label="Primary navigation">
-          {[
-            { href: "/", label: "Home" },
-            { href: "/browse", label: "Browse" },
-            { href: "/snob-test", label: "Snob Test" },
-            { href: "/stats", label: "Stats" },
-          ].map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="rounded text-xs font-medium text-[#A0A0B0] transition-colors hover:text-[#F5F5F0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 sm:text-sm"
-            >
-              {item.label}
-            </Link>
-          ))}
-        </nav>
+        <SiteNavigation focusRingClassName="focus-visible:ring-amber-400" />
       </header>
 
       <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-8 px-4 py-8 sm:px-6 lg:px-8">
