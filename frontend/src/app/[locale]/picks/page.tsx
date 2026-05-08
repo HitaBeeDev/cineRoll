@@ -7,6 +7,7 @@ import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Bookmark, RefreshCw, Share2, Star, Trophy, Clapperboard } from "lucide-react";
 import { SiteNavigation } from "@/components/site-navigation";
 import { fetchRandom, type RollFilm } from "@/lib/api";
+import { formatRuntime } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { FilterState } from "@cineroll/types";
 
@@ -208,9 +209,7 @@ function PickCard({ pick, index }: { pick: DailyPick; index: number }) {
   const { film, slot } = pick;
   const imageUrl = film.backdropUrl ?? film.posterUrl;
   const genre = film.genres[0] ?? "";
-  const runtime = film.runtime != null
-    ? `${Math.floor(film.runtime / 60)}h ${film.runtime % 60}m`
-    : null;
+  const runtime = formatRuntime(film.runtime);
   const totalWins = film.oscarWins + film.ggWins + film.cannesWins;
 
   return (

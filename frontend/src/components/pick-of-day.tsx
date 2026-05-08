@@ -17,6 +17,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { fetchPickOfDay, type PickOfDayFilm } from "@/lib/api";
+import { formatRuntime } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 type Status = "loading" | "success" | "empty" | "error";
@@ -103,6 +104,7 @@ function PickOfDayCard({ film }: { film: PickOfDayFilm }) {
 
   const hasBackdrop = Boolean(film.backdropUrl);
   const whyPicked = getWhyPicked(film);
+  const runtime = formatRuntime(film.runtime);
 
   return (
     <div
@@ -170,12 +172,12 @@ function PickOfDayCard({ film }: { film: PickOfDayFilm }) {
             </h3>
             <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-sm text-zinc-400">
               <span>{film.year}</span>
-              {film.runtime != null && (
+              {runtime && (
                 <>
                   <span className="text-zinc-700" aria-hidden>·</span>
                   <span className="flex items-center gap-1">
                     <Clock className="h-3 w-3" aria-hidden />
-                    {film.runtime} min
+                    {runtime}
                   </span>
                 </>
               )}

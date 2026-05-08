@@ -4,6 +4,7 @@ import { useRef } from "react";
 import Image from "next/image";
 import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { Clock, Globe } from "lucide-react";
+import { formatRuntime } from "@/lib/format";
 
 const FALLBACK_ACCENT = "#D4AF37";
 const grainBackgroundImage = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E\")";
@@ -48,6 +49,7 @@ export function FilmDetailHero({
   const backdropY = useTransform(scrollYProgress, [0, 1], shouldReduceMotion ? [0, 0] : [0, 120]);
   const filmAccent = posterColor ?? FALLBACK_ACCENT;
   const shouldShowOriginalTitle = Boolean(originalTitle && originalTitle.trim() !== title.trim());
+  const formattedRuntime = formatRuntime(runtime);
 
   return (
     <section ref={heroRef} className="relative flex min-h-[68vh] overflow-hidden bg-[#09090f]">
@@ -99,12 +101,12 @@ export function FilmDetailHero({
           )}
           <div className="mt-5 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-[#D8D8D0]/82">
             <span>{year}</span>
-            {runtime != null && (
+            {formattedRuntime && (
               <>
                 <span className="text-[#D8D8D0]/35" aria-hidden>·</span>
                 <span className="flex items-center gap-1">
                   <Clock className="h-3.5 w-3.5" aria-hidden />
-                  {runtime} min
+                  {formattedRuntime}
                 </span>
               </>
             )}

@@ -17,6 +17,7 @@ import {
   fetchCategories,
   type RollFilm,
 } from "@/lib/api";
+import { formatRuntime } from "@/lib/format";
 import { useFilters } from "@/hooks/useFilters";
 import { cn } from "@/lib/utils";
 
@@ -302,10 +303,7 @@ export default function HomePage() {
 function FilmCard({ film }: { film: RollFilm }) {
   const channelLabel = `REEL // ${film.title.toUpperCase().slice(0, 11)}`;
   const genre = film.genres[0] ?? "";
-  const runtime =
-    film.runtime != null
-      ? `${Math.floor(film.runtime / 60)}h ${film.runtime % 60}m`
-      : null;
+  const runtime = formatRuntime(film.runtime);
   const imageUrl = film.backdropUrl ?? film.posterUrl;
   const totalWins = film.oscarWins + film.ggWins + film.cannesWins;
   const totalNoms =

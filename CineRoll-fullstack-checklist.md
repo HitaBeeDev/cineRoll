@@ -529,14 +529,14 @@ Apply these rules consistently across every component so the app feels coherent,
   - Input/TextField component (for search)
   - Select component (for genre/decade filters)
   - Toast/Alert component (for error messages)
-- [ ] Create a Filter Bar component — redesigned with award-first layout: person search, award body pills (Oscar / Golden Globe / Cannes / All), won/nominated status pills, category dropdown, award year, genre, content type dropdown, decade slider
-- [ ] Create a Film Card component that displays poster, title, year, rating
-- [ ] **Night Mode Pill** — add a dark/light mode toggle styled as a pill (moon/sun icon) in the header/navbar; persist preference to localStorage; default to system preference
-- [ ] **Login / Sign Up buttons** — add "Sign In" and "Sign Up" CTA buttons in the header when the user is not authenticated; replace with user avatar + menu when logged in
-- [ ] Create `src/lib/format.ts` with a `formatRuntime(minutes: number | null): string` utility — converts raw minutes to human-readable "2h 22m" / "45m" / "2h" format; returns `""` if null; **used everywhere runtime is displayed — never show raw minutes**
-- [ ] Apply consistent styling using design tokens (colors, spacing, fonts)
-- [ ] Ensure all components have proper TypeScript types
-- [ ] Ensure accessibility: ARIA labels, semantic HTML, keyboard navigation
+- [x] Create a Filter Bar component — redesigned with award-first layout: person search, award body pills (Oscar / Golden Globe / Cannes / All), won/nominated status pills, category dropdown, award year, genre, content type dropdown, decade slider
+- [x] Create a Film Card component that displays poster, title, year, rating
+- [x] **Night Mode Pill** — add a dark/light mode toggle styled as a pill (moon/sun icon) in the header/navbar; persist preference to localStorage; default to system preference
+- [x] **Login / Sign Up buttons** — add "Sign In" and "Sign Up" CTA buttons in the header when the user is not authenticated; replace with user avatar + menu when logged in
+- [x] Create `src/lib/format.ts` with a `formatRuntime(minutes: number | null): string` utility — converts raw minutes to human-readable "2h 22m" / "45m" / "2h" format; returns `""` if null; **used everywhere runtime is displayed — never show raw minutes**
+- [x] Apply consistent styling using design tokens (colors, spacing, fonts)
+- [x] Ensure all components have proper TypeScript types
+- [x] Ensure accessibility: ARIA labels, semantic HTML, keyboard navigation
 
 ---
 
