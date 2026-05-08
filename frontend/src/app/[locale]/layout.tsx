@@ -63,7 +63,7 @@ export default async function RootLayout({
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} ${playfairDisplay.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-background text-foreground">
+      <body className="min-h-full flex flex-col bg-[#09090f] text-[#F5F5F0]">
         <NextIntlClientProvider messages={messages}>
           <Providers>
             <PageTransition>{children}</PageTransition>
