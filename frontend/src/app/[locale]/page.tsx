@@ -39,6 +39,7 @@ export default function HomePage() {
   const [totalCount, setTotalCount] = useState<number | null>(null);
   const [onboardingState, setOnboardingState] = useState<"checking" | "show" | "done">("checking");
   const [tasteCards, setTasteCards] = useState<TasteCardFilm[]>([]);
+  const [tasteCardsStatus, setTasteCardsStatus] = useState<"idle" | "loading" | "ready" | "error">("idle");
 
   const handleRollRef = useRef<() => Promise<void>>(async () => {});
   const filmCardRef = useRef<HTMLDivElement>(null);
@@ -60,11 +61,21 @@ export default function HomePage() {
   useEffect(() => {
     if (onboardingState !== "show") return;
     let cancelled = false;
-    void fetchOnboardingTasteCards().then((films) => {
-      if (!cancelled) setTasteCards(films);
-    });
+    const id = window.setTimeout(() => {
+      setTasteCardsStatus("loading");
+      void fetchOnboardingTasteCards()
+        .then((films) => {
+          if (cancelled) return;
+          setTasteCards(films);
+          setTasteCardsStatus(films.length > 0 ? "ready" : "error");
+        })
+        .catch(() => {
+          if (!cancelled) setTasteCardsStatus("error");
+        });
+    }, 0);
     return () => {
       cancelled = true;
+      window.clearTimeout(id);
     };
   }, [onboardingState]);
 
@@ -189,6 +200,16 @@ export default function HomePage() {
     return (
       <FirstVisitOnboarding
         tasteCards={tasteCards}
+        tasteCardsStatus={tasteCardsStatus}
+        onRetryTasteCards={() => {
+          setTasteCardsStatus("loading");
+          void fetchOnboardingTasteCards()
+            .then((films) => {
+              setTasteCards(films);
+              setTasteCardsStatus(films.length > 0 ? "ready" : "error");
+            })
+            .catch(() => setTasteCardsStatus("error"));
+        }}
         onContinue={() => {
           try {
             window.localStorage.setItem(ONBOARDED_STORAGE_KEY, "true");
@@ -349,9 +370,13 @@ export default function HomePage() {
 
 function FirstVisitOnboarding({
   tasteCards,
+  tasteCardsStatus,
+  onRetryTasteCards,
   onContinue,
 }: {
   tasteCards: TasteCardFilm[];
+  tasteCardsStatus: "idle" | "loading" | "ready" | "error";
+  onRetryTasteCards: () => void;
   onContinue: () => void;
 }) {
   return (
@@ -363,9 +388,23 @@ function FirstVisitOnboarding({
         >
           Cine·Roll
         </Link>
-        <span className="hidden rounded-full border border-[#e8453c]/25 px-2.5 py-0.5 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#e8453c]/55 sm:inline-flex">
-          First Visit
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="hidden rounded-full border border-[#e8453c]/25 px-2.5 py-0.5 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#e8453c]/55 sm:inline-flex">
+            First Visit
+          </span>
+          <button
+            type="button"
+            onClick={onContinue}
+            className={cn(
+              "rounded-full border border-[#e8453c]/25 px-2.5 py-0.5",
+              "font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#e8453c]/55",
+              "transition-colors hover:border-[#e8453c]/50 hover:text-[#F5F5F0]",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
+            )}
+          >
+            Skip
+          </button>
+        </div>
       </header>
 
       <main className="flex min-h-0 flex-1 items-center px-5 py-4 sm:px-8 lg:px-10">
@@ -388,12 +427,12 @@ function FirstVisitOnboarding({
             <div className="border border-[#242435] bg-[#101017]">
               <div className="border-b border-[#242435] bg-[#0b0b12] px-4 py-3">
                 <span className="font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-widest text-[#D4AF37]">
-                  First visit setup
+                  {tasteCardsStatus === "loading" ? "Loading taste cards" : "First visit setup"}
                 </span>
               </div>
               <div className="p-4">
                 <div className="grid grid-cols-4 gap-2">
-                  {tasteCards.length > 0
+                  {tasteCardsStatus === "ready" && tasteCards.length > 0
                     ? tasteCards.slice(0, 8).map((film) => (
                       <div key={film.id} className="relative aspect-[2/3] overflow-hidden border border-[#242435] bg-[#09090f]">
                         {film.posterUrl ? (
@@ -413,7 +452,18 @@ function FirstVisitOnboarding({
                         )}
                       </div>
                     ))
-                    : Array.from({ length: 8 }).map((_, index) => (
+                    : tasteCardsStatus === "error" ? (
+                      <div className="col-span-4 flex min-h-56 flex-col items-center justify-center border border-dashed border-[#2a2a3e] bg-[#09090f] p-5 text-center">
+                        <p className="text-sm font-medium text-[#F5F5F0]">Could not load taste cards.</p>
+                        <button
+                          type="button"
+                          onClick={onRetryTasteCards}
+                          className="mt-3 font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-widest text-[#e8453c] transition hover:text-[#F5F5F0]"
+                        >
+                          Try again
+                        </button>
+                      </div>
+                    ) : Array.from({ length: 8 }).map((_, index) => (
                       <div key={index} className="relative aspect-[2/3] overflow-hidden border border-[#242435] bg-[#09090f]">
                         <div className="absolute inset-0 animate-pulse bg-[#111118]" />
                       </div>
