@@ -428,7 +428,7 @@ The most important screen in the app. The Roll button must feel like pressing pl
 - [x] **The Roll button is the centrepiece** — `min-h-[64px]`, `bg-[linear-gradient(to_bottom,#D4AF37,#B8962E)]`, dark text, `rounded-2xl`; hover lifts + `shadow-[0_0_36px_rgba(212,175,55,0.45)]`; press `scale-[0.97]`
 - [x] **"or press Space" hint** — Framer Motion opacity 0→1 triggered by `setTimeout(1000)` on mount; also wires Space key to Roll via `useRef` pattern
 - [x] **Animated backdrop grain overlay** — `@keyframes hero-grain` injected via `<style dangerouslySetInnerHTML>` (static string, no XSS risk); 10-step animation over 8s, 2px drift
-- [x] **On mobile:** `min-h-[85vh]`; `justify-between` on mobile / `sm:justify-center` on desktop pins Roll button to bottom of hero on small screens; headline uses `clamp` for fluid sizing
+- [x] **Responsive layout:** single column at all screen sizes — hero shrinks `min-h-screen → min-h-[60vh]` (600ms CSS transition) when result exists so the result card peeks into view below; page scrolls naturally to the result (auto-scroll via `scrollIntoView`); result card + Pick of the Day sit in a centered `max-w-3xl` column below the hero; previous sticky two-column split removed
 
 ---
 
@@ -575,25 +575,25 @@ On the very first visit, guide the user through a quick taste-matching flow so t
 
 ## 9. Frontend — Roll Feature (Mood Presets, Share, Spacebar, Not Interested/Watched, Session History, Time Capsule Roll)
 
-- [ ] Create `src/app/page.tsx` (home page)
-- [ ] Add large "Roll" button that triggers API call to /api/random
-- [ ] Display loading state while fetching
-- [ ] Display film card with poster, title, year, rating
-- [ ] Add "Roll Again" button to fetch another random film
-- [ ] Implement smooth animations for result reveal using Framer Motion
-- [ ] Display "Pick of the Day" section that calls /api/pick-of-day endpoint (auto-selected by algorithm)
-- [ ] Show fallback message if no pick of day is set
-- [ ] Add error handling with toast notification if API fails
-- [ ] Make responsive: adjust button sizes and spacing for mobile
+- [x] Create `src/app/[locale]/page.tsx` (home page under i18n routing)
+- [x] Add large "Roll" button that triggers API call to /api/random
+- [x] Display loading state while fetching
+- [x] Display film card with poster, title, year, rating, Oscar wins, genres, plot, "View full details" link
+- [x] Add "Roll Again" button to fetch another random film
+- [x] Implement smooth animations for result reveal using Framer Motion (spring entry, backdrop cross-fade, cinema-dark overlay, cinematic loading bar)
+- [x] Display "Pick of the Day" section that calls /api/pick-of-day endpoint (auto-selected by algorithm)
+- [x] Show fallback message if no pick of day is set (empty + error states in PickOfDay component)
+- [x] Add error handling with toast notification if API fails
+- [x] Make responsive: single-column, hero shrinks on roll, auto-scrolls to result
 
 ### Filtered Roll (Roll Within a Filtered Set)
 
-- [ ] When the user has active filters, the Roll button should pick randomly from matching films only, not the full dataset
-- [ ] Backend: add GET /api/random endpoint support for all filter params (same params as /api/films) — pick one random film from the filtered result set
-- [ ] Frontend: pass active filter state from the Filter Bar into the Roll API call
-- [ ] Display a subtle indicator when Roll is operating on a filtered set (e.g. "Rolling from 47 matching films")
-- [ ] If filters return zero films, disable Roll button and show "No films match — adjust your filters"
-- [ ] With no filters active, Roll behaves exactly as before (pure random from full dataset)
+- [x] When the user has active filters, the Roll button picks randomly from matching films only
+- [x] Backend: GET /api/random supports all filter params — picks one random film from the filtered set
+- [x] Frontend: passes active filter state from FilterBar into the Roll API call
+- [x] Display "Rolling from N films" live indicator when filters are active
+- [x] If filters return zero films, disable Roll button and show "No films match — adjust your filters"
+- [x] With no filters active, Roll behaves as before (pure random from full dataset)
 
 ### Mood / Quick Roll Presets
 
@@ -614,10 +614,10 @@ Pre-set filter combinations displayed as pill buttons above the main filter pane
 
 ### Keyboard Shortcut — Spacebar to Roll
 
-- [ ] On the home page, pressing **Spacebar** triggers the Roll action (same as clicking the Roll button)
-- [ ] Only fires when no text input is focused (prevent conflict with typing in filter fields)
-- [ ] Show a subtle keyboard hint label next to the Roll button: "or press Space"
-- [ ] On roll result, pressing **Spacebar** again rolls another film ("Roll Again")
+- [x] On the home page, pressing **Spacebar** triggers the Roll action (same as clicking the Roll button)
+- [x] Only fires when no text input is focused (prevent conflict with typing in filter fields)
+- [x] Show a subtle keyboard hint label next to the Roll button: "or press Space"
+- [x] On roll result, pressing **Spacebar** again rolls another film ("Roll Again")
 
 ### Session Roll History ("Back" Panel)
 
@@ -644,17 +644,19 @@ A fun special roll mode that picks a film from a personally meaningful year.
 
 Filter section sits **above** the Roll button. All filters are optional — user sets what they want, then hits Roll. The "Rolling from N films" counter updates live as filters change.
 
-- [ ] Filter panel placed above Roll button (JSX done, full wiring in progress)
-- [ ] **Person / cast / director search** — single text input; searches across cast, directors, and award nominee names — e.g. "Meryl Streep" rolls only films she appeared in or was nominated for; wire to `person` param on /api/random
-- [ ] **Award body pills** — Oscar / Golden Globe / Both; wire to `awardBody` param
-- [ ] **Status pills** — All / Won / Nominated; wire to `winnerOnly` and `nominatedOnly` params
-- [ ] **Category dropdown** — populate dynamically from GET /api/films/categories (currently hardcoded placeholder list); wire to `category` param
-- [ ] **Award Year** — number input for ceremony year (e.g. 1994); wire to `awardYear` param; optionally populate options from GET /api/films/award-years
-- [ ] **Genre dropdown** — already wired; confirm it works with award filters combined
-- [ ] **Decade range slider** — already wired; confirm it works with award filters combined
-- [ ] **Active filter chips** — show one dismissible chip per active filter so the user can see and remove individual selections
-- [ ] **Clear all filters** button — resets everything to default in one click
-- [ ] Verify all filters combine correctly end-to-end: e.g. "Meryl Streep + Oscar + Won + Best Actress" returns the right films
+- [x] Filter panel placed above Roll button
+- [x] **Person / cast / director search** — wired to `person` param on /api/random
+- [x] **Award body pills** — Oscar / Golden Globe / Cannes / All; wired to `awardBody` param
+- [x] **Status pills** — All / Won / Nominated; wired to `winnerOnly` and `nominatedOnly` params
+- [x] **Category dropdown** — populated dynamically from GET /api/films/categories; wired to `category` param
+- [x] **Award Year** — select populated from GET /api/films/award-years; wired to `awardYear` param
+- [x] **Genre dropdown** — wired and working with award filters combined
+- [x] **Decade range slider** — wired and working with award filters combined
+- [x] **IMDb Rating pills** — min-rating filter (Any / 6+ / 6.5+ / 7+ / 7.5+ / 8+ / 8.5+ / 9+); wired to `imdbRatingMin`
+- [x] **Rotten Tomatoes pills** — min-score filter (Any / 50%+ / 60%+ / 70%+ / 80%+ / 90%+ / 95%+); wired to `rtScoreMin`
+- [x] **Active filter chips** — dismissible chip per active filter
+- [x] **Clear all filters** button — resets everything to default in one click
+- [x] All filters combine correctly end-to-end
 
 ---
 
@@ -721,13 +723,13 @@ Instead of dropdowns, the user describes what they want in plain English. Claude
 
 ## 10. Frontend — Pick of the Day
 
-- [ ] Create component to display pick of the day on home page
-- [ ] Call /api/pick-of-day endpoint on page load (returns auto-selected film)
-- [ ] Display film details: poster, title, year, plot, and a short algorithmic reason ("Trending today", "Most rolled this week")
-- [ ] Show fallback message if not enough data yet
-- [ ] Add navigation link to full film detail page
-- [ ] Handle loading and error states
-- [ ] Make responsive for all screen sizes
+- [x] Create `PickOfDay` component displaying pick of the day on home page
+- [x] Call /api/pick-of-day endpoint on page load
+- [x] Display film details: poster, backdrop banner, title, year, runtime, director, genres, IMDb rating, RT score, plot, "Why this pick" reasoning, Oscar award summary
+- [x] Show fallback (empty + error states with retry button)
+- [x] Add navigation link to full film detail page
+- [x] Handle loading (skeleton) and error states
+- [x] Responsive at all screen sizes
 
 ---
 

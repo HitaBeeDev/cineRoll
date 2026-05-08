@@ -37,6 +37,7 @@ export default function HomePage() {
 
   // Ref so the space-key listener always calls the latest handleRoll
   const handleRollRef = useRef<() => Promise<void>>(async () => {});
+  const resultRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     void fetchGenres().then(setGenres);
@@ -88,6 +89,7 @@ export default function HomePage() {
       setFilteredCount(result.total);
       setHasRolled(true);
       if (result.film.backdropUrl) setBackdropUrl(result.film.backdropUrl);
+      setTimeout(() => resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
     } catch (err) {
       const code = err instanceof Error ? (err as Error & { code?: string }).code : undefined;
       if (code === "NO_FILMS_FOUND") {
@@ -107,10 +109,18 @@ export default function HomePage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-[#09090f] text-[#F5F5F0]">
-      {/* ── Hero ──────────────────────────────────────────────────────── */}
-      <section className="relative min-h-[85vh] sm:min-h-screen flex flex-col bg-[#09090f]">
 
-        {/* Backdrop — cross-fades in when a film result arrives (400ms) */}
+      {/* ── Hero section ───────────────────────────────────────────────
+           Shrinks from 100vh → 60vh once a result exists, so the result
+           below peeks into view and invites scrolling                   */}
+      <section
+        style={{ transition: "min-height 600ms cubic-bezier(0.25, 0.46, 0.45, 0.94)" }}
+        className={cn(
+          "relative flex flex-col bg-[#09090f]",
+          hasRolled ? "min-h-[60vh]" : "min-h-screen",
+        )}
+      >
+        {/* Backdrop — cross-fades in when a film result arrives */}
         <AnimatePresence>
           {backdropUrl && (
             <motion.div
@@ -126,10 +136,10 @@ export default function HomePage() {
           )}
         </AnimatePresence>
 
-        {/* Text-protection gradient — keeps content readable over the backdrop */}
+        {/* Text-protection gradient */}
         <div className="absolute inset-0 z-10 pointer-events-none bg-[linear-gradient(to_top,#09090f_0%,#09090f_20%,rgba(9,9,15,0.55)_55%,transparent_100%)]" />
 
-        {/* Cinema-dark overlay — fades in when rolling starts, out when done */}
+        {/* Cinema-dark overlay */}
         <AnimatePresence>
           {isRolling && (
             <motion.div
@@ -143,7 +153,7 @@ export default function HomePage() {
           )}
         </AnimatePresence>
 
-        {/* Cinematic loading bar — pinned to bottom of hero, above the overlay */}
+        {/* Cinematic loading bar */}
         <AnimatePresence>
           {isRolling && (
             <motion.div
@@ -180,20 +190,18 @@ export default function HomePage() {
             </Link>
           </header>
 
-          <div className="flex-1 flex flex-col items-center justify-between sm:justify-center px-4 py-6 sm:py-16 max-w-2xl mx-auto w-full gap-10 sm:gap-12">
+          <div className="flex-1 flex flex-col items-center justify-center px-4 py-10 max-w-2xl mx-auto w-full gap-8">
 
             <div className="flex flex-col items-center text-center gap-5 w-full">
-              <h1
-                className={cn(
-                  "font-[family-name:var(--font-display)] font-bold leading-[1.1] tracking-tight",
-                  "text-[#F5F5F0] text-[clamp(2.5rem,6vw,5rem)]",
-                )}
-              >
+              <h1 className={cn(
+                "font-[family-name:var(--font-display)] font-bold leading-[1.1] tracking-tight",
+                "text-[#F5F5F0] text-[clamp(2rem,4.5vw,4rem)]",
+              )}>
                 Roll Your Next<br />
                 <span className="text-[#D4AF37]">Award&#8209;Winning</span> Film
               </h1>
 
-              <p className="text-[#A0A0B0] text-sm sm:text-base tracking-[0.04em]">
+              <p className="text-[#A0A0B0] text-sm tracking-[0.04em]">
                 Oscar&nbsp;&middot;&nbsp;Golden Globe&nbsp;&middot;&nbsp;Cannes&nbsp;&middot;&nbsp;IMDb Top 250 Movies&nbsp;&middot;&nbsp;IMDb Top 250 TV
                 &ensp;&mdash;&ensp;filtered exactly how you want
               </p>
@@ -215,14 +223,13 @@ export default function HomePage() {
               />
             </div>
 
-            {/* Roll button + space hint */}
-            <div className="flex flex-col items-center gap-4">
+            <div className="flex flex-col items-center gap-3">
               <button
                 onClick={() => void handleRoll()}
                 disabled={isRollDisabled}
                 aria-label={isRolling ? "Rolling…" : "Roll for a random film"}
                 className={cn(
-                  "flex items-center gap-3 min-h-[64px] px-12 sm:px-16",
+                  "flex items-center gap-3 min-h-[60px] px-12 sm:px-14",
                   "bg-[linear-gradient(to_bottom,#D4AF37,#B8962E)]",
                   "text-[#09090f] font-bold text-lg sm:text-xl",
                   "rounded-2xl shadow-lg shadow-[#D4AF37]/25",
@@ -235,116 +242,79 @@ export default function HomePage() {
                   "focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090f]",
                 )}
               >
-                <Dices
-                  className={cn("h-6 w-6 shrink-0", isRolling && "animate-spin")}
-                  aria-hidden
-                />
+                <Dices className={cn("h-6 w-6 shrink-0", isRolling && "animate-spin")} aria-hidden />
                 {isRolling ? "Rolling…" : "Roll"}
               </button>
 
               <AnimatePresence mode="wait">
                 {isRolling ? (
-                  <motion.p
-                    key="finding"
-                    initial={{ opacity: 0, y: 4 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -4 }}
-                    transition={{ duration: 0.15 }}
-                    className="text-[#A0A0B0] text-xs tracking-wide"
-                  >
+                  <motion.p key="finding" initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.15 }} className="text-[#A0A0B0] text-xs tracking-wide">
                     Finding your film…
                   </motion.p>
                 ) : (
-                  <motion.p
-                    key="space"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: spaceHintVisible ? 1 : 0 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.8 }}
-                    className="text-[#5a5a70] text-xs"
-                  >
+                  <motion.p key="space" initial={{ opacity: 0 }} animate={{ opacity: spaceHintVisible ? 1 : 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.8 }} className="text-[#5a5a70] text-xs">
                     or press Space
                   </motion.p>
                 )}
               </AnimatePresence>
             </div>
-
           </div>
         </div>
       </section>
 
-      {/* ── Below fold: roll result + pick of day ──────────────────── */}
-      <main className="flex-1 flex flex-col items-center px-4 sm:px-6 py-12 sm:py-20 gap-14 w-full max-w-3xl mx-auto">
-        <div className="w-full">
-          <AnimatePresence mode="wait">
-            {isRolling && (
-              <motion.div
-                key="skeleton"
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -12 }}
-                transition={{ duration: 0.2 }}
-              >
-                <RollResultSkeleton />
-              </motion.div>
-            )}
+      {/* ── Results + pick of day ─────────────────────────────────── */}
+      <main ref={resultRef} className="flex flex-col px-4 sm:px-6 lg:px-20 py-10 lg:py-14 gap-12 bg-[#09090f] max-w-3xl mx-auto w-full">
 
-            {!isRolling && film && (
-              <motion.div
-                key={film.id}
-                initial={{ opacity: 0, y: 40 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -12 }}
-                transition={{ type: "spring", stiffness: 280, damping: 24 }}
-                className="flex flex-col gap-6"
-              >
-                <RollResultCard film={film} />
+        <AnimatePresence mode="wait">
+          {isRolling && (
+            <motion.div key="skeleton" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.2 }}>
+              <RollResultSkeleton />
+            </motion.div>
+          )}
 
-                {/* Roll Again — appears after the card spring has settled */}
-                <motion.div
-                  className="flex justify-center"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.35, delay: 0.45, ease: "easeOut" }}
+          {!isRolling && film && (
+            <motion.div
+              key={film.id}
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ type: "spring", stiffness: 280, damping: 24 }}
+              className="flex flex-col gap-6"
+            >
+              <RollResultCard film={film} />
+
+              <motion.div
+                className="flex justify-center"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35, delay: 0.45, ease: "easeOut" }}
+              >
+                <button
+                  onClick={() => void handleRoll()}
+                  disabled={isRollDisabled}
+                  aria-label="Roll again for a random film"
+                  className={cn(
+                    "flex items-center gap-2.5 h-12 px-10",
+                    "bg-[linear-gradient(to_bottom,#D4AF37,#B8962E)]",
+                    "text-[#09090f] font-bold text-base",
+                    "rounded-xl shadow-lg shadow-[#D4AF37]/20",
+                    "transition-all duration-200 select-none",
+                    "hover:shadow-[0_0_24px_rgba(212,175,55,0.38)] hover:-translate-y-0.5",
+                    "active:scale-[0.97]",
+                    "disabled:opacity-50 disabled:cursor-not-allowed",
+                    "disabled:hover:translate-y-0 disabled:hover:shadow-lg",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37]",
+                    "focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090f]",
+                  )}
                 >
-                  <button
-                    onClick={() => void handleRoll()}
-                    disabled={isRollDisabled}
-                    aria-label="Roll again for a random film"
-                    className={cn(
-                      "flex items-center gap-2.5 h-12 px-10",
-                      "bg-[linear-gradient(to_bottom,#D4AF37,#B8962E)]",
-                      "text-[#09090f] font-bold text-base",
-                      "rounded-xl shadow-lg shadow-[#D4AF37]/20",
-                      "transition-all duration-200 select-none",
-                      "hover:shadow-[0_0_24px_rgba(212,175,55,0.38)] hover:-translate-y-0.5",
-                      "active:scale-[0.97]",
-                      "disabled:opacity-50 disabled:cursor-not-allowed",
-                      "disabled:hover:translate-y-0 disabled:hover:shadow-lg",
-                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37]",
-                      "focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090f]",
-                    )}
-                  >
-                    <RotateCcw className="h-4 w-4" aria-hidden />
-                    Roll Again
-                  </button>
-                </motion.div>
+                  <RotateCcw className="h-4 w-4" aria-hidden />
+                  Roll Again
+                </button>
               </motion.div>
-            )}
+            </motion.div>
+          )}
 
-            {!isRolling && !hasRolled && (
-              <motion.div
-                key="empty"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="flex items-center justify-center rounded-2xl border border-dashed border-[#22222f] py-14"
-              >
-                <p className="text-[#5a5a70] text-sm">Roll to discover your next film</p>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+        </AnimatePresence>
 
         <PickOfDay />
       </main>
