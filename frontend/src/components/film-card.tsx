@@ -47,8 +47,9 @@ export function FilmCard({ film, className }: FilmCardProps) {
         "transition-all duration-200 ease-out",
         "hover:-translate-y-1 hover:shadow-[0_8px_32px_rgba(0,0,0,0.7)]",
         "hover:border-[#D4AF37]/60",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37]",
-        "focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090f]",
+        "outline-none focus-visible:outline focus-visible:outline-2",
+        "focus-visible:outline-[#D4AF37] focus-visible:outline-offset-[3px]",
+        "focus-visible:border-[#D4AF37]/60 focus-visible:shadow-[0_8px_32px_rgba(0,0,0,0.7)]",
         className
       )}
     >
@@ -90,7 +91,7 @@ export function FilmCard({ film, className }: FilmCardProps) {
       <div
         className={cn(
           "absolute inset-x-0 bottom-0",
-          "translate-y-full group-hover:translate-y-0",
+          "translate-y-full group-hover:translate-y-0 group-focus-visible:translate-y-0",
           "transition-transform duration-300 ease-out",
           "bg-gradient-to-t from-black/95 via-black/80 to-transparent",
           "pt-14 pb-3 px-3 flex flex-col gap-1",

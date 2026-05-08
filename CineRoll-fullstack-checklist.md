@@ -455,7 +455,7 @@ Cards appear in the browse grid, the Similar Films section, the Snob Test, and t
 - [x] **Hover state** — card lifts slightly (`translateY(-4px)`), shadow deepens, a gold border ring fades in (`border: 1px solid #D4AF37 at 60% opacity`); the poster image scales to 1.04 (slight zoom, clipped to card bounds); an overlay gradient slides up from the bottom revealing: film title (serif), year, award badge (e.g. "3 Oscar wins"), and a "Roll Similar →" ghost button
 - [x] **Award badge** — top-left corner of every card; small pill showing the highest award (Oscar statuette icon + "Won" or "Nominated"); gold background for wins, dark surface with gold text for nominations
 - [x] **Skeleton state** — while loading, show the card in skeleton form: the same 2:3 ratio, a shimmer animation in `#1a1a24 → #22222f → #1a1a24` cycling at 1.5s — no layout shift when the real card arrives
-- [ ] **Focus state for accessibility** — keyboard-focused card gets a clearly visible gold outline (`outline: 2px solid #D4AF37, outline-offset: 3px`) — same as hover but without the lift
+- [x] **Focus state for accessibility** — keyboard-focused card gets a clearly visible gold outline (`outline: 2px solid #D4AF37, outline-offset: 3px`) — same as hover but without the lift
 
 ---
 
