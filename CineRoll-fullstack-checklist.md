@@ -546,8 +546,8 @@ A standalone quiz page (`/snob-test`) that works without any account. Users tick
 
 ### Backend
 
-- [ ] Create GET /api/snob-test/films — return 20 films sampled from the dataset: spread across decades, genres, and award bodies; weight toward well-known titles so the quiz feels fair; shuffle on every request
-- [ ] Create POST /api/snob-test/score — body: `{ seenFilmIds: string[] }`; return: score (0–100), title (see below), breakdown by decade and award body; no auth required, no data stored
+- [x] Create GET /api/snob-test/films — return 20 films sampled from the dataset: spread across decades, genres, and award bodies; weight toward well-known titles so the quiz feels fair; shuffle on every request
+- [x] Create POST /api/snob-test/score — body: `{ seenFilmIds: string[] }`; return: score (0–100), title (see below), breakdown by decade and award body; no auth required, no data stored
 
 **Score titles (based on % seen):**
 
