@@ -98,7 +98,11 @@ export default function HomePage() {
       setFilteredCount(result.total);
       // Scroll to film card on mobile
       setTimeout(
-        () => filmCardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }),
+        () =>
+          filmCardRef.current?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          }),
         100,
       );
     } catch (err) {
@@ -141,18 +145,16 @@ export default function HomePage() {
   }, []);
 
   // Pool count display
-  const poolCountStr =
-    effectiveCountLoading
-      ? "···"
-      : effectiveCount !== null
-        ? String(effectiveCount).padStart(3, "0")
-        : filteredCount !== null
-          ? String(filteredCount).padStart(3, "0")
-          : "···";
+  const poolCountStr = effectiveCountLoading
+    ? "···"
+    : effectiveCount !== null
+      ? String(effectiveCount).padStart(3, "0")
+      : filteredCount !== null
+        ? String(filteredCount).padStart(3, "0")
+        : "···";
 
   return (
     <div className="flex flex-col min-h-screen bg-[#09090f] text-[#F5F5F0]">
-
       {/* ── Header ──────────────────────────────────────────────────── */}
       <header className="sticky top-0 z-50 flex h-16 shrink-0 items-center justify-between border-b border-[#1a1a28] bg-[#09090f] px-5 sm:px-8">
         <div className="flex items-center gap-3">
@@ -171,10 +173,8 @@ export default function HomePage() {
 
       {/* ── Two-column body ─────────────────────────────────────────── */}
       <div className="flex flex-1 flex-col lg:flex-row lg:h-[calc(100vh-4rem)] lg:overflow-hidden">
-
         {/* LEFT: hero + filters + roll ──────────────────────────────── */}
         <div className="flex flex-1 flex-col gap-3 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:w-0 px-5 py-4 sm:px-8 lg:px-10 lg:py-5">
-
           {/* Channel label */}
           <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.25em] text-[#888899]">
             {"// CHANNEL 03 · TONIGHT"}
@@ -185,7 +185,7 @@ export default function HomePage() {
             <h1
               className={cn(
                 "font-[family-name:var(--font-display)] font-bold leading-[1.0] tracking-tight",
-                "text-[clamp(2.2rem,3.4vw,3.4rem)] text-[#F5F5F0]",
+                "text-[clamp(3.4rem,4.2vw,4.2rem)] text-[#F5F5F0]",
               )}
             >
               One spin.
@@ -195,7 +195,8 @@ export default function HomePage() {
               Tonight.
             </h1>
             <p className="mt-4 max-w-[380px] text-sm leading-relaxed text-[#888899]">
-              A jukebox for award cinema. Tune the dials below, then pull the lever.
+              A jukebox for award cinema. Tune the dials below, then pull the
+              lever.
             </p>
           </div>
 
@@ -262,37 +263,37 @@ export default function HomePage() {
           )}
         >
           <AnimatePresence mode="wait">
-              {isRolling ? (
-                <motion.div
-                  key="skeleton"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.15 }}
-                >
-                  <FilmCardSkeleton />
-                </motion.div>
-              ) : film ? (
-                <motion.div
-                  key={film.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ type: "spring", stiffness: 320, damping: 28 }}
-                >
-                  <FilmCard film={film} />
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="empty"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                >
-                  <FilmCardEmpty />
-                </motion.div>
-              )}
-            </AnimatePresence>
+            {isRolling ? (
+              <motion.div
+                key="skeleton"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15 }}
+              >
+                <FilmCardSkeleton />
+              </motion.div>
+            ) : film ? (
+              <motion.div
+                key={film.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                transition={{ type: "spring", stiffness: 320, damping: 28 }}
+              >
+                <FilmCard film={film} />
+              </motion.div>
+            ) : (
+              <motion.div
+                key="empty"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
+                <FilmCardEmpty />
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </div>
@@ -309,8 +310,9 @@ function FilmCard({ film }: { film: RollFilm }) {
       ? `${Math.floor(film.runtime / 60)}h ${film.runtime % 60}m`
       : null;
   const imageUrl = film.backdropUrl ?? film.posterUrl;
-  const totalWins = film.oscarWins + film.ggWins;
-  const totalNoms = film.oscarNominations + film.ggNominations;
+  const totalWins = film.oscarWins + film.ggWins + film.cannesWins;
+  const totalNoms =
+    film.oscarNominations + film.ggNominations + film.cannesNominations;
 
   return (
     <div className="flex flex-col">
@@ -387,14 +389,8 @@ function FilmCard({ film }: { film: RollFilm }) {
             value={film.imdbRating != null ? film.imdbRating.toFixed(1) : "—"}
           />
           <StatBox
-            label="Oscars"
-            value={
-              film.oscarWins > 0
-                ? `${film.oscarWins}W`
-                : film.oscarNominations > 0
-                  ? `${film.oscarNominations}N`
-                  : "—"
-            }
+            label="RT"
+            value={film.rtScore != null ? `${film.rtScore}%` : "—"}
           />
           <StatBox
             label="Awards"
@@ -409,10 +405,8 @@ function FilmCard({ film }: { film: RollFilm }) {
         </div>
 
         {/* Award tags */}
-        {(film.oscarWins > 0 ||
-          film.oscarNominations > 0 ||
-          film.ggWins > 0) && (
-          <div className="flex flex-wrap gap-2">
+        {totalWins > 0 || totalNoms > 0 ? (
+          <div className="flex flex-wrap gap-1.5">
             {film.oscarWins > 0 && (
               <AwardTag>
                 + {film.oscarWins} Oscar {film.oscarWins === 1 ? "Win" : "Wins"}
@@ -429,8 +423,26 @@ function FilmCard({ film }: { film: RollFilm }) {
                 + {film.ggWins} GG {film.ggWins === 1 ? "Win" : "Wins"}
               </AwardTag>
             )}
+            {film.ggNominations > film.ggWins && (
+              <AwardTag>
+                + {film.ggNominations} GG Nom
+                {film.ggNominations !== 1 ? "s" : ""}
+              </AwardTag>
+            )}
+            {film.cannesWins > 0 && (
+              <AwardTag>
+                + {film.cannesWins} Cannes{" "}
+                {film.cannesWins === 1 ? "Win" : "Wins"}
+              </AwardTag>
+            )}
+            {film.cannesNominations > film.cannesWins && (
+              <AwardTag>
+                + {film.cannesNominations} Cannes Nom
+                {film.cannesNominations !== 1 ? "s" : ""}
+              </AwardTag>
+            )}
           </div>
-        )}
+        ) : null}
 
         {/* Action buttons */}
         <div className="flex items-center gap-2">

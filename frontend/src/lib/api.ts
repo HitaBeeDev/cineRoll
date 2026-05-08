@@ -20,10 +20,13 @@ export type RollFilm = Pick<
   | "posterColor"
   | "backdropUrl"
   | "imdbRating"
+  | "rtScore"
   | "oscarNominations"
   | "oscarWins"
   | "ggNominations"
   | "ggWins"
+  | "cannesNominations"
+  | "cannesWins"
 >;
 
 export type RandomResult = { film: RollFilm; total: number };
