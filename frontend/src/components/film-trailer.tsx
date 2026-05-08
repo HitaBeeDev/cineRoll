@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ExternalLink, Play, PlayCircle, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -19,6 +19,7 @@ export function FilmTrailer({
   youtubeId,
   thumbnailUrl,
 }: FilmTrailerProps) {
+  const shouldReduceMotion = useReducedMotion();
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
@@ -96,21 +97,21 @@ export function FilmTrailer({
                 aria-label={`${title} trailer`}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                exit={{ opacity: 0, transition: { duration: 0.2, ease: "easeIn" } }}
-                transition={{ duration: 0.2, ease: "easeOut" }}
+                exit={{ opacity: 0, transition: { duration: shouldReduceMotion ? 0 : 0.2, ease: "easeIn" } }}
+                transition={{ duration: shouldReduceMotion ? 0 : 0.2, ease: "easeOut" }}
                 onClick={() => setIsOpen(false)}
               >
                 <motion.div
-                  layout
+                  layout={!shouldReduceMotion}
                   className="relative w-full max-w-5xl rounded-2xl border border-zinc-800 bg-zinc-950 shadow-2xl shadow-black/80"
-                  initial={{ opacity: 0, scale: 0.9 }}
+                  initial={{ opacity: 0, scale: shouldReduceMotion ? 1 : 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{
                     opacity: 0,
-                    scale: 0.94,
-                    transition: { duration: 0.2, ease: "easeIn" },
+                    scale: shouldReduceMotion ? 1 : 0.94,
+                    transition: { duration: shouldReduceMotion ? 0 : 0.2, ease: "easeIn" },
                   }}
-                  transition={{ type: "spring", stiffness: 300, damping: 28 }}
+                  transition={shouldReduceMotion ? { duration: 0 } : { type: "spring", stiffness: 300, damping: 28 }}
                   onClick={(event) => event.stopPropagation()}
                 >
                   <button

@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Bookmark, Share2, Dices } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/toast";
@@ -21,6 +21,7 @@ import { useFilters } from "@/hooks/useFilters";
 import { cn } from "@/lib/utils";
 
 export default function HomePage() {
+  const shouldReduceMotion = useReducedMotion();
   const { toast } = useToast();
   const { filters, setFilter, resetFilters, hasActiveFilters } = useFilters();
   const [film, setFilm] = useState<RollFilm | null>(null);
@@ -102,7 +103,7 @@ export default function HomePage() {
       setTimeout(
         () =>
           filmCardRef.current?.scrollIntoView({
-            behavior: "smooth",
+            behavior: shouldReduceMotion ? "auto" : "smooth",
             block: "start",
           }),
         100,
@@ -257,33 +258,33 @@ export default function HomePage() {
             {isRolling ? (
               <motion.div
                 key="skeleton"
-                layout
+                layout={!shouldReduceMotion}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                exit={{ opacity: 0, transition: { duration: 0.15, ease: "easeIn" } }}
-                transition={{ duration: 0.15, ease: "easeOut" }}
+                exit={{ opacity: 0, transition: { duration: shouldReduceMotion ? 0 : 0.15, ease: "easeIn" } }}
+                transition={{ duration: shouldReduceMotion ? 0 : 0.15, ease: "easeOut" }}
               >
                 <FilmCardSkeleton />
               </motion.div>
             ) : film ? (
               <motion.div
                 key={film.id}
-                layout
-                initial={{ opacity: 0, y: 10 }}
+                layout={!shouldReduceMotion}
+                initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, transition: { duration: 0.15, ease: "easeIn" } }}
-                transition={{ type: "spring", stiffness: 300, damping: 28 }}
+                exit={{ opacity: 0, transition: { duration: shouldReduceMotion ? 0 : 0.15, ease: "easeIn" } }}
+                transition={shouldReduceMotion ? { duration: 0 } : { type: "spring", stiffness: 300, damping: 28 }}
               >
                 <FilmCard film={film} />
               </motion.div>
             ) : (
               <motion.div
                 key="empty"
-                layout
+                layout={!shouldReduceMotion}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                exit={{ opacity: 0, transition: { duration: 0.15, ease: "easeIn" } }}
-                transition={{ duration: 0.2, ease: "easeOut" }}
+                exit={{ opacity: 0, transition: { duration: shouldReduceMotion ? 0 : 0.15, ease: "easeIn" } }}
+                transition={{ duration: shouldReduceMotion ? 0 : 0.2, ease: "easeOut" }}
                 className="flex flex-col flex-1"
               >
                 <FilmCardEmpty />

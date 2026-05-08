@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Search, Sparkles, ArrowRight, RotateCcw, Bookmark } from "lucide-react";
 import { SiteNavigation } from "@/components/site-navigation";
 import { fetchFilms, type RollFilm } from "@/lib/api";
@@ -153,6 +153,7 @@ type SearchState =
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function DiscoverPage() {
+  const shouldReduceMotion = useReducedMotion();
   const [query, setQuery] = useState("");
   const [search, setSearch] = useState<SearchState>({ status: "idle" });
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
@@ -279,7 +280,7 @@ export default function DiscoverPage() {
                 )}
               >
                 {search.status === "loading" ? (
-                  <span className="animate-pulse">···</span>
+                  <span className="motion-safe:animate-pulse">···</span>
                 ) : (
                   <>
                     Find <ArrowRight className="h-3.5 w-3.5" />
@@ -315,11 +316,15 @@ export default function DiscoverPage() {
         <AnimatePresence>
           {search.status === "done" && (
             <motion.div
-              layout
-              initial={{ opacity: 0, y: 16 }}
+              layout={!shouldReduceMotion}
+              initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 16 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 8, transition: { duration: 0.2, ease: "easeIn" } }}
-              transition={{ duration: 0.45, ease: "easeOut" }}
+              exit={{
+                opacity: 0,
+                y: shouldReduceMotion ? 0 : 8,
+                transition: { duration: shouldReduceMotion ? 0 : 0.2, ease: "easeIn" },
+              }}
+              transition={{ duration: shouldReduceMotion ? 0 : 0.45, ease: "easeOut" }}
               className="flex flex-col gap-6 px-6 py-8 sm:px-10"
             >
               {/* Interpreted as */}
@@ -350,11 +355,11 @@ export default function DiscoverPage() {
                 {search.films.length === 0 ? (
                 <motion.div
                   key="empty-results"
-                  layout
+                  layout={!shouldReduceMotion}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  exit={{ opacity: 0, transition: { duration: 0.15, ease: "easeIn" } }}
-                  transition={{ duration: 0.2, ease: "easeOut" }}
+                  exit={{ opacity: 0, transition: { duration: shouldReduceMotion ? 0 : 0.15, ease: "easeIn" } }}
+                  transition={{ duration: shouldReduceMotion ? 0 : 0.2, ease: "easeOut" }}
                   className="flex flex-col items-center gap-3 py-16 text-center"
                 >
                   <Search className="h-8 w-8 text-[#222234]" />
@@ -368,11 +373,11 @@ export default function DiscoverPage() {
               ) : (
                 <motion.div
                   key="result-grid"
-                  layout
+                  layout={!shouldReduceMotion}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  exit={{ opacity: 0, transition: { duration: 0.15, ease: "easeIn" } }}
-                  transition={{ duration: 0.2, ease: "easeOut" }}
+                  exit={{ opacity: 0, transition: { duration: shouldReduceMotion ? 0 : 0.15, ease: "easeIn" } }}
+                  transition={{ duration: shouldReduceMotion ? 0 : 0.2, ease: "easeOut" }}
                   className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
                 >
                   {search.films.map((film, i) => (
@@ -386,11 +391,11 @@ export default function DiscoverPage() {
 
           {search.status === "error" && (
             <motion.div
-              layout
+              layout={!shouldReduceMotion}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              exit={{ opacity: 0, transition: { duration: 0.15, ease: "easeIn" } }}
-              transition={{ duration: 0.2, ease: "easeOut" }}
+              exit={{ opacity: 0, transition: { duration: shouldReduceMotion ? 0 : 0.15, ease: "easeIn" } }}
+              transition={{ duration: shouldReduceMotion ? 0 : 0.2, ease: "easeOut" }}
               className="flex flex-col items-center gap-3 py-16 text-center"
             >
               <p className="font-[family-name:var(--font-display)] text-xl text-[#e8453c]/60">
@@ -412,21 +417,26 @@ export default function DiscoverPage() {
 }
 
 function ResultCard({ film, index }: { film: RollFilm; index: number }) {
+  const shouldReduceMotion = useReducedMotion();
   const imageUrl = film.backdropUrl ?? film.posterUrl;
   const genre = film.genres[0] ?? "";
   const totalWins = film.oscarWins + film.ggWins + film.cannesWins;
 
   return (
     <motion.div
-      layout
-      initial={{ opacity: 0, y: 12 }}
+      layout={!shouldReduceMotion}
+      initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{
-        delay: index * 0.05,
-        type: "spring",
-        stiffness: 300,
-        damping: 28,
-      }}
+      transition={
+        shouldReduceMotion
+          ? { duration: 0 }
+          : {
+              delay: index * 0.05,
+              type: "spring",
+              stiffness: 300,
+              damping: 28,
+            }
+      }
       className="group flex flex-col overflow-hidden rounded-xl border border-[#1e1e2a] bg-[#0d0d1a] transition-colors hover:border-[#2a2a3e]"
     >
       {/* Image */}

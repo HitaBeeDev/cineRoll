@@ -74,11 +74,13 @@ export function FilmDetailHero({
         }}
       />
       <div className="absolute inset-0 bg-[linear-gradient(to_top,#09090f_0%,#09090f_18%,rgba(9,9,15,0.7)_48%,rgba(9,9,15,0.18)_100%)]" />
-      <div
-        className="absolute inset-0 opacity-[0.04] mix-blend-screen"
-        style={{ backgroundImage: grainBackgroundImage, backgroundSize: "160px 160px" }}
-        aria-hidden
-      />
+      {!shouldReduceMotion && (
+        <div
+          className="absolute inset-0 opacity-[0.04] mix-blend-screen"
+          style={{ backgroundImage: grainBackgroundImage, backgroundSize: "160px 160px" }}
+          aria-hidden
+        />
+      )}
 
       <div className="relative z-10 mx-auto flex w-full max-w-5xl flex-col justify-end px-4 pb-[12vh] pt-28 sm:px-6 lg:px-8">
         <div className="max-w-4xl">

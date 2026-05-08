@@ -165,7 +165,7 @@ export function BrowsePageClient() {
                     disabled={total === 0 || isRolling}
                     onClick={() => void handleRoll()}
                   >
-                    <Dices className={cn("h-4 w-4", isRolling && "animate-spin")} aria-hidden />
+                    <Dices className={cn("h-4 w-4", isRolling && "motion-safe:animate-spin")} aria-hidden />
                     {isRolling
                       ? "Rolling…"
                       : total === 0

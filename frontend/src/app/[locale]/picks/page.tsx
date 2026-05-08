@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Bookmark, RefreshCw, Share2, Star, Trophy, Clapperboard } from "lucide-react";
 import { SiteNavigation } from "@/components/site-navigation";
 import { fetchRandom, type RollFilm } from "@/lib/api";
@@ -55,6 +55,7 @@ function todayKey() {
 }
 
 export default function PicksPage() {
+  const shouldReduceMotion = useReducedMotion();
   const [picks, setPicks] = useState<DailyPick[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -146,7 +147,7 @@ export default function PicksPage() {
                 "disabled:opacity-40",
               )}
             >
-              <RefreshCw className={cn("h-3 w-3", isRefreshing && "animate-spin")} />
+              <RefreshCw className={cn("h-3 w-3", isRefreshing && "motion-safe:animate-spin")} />
               Reshuffle
             </button>
           </div>
@@ -158,11 +159,11 @@ export default function PicksPage() {
             {isLoading ? (
               <motion.div
                 key="loading"
-                layout
+                layout={!shouldReduceMotion}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                exit={{ opacity: 0, transition: { duration: 0.15, ease: "easeIn" } }}
-                transition={{ duration: 0.2, ease: "easeOut" }}
+                exit={{ opacity: 0, transition: { duration: shouldReduceMotion ? 0 : 0.15, ease: "easeIn" } }}
+                transition={{ duration: shouldReduceMotion ? 0 : 0.2, ease: "easeOut" }}
                 className="flex flex-1 items-center justify-center"
               >
                 <div className="flex flex-col items-center gap-3">
@@ -170,7 +171,7 @@ export default function PicksPage() {
                     {[0, 1, 2].map((i) => (
                       <div
                         key={i}
-                        className="h-2 w-2 animate-pulse rounded-full bg-[#e8453c]/40"
+                        className="h-2 w-2 rounded-full bg-[#e8453c]/40 motion-safe:animate-pulse"
                         style={{ animationDelay: `${i * 150}ms` }}
                       />
                     ))}
@@ -183,11 +184,11 @@ export default function PicksPage() {
             ) : (
               <motion.div
                 key="picks"
-                layout
+                layout={!shouldReduceMotion}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                exit={{ opacity: 0, transition: { duration: 0.15, ease: "easeIn" } }}
-                transition={{ duration: 0.25, ease: "easeOut" }}
+                exit={{ opacity: 0, transition: { duration: shouldReduceMotion ? 0 : 0.15, ease: "easeIn" } }}
+                transition={{ duration: shouldReduceMotion ? 0 : 0.25, ease: "easeOut" }}
                 className="flex flex-1 flex-col lg:flex-row"
               >
                 {picks.map((pick, i) => (
@@ -203,6 +204,7 @@ export default function PicksPage() {
 }
 
 function PickCard({ pick, index }: { pick: DailyPick; index: number }) {
+  const shouldReduceMotion = useReducedMotion();
   const { film, slot } = pick;
   const imageUrl = film.backdropUrl ?? film.posterUrl;
   const genre = film.genres[0] ?? "";
@@ -213,15 +215,19 @@ function PickCard({ pick, index }: { pick: DailyPick; index: number }) {
 
   return (
     <motion.div
-      layout
-      initial={{ opacity: 0, y: 20 }}
+      layout={!shouldReduceMotion}
+      initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{
-        delay: index * 0.1,
-        type: "spring",
-        stiffness: 300,
-        damping: 28,
-      }}
+      transition={
+        shouldReduceMotion
+          ? { duration: 0 }
+          : {
+              delay: index * 0.1,
+              type: "spring",
+              stiffness: 300,
+              damping: 28,
+            }
+      }
       className="group relative flex flex-1 flex-col overflow-hidden border-b border-[#1a1a28] lg:border-b-0 lg:border-r"
     >
       {/* Backdrop */}

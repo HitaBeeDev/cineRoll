@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 
-const shimmerCSS = `@keyframes cineroll-shimmer{0%{background-position:200% center}100%{background-position:-200% center}}`;
+const shimmerCSS = `@keyframes cineroll-shimmer{0%{background-position:200% center}100%{background-position:-200% center}}@media (prefers-reduced-motion: reduce){.cineroll-skeleton{animation:none!important;background-size:100% 100%!important}}`;
 
 export function Skeleton({
   className,
@@ -10,7 +10,8 @@ export function Skeleton({
     <>
       <style dangerouslySetInnerHTML={{ __html: shimmerCSS }} />
       <div
-        className={cn("rounded-md", className)}
+        className={cn("cineroll-skeleton rounded-md", className)}
+        data-reduced-motion="static"
         style={{
           background: "linear-gradient(90deg,#1a1a24 0%,#22222f 50%,#1a1a24 100%)",
           backgroundSize: "200% 100%",

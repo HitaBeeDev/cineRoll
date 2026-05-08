@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import {
   CalendarDays,
   Star,
@@ -22,6 +22,7 @@ import { cn } from "@/lib/utils";
 type Status = "loading" | "success" | "empty" | "error";
 
 export function PickOfDay() {
+  const shouldReduceMotion = useReducedMotion();
   const [film, setFilm] = useState<PickOfDayFilm | null>(null);
   const [status, setStatus] = useState<Status>("loading");
 
@@ -80,10 +81,10 @@ export function PickOfDay() {
 
       {status === "success" && film && (
         <motion.div
-          layout
-          initial={{ opacity: 0, y: 16 }}
+          layout={!shouldReduceMotion}
+          initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, ease: "easeOut" }}
+          transition={{ duration: shouldReduceMotion ? 0 : 0.4, ease: "easeOut" }}
         >
           <PickOfDayCard film={film} />
         </motion.div>
