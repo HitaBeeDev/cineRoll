@@ -143,8 +143,11 @@ export async function fetchPickOfDay(): Promise<PickOfDayFilm | null> {
   return res.json() as Promise<PickOfDayFilm>;
 }
 
-export async function fetchSnobTestFilms(): Promise<SnobTestFilm[]> {
-  const res = await fetch(`${API_URL}/api/snob-test/films`, { cache: "no-store" });
+export async function fetchSnobTestFilms(excludeFilmIds: string[] = []): Promise<SnobTestFilm[]> {
+  const params = new URLSearchParams();
+  if (excludeFilmIds.length > 0) params.set("excludeFilmIds", excludeFilmIds.join(","));
+  const qs = params.toString();
+  const res = await fetch(`${API_URL}/api/snob-test/films${qs ? `?${qs}` : ""}`, { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to fetch Snob Test films");
   const data = await res.json() as { films: SnobTestFilm[] };
   return data.films;

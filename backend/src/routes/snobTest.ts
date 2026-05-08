@@ -47,6 +47,16 @@ const scoreBodySchema = z.object({
   seenFilmIds: z.array(z.string().trim().min(1)).max(100).default([]),
 });
 
+const filmsQuerySchema = z.object({
+  excludeFilmIds: z
+    .preprocess((value) => {
+      if (Array.isArray(value)) return value.flatMap(item => String(item).split(","));
+      if (typeof value === "string") return value.split(",");
+      return [];
+    }, z.array(z.string().trim().min(1)).max(80))
+    .default([]),
+});
+
 const SNOB_TEST_FILM_COUNT = 20;
 
 const snobTestFilmSelect = Prisma.sql`
@@ -101,12 +111,29 @@ function createBreakdownBucket(): BreakdownBucket {
   return { seen: 0, total: 0 };
 }
 
-snobTestRouter.get("/films", async (_req, res) => {
+snobTestRouter.get("/films", validate(filmsQuerySchema), async (req, res) => {
+  const { excludeFilmIds } = getValidated<z.infer<typeof filmsQuerySchema>>(req, "query");
+  const uniqueExcludeFilmIds = [...new Set(excludeFilmIds)];
+  const excludeSql =
+    uniqueExcludeFilmIds.length > 0
+      ? Prisma.sql`AND "Film"."id" NOT IN (${Prisma.join(uniqueExcludeFilmIds)})`
+      : Prisma.empty;
+
   const films = await prisma.$queryRaw<SnobTestFilmRow[]>`
     WITH candidates AS (
       SELECT
         ${snobTestFilmSelect},
         COALESCE(("Film"."genres")[1], 'Other') AS "primaryGenre",
+        TRIM(BOTH FROM REGEXP_REPLACE(
+          REGEXP_REPLACE(
+            REGEXP_REPLACE(LOWER("Film"."title"), '^(the|a|an)\s+', ''),
+            '[:].*$',
+            ''
+          ),
+          '[[:space:]]+(part|chapter|episode)[[:space:]]+[ivxlcdm0-9]+$',
+          ''
+        )
+        ) AS "titleRoot",
         CASE
           WHEN ("Film"."oscarNominations" + ("Film"."oscarWins" * 2)) >= GREATEST(
             "Film"."ggNominations" + ("Film"."ggWins" * 2),
@@ -116,35 +143,38 @@ snobTestRouter.get("/films", async (_req, res) => {
           ELSE 'cannes'
         END AS "primaryAwardBody",
         (
-          COALESCE("Film"."imdbRating", 0) * 12
-          + CASE WHEN "Film"."imdbTopMovieRank" IS NOT NULL THEN (260 - "Film"."imdbTopMovieRank") ELSE 0 END
-          + CASE WHEN "Film"."imdbTopTvRank" IS NOT NULL THEN (260 - "Film"."imdbTopTvRank") ELSE 0 END
-          + ("Film"."oscarWins" * 12)
-          + ("Film"."ggWins" * 8)
-          + ("Film"."cannesWins" * 10)
-          + (("Film"."oscarNominations" + "Film"."ggNominations" + "Film"."cannesNominations") * 2)
+          COALESCE("Film"."imdbRating", 0) * 9
+          + CASE WHEN "Film"."imdbTopMovieRank" IS NOT NULL THEN ((260 - "Film"."imdbTopMovieRank") * 0.55) ELSE 0 END
+          + CASE WHEN "Film"."imdbTopTvRank" IS NOT NULL THEN ((260 - "Film"."imdbTopTvRank") * 0.55) ELSE 0 END
+          + ("Film"."oscarWins" * 10)
+          + ("Film"."ggWins" * 7)
+          + ("Film"."cannesWins" * 8)
+          + (("Film"."oscarNominations" + "Film"."ggNominations" + "Film"."cannesNominations") * 1.5)
           + CASE WHEN "Film"."posterUrl" IS NOT NULL THEN 8 ELSE 0 END
         ) AS "knownScore"
       FROM "Film"
       WHERE ("Film"."oscarNominations" + "Film"."oscarWins" + "Film"."ggNominations" + "Film"."ggWins" + "Film"."cannesNominations" + "Film"."cannesWins") > 0
+        ${excludeSql}
     ),
     ranked AS (
       SELECT
         candidates.*,
-        ROW_NUMBER() OVER (PARTITION BY "decade" ORDER BY "knownScore" + (RANDOM() * 45) DESC) AS "decadeRank",
-        ROW_NUMBER() OVER (PARTITION BY "primaryGenre" ORDER BY "knownScore" + (RANDOM() * 45) DESC) AS "genreRank",
-        ROW_NUMBER() OVER (PARTITION BY "primaryAwardBody" ORDER BY "knownScore" + (RANDOM() * 45) DESC) AS "awardBodyRank"
+        ROW_NUMBER() OVER (PARTITION BY "decade" ORDER BY "knownScore" + (RANDOM() * 70) DESC) AS "decadeRank",
+        ROW_NUMBER() OVER (PARTITION BY "primaryGenre" ORDER BY "knownScore" + (RANDOM() * 70) DESC) AS "genreRank",
+        ROW_NUMBER() OVER (PARTITION BY "primaryAwardBody" ORDER BY "knownScore" + (RANDOM() * 70) DESC) AS "awardBodyRank",
+        ROW_NUMBER() OVER (PARTITION BY "titleRoot" ORDER BY "knownScore" + (RANDOM() * 70) DESC) AS "titleRootRank"
       FROM candidates
     ),
     spread_pool AS (
       SELECT *
       FROM ranked
-      WHERE "decadeRank" <= 3 OR "genreRank" <= 2 OR "awardBodyRank" <= 8
+      WHERE ("decadeRank" <= 3 OR "genreRank" <= 2 OR "awardBodyRank" <= 8)
+        AND "titleRootRank" = 1
     ),
     sampled AS (
       SELECT *
       FROM spread_pool
-      ORDER BY "knownScore" + (RANDOM() * 80) DESC
+      ORDER BY "knownScore" + (RANDOM() * 140) DESC
       LIMIT 20
     )
     SELECT

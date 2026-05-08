@@ -30,6 +30,9 @@ const titleDescriptions: Record<string, string> = {
   "The Snob": "You are the reason this test needed a top tier.",
 };
 
+const RECENT_FILM_IDS_KEY = "cineroll-snob-test-recent-film-ids";
+const RECENT_FILM_IDS_LIMIT = 80;
+
 type QuizBreakdown = {
   awardBody: Array<{ label: string; seen: number; total: number; percent: number }>;
   decade: Array<{ label: string; seen: number; total: number; percent: number }>;
@@ -152,6 +155,23 @@ function buildSaveHref(selectedIds: Set<string>) {
   return `/sign-up?${params.toString()}`;
 }
 
+function readRecentFilmIds() {
+  try {
+    const raw = window.sessionStorage.getItem(RECENT_FILM_IDS_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed.filter((id): id is string => typeof id === "string") : [];
+  } catch {
+    return [];
+  }
+}
+
+function rememberRecentFilmIds(filmIds: string[]) {
+  try {
+    const recentFilmIds = [...new Set([...filmIds, ...readRecentFilmIds()])].slice(0, RECENT_FILM_IDS_LIMIT);
+    window.sessionStorage.setItem(RECENT_FILM_IDS_KEY, JSON.stringify(recentFilmIds));
+  } catch {}
+}
+
 function PosterFallback({ title, color }: { title: string; color: string | null }) {
   return (
     <div
@@ -183,8 +203,9 @@ export function SnobTestClient() {
     setScore(null);
     setSelectedIds(new Set());
     try {
-      const nextFilms = await fetchSnobTestFilms();
+      const nextFilms = await fetchSnobTestFilms(readRecentFilmIds());
       setFilms(nextFilms);
+      rememberRecentFilmIds(nextFilms.map(film => film.id));
       setStatus("ready");
     } catch {
       setStatus("error");
