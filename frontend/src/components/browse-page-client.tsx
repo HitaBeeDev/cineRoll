@@ -6,10 +6,9 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft, ArrowRight, Clapperboard, Dices, Search } from "lucide-react";
 import type { FilterState, PaginatedFilms } from "@cineroll/types";
 import { Button } from "@/components/ui/button";
-import { FilmCard } from "@/components/film-card";
+import { FilmCard, FilmCardSkeleton } from "@/components/film-card";
 import { FilterBar } from "@/components/filter-bar";
 import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
 import { DEFAULT_FILTERS, useFilters } from "@/hooks/useFilters";
 import { fetchAwardYears, fetchCategories, fetchFilms, fetchGenres, fetchRandom, filtersToParams } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -241,7 +240,7 @@ function BrowseSkeleton() {
   return (
     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
       {Array.from({ length: 12 }).map((_, index) => (
-        <Skeleton key={index} className="aspect-[2/3] rounded-xl" />
+        <FilmCardSkeleton key={index} />
       ))}
     </div>
   );

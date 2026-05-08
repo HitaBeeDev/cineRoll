@@ -3,6 +3,7 @@ import Image from "next/image";
 import { Star, Trophy } from "lucide-react";
 import type { Film } from "@cineroll/types";
 import { cn } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
 
 function getHighestAward(film: Film): { label: "Won" | "Nominated"; body: string } | null {
   if (film.oscarWins > 0)        return { label: "Won",       body: "Oscar" };
@@ -127,5 +128,17 @@ export function FilmCard({ film, className }: FilmCardProps) {
         </span>
       </div>
     </Link>
+  );
+}
+
+export function FilmCardSkeleton({ className }: { className?: string }) {
+  return (
+    <Skeleton
+      className={cn(
+        "aspect-[2/3] rounded-xl border border-transparent",
+        "shadow-[0_4px_24px_rgba(0,0,0,0.5)]",
+        className,
+      )}
+    />
   );
 }
