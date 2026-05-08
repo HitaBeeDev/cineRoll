@@ -295,8 +295,6 @@ The dataset now includes two IMDB Top 250 Excel files alongside the award files.
 - [x] Enrich IMDB-only movies (appear in IMDB Top 250 movies but not in any award file): search TMDB movie endpoint, fetch full details, set `imdbTopMovieRank`, `certificate`, `imdbRating` from IMDB file; no OMDB call needed since rating is already known
 - [x] Enrich IMDB TV shows (all 250 shows are new — award files cover only movies): search TMDB TV endpoint, fetch full details (name, genres, overview, cast, crew, poster, backdrop, trailer, external_ids for IMDB ID), set `imdbTopTvRank`, `certificate`, `tvType`, `tvStartYear`, `tvEndYear`, `contentType`
 
-> **Tomorrow task:** the following data rebuild is intentionally deferred. The enrichment run now sees 16,137 unique award film keys plus IMDB movies/TV, so it is a long network job. Before rerunning, fix/verify `OMDB_API_KEY` in `backend/.env.local`; today OMDB returned `401 Unauthorized`, which would leave RT scores and non-Top-250 IMDB ratings sparse.
-
 - [ ] Re-run enrichment script after code changes: `npm run enrich --workspace=backend`
 - [ ] Review new enrichment-errors.csv for IMDB-only films/shows that had no TMDB match
 - [ ] Save updated output as `backend/data/films-final.json`
