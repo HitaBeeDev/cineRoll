@@ -4,6 +4,16 @@ import { Star, Trophy } from "lucide-react";
 import type { Film } from "@cineroll/types";
 import { cn } from "@/lib/utils";
 
+function getHighestAward(film: Film): { label: "Won" | "Nominated"; body: string } | null {
+  if (film.oscarWins > 0)        return { label: "Won",       body: "Oscar" };
+  if (film.ggWins > 0)           return { label: "Won",       body: "Golden Globe" };
+  if (film.cannesWins > 0)       return { label: "Won",       body: "Cannes" };
+  if (film.oscarNominations > 0) return { label: "Nominated", body: "Oscar" };
+  if (film.ggNominations > 0)    return { label: "Nominated", body: "Golden Globe" };
+  if (film.cannesNominations > 0)return { label: "Nominated", body: "Cannes" };
+  return null;
+}
+
 function buildAwardSummary(film: Film): string | null {
   const parts: string[] = [];
   if (film.oscarWins > 0) {
@@ -55,21 +65,25 @@ export function FilmCard({ film, className }: FilmCardProps) {
         </div>
       )}
 
-      {film.oscarWins > 0 && (
-        <div
-          aria-label={`${film.oscarWins} Oscar ${film.oscarWins === 1 ? "win" : "wins"}`}
-          className={cn(
-            "absolute right-2 top-2 flex items-center gap-1",
-            "rounded-full border border-[#D4AF37]/30 bg-black/60 px-2 py-0.5",
-            "backdrop-blur-sm"
-          )}
-        >
-          <Trophy className="h-3 w-3 text-[#D4AF37]" />
-          <span className="text-xs font-semibold tabular-nums text-[#D4AF37]">
-            {film.oscarWins}
-          </span>
-        </div>
-      )}
+      {(() => {
+        const award = getHighestAward(film);
+        if (!award) return null;
+        return (
+          <div
+            aria-label={`${award.body} ${award.label}`}
+            className={cn(
+              "absolute left-2 top-2 flex items-center gap-1",
+              "rounded-full px-2 py-0.5 backdrop-blur-sm",
+              award.label === "Won"
+                ? "bg-[#D4AF37] text-[#09090f]"
+                : "border border-[#D4AF37]/60 bg-black/70 text-[#D4AF37]",
+            )}
+          >
+            <Trophy className="h-3 w-3 shrink-0" aria-hidden />
+            <span className="text-xs font-semibold">{award.label}</span>
+          </div>
+        );
+      })()}
 
       {/* Hover overlay — slides up from below the card bottom */}
       <div
