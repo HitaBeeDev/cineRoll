@@ -237,51 +237,65 @@ export function SnobTestClient() {
   }
 
   return (
-    <div className="min-h-screen bg-[#08080d] text-[#F5F5F0]">
-      <header className="sticky top-0 z-50 flex h-16 items-center justify-between border-b border-[#1a1a28] bg-[#08080d]/95 px-5 backdrop-blur-md sm:px-8">
+    <div className="min-h-screen bg-[#09090f] text-[#F5F5F0]">
+      <header className="sticky top-0 z-50 flex h-16 shrink-0 items-center justify-between border-b border-[#1a1a28] bg-[#09090f] px-5 sm:px-8">
         <div className="flex items-center gap-3">
           <Link
             href="/"
             className="font-[family-name:var(--font-geist-mono)] text-[1.1rem] font-bold uppercase tracking-[0.15em] text-[#e8453c]"
           >
-            Cine.Roll
+            Cine·Roll
           </Link>
-          <span className="hidden rounded-full border border-[#D4AF37]/30 px-2.5 py-0.5 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#D4AF37] sm:inline-flex">
+          <span className="hidden items-center rounded-full border border-[#e8453c]/25 px-2.5 py-0.5 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#e8453c]/55 sm:inline-flex">
             Snob Test
           </span>
         </div>
         <SiteNavigation />
       </header>
 
-      <main className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 py-6 sm:px-6 lg:px-8">
-        <section className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
-          <div className="flex min-h-[calc(100vh-8.5rem)] flex-col gap-5">
-            <div className="flex flex-col gap-4 border-b border-[#1a1a28] pb-5 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <p className="font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-widest text-[#D4AF37]">
-                  20-film awards gauntlet
-                </p>
-                <h1 className="mt-2 font-[family-name:var(--font-display)] text-4xl font-bold leading-tight text-[#F5F5F0] sm:text-5xl">
-                  The Snob Test
-                </h1>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="rounded-md border border-[#232333] px-3 py-2 text-right">
-                  <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest text-[#888899]">
-                    Seen
+      <main className="px-5 py-4 sm:px-8 lg:px-10 lg:py-5">
+        <section className="grid gap-5 lg:grid-cols-12">
+          <div className="flex flex-col gap-4 lg:col-span-8">
+            <div className="relative overflow-hidden border border-[#1f1f2f] bg-[#0d0d15]">
+              <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#e8453c] via-[#D4AF37] to-[#4a9eff]" />
+              <div className="grid gap-5 p-5 sm:p-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+                <div>
+                  <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.28em] text-[#D4AF37]">
+                    {"// AWARDS GAUNTLET · 20 POSTERS"}
                   </p>
-                  <p className="text-2xl font-semibold text-[#F5F5F0]">{selectedCount}/20</p>
+                  <h1 className="mt-3 font-[family-name:var(--font-display)] text-[clamp(3rem,4.2vw,4.6rem)] font-bold leading-[0.95] tracking-normal text-[#F5F5F0]">
+                    The Snob <span className="text-[#e8453c]">Test.</span>
+                  </h1>
+                  <p className="mt-4 max-w-2xl text-sm leading-6 text-[#a8a8b6] sm:text-base">
+                    Tap the films you have seen. Get a title, a score, and a list of gaps worth filling.
+                  </p>
                 </div>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  className="border-[#343449] bg-[#111118] text-[#F5F5F0] hover:bg-[#171720]"
-                  onClick={() => void loadFilms()}
-                  disabled={status === "loading" || status === "scoring"}
-                >
-                  <RefreshCw className={cn("h-4 w-4", status === "loading" && "animate-spin")} />
-                  Again
-                </Button>
+
+                <div className="flex items-stretch justify-end gap-3">
+                  <button
+                    type="button"
+                    className={cn(
+                      "flex h-14 min-w-32 items-center justify-center gap-2 border border-[#2a2a3e] bg-[#111118] px-4",
+                      "font-[family-name:var(--font-geist-mono)] text-sm font-bold uppercase tracking-widest text-[#F5F5F0]",
+                      "transition hover:border-[#e8453c]/60 hover:bg-[#171720] hover:text-[#e8453c]",
+                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
+                      "disabled:cursor-not-allowed disabled:opacity-50",
+                    )}
+                    onClick={() => void loadFilms()}
+                    disabled={status === "loading" || status === "scoring"}
+                  >
+                    <RefreshCw className={cn("h-4 w-4", status === "loading" && "animate-spin")} />
+                    Again
+                  </button>
+                  <div className="flex h-14 min-w-36 items-center justify-center gap-3 border border-[#2a2a3e] bg-[#09090f] px-4">
+                    <span className="font-[family-name:var(--font-geist-mono)] text-2xl font-bold leading-none text-[#F5F5F0]">
+                      {selectedCount}/20
+                    </span>
+                    <span className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#555568]">
+                      Seen
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -300,7 +314,7 @@ export function SnobTestClient() {
                   ? Array.from({ length: 20 }).map((_, index) => (
                     <div
                       key={index}
-                      className="aspect-[2/3] animate-pulse rounded-md border border-[#1c1c28] bg-[#111118]"
+                      className="aspect-[2/3] animate-pulse border border-[#1c1c28] bg-[#111118]"
                     />
                   ))
                   : films.map((film) => {
@@ -313,11 +327,11 @@ export function SnobTestClient() {
                       aria-label={`Mark ${film.title} as ${selected ? "not seen" : "seen"}`}
                       onClick={() => toggleFilm(film.id)}
                       className={cn(
-                        "group relative aspect-[2/3] overflow-hidden rounded-md border bg-[#111118] text-left",
+                        "group relative aspect-[2/3] overflow-hidden border bg-[#111118] text-left",
                         "transition duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37]",
                         selected
-                          ? "border-[#D4AF37] shadow-[0_0_0_2px_rgba(212,175,55,0.22)]"
-                          : "border-[#20202c] hover:border-[#D4AF37]/55",
+                          ? "border-[#D4AF37] shadow-[0_0_0_2px_rgba(212,175,55,0.18),0_18px_48px_rgba(212,175,55,0.12)]"
+                          : "border-[#20202c] hover:-translate-y-0.5 hover:border-[#D4AF37]/55 hover:shadow-[0_16px_42px_rgba(0,0,0,0.35)]",
                       )}
                     >
                       {film.posterUrl ? (
@@ -328,13 +342,13 @@ export function SnobTestClient() {
                           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
                           className={cn(
                             "object-cover transition duration-300 group-hover:scale-[1.03]",
-                            selected && "brightness-75",
+                            selected && "brightness-75 saturate-125",
                           )}
                         />
                       ) : (
                         <PosterFallback title={film.title} color={film.posterColor} />
                       )}
-                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/75 to-transparent p-3 pt-14">
+                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/78 to-transparent p-3 pt-16">
                         <h2 className="line-clamp-2 font-[family-name:var(--font-display)] text-sm font-semibold leading-tight text-white">
                           {film.title}
                         </h2>
@@ -345,10 +359,10 @@ export function SnobTestClient() {
                       </div>
                       <span
                         className={cn(
-                          "absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full border backdrop-blur-md",
+                          "absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full border backdrop-blur-md transition",
                           selected
                             ? "border-[#D4AF37] bg-[#D4AF37] text-[#09090f]"
-                            : "border-white/20 bg-black/50 text-white/60",
+                            : "border-white/20 bg-black/45 text-white/55 group-hover:border-white/45 group-hover:text-white",
                         )}
                       >
                         <Check className="h-4 w-4" />
@@ -360,28 +374,52 @@ export function SnobTestClient() {
             )}
           </div>
 
-          <aside className="lg:sticky lg:top-24 lg:h-fit">
+          <aside className="lg:sticky lg:top-20 lg:col-span-4 lg:h-fit">
             {!score ? (
-              <div className="border border-[#242435] bg-[#101017] p-5">
-                <div className="flex items-center gap-2 text-[#D4AF37]">
-                  <Clapperboard className="h-4 w-4" />
-                  <span className="font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-widest">
-                    Your ballot
-                  </span>
+              <div className="overflow-hidden border border-[#242435] bg-[#101017]">
+                <div className="border-b border-[#242435] bg-[#0b0b12] px-5 py-4">
+                  <div className="flex items-center gap-2 text-[#D4AF37]">
+                    <Clapperboard className="h-4 w-4" />
+                    <span className="font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-widest">
+                      Your ballot
+                    </span>
+                  </div>
                 </div>
-                <p className="mt-4 text-sm leading-6 text-[#b8b8c6]">
-                  Tick every film you have seen. No sign-in, no saved data, just a score you can share.
-                </p>
-                <Button
-                  type="button"
-                  size="lg"
-                  className="mt-5 w-full bg-[#e8453c] text-[#F5F5F0] hover:bg-[#d7372f]"
-                  disabled={status !== "ready"}
-                  onClick={() => void submitScore()}
-                >
-                  <Trophy className="h-4 w-4" />
-                  {status === "scoring" ? "Scoring..." : "See My Score"}
-                </Button>
+                <div className="p-5">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="border border-[#242435] bg-[#09090f] p-3">
+                      <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#555568]">
+                        Selected
+                      </p>
+                      <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-3xl font-bold leading-none text-[#e8453c]">
+                        {selectedCount}
+                      </p>
+                    </div>
+                    <div className="border border-[#242435] bg-[#09090f] p-3">
+                      <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#555568]">
+                        Max score
+                      </p>
+                      <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-3xl font-bold leading-none text-[#D4AF37]">
+                        100
+                      </p>
+                    </div>
+                  </div>
+                  <p className="mt-4 text-sm leading-6 text-[#b8b8c6]">
+                    The score is simple: every poster you tap counts. No wrong answers, no account required.
+                  </p>
+                  <div className="mt-5 rounded-2xl border-2 border-dashed border-[#e8453c]/30 p-1.5">
+                    <Button
+                      type="button"
+                      size="lg"
+                      className="h-14 w-full rounded-xl bg-[#e8453c] text-[#F5F5F0] hover:bg-[#d7372f] hover:shadow-[0_0_40px_rgba(232,69,60,0.25)]"
+                      disabled={status !== "ready"}
+                      onClick={() => void submitScore()}
+                    >
+                      <Trophy className="h-4 w-4" />
+                      {status === "scoring" ? "Scoring..." : "See My Score"}
+                    </Button>
+                  </div>
+                </div>
               </div>
             ) : (
               <div className="flex flex-col gap-4">
