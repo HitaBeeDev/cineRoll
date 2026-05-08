@@ -32,13 +32,6 @@ const AWARD_BODIES: { value: AwardBody; label: string }[] = [
   { value: "cannes", label: "Cannes" },
 ];
 
-const DECADE_OPTIONS: { value: string; label: string }[] = [
-  { value: "_any", label: "Any" },
-  ...[1920, 1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020].map((d) => ({
-    value: `${d}-${d + 9}`,
-    label: `${d}s`,
-  })),
-];
 
 const PRESETS: { label: string; filters: Partial<FilterState> }[] = [
   { label: "Something from the 90s", filters: { decadeMin: 1990, decadeMax: 1999 } },
@@ -52,106 +45,86 @@ const PRESETS: { label: string; filters: Partial<FilterState> }[] = [
 export function FilterBar({
   filters,
   genres,
+  categories,
+  awardYears = [],
   onFiltersChange,
   onClearFilters,
   className,
 }: FilterBarProps) {
   const activeChips = getActiveFilterChips(filters, onFiltersChange);
 
-  const hasDecadeFilter =
-    filters.decadeMin !== DECADE_MIN || filters.decadeMax !== DECADE_MAX;
-  const decadeValue = hasDecadeFilter
-    ? `${filters.decadeMin}-${filters.decadeMax}`
-    : "_any";
-
   return (
-    <div aria-label="Filter films" className={cn("flex flex-col gap-4", className)}>
+    <div aria-label="Filter films" className={cn("flex flex-col gap-3", className)}>
 
-      {/* BODY row */}
-      <FilterRow label="Body">
-        {AWARD_BODIES.map(({ value, label }) => (
-          <PillToggle
-            key={value}
-            active={filters.awardBody === value}
-            onClick={() => onFiltersChange({ awardBody: value, page: 1 })}
-          >
-            {label}
-          </PillToggle>
-        ))}
-      </FilterRow>
-
-      {/* STATUS row */}
-      <FilterRow label="Status">
-        <PillToggle
-          active={!filters.winnerOnly && !filters.nominatedOnly}
-          onClick={() =>
-            onFiltersChange({ winnerOnly: false, nominatedOnly: false, page: 1 })
-          }
-        >
-          Any
-        </PillToggle>
-        <PillToggle
-          active={filters.winnerOnly}
-          onClick={() =>
-            onFiltersChange({ winnerOnly: true, nominatedOnly: false, page: 1 })
-          }
-        >
-          Won
-        </PillToggle>
-        <PillToggle
-          active={filters.nominatedOnly && !filters.winnerOnly}
-          onClick={() =>
-            onFiltersChange({ winnerOnly: false, nominatedOnly: true, page: 1 })
-          }
-        >
-          Nominated
-        </PillToggle>
-      </FilterRow>
-
-      {/* DECADE + GENRE selects */}
+      {/* BODY + STATUS in one row */}
       <div className="flex gap-3">
         <div className="flex-1">
-          <span className="mb-1.5 block font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#555568]">
-            Decade
-          </span>
-          <Select
-            value={decadeValue}
-            onValueChange={(val) => {
-              if (val === "_any") {
-                onFiltersChange({
-                  decadeMin: DECADE_MIN,
-                  decadeMax: DECADE_MAX,
-                  page: 1,
-                });
-              } else {
-                const parts = val.split("-");
-                const min = parts[0] !== undefined ? Number(parts[0]) : DECADE_MIN;
-                const max = parts[1] !== undefined ? Number(parts[1]) : DECADE_MAX;
-                onFiltersChange({ decadeMin: min, decadeMax: max, page: 1 });
-              }
-            }}
-          >
-            <SelectTrigger
-              className={cn(
-                "h-9 border-[#1e1e2a] bg-[#0d0d1a]",
-                "font-[family-name:var(--font-geist-mono)] text-[11px] text-[#F5F5F0]",
-                "hover:border-[#2a2a3e] focus:ring-[#e8453c] focus:ring-offset-[#09090f]",
-              )}
-            >
-              <SelectValue placeholder="Any" />
-            </SelectTrigger>
-            <SelectContent>
-              {DECADE_OPTIONS.map(({ value, label }) => (
-                <SelectItem key={value} value={value}>
-                  {label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <FilterRow label="Body">
+            {AWARD_BODIES.map(({ value, label }) => (
+              <PillToggle
+                key={value}
+                active={filters.awardBody === value}
+                onClick={() => onFiltersChange({ awardBody: value, page: 1 })}
+              >
+                {label}
+              </PillToggle>
+            ))}
+          </FilterRow>
         </div>
 
         <div className="flex-1">
-          <span className="mb-1.5 block font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#555568]">
+          <FilterRow label="Status">
+            <PillToggle
+              active={!filters.winnerOnly && !filters.nominatedOnly}
+              onClick={() =>
+                onFiltersChange({ winnerOnly: false, nominatedOnly: false, page: 1 })
+              }
+            >
+              Any
+            </PillToggle>
+            <PillToggle
+              active={filters.winnerOnly}
+              onClick={() =>
+                onFiltersChange({ winnerOnly: true, nominatedOnly: false, page: 1 })
+              }
+            >
+              Won
+            </PillToggle>
+            <PillToggle
+              active={filters.nominatedOnly && !filters.winnerOnly}
+              onClick={() =>
+                onFiltersChange({ winnerOnly: false, nominatedOnly: true, page: 1 })
+              }
+            >
+              Nominated
+            </PillToggle>
+          </FilterRow>
+        </div>
+      </div>
+
+      {/* PERSON + GENRE selects */}
+      <div className="flex gap-3">
+        <div className="flex-1">
+          <span className="mb-1 block font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#555568]">
+            Person
+          </span>
+          <input
+            type="text"
+            placeholder="Director, actor…"
+            value={filters.person}
+            onChange={(e) => onFiltersChange({ person: e.target.value, page: 1 })}
+            className={cn(
+              "h-9 w-full rounded-md border border-[#1e1e2a] bg-[#0d0d1a] px-3",
+              "font-[family-name:var(--font-geist-mono)] text-[11px] text-[#F5F5F0]",
+              "placeholder:text-[#444458] outline-none",
+              "focus:border-[#e8453c]/50 focus:ring-1 focus:ring-[#e8453c]/30",
+              "transition-colors duration-150",
+            )}
+          />
+        </div>
+
+        <div className="flex-1">
+          <span className="mb-1 block font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#555568]">
             Genre
           </span>
           <Select
@@ -180,6 +153,95 @@ export function FilterBar({
           </Select>
         </div>
       </div>
+
+      {/* CATEGORY + YEAR selects */}
+      <div className="flex gap-3">
+        <div className="flex-1">
+          <span className="mb-1 block font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#555568]">
+            Category
+          </span>
+          <Select
+            value={filters.category || "_all"}
+            onValueChange={(val) =>
+              onFiltersChange({ category: val === "_all" ? "" : val, page: 1 })
+            }
+          >
+            <SelectTrigger
+              className={cn(
+                "h-9 border-[#1e1e2a] bg-[#0d0d1a]",
+                "font-[family-name:var(--font-geist-mono)] text-[11px] text-[#F5F5F0]",
+                "hover:border-[#2a2a3e] focus:ring-[#e8453c] focus:ring-offset-[#09090f]",
+              )}
+            >
+              <SelectValue placeholder="All" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="_all">All</SelectItem>
+              {categories.map((cat) => (
+                <SelectItem key={cat} value={cat}>
+                  {cat}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="flex-1">
+          <span className="mb-1 block font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#555568]">
+            Year
+          </span>
+          <Select
+            value={filters.awardYear != null ? String(filters.awardYear) : "_any"}
+            onValueChange={(val) =>
+              onFiltersChange({ awardYear: val === "_any" ? null : Number(val), page: 1 })
+            }
+          >
+            <SelectTrigger
+              className={cn(
+                "h-9 border-[#1e1e2a] bg-[#0d0d1a]",
+                "font-[family-name:var(--font-geist-mono)] text-[11px] text-[#F5F5F0]",
+                "hover:border-[#2a2a3e] focus:ring-[#e8453c] focus:ring-offset-[#09090f]",
+              )}
+            >
+              <SelectValue placeholder="Any" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="_any">Any</SelectItem>
+              {awardYears.map((year) => (
+                <SelectItem key={year} value={String(year)}>
+                  {year}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      {/* IMDB rating row */}
+      <FilterRow label="IMDb">
+        {[0, 6, 6.5, 7, 7.5, 8, 8.5, 9].map((rating) => (
+          <PillToggle
+            key={rating}
+            active={filters.imdbRatingMin === rating}
+            onClick={() => onFiltersChange({ imdbRatingMin: rating, page: 1 })}
+          >
+            {rating === 0 ? "Any" : `${rating}+`}
+          </PillToggle>
+        ))}
+      </FilterRow>
+
+      {/* RT score row */}
+      <FilterRow label="RT">
+        {[0, 50, 60, 70, 80, 90, 95].map((score) => (
+          <PillToggle
+            key={score}
+            active={filters.rtScoreMin === score}
+            onClick={() => onFiltersChange({ rtScoreMin: score, page: 1 })}
+          >
+            {score === 0 ? "Any" : `${score}%+`}
+          </PillToggle>
+        ))}
+      </FilterRow>
 
       {/* PRESET tags */}
       <div className="flex flex-wrap gap-2">

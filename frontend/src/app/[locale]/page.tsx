@@ -173,7 +173,7 @@ export default function HomePage() {
       <div className="flex flex-1 flex-col lg:flex-row lg:h-[calc(100vh-4rem)] lg:overflow-hidden">
 
         {/* LEFT: hero + filters + roll ──────────────────────────────── */}
-        <div className="flex flex-1 flex-col gap-6 overflow-y-auto px-5 py-8 sm:px-8 lg:px-12 lg:py-10">
+        <div className="flex flex-1 flex-col gap-3 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:w-0 px-5 py-4 sm:px-8 lg:px-10 lg:py-5">
 
           {/* Channel label */}
           <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.25em] text-[#888899]">
@@ -185,7 +185,7 @@ export default function HomePage() {
             <h1
               className={cn(
                 "font-[family-name:var(--font-display)] font-bold leading-[1.0] tracking-tight",
-                "text-[clamp(3.2rem,5.8vw,5.8rem)] text-[#F5F5F0]",
+                "text-[clamp(2.2rem,3.4vw,3.4rem)] text-[#F5F5F0]",
               )}
             >
               One spin.
@@ -212,7 +212,7 @@ export default function HomePage() {
           {/* ROLL button + pool count — side by side */}
           <div className="flex items-center gap-4">
             {/* Marquee-border ROLL box */}
-            <div className="flex-1 rounded-2xl border-2 border-dashed border-[#e8453c]/30 p-1.5">
+            <div className="w-[185px] shrink-0 rounded-2xl border-2 border-dashed border-[#e8453c]/30 p-1.5">
               <button
                 onClick={() => void handleRoll()}
                 disabled={isRollDisabled}
@@ -261,9 +261,7 @@ export default function HomePage() {
             "p-4 lg:p-6",
           )}
         >
-          {/* Card container with border + rounded corners */}
-          <div className="rounded-2xl border border-[#1e1e2a] bg-[#0c0c18] overflow-hidden">
-            <AnimatePresence mode="wait">
+          <AnimatePresence mode="wait">
               {isRolling ? (
                 <motion.div
                   key="skeleton"
@@ -295,7 +293,6 @@ export default function HomePage() {
                 </motion.div>
               )}
             </AnimatePresence>
-          </div>
         </div>
       </div>
     </div>
@@ -318,7 +315,7 @@ function FilmCard({ film }: { film: RollFilm }) {
   return (
     <div className="flex flex-col">
       {/* Channel pill */}
-      <div className="flex items-center px-4 pb-2 pt-4">
+      <div className="flex items-center px-3 pb-1.5 pt-3">
         <span className="inline-flex items-center rounded-full border border-[#e8453c]/22 bg-[#e8453c]/10 px-3 py-1 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#e8453c]">
           {channelLabel}
         </span>
@@ -347,7 +344,7 @@ function FilmCard({ film }: { film: RollFilm }) {
       </div>
 
       {/* Content */}
-      <div className="flex flex-col gap-4 p-5">
+      <div className="flex flex-col gap-2 p-4">
         {/* Year · Runtime · Genre */}
         <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.2em] text-[#888899]">
           {film.year}

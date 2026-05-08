@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -21,6 +22,11 @@ export function SiteNavigation({
   focusRingClassName = "focus-visible:ring-[#e8453c]",
 }: SiteNavigationProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const pathname = usePathname();
+  const segments = pathname.split("/").filter(Boolean);
+  const currentPath = segments.length <= 1 ? "/" : "/" + segments.slice(1).join("/");
+  const isActive = (href: string) =>
+    href === "/" ? currentPath === "/" : currentPath === href || currentPath.startsWith(href + "/");
 
   useEffect(() => {
     if (!isOpen) return;
@@ -45,12 +51,14 @@ export function SiteNavigation({
             key={item.href}
             href={item.href}
             className={cn(
-              "rounded-full border border-[#222232] px-3.5 py-1.5",
+              "rounded-full border px-3.5 py-1.5",
               "font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest",
-              "text-[#888899] transition-colors duration-150",
-              "hover:border-[#e8453c]/40 hover:text-[#F5F5F0]",
+              "transition-colors duration-150",
               "focus-visible:outline-none focus-visible:ring-2",
               focusRingClassName,
+              isActive(item.href)
+                ? "border-[#e8453c]/70 text-[#e8453c]"
+                : "border-[#222232] text-[#888899] hover:border-[#e8453c]/40 hover:text-[#F5F5F0]",
             )}
           >
             {item.label}
@@ -141,7 +149,9 @@ export function SiteNavigation({
                   href={item.href}
                   className={cn(
                     "font-[family-name:var(--font-geist-mono)] text-2xl font-bold uppercase tracking-widest",
-                    "text-[#555568] transition-colors hover:text-[#F5F5F0]",
+                    isActive(item.href)
+                      ? "text-[#F5F5F0]"
+                      : "text-[#555568] transition-colors hover:text-[#F5F5F0]",
                     "focus-visible:outline-none focus-visible:ring-2",
                     focusRingClassName,
                   )}
