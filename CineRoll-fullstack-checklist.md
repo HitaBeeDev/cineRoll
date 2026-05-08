@@ -472,7 +472,7 @@ Cards appear in the browse grid, the Similar Films section, the Snob Test, and t
 
 ### Film Detail Page
 
-- [ ] **Full-bleed backdrop image** as the page hero — same treatment as the homepage hero (gradient overlay, grain texture); the film title and metadata float over it in the bottom third
+- [x] **Full-bleed poster-color detail hero** — the page hero layers the film's `posterColor` ambient gradient over the backdrop image when available, with gradient overlay and grain texture; the film title and metadata float over it in the bottom third
 - [ ] **Parallax scroll on the backdrop** — as the user scrolls down, the backdrop moves at 40% of the scroll speed (CSS `background-attachment: fixed` or Framer Motion scroll-linked transform) — creates depth and separates the hero from the content below
 - [ ] **Film title on the detail page uses the serif display font at maximum dramatic size** — if the title is long, it wraps gracefully; always left-aligned; the original title (if different) appears beneath it in smaller italic serif
 - [ ] **posterColor theming** — the film's extracted dominant poster color is used as: a faint radial glow behind the poster image, a subtle tint on the awards section heading, the active color on the trailer play button; applied as a CSS custom property `--film-accent` so all themed elements update from one value

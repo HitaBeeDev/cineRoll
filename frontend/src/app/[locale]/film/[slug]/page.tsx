@@ -8,6 +8,16 @@ import { RollAgainButton } from "@/components/roll-again-button";
 import { SiteNavigation } from "@/components/site-navigation";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
+const FALLBACK_ACCENT = "#D4AF37";
+const grainBackgroundImage = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E\")";
+
+function hexToRgba(hex: string, alpha: number): string {
+  const normalized = /^#[0-9A-Fa-f]{6}$/.test(hex) ? hex : FALLBACK_ACCENT;
+  const r = parseInt(normalized.slice(1, 3), 16);
+  const g = parseInt(normalized.slice(3, 5), 16);
+  const b = parseInt(normalized.slice(5, 7), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
 
 function extractYouTubeId(url: string): string | null {
   try {
@@ -81,6 +91,7 @@ export default async function FilmPage({
   if (!film) notFound();
 
   const hasBackdrop = Boolean(film.backdropUrl);
+  const filmAccent = film.posterColor ?? FALLBACK_ACCENT;
   const youtubeId = film.trailerUrl ? extractYouTubeId(film.trailerUrl) : null;
   const oscarAwards = (film.oscarCategories as AwardRecord[]) ?? [];
   const ggAwards = (film.ggCategories as AwardRecord[]) ?? [];
@@ -96,26 +107,75 @@ export default async function FilmPage({
       </header>
 
       <main className="flex-1">
-        {/* Backdrop */}
-        {hasBackdrop && (
-          <div className="relative h-52 sm:h-72 md:h-96 w-full overflow-hidden" aria-hidden>
+        <section className="relative flex min-h-[68vh] overflow-hidden bg-[#09090f]">
+          {hasBackdrop && (
             <Image
               src={film.backdropUrl!}
               alt=""
               fill
               sizes="100vw"
-              className="object-cover object-center brightness-50"
+              className="object-cover object-center brightness-[0.42] saturate-125"
               priority
             />
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-zinc-950/40 to-zinc-950" />
+          )}
+          <div
+            className="absolute inset-0"
+            style={{
+              background: `radial-gradient(ellipse 150% 95% at 50% 0%, ${hexToRgba(filmAccent, 0.68)} 0%, ${hexToRgba(filmAccent, 0.32)} 38%, transparent 72%)`,
+            }}
+          />
+          <div className="absolute inset-0 bg-[linear-gradient(to_top,#09090f_0%,#09090f_18%,rgba(9,9,15,0.7)_48%,rgba(9,9,15,0.18)_100%)]" />
+          <div
+            className="absolute inset-0 opacity-[0.04] mix-blend-screen"
+            style={{ backgroundImage: grainBackgroundImage, backgroundSize: "160px 160px" }}
+            aria-hidden
+          />
+
+          <div className="relative z-10 mx-auto flex w-full max-w-5xl flex-col justify-end px-4 pb-[12vh] pt-28 sm:px-6 lg:px-8">
+            <div className="max-w-4xl">
+              {film.isPickOfDay && (
+                <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-amber-400">
+                  Pick of the Day
+                </p>
+              )}
+              <h1 className="font-[family-name:var(--font-display)] text-[clamp(2.75rem,8vw,6.5rem)] font-bold leading-[0.95] text-[#F5F5F0]">
+                {film.title}
+              </h1>
+              <div className="mt-5 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-[#D8D8D0]/82">
+                <span>{film.year}</span>
+                {film.runtime != null && (
+                  <>
+                    <span className="text-[#D8D8D0]/35" aria-hidden>·</span>
+                    <span className="flex items-center gap-1">
+                      <Clock className="h-3.5 w-3.5" aria-hidden />
+                      {film.runtime} min
+                    </span>
+                  </>
+                )}
+                {film.language && (
+                  <>
+                    <span className="text-[#D8D8D0]/35" aria-hidden>·</span>
+                    <span className="flex items-center gap-1">
+                      <Globe className="h-3.5 w-3.5" aria-hidden />
+                      {film.language}
+                    </span>
+                  </>
+                )}
+                {film.director && (
+                  <>
+                    <span className="text-[#D8D8D0]/35" aria-hidden>·</span>
+                    <span>
+                      Directed by <span className="font-medium text-[#F5F5F0]">{film.director}</span>
+                    </span>
+                  </>
+                )}
+              </div>
+            </div>
           </div>
-        )}
+        </section>
 
         <div
-          className={cn(
-            "max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-20",
-            hasBackdrop ? "-mt-20 sm:-mt-28 relative" : "pt-10"
-          )}
+          className="relative mx-auto -mt-16 max-w-4xl px-4 pb-20 sm:-mt-24 sm:px-6 lg:px-8"
         >
           {/* Poster + core info */}
           <div className="flex flex-col sm:flex-row gap-6 sm:gap-8">
@@ -124,7 +184,7 @@ export default async function FilmPage({
               className={cn(
                 "relative mx-auto sm:mx-0 shrink-0 rounded-2xl overflow-hidden border border-zinc-700",
                 "w-36 sm:w-44 md:w-52 aspect-[2/3]",
-                hasBackdrop && "shadow-2xl shadow-black/70"
+                "shadow-2xl shadow-black/70"
               )}
             >
               {film.posterUrl ? (
@@ -145,46 +205,7 @@ export default async function FilmPage({
             </div>
 
             {/* Info */}
-            <div className="flex flex-col gap-4 min-w-0 flex-1 text-center sm:text-left">
-              {film.isPickOfDay && (
-                <p className="text-xs font-semibold tracking-widest uppercase text-amber-400">
-                  Pick of the Day
-                </p>
-              )}
-
-              <div>
-                <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-zinc-50 leading-tight">
-                  {film.title}
-                </h1>
-                <div className="mt-2 flex flex-wrap justify-center sm:justify-start items-center gap-x-2 gap-y-1 text-sm text-zinc-400">
-                  <span>{film.year}</span>
-                  {film.runtime != null && (
-                    <>
-                      <span className="text-zinc-700" aria-hidden>·</span>
-                      <span className="flex items-center gap-1">
-                        <Clock className="h-3.5 w-3.5" aria-hidden />
-                        {film.runtime} min
-                      </span>
-                    </>
-                  )}
-                  {film.language && (
-                    <>
-                      <span className="text-zinc-700" aria-hidden>·</span>
-                      <span className="flex items-center gap-1">
-                        <Globe className="h-3.5 w-3.5" aria-hidden />
-                        {film.language}
-                      </span>
-                    </>
-                  )}
-                </div>
-                {film.director && (
-                  <p className="mt-1 text-sm text-zinc-400">
-                    Directed by{" "}
-                    <span className="text-zinc-200 font-medium">{film.director}</span>
-                  </p>
-                )}
-              </div>
-
+            <div className="flex min-w-0 flex-1 flex-col justify-end gap-4 text-center sm:text-left">
               {/* Ratings */}
               <div className="flex flex-wrap justify-center sm:justify-start items-center gap-3">
                 {film.imdbRating != null && (
