@@ -1,4 +1,4 @@
-import type { Film, FilterState, PaginatedFilms } from "@cineroll/types";
+import type { AwardRecord, Film, FilterState, PaginatedFilms } from "@cineroll/types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 
@@ -21,13 +21,20 @@ export type RollFilm = Pick<
   | "backdropUrl"
   | "imdbRating"
   | "rtScore"
+  | "oscarCategories"
   | "oscarNominations"
   | "oscarWins"
+  | "ggCategories"
   | "ggNominations"
   | "ggWins"
+  | "cannesCategories"
   | "cannesNominations"
   | "cannesWins"
->;
+> & {
+  oscarCategories: AwardRecord[];
+  ggCategories: AwardRecord[];
+  cannesCategories: AwardRecord[];
+};
 
 export type RandomResult = { film: RollFilm; total: number };
 

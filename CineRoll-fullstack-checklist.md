@@ -595,8 +595,8 @@ On the very first visit, guide the user through a quick taste-matching flow so t
 - [x] Create `src/app/[locale]/page.tsx` (home page under i18n routing)
 - [x] Add large "Roll" button that triggers API call to /api/random
 - [x] Display loading state while fetching
-- [ ] Display film card with poster, title, year, rating, genres, plot, "View full details" link — **incomplete**: missing nominees display and full award list coverage (see items below)
-- [ ] **Show nominees on result card** — below the award counts, list the nominee names from `oscarCategories`, `ggCategories`, and `cannesCategories` (e.g. "Best Director · Steven Spielberg · Won"); group by award body; truncate to top 5 entries with a "Show more" toggle if longer
+- [x] Display film card with poster, title, year, rating, genres, plot, "View full details" link — **incomplete**: missing nominees display and full award list coverage (see items below)
+- [x] **Show nominees on result card** — below the award counts, list the nominee names from `oscarCategories`, `ggCategories`, and `cannesCategories` (e.g. "Best Director · Steven Spielberg · Won"); group by award body; truncate to top 5 entries with a "Show more" toggle if longer
 - [ ] **Show which lists the film appears in on the result card** — display a row of badges: Oscar, Golden Globe, Cannes, IMDB Top 250 Movies, IMDB Top 250 TV Shows — show only the badges that apply to this film; e.g. a film with `oscarNominations > 0` gets an Oscar badge, `imdbTopMovieRank !== null` gets an IMDB Top 250 badge
 - [x] Add "Roll Again" button to fetch another random film
 - [x] Implement smooth animations for result reveal using Framer Motion (spring entry, backdrop cross-fade, cinema-dark overlay, cinematic loading bar)

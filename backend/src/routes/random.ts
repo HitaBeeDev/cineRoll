@@ -24,10 +24,14 @@ type RandomFilmRow = {
   posterColor: string | null;
   backdropUrl: string | null;
   imdbRating: number | null;
+  rtScore: number | null;
+  oscarCategories: Prisma.JsonValue;
   oscarNominations: number;
   oscarWins: number;
+  ggCategories: Prisma.JsonValue;
   ggNominations: number;
   ggWins: number;
+  cannesCategories: Prisma.JsonValue;
   cannesNominations: number;
   cannesWins: number;
 };
@@ -48,10 +52,14 @@ const randomSelect = Prisma.sql`
   "Film"."posterColor",
   "Film"."backdropUrl",
   "Film"."imdbRating",
+  "Film"."rtScore",
+  "Film"."oscarCategories",
   "Film"."oscarNominations",
   "Film"."oscarWins",
+  "Film"."ggCategories",
   "Film"."ggNominations",
   "Film"."ggWins",
+  "Film"."cannesCategories",
   "Film"."cannesNominations",
   "Film"."cannesWins"
 `;
