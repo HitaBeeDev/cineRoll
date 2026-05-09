@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { Bookmark, Share2, Dices } from "lucide-react";
+import { Bookmark, Check, Share2, Dices } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/toast";
 import { FilterBar } from "@/components/filter-bar";
@@ -379,6 +379,21 @@ function FirstVisitOnboarding({
   onRetryTasteCards: () => void;
   onContinue: () => void;
 }) {
+  const [selectedSeenIds, setSelectedSeenIds] = useState<Set<string>>(new Set());
+  const selectedSeenCount = selectedSeenIds.size;
+
+  function toggleSeen(filmId: string) {
+    setSelectedSeenIds((current) => {
+      const next = new Set(current);
+      if (next.has(filmId)) {
+        next.delete(filmId);
+      } else {
+        next.add(filmId);
+      }
+      return next;
+    });
+  }
+
   return (
     <div className="relative flex h-screen flex-col overflow-hidden bg-[#09090f] text-[#F5F5F0]">
       {/* Scanlines */}
@@ -403,99 +418,105 @@ function FirstVisitOnboarding({
       </header>
 
       {/* Main */}
-      <main className="relative z-20 flex min-h-0 flex-1 flex-col items-center justify-center px-5 pb-6 sm:px-8">
+      <main className="relative z-20 flex min-h-0 flex-1 flex-col items-center px-5 pb-5 sm:px-8">
         {/* Label */}
-        <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.35em] text-[#D4AF37]">
+        <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.35em] text-[#D4AF37] sm:mt-4">
           {"// Calibrate your reel"}
         </p>
 
         {/* Headline */}
-        <h1 className="mt-3 text-center font-[family-name:var(--font-display)] text-[clamp(2.6rem,5.5vw,5rem)] font-bold leading-[0.92] tracking-tight">
-          Tell us what
-          <br />
-          you&apos;ve <span className="text-[#e8453c]">watched.</span>
+        <h1 className="mt-3 text-center font-[family-name:var(--font-display)] text-[clamp(2.25rem,5vw,4.7rem)] font-bold leading-[0.95] tracking-tight">
+          Which of these
+          <br className="hidden sm:block" /> have you seen?
         </h1>
 
         <p className="mt-3 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.22em] text-[#555568]">
-          Mark each film as Seen · Skipped · Curious
+          Tap any posters you&apos;ve watched
         </p>
 
-        {/* Film strip */}
-        <div className="mt-7 w-full max-w-3xl">
-          {/* Perforations — top */}
-          <div className="flex overflow-hidden items-center gap-[5px] border-t border-x border-[#1e1e2e] bg-[#060610] px-3 py-[7px]">
-            {Array.from({ length: 50 }).map((_, i) => (
-              <div key={i} className="h-[8px] w-[5px] shrink-0 rounded-[2px] bg-[#111122]" />
-            ))}
-          </div>
-
-          {/* Poster row */}
-          <div className="border-x border-[#1e1e2e] bg-[#080810] px-3 py-3">
-            {tasteCardsStatus === "error" ? (
-              <div className="flex h-[clamp(100px,15vh,150px)] items-center justify-center border border-dashed border-[#2a2a3e]">
-                <div className="text-center">
-                  <p className="text-sm text-[#F5F5F0]">Could not load taste cards.</p>
-                  <button
-                    type="button"
-                    onClick={onRetryTasteCards}
-                    className="mt-2 font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-widest text-[#e8453c] transition hover:text-[#F5F5F0]"
-                  >
-                    Try again
-                  </button>
-                </div>
+        {/* Poster grid */}
+        <div className="mt-5 grid min-h-0 w-full max-w-5xl flex-1 content-center grid-cols-2 gap-2 overflow-y-auto pb-1 sm:mt-6 sm:grid-cols-4 sm:gap-3">
+          {tasteCardsStatus === "error" ? (
+            <div className="col-span-2 flex min-h-[320px] items-center justify-center border border-dashed border-[#2a2a3e] bg-[#080810] sm:col-span-4">
+              <div className="text-center">
+                <p className="text-sm text-[#F5F5F0]">Could not load taste cards.</p>
+                <button
+                  type="button"
+                  onClick={onRetryTasteCards}
+                  className="mt-2 font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-widest text-[#e8453c] transition hover:text-[#F5F5F0]"
+                >
+                  Try again
+                </button>
               </div>
-            ) : (
-              <div className="grid grid-cols-8 gap-1.5">
-                {tasteCardsStatus === "ready" && tasteCards.length > 0
-                  ? tasteCards.slice(0, 8).map((film) => (
-                    <div
-                      key={film.id}
-                      className="relative overflow-hidden bg-[#09090f]"
-                      style={{ aspectRatio: "2/3" }}
-                    >
-                      {film.posterUrl ? (
-                        <Image
-                          src={film.posterUrl}
-                          alt={`${film.title} poster`}
-                          fill
-                          sizes="100px"
-                          className="object-cover"
-                        />
-                      ) : (
-                        <div className="absolute inset-0 flex items-center justify-center p-1 text-center">
-                          <span className="font-[family-name:var(--font-display)] text-[9px] font-semibold leading-tight text-[#F5F5F0]">
-                            {film.title}
-                          </span>
-                        </div>
+            </div>
+          ) : tasteCardsStatus === "ready" && tasteCards.length > 0 ? (
+            tasteCards.slice(0, 8).map((film) => {
+              const selected = selectedSeenIds.has(film.id);
+              return (
+                <button
+                  key={film.id}
+                  type="button"
+                  onClick={() => toggleSeen(film.id)}
+                  aria-pressed={selected}
+                  aria-label={`${selected ? "Unmark" : "Mark"} ${film.title} as seen`}
+                  className={cn(
+                    "group relative overflow-hidden border bg-[#09090f] text-left transition-all",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090f]",
+                    selected
+                      ? "border-[#e8453c] shadow-[0_0_34px_rgba(232,69,60,0.25)]"
+                      : "border-[#1e1e2e] hover:border-[#444458]",
+                  )}
+                  style={{ aspectRatio: "2/3" }}
+                >
+                  {film.posterUrl ? (
+                    <Image
+                      src={film.posterUrl}
+                      alt={`${film.title} poster`}
+                      fill
+                      sizes="(max-width: 640px) 45vw, 220px"
+                      className={cn(
+                        "object-cover transition duration-200",
+                        selected ? "scale-[1.02] opacity-70" : "group-hover:scale-[1.02]",
                       )}
-                      <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 to-transparent px-1 pb-1.5 pt-5">
-                        <p className="line-clamp-1 font-[family-name:var(--font-display)] text-[8px] font-semibold leading-tight text-white">
-                          {film.title}
-                        </p>
-                      </div>
-                    </div>
-                  ))
-                  : Array.from({ length: 8 }).map((_, i) => (
-                    <div
-                      key={i}
-                      className="animate-pulse bg-[#0d0d18]"
-                      style={{ aspectRatio: "2/3" }}
                     />
-                  ))}
-              </div>
-            )}
-          </div>
-
-          {/* Perforations — bottom */}
-          <div className="flex overflow-hidden items-center gap-[5px] border-b border-x border-[#1e1e2e] bg-[#060610] px-3 py-[7px]">
-            {Array.from({ length: 50 }).map((_, i) => (
-              <div key={i} className="h-[8px] w-[5px] shrink-0 rounded-[2px] bg-[#111122]" />
-            ))}
-          </div>
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center p-4 text-center">
+                      <span className="font-[family-name:var(--font-display)] text-lg font-semibold leading-tight text-[#F5F5F0]">
+                        {film.title}
+                      </span>
+                    </div>
+                  )}
+                  <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 to-transparent px-3 pb-3 pt-12">
+                    <p className="line-clamp-2 font-[family-name:var(--font-display)] text-sm font-semibold leading-tight text-white">
+                      {film.title}
+                    </p>
+                  </div>
+                  <span
+                    className={cn(
+                      "absolute right-2 top-2 flex h-8 w-8 items-center justify-center border transition",
+                      selected
+                        ? "border-[#e8453c] bg-[#e8453c] text-white"
+                        : "border-white/25 bg-black/45 text-transparent group-hover:text-white/80",
+                    )}
+                  >
+                    <Check className="h-4 w-4" aria-hidden />
+                  </span>
+                </button>
+              );
+            })
+          ) : (
+            Array.from({ length: 8 }).map((_, i) => (
+              <div
+                key={i}
+                className="animate-pulse border border-[#1e1e2e] bg-[#0d0d18]"
+                style={{ aspectRatio: "2/3" }}
+              />
+            ))
+          )}
         </div>
 
         {/* CTAs */}
-        <div className="mt-7 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
+        <div className="mt-4 flex shrink-0 flex-col items-stretch gap-3 sm:flex-row sm:items-center">
           <button
             type="button"
             onClick={onContinue}
@@ -506,7 +527,7 @@ function FirstVisitOnboarding({
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090f]",
             )}
           >
-            Begin Setup
+            Done{selectedSeenCount > 0 ? ` (${selectedSeenCount})` : ""}
           </button>
           <button
             type="button"
