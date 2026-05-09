@@ -25,12 +25,21 @@ import { cn } from "@/lib/utils";
 
 const ONBOARDED_STORAGE_KEY = "cineroll_onboarded";
 const PENDING_WATCHED_STORAGE_KEY = "cineroll_pending_watched_films";
+const TASTE_SEED_STORAGE_KEY = "cineroll_taste_seed";
 
 type PendingWatchedFilm = {
   filmId: string;
   watchedAt: string;
   source: "onboarding";
   synced: false;
+};
+
+type TasteSeed = {
+  source: "onboarding";
+  filmIds: string[];
+  genres: string[];
+  primaryGenre: string | null;
+  createdAt: string;
 };
 
 function savePendingWatchedFilms(filmIds: string[]) {
@@ -66,6 +75,43 @@ function savePendingWatchedFilms(filmIds: string[]) {
       PENDING_WATCHED_STORAGE_KEY,
       JSON.stringify([...byFilmId.values()]),
     );
+  } catch {
+    // If storage is unavailable, onboarding should still be completable.
+  }
+}
+
+function createTasteSeed(films: TasteCardFilm[], selectedFilmIds: string[]): TasteSeed | null {
+  if (selectedFilmIds.length === 0) return null;
+
+  const selectedIds = new Set(selectedFilmIds);
+  const selectedFilms = films.filter((film) => selectedIds.has(film.id));
+  if (selectedFilms.length === 0) return null;
+
+  const genreCounts = new Map<string, number>();
+  for (const film of selectedFilms) {
+    for (const genre of film.genres) {
+      genreCounts.set(genre, (genreCounts.get(genre) ?? 0) + 1);
+    }
+  }
+
+  const genres = [...genreCounts.entries()]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .map(([genre]) => genre);
+
+  return {
+    source: "onboarding",
+    filmIds: selectedFilmIds,
+    genres,
+    primaryGenre: genres[0] ?? null,
+    createdAt: new Date().toISOString(),
+  };
+}
+
+function saveTasteSeed(seed: TasteSeed | null) {
+  if (!seed) return;
+
+  try {
+    window.localStorage.setItem(TASTE_SEED_STORAGE_KEY, JSON.stringify(seed));
   } catch {
     // If storage is unavailable, onboarding should still be completable.
   }
@@ -256,7 +302,10 @@ export default function HomePage() {
             })
             .catch(() => setTasteCardsStatus("error"));
         }}
-        onContinue={() => {
+        onContinue={(seed) => {
+          if (seed?.primaryGenre) {
+            setFilter({ genre: seed.primaryGenre, page: 1 });
+          }
           try {
             window.localStorage.setItem(ONBOARDED_STORAGE_KEY, "true");
           } catch {}
@@ -423,7 +472,7 @@ function FirstVisitOnboarding({
   tasteCards: TasteCardFilm[];
   tasteCardsStatus: "idle" | "loading" | "ready" | "error";
   onRetryTasteCards: () => void;
-  onContinue: () => void;
+  onContinue: (seed: TasteSeed | null) => void;
 }) {
   const [selectedSeenIds, setSelectedSeenIds] = useState<Set<string>>(new Set());
   const selectedSeenCount = selectedSeenIds.size;
@@ -441,8 +490,11 @@ function FirstVisitOnboarding({
   }
 
   function completeOnboarding() {
-    savePendingWatchedFilms([...selectedSeenIds]);
-    onContinue();
+    const selectedFilmIds = [...selectedSeenIds];
+    const seed = createTasteSeed(tasteCards, selectedFilmIds);
+    savePendingWatchedFilms(selectedFilmIds);
+    saveTasteSeed(seed);
+    onContinue(seed);
   }
 
   return (
