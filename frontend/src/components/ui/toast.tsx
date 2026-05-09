@@ -6,7 +6,7 @@ import { X, CheckCircle, AlertCircle, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type ToastVariant = "default" | "success" | "error";
-const DEFAULT_TOAST_DURATION = 30000;
+const DEFAULT_TOAST_DURATION = 15000;
 
 interface ToastData {
   id: string;
@@ -76,8 +76,10 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
             )}
             >
             <span
-              className="absolute inset-x-0 bottom-0 h-1 origin-left bg-[#e8453c] motion-safe:animate-[toast-progress_var(--toast-duration)_linear_forwards]"
-              style={{ "--toast-duration": `${t.duration ?? DEFAULT_TOAST_DURATION}ms` } as React.CSSProperties}
+              className="absolute inset-x-0 bottom-0 h-1 origin-left bg-[#e8453c]"
+              style={{
+                animation: `toast-progress ${t.duration ?? DEFAULT_TOAST_DURATION}ms linear forwards`,
+              }}
               aria-hidden
             />
             <span className="mt-0.5 shrink-0">
