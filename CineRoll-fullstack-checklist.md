@@ -646,7 +646,7 @@ A slide-out drawer tracking every film rolled this session. Zero backend — use
 - [x] Add a "History" button (clock/history icon) in the top-right corner of the roll section; clicking it slides open a drawer
 - [x] Drawer shows the last 6 rolled films as small cards (poster thumbnail, title, year) in reverse order (most recent first)
 - [x] Clicking a card in the drawer navigates to that film's detail page
-- [ ] History clears automatically when the browser tab is closed (sessionStorage behaviour)
+- [x] History clears automatically when the browser tab is closed (sessionStorage behaviour)
 - [x] If history is empty, show a polished empty state in the drawer
 
 ### Time Capsule Roll
