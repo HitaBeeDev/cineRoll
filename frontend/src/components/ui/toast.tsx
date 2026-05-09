@@ -75,7 +75,11 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
 
   const toast = React.useCallback((options: Omit<ToastData, "id">) => {
     const id = Math.random().toString(36).slice(2);
-    setToasts((prev) => [...prev, { ...options, id }]);
+    const duration = options.duration ?? DEFAULT_TOAST_DURATION;
+    setToasts((prev) => [...prev, { ...options, duration, id }]);
+    window.setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, duration);
   }, []);
 
   const dismiss = React.useCallback((id: string) => {
@@ -96,7 +100,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
               duration={duration}
               className={cn(
                 "group pointer-events-auto relative flex w-full items-start gap-3 overflow-hidden",
-                "rounded-lg border bg-[#09090f]/95 px-4 pb-5 pt-4 shadow-[0_24px_80px_rgba(0,0,0,0.55)] backdrop-blur-xl",
+                "border border-[#1a1a28] bg-[#060610] px-5 pb-7 pt-7 shadow-[0_24px_80px_rgba(0,0,0,0.62)]",
                 "transition-all duration-300",
                 "data-[state=open]:opacity-100 data-[state=open]:translate-x-0",
                 "data-[state=closed]:opacity-0 data-[state=closed]:translate-x-3",
@@ -107,6 +111,28 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
                 borderAccents[t.variant ?? "default"]
               )}
             >
+            <span
+              className="pointer-events-none absolute inset-x-3 top-2 flex h-[10px] items-center gap-[5px] overflow-hidden"
+              aria-hidden
+            >
+              {Array.from({ length: 28 }).map((_, index) => (
+                <span
+                  key={index}
+                  className="h-[10px] w-[7px] shrink-0 rounded-[2px] bg-[#111120]"
+                />
+              ))}
+            </span>
+            <span
+              className="pointer-events-none absolute inset-x-3 bottom-2 flex h-[10px] items-center gap-[5px] overflow-hidden"
+              aria-hidden
+            >
+              {Array.from({ length: 28 }).map((_, index) => (
+                <span
+                  key={index}
+                  className="h-[10px] w-[7px] shrink-0 rounded-[2px] bg-[#111120]"
+                />
+              ))}
+            </span>
             <ToastProgress duration={duration} />
             <span className="mt-0.5 shrink-0">
               {icons[t.variant ?? "default"]}
