@@ -555,7 +555,7 @@ function RollHistoryDrawer({
   onClose: () => void;
 }) {
   const [history, setHistory] = useState<RollFilm[]>([]);
-  const visibleHistory = history.slice(0, 6);
+  const visibleHistory = history.slice(0, MAX_ROLL_HISTORY_ITEMS);
 
   useEffect(() => {
     if (!open) return;
@@ -617,7 +617,7 @@ function RollHistoryDrawer({
                 <div className="mt-5 flex items-center gap-2">
                   <span className="inline-flex items-center gap-2 rounded-full border border-[#e8453c]/30 bg-[#e8453c]/10 px-3 py-1 font-[family-name:var(--font-geist-mono)] text-[9px] font-bold uppercase tracking-[0.18em] text-[#F5F5F0]">
                     <Film className="h-3.5 w-3.5 text-[#e8453c]" aria-hidden />
-                    {visibleHistory.length}/6 shown
+                    {visibleHistory.length}/10 shown
                   </span>
                   <span className="hidden rounded-full border border-[#2a2a3e] bg-[#09090f]/70 px-3 py-1 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.18em] text-[#888899] sm:inline-flex">
                     This tab only
