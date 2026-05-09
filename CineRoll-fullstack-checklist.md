@@ -626,10 +626,10 @@ Pre-set filter combinations displayed as pill buttons above the main filter pane
 
 ### Shareable Roll Result
 
-- [ ] After a roll, show a **"Share this film"** button (share icon) below the film card
-- [ ] Clicking it copies a link to clipboard: `/film/:slug?from=roll`; show "Link copied!" toast
-- [ ] Also allow sharing the current filtered browse view: "Share these filters" button on browse page copies the full URL with query params
-- [ ] Add Open Graph meta tags to film detail pages so shared links preview nicely on social media (poster image, title, award summary)
+- [x] After a roll, show a **"Share this film"** button (share icon) below the film card
+- [x] Clicking it copies a link to clipboard: `/film/:slug?from=roll`; show "Link copied!" toast
+- [x] Also allow sharing the current filtered browse view: "Share these filters" button on browse page copies the full URL with query params
+- [x] Add Open Graph meta tags to film detail pages so shared links preview nicely on social media (poster image, title, award summary)
 
 ### Keyboard Shortcut — Spacebar to Roll
 

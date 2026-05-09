@@ -3,13 +3,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { motion, useReducedMotion } from "framer-motion";
-import { ArrowLeft, ArrowRight, Clapperboard, Dices, Search } from "lucide-react";
+import { ArrowLeft, ArrowRight, Clapperboard, Dices, Search, Share2 } from "lucide-react";
 import type { FilterState, PaginatedFilms } from "@cineroll/types";
 import { Button } from "@/components/ui/button";
 import { FilmCard, FilmCardSkeleton } from "@/components/film-card";
 import { FilterBar } from "@/components/filter-bar";
 import { SiteNavigation } from "@/components/site-navigation";
 import { Input } from "@/components/ui/input";
+import { useToast } from "@/components/ui/toast";
 import { DEFAULT_FILTERS, useFilters } from "@/hooks/useFilters";
 import { fetchAwardYears, fetchCategories, fetchFilms, fetchGenres, fetchRandom, filtersToParams } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -20,6 +21,7 @@ type LoadStatus = "loading" | "success" | "error";
 
 export function BrowsePageClient() {
   const shouldReduceMotion = useReducedMotion();
+  const { toast } = useToast();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -103,6 +105,27 @@ export function BrowsePageClient() {
     }
   }
 
+  async function shareFilters() {
+    const query = serializeFilters(filters);
+    const path = query ? `${pathname}?${query}` : pathname;
+    const url = `${window.location.origin}${path}`;
+
+    try {
+      await navigator.clipboard.writeText(url);
+      toast({
+        variant: "success",
+        title: "Link copied!",
+        description: "Current filters are ready to share.",
+      });
+    } catch {
+      toast({
+        variant: "error",
+        title: "Could not copy link",
+        description: "Copying is not available in this browser.",
+      });
+    }
+  }
+
   const total = result?.total ?? 0;
   const page = result?.page ?? filters.page;
   const totalPages = Math.max(result?.totalPages ?? 1, 1);
@@ -160,6 +183,14 @@ export function BrowsePageClient() {
               </div>
 
               <div className="flex items-center gap-3">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => void shareFilters()}
+                >
+                  <Share2 className="h-4 w-4" aria-hidden />
+                  Share these filters
+                </Button>
                 {hasActiveFilters && status === "success" && (
                   <Button
                     variant="primary"
@@ -301,6 +332,8 @@ function filtersFromSearchParams(params: URLSearchParams): FilterState {
   const decadeMin = numberParam(params.get("decadeMin"));
   const decadeMax = numberParam(params.get("decadeMax"));
   const imdbRatingMin = numberParam(params.get("imdbRatingMin"));
+  const runtimeMax = numberParam(params.get("runtimeMax"));
+  const nominationCount = numberParam(params.get("nominationCount"));
   const rtScoreMin = numberParam(params.get("rtScoreMin"));
   const page = numberParam(params.get("page"));
 
@@ -309,6 +342,7 @@ function filtersFromSearchParams(params: URLSearchParams): FilterState {
     search: params.get("search") ?? "",
     person: params.get("person") ?? "",
     director: params.get("director") ?? "",
+    femaleDirectorOnly: params.get("femaleDirectorOnly") === "true",
     awardBody:
       awardBody === "oscar" ||
       awardBody === "goldenglobe" ||
@@ -322,10 +356,17 @@ function filtersFromSearchParams(params: URLSearchParams): FilterState {
     awardYear,
     genre: params.get("genre") ?? "",
     contentType: params.get("contentType") ?? "",
+    runtimeMax,
     decadeMin: decadeMin ?? DEFAULT_FILTERS.decadeMin,
     decadeMax: decadeMax ?? DEFAULT_FILTERS.decadeMax,
+    nominationCount,
     imdbRatingMin: imdbRatingMin ?? DEFAULT_FILTERS.imdbRatingMin,
+    imdbRatingMax: numberParam(params.get("imdbRatingMax")),
     rtScoreMin: rtScoreMin ?? DEFAULT_FILTERS.rtScoreMin,
+    certificate: params.get("certificate") ?? "",
+    imdbTopMoviesOnly: params.get("imdbTopMoviesOnly") === "true",
+    imdbTopTvOnly: params.get("imdbTopTvOnly") === "true",
+    tvType: params.get("tvType") ?? "",
     page: page && page > 0 ? page : DEFAULT_FILTERS.page,
   };
 }

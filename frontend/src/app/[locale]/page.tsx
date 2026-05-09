@@ -710,6 +710,7 @@ function FirstVisitOnboarding({
 
 function FilmCard({ film }: { film: RollFilm }) {
   const [showAllAwards, setShowAllAwards] = useState(false);
+  const { toast } = useToast();
   const channelLabel = `REEL // ${film.title.toUpperCase().slice(0, 11)}`;
   const genre = film.genres[0] ?? "";
   const runtime = formatRuntime(film.runtime);
@@ -723,6 +724,26 @@ function FilmCard({ film }: { film: RollFilm }) {
     showAllAwards ? Number.POSITIVE_INFINITY : 5,
   );
   const listBadges = getListBadges(film);
+
+  async function shareFilm() {
+    const path = `/film/${film.slug}?from=roll`;
+    const url = `${window.location.origin}${path}`;
+
+    try {
+      await navigator.clipboard.writeText(url);
+      toast({
+        variant: "success",
+        title: "Link copied!",
+        description: path,
+      });
+    } catch {
+      toast({
+        variant: "error",
+        title: "Could not copy link",
+        description: "Copying is not available in this browser.",
+      });
+    }
+  }
 
   return (
     <div className="flex flex-col">
@@ -916,7 +937,7 @@ function FilmCard({ film }: { film: RollFilm }) {
               Pass
             </span>
           </ActionBtn>
-          <ActionBtn aria-label="Share">
+          <ActionBtn aria-label="Share this film" title="Share this film" onClick={() => void shareFilm()}>
             <Share2 className="h-4 w-4" aria-hidden />
           </ActionBtn>
         </div>

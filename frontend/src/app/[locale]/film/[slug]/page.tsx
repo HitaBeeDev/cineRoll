@@ -35,6 +35,20 @@ async function fetchFilm(slug: string): Promise<Film | null> {
   return data;
 }
 
+function getAwardSummary(film: Film) {
+  const wins = film.oscarWins + film.ggWins + film.cannesWins;
+  const nominations = film.oscarNominations + film.ggNominations + film.cannesNominations;
+  const parts = [
+    film.oscarNominations > 0 ? `${film.oscarNominations} Oscar` : null,
+    film.ggNominations > 0 ? `${film.ggNominations} Golden Globe` : null,
+    film.cannesNominations > 0 ? `${film.cannesNominations} Cannes` : null,
+  ].filter(Boolean);
+
+  if (wins > 0) return `${wins} wins across ${nominations} major nominations.`;
+  if (parts.length > 0) return `${parts.join(", ")} nominations.`;
+  return "Explore its CineRoll film profile.";
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -46,15 +60,16 @@ export async function generateMetadata({
 
   const title = `${film.title} (${film.year})`;
 
+  const awardSummary = getAwardSummary(film);
   const rawDescription = film.plot
-    ?? `${film.title}${film.director ? `, directed by ${film.director}` : ""}.`;
+    ? `${film.plot} ${awardSummary}`
+    : `${film.title}${film.director ? `, directed by ${film.director}` : ""}. ${awardSummary}`;
   const description =
     rawDescription.length > 155
       ? `${rawDescription.slice(0, 152)}…`
       : rawDescription;
 
-  // Prefer backdrop for large-image social cards (landscape); fall back to poster
-  const socialImage = film.backdropUrl ?? film.posterUrl;
+  const socialImage = film.posterUrl ?? film.backdropUrl;
 
   return {
     title,
