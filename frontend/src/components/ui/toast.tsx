@@ -40,6 +40,36 @@ const borderAccents: Record<ToastVariant, string> = {
   error: "border-[#e8453c]/55",
 };
 
+function ToastProgress({ duration }: { duration: number }) {
+  const [remaining, setRemaining] = React.useState(100);
+
+  React.useEffect(() => {
+    const startedAt = performance.now();
+    let frame = 0;
+
+    function tick(now: number) {
+      const elapsed = now - startedAt;
+      const nextRemaining = Math.max(0, 100 - (elapsed / duration) * 100);
+      setRemaining(nextRemaining);
+      if (nextRemaining > 0) {
+        frame = window.requestAnimationFrame(tick);
+      }
+    }
+
+    frame = window.requestAnimationFrame(tick);
+    return () => window.cancelAnimationFrame(frame);
+  }, [duration]);
+
+  return (
+    <span className="absolute inset-x-0 bottom-0 h-1 bg-[#241018]" aria-hidden>
+      <span
+        className="block h-full bg-[#e8453c]"
+        style={{ width: `${remaining}%` }}
+      />
+    </span>
+  );
+}
+
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = React.useState<ToastData[]>([]);
 
@@ -56,32 +86,28 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     <ToastContext.Provider value={{ toast }}>
       <ToastPrimitive.Provider swipeDirection="right">
         {children}
-        {toasts.map((t) => (
-          <ToastPrimitive.Root
-            key={t.id}
-            open
-            onOpenChange={(open) => !open && dismiss(t.id)}
-            duration={t.duration ?? DEFAULT_TOAST_DURATION}
-            className={cn(
-              "group pointer-events-auto relative flex w-full items-start gap-3 overflow-hidden",
-              "rounded-lg border bg-[#09090f]/95 px-4 pb-5 pt-4 shadow-[0_24px_80px_rgba(0,0,0,0.55)] backdrop-blur-xl",
-              "transition-all duration-300",
-              "data-[state=open]:opacity-100 data-[state=open]:translate-x-0",
-              "data-[state=closed]:opacity-0 data-[state=closed]:translate-x-3",
-              "data-[state=open]:ease-out data-[state=closed]:ease-in",
-              "data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)]",
-              "data-[swipe=cancel]:translate-x-0 data-[swipe=cancel]:transition-transform",
-              "data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=end]:opacity-0",
-              borderAccents[t.variant ?? "default"]
-            )}
+        {toasts.map((t) => {
+          const duration = t.duration ?? DEFAULT_TOAST_DURATION;
+          return (
+            <ToastPrimitive.Root
+              key={t.id}
+              open
+              onOpenChange={(open) => !open && dismiss(t.id)}
+              duration={duration}
+              className={cn(
+                "group pointer-events-auto relative flex w-full items-start gap-3 overflow-hidden",
+                "rounded-lg border bg-[#09090f]/95 px-4 pb-5 pt-4 shadow-[0_24px_80px_rgba(0,0,0,0.55)] backdrop-blur-xl",
+                "transition-all duration-300",
+                "data-[state=open]:opacity-100 data-[state=open]:translate-x-0",
+                "data-[state=closed]:opacity-0 data-[state=closed]:translate-x-3",
+                "data-[state=open]:ease-out data-[state=closed]:ease-in",
+                "data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)]",
+                "data-[swipe=cancel]:translate-x-0 data-[swipe=cancel]:transition-transform",
+                "data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=end]:opacity-0",
+                borderAccents[t.variant ?? "default"]
+              )}
             >
-            <span
-              className="absolute inset-x-0 bottom-0 h-1 origin-left bg-[#e8453c]"
-              style={{
-                animation: `toast-progress ${t.duration ?? DEFAULT_TOAST_DURATION}ms linear forwards`,
-              }}
-              aria-hidden
-            />
+            <ToastProgress duration={duration} />
             <span className="mt-0.5 shrink-0">
               {icons[t.variant ?? "default"]}
             </span>
@@ -109,7 +135,8 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
               <span className="sr-only">Close</span>
             </ToastPrimitive.Close>
           </ToastPrimitive.Root>
-        ))}
+          );
+        })}
         <ToastPrimitive.Viewport
           className={cn(
             "fixed right-6 top-24 z-[100]",
