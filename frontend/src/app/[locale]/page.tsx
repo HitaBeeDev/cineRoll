@@ -27,6 +27,8 @@ import { cn } from "@/lib/utils";
 const ONBOARDED_STORAGE_KEY = "cineroll_onboarded";
 const PENDING_WATCHED_STORAGE_KEY = "cineroll_pending_watched_films";
 const TASTE_SEED_STORAGE_KEY = "cineroll_taste_seed";
+const ROLL_HISTORY_STORAGE_KEY = "roll_history";
+const MAX_ROLL_HISTORY_ITEMS = 10;
 
 type PendingWatchedFilm = {
   filmId: string;
@@ -121,6 +123,19 @@ function saveTasteSeed(seed: TasteSeed | null) {
     window.localStorage.setItem(TASTE_SEED_STORAGE_KEY, JSON.stringify(seed));
   } catch {
     // If storage is unavailable, onboarding should still be completable.
+  }
+}
+
+function pushRollHistory(film: RollFilm) {
+  try {
+    const existing = JSON.parse(
+      window.sessionStorage.getItem(ROLL_HISTORY_STORAGE_KEY) ?? "[]",
+    ) as RollFilm[];
+    const deduped = existing.filter((item) => item?.id !== film.id);
+    const next = [film, ...deduped].slice(0, MAX_ROLL_HISTORY_ITEMS);
+    window.sessionStorage.setItem(ROLL_HISTORY_STORAGE_KEY, JSON.stringify(next));
+  } catch {
+    // Session history is non-critical; rolling should keep working if storage is blocked.
   }
 }
 
@@ -249,6 +264,7 @@ export default function HomePage() {
       const result = await fetchRandom(filters);
       setFilm(result.film);
       setFilteredCount(result.total);
+      pushRollHistory(result.film);
       // Scroll to film card on mobile
       setTimeout(
         () =>
