@@ -25,6 +25,8 @@ type RandomFilmRow = {
   backdropUrl: string | null;
   imdbRating: number | null;
   rtScore: number | null;
+  imdbTopMovieRank: number | null;
+  imdbTopTvRank: number | null;
   oscarCategories: Prisma.JsonValue;
   oscarNominations: number;
   oscarWins: number;
@@ -53,6 +55,8 @@ const randomSelect = Prisma.sql`
   "Film"."backdropUrl",
   "Film"."imdbRating",
   "Film"."rtScore",
+  "Film"."imdbTopMovieRank",
+  "Film"."imdbTopTvRank",
   "Film"."oscarCategories",
   "Film"."oscarNominations",
   "Film"."oscarWins",

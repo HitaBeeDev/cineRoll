@@ -21,6 +21,8 @@ export type RollFilm = Pick<
   | "backdropUrl"
   | "imdbRating"
   | "rtScore"
+  | "imdbTopMovieRank"
+  | "imdbTopTvRank"
   | "oscarCategories"
   | "oscarNominations"
   | "oscarWins"

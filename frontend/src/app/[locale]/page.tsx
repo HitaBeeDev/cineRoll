@@ -666,6 +666,7 @@ function FilmCard({ film }: { film: RollFilm }) {
     film.oscarNominations + film.ggNominations + film.cannesNominations;
   const allAwards = getAwardGroups(film);
   const visibleAwardGroups = getVisibleAwardGroups(allAwards, showAllAwards ? Number.POSITIVE_INFINITY : 5);
+  const listBadges = getListBadges(film);
 
   return (
     <div className="flex flex-col">
@@ -729,6 +730,14 @@ function FilmCard({ film }: { film: RollFilm }) {
             Dir. {film.director}
           </p>
         )}
+
+        {listBadges.length > 0 ? (
+          <div className="flex flex-wrap gap-1.5">
+            {listBadges.map((badge) => (
+              <ListBadge key={badge}>{badge}</ListBadge>
+            ))}
+          </div>
+        ) : null}
 
         {/* Plot */}
         {film.plot && (
@@ -865,6 +874,16 @@ type AwardGroupData = {
   records: AwardRecord[];
 };
 
+function getListBadges(film: RollFilm) {
+  const badges: string[] = [];
+  if (film.oscarNominations > 0) badges.push("Oscar");
+  if (film.ggNominations > 0) badges.push("Golden Globe");
+  if (film.cannesNominations > 0) badges.push("Cannes");
+  if (film.imdbTopMovieRank !== null) badges.push(`IMDb Top 250 Movies #${film.imdbTopMovieRank}`);
+  if (film.imdbTopTvRank !== null) badges.push(`IMDb Top 250 TV #${film.imdbTopTvRank}`);
+  return badges;
+}
+
 function getAwardGroups(film: RollFilm): AwardGroupData[] {
   return [
     { label: "Oscar", records: film.oscarCategories },
@@ -946,6 +965,14 @@ function StatBox({ label, value }: { label: string; value: string }) {
 function AwardTag({ children }: { children: React.ReactNode }) {
   return (
     <span className="inline-flex items-center rounded-full border border-[#1e1e2a] px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#888899]">
+      {children}
+    </span>
+  );
+}
+
+function ListBadge({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="inline-flex items-center rounded-full border border-[#D4AF37]/25 bg-[#D4AF37]/10 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[8px] font-bold uppercase tracking-widest text-[#D4AF37]">
       {children}
     </span>
   );
