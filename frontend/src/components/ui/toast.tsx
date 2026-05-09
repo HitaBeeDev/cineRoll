@@ -104,7 +104,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
         ))}
         <ToastPrimitive.Viewport
           className={cn(
-            "fixed bottom-6 right-6 z-[100]",
+            "fixed right-6 top-24 z-[100]",
             "flex w-[360px] max-w-[calc(100vw-2rem)] flex-col gap-2",
             "outline-none"
           )}
