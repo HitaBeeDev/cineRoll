@@ -583,7 +583,7 @@ On the very first visit, guide the user through a quick taste-matching flow so t
 - [x] Detect first visit via `localStorage` flag (`cineroll_onboarded`); if not set, show onboarding before the main home page
 - [x] Fetch 8 random films from /api/films (varied decades and genres) to use as the "taste cards"
 - [x] Show a full-screen step: "Which of these have you seen?" — display the 8 film posters as a grid; user taps any they've watched
-- [ ] On "Done" (or skip), save the tapped films to the user's watched list (if logged in) or to localStorage (if not logged in — sync on next sign-in)
+- [x] On "Done" (or skip), save the tapped films to the user's watched list (if logged in) or to localStorage (if not logged in — sync on next sign-in)
 - [ ] After onboarding, redirect to home page; the roll and recommendations are now pre-seeded with their taste
 - [ ] Set `cineroll_onboarded = true` in localStorage so onboarding never shows again
 - [ ] "Skip" link always visible — never force the flow

@@ -24,6 +24,52 @@ import { useFilters } from "@/hooks/useFilters";
 import { cn } from "@/lib/utils";
 
 const ONBOARDED_STORAGE_KEY = "cineroll_onboarded";
+const PENDING_WATCHED_STORAGE_KEY = "cineroll_pending_watched_films";
+
+type PendingWatchedFilm = {
+  filmId: string;
+  watchedAt: string;
+  source: "onboarding";
+  synced: false;
+};
+
+function savePendingWatchedFilms(filmIds: string[]) {
+  if (filmIds.length === 0) return;
+
+  try {
+    const existing = JSON.parse(
+      window.localStorage.getItem(PENDING_WATCHED_STORAGE_KEY) ?? "[]",
+    ) as Partial<PendingWatchedFilm>[];
+    const byFilmId = new Map<string, PendingWatchedFilm>();
+
+    for (const item of existing) {
+      if (typeof item.filmId !== "string") continue;
+      byFilmId.set(item.filmId, {
+        filmId: item.filmId,
+        watchedAt: typeof item.watchedAt === "string" ? item.watchedAt : new Date().toISOString(),
+        source: "onboarding",
+        synced: false,
+      });
+    }
+
+    const watchedAt = new Date().toISOString();
+    for (const filmId of filmIds) {
+      byFilmId.set(filmId, {
+        filmId,
+        watchedAt,
+        source: "onboarding",
+        synced: false,
+      });
+    }
+
+    window.localStorage.setItem(
+      PENDING_WATCHED_STORAGE_KEY,
+      JSON.stringify([...byFilmId.values()]),
+    );
+  } catch {
+    // If storage is unavailable, onboarding should still be completable.
+  }
+}
 
 export default function HomePage() {
   const shouldReduceMotion = useReducedMotion();
@@ -394,6 +440,11 @@ function FirstVisitOnboarding({
     });
   }
 
+  function completeOnboarding() {
+    savePendingWatchedFilms([...selectedSeenIds]);
+    onContinue();
+  }
+
   return (
     <div className="relative flex min-h-screen flex-col overflow-hidden bg-[#09090f] text-[#F5F5F0]">
       <div className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(circle_at_72%_28%,rgba(232,69,60,0.16),transparent_32%),linear-gradient(135deg,#09090f_0%,#11111b_48%,#07070c_100%)]" />
@@ -428,7 +479,7 @@ function FirstVisitOnboarding({
           <div className="mt-8 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
             <button
               type="button"
-              onClick={onContinue}
+              onClick={completeOnboarding}
               className={cn(
                 "min-w-[180px] bg-[#F5F5F0] px-7 py-4 text-[#09090f]",
                 "font-[family-name:var(--font-geist-mono)] text-sm font-bold uppercase tracking-[0.2em]",
@@ -440,7 +491,7 @@ function FirstVisitOnboarding({
             </button>
             <button
               type="button"
-              onClick={onContinue}
+              onClick={completeOnboarding}
               className={cn(
                 "min-w-[180px] border border-[#2a2a3e] bg-[#11111b]/70 px-7 py-4 text-[#888899]",
                 "font-[family-name:var(--font-geist-mono)] text-sm font-bold uppercase tracking-[0.2em]",
