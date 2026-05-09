@@ -9,6 +9,7 @@ export const DEFAULT_FILTERS: FilterState = {
   search: "",
   person: "",
   director: "",
+  femaleDirectorOnly: false,
   awardBody: "all",
   winnerOnly: false,
   nominatedOnly: false,
@@ -16,8 +17,10 @@ export const DEFAULT_FILTERS: FilterState = {
   awardYear: null,
   genre: "",
   contentType: "",
+  runtimeMax: null,
   decadeMin: DEFAULT_DECADE_MIN,
   decadeMax: DEFAULT_DECADE_MAX,
+  nominationCount: null,
   imdbRatingMin: 0,
   imdbRatingMax: null,
   rtScoreMin: 0,
@@ -47,6 +50,7 @@ export function useFilters(initial?: Partial<FilterState>) {
       !!filters.search ||
       !!filters.person ||
       !!filters.director ||
+      filters.femaleDirectorOnly ||
       filters.awardBody !== "all" ||
       filters.winnerOnly ||
       filters.nominatedOnly ||
@@ -54,8 +58,10 @@ export function useFilters(initial?: Partial<FilterState>) {
       filters.awardYear != null ||
       !!filters.genre ||
       !!filters.contentType ||
+      filters.runtimeMax != null ||
       filters.decadeMin !== DEFAULT_DECADE_MIN ||
       filters.decadeMax !== DEFAULT_DECADE_MAX ||
+      filters.nominationCount != null ||
       filters.imdbRatingMin > 0 ||
       filters.imdbRatingMax != null ||
       !!filters.certificate ||

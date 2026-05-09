@@ -11,8 +11,12 @@ export const MOOD_PRESETS: MoodPreset[] = [
     filters: { decadeMin: 1990, decadeMax: 1999 },
   },
   {
-    label: "Oscar winners",
-    filters: { awardBody: "oscar", winnerOnly: true },
+    label: "Female director",
+    filters: { femaleDirectorOnly: true },
+  },
+  {
+    label: "Under 2 hours",
+    filters: { runtimeMax: 119 },
   },
   {
     label: "Oscar Best Picture winner",
@@ -25,5 +29,9 @@ export const MOOD_PRESETS: MoodPreset[] = [
   {
     label: "Golden Globe drama winner",
     filters: { awardBody: "goldenglobe", category: "Best Motion Picture - Drama", winnerOnly: true },
+  },
+  {
+    label: "Hidden gem (1 nomination only)",
+    filters: { nominationCount: 1 },
   },
 ];

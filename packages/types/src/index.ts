@@ -64,6 +64,7 @@ export interface FilterState {
   search: string;
   person: string;
   director: string;
+  femaleDirectorOnly: boolean;
   awardBody: AwardBody;
   winnerOnly: boolean;
   nominatedOnly: boolean;
@@ -71,8 +72,10 @@ export interface FilterState {
   awardYear: number | null;
   genre: string;
   contentType: string;
+  runtimeMax: number | null;
   decadeMin: number;
   decadeMax: number;
+  nominationCount: number | null;
   imdbRatingMin: number;
   imdbRatingMax: number | null;
   rtScoreMin: number;

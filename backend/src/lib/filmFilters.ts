@@ -9,15 +9,46 @@ const queryBooleanSchema = z.preprocess(value => {
   return value;
 }, z.boolean());
 
+const FEMALE_DIRECTORS = [
+  "Agnès Varda",
+  "Alice Rohrwacher",
+  "Andrea Arnold",
+  "Ava DuVernay",
+  "Barbra Streisand",
+  "Céline Sciamma",
+  "Chloé Zhao",
+  "Claire Denis",
+  "Dee Rees",
+  "Emerald Fennell",
+  "Greta Gerwig",
+  "Jane Campion",
+  "Justine Triet",
+  "Kathryn Bigelow",
+  "Kelly Reichardt",
+  "Lina Wertmüller",
+  "Lucrecia Martel",
+  "Mira Nair",
+  "Nancy Meyers",
+  "Nora Ephron",
+  "Patty Jenkins",
+  "Penny Marshall",
+  "Sarah Polley",
+  "Sofia Coppola",
+  "Susanne Bier",
+];
+
 const listQueryBaseSchema = z.object({
   search: z.string().trim().min(1).max(120).optional(),
   person: z.string().trim().min(1).max(120).optional(),
   director: z.string().trim().min(1).max(120).optional(),
+  femaleDirectorOnly: queryBooleanSchema.optional(),
   awardBody: z.enum(["oscar", "goldenglobe", "cannes", "all"]).default("all"),
   contentType: z.string().trim().min(1).max(60).optional(),
   genre: z.string().trim().min(1).max(80).optional(),
+  runtimeMax: z.coerce.number().int().min(1).max(1000).optional(),
   decadeMin: z.coerce.number().int().min(1800).max(2200).optional(),
   decadeMax: z.coerce.number().int().min(1800).max(2200).optional(),
+  nominationCount: z.coerce.number().int().min(0).max(1000).optional(),
   awardYear: z.coerce.number().int().min(1800).max(2200).optional(),
   imdbRatingMin: z.coerce.number().min(0).max(10).optional(),
   imdbRatingMax: z.coerce.number().min(0).max(10).optional(),
@@ -163,12 +194,26 @@ export function buildWhereClause(
     where.push(Prisma.sql`"Film"."director" ILIKE ${`%${query.director}%`}`);
   }
 
+  if (query.femaleDirectorOnly === true) {
+    where.push(Prisma.sql`(
+      ${Prisma.join(
+        FEMALE_DIRECTORS.map(name => Prisma.sql`"Film"."director" ILIKE ${`%${name}%`}`),
+        " OR ",
+      )}
+    )`);
+  }
+
   if (query.contentType) {
     where.push(Prisma.sql`"Film"."contentType" = ${query.contentType}`);
   }
 
   if (query.genre) {
     where.push(Prisma.sql`"Film"."genres" @> ARRAY[${query.genre}]::TEXT[]`);
+  }
+
+  if (query.runtimeMax !== undefined) {
+    where.push(Prisma.sql`"Film"."runtime" IS NOT NULL`);
+    where.push(Prisma.sql`"Film"."runtime" <= ${query.runtimeMax}`);
   }
 
   if (query.decadeMin !== undefined) {
@@ -192,6 +237,16 @@ export function buildWhereClause(
   if (query.rtScoreMin !== undefined) {
     where.push(Prisma.sql`"Film"."rtScore" IS NOT NULL`);
     where.push(Prisma.sql`"Film"."rtScore" >= ${query.rtScoreMin}`);
+  }
+
+  if (query.nominationCount !== undefined) {
+    where.push(Prisma.sql`
+      (
+        "Film"."oscarNominations"
+        + "Film"."ggNominations"
+        + "Film"."cannesNominations"
+      ) = ${query.nominationCount}
+    `);
   }
 
   if (query.certificate) {

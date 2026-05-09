@@ -10,6 +10,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { fetchPersonSuggestions, type PersonSuggestion } from "@/lib/api";
+import { MOOD_PRESETS, type MoodPreset } from "@/lib/mood-presets";
+import { DEFAULT_FILTERS } from "@/hooks/useFilters";
 import { cn } from "@/lib/utils";
 import type { FilterState, AwardBody } from "@cineroll/types";
 
@@ -33,16 +35,6 @@ const AWARD_BODIES: { value: AwardBody; label: string }[] = [
   { value: "cannes", label: "Cannes" },
 ];
 
-
-const PRESETS: { label: string; filters: Partial<FilterState> }[] = [
-  { label: "Something from the 90s", filters: { decadeMin: 1990, decadeMax: 1999 } },
-  { label: "Cannes Palme d'Or", filters: { awardBody: "cannes" as AwardBody, winnerOnly: true } },
-  { label: "Best Picture Winner", filters: { awardBody: "oscar" as AwardBody, winnerOnly: true } },
-  { label: "Under 2 Hours", filters: { imdbRatingMin: 6 } },
-  { label: "Hidden Gem", filters: { imdbRatingMin: 7.5 } },
-  { label: "GG Drama Winner", filters: { awardBody: "goldenglobe" as AwardBody, winnerOnly: true } },
-];
-
 export function FilterBar({
   filters,
   genres,
@@ -55,6 +47,27 @@ export function FilterBar({
   const activeChips = getActiveFilterChips(filters, onFiltersChange);
   const [personSuggestions, setPersonSuggestions] = React.useState<PersonSuggestion[]>([]);
   const [isPersonSuggestionsOpen, setIsPersonSuggestionsOpen] = React.useState(false);
+  const [activePreset, setActivePreset] = React.useState<string | null>(null);
+
+  function applyPreset(preset: MoodPreset) {
+    if (activePreset === preset.label) {
+      const resetValues: Partial<FilterState> = { page: 1 };
+      for (const key of Object.keys(preset.filters) as Array<keyof FilterState>) {
+        Object.assign(resetValues, { [key]: DEFAULT_FILTERS[key] });
+      }
+      onFiltersChange(resetValues);
+      setActivePreset(null);
+      return;
+    }
+
+    onFiltersChange({ ...preset.filters, page: 1 });
+    setActivePreset(preset.label);
+  }
+
+  function clearAllFilters() {
+    setActivePreset(null);
+    onClearFilters();
+  }
 
   React.useEffect(() => {
     const query = filters.person.trim();
@@ -306,22 +319,28 @@ export function FilterBar({
 
       {/* PRESET tags */}
       <div className="flex flex-wrap gap-2">
-        {PRESETS.map(({ label, filters: presetFilters }) => (
-          <button
-            key={label}
-            type="button"
-            onClick={() => onFiltersChange({ ...presetFilters, page: 1 })}
-            className={cn(
-              "rounded-full border border-[#1e1e2a] px-3 py-1.5",
-              "font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest",
-              "text-[#555568] transition-colors duration-150",
-              "hover:border-[#e8453c]/40 hover:text-[#F5F5F0]",
-              "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#e8453c]",
-            )}
-          >
-            {label}
-          </button>
-        ))}
+        {MOOD_PRESETS.map((preset) => {
+          const active = activePreset === preset.label;
+          return (
+            <button
+              key={preset.label}
+              type="button"
+              aria-pressed={active}
+              onClick={() => applyPreset(preset)}
+              className={cn(
+                "rounded-full border px-3 py-1.5",
+                "font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest",
+                "transition-colors duration-150",
+                "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#e8453c]",
+                active
+                  ? "border-[#e8453c] bg-[#e8453c] text-[#F5F5F0]"
+                  : "border-[#1e1e2a] text-[#555568] hover:border-[#e8453c]/40 hover:text-[#F5F5F0]",
+              )}
+            >
+              {preset.label}
+            </button>
+          );
+        })}
       </div>
 
       {/* Active filter chips */}
@@ -349,7 +368,7 @@ export function FilterBar({
           </div>
           <button
             type="button"
-            onClick={onClearFilters}
+            onClick={clearAllFilters}
             className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#555568] transition-colors hover:text-[#e8453c] focus-visible:outline-none"
           >
             Clear all
@@ -433,6 +452,14 @@ function getActiveFilterChips(
     });
   }
 
+  if (filters.femaleDirectorOnly) {
+    chips.push({
+      key: "femaleDirectorOnly",
+      label: "Female director",
+      onRemove: () => onFiltersChange({ femaleDirectorOnly: false, page: 1 }),
+    });
+  }
+
   if (filters.awardBody !== "all") {
     const awardBodyLabels: Record<AwardBody, string> = {
       all: "All",
@@ -486,12 +513,28 @@ function getActiveFilterChips(
     });
   }
 
+  if (filters.runtimeMax != null) {
+    chips.push({
+      key: "runtimeMax",
+      label: `Under ${filters.runtimeMax + 1} min`,
+      onRemove: () => onFiltersChange({ runtimeMax: null, page: 1 }),
+    });
+  }
+
   if (filters.decadeMin !== DECADE_MIN || filters.decadeMax !== DECADE_MAX) {
     chips.push({
       key: "decade",
       label: `${filters.decadeMin}–${filters.decadeMax}`,
       onRemove: () =>
         onFiltersChange({ decadeMin: DECADE_MIN, decadeMax: DECADE_MAX, page: 1 }),
+    });
+  }
+
+  if (filters.nominationCount != null) {
+    chips.push({
+      key: "nominationCount",
+      label: `${filters.nominationCount} nomination${filters.nominationCount === 1 ? "" : "s"}`,
+      onRemove: () => onFiltersChange({ nominationCount: null, page: 1 }),
     });
   }
 
