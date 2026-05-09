@@ -4,7 +4,15 @@ import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { Bookmark, Check, Clock3, Share2, Dices, X } from "lucide-react";
+import {
+  ArrowUpRight,
+  Bookmark,
+  Check,
+  Clock3,
+  Share2,
+  Dices,
+  X,
+} from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/toast";
 import { FilterBar } from "@/components/filter-bar";
@@ -623,9 +631,14 @@ function RollHistoryDrawer({
                   </div>
                 ) : null}
                 {visibleHistory.map((film) => (
-                  <div
+                  <Link
                     key={film.id}
-                    className="grid grid-cols-[54px_1fr] gap-3 border border-[#1e1e2a] bg-[#0d0d1a] p-2.5"
+                    href={`/film/${film.slug}`}
+                    onClick={onClose}
+                    className={cn(
+                      "group grid grid-cols-[54px_1fr_auto] gap-3 border border-[#1e1e2a] bg-[#0d0d1a] p-2.5",
+                      "transition hover:border-[#e8453c]/45 hover:bg-[#11111b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
+                    )}
                   >
                     <div
                       className="relative overflow-hidden bg-[#111120]"
@@ -655,7 +668,10 @@ function RollHistoryDrawer({
                         {film.year}
                       </p>
                     </div>
-                  </div>
+                    <div className="flex h-8 w-8 items-center justify-center self-center rounded-full border border-[#2a2a3e] text-[#888899] transition group-hover:border-[#e8453c]/45 group-hover:text-[#F5F5F0]">
+                      <ArrowUpRight className="h-3.5 w-3.5" aria-hidden />
+                    </div>
+                  </Link>
                 ))}
               </div>
             </div>
