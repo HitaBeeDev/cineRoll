@@ -618,7 +618,7 @@ On the very first visit, guide the user through a quick taste-matching flow so t
 
 Pre-set filter combinations displayed as pill buttons above the main filter panel. One click loads a named filter state and immediately enables Roll.
 
-- [ ] Create a `MOOD_PRESETS` constant array: each preset has a label and a partial `FilterState` (e.g. `{ decadeMin: 1990, decadeMax: 1999 }` for "Something from the 90s")
+- [x] Create a `MOOD_PRESETS` constant array: each preset has a label and a partial `FilterState` (e.g. `{ decadeMin: 1990, decadeMax: 1999 }` for "Something from the 90s")
 - [ ] Starter presets: "Something from the 90s", "Female director", "Under 2 hours", "Oscar Best Picture winner", "Cannes Palme d'Or", "Golden Globe drama winner", "Hidden gem (1 nomination only)"
 - [ ] Clicking a preset pill applies its filters to the filter state and highlights the active preset
 - [ ] Clicking an active preset deactivates it and resets its filters
