@@ -6,6 +6,7 @@ import { X, CheckCircle, AlertCircle, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type ToastVariant = "default" | "success" | "error";
+const DEFAULT_TOAST_DURATION = 30000;
 
 interface ToastData {
   id: string;
@@ -60,10 +61,10 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
             key={t.id}
             open
             onOpenChange={(open) => !open && dismiss(t.id)}
-            duration={t.duration ?? 4000}
+            duration={t.duration ?? DEFAULT_TOAST_DURATION}
             className={cn(
-              "group pointer-events-auto relative flex w-full items-start gap-3",
-              "rounded-lg border bg-[#09090f]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.55)] backdrop-blur-xl",
+              "group pointer-events-auto relative flex w-full items-start gap-3 overflow-hidden",
+              "rounded-lg border bg-[#09090f]/95 px-4 pb-5 pt-4 shadow-[0_24px_80px_rgba(0,0,0,0.55)] backdrop-blur-xl",
               "transition-all duration-300",
               "data-[state=open]:opacity-100 data-[state=open]:translate-x-0",
               "data-[state=closed]:opacity-0 data-[state=closed]:translate-x-3",
@@ -73,7 +74,12 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
               "data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=end]:opacity-0",
               borderAccents[t.variant ?? "default"]
             )}
-          >
+            >
+            <span
+              className="absolute inset-x-0 bottom-0 h-1 origin-left bg-[#e8453c] motion-safe:animate-[toast-progress_var(--toast-duration)_linear_forwards]"
+              style={{ "--toast-duration": `${t.duration ?? DEFAULT_TOAST_DURATION}ms` } as React.CSSProperties}
+              aria-hidden
+            />
             <span className="mt-0.5 shrink-0">
               {icons[t.variant ?? "default"]}
             </span>

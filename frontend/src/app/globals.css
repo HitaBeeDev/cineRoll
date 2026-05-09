@@ -1,5 +1,14 @@
 @import "tailwindcss";
 
+@keyframes toast-progress {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
 html,
 body {
   min-height: 100%;
