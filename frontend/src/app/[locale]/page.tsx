@@ -5,7 +5,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Bookmark, Check, Share2, Dices } from "lucide-react";
-import type { AwardRecord } from "@cineroll/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/toast";
 import { FilterBar } from "@/components/filter-bar";
@@ -725,7 +724,6 @@ function FirstVisitOnboarding({
 // ── Film card ────────────────────────────────────────────────────────────────
 
 function FilmCard({ film }: { film: RollFilm }) {
-  const [showAllAwards, setShowAllAwards] = useState(false);
   const { toast } = useToast();
   const channelLabel = `REEL // ${film.title.toUpperCase().slice(0, 11)}`;
   const genre = film.genres[0] ?? "";
@@ -734,11 +732,6 @@ function FilmCard({ film }: { film: RollFilm }) {
   const totalWins = film.oscarWins + film.ggWins + film.cannesWins;
   const totalNoms =
     film.oscarNominations + film.ggNominations + film.cannesNominations;
-  const allAwards = getAwardGroups(film);
-  const visibleAwardGroups = getVisibleAwardGroups(
-    allAwards,
-    showAllAwards ? Number.POSITIVE_INFINITY : 5,
-  );
   const listBadges = getListBadges(film);
 
   async function shareFilm() {
@@ -901,34 +894,6 @@ function FilmCard({ film }: { film: RollFilm }) {
           </div>
         ) : null}
 
-        {allAwards.length > 0 ? (
-          <div className="mt-1 rounded-xl border border-[#1e1e2a] bg-[#0d0d1a] p-3">
-            <div className="mb-2 flex items-center justify-between gap-3">
-              <h3 className="font-[family-name:var(--font-geist-mono)] text-[9px] font-bold uppercase tracking-[0.2em] text-[#888899]">
-                Nominees & awards
-              </h3>
-              {countAwardRecords(allAwards) > 5 && (
-                <button
-                  type="button"
-                  onClick={() => setShowAllAwards((current) => !current)}
-                  className="font-[family-name:var(--font-geist-mono)] text-[9px] font-bold uppercase tracking-widest text-[#e8453c] transition hover:text-[#F5F5F0] focus-visible:outline-none"
-                >
-                  {showAllAwards ? "Show less" : "Show more"}
-                </button>
-              )}
-            </div>
-            <div className="space-y-3">
-              {visibleAwardGroups.map((group) => (
-                <AwardGroup
-                  key={group.label}
-                  label={group.label}
-                  records={group.records}
-                />
-              ))}
-            </div>
-          </div>
-        ) : null}
-
         {/* Action buttons */}
         <div className="flex items-center gap-2 mt-1">
           <Link
@@ -962,11 +927,6 @@ function FilmCard({ film }: { film: RollFilm }) {
   );
 }
 
-type AwardGroupData = {
-  label: string;
-  records: AwardRecord[];
-};
-
 function getListBadges(film: RollFilm) {
   const badges: string[] = [];
   if (film.oscarNominations > 0) badges.push("Oscar");
@@ -977,74 +937,6 @@ function getListBadges(film: RollFilm) {
   if (film.imdbTopTvRank !== null)
     badges.push(`IMDb Top 250 TV #${film.imdbTopTvRank}`);
   return badges;
-}
-
-function getAwardGroups(film: RollFilm): AwardGroupData[] {
-  return [
-    { label: "Oscar", records: film.oscarCategories },
-    { label: "Golden Globe", records: film.ggCategories },
-    { label: "Cannes", records: film.cannesCategories },
-  ].filter((group) => group.records.length > 0);
-}
-
-function countAwardRecords(groups: AwardGroupData[]) {
-  return groups.reduce((total, group) => total + group.records.length, 0);
-}
-
-function getVisibleAwardGroups(
-  groups: AwardGroupData[],
-  limit: number,
-): AwardGroupData[] {
-  let remaining = limit;
-
-  return groups
-    .map((group) => {
-      if (remaining <= 0) return { ...group, records: [] };
-      const records = group.records.slice(0, remaining);
-      remaining -= records.length;
-      return { ...group, records };
-    })
-    .filter((group) => group.records.length > 0);
-}
-
-function AwardGroup({ label, records }: AwardGroupData) {
-  return (
-    <div>
-      <p className="mb-1.5 font-[family-name:var(--font-geist-mono)] text-[8px] font-bold uppercase tracking-widest text-[#D4AF37]">
-        {label}
-      </p>
-      <div className="space-y-1.5">
-        {records.map((record, index) => (
-          <div
-            key={`${record.awardYear}-${record.category}-${record.nominee}-${index}`}
-            className="grid grid-cols-[1fr_auto] gap-2 rounded-lg bg-[#09090f] px-2.5 py-2"
-          >
-            <div className="min-w-0">
-              <p className="line-clamp-1 text-xs font-medium text-[#F5F5F0]">
-                {record.category}
-              </p>
-              <p className="line-clamp-1 text-[11px] text-[#888899]">
-                {record.nominee || "Nominee not listed"}
-              </p>
-            </div>
-            <div className="flex flex-col items-end gap-1">
-              <span className="font-[family-name:var(--font-geist-mono)] text-[9px] text-[#555568]">
-                {record.awardYear}
-              </span>
-              <span
-                className={cn(
-                  "font-[family-name:var(--font-geist-mono)] text-[8px] font-bold uppercase tracking-widest",
-                  record.won ? "text-[#D4AF37]" : "text-[#666678]",
-                )}
-              >
-                {record.won ? "Won" : "Nominated"}
-              </span>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
 }
 
 function StatBox({ label, value }: { label: string; value: string }) {
