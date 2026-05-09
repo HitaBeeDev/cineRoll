@@ -585,8 +585,8 @@ On the very first visit, guide the user through a quick taste-matching flow so t
 - [x] Show a full-screen step: "Which of these have you seen?" — display the 8 film posters as a grid; user taps any they've watched
 - [x] On "Done" (or skip), save the tapped films to the user's watched list (if logged in) or to localStorage (if not logged in — sync on next sign-in)
 - [x] After onboarding, redirect to home page; the roll and recommendations are now pre-seeded with their taste
-- [ ] Set `cineroll_onboarded = true` in localStorage so onboarding never shows again
-- [ ] "Skip" link always visible — never force the flow
+- [x] Set `cineroll_onboarded = true` in localStorage so onboarding never shows again
+- [x] "Skip" link always visible — never force the flow
 
 ---
 
