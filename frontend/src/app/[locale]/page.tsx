@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { Bookmark, Check, Share2, Dices } from "lucide-react";
+import { Bookmark, Check, Clock3, Share2, Dices, X } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/toast";
 import { FilterBar } from "@/components/filter-bar";
@@ -157,6 +157,7 @@ export default function HomePage() {
   const [tasteCardsStatus, setTasteCardsStatus] = useState<
     "idle" | "loading" | "ready" | "error"
   >("idle");
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
 
   const handleRollRef = useRef<() => Promise<void>>(async () => {});
   const filmCardRef = useRef<HTMLDivElement>(null);
@@ -365,9 +366,24 @@ export default function HomePage() {
         {/* LEFT: hero + filters + roll ──────────────────────────────── */}
         <div className="flex flex-col gap-3 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:w-0 px-5 py-4 sm:px-8 lg:px-10 lg:py-5 lg:col-span-7">
           {/* Channel label */}
-          <p className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.25em] text-[#888899]">
-            {"// CHANNEL 03 · TONIGHT"}
-          </p>
+          <div className="flex items-center justify-between gap-3">
+            <p className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.25em] text-[#888899]">
+              {"// CHANNEL 03 · TONIGHT"}
+            </p>
+            <button
+              type="button"
+              onClick={() => setIsHistoryOpen(true)}
+              className={cn(
+                "inline-flex h-9 items-center gap-2 rounded-full border border-[#1e1e2a] bg-[#11111b] px-3 text-[#888899]",
+                "font-[family-name:var(--font-geist-mono)] text-[9px] font-bold uppercase tracking-[0.18em]",
+                "transition hover:border-[#e8453c]/45 hover:text-[#F5F5F0]",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090f]",
+              )}
+            >
+              <Clock3 className="h-3.5 w-3.5" aria-hidden />
+              History
+            </button>
+          </div>
 
           {/* Hero headline */}
           <div className="mb-4">
@@ -514,7 +530,75 @@ export default function HomePage() {
           </AnimatePresence>
         </div>
       </div>
+      <RollHistoryDrawer
+        open={isHistoryOpen}
+        onClose={() => setIsHistoryOpen(false)}
+      />
     </div>
+  );
+}
+
+function RollHistoryDrawer({
+  open,
+  onClose,
+}: {
+  open: boolean;
+  onClose: () => void;
+}) {
+  return (
+    <AnimatePresence>
+      {open && (
+        <>
+          <motion.button
+            type="button"
+            aria-label="Close history"
+            className="fixed inset-0 z-[80] bg-black/60 backdrop-blur-sm"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.18 }}
+            onClick={onClose}
+          />
+          <motion.aside
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="roll-history-title"
+            className="fixed right-0 top-0 z-[90] flex h-screen w-full max-w-md flex-col border-l border-[#1a1a28] bg-[#09090f] text-[#F5F5F0] shadow-[0_0_80px_rgba(0,0,0,0.65)]"
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ type: "spring", stiffness: 320, damping: 34 }}
+          >
+            <header className="flex h-16 shrink-0 items-center justify-between border-b border-[#1a1a28] px-5">
+              <div>
+                <p className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.28em] text-[#e8453c]">
+                  Session
+                </p>
+                <h2
+                  id="roll-history-title"
+                  className="font-[family-name:var(--font-display)] text-2xl font-bold leading-none"
+                >
+                  Roll History
+                </h2>
+              </div>
+              <button
+                type="button"
+                onClick={onClose}
+                aria-label="Close history"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-[#1e1e2a] text-[#888899] transition hover:border-[#e8453c]/45 hover:text-[#F5F5F0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
+              >
+                <X className="h-4 w-4" aria-hidden />
+              </button>
+            </header>
+            <div className="flex flex-1 items-center justify-center px-6 text-center">
+              <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.22em] text-[#555568]">
+                History drawer ready
+              </p>
+            </div>
+          </motion.aside>
+        </>
+      )}
+    </AnimatePresence>
   );
 }
 
