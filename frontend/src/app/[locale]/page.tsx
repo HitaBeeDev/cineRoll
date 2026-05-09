@@ -56,7 +56,10 @@ function savePendingWatchedFilms(filmIds: string[]) {
       if (typeof item.filmId !== "string") continue;
       byFilmId.set(item.filmId, {
         filmId: item.filmId,
-        watchedAt: typeof item.watchedAt === "string" ? item.watchedAt : new Date().toISOString(),
+        watchedAt:
+          typeof item.watchedAt === "string"
+            ? item.watchedAt
+            : new Date().toISOString(),
         source: "onboarding",
         synced: false,
       });
@@ -81,7 +84,10 @@ function savePendingWatchedFilms(filmIds: string[]) {
   }
 }
 
-function createTasteSeed(films: TasteCardFilm[], selectedFilmIds: string[]): TasteSeed | null {
+function createTasteSeed(
+  films: TasteCardFilm[],
+  selectedFilmIds: string[],
+): TasteSeed | null {
   if (selectedFilmIds.length === 0) return null;
 
   const selectedIds = new Set(selectedFilmIds);
@@ -130,9 +136,13 @@ export default function HomePage() {
   const [categories, setCategories] = useState<string[]>([]);
   const [awardYears, setAwardYears] = useState<number[]>([]);
   const [totalCount, setTotalCount] = useState<number | null>(null);
-  const [onboardingState, setOnboardingState] = useState<"checking" | "show" | "done">("checking");
+  const [onboardingState, setOnboardingState] = useState<
+    "checking" | "show" | "done"
+  >("checking");
   const [tasteCards, setTasteCards] = useState<TasteCardFilm[]>([]);
-  const [tasteCardsStatus, setTasteCardsStatus] = useState<"idle" | "loading" | "ready" | "error">("idle");
+  const [tasteCardsStatus, setTasteCardsStatus] = useState<
+    "idle" | "loading" | "ready" | "error"
+  >("idle");
 
   const handleRollRef = useRef<() => Promise<void>>(async () => {});
   const filmCardRef = useRef<HTMLDivElement>(null);
@@ -141,7 +151,9 @@ export default function HomePage() {
     const id = window.setTimeout(() => {
       try {
         setOnboardingState(
-          window.localStorage.getItem(ONBOARDED_STORAGE_KEY) === "true" ? "done" : "show",
+          window.localStorage.getItem(ONBOARDED_STORAGE_KEY) === "true"
+            ? "done"
+            : "show",
         );
       } catch {
         setOnboardingState("done");
@@ -177,7 +189,9 @@ export default function HomePage() {
     void fetchGenres().then(setGenres);
     void fetchCategories().then(setCategories);
     void fetchAwardYears().then(setAwardYears);
-    void fetchRandom().then((r) => setTotalCount(r.total)).catch(() => {});
+    void fetchRandom()
+      .then((r) => setTotalCount(r.total))
+      .catch(() => {});
   }, []);
 
   // Space key fires roll
@@ -273,17 +287,14 @@ export default function HomePage() {
     handleRollRef.current = handleRoll;
   });
 
-
   // Pool count display
   const poolCountStr = effectiveCountLoading
     ? "···"
     : effectiveCount !== null
       ? String(effectiveCount).padStart(3, "0")
-      : filteredCount !== null
-        ? String(filteredCount).padStart(3, "0")
-        : totalCount !== null
-          ? String(totalCount).padStart(3, "0")
-          : "···";
+      : totalCount !== null
+        ? String(totalCount).padStart(3, "0")
+        : "···";
 
   if (onboardingState === "checking") {
     return <div className="min-h-screen bg-[#09090f]" aria-hidden />;
@@ -344,7 +355,7 @@ export default function HomePage() {
           </p>
 
           {/* Hero headline */}
-          <div className="mb-7">
+          <div className="mb-4">
             <h1
               className={cn(
                 "font-[family-name:var(--font-display)] font-bold leading-[1.0] tracking-tight",
@@ -428,8 +439,17 @@ export default function HomePage() {
                 layout={!shouldReduceMotion}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                exit={{ opacity: 0, transition: { duration: shouldReduceMotion ? 0 : 0.15, ease: "easeIn" } }}
-                transition={{ duration: shouldReduceMotion ? 0 : 0.15, ease: "easeOut" }}
+                exit={{
+                  opacity: 0,
+                  transition: {
+                    duration: shouldReduceMotion ? 0 : 0.15,
+                    ease: "easeIn",
+                  },
+                }}
+                transition={{
+                  duration: shouldReduceMotion ? 0 : 0.15,
+                  ease: "easeOut",
+                }}
               >
                 <FilmCardSkeleton />
               </motion.div>
@@ -439,8 +459,18 @@ export default function HomePage() {
                 layout={!shouldReduceMotion}
                 initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, transition: { duration: shouldReduceMotion ? 0 : 0.15, ease: "easeIn" } }}
-                transition={shouldReduceMotion ? { duration: 0 } : { type: "spring", stiffness: 300, damping: 28 }}
+                exit={{
+                  opacity: 0,
+                  transition: {
+                    duration: shouldReduceMotion ? 0 : 0.15,
+                    ease: "easeIn",
+                  },
+                }}
+                transition={
+                  shouldReduceMotion
+                    ? { duration: 0 }
+                    : { type: "spring", stiffness: 300, damping: 28 }
+                }
               >
                 <FilmCard film={film} />
               </motion.div>
@@ -450,8 +480,17 @@ export default function HomePage() {
                 layout={!shouldReduceMotion}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                exit={{ opacity: 0, transition: { duration: shouldReduceMotion ? 0 : 0.15, ease: "easeIn" } }}
-                transition={{ duration: shouldReduceMotion ? 0 : 0.2, ease: "easeOut" }}
+                exit={{
+                  opacity: 0,
+                  transition: {
+                    duration: shouldReduceMotion ? 0 : 0.15,
+                    ease: "easeIn",
+                  },
+                }}
+                transition={{
+                  duration: shouldReduceMotion ? 0 : 0.2,
+                  ease: "easeOut",
+                }}
                 className="flex flex-col flex-1"
               >
                 <FilmCardEmpty />
@@ -475,7 +514,9 @@ function FirstVisitOnboarding({
   onRetryTasteCards: () => void;
   onContinue: (seed: TasteSeed | null) => void;
 }) {
-  const [selectedSeenIds, setSelectedSeenIds] = useState<Set<string>>(new Set());
+  const [selectedSeenIds, setSelectedSeenIds] = useState<Set<string>>(
+    new Set(),
+  );
   const selectedSeenCount = selectedSeenIds.size;
 
   function toggleSeen(filmId: string) {
@@ -530,7 +571,8 @@ function FirstVisitOnboarding({
           </h1>
 
           <p className="mt-5 max-w-md text-base leading-7 text-[#a6a6b5]">
-            Pick the films you already know. CineRoll uses this first signal to shape better rolls after you enter.
+            Pick the films you already know. CineRoll uses this first signal to
+            shape better rolls after you enter.
           </p>
 
           <div className="mt-8 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
@@ -562,7 +604,9 @@ function FirstVisitOnboarding({
 
           <div className="mt-6 flex items-center gap-3 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.22em] text-[#555568]">
             <span className="h-px w-9 bg-[#e8453c]/55" />
-            {selectedSeenCount === 0 ? "Tap any poster" : `${selectedSeenCount} selected`}
+            {selectedSeenCount === 0
+              ? "Tap any poster"
+              : `${selectedSeenCount} selected`}
           </div>
         </section>
 
@@ -571,7 +615,9 @@ function FirstVisitOnboarding({
             {tasteCardsStatus === "error" ? (
               <div className="col-span-2 flex min-h-[420px] items-center justify-center border border-dashed border-[#2a2a3e] bg-[#080810]/80 sm:col-span-4">
                 <div className="text-center">
-                  <p className="text-sm text-[#F5F5F0]">Could not load taste cards.</p>
+                  <p className="text-sm text-[#F5F5F0]">
+                    Could not load taste cards.
+                  </p>
                   <button
                     type="button"
                     onClick={onRetryTasteCards}
@@ -608,7 +654,9 @@ function FirstVisitOnboarding({
                         sizes="(max-width: 640px) 45vw, 18vw"
                         className={cn(
                           "object-cover transition duration-300",
-                          selected ? "scale-[1.03] saturate-[0.85]" : "group-hover:scale-[1.035]",
+                          selected
+                            ? "scale-[1.03] saturate-[0.85]"
+                            : "group-hover:scale-[1.035]",
                         )}
                       />
                     ) : (
@@ -618,7 +666,12 @@ function FirstVisitOnboarding({
                         </span>
                       </div>
                     )}
-                    <div className={cn("pointer-events-none absolute inset-0 transition", selected ? "bg-[#09090f]/30" : "bg-transparent")} />
+                    <div
+                      className={cn(
+                        "pointer-events-none absolute inset-0 transition",
+                        selected ? "bg-[#09090f]/30" : "bg-transparent",
+                      )}
+                    />
                     <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/55 to-transparent px-3 pb-3 pt-14">
                       <p className="line-clamp-2 font-[family-name:var(--font-display)] text-sm font-semibold leading-tight text-white">
                         {film.title}
@@ -665,7 +718,10 @@ function FilmCard({ film }: { film: RollFilm }) {
   const totalNoms =
     film.oscarNominations + film.ggNominations + film.cannesNominations;
   const allAwards = getAwardGroups(film);
-  const visibleAwardGroups = getVisibleAwardGroups(allAwards, showAllAwards ? Number.POSITIVE_INFINITY : 5);
+  const visibleAwardGroups = getVisibleAwardGroups(
+    allAwards,
+    showAllAwards ? Number.POSITIVE_INFINITY : 5,
+  );
   const listBadges = getListBadges(film);
 
   return (
@@ -879,8 +935,10 @@ function getListBadges(film: RollFilm) {
   if (film.oscarNominations > 0) badges.push("Oscar");
   if (film.ggNominations > 0) badges.push("Golden Globe");
   if (film.cannesNominations > 0) badges.push("Cannes");
-  if (film.imdbTopMovieRank !== null) badges.push(`IMDb Top 250 Movies #${film.imdbTopMovieRank}`);
-  if (film.imdbTopTvRank !== null) badges.push(`IMDb Top 250 TV #${film.imdbTopTvRank}`);
+  if (film.imdbTopMovieRank !== null)
+    badges.push(`IMDb Top 250 Movies #${film.imdbTopMovieRank}`);
+  if (film.imdbTopTvRank !== null)
+    badges.push(`IMDb Top 250 TV #${film.imdbTopTvRank}`);
   return badges;
 }
 
@@ -896,7 +954,10 @@ function countAwardRecords(groups: AwardGroupData[]) {
   return groups.reduce((total, group) => total + group.records.length, 0);
 }
 
-function getVisibleAwardGroups(groups: AwardGroupData[], limit: number): AwardGroupData[] {
+function getVisibleAwardGroups(
+  groups: AwardGroupData[],
+  limit: number,
+): AwardGroupData[] {
   let remaining = limit;
 
   return groups
@@ -1008,13 +1069,19 @@ function FilmCardEmpty() {
       {/* Scanlines */}
       <div
         className="pointer-events-none absolute inset-0 z-10 opacity-[0.025]"
-        style={{ backgroundImage: "repeating-linear-gradient(0deg,#F5F5F0,#F5F5F0 1px,transparent 1px,transparent 3px)" }}
+        style={{
+          backgroundImage:
+            "repeating-linear-gradient(0deg,#F5F5F0,#F5F5F0 1px,transparent 1px,transparent 3px)",
+        }}
       />
 
       {/* Film strip — top */}
       <div className="flex shrink-0 items-center gap-[5px] border-b border-[#1a1a28] bg-[#060610] px-3 py-[7px]">
         {Array.from({ length: 16 }).map((_, i) => (
-          <div key={i} className="h-[10px] w-[7px] shrink-0 rounded-[2px] bg-[#111120]" />
+          <div
+            key={i}
+            className="h-[10px] w-[7px] shrink-0 rounded-[2px] bg-[#111120]"
+          />
         ))}
       </div>
 
@@ -1061,7 +1128,10 @@ function FilmCardEmpty() {
       {/* Film strip — bottom */}
       <div className="flex shrink-0 items-center gap-[5px] border-t border-[#1a1a28] bg-[#060610] px-3 py-[7px]">
         {Array.from({ length: 16 }).map((_, i) => (
-          <div key={i} className="h-[10px] w-[7px] shrink-0 rounded-[2px] bg-[#111120]" />
+          <div
+            key={i}
+            className="h-[10px] w-[7px] shrink-0 rounded-[2px] bg-[#111120]"
+          />
         ))}
       </div>
     </div>
