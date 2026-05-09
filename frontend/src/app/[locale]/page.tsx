@@ -546,18 +546,23 @@ function RollHistoryDrawer({
   onClose: () => void;
 }) {
   const [history, setHistory] = useState<RollFilm[]>([]);
+  const visibleHistory = history.slice(0, 6);
 
   useEffect(() => {
     if (!open) return;
 
-    try {
-      const parsed = JSON.parse(
-        window.sessionStorage.getItem(ROLL_HISTORY_STORAGE_KEY) ?? "[]",
-      ) as RollFilm[];
-      setHistory(parsed.slice(0, MAX_ROLL_HISTORY_ITEMS));
-    } catch {
-      setHistory([]);
-    }
+    const id = window.setTimeout(() => {
+      try {
+        const parsed = JSON.parse(
+          window.sessionStorage.getItem(ROLL_HISTORY_STORAGE_KEY) ?? "[]",
+        ) as RollFilm[];
+        setHistory(parsed.slice(0, MAX_ROLL_HISTORY_ITEMS));
+      } catch {
+        setHistory([]);
+      }
+    }, 0);
+
+    return () => window.clearTimeout(id);
   }, [open]);
 
   return (
@@ -607,7 +612,17 @@ function RollHistoryDrawer({
             </header>
             <div className="flex-1 overflow-y-auto px-5 py-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               <div className="flex flex-col gap-3">
-                {history.map((film) => (
+                {visibleHistory.length === 0 ? (
+                  <div className="border border-[#1e1e2a] bg-[#0d0d1a] px-4 py-5">
+                    <p className="font-[family-name:var(--font-display)] text-xl font-bold leading-tight text-[#F5F5F0]">
+                      No rolls yet.
+                    </p>
+                    <p className="mt-2 text-sm leading-6 text-[#888899]">
+                      Spin the reel and your latest picks will appear here.
+                    </p>
+                  </div>
+                ) : null}
+                {visibleHistory.map((film) => (
                   <div
                     key={film.id}
                     className="grid grid-cols-[54px_1fr] gap-3 border border-[#1e1e2a] bg-[#0d0d1a] p-2.5"
