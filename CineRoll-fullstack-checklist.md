@@ -644,7 +644,7 @@ A slide-out drawer tracking every film rolled this session. Zero backend — use
 
 - [x] On every roll, push the film object into a `sessionStorage` key (`roll_history`) — keep the last 10 entries, drop the oldest when full
 - [x] Add a "History" button (clock/history icon) in the top-right corner of the roll section; clicking it slides open a drawer
-- [ ] Drawer shows the last 10 rolled films as small cards (poster thumbnail, title, year) in reverse order (most recent first)
+- [x] Drawer shows the last 10 rolled films as small cards (poster thumbnail, title, year) in reverse order (most recent first)
 - [ ] Clicking a card in the drawer navigates to that film's detail page
 - [ ] History clears automatically when the browser tab is closed (sessionStorage behaviour)
 - [ ] If history is empty, show "No rolls yet this session" in the drawer

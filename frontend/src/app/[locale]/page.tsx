@@ -545,6 +545,21 @@ function RollHistoryDrawer({
   open: boolean;
   onClose: () => void;
 }) {
+  const [history, setHistory] = useState<RollFilm[]>([]);
+
+  useEffect(() => {
+    if (!open) return;
+
+    try {
+      const parsed = JSON.parse(
+        window.sessionStorage.getItem(ROLL_HISTORY_STORAGE_KEY) ?? "[]",
+      ) as RollFilm[];
+      setHistory(parsed.slice(0, MAX_ROLL_HISTORY_ITEMS));
+    } catch {
+      setHistory([]);
+    }
+  }, [open]);
+
   return (
     <AnimatePresence>
       {open && (
@@ -590,10 +605,44 @@ function RollHistoryDrawer({
                 <X className="h-4 w-4" aria-hidden />
               </button>
             </header>
-            <div className="flex flex-1 items-center justify-center px-6 text-center">
-              <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.22em] text-[#555568]">
-                History drawer ready
-              </p>
+            <div className="flex-1 overflow-y-auto px-5 py-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              <div className="flex flex-col gap-3">
+                {history.map((film) => (
+                  <div
+                    key={film.id}
+                    className="grid grid-cols-[54px_1fr] gap-3 border border-[#1e1e2a] bg-[#0d0d1a] p-2.5"
+                  >
+                    <div
+                      className="relative overflow-hidden bg-[#111120]"
+                      style={{ aspectRatio: "2/3" }}
+                    >
+                      {film.posterUrl ? (
+                        <Image
+                          src={film.posterUrl}
+                          alt={`${film.title} poster`}
+                          fill
+                          sizes="54px"
+                          className="object-cover"
+                        />
+                      ) : (
+                        <div className="absolute inset-0 flex items-center justify-center px-1 text-center">
+                          <span className="font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-wider text-[#555568]">
+                            No poster
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="min-w-0 self-center">
+                      <p className="line-clamp-2 font-[family-name:var(--font-display)] text-base font-bold leading-tight text-[#F5F5F0]">
+                        {film.title}
+                      </p>
+                      <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.18em] text-[#888899]">
+                        {film.year}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </motion.aside>
         </>
