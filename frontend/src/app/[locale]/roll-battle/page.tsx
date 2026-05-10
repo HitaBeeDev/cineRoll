@@ -27,6 +27,15 @@ function formatRuntime(runtime: number | null): string {
   return h > 0 ? `${h}h ${m}m` : `${m}m`;
 }
 
+function formatAwardSummary(film: RollFilm): string {
+  const nominations = film.oscarNominations + film.ggNominations + film.cannesNominations;
+  const wins = film.oscarWins + film.ggWins + film.cannesWins;
+  if (wins > 0 && nominations > 0) return `${wins} wins · ${nominations} nominations`;
+  if (wins > 0) return wins === 1 ? "1 win" : `${wins} wins`;
+  if (nominations > 0) return nominations === 1 ? "1 nomination" : `${nominations} nominations`;
+  return "No major award records";
+}
+
 interface FilmCardProps {
   film: RollFilm;
   onPick: () => void;
@@ -321,42 +330,93 @@ export default function RollBattlePage() {
             initial={reduced ? false : { opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ type: "spring", stiffness: 280, damping: 26 }}
-            className="flex w-full max-w-sm flex-col items-center gap-6 text-center"
+            className="flex w-full max-w-3xl flex-col gap-6"
           >
-            <div className="flex flex-col items-center gap-2">
-              <div className="flex items-center gap-2">
-                <Trophy className="h-4 w-4 text-[#D4AF37]" />
+            <div className="flex flex-col items-center gap-2 text-center">
+              <div className="flex items-center justify-center gap-2">
+                <Trophy className="h-4 w-4 shrink-0 text-[#D4AF37]" />
                 <span className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.35em] text-[#D4AF37]">
                   Tonight&apos;s Film
                 </span>
-                <Trophy className="h-4 w-4 text-[#D4AF37]" />
+                <Trophy className="h-4 w-4 shrink-0 text-[#D4AF37]" />
               </div>
               <h1 className="font-[family-name:var(--font-display)] text-3xl font-bold leading-tight text-[#F5F5F0] sm:text-4xl">
                 {champion.title}
               </h1>
-              <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.2em] text-[#555568]">
-                {champion.year}
-                {champion.director ? ` · Dir. ${champion.director}` : ""}
-              </p>
-              {champion.imdbRating != null && (
-                <p className="font-[family-name:var(--font-geist-mono)] text-sm text-[#F5F5F0]/50">
-                  ★ IMDb {champion.imdbRating.toFixed(1)}
-                </p>
-              )}
             </div>
 
-            {/* Poster */}
-            {(() => {
-              const img = champion.posterUrl ?? champion.backdropUrl;
-              return img ? (
-                <div
-                  className="relative w-44 overflow-hidden rounded-xl border border-[#1e1e2a] shadow-[0_0_40px_rgba(212,175,55,0.10)]"
-                  style={{ aspectRatio: "2/3" }}
-                >
-                  <Image src={img} alt={champion.title} fill sizes="176px" className="object-cover" />
+            <div className="grid gap-5 sm:grid-cols-[220px_1fr] sm:items-start">
+              {(() => {
+                const img = champion.posterUrl ?? champion.backdropUrl;
+                return (
+                  <div
+                    className="relative mx-auto w-48 overflow-hidden rounded-xl border border-[#1e1e2a] bg-[#0d0d1a] shadow-[0_0_40px_rgba(212,175,55,0.10)] sm:w-full"
+                    style={{ aspectRatio: "2/3" }}
+                  >
+                    {img ? (
+                      <Image src={img} alt={champion.title} fill sizes="(max-width: 640px) 192px, 220px" className="object-cover" />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <Clapperboard className="h-12 w-12 text-[#2a2a3e]" />
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+
+              <div className="flex flex-col gap-4">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="rounded-md border border-[#1e1e2a] bg-[#0d0d1a] px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.14em] text-[#F5F5F0]/70">
+                    {champion.year}
+                  </span>
+                  {formatRuntime(champion.runtime) && (
+                    <span className="rounded-md border border-[#1e1e2a] bg-[#0d0d1a] px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.14em] text-[#F5F5F0]/70">
+                      {formatRuntime(champion.runtime)}
+                    </span>
+                  )}
+                  {champion.imdbRating != null && (
+                    <span className="rounded-md border border-[#1e1e2a] bg-[#0d0d1a] px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.14em] text-[#F5F5F0]/70">
+                      IMDb {champion.imdbRating.toFixed(1)}
+                    </span>
+                  )}
+                  {champion.rtScore != null && (
+                    <span className="rounded-md border border-[#1e1e2a] bg-[#0d0d1a] px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.14em] text-[#F5F5F0]/70">
+                      RT {champion.rtScore}%
+                    </span>
+                  )}
                 </div>
-              ) : null;
-            })()}
+
+                {champion.genres.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {champion.genres.slice(0, 4).map((genre) => (
+                      <span
+                        key={genre}
+                        className="rounded-full border border-[#e8453c]/25 bg-[#e8453c]/10 px-3 py-1 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.16em] text-[#e8453c]"
+                      >
+                        {genre}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                <div className="space-y-2">
+                  {champion.director && (
+                    <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.18em] text-[#555568]">
+                      Directed by <span className="text-[#F5F5F0]/70">{champion.director}</span>
+                    </p>
+                  )}
+                  <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.18em] text-[#D4AF37]">
+                    {formatAwardSummary(champion)}
+                  </p>
+                </div>
+
+                {champion.plot && (
+                  <p className="text-sm leading-6 text-[#F5F5F0]/65 sm:text-base sm:leading-7">
+                    {champion.plot}
+                  </p>
+                )}
+              </div>
+            </div>
 
             {/* Actions */}
             <div className="flex w-full flex-col gap-3">
@@ -364,7 +424,7 @@ export default function RollBattlePage() {
                 href={`/film/${champion.slug}`}
                 className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#e8453c] py-3.5 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.2em] text-[#F5F5F0] transition-colors hover:bg-[#d5342b]"
               >
-                View Film Details
+                Watch This Tonight
               </Link>
               <button
                 type="button"
