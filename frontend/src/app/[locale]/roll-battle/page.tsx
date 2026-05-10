@@ -65,11 +65,11 @@ function FilmBattleCard({ film, onPick, isPicked, isRejected, side, reduced }: F
       }}
       {...(!isPicked && !isRejected && !reduced ? { whileHover: { scale: 1.01 } } : {})}
       transition={{ type: "spring", stiffness: 260, damping: 24 }}
-      className="group relative flex w-full will-change-transform flex-col overflow-hidden rounded-2xl border border-[#1e1e2a] bg-[#0d0d1a] text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] disabled:cursor-default"
+      className="group relative flex h-full w-full will-change-transform flex-col overflow-hidden rounded-2xl border border-[#1e1e2a] bg-[#0d0d1a] text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] disabled:cursor-default"
       aria-label={`Pick ${film.title}`}
     >
       {/* Poster */}
-      <div className="relative w-full overflow-hidden" style={{ aspectRatio: "2/3" }}>
+      <div className="relative h-[min(43dvh,360px)] w-full overflow-hidden">
         {imageUrl ? (
           <Image
             src={imageUrl}
@@ -220,7 +220,7 @@ export default function RollBattlePage() {
   }
 
   return (
-    <div className="flex min-h-dvh flex-col bg-[#09090f]">
+    <div className="flex h-dvh flex-col overflow-hidden bg-[#09090f]">
       <header className="sticky top-0 z-50 flex items-center justify-between border-b border-[#1a1a28] bg-[#09090f]/90 px-5 py-3.5 backdrop-blur-sm sm:px-8">
         <Link
           href="/"
@@ -231,7 +231,7 @@ export default function RollBattlePage() {
         <SiteNavigation />
       </header>
 
-      <main className="flex flex-1 flex-col items-center px-4 py-8 sm:px-6">
+      <main className="flex min-h-0 flex-1 flex-col items-center px-4 py-5 sm:px-6">
         {/* Loading */}
         {phase === "loading" && (
           <div className="flex flex-1 flex-col items-center justify-center gap-4">
@@ -261,7 +261,7 @@ export default function RollBattlePage() {
 
         {/* Battle */}
         {phase === "battling" && leftFilm != null && rightFilm != null && (
-          <div className="flex w-full max-w-2xl flex-col gap-5">
+          <div className="flex w-full max-w-2xl flex-col gap-4">
             {/* Title + progress */}
             <div className="flex flex-col items-center gap-2 text-center">
               <span className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.35em] text-[#555568]">
@@ -297,7 +297,7 @@ export default function RollBattlePage() {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 {...(reduced ? {} : { exit: { opacity: 0, y: -16, scale: 0.98 } })}
                 transition={{ type: "spring", stiffness: 280, damping: 28 }}
-                className="grid grid-cols-[1fr_28px_1fr] items-start gap-1.5 sm:gap-3"
+                className="grid grid-cols-[1fr_28px_1fr] items-stretch gap-1.5 sm:gap-3"
               >
                 <FilmBattleCard
                   film={leftFilm}
@@ -309,7 +309,7 @@ export default function RollBattlePage() {
                 />
 
                 {/* VS divider */}
-                <div className="flex h-full flex-col items-center justify-start pt-24 sm:pt-28">
+                <div className="flex h-full flex-col items-center justify-center">
                   <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[#e8453c]/25 bg-[#09090f] font-[family-name:var(--font-geist-mono)] text-[7px] font-bold uppercase tracking-widest text-[#e8453c]">
                     vs
                   </div>
