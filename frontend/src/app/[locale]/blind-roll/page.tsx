@@ -93,15 +93,15 @@ export default function BlindRollPage() {
   }
 
   return (
-    <div className="flex min-h-dvh flex-col bg-[#09090f] text-[#F5F5F0]">
+    <div className="flex h-dvh flex-col overflow-hidden bg-[#09090f] text-[#F5F5F0]">
       <AppHeader />
 
-      <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 px-4 py-8 sm:px-6">
-        <div className="flex flex-col gap-2 text-center">
+      <main className="mx-auto flex min-h-0 w-full max-w-6xl flex-1 flex-col justify-center gap-5 px-4 py-5 sm:px-6">
+        <div className="flex shrink-0 flex-col gap-2 text-center">
           <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.35em] text-[#e8453c]/70">
             Blind Roll
           </p>
-          <h1 className="font-[family-name:var(--font-display)] text-3xl font-bold sm:text-5xl">
+          <h1 className="font-[family-name:var(--font-display)] text-3xl font-bold leading-none sm:text-5xl">
             Guess the hidden film
           </h1>
         </div>
@@ -130,60 +130,75 @@ export default function BlindRollPage() {
         )}
 
         {film && phase !== "loading" && phase !== "error" && (
-          <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
-            <section className="rounded-2xl border border-[#1a1a28] bg-[#0d0d1a] p-5">
-              <div className="mb-5 grid gap-3 sm:grid-cols-4">
-                <div className="rounded-xl border border-[#222232] bg-[#09090f] p-4">
-                  <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.18em] text-[#555568]">
+          <div className="grid min-h-0 gap-5 lg:grid-cols-[1fr_360px]">
+            <section className="relative flex h-[min(640px,calc(100dvh-13.5rem))] min-h-0 flex-col overflow-hidden rounded-2xl border border-[#242436] bg-[#0d0d1a] p-4 shadow-[0_24px_80px_rgba(0,0,0,0.35)]">
+              <div className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-[#e8453c]" />
+              <div className="mb-4 flex shrink-0 items-center justify-between gap-4 border-b border-[#1f1f30] pb-3">
+                <div>
+                  <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.28em] text-[#e8453c]">
+                    Case File
+                  </p>
+                  <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.18em] text-[#555568]">
+                    Identity withheld until reveal
+                  </p>
+                </div>
+                <div className="rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/10 px-3 py-1 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.16em] text-[#D4AF37]">
+                  Classified
+                </div>
+              </div>
+
+              <div className="mb-4 grid shrink-0 gap-2 sm:grid-cols-4">
+                <div className="flex h-28 flex-col justify-between rounded-xl border border-[#2a2a3e] bg-[#09090f] p-4">
+                  <p className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.18em] text-[#77778b]">
                     Release Decade
                   </p>
-                  <p className="mt-2 font-[family-name:var(--font-display)] text-2xl font-bold">
+                  <p className="font-[family-name:var(--font-display)] text-2xl font-bold">
                     {getDecade(film.year)}
                   </p>
                 </div>
-                <div className="rounded-xl border border-[#222232] bg-[#09090f] p-4">
-                  <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.18em] text-[#555568]">
+                <div className="flex h-28 flex-col justify-between rounded-xl border border-[#2a2a3e] bg-[#09090f] p-4">
+                  <p className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.18em] text-[#77778b]">
                     Runtime
                   </p>
-                  <p className="mt-2 font-[family-name:var(--font-display)] text-2xl font-bold">
+                  <p className="font-[family-name:var(--font-display)] text-2xl font-bold">
                     {film.runtime ? `${film.runtime} min` : "Unknown"}
                   </p>
                 </div>
-                <div className="rounded-xl border border-[#222232] bg-[#09090f] p-4">
-                  <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.18em] text-[#555568]">
+                <div className="flex h-28 flex-col justify-between rounded-xl border border-[#2a2a3e] bg-[#09090f] p-4">
+                  <p className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.18em] text-[#77778b]">
                     Total Nominations
                   </p>
-                  <p className="mt-2 font-[family-name:var(--font-display)] text-2xl font-bold">
+                  <p className="font-[family-name:var(--font-display)] text-2xl font-bold">
                     {totalNominations}
                   </p>
                 </div>
-                <div className="rounded-xl border border-[#222232] bg-[#09090f] p-4">
-                  <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.18em] text-[#555568]">
+                <div className="flex h-28 flex-col justify-between rounded-xl border border-[#2a2a3e] bg-[#09090f] p-4">
+                  <p className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.18em] text-[#77778b]">
                     Total Wins
                   </p>
-                  <p className="mt-2 font-[family-name:var(--font-display)] text-2xl font-bold text-[#D4AF37]">
+                  <p className="font-[family-name:var(--font-display)] text-2xl font-bold text-[#D4AF37]">
                     {totalWins}
                   </p>
                 </div>
               </div>
 
-              <div className="space-y-3">
+              <div className="min-h-0 flex-1 space-y-3 overflow-y-auto pr-1 [scrollbar-width:none] [&::-webkit-scrollbar]:w-0">
                 {awards.length > 0 ? (
                   awards.map((award, index) => (
                     <div
                       key={`${award.awardBody}-${award.awardYear}-${award.category}-${award.nominee}-${index}`}
-                      className="flex flex-col gap-2 rounded-xl border border-[#222232] bg-[#09090f] p-4 sm:flex-row sm:items-center sm:justify-between"
+                      className="flex min-h-24 flex-col gap-2 rounded-xl border border-[#2a2a3e] bg-[#09090f] p-4 sm:flex-row sm:items-center sm:justify-between"
                     >
-                      <div>
+                      <div className="min-w-0">
                         <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.2em] text-[#e8453c]">
                           {formatAwardBody(award.awardBody)} · {award.awardYear}
                         </p>
-                        <p className="mt-1 font-[family-name:var(--font-display)] text-lg font-bold">
+                        <p className="mt-1 line-clamp-2 font-[family-name:var(--font-display)] text-lg font-bold leading-tight">
                           {award.category}
                         </p>
-                        <p className="mt-1 text-sm text-[#888899]">{award.nominee}</p>
+                        <p className="mt-1 truncate text-sm text-[#aaaabc]">{award.nominee}</p>
                       </div>
-                      <span className="w-fit rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/10 px-3 py-1 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.16em] text-[#D4AF37]">
+                      <span className="w-fit shrink-0 rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/10 px-3 py-1 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.16em] text-[#D4AF37]">
                         {award.won ? "Won" : "Nominated"}
                       </span>
                     </div>
@@ -196,42 +211,43 @@ export default function BlindRollPage() {
               </div>
             </section>
 
-            <aside className="flex flex-col gap-4 rounded-2xl border border-[#1a1a28] bg-[#0d0d1a] p-5">
+            <aside className="relative flex h-[min(640px,calc(100dvh-13.5rem))] min-h-0 flex-col overflow-hidden rounded-2xl border border-[#242436] bg-[#0d0d1a] p-5 shadow-[0_24px_80px_rgba(0,0,0,0.35)]">
+              <div className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-[#D4AF37]" />
               {phase === "revealed" ? (
                 <motion.div
                   initial={reduced ? false : { opacity: 0, y: 18, scale: 0.97 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   transition={{ type: "spring", stiffness: 260, damping: 24 }}
-                  className="flex flex-col gap-4"
+                  className="flex h-full min-h-0 flex-col gap-4"
                 >
-                  <div className="relative mx-auto w-44 overflow-hidden rounded-xl border border-[#222232] bg-[#09090f]" style={{ aspectRatio: "2/3" }}>
+                  <div className="relative mx-auto h-60 w-40 shrink-0 overflow-hidden rounded-xl border border-[#2a2a3e] bg-[#09090f]">
                     {film.posterUrl ? (
-                      <Image src={film.posterUrl} alt={film.title} fill sizes="176px" className="object-cover" />
+                      <Image src={film.posterUrl} alt={film.title} fill sizes="160px" className="object-cover" />
                     ) : (
                       <div className="absolute inset-0 flex items-center justify-center">
                         <Clapperboard className="h-12 w-12 text-[#2a2a3e]" />
                       </div>
                     )}
                   </div>
-                  <div className="text-center">
+                  <div className="flex min-h-32 flex-col justify-center text-center">
                     <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.24em] text-[#D4AF37]">
                       {correct ? "Correct" : "Revealed"}
                     </p>
-                    <h2 className="mt-2 font-[family-name:var(--font-display)] text-3xl font-bold">
+                    <h2 className="mt-2 line-clamp-2 font-[family-name:var(--font-display)] text-3xl font-bold leading-tight">
                       {film.title}
                     </h2>
                     <p className="mt-1 text-sm text-[#888899]">{film.year}</p>
                   </div>
                   <Link
                     href={`/film/${film.slug}`}
-                    className="flex items-center justify-center rounded-xl bg-[#e8453c] py-3 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.2em] text-[#F5F5F0] transition-colors hover:bg-[#d5342b]"
+                    className="mt-auto flex h-12 items-center justify-center rounded-xl bg-[#e8453c] font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.2em] text-[#F5F5F0] transition-colors hover:bg-[#d5342b]"
                   >
                     View Film
                   </Link>
                   <button
                     type="button"
                     onClick={() => void loadFilm()}
-                    className="flex items-center justify-center gap-2 rounded-xl border border-[#222232] py-3 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.2em] text-[#888899] transition-colors hover:text-[#F5F5F0]"
+                    className="flex h-12 items-center justify-center gap-2 rounded-xl border border-[#2a2a3e] font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.2em] text-[#888899] transition-colors hover:text-[#F5F5F0]"
                   >
                     <RefreshCw className="h-3.5 w-3.5" />
                     Next Film
@@ -239,7 +255,7 @@ export default function BlindRollPage() {
                 </motion.div>
               ) : (
                 <>
-                  <div className="flex min-h-56 items-center justify-center rounded-xl border border-dashed border-[#2a2a3e] bg-[#09090f]">
+                  <div className="flex h-80 shrink-0 items-center justify-center rounded-xl border border-dashed border-[#2a2a3e] bg-[#09090f]">
                     <div className="flex flex-col items-center gap-3 text-center">
                       <Eye className="h-10 w-10 text-[#e8453c]/70" />
                       <p className="max-w-48 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.18em] text-[#555568]">
@@ -264,7 +280,7 @@ export default function BlindRollPage() {
                   <button
                     type="button"
                     onClick={handleReveal}
-                    className="flex items-center justify-center gap-2 rounded-xl bg-[#e8453c] py-3 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.2em] text-[#F5F5F0] transition-colors hover:bg-[#d5342b]"
+                    className="mt-auto flex h-12 items-center justify-center gap-2 rounded-xl bg-[#e8453c] font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.2em] text-[#F5F5F0] transition-colors hover:bg-[#d5342b]"
                   >
                     <Trophy className="h-3.5 w-3.5" />
                     Reveal
