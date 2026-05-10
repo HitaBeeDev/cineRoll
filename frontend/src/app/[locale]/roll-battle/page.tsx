@@ -28,11 +28,14 @@ function formatRuntime(runtime: number | null): string {
 }
 
 function formatAwardSummary(film: RollFilm): string {
-  const nominations = film.oscarNominations + film.ggNominations + film.cannesNominations;
+  const nominations =
+    film.oscarNominations + film.ggNominations + film.cannesNominations;
   const wins = film.oscarWins + film.ggWins + film.cannesWins;
-  if (wins > 0 && nominations > 0) return `${wins} wins · ${nominations} nominations`;
+  if (wins > 0 && nominations > 0)
+    return `${wins} wins · ${nominations} nominations`;
   if (wins > 0) return wins === 1 ? "1 win" : `${wins} wins`;
-  if (nominations > 0) return nominations === 1 ? "1 nomination" : `${nominations} nominations`;
+  if (nominations > 0)
+    return nominations === 1 ? "1 nomination" : `${nominations} nominations`;
   return "No major award records";
 }
 
@@ -45,7 +48,14 @@ interface FilmCardProps {
   reduced: boolean;
 }
 
-function FilmBattleCard({ film, onPick, isPicked, isRejected, side, reduced }: FilmCardProps) {
+function FilmBattleCard({
+  film,
+  onPick,
+  isPicked,
+  isRejected,
+  side,
+  reduced,
+}: FilmCardProps) {
   const genre = film.genres[0] ?? "";
   const runtime = formatRuntime(film.runtime);
   const imageUrl = film.posterUrl ?? film.backdropUrl;
@@ -58,25 +68,43 @@ function FilmBattleCard({ film, onPick, isPicked, isRejected, side, reduced }: F
       initial={reduced ? false : { opacity: 0, x: side === "left" ? -20 : 20 }}
       animate={{
         opacity: isRejected ? 0 : 1,
-        x: isRejected ? (side === "left" ? -360 : 360) : isPicked ? (side === "left" ? 34 : -34) : 0,
+        x: isRejected
+          ? side === "left"
+            ? -360
+            : 360
+          : isPicked
+            ? side === "left"
+              ? 34
+              : -34
+            : 0,
         y: isPicked ? -12 : 0,
-        rotate: isRejected ? (side === "left" ? -8 : 8) : isPicked ? (side === "left" ? 2 : -2) : 0,
+        rotate: isRejected
+          ? side === "left"
+            ? -8
+            : 8
+          : isPicked
+            ? side === "left"
+              ? 2
+              : -2
+            : 0,
         scale: isPicked ? 1.04 : isRejected ? 0.94 : 1,
       }}
-      {...(!isPicked && !isRejected && !reduced ? { whileHover: { scale: 1.01 } } : {})}
+      {...(!isPicked && !isRejected && !reduced
+        ? { whileHover: { scale: 1.01 } }
+        : {})}
       transition={{ type: "spring", stiffness: 260, damping: 24 }}
-      className="group relative flex h-full w-full will-change-transform flex-col overflow-hidden rounded-2xl border border-[#1e1e2a] bg-[#0d0d1a] text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] disabled:cursor-default"
+      className="group relative flex -mt-3 h-full w-full will-change-transform flex-col overflow-hidden rounded-2xl border border-[#1e1e2a] bg-[#0d0d1a] text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] disabled:cursor-default"
       aria-label={`Pick ${film.title}`}
     >
       {/* Poster */}
-      <div className="relative h-[min(43dvh,360px)] w-full overflow-hidden">
+      <div className="relative h-[min(56dvh,480px)] w-full overflow-hidden bg-[#07070d]">
         {imageUrl ? (
           <Image
             src={imageUrl}
             alt={film.title}
             fill
             sizes="(max-width: 768px) 45vw, 300px"
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            className="object-cover"
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center bg-[#1a1a28]">
@@ -115,7 +143,7 @@ function FilmBattleCard({ film, onPick, isPicked, isRejected, side, reduced }: F
 
       {/* Info */}
       <div className="flex flex-col gap-1 p-3">
-        <p className="truncate font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.15em] text-[#555568]">
+        <p className="truncate font-[family-name:var(--font-geist-mono)] text-[9px] font-semibold uppercase tracking-[0.16em] text-[#b6b6c8]">
           {film.year}
           {genre ? ` · ${genre}` : ""}
           {runtime ? ` · ${runtime}` : ""}
@@ -208,7 +236,11 @@ export default function RollBattlePage() {
     const text = `🎬 Roll Battle picked "${film.title}" (${film.year}) as my film tonight! Try it on CineRoll: ${shareUrl.toString()}`;
     try {
       if (navigator.share) {
-        await navigator.share({ title: "Roll Battle Result", text, url: shareUrl.toString() });
+        await navigator.share({
+          title: "Roll Battle Result",
+          text,
+          url: shareUrl.toString(),
+        });
       } else {
         await navigator.clipboard.writeText(shareUrl.toString());
         setShareStatus("copied");
@@ -231,7 +263,7 @@ export default function RollBattlePage() {
         <SiteNavigation />
       </header>
 
-      <main className="flex min-h-0 flex-1 flex-col items-center px-4 py-5 sm:px-6">
+      <main className="flex min-h-0 flex-1 flex-col items-center justify-center px-4 py-5 sm:px-6">
         {/* Loading */}
         {phase === "loading" && (
           <div className="flex flex-1 flex-col items-center justify-center gap-4">
@@ -295,7 +327,9 @@ export default function RollBattlePage() {
                 key={round}
                 initial={reduced ? false : { opacity: 0, y: 16, scale: 0.98 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                {...(reduced ? {} : { exit: { opacity: 0, y: -16, scale: 0.98 } })}
+                {...(reduced
+                  ? {}
+                  : { exit: { opacity: 0, y: -16, scale: 0.98 } })}
                 transition={{ type: "spring", stiffness: 280, damping: 28 }}
                 className="mt-3 grid grid-cols-[1fr_28px_1fr] items-stretch gap-1.5 sm:mt-4 sm:gap-3"
               >
@@ -358,7 +392,13 @@ export default function RollBattlePage() {
                     style={{ aspectRatio: "2/3" }}
                   >
                     {img ? (
-                      <Image src={img} alt={champion.title} fill sizes="(max-width: 640px) 192px, 220px" className="object-cover" />
+                      <Image
+                        src={img}
+                        alt={champion.title}
+                        fill
+                        sizes="(max-width: 640px) 192px, 220px"
+                        className="object-cover"
+                      />
                     ) : (
                       <div className="absolute inset-0 flex items-center justify-center">
                         <Clapperboard className="h-12 w-12 text-[#2a2a3e]" />
@@ -406,7 +446,10 @@ export default function RollBattlePage() {
                 <div className="space-y-2">
                   {champion.director && (
                     <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.18em] text-[#555568]">
-                      Directed by <span className="text-[#F5F5F0]/70">{champion.director}</span>
+                      Directed by{" "}
+                      <span className="text-[#F5F5F0]/70">
+                        {champion.director}
+                      </span>
                     </p>
                   )}
                   <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.18em] text-[#D4AF37]">
