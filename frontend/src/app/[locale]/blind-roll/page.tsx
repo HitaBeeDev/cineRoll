@@ -12,8 +12,15 @@ import { fetchRandom, type RollFilm } from "@/lib/api";
 type Phase = "loading" | "ready" | "revealed" | "error";
 type BlindRound = { film: RollFilm; options: RollFilm[] };
 type SessionScore = { correct: number; total: number };
+type Difficulty = "easy" | "medium" | "hard";
 
 const BLIND_ROLL_SCORE_KEY = "cineroll-blind-roll-score";
+const BLIND_ROLL_DIFFICULTY_KEY = "cineroll-blind-roll-difficulty";
+const DIFFICULTIES: Array<{ value: Difficulty; label: string }> = [
+  { value: "easy", label: "Easy" },
+  { value: "medium", label: "Medium" },
+  { value: "hard", label: "Hard" },
+];
 
 async function fetchBlindFilm(): Promise<RollFilm> {
   const result = await fetchRandom();
@@ -59,13 +66,9 @@ function getDecade(year: number): string {
   return `${Math.floor(year / 10) * 10}s`;
 }
 
-function formatRuntime(runtime: number | null): string {
-  if (!runtime) return "Unknown";
-  const hours = Math.floor(runtime / 60);
-  const minutes = runtime % 60;
-  if (hours === 0) return `${minutes}m`;
-  if (minutes === 0) return `${hours}h`;
-  return `${hours}h ${minutes}m`;
+function formatGenres(genres: string[]): string {
+  if (genres.length === 0) return "Unknown";
+  return genres.slice(0, 2).join(" / ");
 }
 
 function readSessionScore(): SessionScore {
@@ -95,6 +98,23 @@ function writeSessionScore(score: SessionScore) {
   } catch {}
 }
 
+function readDifficulty(): Difficulty {
+  if (typeof window === "undefined") return "medium";
+
+  try {
+    const raw = window.sessionStorage.getItem(BLIND_ROLL_DIFFICULTY_KEY);
+    if (raw === "easy" || raw === "medium" || raw === "hard") return raw;
+  } catch {}
+
+  return "medium";
+}
+
+function writeDifficulty(difficulty: Difficulty) {
+  try {
+    window.sessionStorage.setItem(BLIND_ROLL_DIFFICULTY_KEY, difficulty);
+  } catch {}
+}
+
 export default function BlindRollPage() {
   const reduced = useReducedMotion() ?? false;
   const [film, setFilm] = useState<RollFilm | null>(null);
@@ -103,6 +123,7 @@ export default function BlindRollPage() {
   const [selectedFilmId, setSelectedFilmId] = useState<string | null>(null);
   const [correct, setCorrect] = useState<boolean | null>(null);
   const [sessionScore, setSessionScore] = useState<SessionScore>(() => readSessionScore());
+  const [difficulty, setDifficulty] = useState<Difficulty>(() => readDifficulty());
 
   const loadFilm = useCallback(async () => {
     setPhase("loading");
@@ -139,8 +160,30 @@ export default function BlindRollPage() {
   }, []);
 
   const awards = useMemo(() => (film ? getAwards(film) : []), [film]);
-  const totalNominations = film ? film.oscarNominations + film.ggNominations + film.cannesNominations : 0;
-  const totalWins = film ? film.oscarWins + film.ggWins + film.cannesWins : 0;
+  const clueCards = useMemo(() => {
+    if (!film || difficulty === "hard") return [];
+
+    const cards = [
+      {
+        label: "Release Decade",
+        value: getDecade(film.year),
+      },
+    ];
+
+    if (difficulty === "easy") {
+      cards.push({
+        label: "Genre",
+        value: formatGenres(film.genres),
+      });
+    }
+
+    return cards;
+  }, [difficulty, film]);
+
+  function handleDifficultyChange(nextDifficulty: Difficulty) {
+    setDifficulty(nextDifficulty);
+    writeDifficulty(nextDifficulty);
+  }
 
   function handleReveal() {
     if (!film || phase === "revealed") return;
@@ -207,8 +250,32 @@ export default function BlindRollPage() {
                 Use the award trail, pick a suspect title, then open the vault.
               </p>
             </div>
-            <div className="w-fit rounded-full border border-[#D4AF37]/35 bg-[#D4AF37]/10 px-4 py-2 font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.18em] text-[#D4AF37]">
-              {sessionScore.correct}/{sessionScore.total} correct
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="flex rounded-full border border-[#2a2a3e] bg-[#0d0d1a] p-1">
+                {DIFFICULTIES.map((item) => {
+                  const active = difficulty === item.value;
+
+                  return (
+                    <button
+                      key={item.value}
+                      type="button"
+                      aria-pressed={active}
+                      onClick={() => handleDifficultyChange(item.value)}
+                      className={[
+                        "rounded-full px-3 py-1.5 font-[family-name:var(--font-geist-mono)] text-[9px] font-bold uppercase tracking-[0.16em] transition-colors",
+                        active
+                          ? "bg-[#D4AF37] text-[#09090f]"
+                          : "text-[#77778b] hover:text-[#F5F5F0]",
+                      ].join(" ")}
+                    >
+                      {item.label}
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="w-fit rounded-full border border-[#D4AF37]/35 bg-[#D4AF37]/10 px-4 py-2 font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.18em] text-[#D4AF37]">
+                {sessionScore.correct}/{sessionScore.total} correct
+              </div>
             </div>
           </div>
         </div>
@@ -250,40 +317,23 @@ export default function BlindRollPage() {
                   </div>
                 </div>
 
-                <div className="mb-3 grid shrink-0 gap-2 sm:grid-cols-4">
-                  <div className="flex h-24 flex-col justify-between rounded-xl border border-[#2a2a3e] bg-[#09090f]/80 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
-                    <p className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.18em] text-[#77778b]">
-                      Release Decade
-                    </p>
-                    <p className="font-[family-name:var(--font-display)] text-2xl font-bold">
-                      {getDecade(film.year)}
-                    </p>
+                {clueCards.length > 0 && (
+                  <div className="mb-3 grid shrink-0 gap-2 sm:grid-cols-2">
+                    {clueCards.map((card) => (
+                      <div
+                        key={card.label}
+                        className="flex h-24 flex-col justify-between rounded-xl border border-[#2a2a3e] bg-[#09090f]/80 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
+                      >
+                        <p className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.18em] text-[#77778b]">
+                          {card.label}
+                        </p>
+                        <p className="line-clamp-2 font-[family-name:var(--font-display)] text-2xl font-bold leading-tight">
+                          {card.value}
+                        </p>
+                      </div>
+                    ))}
                   </div>
-                  <div className="flex h-24 flex-col justify-between rounded-xl border border-[#2a2a3e] bg-[#09090f]/80 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
-                    <p className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.18em] text-[#77778b]">
-                      Runtime
-                    </p>
-                    <p className="font-[family-name:var(--font-display)] text-2xl font-bold">
-                      {formatRuntime(film.runtime)}
-                    </p>
-                  </div>
-                  <div className="flex h-24 flex-col justify-between rounded-xl border border-[#2a2a3e] bg-[#09090f]/80 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
-                    <p className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.18em] text-[#77778b]">
-                      Total Nominations
-                    </p>
-                    <p className="font-[family-name:var(--font-display)] text-2xl font-bold">
-                      {totalNominations}
-                    </p>
-                  </div>
-                  <div className="flex h-24 flex-col justify-between rounded-xl border border-[#2a2a3e] bg-[#09090f]/80 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
-                    <p className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.18em] text-[#77778b]">
-                      Total Wins
-                    </p>
-                    <p className="font-[family-name:var(--font-display)] text-2xl font-bold text-[#D4AF37]">
-                      {totalWins}
-                    </p>
-                  </div>
-                </div>
+                )}
 
                 <div className={awards.length > 3 ? "grid gap-2 sm:grid-cols-2" : "space-y-2"}>
                   {awards.length > 0 ? (
