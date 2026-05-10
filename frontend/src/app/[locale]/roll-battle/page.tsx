@@ -57,13 +57,15 @@ function FilmBattleCard({ film, onPick, isPicked, isRejected, side, reduced }: F
       disabled={isPicked || isRejected}
       initial={reduced ? false : { opacity: 0, x: side === "left" ? -20 : 20 }}
       animate={{
-        opacity: isRejected ? 0.18 : 1,
-        x: 0,
-        scale: isPicked ? 1.02 : isRejected ? 0.97 : 1,
+        opacity: isRejected ? 0 : 1,
+        x: isRejected ? (side === "left" ? -360 : 360) : isPicked ? (side === "left" ? 34 : -34) : 0,
+        y: isPicked ? -12 : 0,
+        rotate: isRejected ? (side === "left" ? -8 : 8) : isPicked ? (side === "left" ? 2 : -2) : 0,
+        scale: isPicked ? 1.04 : isRejected ? 0.94 : 1,
       }}
       {...(!isPicked && !isRejected && !reduced ? { whileHover: { scale: 1.01 } } : {})}
-      transition={{ type: "spring", stiffness: 300, damping: 28 }}
-      className="group relative flex w-full flex-col overflow-hidden rounded-2xl border border-[#1e1e2a] bg-[#0d0d1a] text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] disabled:cursor-default"
+      transition={{ type: "spring", stiffness: 260, damping: 24 }}
+      className="group relative flex w-full will-change-transform flex-col overflow-hidden rounded-2xl border border-[#1e1e2a] bg-[#0d0d1a] text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] disabled:cursor-default"
       aria-label={`Pick ${film.title}`}
     >
       {/* Poster */}
@@ -291,10 +293,10 @@ export default function RollBattlePage() {
             <AnimatePresence mode="wait">
               <motion.div
                 key={round}
-                initial={reduced ? false : { opacity: 0 }}
-                animate={{ opacity: 1 }}
-                {...(reduced ? {} : { exit: { opacity: 0 } })}
-                transition={{ duration: 0.18 }}
+                initial={reduced ? false : { opacity: 0, y: 16, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                {...(reduced ? {} : { exit: { opacity: 0, y: -16, scale: 0.98 } })}
+                transition={{ type: "spring", stiffness: 280, damping: 28 }}
                 className="grid grid-cols-[1fr_28px_1fr] items-start gap-1.5 sm:gap-3"
               >
                 <FilmBattleCard
