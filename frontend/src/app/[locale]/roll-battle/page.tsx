@@ -172,8 +172,8 @@ export default function RollBattlePage() {
     };
   }, []);
 
-  const leftFilm: RollFilm | null = films[round * 2] ?? null;
-  const rightFilm: RollFilm | null = films[round * 2 + 1] ?? null;
+  const leftFilm: RollFilm | null = round === 0 ? (films[0] ?? null) : champion;
+  const rightFilm: RollFilm | null = films[round + 1] ?? null;
 
   function handlePick(film: RollFilm) {
     if (pickedId !== null) return;

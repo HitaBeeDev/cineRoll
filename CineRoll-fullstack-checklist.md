@@ -675,7 +675,7 @@ Tinder-style head-to-head: two random films shown side by side, user picks one, 
 
 - [x] Create `src/app/roll-battle/page.tsx`
 - [x] On load, fetch 10 random films from /api/random (used as a pool for the 5 rounds)
-- [ ] Each round: show two film poster cards side by side with title and award badge; user clicks/taps one to pick it; the winner advances to the next round (bracket style)
+- [x] Each round: show two film poster cards side by side with title and award badge; user clicks/taps one to pick it; the winner advances to the next round (bracket style)
 - [ ] After 5 rounds, show the final winner with full film details and "Watch this tonight" CTA linking to its detail page
 - [ ] "Share my winner" button generates a shareable link: `/roll-battle/result?film=slug`
 - [ ] Smooth swipe animation between rounds using Framer Motion
