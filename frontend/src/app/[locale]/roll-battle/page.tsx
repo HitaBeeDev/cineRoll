@@ -297,7 +297,7 @@ export default function RollBattlePage() {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 {...(reduced ? {} : { exit: { opacity: 0, y: -16, scale: 0.98 } })}
                 transition={{ type: "spring", stiffness: 280, damping: 28 }}
-                className="grid grid-cols-[1fr_28px_1fr] items-stretch gap-1.5 sm:gap-3"
+                className="mt-3 grid grid-cols-[1fr_28px_1fr] items-stretch gap-1.5 sm:mt-4 sm:gap-3"
               >
                 <FilmBattleCard
                   film={leftFilm}
