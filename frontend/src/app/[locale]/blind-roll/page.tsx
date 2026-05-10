@@ -11,6 +11,9 @@ import { fetchRandom, type RollFilm } from "@/lib/api";
 
 type Phase = "loading" | "ready" | "revealed" | "error";
 type BlindRound = { film: RollFilm; options: RollFilm[] };
+type SessionScore = { correct: number; total: number };
+
+const BLIND_ROLL_SCORE_KEY = "cineroll-blind-roll-score";
 
 async function fetchBlindFilm(): Promise<RollFilm> {
   const result = await fetchRandom();
@@ -65,6 +68,33 @@ function formatRuntime(runtime: number | null): string {
   return `${hours}h ${minutes}m`;
 }
 
+function readSessionScore(): SessionScore {
+  if (typeof window === "undefined") return { correct: 0, total: 0 };
+
+  try {
+    const raw = window.sessionStorage.getItem(BLIND_ROLL_SCORE_KEY);
+    const parsed = raw ? JSON.parse(raw) : null;
+    if (
+      parsed &&
+      typeof parsed.correct === "number" &&
+      typeof parsed.total === "number"
+    ) {
+      return {
+        correct: Math.max(0, parsed.correct),
+        total: Math.max(0, parsed.total),
+      };
+    }
+  } catch {}
+
+  return { correct: 0, total: 0 };
+}
+
+function writeSessionScore(score: SessionScore) {
+  try {
+    window.sessionStorage.setItem(BLIND_ROLL_SCORE_KEY, JSON.stringify(score));
+  } catch {}
+}
+
 export default function BlindRollPage() {
   const reduced = useReducedMotion() ?? false;
   const [film, setFilm] = useState<RollFilm | null>(null);
@@ -72,6 +102,7 @@ export default function BlindRollPage() {
   const [phase, setPhase] = useState<Phase>("loading");
   const [selectedFilmId, setSelectedFilmId] = useState<string | null>(null);
   const [correct, setCorrect] = useState<boolean | null>(null);
+  const [sessionScore, setSessionScore] = useState<SessionScore>(() => readSessionScore());
 
   const loadFilm = useCallback(async () => {
     setPhase("loading");
@@ -112,8 +143,16 @@ export default function BlindRollPage() {
   const totalWins = film ? film.oscarWins + film.ggWins + film.cannesWins : 0;
 
   function handleReveal() {
-    if (!film) return;
-    setCorrect(selectedFilmId === film.id);
+    if (!film || phase === "revealed") return;
+    const isCorrect = selectedFilmId === film.id;
+    const nextScore = {
+      correct: sessionScore.correct + (isCorrect ? 1 : 0),
+      total: sessionScore.total + 1,
+    };
+
+    setCorrect(isCorrect);
+    setSessionScore(nextScore);
+    writeSessionScore(nextScore);
     setPhase("revealed");
   }
 
@@ -159,12 +198,19 @@ export default function BlindRollPage() {
           <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.35em] text-[#e8453c]/70">
             Blind Roll
           </p>
-          <h1 className="max-w-full text-balance font-[family-name:var(--font-display)] text-3xl font-bold leading-tight sm:max-w-3xl lg:text-5xl lg:leading-none">
-            Crack the festival case
-          </h1>
-          <p className="max-w-full text-sm leading-5 text-[#aaaabc] sm:max-w-2xl">
-            Use the award trail, pick a suspect title, then open the vault.
-          </p>
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <h1 className="max-w-full text-balance font-[family-name:var(--font-display)] text-3xl font-bold leading-tight sm:max-w-3xl lg:text-5xl lg:leading-none">
+                Crack the festival case
+              </h1>
+              <p className="mt-1.5 max-w-full text-sm leading-5 text-[#aaaabc] sm:max-w-2xl">
+                Use the award trail, pick a suspect title, then open the vault.
+              </p>
+            </div>
+            <div className="w-fit rounded-full border border-[#D4AF37]/35 bg-[#D4AF37]/10 px-4 py-2 font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.18em] text-[#D4AF37]">
+              {sessionScore.correct}/{sessionScore.total} correct
+            </div>
+          </div>
         </div>
 
         {phase === "loading" && (
