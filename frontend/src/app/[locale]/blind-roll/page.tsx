@@ -97,7 +97,7 @@ export default function BlindRollPage() {
       <AppHeader />
 
       <main className="mx-auto flex min-h-0 w-full max-w-6xl flex-1 flex-col justify-center gap-5 px-4 py-5 sm:px-6">
-        <div className="flex shrink-0 flex-col gap-2 text-center">
+        <div className="flex shrink-0 flex-col gap-2 text-left">
           <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.35em] text-[#e8453c]/70">
             Blind Roll
           </p>
@@ -133,15 +133,10 @@ export default function BlindRollPage() {
           <div className="grid min-h-0 gap-5 lg:grid-cols-[1fr_360px]">
             <section className="relative flex h-[min(640px,calc(100dvh-13.5rem))] min-h-0 flex-col overflow-hidden rounded-2xl border border-[#242436] bg-[#0d0d1a] p-4 shadow-[0_24px_80px_rgba(0,0,0,0.35)]">
               <div className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-[#e8453c]" />
-              <div className="mb-4 flex shrink-0 items-center justify-between gap-4 border-b border-[#1f1f30] pb-3">
-                <div>
-                  <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.28em] text-[#e8453c]">
-                    Case File
-                  </p>
-                  <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.18em] text-[#555568]">
-                    Identity withheld until reveal
-                  </p>
-                </div>
+              <div className="mb-3 flex shrink-0 items-center justify-between gap-4">
+                <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.28em] text-[#e8453c]">
+                  Case File
+                </p>
                 <div className="rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/10 px-3 py-1 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.16em] text-[#D4AF37]">
                   Classified
                 </div>
