@@ -13,6 +13,7 @@ const navItems = [
   { href: "/discover", label: "Discover" },
   { href: "/snob-test", label: "Test Yourself" },
   { href: "/roll-battle", label: "Roll Battle" },
+  { href: "/blind-roll", label: "Blind Roll" },
   { href: "/stats", label: "Stats" },
 ];
 
