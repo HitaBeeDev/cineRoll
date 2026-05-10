@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
-import { Clapperboard, Eye, RefreshCw, Trophy } from "lucide-react";
+import { CheckCircle2, Clapperboard, Eye, RefreshCw, Trophy, XCircle } from "lucide-react";
 import type { AwardRecord } from "@cineroll/types";
 import { AppHeader } from "@/components/app-header";
 import { fetchRandom, type RollFilm } from "@/lib/api";
@@ -257,11 +257,50 @@ export default function BlindRollPage() {
                   </div>
                 </div>
 
+                {phase === "revealed" && (
+                  <motion.div
+                    initial={reduced ? false : { opacity: 0, y: -8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className={[
+                      "mb-2 flex items-center justify-between gap-3 rounded-xl border px-3 py-2",
+                      correct
+                        ? "border-[#4ade80]/45 bg-[#4ade80]/10 text-[#bbf7d0]"
+                        : "border-[#e8453c]/45 bg-[#e8453c]/10 text-[#fecaca]",
+                    ].join(" ")}
+                  >
+                    <div className="flex min-w-0 items-center gap-2">
+                      {correct ? (
+                        <CheckCircle2 className="h-4 w-4 shrink-0 text-[#4ade80]" />
+                      ) : (
+                        <XCircle className="h-4 w-4 shrink-0 text-[#e8453c]" />
+                      )}
+                      <p className="truncate font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.18em]">
+                        {correct ? "Correct pick" : "Case missed"}
+                      </p>
+                    </div>
+                    <p className="hidden text-xs text-[#d4d4df] sm:block">
+                      {correct ? "You cracked the hidden film." : `Answer: ${film.title}`}
+                    </p>
+                  </motion.div>
+                )}
+
                 <div className="grid gap-2 sm:grid-cols-2">
                   {options.map((option, index) => {
                     const selected = selectedFilmId === option.id;
                     const revealedCorrect = phase === "revealed" && option.id === film.id;
                     const revealedWrong = phase === "revealed" && selected && option.id !== film.id;
+                    const optionStateClass = revealedCorrect
+                      ? "border-[#4ade80] bg-[#4ade80]/12 shadow-[0_0_34px_rgba(74,222,128,0.18)]"
+                      : revealedWrong
+                        ? "border-[#e8453c] bg-[#e8453c]/10 shadow-[0_0_34px_rgba(232,69,60,0.12)]"
+                        : selected
+                          ? "border-[#D4AF37] bg-[#D4AF37]/10 shadow-[0_0_30px_rgba(212,175,55,0.12)]"
+                          : "border-[#2a2a3e] bg-[#09090f] hover:border-[#e8453c]/60 hover:bg-[#141421]";
+                    const markerStateClass = revealedCorrect
+                      ? "border-[#4ade80] bg-[#4ade80] text-[#07110b]"
+                      : revealedWrong
+                        ? "border-[#e8453c] bg-[#e8453c] text-[#F5F5F0]"
+                        : "border-[#2a2a3e] bg-[#10101b] text-[#D4AF37] group-hover:border-[#D4AF37]/60";
 
                     return (
                       <button
@@ -273,15 +312,16 @@ export default function BlindRollPage() {
                         className={[
                           "group flex min-h-20 items-center gap-3 rounded-xl border p-3 text-left transition-all duration-200",
                           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37] focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090f]",
-                          selected
-                            ? "border-[#D4AF37] bg-[#D4AF37]/10 shadow-[0_0_30px_rgba(212,175,55,0.12)]"
-                            : "border-[#2a2a3e] bg-[#09090f] hover:border-[#e8453c]/60 hover:bg-[#141421]",
-                          revealedCorrect ? "border-[#4ade80] bg-[#4ade80]/10" : "",
-                          revealedWrong ? "border-[#e8453c] bg-[#e8453c]/10" : "",
+                          optionStateClass,
                         ].join(" ")}
                         disabled={phase === "revealed"}
                       >
-                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#2a2a3e] bg-[#10101b] font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-widest text-[#D4AF37] group-hover:border-[#D4AF37]/60">
+                        <span
+                          className={[
+                            "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-widest transition-colors",
+                            markerStateClass,
+                          ].join(" ")}
+                        >
                           {String.fromCharCode(65 + index)}
                         </span>
                         <span className="min-w-0">
@@ -300,7 +340,12 @@ export default function BlindRollPage() {
             </div>
 
             <aside className="relative flex min-h-[520px] flex-col overflow-hidden rounded-2xl border border-[#34344c] bg-[linear-gradient(160deg,#12121f,#09090f_60%)] p-4 shadow-[0_24px_80px_rgba(0,0,0,0.38)] lg:sticky lg:top-20 lg:h-[calc(100dvh-11rem)] lg:min-h-0">
-              <div className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-[#D4AF37]" />
+              <div
+                className={[
+                  "pointer-events-none absolute inset-x-0 top-0 h-1",
+                  phase === "revealed" && correct ? "bg-[#4ade80]" : "bg-[#D4AF37]",
+                ].join(" ")}
+              />
               {phase === "revealed" ? (
                 <motion.div
                   initial={reduced ? false : { opacity: 0, y: 18, scale: 0.97 }}
@@ -308,6 +353,22 @@ export default function BlindRollPage() {
                   transition={{ type: "spring", stiffness: 260, damping: 24 }}
                   className="flex h-full min-h-0 flex-col gap-3"
                 >
+                  {correct && (
+                    <motion.div
+                      initial={reduced ? false : { opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.08 }}
+                      className="relative overflow-hidden rounded-xl border border-[#4ade80]/45 bg-[#4ade80]/10 px-4 py-3 text-center shadow-[0_0_40px_rgba(74,222,128,0.12)]"
+                    >
+                      <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-[#bbf7d0]/70" />
+                      <p className="font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.22em] text-[#4ade80]">
+                        Case cracked
+                      </p>
+                      <p className="mt-1 text-sm text-[#d4d4df]">
+                        Perfect read. You found the hidden film.
+                      </p>
+                    </motion.div>
+                  )}
                   <div className="relative min-h-0 flex-1 overflow-hidden rounded-xl border border-[#2a2a3e] bg-[#09090f] shadow-[0_20px_60px_rgba(0,0,0,0.45)]">
                     {film.posterUrl ? (
                       <Image src={film.posterUrl} alt={film.title} fill sizes="380px" className="object-cover" />
