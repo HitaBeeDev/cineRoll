@@ -132,13 +132,21 @@ export default function BlindRollPage() {
         {film && phase !== "loading" && phase !== "error" && (
           <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
             <section className="rounded-2xl border border-[#1a1a28] bg-[#0d0d1a] p-5">
-              <div className="mb-5 grid gap-3 sm:grid-cols-3">
+              <div className="mb-5 grid gap-3 sm:grid-cols-4">
                 <div className="rounded-xl border border-[#222232] bg-[#09090f] p-4">
                   <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.18em] text-[#555568]">
                     Release Decade
                   </p>
                   <p className="mt-2 font-[family-name:var(--font-display)] text-2xl font-bold">
                     {getDecade(film.year)}
+                  </p>
+                </div>
+                <div className="rounded-xl border border-[#222232] bg-[#09090f] p-4">
+                  <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.18em] text-[#555568]">
+                    Runtime
+                  </p>
+                  <p className="mt-2 font-[family-name:var(--font-display)] text-2xl font-bold">
+                    {film.runtime ? `${film.runtime} min` : "Unknown"}
                   </p>
                 </div>
                 <div className="rounded-xl border border-[#222232] bg-[#09090f] p-4">
