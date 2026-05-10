@@ -444,7 +444,7 @@ export default function RollBattlePage() {
                 className="flex w-full items-center justify-center gap-2 rounded-xl border border-[#1a1a28] py-3.5 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.2em] text-[#555568] transition-colors hover:text-[#888899]"
               >
                 <RefreshCw className="h-3.5 w-3.5" />
-                Play Again
+                Try Again
               </button>
             </div>
           </motion.div>

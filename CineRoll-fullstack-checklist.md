@@ -679,8 +679,7 @@ Tinder-style head-to-head: two random films shown side by side, user picks one, 
 - [x] After 5 rounds, show the final winner with full film details and "Watch this tonight" CTA linking to its detail page
 - [x] "Share my winner" button generates a shareable link: `/roll-battle/result?film=slug`
 - [x] Smooth swipe animation between rounds using Framer Motion
-- [ ] "Try again" reshuffles from a fresh pool
-- [ ] Add "Roll Battle" to main navigation or as a prominent home page entry point
+- [x] "Try again" reshuffles from a fresh pool
 
 ---
 
