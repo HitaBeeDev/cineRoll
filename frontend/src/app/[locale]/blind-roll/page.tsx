@@ -3,16 +3,18 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { motion, useReducedMotion } from "framer-motion";
-import { CheckCircle2, Clapperboard, Eye, RefreshCw, Sparkles, Star, Trophy, XCircle } from "lucide-react";
+import { CheckCircle2, Clapperboard, Eye, Link2, RefreshCw, Sparkles, Star, Trophy, XCircle } from "lucide-react";
 import type { AwardRecord } from "@cineroll/types";
 import { AppHeader } from "@/components/app-header";
-import { fetchRandom, type RollFilm } from "@/lib/api";
+import { fetchFilmBySlug, fetchRandom, type RollFilm } from "@/lib/api";
 
 type Phase = "loading" | "ready" | "revealed" | "error";
 type BlindRound = { film: RollFilm; options: RollFilm[] };
 type SessionScore = { correct: number; total: number };
 type Difficulty = "easy" | "medium" | "hard";
+type ShareStatus = "idle" | "copied" | "failed";
 
 const BLIND_ROLL_SCORE_KEY = "cineroll-blind-roll-score";
 const BLIND_ROLL_DIFFICULTY_KEY = "cineroll-blind-roll-difficulty";
@@ -31,23 +33,28 @@ function shuffleFilms(films: RollFilm[]): RollFilm[] {
   return [...films].sort(() => Math.random() - 0.5);
 }
 
-async function fetchBlindRound(): Promise<BlindRound> {
-  const films: RollFilm[] = [];
-  const seen = new Set<string>();
+async function fetchDistractors(targetFilm: RollFilm): Promise<RollFilm[]> {
+  const distractors: RollFilm[] = [];
+  const seen = new Set<string>([targetFilm.id]);
 
-  while (films.length < 4) {
+  while (distractors.length < 3) {
     const nextFilm = await fetchBlindFilm();
     if (seen.has(nextFilm.id)) continue;
     seen.add(nextFilm.id);
-    films.push(nextFilm);
+    distractors.push(nextFilm);
   }
 
-  const film = films[0];
+  return distractors;
+}
+
+async function fetchBlindRound(challengeSlug?: string): Promise<BlindRound> {
+  const film = challengeSlug ? await fetchFilmBySlug(challengeSlug) : await fetchBlindFilm();
   if (!film) throw new Error("No blind roll film found");
+  const distractors = await fetchDistractors(film);
 
   return {
     film,
-    options: shuffleFilms(films),
+    options: shuffleFilms([film, ...distractors]),
   };
 }
 
@@ -102,6 +109,11 @@ function readDifficulty(): Difficulty {
   if (typeof window === "undefined") return "medium";
 
   try {
+    const urlDifficulty = new URLSearchParams(window.location.search).get("difficulty");
+    if (urlDifficulty === "easy" || urlDifficulty === "medium" || urlDifficulty === "hard") {
+      return urlDifficulty;
+    }
+
     const raw = window.sessionStorage.getItem(BLIND_ROLL_DIFFICULTY_KEY);
     if (raw === "easy" || raw === "medium" || raw === "hard") return raw;
   } catch {}
@@ -116,6 +128,7 @@ function writeDifficulty(difficulty: Difficulty) {
 }
 
 export default function BlindRollPage() {
+  const searchParams = useSearchParams();
   const reduced = useReducedMotion() ?? false;
   const [film, setFilm] = useState<RollFilm | null>(null);
   const [options, setOptions] = useState<RollFilm[]>([]);
@@ -124,14 +137,17 @@ export default function BlindRollPage() {
   const [correct, setCorrect] = useState<boolean | null>(null);
   const [sessionScore, setSessionScore] = useState<SessionScore>(() => readSessionScore());
   const [difficulty, setDifficulty] = useState<Difficulty>(() => readDifficulty());
+  const [shareStatus, setShareStatus] = useState<ShareStatus>("idle");
+  const challengeSlug = searchParams.get("film")?.trim() || undefined;
 
-  const loadFilm = useCallback(async () => {
+  const loadFilm = useCallback(async (slug?: string) => {
     setPhase("loading");
     setOptions([]);
     setSelectedFilmId(null);
     setCorrect(null);
+    setShareStatus("idle");
     try {
-      const nextRound = await fetchBlindRound();
+      const nextRound = await fetchBlindRound(slug);
       setFilm(nextRound.film);
       setOptions(nextRound.options);
       setPhase("ready");
@@ -143,7 +159,7 @@ export default function BlindRollPage() {
   useEffect(() => {
     let ignore = false;
 
-    fetchBlindRound()
+    fetchBlindRound(challengeSlug)
       .then((nextRound) => {
         if (ignore) return;
         setFilm(nextRound.film);
@@ -157,7 +173,7 @@ export default function BlindRollPage() {
     return () => {
       ignore = true;
     };
-  }, []);
+  }, [challengeSlug]);
 
   const awards = useMemo(() => (film ? getAwards(film) : []), [film]);
   const clueCards = useMemo(() => {
@@ -183,6 +199,33 @@ export default function BlindRollPage() {
   function handleDifficultyChange(nextDifficulty: Difficulty) {
     setDifficulty(nextDifficulty);
     writeDifficulty(nextDifficulty);
+  }
+
+  async function handleChallengeFriend() {
+    if (!film || typeof window === "undefined") return;
+
+    const url = new URL(window.location.href);
+    url.searchParams.set("film", film.slug);
+    url.searchParams.set("difficulty", difficulty);
+    const shareUrl = url.toString();
+    const text = `Can you crack this CineRoll blind roll?`;
+
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: "CineRoll Blind Roll",
+          text,
+          url: shareUrl,
+        });
+      } else {
+        await navigator.clipboard.writeText(shareUrl);
+      }
+      setShareStatus("copied");
+      window.setTimeout(() => setShareStatus("idle"), 2200);
+    } catch {
+      setShareStatus("failed");
+      window.setTimeout(() => setShareStatus("idle"), 2200);
+    }
   }
 
   function handleReveal() {
@@ -517,6 +560,18 @@ export default function BlindRollPage() {
                   </Link>
                   <button
                     type="button"
+                    onClick={() => void handleChallengeFriend()}
+                    className="flex h-12 items-center justify-center gap-2 rounded-xl border border-[#D4AF37]/35 bg-[#D4AF37]/10 font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.18em] text-[#D4AF37] transition-colors hover:bg-[#D4AF37]/15 hover:text-[#f3d76a]"
+                  >
+                    <Link2 className="h-3.5 w-3.5" />
+                    {shareStatus === "copied"
+                      ? "Link Copied"
+                      : shareStatus === "failed"
+                        ? "Could Not Share"
+                        : "Challenge A Friend"}
+                  </button>
+                  <button
+                    type="button"
                     onClick={() => void loadFilm()}
                     className="flex h-14 items-center justify-center gap-2 rounded-xl border border-[#2a2a3e] bg-[#111118] font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.2em] text-[#888899] transition-colors hover:border-[#e8453c]/60 hover:text-[#F5F5F0]"
                   >
@@ -536,7 +591,19 @@ export default function BlindRollPage() {
                       </p>
                     </div>
                   </div>
-                  <div className="mt-4">
+                  <div className="mt-4 grid gap-2">
+                    <button
+                      type="button"
+                      onClick={() => void handleChallengeFriend()}
+                      className="flex h-11 items-center justify-center gap-2 rounded-xl border border-[#D4AF37]/35 bg-[#D4AF37]/10 font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.18em] text-[#D4AF37] transition-colors hover:bg-[#D4AF37]/15 hover:text-[#f3d76a]"
+                    >
+                      <Link2 className="h-3.5 w-3.5" />
+                      {shareStatus === "copied"
+                        ? "Link Copied"
+                        : shareStatus === "failed"
+                          ? "Could Not Share"
+                          : "Challenge A Friend"}
+                    </button>
                     <button
                       type="button"
                       onClick={handleReveal}

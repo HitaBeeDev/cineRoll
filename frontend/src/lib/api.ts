@@ -147,6 +147,12 @@ export async function fetchRandom(filters?: Partial<FilterState>): Promise<Rando
   return res.json() as Promise<RandomResult>;
 }
 
+export async function fetchFilmBySlug(slug: string): Promise<RollFilm> {
+  const res = await fetch(`${API_URL}/api/films/${encodeURIComponent(slug)}`, { cache: "no-store" });
+  if (!res.ok) throw new Error("Failed to fetch film");
+  return res.json() as Promise<RollFilm>;
+}
+
 export async function fetchFilms(filters: Partial<FilterState>, limit = 12): Promise<PaginatedFilms> {
   const params = filtersToParams(filters);
   params.set("limit", String(limit));

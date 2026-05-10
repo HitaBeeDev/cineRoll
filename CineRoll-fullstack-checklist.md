@@ -77,7 +77,7 @@ Monorepo with `cineroll/` root containing:
 9. Frontend — Roll Feature (Mood Presets, Share, Spacebar, Not Interested/Watched, Session History, Time Capsule Roll)
    9b. Roll Battle (Swipe to Decide)
    9c. Blind Roll — Film Quiz Mode
-   9d. Natural Language Roll (AI — Claude API)
+   9d. Natural Language Roll (AI — Gemini API)
 10. Frontend — Pick of the Day (Algorithmic)
 11. Frontend — Film Detail Pages (all award bodies + Trailer Modal + Color Theming + Similar Films + Original Title)
     11b. Tonight's Pick — Shareable Card
@@ -701,21 +701,21 @@ Show only award data — no title, no poster, no plot. User guesses the film. Th
 
 ---
 
-## 9d. Natural Language Roll (AI — Claude API)
+## 9d. Natural Language Roll (AI — Gemini API)
 
-Instead of dropdowns, the user describes what they want in plain English. Claude interprets the mood and maps it to filter combinations, then rolls.
+Instead of dropdowns, the user describes what they want in plain English. Gemini interprets the mood and maps it to filter combinations, then rolls.
 
 ### Backend
 
-- [ ] Install Anthropic SDK in backend: `npm install @anthropic-ai/sdk --workspace=backend`
-- [ ] Add `ANTHROPIC_API_KEY` to `backend/.env`
+- [ ] Install Google Generative AI SDK in backend: `npm install @google/generative-ai --workspace=backend`
+- [ ] Add `GEMINI_API_KEY` to `backend/.env`
 - [ ] Create POST /api/natural-roll — body: `{ prompt: string }`; pipeline:
-  1. Send the user's prompt to Claude with a system message that explains the available FilterState fields and asks Claude to return a JSON filter object
-  2. Validate Claude's response against the FilterState Zod schema; reject any invalid fields
+  1. Send the user's prompt to Gemini with a system message that explains the available FilterState fields and asks Gemini to return a JSON filter object
+  2. Validate Gemini's response against the FilterState Zod schema; reject any invalid fields
   3. Pass the validated filters to the same random-film query used by /api/random
   4. Return the selected film + the interpreted filters (so the frontend can show "I searched for: Oscar winner, 1990s, drama")
 - [ ] Rate limit: max 10 natural-roll requests per user per hour to manage API costs
-- [ ] If Claude returns filters that match zero films, retry once with a relaxed prompt asking for fewer constraints
+- [ ] If Gemini returns filters that match zero films, retry once with a relaxed prompt asking for fewer constraints
 
 ### Frontend
 
@@ -724,7 +724,7 @@ Instead of dropdowns, the user describes what they want in plain English. Claude
 - [ ] While processing, show a fun loading message: "Asking the algorithm…"
 - [ ] After roll, show the interpreted filters as chips below the result: "Searched for: Golden Globe winner · Drama · 1990s" so the user understands what happened
 - [ ] "Refine" button lets them edit the prompt and re-roll
-- [ ] If no films match: show Claude's interpreted filters and suggest adjusting the description
+- [ ] If no films match: show Gemini's interpreted filters and suggest adjusting the description
 
 ---
 
