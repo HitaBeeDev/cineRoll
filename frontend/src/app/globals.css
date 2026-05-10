@@ -7,6 +7,30 @@ body {
   color: #f5f5f0;
 }
 
+html {
+  scrollbar-color: rgba(232, 69, 60, 0.58) rgba(9, 9, 15, 0.72);
+  scrollbar-width: thin;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: rgba(9, 9, 15, 0.72);
+}
+
+*::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(232, 69, 60, 0.82), rgba(212, 175, 55, 0.72));
+  border: 2px solid rgba(9, 9, 15, 0.92);
+  border-radius: 999px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #e8453c, #d4af37);
+}
+
 body::before {
   content: "";
   position: fixed;
