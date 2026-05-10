@@ -9,8 +9,16 @@ import { SiteNavigation } from "@/components/site-navigation";
 import { fetchRandom, type RollFilm } from "@/lib/api";
 
 const TOTAL_ROUNDS = 5;
+const POOL_SIZE = TOTAL_ROUNDS * 2;
 
 type Phase = "loading" | "battling" | "result" | "error";
+
+async function fetchBattlePool(): Promise<RollFilm[]> {
+  const results = await Promise.all(
+    Array.from({ length: POOL_SIZE }, () => fetchRandom()),
+  );
+  return results.map((r) => r.film);
+}
 
 function formatRuntime(runtime: number | null): string {
   if (!runtime) return "";
@@ -138,10 +146,8 @@ export default function RollBattlePage() {
     setPickedId(null);
     setShareStatus("idle");
     try {
-      const results = await Promise.all(
-        Array.from({ length: TOTAL_ROUNDS + 1 }, () => fetchRandom()),
-      );
-      setFilms(results.map((r) => r.film));
+      const pool = await fetchBattlePool();
+      setFilms(pool);
       setPhase("battling");
     } catch {
       setPhase("error");
@@ -149,11 +155,25 @@ export default function RollBattlePage() {
   }, []);
 
   useEffect(() => {
-    void loadFilms();
-  }, [loadFilms]);
+    let ignore = false;
 
-  const leftFilm: RollFilm | null = round === 0 ? (films[0] ?? null) : champion;
-  const rightFilm: RollFilm | null = films[round + 1] ?? null;
+    fetchBattlePool()
+      .then((pool) => {
+        if (ignore) return;
+        setFilms(pool);
+        setPhase("battling");
+      })
+      .catch(() => {
+        if (!ignore) setPhase("error");
+      });
+
+    return () => {
+      ignore = true;
+    };
+  }, []);
+
+  const leftFilm: RollFilm | null = films[round * 2] ?? null;
+  const rightFilm: RollFilm | null = films[round * 2 + 1] ?? null;
 
   function handlePick(film: RollFilm) {
     if (pickedId !== null) return;
