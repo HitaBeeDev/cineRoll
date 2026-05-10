@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Clapperboard, Share2, Trophy } from "lucide-react";
 import type { Film } from "@cineroll/types";
-import { SiteNavigation } from "@/components/site-navigation";
+import { AppHeader } from "@/components/app-header";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 
@@ -78,15 +78,7 @@ export default async function RollBattleResultPage({
 
   return (
     <div className="flex min-h-dvh flex-col bg-[#09090f]">
-      <header className="sticky top-0 z-50 flex items-center justify-between border-b border-[#1a1a28] bg-[#09090f]/90 px-5 py-3.5 backdrop-blur-sm sm:px-8">
-        <Link
-          href="/"
-          className="font-[family-name:var(--font-geist-mono)] text-sm font-bold uppercase tracking-[0.2em] text-[#F5F5F0] transition-colors hover:text-[#e8453c]"
-        >
-          Cine<span className="text-[#e8453c]">Roll</span>
-        </Link>
-        <SiteNavigation />
-      </header>
+      <AppHeader />
 
       <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 px-4 py-8 sm:px-6">
         <div className="flex flex-col items-center gap-2 text-center">

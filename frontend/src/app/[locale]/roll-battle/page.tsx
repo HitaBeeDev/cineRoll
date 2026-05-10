@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { RefreshCw, Share2, Trophy, Clapperboard } from "lucide-react";
-import { SiteNavigation } from "@/components/site-navigation";
+import { AppHeader } from "@/components/app-header";
 import { fetchRandom, type RollFilm } from "@/lib/api";
 
 const TOTAL_ROUNDS = 5;
@@ -253,15 +253,7 @@ export default function RollBattlePage() {
 
   return (
     <div className="flex h-dvh flex-col overflow-hidden bg-[#09090f]">
-      <header className="sticky top-0 z-50 flex items-center justify-between border-b border-[#1a1a28] bg-[#09090f]/90 px-5 py-3.5 backdrop-blur-sm sm:px-8">
-        <Link
-          href="/"
-          className="font-[family-name:var(--font-geist-mono)] text-sm font-bold uppercase tracking-[0.2em] text-[#F5F5F0] transition-colors hover:text-[#e8453c]"
-        >
-          Cine<span className="text-[#e8453c]">Roll</span>
-        </Link>
-        <SiteNavigation />
-      </header>
+      <AppHeader />
 
       <main className="flex min-h-0 flex-1 flex-col items-center justify-center px-4 py-5 sm:px-6">
         {/* Loading */}

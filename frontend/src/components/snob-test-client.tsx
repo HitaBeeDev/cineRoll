@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Check, Clapperboard, RefreshCw, Share2, Sparkles, Trophy, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { SiteNavigation } from "@/components/site-navigation";
+import { AppHeader } from "@/components/app-header";
 import {
   fetchSnobTestFilms,
   scoreSnobTest,
@@ -259,20 +259,7 @@ export function SnobTestClient() {
 
   return (
     <div className="min-h-screen bg-[#09090f] text-[#F5F5F0]">
-      <header className="sticky top-0 z-50 flex h-16 shrink-0 items-center justify-between border-b border-[#1a1a28] bg-[#09090f] px-5 sm:px-8">
-        <div className="flex items-center gap-3">
-          <Link
-            href="/"
-            className="font-[family-name:var(--font-geist-mono)] text-[1.1rem] font-bold uppercase tracking-[0.15em] text-[#e8453c]"
-          >
-            Cine·Roll
-          </Link>
-          <span className="hidden items-center rounded-full border border-[#e8453c]/25 px-2.5 py-0.5 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#e8453c]/55 sm:inline-flex">
-            Snob Test
-          </span>
-        </div>
-        <SiteNavigation />
-      </header>
+      <AppHeader />
 
       <main className="px-5 py-4 sm:px-8 lg:px-10 lg:py-5">
         <section className="grid gap-5 lg:grid-cols-12">

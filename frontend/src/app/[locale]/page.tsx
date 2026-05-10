@@ -17,7 +17,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/toast";
 import { FilterBar } from "@/components/filter-bar";
-import { SiteNavigation } from "@/components/site-navigation";
+import { AppHeader } from "@/components/app-header";
 import {
   fetchAwardYears,
   fetchRandom,
@@ -354,21 +354,7 @@ export default function HomePage() {
 
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-[#09090f] text-[#F5F5F0]">
-      {/* ── Header ──────────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-50 flex h-16 shrink-0 items-center justify-between border-b border-[#1a1a28] bg-[#09090f] px-5 sm:px-8">
-        <div className="flex items-center gap-3">
-          <Link
-            href="/"
-            className="font-[family-name:var(--font-geist-mono)] text-[1.1rem] font-bold uppercase tracking-[0.15em] text-[#e8453c]"
-          >
-            Cine·Roll
-          </Link>
-          <span className="hidden items-center rounded-full border border-[#e8453c]/25 px-2.5 py-0.5 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#e8453c]/55 sm:inline-flex">
-            Now Showing
-          </span>
-        </div>
-        <SiteNavigation />
-      </header>
+      <AppHeader />
 
       {/* ── Two-column body ─────────────────────────────────────────── */}
       <div className="flex flex-1 flex-col lg:grid lg:grid-cols-12 lg:h-[calc(100vh-4rem)] lg:overflow-hidden">

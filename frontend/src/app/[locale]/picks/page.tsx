@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Bookmark, RefreshCw, Share2, Star, Trophy, Clapperboard } from "lucide-react";
-import { SiteNavigation } from "@/components/site-navigation";
+import { AppHeader } from "@/components/app-header";
 import { fetchRandom, type RollFilm } from "@/lib/api";
 import { formatRuntime } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -105,21 +105,7 @@ export default function PicksPage() {
 
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-[#09090f] text-[#F5F5F0]">
-      {/* Header */}
-      <header className="sticky top-0 z-50 flex h-16 shrink-0 items-center justify-between border-b border-[#1a1a28] bg-[#09090f] px-5 sm:px-8">
-        <div className="flex items-center gap-3">
-          <Link
-            href="/"
-            className="font-[family-name:var(--font-geist-mono)] text-[1.1rem] font-bold uppercase tracking-[0.15em] text-[#e8453c]"
-          >
-            Cine·Roll
-          </Link>
-          <span className="hidden items-center rounded-full border border-[#e8453c]/25 px-2.5 py-0.5 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#e8453c]/55 sm:inline-flex">
-            Daily Picks
-          </span>
-        </div>
-        <SiteNavigation />
-      </header>
+      <AppHeader />
 
       {/* Main */}
       <main className="flex flex-1 flex-col overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:w-0">

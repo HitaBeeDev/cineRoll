@@ -6,7 +6,7 @@ import { ArrowLeft, Star, Trophy, Users, Clapperboard, ExternalLink } from "luci
 import type { Film, AwardRecord } from "@cineroll/types";
 import { cn } from "@/lib/utils";
 import { RollAgainButton } from "@/components/roll-again-button";
-import { SiteNavigation } from "@/components/site-navigation";
+import { AppHeader } from "@/components/app-header";
 import { FilmDetailHero } from "@/components/film-detail-hero";
 import { FilmTrailer } from "@/components/film-trailer";
 import { WatchTonightButton } from "@/components/watch-tonight-button";
@@ -109,12 +109,7 @@ export default async function FilmPage({
 
   return (
     <div className="flex flex-col min-h-screen bg-zinc-950 text-zinc-100">
-      <header className="sticky top-0 z-50 flex items-center justify-between border-b border-zinc-800/60 bg-[rgba(9,9,15,0.85)] px-5 py-4 backdrop-blur-[20px] sm:px-8">
-        <Link href="/" className="font-[family-name:var(--font-display)] text-lg font-semibold tracking-[0.08em] text-[#D4AF37] transition-colors hover:text-[#F1D27A] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 rounded">
-          CineRoll
-        </Link>
-        <SiteNavigation focusRingClassName="focus-visible:ring-amber-400" />
-      </header>
+      <AppHeader />
 
       <main className="flex-1">
         <FilmDetailHero

@@ -8,7 +8,7 @@ import type { FilterState, PaginatedFilms } from "@cineroll/types";
 import { Button } from "@/components/ui/button";
 import { FilmCard, FilmCardSkeleton } from "@/components/film-card";
 import { FilterBar } from "@/components/filter-bar";
-import { SiteNavigation } from "@/components/site-navigation";
+import { AppHeader } from "@/components/app-header";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/toast";
 import { DEFAULT_FILTERS, useFilters } from "@/hooks/useFilters";
@@ -134,12 +134,7 @@ export function BrowsePageClient() {
 
   return (
     <div className="flex min-h-screen flex-col bg-zinc-950 text-zinc-100">
-      <header className="flex items-center justify-between border-b border-zinc-800/60 px-5 py-4 sm:px-8">
-        <span className="font-[family-name:var(--font-display)] text-lg font-semibold tracking-[0.08em] text-[#D4AF37]">
-          CineRoll
-        </span>
-        <SiteNavigation focusRingClassName="focus-visible:ring-amber-400" />
-      </header>
+      <AppHeader />
 
       <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-8 px-4 py-8 sm:px-6 lg:px-8">
         <section className="flex flex-col gap-3">
