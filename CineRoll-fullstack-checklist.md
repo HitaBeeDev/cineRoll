@@ -689,7 +689,7 @@ Show only award data — no title, no poster, no plot. User guesses the film. Th
 
 ### How it works
 
-- [ ] Create `src/app/blind-roll/page.tsx`
+- [x] Create `src/app/blind-roll/page.tsx`
 - [ ] Fetch a random film from /api/random (same endpoint, no changes needed)
 - [ ] Display ONLY: award body, ceremony year, category, nominee name, won/nominated — for all award records; runtime in minutes (no title); release decade (not exact year); number of total nominations and wins
 - [ ] Show a text input: "What film is this?" with a "Reveal" button
