@@ -696,7 +696,7 @@ Show only award data — no title, no poster, no plot. User guesses the film. Th
 - [x] Score tracking: count correct guesses in the session (stored in sessionStorage); show "3/5 correct" streak counter
 - [x] "Next film" button loads another blind roll without resetting the streak
 - [x] Difficulty levels: Easy (show genre + decade), Medium (show decade only), Hard (show nothing except award data)
-- [ ] "Challenge a friend": share a link with the specific film's slug encoded so a friend gets the same blind roll question
+- [x] "Challenge a friend": share a link with the specific film's slug encoded so a friend gets the same blind roll question
 - [ ] Add "Blind Roll" to navigation as a game mode
 
 ---

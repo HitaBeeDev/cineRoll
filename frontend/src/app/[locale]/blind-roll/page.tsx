@@ -138,7 +138,7 @@ export default function BlindRollPage() {
   const [sessionScore, setSessionScore] = useState<SessionScore>(() => readSessionScore());
   const [difficulty, setDifficulty] = useState<Difficulty>(() => readDifficulty());
   const [shareStatus, setShareStatus] = useState<ShareStatus>("idle");
-  const challengeSlug = searchParams.get("film")?.trim() || undefined;
+  const challengeSlug = searchParams.get("film")?.trim() ?? "";
 
   const loadFilm = useCallback(async (slug?: string) => {
     setPhase("loading");
@@ -147,7 +147,7 @@ export default function BlindRollPage() {
     setCorrect(null);
     setShareStatus("idle");
     try {
-      const nextRound = await fetchBlindRound(slug);
+      const nextRound = await fetchBlindRound(slug || undefined);
       setFilm(nextRound.film);
       setOptions(nextRound.options);
       setPhase("ready");
@@ -159,7 +159,7 @@ export default function BlindRollPage() {
   useEffect(() => {
     let ignore = false;
 
-    fetchBlindRound(challengeSlug)
+    fetchBlindRound(challengeSlug || undefined)
       .then((nextRound) => {
         if (ignore) return;
         setFilm(nextRound.film);
