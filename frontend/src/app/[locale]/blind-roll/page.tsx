@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
-import { CheckCircle2, Clapperboard, Eye, RefreshCw, Trophy, XCircle } from "lucide-react";
+import { CheckCircle2, Clapperboard, Eye, RefreshCw, Sparkles, Star, Trophy, XCircle } from "lucide-react";
 import type { AwardRecord } from "@cineroll/types";
 import { AppHeader } from "@/components/app-header";
 import { fetchRandom, type RollFilm } from "@/lib/api";
@@ -117,23 +117,44 @@ export default function BlindRollPage() {
     setPhase("revealed");
   }
 
-  const hasPageScroll = awards.length > 1;
-
   return (
-    <div
-      className={[
-        "flex flex-col overflow-x-hidden bg-[#09090f] text-[#F5F5F0]",
-        hasPageScroll ? "min-h-dvh" : "min-h-dvh lg:h-dvh lg:overflow-hidden",
-      ].join(" ")}
-    >
+    <div className="flex min-h-dvh flex-col overflow-x-hidden bg-[#09090f] text-[#F5F5F0]">
       <AppHeader />
 
-      <main
-        className={[
-          "relative mx-auto flex min-h-0 w-full max-w-6xl flex-1 flex-col gap-4 px-4 py-3 sm:px-6 lg:gap-5 lg:py-4",
-          hasPageScroll ? "" : "lg:overflow-hidden",
-        ].join(" ")}
-      >
+      {phase === "revealed" && correct && (
+        <div className="pointer-events-none fixed inset-0 z-[80] flex items-center justify-center">
+          <motion.div
+            initial={reduced ? false : { opacity: 0, scale: 0.55 }}
+            animate={reduced ? { opacity: 0 } : { opacity: [0, 1, 1, 0], scale: [0.55, 1.12, 1, 1.18] }}
+            transition={{ duration: 1.35, ease: "easeOut" }}
+            className="relative flex h-28 w-28 items-center justify-center rounded-full border border-[#4ade80]/45 bg-[#07110b]/78 shadow-[0_0_70px_rgba(74,222,128,0.28)] backdrop-blur-md"
+          >
+            <Trophy className="h-12 w-12 text-[#4ade80]" />
+            {[
+              { Icon: Star, x: -92, y: -54, rotate: -18 },
+              { Icon: Sparkles, x: 86, y: -62, rotate: 12 },
+              { Icon: CheckCircle2, x: -76, y: 70, rotate: 8 },
+              { Icon: Star, x: 90, y: 62, rotate: 22 },
+            ].map(({ Icon, x, y, rotate }, index) => (
+              <motion.span
+                key={`${x}-${y}`}
+                initial={reduced ? false : { opacity: 0, x: 0, y: 0, scale: 0.3, rotate: 0 }}
+                animate={
+                  reduced
+                    ? { opacity: 0 }
+                    : { opacity: [0, 1, 1, 0], x, y, scale: [0.3, 1, 0.9, 0.75], rotate }
+                }
+                transition={{ duration: 1.15, delay: index * 0.06, ease: "easeOut" }}
+                className="absolute flex h-10 w-10 items-center justify-center rounded-full border border-[#D4AF37]/35 bg-[#111118]/90 text-[#D4AF37]"
+              >
+                <Icon className="h-5 w-5" />
+              </motion.span>
+            ))}
+          </motion.div>
+        </div>
+      )}
+
+      <main className="relative mx-auto flex min-h-0 w-full max-w-6xl flex-1 flex-col gap-4 px-4 py-3 sm:px-6 lg:gap-5 lg:py-4">
         <div className="relative flex shrink-0 flex-col gap-1.5 text-left">
           <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.35em] text-[#e8453c]/70">
             Blind Roll
@@ -170,7 +191,7 @@ export default function BlindRollPage() {
         )}
 
         {film && phase !== "loading" && phase !== "error" && (
-          <div className="relative grid min-h-0 items-start gap-4 lg:grid-cols-[1fr_380px]">
+          <div className="relative grid min-h-0 items-stretch gap-4 lg:grid-cols-[1fr_380px]">
             <div className="flex min-w-0 flex-col gap-3">
               <section className="relative overflow-hidden rounded-2xl border border-[#34344c] bg-[linear-gradient(145deg,rgba(18,18,31,0.98),rgba(8,8,14,0.98))] p-3 shadow-[0_24px_80px_rgba(0,0,0,0.38)]">
                 <div className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-[linear-gradient(90deg,#e8453c,#D4AF37,#e8453c)]" />
@@ -339,7 +360,12 @@ export default function BlindRollPage() {
               </section>
             </div>
 
-            <aside className="relative flex min-h-[520px] flex-col overflow-hidden rounded-2xl border border-[#34344c] bg-[linear-gradient(160deg,#12121f,#09090f_60%)] p-4 shadow-[0_24px_80px_rgba(0,0,0,0.38)] lg:sticky lg:top-20 lg:h-[calc(100dvh-11rem)] lg:min-h-0">
+            <aside
+              className={[
+                "relative flex min-h-[520px] flex-col overflow-hidden rounded-2xl border border-[#34344c] bg-[linear-gradient(160deg,#12121f,#09090f_60%)] p-4 shadow-[0_24px_80px_rgba(0,0,0,0.38)]",
+                "lg:h-full lg:min-h-0 lg:self-stretch",
+              ].join(" ")}
+            >
               <div
                 className={[
                   "pointer-events-none absolute inset-x-0 top-0 h-1",
