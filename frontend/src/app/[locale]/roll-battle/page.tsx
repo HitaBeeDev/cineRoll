@@ -201,12 +201,14 @@ export default function RollBattlePage() {
   }
 
   async function handleShare(film: RollFilm) {
-    const text = `🎬 Roll Battle picked "${film.title}" (${film.year}) as my film tonight! Try it on CineRoll.`;
+    const shareUrl = new URL("/roll-battle/result", window.location.origin);
+    shareUrl.searchParams.set("film", film.slug);
+    const text = `🎬 Roll Battle picked "${film.title}" (${film.year}) as my film tonight! Try it on CineRoll: ${shareUrl.toString()}`;
     try {
       if (navigator.share) {
-        await navigator.share({ title: "Roll Battle Result", text });
+        await navigator.share({ title: "Roll Battle Result", text, url: shareUrl.toString() });
       } else {
-        await navigator.clipboard.writeText(text);
+        await navigator.clipboard.writeText(shareUrl.toString());
         setShareStatus("copied");
         setTimeout(() => setShareStatus("idle"), 2000);
       }
@@ -432,7 +434,7 @@ export default function RollBattlePage() {
                 className="flex w-full items-center justify-center gap-2 rounded-xl border border-[#1e1e2a] bg-[#0d0d1a] py-3.5 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.2em] text-[#F5F5F0] transition-colors hover:border-[#2a2a3e]"
               >
                 <Share2 className="h-3.5 w-3.5" />
-                {shareStatus === "copied" ? "Copied!" : "Share Result"}
+                {shareStatus === "copied" ? "Copied!" : "Share My Winner"}
               </button>
               <button
                 type="button"
