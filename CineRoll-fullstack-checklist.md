@@ -697,7 +697,7 @@ Show only award data — no title, no poster, no plot. User guesses the film. Th
 - [x] "Next film" button loads another blind roll without resetting the streak
 - [x] Difficulty levels: Easy (show genre + decade), Medium (show decade only), Hard (show nothing except award data)
 - [x] "Challenge a friend": share a link with the specific film's slug encoded so a friend gets the same blind roll question
-- [ ] Add "Blind Roll" to navigation as a game mode
+- [x] Add "Blind Roll" to navigation as a game mode
 
 ---
 

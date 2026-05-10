@@ -6,15 +6,18 @@ import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const navItems = [
+const primaryNavItems = [
   { href: "/", label: "Home" },
   { href: "/browse", label: "Browse" },
   { href: "/picks", label: "Picks" },
   { href: "/discover", label: "Discover" },
+  { href: "/stats", label: "Stats" },
+];
+
+const gameModeItems = [
   { href: "/snob-test", label: "Test Yourself" },
   { href: "/roll-battle", label: "Roll Battle" },
   { href: "/blind-roll", label: "Blind Roll" },
-  { href: "/stats", label: "Stats" },
 ];
 
 type SiteNavigationProps = {
@@ -49,7 +52,7 @@ export function SiteNavigation({
     <>
       {/* Desktop nav */}
       <nav className="hidden items-center gap-1.5 md:flex" aria-label="Primary navigation">
-        {navItems.map((item) => (
+        {primaryNavItems.map((item) => (
           <Link
             key={item.href}
             href={item.href}
@@ -67,6 +70,27 @@ export function SiteNavigation({
             {item.label}
           </Link>
         ))}
+        <div className="mx-1 h-5 w-px bg-[#2a2a3e]" aria-hidden />
+        <div className="flex items-center gap-1.5" aria-label="Game modes">
+          {gameModeItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                "rounded-full border px-3.5 py-1.5",
+                "font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest",
+                "transition-colors duration-150",
+                "focus-visible:outline-none focus-visible:ring-2",
+                focusRingClassName,
+                isActive(item.href)
+                  ? "border-[#e8453c]/70 text-[#e8453c]"
+                  : "border-[#222232] text-[#888899] hover:border-[#e8453c]/40 hover:text-[#F5F5F0]",
+              )}
+            >
+              {item.label}
+            </Link>
+          ))}
+        </div>
         <div className="ml-2 flex items-center gap-1.5">
           <Link
             href="/sign-in"
@@ -146,7 +170,7 @@ export function SiteNavigation({
             </div>
 
             <nav className="flex flex-1 flex-col justify-center gap-5" aria-label="Mobile navigation">
-              {navItems.map((item) => (
+              {primaryNavItems.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
@@ -163,6 +187,28 @@ export function SiteNavigation({
                   {item.label}
                 </Link>
               ))}
+              <div className="mt-2 flex flex-col gap-4 border-t border-[#222232] pt-5">
+                <span className="font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.24em] text-[#e8453c]">
+                  Game Modes
+                </span>
+                {gameModeItems.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={cn(
+                      "font-[family-name:var(--font-geist-mono)] text-2xl font-bold uppercase tracking-widest",
+                      isActive(item.href)
+                        ? "text-[#F5F5F0]"
+                        : "text-[#555568] transition-colors hover:text-[#F5F5F0]",
+                      "focus-visible:outline-none focus-visible:ring-2",
+                      focusRingClassName,
+                    )}
+                    onClick={() => setIsOpen(false)}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
               <div className="mt-4 flex gap-3">
                 <Link
                   href="/sign-in"
