@@ -649,16 +649,6 @@ A slide-out drawer tracking every film rolled this session. Zero backend — use
 - [x] History clears automatically when the browser tab is closed (sessionStorage behaviour)
 - [x] If history is empty, show a polished empty state in the drawer
 
-### Time Capsule Roll
-
-A fun special roll mode that picks a film from a personally meaningful year.
-
-- [ ] Add a "Time Capsule" input below the main Roll button: a year text field with placeholder "Enter a year e.g. 1994"
-- [ ] When a year is entered and Roll is clicked, filter to `releaseYear = input` and pick a random film from that set
-- [ ] If no films match that year, show "No award-nominated films found for that year — try a nearby year"
-- [ ] Combine with other active filters: e.g. Time Capsule year 1990 + Oscar + Won gives a random 1990 Oscar winner
-- [ ] Show a small label on the result card: "From 1990" so the context is clear
-
 ### Home Page Filter Panel (Award-First Design)
 
 Filter section sits **above** the Roll button. All filters are optional — user sets what they want, then hits Roll. The "Rolling from N films" counter updates live as filters change.
