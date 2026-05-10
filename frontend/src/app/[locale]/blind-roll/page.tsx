@@ -131,7 +131,7 @@ export default function BlindRollPage() {
 
         {film && phase !== "loading" && phase !== "error" && (
           <div className="grid min-h-0 gap-5 lg:grid-cols-[1fr_360px]">
-            <section className="relative flex h-[min(640px,calc(100dvh-13.5rem))] min-h-0 flex-col overflow-hidden rounded-2xl border border-[#242436] bg-[#0d0d1a] p-4 shadow-[0_24px_80px_rgba(0,0,0,0.35)]">
+            <section className="relative overflow-hidden rounded-2xl border border-[#242436] bg-[#0d0d1a] p-4 shadow-[0_24px_80px_rgba(0,0,0,0.35)]">
               <div className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-[#e8453c]" />
               <div className="mb-3 flex shrink-0 items-center justify-between gap-4">
                 <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.28em] text-[#e8453c]">
@@ -177,7 +177,7 @@ export default function BlindRollPage() {
                 </div>
               </div>
 
-              <div className="min-h-0 flex-1 space-y-3 overflow-y-auto pr-1 [scrollbar-width:none] [&::-webkit-scrollbar]:w-0">
+              <div className="max-h-[min(260px,30dvh)] space-y-3 overflow-y-auto pr-1 [scrollbar-width:none] [&::-webkit-scrollbar]:w-0">
                 {awards.length > 0 ? (
                   awards.map((award, index) => (
                     <div
