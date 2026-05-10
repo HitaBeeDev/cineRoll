@@ -130,7 +130,7 @@ export default function BlindRollPage() {
         )}
 
         {film && phase !== "loading" && phase !== "error" && (
-          <div className="grid min-h-0 gap-5 lg:grid-cols-[1fr_360px]">
+          <div className="grid min-h-0 items-start gap-5 lg:grid-cols-[1fr_360px]">
             <section className="relative overflow-hidden rounded-2xl border border-[#242436] bg-[#0d0d1a] p-4 shadow-[0_24px_80px_rgba(0,0,0,0.35)]">
               <div className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-[#e8453c]" />
               <div className="mb-3 flex shrink-0 items-center justify-between gap-4">
