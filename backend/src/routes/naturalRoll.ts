@@ -231,7 +231,7 @@ naturalRollRouter.post("/", validate(naturalRollBodySchema, "body"), async (req,
   const body = getValidated<NaturalRollBody>(req, "body");
   assertWithinRateLimit(getRateLimitKey(body, req.ip));
 
-  const count = body.count ?? 4;
+  const count = body.count ?? 2;
   const interpretedFilters = await interpretPrompt(body.prompt, false);
   const query = toRandomQuery(interpretedFilters, body.userId);
   const firstResult = await getRandomFilms(query, count);
