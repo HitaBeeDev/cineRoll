@@ -135,9 +135,15 @@ function FilterChips({ chips }: { chips: string[] }) {
   );
 }
 
+const AWARD_BODIES = [
+  { key: "oscar", label: "Oscar", wins: (f: RollFilm) => f.oscarWins, noms: (f: RollFilm) => f.oscarNominations },
+  { key: "gg", label: "GG", wins: (f: RollFilm) => f.ggWins, noms: (f: RollFilm) => f.ggNominations },
+  { key: "cannes", label: "Cannes", wins: (f: RollFilm) => f.cannesWins, noms: (f: RollFilm) => f.cannesNominations },
+] as const;
+
 function FilmCard({ film }: { film: RollFilm }) {
   const imageUrl = film.backdropUrl ?? film.posterUrl;
-  const totalWins = film.oscarWins + film.ggWins + film.cannesWins;
+  const awardBodies = AWARD_BODIES.filter(b => b.noms(film) > 0);
 
   return (
     <Link
@@ -157,14 +163,9 @@ function FilmCard({ film }: { film: RollFilm }) {
           <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a2e] to-[#09090f]" />
         )}
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#09090f]/70 to-transparent" />
-        {totalWins > 0 && (
-          <span className="absolute bottom-1.5 left-1.5 rounded-full border border-[#e8453c]/30 bg-[#09090f]/80 px-2 py-0.5 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-widest text-[#e8453c]">
-            {totalWins}× Winner
-          </span>
-        )}
       </div>
 
-      <div className="flex flex-1 flex-col gap-1 p-2.5">
+      <div className="flex flex-1 flex-col gap-1.5 p-2.5">
         <h3 className="font-[family-name:var(--font-display)] text-sm font-bold leading-tight text-[#F5F5F0] line-clamp-1">
           {film.title}
         </h3>
@@ -172,6 +173,27 @@ function FilmCard({ film }: { film: RollFilm }) {
           {film.year}
           {film.director ? ` · ${film.director}` : ""}
         </p>
+
+        {awardBodies.length > 0 && (
+          <div className="flex flex-wrap gap-1 pt-0.5">
+            {awardBodies.map((b) => (
+              <span
+                key={b.key}
+                className="rounded border border-[#2a2a3e] px-1.5 py-0.5 font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-widest text-[#888899]"
+              >
+                {b.label}{" "}
+                {b.wins(film) > 0 && (
+                  <span className="text-[#e8453c]">{b.wins(film)}W</span>
+                )}
+                {b.wins(film) > 0 && b.noms(film) > b.wins(film) && " "}
+                {b.noms(film) > b.wins(film) && (
+                  <span className="text-[#555568]">{b.noms(film) - b.wins(film)}N</span>
+                )}
+              </span>
+            ))}
+          </div>
+        )}
+
         {film.imdbRating != null && (
           <p className="font-[family-name:var(--font-geist-mono)] text-[8px] font-bold text-[#888899]">
             IMDb {film.imdbRating.toFixed(1)}

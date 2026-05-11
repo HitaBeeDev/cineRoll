@@ -161,7 +161,7 @@ export async function fetchRandom(filters?: Partial<FilterState>): Promise<Rando
   return res.json() as Promise<RandomResult>;
 }
 
-export async function fetchNaturalRoll(prompt: string, count = 6): Promise<NaturalRollResult> {
+export async function fetchNaturalRoll(prompt: string, count = 4): Promise<NaturalRollResult> {
   const res = await fetch(`${API_URL}/api/natural-roll`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
