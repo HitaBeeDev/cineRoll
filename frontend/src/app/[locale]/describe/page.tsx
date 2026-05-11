@@ -19,6 +19,13 @@ const EXAMPLE_PROMPTS = [
   "The most obscure Cannes winner you have",
 ];
 
+const PROMPT_PLACEHOLDER = [
+  "Describe the film you want tonight...",
+  "Try: Something sad but beautiful",
+  "Or: Une comedie francaise des annees 90",
+  "Or: Ein ruhiger Oscar-Gewinner mit Drama",
+].join("\n");
+
 const AWARD_LABELS: Record<string, string> = {
   oscar: "Oscar",
   goldenglobe: "Golden Globe",
@@ -158,7 +165,7 @@ export default function DescribePage() {
               <div className="flex min-h-0 flex-1 flex-col rounded-lg border border-[#1e1e2a] bg-[#0d0d16] shadow-[0_18px_70px_rgba(0,0,0,0.28)]">
               <div className="flex shrink-0 items-center justify-between gap-4 border-b border-[#1e1e2a] px-4 py-3 sm:px-5">
                 <span className="truncate font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-widest text-[#888899]">
-                  Describe in any language
+                  Describe the mood, era, awards, or people
                 </span>
                 <span className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#444458]">
                   {prompt.length}/500
@@ -170,11 +177,11 @@ export default function DescribePage() {
                 value={prompt}
                 onChange={(event) => setPrompt(event.target.value.slice(0, 500))}
                 disabled={isProcessing}
-                placeholder={`${EXAMPLE_PROMPTS[0]}\n${EXAMPLE_PROMPTS[1]}\n${EXAMPLE_PROMPTS[2]}`}
+                placeholder={PROMPT_PLACEHOLDER}
                 className={cn(
                   "min-h-0 flex-1 resize-none bg-transparent px-4 py-4 outline-none sm:px-5 sm:py-5",
-                  "font-[family-name:var(--font-geist-sans)] text-xl leading-8 text-[#F5F5F0] lg:text-2xl lg:leading-9",
-                  "placeholder:text-[#3a3a4d]",
+                  "font-[family-name:var(--font-geist-sans)] text-[1.35rem] leading-8 text-[#F5F5F0] lg:text-[1.55rem] lg:leading-9",
+                  "placeholder:font-[family-name:var(--font-geist-mono)] placeholder:text-[0.78rem] placeholder:uppercase placeholder:leading-7 placeholder:tracking-widest placeholder:text-[#4f4f63]",
                   "focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#e8453c]",
                 )}
                 aria-label="Describe the kind of film you want"
