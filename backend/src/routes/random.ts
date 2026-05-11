@@ -123,6 +123,47 @@ export async function getRandomFilms(query: RandomQuery, count: number): Promise
   return { films, total };
 }
 
+// Returns a random sample from the top-rated films matching the query.
+// Used for natural-language candidate pools: quality films first, random variety within them.
+export async function getQualityCandidates(
+  query: RandomQuery,
+  topN: number,
+  sampleN: number,
+): Promise<{ films: RandomFilmRow[]; total: number }> {
+  const additionalConditions: Prisma.Sql[] = [];
+
+  if (query.userId) {
+    const excludedFilmIds = await getDoNotSuggestFilmIds(query.userId);
+    if (excludedFilmIds.length > 0) {
+      additionalConditions.push(Prisma.sql`"Film"."id" NOT IN (${Prisma.join(excludedFilmIds)})`);
+    }
+  }
+
+  const whereSql = buildWhereClause(query, additionalConditions);
+
+  const [films, countRows] = await Promise.all([
+    prisma.$queryRaw<RandomFilmRow[]>(
+      Prisma.sql`
+        SELECT top_films.*
+        FROM (
+          SELECT ${randomSelect}
+          FROM "Film"
+          ${whereSql}
+          ORDER BY "Film"."imdbRating" DESC NULLS LAST
+          LIMIT ${topN}
+        ) top_films
+        ORDER BY RANDOM()
+        LIMIT ${sampleN}
+      `,
+    ),
+    prisma.$queryRaw<{ count: bigint }[]>`
+      SELECT COUNT(*)::BIGINT AS count FROM "Film" ${whereSql}
+    `,
+  ]);
+
+  return { films, total: Number(countRows[0]?.count ?? 0) };
+}
+
 randomRouter.get("/", validate(randomQuerySchema), async (req, res) => {
   const query = getValidated<RandomQuery>(req, "query");
   const { film, total } = await getRandomFilm(query);
