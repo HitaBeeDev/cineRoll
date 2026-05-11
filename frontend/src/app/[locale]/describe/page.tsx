@@ -143,18 +143,19 @@ export default function DescribePage() {
       <AppHeader />
 
       <main className="min-h-0 flex-1 overflow-hidden px-5 py-4 sm:px-8 lg:px-10 lg:py-5">
-        <section className="grid h-full min-h-0 gap-5 lg:grid-cols-12">
-          <div className="flex min-h-0 flex-col lg:col-span-7">
-            <div className="mb-4 shrink-0">
-              <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.3em] text-[#e8453c]/70">
-                ◈ Natural Language Roll ◈
-              </p>
-              <h1 className="mt-2 font-[family-name:var(--font-display)] text-5xl font-bold leading-none tracking-tight text-[#F5F5F0] lg:text-7xl">
-                Describe It
-              </h1>
-            </div>
+        <section className="grid h-full min-h-0 grid-rows-[auto_minmax(0,1fr)] gap-4">
+          <div className="shrink-0">
+            <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.3em] text-[#e8453c]/70">
+              ◈ Natural Language Roll ◈
+            </p>
+            <h1 className="mt-2 font-[family-name:var(--font-display)] text-5xl font-bold leading-none tracking-tight text-[#F5F5F0] lg:text-7xl">
+              Describe It
+            </h1>
+          </div>
 
-            <div className="flex min-h-0 flex-1 flex-col rounded-lg border border-[#1e1e2a] bg-[#0d0d16] shadow-[0_18px_70px_rgba(0,0,0,0.28)]">
+          <div className="grid min-h-0 gap-5 lg:grid-cols-12">
+            <div className="flex min-h-0 flex-col lg:col-span-7">
+              <div className="flex min-h-0 flex-1 flex-col rounded-lg border border-[#1e1e2a] bg-[#0d0d16] shadow-[0_18px_70px_rgba(0,0,0,0.28)]">
               <div className="flex shrink-0 items-center justify-between gap-4 border-b border-[#1e1e2a] px-4 py-3 sm:px-5">
                 <span className="truncate font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-widest text-[#888899]">
                   Describe in any language
@@ -245,9 +246,9 @@ export default function DescribePage() {
                 </div>
               </div>
             </div>
-          </div>
+            </div>
 
-          <div className="min-h-0 overflow-hidden rounded-lg border border-[#1a1a28] bg-[#0d0d16] lg:col-span-5">
+            <div className="min-h-0 overflow-hidden rounded-lg border border-[#1a1a28] bg-[#0d0d16] lg:col-span-5">
             {error ? (
               <div className="flex h-full flex-col justify-center p-6">
                 <p className="mb-2 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.24em] text-[#e8453c]/70">
@@ -335,6 +336,7 @@ export default function DescribePage() {
                 </div>
               </div>
             )}
+            </div>
           </div>
         </section>
       </main>
