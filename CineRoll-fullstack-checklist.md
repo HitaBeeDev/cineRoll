@@ -707,8 +707,8 @@ Instead of dropdowns, the user describes what they want in plain English. Gemini
 
 ### Backend
 
-- [ ] Install Google Generative AI SDK in backend: `npm install @google/generative-ai --workspace=backend`
-- [ ] Add `GEMINI_API_KEY` to `backend/.env`
+- [x] Install Google Generative AI SDK in backend: `npm install @google/generative-ai --workspace=backend`
+- [x] Add `GEMINI_API_KEY` to `backend/.env`
 - [ ] Create POST /api/natural-roll — body: `{ prompt: string }`; pipeline:
   1. Send the user's prompt to Gemini with a system message that explains the available FilterState fields and asks Gemini to return a JSON filter object
   2. Validate Gemini's response against the FilterState Zod schema; reject any invalid fields

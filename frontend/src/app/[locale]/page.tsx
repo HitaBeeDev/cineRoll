@@ -141,7 +141,10 @@ function pushRollHistory(film: RollFilm) {
     ) as RollFilm[];
     const deduped = existing.filter((item) => item?.id !== film.id);
     const next = [film, ...deduped].slice(0, MAX_ROLL_HISTORY_ITEMS);
-    window.sessionStorage.setItem(ROLL_HISTORY_STORAGE_KEY, JSON.stringify(next));
+    window.sessionStorage.setItem(
+      ROLL_HISTORY_STORAGE_KEY,
+      JSON.stringify(next),
+    );
   } catch {
     // Session history is non-critical; rolling should keep working if storage is blocked.
   }
@@ -359,7 +362,7 @@ export default function HomePage() {
       {/* ── Two-column body ─────────────────────────────────────────── */}
       <div className="flex flex-1 flex-col lg:grid lg:grid-cols-12 lg:h-[calc(100vh-4rem)] lg:overflow-hidden">
         {/* LEFT: hero + filters + roll ──────────────────────────────── */}
-        <div className="flex flex-col gap-3 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:w-0 px-5 py-4 sm:px-8 lg:px-10 lg:py-5 lg:col-span-7">
+        <div className="flex flex-col overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:w-0 px-5 py-4 sm:px-8 lg:px-10 lg:py-5 lg:col-span-7">
           {/* Channel label */}
           <div className="flex items-center justify-between gap-3">
             <p className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.25em] text-[#888899]">
@@ -381,7 +384,7 @@ export default function HomePage() {
           </div>
 
           {/* Hero headline */}
-          <div className="mb-4">
+          <div className="mb-2">
             <h1
               className={cn(
                 "font-[family-name:var(--font-display)] font-bold leading-[1.0] tracking-tight",
@@ -407,7 +410,7 @@ export default function HomePage() {
           />
 
           {/* ROLL button + pool count — side by side */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 mt-4">
             {/* Marquee-border ROLL box */}
             <div className="w-[185px] shrink-0 rounded-2xl border-2 border-dashed border-[#e8453c]/30 p-1.5">
               <button
@@ -431,7 +434,7 @@ export default function HomePage() {
             </div>
 
             {/* Pool counter — to the right of the ROLL box */}
-            <div className="shrink-0 flex flex-col gap-0.5">
+            <div className="flex shrink-0 flex-col items-start gap-0.5">
               <span className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#555568]">
                 Reel Pool
               </span>
@@ -1127,7 +1130,11 @@ function FilmCard({ film }: { film: RollFilm }) {
               Pass
             </span>
           </ActionBtn>
-          <ActionBtn aria-label="Share this film" title="Share this film" onClick={() => void shareFilm()}>
+          <ActionBtn
+            aria-label="Share this film"
+            title="Share this film"
+            onClick={() => void shareFilm()}
+          >
             <Share2 className="h-4 w-4" aria-hidden />
           </ActionBtn>
         </div>
