@@ -703,17 +703,17 @@ Show only award data — no title, no poster, no plot. User guesses the film. Th
 
 ## 9d. Natural Language Roll (AI — Gemini API)
 
-Instead of dropdowns, the user describes what they want in plain English. Gemini interprets the mood and maps it to filter combinations, then rolls.
+Instead of dropdowns, the user describes what they want in plain English. Gemini interprets the mood and maps it to filter combinations, then returns up to 6 matching films.
 
 ### Backend
 
 - [x] Install Google Generative AI SDK in backend: `npm install @google/generative-ai --workspace=backend`
 - [x] Add `GEMINI_API_KEY` to `backend/.env`
-- [x] Create POST /api/natural-roll — body: `{ prompt: string }`; pipeline:
+- [x] Create POST /api/natural-roll — body: `{ prompt: string, count?: number (1–6, default 6) }`; pipeline:
   1. Send the user's prompt to Gemini with a system message that explains the available FilterState fields and asks Gemini to return a JSON filter object
   2. Validate Gemini's response against the FilterState Zod schema; reject any invalid fields
-  3. Pass the validated filters to the same random-film query used by /api/random
-  4. Return the selected film + the interpreted filters (so the frontend can show "I searched for: Oscar winner, 1990s, drama")
+  3. Pass the validated filters to `getRandomFilms()` — returns up to `count` random films matching the filters
+  4. Return the selected films array + the interpreted filters (so the frontend can show "I searched for: Oscar winner, 1990s, drama")
 - [x] Rate limit: max 10 natural-roll requests per user per hour to manage API costs
 - [x] If Gemini returns filters that match zero films, retry once with a relaxed prompt asking for fewer constraints
 
@@ -721,11 +721,13 @@ Instead of dropdowns, the user describes what they want in plain English. Gemini
 
 - [x] Add "Describe It" as a navbar item linking to its own dedicated page (`/describe`)
 - [x] Add a link/button on the home page that takes users to `/describe` (e.g. "Can't decide? Describe it →")
-- [x] Build the `/describe` page with a full-page text area and placeholder examples: _"Something sad but beautiful"_, _"A film my dad would love"_, _"The most obscure Cannes winner you have"_
+- [x] Build the `/describe` page with a full-page text area and 6 example prompt chips: _"Something sad but beautiful"_, _"A dark French thriller from the 80s"_, _"Something uplifting that won Best Picture"_, _"The most obscure Cannes winner you have"_, _"Hidden gem sci-fi from the 90s"_, _"A film my dad would love"_
 - [x] While processing, show a fun loading message: "Asking the algorithm…"
-- [x] After roll, show the interpreted filters as chips below the result: "Searched for: Golden Globe winner · Drama · 1990s" so the user understands what happened
+- [x] After roll, show up to 6 results in a 2-column scrollable grid with film cards (poster, title, year, director, IMDb rating, wins badge)
+- [x] Interpreted filters shown as chips above the grid
 - [x] "Refine" button lets them edit the prompt and re-roll
 - [x] If no films match: show Gemini's interpreted filters and suggest adjusting the description
+- [x] Idle right panel shows 6 supported input categories: Mood, Awards, Decade, Genre, Director, Language
 
 ---
 
@@ -745,29 +747,6 @@ Three handpicked film slots per day, each with a different mood/filter combo. Ca
 - [x] Each card shows: pick number (large muted), slot badge (colored pill), mood label, film title, year/runtime/genre, director, IMDb + RT stats, total award wins, Watch Tonight CTA + Bookmark + Share action buttons
 - [x] Layout: full-height stacked cards on mobile; 3-column `flex-1` on desktop (`lg:flex-row`)
 - [x] "Picks" added to `SiteNavigation` navItems
-
----
-
-## 9f. AI Discover Page (`/discover`) ✓ Completed
-
-Natural language → film search using client-side prompt parsing mapped to existing FilterState fields. No backend changes needed.
-
-- [x] Create `src/app/[locale]/discover/page.tsx`
-- [x] **Animated cycling placeholder** — 8 example prompts cycle every 3 seconds with fade transition via `AnimatePresence`
-- [x] **Client-side `parsePrompt()` function** — regex-based extraction mapping plain English to `FilterState`:
-  - Decade phrases ("80s", "from the 90s", "in 1970") → `decadeMin`/`decadeMax`
-  - Award body keywords ("oscar", "cannes", "golden globe") → `awardBody`
-  - Win/nomination status ("winner", "won", "nominated") → `winnerOnly`/`nominatedOnly`
-  - Rating hints ("highly rated", "acclaimed", "masterpiece") → `imdbRatingMin`
-  - Genre keywords ("drama", "comedy", "thriller", etc.) → `genre`
-  - Person/director names → `person` field
-  - Each matched rule appends a human-readable summary string
-- [x] **8 example prompt chips** — clickable quick-starts: "A French film that broke my heart", "Kubrick's best work", "Hidden gem from the 70s", "Cannes Palme d'Or winners", "A comedy that won big", "Scarlett Johansson films", "Best Picture winners since 2000", "Something Italian and dark"
-- [x] **"Interpreted as:" summary tags** — after parsing, colored chips show each matched filter so users understand how their prompt was read
-- [x] **Results grid** — responsive 1→2→3→4 columns; `ResultCard` component with backdrop image, film title, genre, year, director, bookmark button, IMDb rating, View Film link
-- [x] **SearchState machine** — `idle | loading | done | error` with appropriate UI for each state
-- [x] **RotateCcw reset button** — clears prompt and results, returns to idle
-- [x] "Discover" added to `SiteNavigation` navItems
 
 ---
 

@@ -43,7 +43,7 @@ export type RandomResult = { film: RollFilm; total: number };
 export type NaturalRollFilters = Partial<Record<keyof FilterState, string | number | boolean>>;
 
 export type NaturalRollResult = {
-  film: RollFilm;
+  films: RollFilm[];
   total: number;
   interpretedFilters: NaturalRollFilters;
   relaxed: boolean;
@@ -161,11 +161,11 @@ export async function fetchRandom(filters?: Partial<FilterState>): Promise<Rando
   return res.json() as Promise<RandomResult>;
 }
 
-export async function fetchNaturalRoll(prompt: string): Promise<NaturalRollResult> {
+export async function fetchNaturalRoll(prompt: string, count = 6): Promise<NaturalRollResult> {
   const res = await fetch(`${API_URL}/api/natural-roll`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ prompt }),
+    body: JSON.stringify({ prompt, count }),
   });
   if (!res.ok) {
     const body = await res.json().catch(() => ({})) as {

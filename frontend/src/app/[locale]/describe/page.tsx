@@ -10,13 +10,17 @@ import {
   type NaturalRollError,
   type NaturalRollFilters,
   type NaturalRollResult,
+  type RollFilm,
 } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
 const EXAMPLE_PROMPTS = [
   "Something sad but beautiful",
-  "A film my dad would love",
+  "A dark French thriller from the 80s",
+  "Something uplifting that won Best Picture",
   "The most obscure Cannes winner you have",
+  "Hidden gem sci-fi from the 90s",
+  "A film my dad would love",
 ];
 
 const PROMPT_PLACEHOLDER = [
@@ -119,6 +123,53 @@ function FilterChips({ chips }: { chips: string[] }) {
   );
 }
 
+function FilmCard({ film }: { film: RollFilm }) {
+  const imageUrl = film.backdropUrl ?? film.posterUrl;
+  const totalWins = film.oscarWins + film.ggWins + film.cannesWins;
+
+  return (
+    <Link
+      href={`/film/${film.slug}`}
+      className="group flex flex-col overflow-hidden rounded-lg border border-[#1e1e2a] bg-[#09090f]/70 transition-colors hover:border-[#e8453c]/40"
+    >
+      <div className="relative w-full overflow-hidden" style={{ aspectRatio: "16/9" }}>
+        {imageUrl ? (
+          <Image
+            src={imageUrl}
+            alt={film.title}
+            fill
+            sizes="(min-width: 1024px) 20vw, 50vw"
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a2e] to-[#09090f]" />
+        )}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#09090f]/70 to-transparent" />
+        {totalWins > 0 && (
+          <span className="absolute bottom-1.5 left-1.5 rounded-full border border-[#e8453c]/30 bg-[#09090f]/80 px-2 py-0.5 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-widest text-[#e8453c]">
+            {totalWins}× Winner
+          </span>
+        )}
+      </div>
+
+      <div className="flex flex-1 flex-col gap-1 p-2.5">
+        <h3 className="font-[family-name:var(--font-display)] text-sm font-bold leading-tight text-[#F5F5F0] line-clamp-1">
+          {film.title}
+        </h3>
+        <p className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-widest text-[#555568]">
+          {film.year}
+          {film.director ? ` · ${film.director}` : ""}
+        </p>
+        {film.imdbRating != null && (
+          <p className="font-[family-name:var(--font-geist-mono)] text-[8px] font-bold text-[#888899]">
+            IMDb {film.imdbRating.toFixed(1)}
+          </p>
+        )}
+      </div>
+    </Link>
+  );
+}
+
 export default function DescribePage() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [prompt, setPrompt] = useState("");
@@ -158,9 +209,6 @@ export default function DescribePage() {
     window.setTimeout(() => textareaRef.current?.focus(), 80);
   }
 
-  const interpretedChips = result
-    ? formatFilterChips(result.interpretedFilters)
-    : [];
   const noMatchChips = noMatchFilters ? formatFilterChips(noMatchFilters) : [];
   const hasOutcome = Boolean(result || error || noMatchFilters);
 
@@ -180,6 +228,7 @@ export default function DescribePage() {
           </div>
 
           <div className="grid min-h-0 gap-5 lg:grid-cols-12">
+            {/* Left: input panel */}
             <div className="flex min-h-0 flex-col lg:col-span-7">
               <div className="flex min-h-0 flex-1 flex-col rounded-lg border border-[#1e1e2a] bg-[#0d0d16] shadow-[0_18px_70px_rgba(0,0,0,0.28)]">
                 <div className="flex shrink-0 items-center justify-between gap-4 border-b border-[#1e1e2a] px-4 py-3 sm:px-5">
@@ -278,7 +327,13 @@ export default function DescribePage() {
               </div>
             </div>
 
-            <div className="min-h-0 overflow-hidden rounded-lg border border-[#1a1a28] bg-[#0d0d16] lg:col-span-5">
+            {/* Right: results panel */}
+            <div
+              className={cn(
+                "min-h-0 rounded-lg border border-[#1a1a28] bg-[#0d0d16] lg:col-span-5",
+                result ? "overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:w-0" : "overflow-hidden",
+              )}
+            >
               {error ? (
                 <div className="flex h-full flex-col justify-center p-6">
                   <p className="mb-2 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.24em] text-[#e8453c]/70">
@@ -304,45 +359,31 @@ export default function DescribePage() {
                   <FilterChips chips={noMatchChips} />
                 </div>
               ) : result ? (
-                <div className="relative flex h-full flex-col justify-end overflow-hidden">
-                  {result.film.backdropUrl || result.film.posterUrl ? (
-                    <Image
-                      src={
-                        result.film.backdropUrl ?? result.film.posterUrl ?? ""
-                      }
-                      alt=""
-                      fill
-                      sizes="(min-width: 1024px) 42vw, 100vw"
-                      className="object-cover opacity-55"
-                      priority
-                    />
-                  ) : (
-                    <div className="absolute inset-0 bg-gradient-to-br from-[#151522] via-[#101018] to-[#09090f]" />
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#09090f] via-[#09090f]/72 to-[#09090f]/18" />
-
-                  <div className="relative z-10 flex min-h-0 flex-col justify-end p-5 sm:p-6">
-                    <p className="mb-2 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.24em] text-[#e8453c]/80">
-                      Your roll
+                <div className="p-4">
+                  <div className="mb-3 flex flex-wrap items-center gap-2">
+                    <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.24em] text-[#e8453c]/80">
+                      {result.films.length === 1 ? "Your roll" : `${result.films.length} picks`}
                     </p>
-                    <Link
-                      href={`/film/${result.film.slug}`}
-                      className="font-[family-name:var(--font-display)] text-4xl font-bold leading-none text-[#F5F5F0] transition-colors hover:text-[#e8453c] lg:text-5xl"
-                    >
-                      {result.film.title}
-                    </Link>
-                    <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest text-[#b6b6c6]">
-                      {result.film.year}
-                      {result.film.director
-                        ? ` · Dir. ${result.film.director}`
-                        : ""}
-                    </p>
-                    {result.film.plot && (
-                      <p className="mt-4 line-clamp-3 max-w-xl text-sm leading-6 text-[#d8d8df]/86">
-                        {result.film.plot}
-                      </p>
+                    {result.relaxed && (
+                      <span className="rounded-full border border-[#2a2a3e] px-2 py-0.5 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-widest text-[#555568]">
+                        Relaxed filters
+                      </span>
                     )}
-                    <FilterChips chips={interpretedChips} />
+                    <div className="ml-auto flex flex-wrap gap-1.5">
+                      {formatFilterChips(result.interpretedFilters).map((chip) => (
+                        <span
+                          key={chip}
+                          className="rounded-full border border-[#2a2a3e] bg-[#09090f]/70 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[8px] font-bold uppercase tracking-widest text-[#F5F5F0]"
+                        >
+                          {chip}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    {result.films.map((film) => (
+                      <FilmCard key={film.id} film={film} />
+                    ))}
                   </div>
                 </div>
               ) : (
@@ -354,11 +395,11 @@ export default function DescribePage() {
                     <h2 className="mt-3 font-[family-name:var(--font-display)] text-5xl font-bold leading-none text-[#F5F5F0]">
                       Mood in.
                       <br />
-                      Movie out.
+                      Movies out.
                     </h2>
                   </div>
                   <div className="grid grid-cols-3 gap-2">
-                    {["Mood", "Awards", "Decade"].map((label) => (
+                    {["Mood", "Awards", "Decade", "Genre", "Director", "Language"].map((label) => (
                       <div
                         key={label}
                         className="border border-[#1e1e2a] bg-[#09090f]/70 px-3 py-4 text-center"

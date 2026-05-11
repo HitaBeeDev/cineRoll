@@ -6,7 +6,7 @@ import { config } from "../config";
 import { RandomQuery, randomQuerySchema } from "../lib/filmFilters";
 import { HttpError } from "../middleware/errorHandler";
 import { getValidated, validate } from "../middleware/validate";
-import { getRandomFilm } from "./random";
+import { getRandomFilms } from "./random";
 
 export const naturalRollRouter = Router();
 
@@ -24,6 +24,7 @@ const rateLimitBuckets = new Map<string, RateLimitBucket>();
 const naturalRollBodySchema = z.object({
   prompt: z.string().trim().min(1).max(500),
   userId: z.string().trim().min(1).max(180).optional(),
+  count: z.number().int().min(1).max(6).optional(),
 }).strict();
 
 const nullableString = z.union([z.string().trim().min(1), z.null()]);
@@ -56,6 +57,7 @@ const geminiFilterSchema = z.object({
 }).strict();
 
 type NaturalRollBody = z.infer<typeof naturalRollBodySchema>;
+
 type GeminiFilters = z.infer<typeof geminiFilterSchema>;
 
 const responseSchema: ResponseSchema = {
@@ -207,13 +209,14 @@ naturalRollRouter.post("/", validate(naturalRollBodySchema, "body"), async (req,
   const body = getValidated<NaturalRollBody>(req, "body");
   assertWithinRateLimit(getRateLimitKey(body, req.ip));
 
+  const count = body.count ?? 6;
   const interpretedFilters = await interpretPrompt(body.prompt, false);
   const query = toRandomQuery(interpretedFilters, body.userId);
-  const firstResult = await getRandomFilm(query);
+  const firstResult = await getRandomFilms(query, count);
 
-  if (firstResult.film) {
+  if (firstResult.films.length > 0) {
     res.json({
-      film: firstResult.film,
+      films: firstResult.films,
       total: firstResult.total,
       interpretedFilters: cleanGeminiFilters(interpretedFilters),
       relaxed: false,
@@ -223,9 +226,9 @@ naturalRollRouter.post("/", validate(naturalRollBodySchema, "body"), async (req,
 
   const relaxedFilters = await interpretPrompt(body.prompt, true);
   const relaxedQuery = toRandomQuery(relaxedFilters, body.userId);
-  const relaxedResult = await getRandomFilm(relaxedQuery);
+  const relaxedResult = await getRandomFilms(relaxedQuery, count);
 
-  if (!relaxedResult.film) {
+  if (relaxedResult.films.length === 0) {
     res.status(404).json({
       error: "No films match the interpreted filters",
       code: "NO_FILMS_FOUND",
@@ -235,7 +238,7 @@ naturalRollRouter.post("/", validate(naturalRollBodySchema, "body"), async (req,
   }
 
   res.json({
-    film: relaxedResult.film,
+    films: relaxedResult.films,
     total: relaxedResult.total,
     interpretedFilters: cleanGeminiFilters(relaxedFilters),
     relaxed: true,

@@ -89,6 +89,14 @@ export async function getRandomFilm(query: RandomQuery): Promise<{
   film: RandomFilmRow | null;
   total: number;
 }> {
+  const { films, total } = await getRandomFilms(query, 1);
+  return { film: films[0] ?? null, total };
+}
+
+export async function getRandomFilms(query: RandomQuery, count: number): Promise<{
+  films: RandomFilmRow[];
+  total: number;
+}> {
   const additionalConditions: Prisma.Sql[] = [];
 
   if (query.userId) {
@@ -101,13 +109,9 @@ export async function getRandomFilm(query: RandomQuery): Promise<{
   const whereSql = buildWhereClause(query, additionalConditions);
 
   const [films, countRows] = await Promise.all([
-    prisma.$queryRaw<RandomFilmRow[]>`
-      SELECT ${randomSelect}
-      FROM "Film"
-      ${whereSql}
-      ORDER BY RANDOM()
-      LIMIT 1
-    `,
+    prisma.$queryRaw<RandomFilmRow[]>(
+      Prisma.sql`SELECT ${randomSelect} FROM "Film" ${whereSql} ORDER BY RANDOM() LIMIT ${count}`,
+    ),
     prisma.$queryRaw<{ count: bigint }[]>`
       SELECT COUNT(*)::BIGINT AS count
       FROM "Film"
@@ -115,13 +119,8 @@ export async function getRandomFilm(query: RandomQuery): Promise<{
     `,
   ]);
 
-  const film = films[0];
   const total = Number(countRows[0]?.count ?? 0);
-
-  return {
-    film: film ?? null,
-    total,
-  };
+  return { films, total };
 }
 
 randomRouter.get("/", validate(randomQuerySchema), async (req, res) => {
