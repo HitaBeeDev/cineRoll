@@ -48,6 +48,13 @@ Thumbs.db
 *.swp
 *.swo
 
+# Local AI instructions
+.gemini/
+GEMINI.md
+gemini.md
+gemini-instructions.*
+Gemini-instructions.*
+
 # Data — entire folder is private, never commit anything inside it
 backend/data/
 films-enriched.json
