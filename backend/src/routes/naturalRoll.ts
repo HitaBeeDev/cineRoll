@@ -16,6 +16,61 @@ const GEMINI_MODEL = "gemini-2.5-flash-lite";
 const CANDIDATE_TOP_N = 100;
 const CANDIDATE_SAMPLE_N = 50;
 
+const LOCAL_GENRE_PATTERNS: Array<[RegExp, string]> = [
+  [/\b(sci[-\s]?fi|science fiction|space)\b/i, "Science Fiction"],
+  [/\b(horror|scary|frightening)\b/i, "Horror"],
+  [/\b(thriller|suspense)\b/i, "Thriller"],
+  [/\b(comedy|funny|comedie|comedic)\b/i, "Comedy"],
+  [/\b(romance|romantic|love story)\b/i, "Romance"],
+  [/\b(action)\b/i, "Action"],
+  [/\b(documentary|doc)\b/i, "Documentary"],
+  [/\b(animation|animated|anime)\b/i, "Animation"],
+  [/\b(crime|gangster|noir)\b/i, "Crime"],
+  [/\b(history|historical|period piece)\b/i, "History"],
+  [/\b(war)\b/i, "War"],
+  [/\b(western)\b/i, "Western"],
+  [/\b(music|musical)\b/i, "Music"],
+  [/\b(biography|biopic)\b/i, "Biography"],
+  [/\b(mystery)\b/i, "Mystery"],
+  [/\b(fantasy)\b/i, "Fantasy"],
+  [/\b(adventure)\b/i, "Adventure"],
+  [/\b(drama|dramatic)\b/i, "Drama"],
+];
+
+const LOCAL_LANGUAGE_PATTERNS: Array<[RegExp, string]> = [
+  [/\b(french|france|francaise?|français|francais)\b/i, "fr"],
+  [/\b(italian|italy)\b/i, "it"],
+  [/\b(german|germany|deutsch)\b/i, "de"],
+  [/\b(japanese|japan)\b/i, "ja"],
+  [/\b(spanish|spain|mexican|mexico)\b/i, "es"],
+  [/\b(korean|korea)\b/i, "ko"],
+  [/\b(chinese|china|mandarin|cantonese)\b/i, "zh"],
+  [/\b(russian|russia)\b/i, "ru"],
+  [/\b(portuguese|portugal|brazilian|brazil)\b/i, "pt"],
+  [/\b(swedish|sweden)\b/i, "sv"],
+];
+
+const LOCAL_CATEGORY_PATTERNS: Array<[RegExp, string]> = [
+  [/\bbest picture\b/i, "Best Picture"],
+  [/\bbest director\b/i, "Directing"],
+  [/\bbest actress\b/i, "Actress"],
+  [/\bbest actor\b/i, "Actor"],
+  [/\bbest screenplay\b/i, "Writing"],
+  [/\bcinematograph(y|er)\b/i, "Cinematography"],
+  [/\bforeign language\b|\binternational feature\b/i, "International Feature"],
+];
+
+const LOCAL_SEMANTIC_KEYWORDS: Record<string, string[]> = {
+  sad: ["grief", "loss", "mourning", "melancholy", "tragic", "lonely", "heartbreak"],
+  beautiful: ["beautiful", "poetic", "lyrical", "tender", "moving", "romantic"],
+  uplifting: ["uplifting", "hope", "joy", "inspiring", "feel-good", "triumph"],
+  dark: ["dark", "bleak", "grim", "violent", "disturbing", "sinister"],
+  psychological: ["psychological", "paranoia", "obsession", "mind", "mental", "fear"],
+  fear: ["fear", "terror", "dread", "haunting", "nightmare", "threat"],
+  gore: ["gore", "bloody", "blood", "slasher"],
+  underrated: ["hidden", "obscure", "overlooked", "cult", "independent"],
+};
+
 // ── Rate limiting ──────────────────────────────────────────────────────────────
 
 type RateLimitBucket = { count: number; resetAt: number };
@@ -140,9 +195,70 @@ function cleanStage1Filters(filters: Stage1Filters): Record<string, unknown> {
   );
 }
 
+function firstMatch<T>(prompt: string, patterns: Array<[RegExp, T]>): T | undefined {
+  return patterns.find(([pattern]) => pattern.test(prompt))?.[1];
+}
+
+function extractDecadeFilters(prompt: string): Pick<Stage1Filters, "decadeMin" | "decadeMax"> {
+  const lastYears = prompt.match(/\blast\s+(\d{1,2})\s+years?\b/i);
+  if (lastYears) {
+    const years = Number(lastYears[1]);
+    const currentYear = new Date().getFullYear();
+    return { decadeMin: currentYear - years, decadeMax: currentYear };
+  }
+
+  const decade = prompt.match(/\b(18|19|20)(\d)0s\b/i);
+  if (decade) {
+    const start = Number(`${decade[1]}${decade[2]}0`);
+    return { decadeMin: start, decadeMax: start + 9 };
+  }
+
+  const shorthandDecade = prompt.match(/\b(?:the\s+)?['’]?(\d{2})s\b/i);
+  if (shorthandDecade) {
+    const value = Number(shorthandDecade[1]);
+    const start = value >= 30 ? 1900 + value : 2000 + value;
+    return { decadeMin: start, decadeMax: start + 9 };
+  }
+
+  const afterYear = prompt.match(/\b(?:after|since|from)\s+(18|19|20)\d{2}\b/i);
+  if (afterYear) return { decadeMin: Number(afterYear[0].match(/\d{4}/)?.[0]) };
+
+  const beforeYear = prompt.match(/\b(?:before|pre)\s+(18|19|20)\d{2}\b/i);
+  if (beforeYear) return { decadeMax: Number(beforeYear[0].match(/\d{4}/)?.[0]) };
+
+  return {};
+}
+
+function extractLocalStructuralFilters(prompt: string): Stage1Filters {
+  const filters: Stage1Filters = {};
+  const lowerPrompt = prompt.toLowerCase();
+
+  filters.language = firstMatch(prompt, LOCAL_LANGUAGE_PATTERNS);
+  filters.genre = firstMatch(prompt, LOCAL_GENRE_PATTERNS);
+  filters.category = firstMatch(prompt, LOCAL_CATEGORY_PATTERNS);
+
+  if (/\b(series|show|tv)\b/i.test(prompt)) filters.contentType = "series";
+  if (/\b(film|movie|movies|feature)\b/i.test(prompt)) filters.contentType = "movie";
+
+  if (/\b(oscar|academy award)\b/i.test(prompt)) filters.awardBody = "oscar";
+  if (/\b(golden globe|globes)\b/i.test(prompt)) filters.awardBody = "goldenglobe";
+  if (/\bcannes\b/i.test(prompt)) filters.awardBody = "cannes";
+
+  if (/\b(winner|won|winning)\b/i.test(prompt)) filters.winnerOnly = true;
+  if (/\b(nominee|nominated|nomination)\b/i.test(prompt)) filters.nominatedOnly = true;
+  if (/\b(female|woman|women)\s+director\b/i.test(prompt)) filters.femaleDirectorOnly = true;
+
+  Object.assign(filters, extractDecadeFilters(prompt));
+
+  const awardYear = lowerPrompt.match(/\b(18|19|20)\d{2}\s+(oscars?|academy awards?|golden globes?|cannes)\b/i);
+  if (awardYear) filters.awardYear = Number(awardYear[0].match(/\d{4}/)?.[0]);
+
+  return stage1Schema.parse(filters);
+}
+
 async function extractStructuralFilters(prompt: string): Promise<Stage1Filters> {
   if (!config.geminiApiKey) {
-    throw new HttpError(503, "Gemini API key is not configured", "GEMINI_NOT_CONFIGURED");
+    return extractLocalStructuralFilters(prompt);
   }
   const genAI = new GoogleGenerativeAI(config.geminiApiKey);
   const model = genAI.getGenerativeModel({
@@ -155,11 +271,12 @@ async function extractStructuralFilters(prompt: string): Promise<Stage1Filters> 
       maxOutputTokens: 256,
     },
   });
-  const result = await model.generateContent(prompt);
   try {
+    const result = await model.generateContent(prompt);
     return stage1Schema.parse(parseGeminiJson(result.response.text()));
-  } catch {
-    return {};
+  } catch (error) {
+    console.warn("Gemini structural extraction failed; using local fallback.", error);
+    return extractLocalStructuralFilters(prompt);
   }
 }
 
@@ -172,12 +289,65 @@ function formatCandidatesForRerank(candidates: RandomFilmRow[]): string {
   }).join("\n");
 }
 
+function tokenize(text: string): string[] {
+  return text
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .match(/[a-z0-9]+/g) ?? [];
+}
+
+function localRerankCandidates(
+  prompt: string,
+  candidates: RandomFilmRow[],
+  count: number,
+): string[] {
+  const promptTokens = new Set(tokenize(prompt).filter(token => token.length > 2));
+  const expandedTerms = new Set(promptTokens);
+
+  for (const [term, keywords] of Object.entries(LOCAL_SEMANTIC_KEYWORDS)) {
+    if (promptTokens.has(term)) keywords.forEach(keyword => expandedTerms.add(keyword));
+  }
+
+  const wantsUnderrated = /\b(underrated|hidden gem|obscure|overlooked)\b/i.test(prompt);
+  const rejectsGore = /\b(rather than gore|not gore|no gore|less gore)\b/i.test(prompt);
+
+  return candidates
+    .map(film => {
+      const haystack = tokenize([
+        film.title,
+        film.originalTitle,
+        film.year,
+        film.genres.join(" "),
+        film.director,
+        film.plot,
+      ].filter(Boolean).join(" "));
+
+      let score = 0;
+      for (const token of haystack) {
+        if (promptTokens.has(token)) score += 3;
+        if (expandedTerms.has(token)) score += 1;
+      }
+
+      if (film.imdbRating != null) score += film.imdbRating / 2;
+      if (wantsUnderrated && !film.imdbTopMovieRank && !film.imdbTopTvRank) score += 2;
+      if (rejectsGore && haystack.some(token => ["gore", "bloody", "blood", "slasher"].includes(token))) {
+        score -= 5;
+      }
+
+      return { id: film.id, score };
+    })
+    .sort((a, b) => b.score - a.score)
+    .slice(0, count)
+    .map(result => result.id);
+}
+
 async function rerankCandidates(
   prompt: string,
   candidates: RandomFilmRow[],
   count: number,
 ): Promise<string[]> {
-  if (!config.geminiApiKey) return candidates.slice(0, count).map(f => f.id);
+  if (!config.geminiApiKey) return localRerankCandidates(prompt, candidates, count);
 
   const genAI = new GoogleGenerativeAI(config.geminiApiKey);
   const model = genAI.getGenerativeModel({
@@ -199,7 +369,7 @@ async function rerankCandidates(
     const validIds = new Set(candidates.map(f => f.id));
     return parsed.picks.filter(id => validIds.has(id)).slice(0, count);
   } catch {
-    return candidates.slice(0, count).map(f => f.id);
+    return localRerankCandidates(prompt, candidates, count);
   }
 }
 
