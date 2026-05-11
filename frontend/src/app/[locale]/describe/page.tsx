@@ -142,44 +142,56 @@ const AWARD_BODIES = [
 ] as const;
 
 function FilmCard({ film }: { film: RollFilm }) {
-  const imageUrl = film.backdropUrl ?? film.posterUrl;
+  const imageUrl = film.posterUrl ?? film.backdropUrl;
   const awardBodies = AWARD_BODIES.filter(b => b.noms(film) > 0);
+  const genre = film.genres[0];
 
   return (
     <Link
       href={`/film/${film.slug}`}
-      className="group flex flex-col overflow-hidden rounded-lg border border-[#1e1e2a] bg-[#09090f]/70 transition-colors hover:border-[#e8453c]/40"
+      className="group relative flex min-h-0 overflow-hidden rounded-lg border border-[#1e1e2a] bg-[#09090f]/70 transition-colors hover:border-[#e8453c]/40"
     >
-      <div className="relative w-full overflow-hidden" style={{ aspectRatio: "16/9" }}>
-        {imageUrl ? (
-          <Image
-            src={imageUrl}
-            alt={film.title}
-            fill
-            sizes="(min-width: 1024px) 20vw, 50vw"
-            className="object-cover transition-transform duration-300 group-hover:scale-105"
-          />
-        ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a2e] to-[#09090f]" />
-        )}
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#09090f]/70 to-transparent" />
-      </div>
+      {imageUrl ? (
+        <Image
+          src={imageUrl}
+          alt={`${film.title} poster`}
+          fill
+          sizes="(min-width: 1024px) 20vw, 50vw"
+          className="object-cover transition-transform duration-500 group-hover:scale-105"
+        />
+      ) : (
+        <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a2e] to-[#09090f]" />
+      )}
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#09090f] via-[#09090f]/58 to-transparent" />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#09090f]/30 to-transparent" />
 
-      <div className="flex flex-1 flex-col gap-1.5 p-2.5">
-        <h3 className="font-[family-name:var(--font-display)] text-sm font-bold leading-tight text-[#F5F5F0] line-clamp-1">
+      <div className="relative z-10 mt-auto flex min-w-0 flex-col gap-2 p-3 sm:p-4">
+        <h3 className="font-[family-name:var(--font-display)] text-2xl font-bold leading-none text-[#F5F5F0] line-clamp-2">
           {film.title}
         </h3>
-        <p className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-widest text-[#555568]">
+        <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase leading-4 tracking-widest text-[#b6b6c6]">
           {film.year}
           {film.director ? ` · ${film.director}` : ""}
         </p>
+        <div className="flex flex-wrap gap-1.5">
+          {genre && (
+            <span className="rounded-full border border-[#F5F5F0]/20 bg-[#09090f]/70 px-2 py-1 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-widest text-[#F5F5F0]">
+              {genre}
+            </span>
+          )}
+          {film.imdbRating != null && (
+            <span className="rounded-full border border-[#e8453c]/35 bg-[#09090f]/70 px-2 py-1 font-[family-name:var(--font-geist-mono)] text-[8px] font-bold uppercase tracking-widest text-[#e8453c]">
+              IMDb {film.imdbRating.toFixed(1)}
+            </span>
+          )}
+        </div>
 
         {awardBodies.length > 0 && (
-          <div className="flex flex-wrap gap-1 pt-0.5">
+          <div className="flex flex-wrap gap-1">
             {awardBodies.map((b) => (
               <span
                 key={b.key}
-                className="rounded border border-[#2a2a3e] px-1.5 py-0.5 font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-widest text-[#888899]"
+                className="rounded border border-[#2a2a3e] bg-[#09090f]/75 px-1.5 py-0.5 font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-widest text-[#d8d8df]"
               >
                 {b.label}{" "}
                 {b.wins(film) > 0 && (
@@ -192,12 +204,6 @@ function FilmCard({ film }: { film: RollFilm }) {
               </span>
             ))}
           </div>
-        )}
-
-        {film.imdbRating != null && (
-          <p className="font-[family-name:var(--font-geist-mono)] text-[8px] font-bold text-[#888899]">
-            IMDb {film.imdbRating.toFixed(1)}
-          </p>
         )}
       </div>
     </Link>
@@ -394,8 +400,8 @@ export default function DescribePage() {
                   <FilterChips chips={noMatchChips} />
                 </div>
               ) : result ? (
-                <div className="p-4">
-                  <div className="mb-3 flex flex-wrap items-center gap-2">
+                <div className="flex h-full min-h-0 flex-col p-4">
+                  <div className="mb-3 flex shrink-0 flex-wrap items-center gap-2">
                     <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.24em] text-[#e8453c]/80">
                       {result.films.length === 1 ? "Your roll" : `${result.films.length} picks`}
                     </p>
@@ -415,7 +421,7 @@ export default function DescribePage() {
                       ))}
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid min-h-0 flex-1 grid-cols-2 gap-3">
                     {result.films.map((film) => (
                       <FilmCard key={film.id} film={film} />
                     ))}
