@@ -100,6 +100,9 @@ nominationCount, imdbRatingMin, imdbRatingMax, rtScoreMin, certificate,
 imdbTopMoviesOnly, imdbTopTvOnly, tvType.
 
 Rules:
+- Accept the user's prompt in any language. Interpret localized genre, award, date,
+  country, mood, and format phrases, then return the normalized JSON fields below.
+- Keep output values in canonical app/API form, not the user's original language.
 - Omit unknown or unsupported filters. Do not invent fields.
 - Use awardBody only as "oscar", "goldenglobe", "cannes", or "all".
 - For decades, use inclusive years, for example 1990s means decadeMin 1990 and decadeMax 1999.
