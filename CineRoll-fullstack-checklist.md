@@ -725,7 +725,7 @@ Instead of dropdowns, the user describes what they want in plain English. Gemini
 - [x] While processing, show a fun loading message: "Asking the algorithm…"
 - [x] After roll, show up to 6 results in a 2-column scrollable grid with film cards (poster, title, year, director, IMDb rating, wins badge)
 - [x] Interpreted filters shown as chips above the grid
-- [x] "Refine" button lets them edit the prompt and re-roll
+- [x] "Reset" button clears the prompt and current result state
 - [x] If no films match: show Gemini's interpreted filters and suggest adjusting the description
 - [x] Idle right panel shows 6 supported input categories: Mood, Awards, Decade, Genre, Director, Language
 

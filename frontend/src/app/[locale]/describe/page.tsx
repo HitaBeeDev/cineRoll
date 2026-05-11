@@ -236,7 +236,8 @@ export default function DescribePage() {
     }
   }
 
-  function handleRefine() {
+  function handleReset() {
+    setPrompt("");
     setResult(null);
     setError(null);
     setNoMatchFilters(null);
@@ -316,7 +317,7 @@ export default function DescribePage() {
                     {hasOutcome && (
                       <button
                         type="button"
-                        onClick={handleRefine}
+                        onClick={handleReset}
                         disabled={isProcessing}
                         className={cn(
                           "inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-full border border-[#2a2a3e] px-5",
@@ -328,7 +329,7 @@ export default function DescribePage() {
                         )}
                       >
                         <RotateCcw className="h-3.5 w-3.5" aria-hidden />
-                        Refine
+                        Reset
                       </button>
                     )}
 
