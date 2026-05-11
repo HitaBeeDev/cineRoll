@@ -1,8 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { AppHeader } from "@/components/app-header";
+import { fetchNaturalRoll, type NaturalRollFilters, type NaturalRollResult } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
 const EXAMPLE_PROMPTS = [
@@ -11,16 +14,85 @@ const EXAMPLE_PROMPTS = [
   "The most obscure Cannes winner you have",
 ];
 
+const AWARD_LABELS: Record<string, string> = {
+  oscar: "Oscar",
+  goldenglobe: "Golden Globe",
+  cannes: "Cannes",
+  all: "Award",
+};
+
+function formatFilterChips(filters: NaturalRollFilters): string[] {
+  const chips: string[] = [];
+  const awardBody = typeof filters.awardBody === "string" ? filters.awardBody : undefined;
+
+  if (awardBody) {
+    const award = AWARD_LABELS[awardBody] ?? awardBody;
+    if (filters.winnerOnly === true) {
+      chips.push(`${award} winner`);
+    } else if (filters.nominatedOnly === true) {
+      chips.push(`${award} nominee`);
+    } else if (awardBody !== "all") {
+      chips.push(award);
+    }
+  } else if (filters.winnerOnly === true) {
+    chips.push("Winner");
+  } else if (filters.nominatedOnly === true) {
+    chips.push("Nominee");
+  }
+
+  if (typeof filters.genre === "string") chips.push(filters.genre);
+  if (typeof filters.contentType === "string") chips.push(filters.contentType);
+  if (typeof filters.person === "string") chips.push(filters.person);
+  if (typeof filters.director === "string") chips.push(`Dir. ${filters.director}`);
+  if (filters.femaleDirectorOnly === true) chips.push("Female director");
+
+  const min = typeof filters.decadeMin === "number" ? filters.decadeMin : undefined;
+  const max = typeof filters.decadeMax === "number" ? filters.decadeMax : undefined;
+  if (min !== undefined && max !== undefined && min % 10 === 0 && max === min + 9) {
+    chips.push(`${min}s`);
+  } else if (min !== undefined && max !== undefined) {
+    chips.push(`${min}-${max}`);
+  } else if (min !== undefined) {
+    chips.push(`${min}+`);
+  } else if (max !== undefined) {
+    chips.push(`Before ${max}`);
+  }
+
+  if (typeof filters.category === "string") chips.push(filters.category);
+  if (typeof filters.awardYear === "number") chips.push(String(filters.awardYear));
+  if (typeof filters.runtimeMax === "number") chips.push(`Under ${filters.runtimeMax} min`);
+  if (typeof filters.imdbRatingMin === "number") chips.push(`IMDb ${filters.imdbRatingMin}+`);
+  if (typeof filters.rtScoreMin === "number") chips.push(`RT ${filters.rtScoreMin}+`);
+  if (filters.imdbTopMoviesOnly === true) chips.push("IMDb Top Movies");
+  if (filters.imdbTopTvOnly === true) chips.push("IMDb Top TV");
+  if (typeof filters.tvType === "string") chips.push(filters.tvType);
+  if (typeof filters.certificate === "string") chips.push(filters.certificate);
+  if (typeof filters.search === "string") chips.push(filters.search);
+
+  return [...new Set(chips)];
+}
+
 export default function DescribePage() {
   const [prompt, setPrompt] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
+  const [result, setResult] = useState<NaturalRollResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   async function handleSubmit() {
     if (!prompt.trim() || isProcessing) return;
     setIsProcessing(true);
-    await new Promise((resolve) => window.setTimeout(resolve, 900));
-    setIsProcessing(false);
+    setError(null);
+    setResult(null);
+    try {
+      setResult(await fetchNaturalRoll(prompt));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Natural roll failed");
+    } finally {
+      setIsProcessing(false);
+    }
   }
+
+  const interpretedChips = result ? formatFilterChips(result.interpretedFilters) : [];
 
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-[#09090f] text-[#F5F5F0]">
@@ -109,6 +181,72 @@ export default function DescribePage() {
               </button>
             </div>
           </div>
+
+          {(result || error) && (
+            <div className="mt-5 rounded-lg border border-[#1e1e2a] bg-[#0d0d16] p-4 sm:p-5">
+              {error ? (
+                <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase leading-5 tracking-widest text-[#e8453c]">
+                  {error}
+                </p>
+              ) : result ? (
+                <div className="grid gap-4 lg:grid-cols-[140px_1fr]">
+                  <Link
+                    href={`/film/${result.film.slug}`}
+                    className="relative block aspect-[2/3] overflow-hidden rounded-md border border-[#1e1e2a] bg-[#111118]"
+                    aria-label={`${result.film.title} (${result.film.year})`}
+                  >
+                    {result.film.posterUrl ? (
+                      <Image
+                        src={result.film.posterUrl}
+                        alt={`${result.film.title} poster`}
+                        fill
+                        sizes="140px"
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-full items-center justify-center text-[#555568]">
+                        No poster
+                      </div>
+                    )}
+                  </Link>
+
+                  <div className="flex min-w-0 flex-col justify-center">
+                    <p className="mb-2 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.24em] text-[#e8453c]/70">
+                      Your roll
+                    </p>
+                    <Link
+                      href={`/film/${result.film.slug}`}
+                      className="font-[family-name:var(--font-display)] text-3xl font-bold leading-tight text-[#F5F5F0] transition-colors hover:text-[#e8453c]"
+                    >
+                      {result.film.title}
+                    </Link>
+                    <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest text-[#66667a]">
+                      {result.film.year}
+                      {result.film.director ? ` · Dir. ${result.film.director}` : ""}
+                    </p>
+
+                    {interpretedChips.length > 0 && (
+                      <div className="mt-4">
+                        <p className="mb-2 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.22em] text-[#555568]">
+                          Searched for
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          {interpretedChips.map((chip) => (
+                            <span
+                              key={chip}
+                              className="rounded-full border border-[#2a2a3e] px-3 py-1.5 font-[family-name:var(--font-geist-mono)] text-[9px] font-bold uppercase tracking-widest text-[#F5F5F0]"
+                            >
+                              {chip}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ) : null}
+            </div>
+          )}
         </section>
       </main>
     </div>

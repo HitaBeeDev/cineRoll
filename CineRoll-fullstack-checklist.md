@@ -723,7 +723,7 @@ Instead of dropdowns, the user describes what they want in plain English. Gemini
 - [x] Add a link/button on the home page that takes users to `/describe` (e.g. "Can't decide? Describe it →")
 - [x] Build the `/describe` page with a full-page text area and placeholder examples: _"Something sad but beautiful"_, _"A film my dad would love"_, _"The most obscure Cannes winner you have"_
 - [x] While processing, show a fun loading message: "Asking the algorithm…"
-- [ ] After roll, show the interpreted filters as chips below the result: "Searched for: Golden Globe winner · Drama · 1990s" so the user understands what happened
+- [x] After roll, show the interpreted filters as chips below the result: "Searched for: Golden Globe winner · Drama · 1990s" so the user understands what happened
 - [ ] "Refine" button lets them edit the prompt and re-roll
 - [ ] If no films match: show Gemini's interpreted filters and suggest adjusting the description
 
