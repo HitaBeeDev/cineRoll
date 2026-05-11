@@ -409,8 +409,8 @@ export default function HomePage() {
             onClearFilters={resetFilters}
           />
 
-          {/* ROLL button + pool count — side by side */}
-          <div className="flex items-center gap-4 mt-1">
+          {/* ROLL button + pool count + natural language CTA */}
+          <div className="mt-1 flex flex-wrap items-center gap-4">
             {/* Marquee-border ROLL box */}
             <div className="w-[185px] shrink-0 rounded-2xl border-2 border-dashed border-[#e8453c]/30 p-1.5">
               <button
@@ -447,20 +447,21 @@ export default function HomePage() {
               <span className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-widest text-[#444458]">
                 Press [Space] to spin
               </span>
-              <Link
-                href="/describe"
-                className={cn(
-                  "mt-2 inline-flex items-center gap-1.5 rounded-full border border-[#2a2a3e] px-3 py-1.5",
-                  "font-[family-name:var(--font-geist-mono)] text-[9px] font-bold uppercase tracking-widest text-[#F5F5F0]",
-                  "transition-colors hover:border-[#e8453c]/45 hover:text-[#e8453c]",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
-                  "focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090f]",
-                )}
-              >
-                Can&apos;t decide? Describe it
-                <ArrowUpRight className="h-3 w-3" aria-hidden />
-              </Link>
             </div>
+
+            <Link
+              href="/describe"
+              className={cn(
+                "inline-flex shrink-0 items-center gap-1.5 rounded-full border border-[#2a2a3e] px-3 py-1.5",
+                "font-[family-name:var(--font-geist-mono)] text-[9px] font-bold uppercase tracking-widest text-[#F5F5F0]",
+                "transition-colors hover:border-[#e8453c]/45 hover:text-[#e8453c]",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
+                "focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090f]",
+              )}
+            >
+              Can&apos;t decide? Describe it
+              <ArrowUpRight className="h-3 w-3" aria-hidden />
+            </Link>
           </div>
         </div>
 
