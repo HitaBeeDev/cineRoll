@@ -13,6 +13,14 @@ const EXAMPLE_PROMPTS = [
 
 export default function DescribePage() {
   const [prompt, setPrompt] = useState("");
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  async function handleSubmit() {
+    if (!prompt.trim() || isProcessing) return;
+    setIsProcessing(true);
+    await new Promise((resolve) => window.setTimeout(resolve, 900));
+    setIsProcessing(false);
+  }
 
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-[#09090f] text-[#F5F5F0]">
@@ -45,6 +53,7 @@ export default function DescribePage() {
             <textarea
               value={prompt}
               onChange={(event) => setPrompt(event.target.value.slice(0, 500))}
+              disabled={isProcessing}
               placeholder={`${EXAMPLE_PROMPTS[0]}\n${EXAMPLE_PROMPTS[1]}\n${EXAMPLE_PROMPTS[2]}`}
               className={cn(
                 "min-h-[360px] flex-1 resize-none bg-transparent px-4 py-4 outline-none sm:px-5 sm:py-5",
@@ -62,10 +71,12 @@ export default function DescribePage() {
                     key={example}
                     type="button"
                     onClick={() => setPrompt(example)}
+                    disabled={isProcessing}
                     className={cn(
                       "rounded-full border border-[#2a2a3e] px-3 py-1.5 text-left",
                       "font-[family-name:var(--font-geist-mono)] text-[9px] font-bold uppercase tracking-widest text-[#888899]",
                       "transition-colors hover:border-[#e8453c]/45 hover:text-[#F5F5F0]",
+                      "disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-[#2a2a3e]",
                       "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
                     )}
                   >
@@ -76,7 +87,8 @@ export default function DescribePage() {
 
               <button
                 type="button"
-                disabled={!prompt.trim()}
+                onClick={() => void handleSubmit()}
+                disabled={!prompt.trim() || isProcessing}
                 className={cn(
                   "inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-full px-5",
                   "bg-[#e8453c] font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-widest text-[#F5F5F0]",
@@ -86,8 +98,14 @@ export default function DescribePage() {
                   "focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090f]",
                 )}
               >
-                Roll From Description
-                <ArrowRight className="h-3.5 w-3.5" aria-hidden />
+                {isProcessing ? (
+                  <span className="motion-safe:animate-pulse">Asking the algorithm…</span>
+                ) : (
+                  <>
+                    Roll From Description
+                    <ArrowRight className="h-3.5 w-3.5" aria-hidden />
+                  </>
+                )}
               </button>
             </div>
           </div>
