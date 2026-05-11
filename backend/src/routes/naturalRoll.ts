@@ -104,18 +104,36 @@ nominationCount, imdbRatingMin, imdbRatingMax, rtScoreMin, certificate,
 imdbTopMoviesOnly, imdbTopTvOnly, tvType.
 
 Rules:
-- Accept the user's prompt in any language. Interpret localized genre, award, date,
-  country, mood, and format phrases, then return the normalized JSON fields below.
-- Keep output values in canonical app/API form, not the user's original language.
-- Omit unknown or unsupported filters. Do not invent fields.
-- Use awardBody only as "oscar", "goldenglobe", "cannes", or "all".
-- For decades, use inclusive years, for example 1990s means decadeMin 1990 and decadeMax 1999.
-- Use winnerOnly for winner requests and nominatedOnly for nomination requests.
-- Use genre for broad genres such as Drama, Comedy, Horror, Romance, Documentary, Animation, Thriller, Crime, Action, Sci-Fi.
-- Use contentType only when the user asks specifically for movie, series, miniseries, or similar.
-- Use language as an ISO 639-1 two-letter code when the user asks for films in or from a specific language or country. Examples: French/France → "fr", Italian/Italy → "it", German/Germany → "de", Japanese/Japan → "ja", Spanish/Spain/Latin America → "es", Korean/Korea → "ko", Portuguese/Brazil → "pt", Chinese/China → "zh", Russian/Russia → "ru", Swedish/Sweden → "sv". Never put a nationality word in the search field.
-- Only set runtimeMax when the user explicitly mentions a time constraint (e.g. "under 2 hours", "short film", "less than 90 minutes"). Do not infer or assume any runtime limit from mood, genre, or style.
-- Prefer fewer precise filters over many speculative filters.
+
+SEARCH FIELD — strict:
+- Only set search when the user names a specific film title or franchise. NEVER set search for generic words like "film", "movie", "cinema", "show", "something", "a", "one", or any mood/emotion/quality word. If in doubt, leave search null.
+
+MOOD AND EMOTION → genre + rating:
+- Emotional, sad, crying, tear-jerker, heartbreaking, devastating, grief, loss, tragic, melancholy, moving, touching → genre: "Drama"
+- Uplifting, feel-good, heartwarming, joyful, inspiring → genre: "Drama", imdbRatingMin: 7
+- Funny, hilarious, laugh, comedy, lighthearted → genre: "Comedy"
+- Scary, terrifying, nightmare, dark → genre: "Horror"
+- Tense, suspenseful, gripping, thriller → genre: "Thriller"
+- Do NOT use imdbTopMoviesOnly or imdbTopTvOnly for mood words. Those flags are only for explicit requests like "IMDb top 250", "greatest films ever", "IMDb best list".
+
+QUALITY HINTS → imdbRatingMin only:
+- "Very good", "great", "acclaimed", "must-watch", "excellent" → imdbRatingMin: 7.5
+- "Masterpiece", "all-time best", "perfect" → imdbRatingMin: 8.5
+- "Hidden gem", "underrated" → imdbRatingMin: 7 (do NOT add other quality filters)
+- "Bad", "so bad it's good", "guilty pleasure" → set no rating filter
+
+LANGUAGE — ISO 639-1 code:
+- French/France → "fr", Italian/Italy → "it", German/Germany → "de", Japanese/Japan → "ja", Spanish → "es", Korean → "ko", Portuguese/Brazil → "pt", Chinese/China → "zh", Russian → "ru", Swedish → "sv". Never put a nationality word in search.
+
+OTHER RULES:
+- Accept prompts in any language. Return canonical English values in JSON.
+- Omit fields that are null or not applicable. Do not invent fields.
+- awardBody: only "oscar", "goldenglobe", "cannes", or "all".
+- Decades: 1990s → decadeMin: 1990, decadeMax: 1999.
+- winnerOnly for winner requests, nominatedOnly for nomination requests.
+- runtimeMax: only when the user explicitly states a time limit ("under 2 hours", "short film"). Never infer from mood or genre.
+- contentType: only when the user specifically asks for a movie vs. series.
+- Prefer 1–3 precise filters over many speculative ones.
 `.trim();
 
 const relaxedInstruction = `
