@@ -5,7 +5,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { AppHeader } from "@/components/app-header";
-import { fetchNaturalRoll, type NaturalRollFilters, type NaturalRollResult } from "@/lib/api";
+import {
+  fetchNaturalRoll,
+  type NaturalRollError,
+  type NaturalRollFilters,
+  type NaturalRollResult,
+} from "@/lib/api";
 import { cn } from "@/lib/utils";
 
 const EXAMPLE_PROMPTS = [
@@ -78,16 +83,23 @@ export default function DescribePage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [result, setResult] = useState<NaturalRollResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [noMatchFilters, setNoMatchFilters] = useState<NaturalRollFilters | null>(null);
 
   async function handleSubmit() {
     if (!prompt.trim() || isProcessing) return;
     setIsProcessing(true);
     setError(null);
     setResult(null);
+    setNoMatchFilters(null);
     try {
       setResult(await fetchNaturalRoll(prompt));
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Natural roll failed");
+      const naturalRollError = err as Partial<NaturalRollError>;
+      if (naturalRollError.code === "NO_FILMS_FOUND" && naturalRollError.interpretedFilters) {
+        setNoMatchFilters(naturalRollError.interpretedFilters);
+      } else {
+        setError(err instanceof Error ? err.message : "Natural roll failed");
+      }
     } finally {
       setIsProcessing(false);
     }
@@ -96,11 +108,13 @@ export default function DescribePage() {
   function handleRefine() {
     setResult(null);
     setError(null);
+    setNoMatchFilters(null);
     textareaRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
     window.setTimeout(() => textareaRef.current?.focus(), 120);
   }
 
   const interpretedChips = result ? formatFilterChips(result.interpretedFilters) : [];
+  const noMatchChips = noMatchFilters ? formatFilterChips(noMatchFilters) : [];
 
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-[#09090f] text-[#F5F5F0]">
@@ -191,12 +205,57 @@ export default function DescribePage() {
             </div>
           </div>
 
-          {(result || error) && (
+          {(result || error || noMatchFilters) && (
             <div className="mt-5 rounded-lg border border-[#1e1e2a] bg-[#0d0d16] p-4 sm:p-5">
               {error ? (
                 <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase leading-5 tracking-widest text-[#e8453c]">
                   {error}
                 </p>
+              ) : noMatchFilters ? (
+                <div>
+                  <p className="mb-2 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.24em] text-[#e8453c]/70">
+                    No matching films
+                  </p>
+                  <h2 className="font-[family-name:var(--font-display)] text-3xl font-bold leading-tight text-[#F5F5F0]">
+                    Try loosening the description.
+                  </h2>
+                  <p className="mt-2 max-w-2xl font-[family-name:var(--font-geist-mono)] text-[10px] uppercase leading-5 tracking-widest text-[#66667a]">
+                    Gemini interpreted the request, but the film pool came back empty.
+                    Remove a year, award, rating, or exact person and roll again.
+                  </p>
+
+                  {noMatchChips.length > 0 && (
+                    <div className="mt-4">
+                      <p className="mb-2 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.22em] text-[#555568]">
+                        Searched for
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {noMatchChips.map((chip) => (
+                          <span
+                            key={chip}
+                            className="rounded-full border border-[#2a2a3e] px-3 py-1.5 font-[family-name:var(--font-geist-mono)] text-[9px] font-bold uppercase tracking-widest text-[#F5F5F0]"
+                          >
+                            {chip}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={handleRefine}
+                    className={cn(
+                      "mt-5 inline-flex h-10 w-fit items-center justify-center rounded-full border border-[#2a2a3e] px-4",
+                      "font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-widest text-[#F5F5F0]",
+                      "transition-colors hover:border-[#e8453c]/45 hover:text-[#e8453c]",
+                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
+                      "focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090f]",
+                    )}
+                  >
+                    Refine
+                  </button>
+                </div>
               ) : result ? (
                 <div className="grid gap-4 lg:grid-cols-[140px_1fr]">
                   <Link

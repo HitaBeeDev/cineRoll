@@ -49,6 +49,11 @@ export type NaturalRollResult = {
   relaxed: boolean;
 };
 
+export type NaturalRollError = Error & {
+  code: string;
+  interpretedFilters?: NaturalRollFilters;
+};
+
 export type PickOfDayFilm = Pick<
   Film,
   | "id"
@@ -163,10 +168,15 @@ export async function fetchNaturalRoll(prompt: string): Promise<NaturalRollResul
     body: JSON.stringify({ prompt }),
   });
   if (!res.ok) {
-    const body = await res.json().catch(() => ({})) as { code?: string; error?: string };
+    const body = await res.json().catch(() => ({})) as {
+      code?: string;
+      error?: string;
+      interpretedFilters?: NaturalRollFilters;
+    };
     const err = Object.assign(new Error(body.error ?? "Natural roll failed"), {
       code: body.code ?? "UNKNOWN",
-    });
+      interpretedFilters: body.interpretedFilters,
+    }) as NaturalRollError;
     throw err;
   }
   return res.json() as Promise<NaturalRollResult>;
