@@ -15,6 +15,7 @@ export const DEFAULT_FILTERS: FilterState = {
   nominatedOnly: false,
   category: "",
   awardYear: null,
+  language: "",
   genre: "",
   contentType: "",
   runtimeMax: null,
@@ -56,6 +57,7 @@ export function useFilters(initial?: Partial<FilterState>) {
       filters.nominatedOnly ||
       !!filters.category ||
       filters.awardYear != null ||
+      !!filters.language ||
       !!filters.genre ||
       !!filters.contentType ||
       filters.runtimeMax != null ||

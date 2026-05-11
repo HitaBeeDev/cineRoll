@@ -44,6 +44,7 @@ const listQueryBaseSchema = z.object({
   femaleDirectorOnly: queryBooleanSchema.optional(),
   awardBody: z.enum(["oscar", "goldenglobe", "cannes", "all"]).default("all"),
   contentType: z.string().trim().min(1).max(60).optional(),
+  language: z.string().trim().min(1).max(10).optional(),
   genre: z.string().trim().min(1).max(80).optional(),
   runtimeMax: z.coerce.number().int().min(1).max(1000).optional(),
   decadeMin: z.coerce.number().int().min(1800).max(2200).optional(),
@@ -205,6 +206,10 @@ export function buildWhereClause(
 
   if (query.contentType) {
     where.push(Prisma.sql`"Film"."contentType" = ${query.contentType}`);
+  }
+
+  if (query.language) {
+    where.push(Prisma.sql`"Film"."language" = ${query.language}`);
   }
 
   if (query.genre) {

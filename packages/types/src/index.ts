@@ -70,6 +70,7 @@ export interface FilterState {
   nominatedOnly: boolean;
   category: string;
   awardYear: number | null;
+  language: string;
   genre: string;
   contentType: string;
   runtimeMax: number | null;

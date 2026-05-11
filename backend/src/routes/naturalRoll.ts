@@ -41,6 +41,7 @@ const geminiFilterSchema = z.object({
   nominatedOnly: nullableBoolean.optional(),
   category: nullableString.optional(),
   awardYear: nullableNumber.optional(),
+  language: nullableString.optional(),
   genre: nullableString.optional(),
   contentType: nullableString.optional(),
   runtimeMax: nullableNumber.optional(),
@@ -77,6 +78,7 @@ const responseSchema: ResponseSchema = {
     nominatedOnly: { type: SchemaType.BOOLEAN, nullable: true },
     category: { type: SchemaType.STRING, nullable: true },
     awardYear: { type: SchemaType.INTEGER, nullable: true },
+    language: { type: SchemaType.STRING, nullable: true },
     genre: { type: SchemaType.STRING, nullable: true },
     contentType: { type: SchemaType.STRING, nullable: true },
     runtimeMax: { type: SchemaType.INTEGER, nullable: true },
@@ -97,7 +99,7 @@ const systemInstruction = `
 You convert a user's natural-language film request into CineRoll filter JSON.
 Return only JSON. Use only these fields:
 search, person, director, femaleDirectorOnly, awardBody, winnerOnly, nominatedOnly,
-category, awardYear, genre, contentType, runtimeMax, decadeMin, decadeMax,
+category, awardYear, language, genre, contentType, runtimeMax, decadeMin, decadeMax,
 nominationCount, imdbRatingMin, imdbRatingMax, rtScoreMin, certificate,
 imdbTopMoviesOnly, imdbTopTvOnly, tvType.
 
@@ -111,6 +113,8 @@ Rules:
 - Use winnerOnly for winner requests and nominatedOnly for nomination requests.
 - Use genre for broad genres such as Drama, Comedy, Horror, Romance, Documentary, Animation, Thriller, Crime, Action, Sci-Fi.
 - Use contentType only when the user asks specifically for movie, series, miniseries, or similar.
+- Use language as an ISO 639-1 two-letter code when the user asks for films in or from a specific language or country. Examples: French/France → "fr", Italian/Italy → "it", German/Germany → "de", Japanese/Japan → "ja", Spanish/Spain/Latin America → "es", Korean/Korea → "ko", Portuguese/Brazil → "pt", Chinese/China → "zh", Russian/Russia → "ru", Swedish/Sweden → "sv". Never put a nationality word in the search field.
+- Only set runtimeMax when the user explicitly mentions a time constraint (e.g. "under 2 hours", "short film", "less than 90 minutes"). Do not infer or assume any runtime limit from mood, genre, or style.
 - Prefer fewer precise filters over many speculative filters.
 `.trim();
 

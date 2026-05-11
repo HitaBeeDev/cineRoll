@@ -37,6 +37,15 @@ const AWARD_LABELS: Record<string, string> = {
   all: "Award",
 };
 
+const LANGUAGE_LABELS: Record<string, string> = {
+  fr: "French", it: "Italian", de: "German", ja: "Japanese",
+  es: "Spanish", ko: "Korean", pt: "Portuguese", zh: "Chinese",
+  ru: "Russian", sv: "Swedish", pl: "Polish", da: "Danish",
+  nl: "Dutch", hi: "Hindi", ar: "Arabic", he: "Hebrew",
+  tr: "Turkish", el: "Greek", cs: "Czech", hu: "Hungarian",
+  fi: "Finnish", no: "Norwegian", ro: "Romanian", fa: "Persian",
+};
+
 function formatFilterChips(filters: NaturalRollFilters): string[] {
   const chips: string[] = [];
   const awardBody =
@@ -57,6 +66,9 @@ function formatFilterChips(filters: NaturalRollFilters): string[] {
     chips.push("Nominee");
   }
 
+  if (typeof filters.language === "string") {
+    chips.push(LANGUAGE_LABELS[filters.language] ?? filters.language.toUpperCase());
+  }
   if (typeof filters.genre === "string") chips.push(filters.genre);
   if (typeof filters.contentType === "string") chips.push(filters.contentType);
   if (typeof filters.person === "string") chips.push(filters.person);
