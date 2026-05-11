@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Sparkles } from "lucide-react";
@@ -73,6 +73,7 @@ function formatFilterChips(filters: NaturalRollFilters): string[] {
 }
 
 export default function DescribePage() {
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [prompt, setPrompt] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [result, setResult] = useState<NaturalRollResult | null>(null);
@@ -90,6 +91,13 @@ export default function DescribePage() {
     } finally {
       setIsProcessing(false);
     }
+  }
+
+  function handleRefine() {
+    setResult(null);
+    setError(null);
+    textareaRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    window.setTimeout(() => textareaRef.current?.focus(), 120);
   }
 
   const interpretedChips = result ? formatFilterChips(result.interpretedFilters) : [];
@@ -123,6 +131,7 @@ export default function DescribePage() {
             </div>
 
             <textarea
+              ref={textareaRef}
               value={prompt}
               onChange={(event) => setPrompt(event.target.value.slice(0, 500))}
               disabled={isProcessing}
@@ -242,6 +251,20 @@ export default function DescribePage() {
                         </div>
                       </div>
                     )}
+
+                    <button
+                      type="button"
+                      onClick={handleRefine}
+                      className={cn(
+                        "mt-5 inline-flex h-10 w-fit items-center justify-center rounded-full border border-[#2a2a3e] px-4",
+                        "font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-widest text-[#F5F5F0]",
+                        "transition-colors hover:border-[#e8453c]/45 hover:text-[#e8453c]",
+                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
+                        "focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090f]",
+                      )}
+                    >
+                      Refine
+                    </button>
                   </div>
                 </div>
               ) : null}
