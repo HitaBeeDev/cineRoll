@@ -11,6 +11,7 @@ const primaryNavItems = [
   { href: "/browse", label: "Browse" },
   { href: "/picks", label: "Picks" },
   { href: "/discover", label: "Discover" },
+  { href: "/describe", label: "Describe It" },
   { href: "/stats", label: "Stats" },
 ];
 
