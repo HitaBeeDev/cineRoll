@@ -8,7 +8,7 @@ import { getValidated, validate } from "../middleware/validate";
 
 export const randomRouter = Router();
 
-type RandomFilmRow = {
+export type RandomFilmRow = {
   id: string;
   slug: string;
   title: string;
@@ -85,8 +85,10 @@ async function getDoNotSuggestFilmIds(userId: string): Promise<string[]> {
   return rows.map(row => row.filmId);
 }
 
-randomRouter.get("/", validate(randomQuerySchema), async (req, res) => {
-  const query = getValidated<RandomQuery>(req, "query");
+export async function getRandomFilm(query: RandomQuery): Promise<{
+  film: RandomFilmRow | null;
+  total: number;
+}> {
   const additionalConditions: Prisma.Sql[] = [];
 
   if (query.userId) {
@@ -115,6 +117,16 @@ randomRouter.get("/", validate(randomQuerySchema), async (req, res) => {
 
   const film = films[0];
   const total = Number(countRows[0]?.count ?? 0);
+
+  return {
+    film: film ?? null,
+    total,
+  };
+}
+
+randomRouter.get("/", validate(randomQuerySchema), async (req, res) => {
+  const query = getValidated<RandomQuery>(req, "query");
+  const { film, total } = await getRandomFilm(query);
 
   if (!film) {
     throw new HttpError(404, "No films match the given filters", "NO_FILMS_FOUND");

@@ -709,13 +709,13 @@ Instead of dropdowns, the user describes what they want in plain English. Gemini
 
 - [x] Install Google Generative AI SDK in backend: `npm install @google/generative-ai --workspace=backend`
 - [x] Add `GEMINI_API_KEY` to `backend/.env`
-- [ ] Create POST /api/natural-roll — body: `{ prompt: string }`; pipeline:
+- [x] Create POST /api/natural-roll — body: `{ prompt: string }`; pipeline:
   1. Send the user's prompt to Gemini with a system message that explains the available FilterState fields and asks Gemini to return a JSON filter object
   2. Validate Gemini's response against the FilterState Zod schema; reject any invalid fields
   3. Pass the validated filters to the same random-film query used by /api/random
   4. Return the selected film + the interpreted filters (so the frontend can show "I searched for: Oscar winner, 1990s, drama")
-- [ ] Rate limit: max 10 natural-roll requests per user per hour to manage API costs
-- [ ] If Gemini returns filters that match zero films, retry once with a relaxed prompt asking for fewer constraints
+- [x] Rate limit: max 10 natural-roll requests per user per hour to manage API costs
+- [x] If Gemini returns filters that match zero films, retry once with a relaxed prompt asking for fewer constraints
 
 ### Frontend
 

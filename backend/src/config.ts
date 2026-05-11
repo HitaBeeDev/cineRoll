@@ -11,6 +11,8 @@ const envSchema = z.object({
   // Enrichment-only — not required at runtime
   TMDB_API_KEY: z.string().min(1).optional(),
   OMDB_API_KEY: z.string().min(1).optional(),
+  // Natural language roll — route returns 503 if unset
+  GEMINI_API_KEY: z.string().min(1).optional(),
 });
 
 const env = envSchema.parse(process.env);
@@ -24,4 +26,5 @@ export const config = {
   frontendUrl: env.FRONTEND_URL,
   tmdbApiKey: env.TMDB_API_KEY ?? "",
   omdbApiKey: env.OMDB_API_KEY ?? "",
+  geminiApiKey: env.GEMINI_API_KEY ?? "",
 };
