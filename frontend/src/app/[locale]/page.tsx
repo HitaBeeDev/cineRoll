@@ -452,7 +452,7 @@ export default function HomePage() {
             <Link
               href="/describe"
               className={cn(
-                "inline-flex shrink-0 items-center gap-1.5 rounded-full border border-[#2a2a3e] px-3 py-1.5",
+                "inline-flex shrink-0 self-end items-center gap-1.5 rounded-full border border-[#2a2a3e] px-3 py-1.5",
                 "font-[family-name:var(--font-geist-mono)] text-[9px] font-bold uppercase tracking-widest text-[#F5F5F0]",
                 "transition-colors hover:border-[#e8453c]/45 hover:text-[#e8453c]",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
