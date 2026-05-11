@@ -384,7 +384,7 @@ export default function HomePage() {
           </div>
 
           {/* Hero headline */}
-          <div className="mb-2">
+          <div className="mb-5">
             <h1
               className={cn(
                 "font-[family-name:var(--font-display)] font-bold leading-[1.0] tracking-tight",
@@ -410,7 +410,7 @@ export default function HomePage() {
           />
 
           {/* ROLL button + pool count — side by side */}
-          <div className="flex items-center gap-4 mt-4">
+          <div className="flex items-center gap-4 mt-1">
             {/* Marquee-border ROLL box */}
             <div className="w-[185px] shrink-0 rounded-2xl border-2 border-dashed border-[#e8453c]/30 p-1.5">
               <button
