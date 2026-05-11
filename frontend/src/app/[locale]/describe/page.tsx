@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { AppHeader } from "@/components/app-header";
 import {
   fetchNaturalRoll,
@@ -133,10 +133,9 @@ export default function DescribePage() {
 
           <div className="flex flex-1 flex-col rounded-lg border border-[#1e1e2a] bg-[#0d0d16]">
             <div className="flex items-center justify-between gap-4 border-b border-[#1e1e2a] px-4 py-3 sm:px-5">
-              <div className="flex min-w-0 items-center gap-2">
-                <Sparkles className="h-4 w-4 shrink-0 text-[#e8453c]" aria-hidden />
+              <div className="flex min-w-0 items-center">
                 <span className="truncate font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-widest text-[#888899]">
-                  Plain English Prompt
+                  Describe in any language
                 </span>
               </div>
               <span className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#444458]">
