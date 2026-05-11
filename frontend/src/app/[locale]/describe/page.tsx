@@ -180,8 +180,8 @@ export default function DescribePage() {
                 placeholder={PROMPT_PLACEHOLDER}
                 className={cn(
                   "min-h-0 flex-1 resize-none bg-transparent px-4 py-4 outline-none sm:px-5 sm:py-5",
-                  "font-[family-name:var(--font-geist-sans)] text-[1.35rem] leading-8 text-[#F5F5F0] lg:text-[1.55rem] lg:leading-9",
-                  "placeholder:font-[family-name:var(--font-geist-mono)] placeholder:text-[0.78rem] placeholder:uppercase placeholder:leading-7 placeholder:tracking-widest placeholder:text-[#4f4f63]",
+                  "font-[family-name:var(--font-geist-mono)] text-[0.9rem] uppercase leading-7 tracking-[0.16em] text-[#8d8da1] lg:text-[1rem] lg:leading-8",
+                  "placeholder:text-[#4f4f63]",
                   "focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#e8453c]",
                 )}
                 aria-label="Describe the kind of film you want"
