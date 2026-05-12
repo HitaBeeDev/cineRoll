@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { ButtonHTMLAttributes, CSSProperties, ReactNode } from "react";
 import {
   Bookmark,
+  ChevronDown,
   ExternalLink,
   Users,
   Award,
@@ -290,10 +291,10 @@ export default async function FilmPage({
                   <Share2 className="h-4 w-4" aria-hidden />
                 </DetailActionButton>
                 {film.trailerUrl && (
-                  <DetailActionLink href="#trailer">Trailer</DetailActionLink>
+                  <DetailActionLink href="#trailer">Jump to Trailer</DetailActionLink>
                 )}
                 {film.cast.length > 0 && (
-                  <DetailActionLink href="#cast">Cast</DetailActionLink>
+                  <DetailActionLink href="#cast">Jump to Cast</DetailActionLink>
                 )}
               </div>
             </div>
@@ -488,12 +489,13 @@ function DetailActionLink({
       href={href}
       className={cn(
         "flex h-11 items-center justify-center rounded-xl px-3",
-        "border border-[#1e1e2a] text-[#555568]",
+        "border border-[#e8453c]/25 bg-[#e8453c]/8 text-[#e8453c]",
         "font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest",
-        "transition-colors hover:border-[#2a2a3e] hover:text-[#F5F5F0]",
+        "transition-colors hover:border-[#e8453c]/55 hover:bg-[#e8453c]/12 hover:text-[#F5F5F0]",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
       )}
     >
+      <ChevronDown className="h-3.5 w-3.5" aria-hidden />
       {children}
     </Link>
   );
