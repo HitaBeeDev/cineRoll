@@ -9,6 +9,7 @@ import {
   ExternalLink,
   Clapperboard,
   Users,
+  Dices,
 } from "lucide-react";
 import type { Film, AwardRecord } from "@cineroll/types";
 import { cn } from "@/lib/utils";
@@ -110,10 +111,10 @@ export default async function FilmPage({
   const totalAwardNoms =
     film.oscarNominations + film.ggNominations + film.cannesNominations;
   const hasAwards = totalAwardNoms > 0;
+  const accent = film.posterColor ?? FALLBACK_ACCENT;
 
-  /* FilmTrailer needs --film-accent on a parent via style prop */
   const accentStyle = {
-    "--film-accent": film.posterColor ?? FALLBACK_ACCENT,
+    "--film-accent": accent,
   } as CSSProperties;
 
   const activeCeremonies = [
@@ -172,14 +173,20 @@ export default async function FilmPage({
           isPickOfDay={film.isPickOfDay}
         />
 
-        <div className="bg-[#09090f] mx-auto max-w-5xl px-4 pb-28 sm:px-6 lg:px-8">
+        {/* ── CONTENT AREA ───────────────────────────────────────── */}
+        <div className="relative z-10 mx-auto max-w-5xl px-4 pb-28 sm:px-6 lg:px-8">
 
           {/* ── 1. POSTER + STATS ──────────────────────────────────── */}
-          <div className="pt-10 flex flex-col sm:flex-row gap-6 sm:gap-8 sm:items-start">
+          <div className="flex flex-col sm:flex-row gap-6 sm:gap-8 sm:items-start pt-10">
 
             {/* Poster */}
             <div className="relative mx-auto sm:mx-0 shrink-0">
-              <div className="relative w-36 sm:w-44 md:w-52 aspect-[2/3] overflow-hidden rounded-2xl border border-white/10 shadow-[0_24px_80px_rgba(0,0,0,0.85)]">
+              <div
+                className="relative w-36 sm:w-44 md:w-52 aspect-[2/3] overflow-hidden rounded-2xl border border-white/10"
+                style={{
+                  boxShadow: `0 28px 88px rgba(0,0,0,0.92), 0 0 56px 0px ${accent}28`,
+                }}
+              >
                 {film.posterUrl ? (
                   <Image
                     src={film.posterUrl}
@@ -197,9 +204,10 @@ export default async function FilmPage({
               </div>
             </div>
 
-            {/* Stats + genres */}
+            {/* Stats + genres + rank badges */}
             <div className="flex flex-col gap-4 pb-2 text-center sm:text-left">
-              {/* Stat boxes — exact same pattern as home page FilmCard */}
+
+              {/* Stat boxes */}
               <div className="grid grid-cols-3 gap-2 w-fit mx-auto sm:mx-0">
                 <StatBox
                   label="IMDb"
@@ -208,10 +216,12 @@ export default async function FilmPage({
                       ? film.imdbRating.toFixed(1)
                       : "—"
                   }
+                  highlight={film.imdbRating != null && film.imdbRating >= 8.0}
                 />
                 <StatBox
                   label="RT"
                   value={film.rtScore != null ? `${film.rtScore}%` : "—"}
+                  highlight={film.rtScore != null && film.rtScore >= 85}
                 />
                 <StatBox
                   label="Awards"
@@ -222,8 +232,27 @@ export default async function FilmPage({
                         ? `${totalAwardNoms}N`
                         : "—"
                   }
+                  highlight={totalAwardWins > 0}
                 />
               </div>
+
+              {/* IMDb list rank badges */}
+              {(film.imdbTopMovieRank !== null || film.imdbTopTvRank !== null) && (
+                <div className="flex flex-wrap justify-center sm:justify-start gap-1.5">
+                  {film.imdbTopMovieRank !== null && (
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/10 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[9px] font-bold uppercase tracking-widest text-[#D4AF37]">
+                      <Trophy className="h-2.5 w-2.5" aria-hidden />
+                      IMDb Top 250 Movies #{film.imdbTopMovieRank}
+                    </span>
+                  )}
+                  {film.imdbTopTvRank !== null && (
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/10 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[9px] font-bold uppercase tracking-widest text-[#D4AF37]">
+                      <Trophy className="h-2.5 w-2.5" aria-hidden />
+                      IMDb Top 250 TV #{film.imdbTopTvRank}
+                    </span>
+                  )}
+                </div>
+              )}
 
               {/* Genre pills */}
               {film.genres.length > 0 && (
@@ -398,6 +427,19 @@ export default async function FilmPage({
               Back to Browse
             </Link>
             <RollAgainButton />
+            <Link
+              href="/"
+              className={cn(
+                "inline-flex items-center justify-center gap-2 rounded-xl",
+                "bg-[#e8453c] text-[#F5F5F0]",
+                "px-5 py-3 font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.18em]",
+                "transition-colors hover:bg-[#d5342b]",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
+              )}
+            >
+              <Dices className="h-3.5 w-3.5" aria-hidden />
+              Roll Another
+            </Link>
           </div>
 
           <WatchTonightButton title={film.title} year={film.year} />
@@ -407,15 +449,31 @@ export default async function FilmPage({
   );
 }
 
-// ── StatBox — identical to home page FilmCard ─────────────────────────────────
+// ── StatBox ────────────────────────────────────────────────────────────────────
 
-function StatBox({ label, value }: { label: string; value: string }) {
+function StatBox({
+  label,
+  value,
+  highlight = false,
+}: {
+  label: string;
+  value: string;
+  highlight?: boolean;
+}) {
   return (
-    <div className="flex flex-col gap-1 rounded-lg border border-[#1e1e2a] bg-[#0d0d1a] px-3 py-2.5">
+    <div className={cn(
+      "flex flex-col gap-1 rounded-lg border px-3 py-2.5 transition-colors",
+      highlight
+        ? "border-[#D4AF37]/30 bg-[#D4AF37]/08"
+        : "border-[#1e1e2a] bg-[#0d0d1a]",
+    )}>
       <span className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-widest text-[#444458]">
         {label}
       </span>
-      <span className="font-[family-name:var(--font-geist-mono)] text-base font-bold text-[#F5F5F0]">
+      <span className={cn(
+        "font-[family-name:var(--font-geist-mono)] text-base font-bold",
+        highlight ? "text-[#D4AF37]" : "text-[#F5F5F0]",
+      )}>
         {value}
       </span>
     </div>
@@ -448,7 +506,7 @@ function FilmStrip({ className }: { className?: string }) {
   );
 }
 
-// ── ChannelLabel — matches home page roll history / FilmCard style ────────────
+// ── ChannelLabel ──────────────────────────────────────────────────────────────
 
 function ChannelLabel({ children }: { children: ReactNode }) {
   return (
