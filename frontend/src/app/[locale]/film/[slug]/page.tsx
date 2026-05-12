@@ -185,8 +185,9 @@ export default async function FilmPage({
     >
       <AppHeader />
       <div className="grid min-h-[calc(100vh-4rem)] lg:grid-cols-12">
-        <aside className="border-b border-[#20202d] bg-[#08080d] px-4 py-6 sm:px-6 lg:col-span-5 lg:border-b-0 lg:border-r lg:p-4">
-          <div className="flex flex-col">
+        <aside className="border-b border-[#20202d] bg-[#08080d] px-4 py-6 sm:px-6 lg:sticky lg:top-16 lg:col-span-5 lg:h-[calc(100vh-4rem)] lg:border-b-0 lg:border-r lg:p-4">
+          <div className="flex h-full flex-col justify-between gap-6">
+            <div className="flex flex-col">
             <div className="-mx-1 -mt-1 mb-2 flex items-center">
               <span className="inline-flex max-w-full items-center rounded-full border border-[#e8453c]/22 bg-[#e8453c]/10 px-3 py-1 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#e8453c]">
                 Reel // {film.title.toUpperCase()}
@@ -264,8 +265,12 @@ export default async function FilmPage({
                 </div>
               )}
 
+            </div>
+            </div>
+
+            <div className="flex flex-col gap-2 px-4 pb-4">
               {(film.trailerUrl || film.cast.length > 0) && (
-                <div className="mt-1 flex items-center gap-2">
+                <div className="flex items-center gap-2">
                   {film.trailerUrl && (
                     <DetailActionLink href="#trailer">Jump to Trailer</DetailActionLink>
                   )}
@@ -275,7 +280,7 @@ export default async function FilmPage({
                 </div>
               )}
 
-              <div className="flex items-center gap-2 pt-1">
+              <div className="flex items-center gap-2">
                 <Link
                   href="/"
                   className={cn(
