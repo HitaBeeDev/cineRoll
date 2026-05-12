@@ -264,7 +264,18 @@ export default async function FilmPage({
                 </div>
               )}
 
-              <div className="mt-1 flex items-center gap-2">
+              {(film.trailerUrl || film.cast.length > 0) && (
+                <div className="mt-1 flex items-center gap-2">
+                  {film.trailerUrl && (
+                    <DetailActionLink href="#trailer">Jump to Trailer</DetailActionLink>
+                  )}
+                  {film.cast.length > 0 && (
+                    <DetailActionLink href="#cast">Jump to Cast</DetailActionLink>
+                  )}
+                </div>
+              )}
+
+              <div className="flex items-center gap-2 pt-1">
                 <Link
                   href="/"
                   className={cn(
@@ -290,12 +301,6 @@ export default async function FilmPage({
                 <DetailActionButton aria-label="Share this film">
                   <Share2 className="h-4 w-4" aria-hidden />
                 </DetailActionButton>
-                {film.trailerUrl && (
-                  <DetailActionLink href="#trailer">Jump to Trailer</DetailActionLink>
-                )}
-                {film.cast.length > 0 && (
-                  <DetailActionLink href="#cast">Jump to Cast</DetailActionLink>
-                )}
               </div>
             </div>
           </div>
