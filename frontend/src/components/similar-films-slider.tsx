@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, useEffect, useCallback } from "react";
-import { motion, useMotionValue, useAnimation } from "framer-motion";
+import { motion, useMotionValue, animate } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { FilmCard } from "@/components/film-card";
 import type { Film } from "@cineroll/types";
@@ -9,26 +9,27 @@ import type { Film } from "@cineroll/types";
 const CARD_W = 208; // w-52
 const GAP = 12;     // gap-3
 const STEP = CARD_W + GAP;
+const SPRING = { type: "spring", stiffness: 320, damping: 38 } as const;
 
 export function SimilarFilmsSlider({ films }: { films: Film[] }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const x = useMotionValue(0);
-  const controls = useAnimation();
 
   const [index, setIndex] = useState(0);
+  const [maxOffset, setMaxOffset] = useState(0);
   const [maxIndex, setMaxIndex] = useState(0);
-  // left/right Framer drag constraints (x values)
-  const [bounds, setBounds] = useState({ left: 0, right: 0 });
 
-  // true while a drag gesture is in flight — blocks the link click that follows
-  const dragging = useRef(false);
+  // pointer-tracking refs (no re-renders needed)
+  const pointerStartX = useRef(0);
+  const motionStartX = useRef(0);
+  const active = useRef(false);
+  const didMove = useRef(false);
 
   const measure = useCallback(() => {
     if (!containerRef.current) return;
     const trackW = films.length * STEP - GAP;
-    const visible = containerRef.current.offsetWidth;
-    const overflow = Math.max(0, trackW - visible);
-    setBounds({ left: -overflow, right: 0 });
+    const overflow = Math.max(0, trackW - containerRef.current.offsetWidth);
+    setMaxOffset(overflow);
     setMaxIndex(Math.ceil(overflow / STEP));
   }, [films.length]);
 
@@ -38,35 +39,63 @@ export function SimilarFilmsSlider({ films }: { films: Film[] }) {
     return () => window.removeEventListener("resize", measure);
   }, [measure]);
 
+  const springTo = useCallback((target: number) => {
+    animate(x, target, SPRING);
+  }, [x]);
+
   const goTo = (next: number) => {
-    const clamped = Math.max(0, Math.min(next, maxIndex));
-    setIndex(clamped);
-    controls.start({
-      x: -clamped * STEP,
-      transition: { type: "spring", stiffness: 320, damping: 38 },
-    });
+    const i = Math.max(0, Math.min(next, maxIndex));
+    setIndex(i);
+    springTo(-i * STEP);
   };
 
-  const onDragEnd = () => {
-    // block the subsequent click for 80 ms
-    setTimeout(() => { dragging.current = false; }, 80);
+  /* ── pointer handlers ─────────────────────────────────────────────── */
+  const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.button !== 0) return;
+    e.currentTarget.setPointerCapture(e.pointerId);
+    // stop any in-flight spring so the track follows the finger immediately
+    x.stop();
+    pointerStartX.current = e.clientX;
+    motionStartX.current = x.get();
+    active.current = true;
+    didMove.current = false;
+  };
 
-    const current = x.get();
-    const clamped = Math.max(bounds.left, Math.min(bounds.right, current));
-    const snapped = Math.round(clamped / STEP) * STEP;
-    const newIdx = Math.max(0, Math.min(Math.round(-snapped / STEP), maxIndex));
-    setIndex(newIdx);
-    controls.start({
-      x: snapped,
-      transition: { type: "spring", stiffness: 320, damping: 38 },
-    });
+  const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!active.current) return;
+    const delta = e.clientX - pointerStartX.current;
+    if (Math.abs(delta) > 4) didMove.current = true;
+
+    const raw = motionStartX.current + delta;
+    // rubber-band resistance past each end
+    const damped =
+      raw > 0          ? raw * 0.15
+      : raw < -maxOffset ? -maxOffset + (raw + maxOffset) * 0.15
+      : raw;
+
+    x.set(damped);
+  };
+
+  const onPointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!active.current) return;
+    active.current = false;
+
+    const delta = e.clientX - pointerStartX.current;
+    const cur = x.get();
+    // bias snap direction by drag direction when user moved meaningfully
+    const raw = -cur / STEP;
+    let snapped =
+      Math.abs(delta) > 40
+        ? delta < 0 ? Math.ceil(raw) : Math.floor(raw)
+        : Math.round(raw);
+    snapped = Math.max(0, Math.min(snapped, maxIndex));
+    setIndex(snapped);
+    springTo(-snapped * STEP);
   };
 
   return (
-    // "group/slider" is a *named* group — keeps its group-hover scoped and
-    // doesn't bleed into the unnamed "group" inside each FilmCard
-    <div className="group/slider relative" ref={containerRef}>
-      {/* Prev */}
+    <div className="group/slider relative select-none" ref={containerRef}>
+      {/* ── Prev ───────────────────────────────────────────────────────── */}
       <button
         onClick={() => goTo(index - 1)}
         disabled={index === 0}
@@ -76,16 +105,14 @@ export function SimilarFilmsSlider({ films }: { films: Film[] }) {
         <ChevronLeft className="h-5 w-5" />
       </button>
 
+      {/* ── Track ──────────────────────────────────────────────────────── */}
       <div className="overflow-hidden">
         <motion.div
-          drag="x"
-          dragConstraints={bounds}
-          dragElastic={0.07}
-          dragMomentum={false}
           style={{ x }}
-          animate={controls}
-          onDragStart={() => { dragging.current = true; }}
-          onDragEnd={onDragEnd}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+          onPointerCancel={onPointerUp}
           className="flex cursor-grab gap-3 pb-3 active:cursor-grabbing"
         >
           {films.map((f) => (
@@ -93,7 +120,8 @@ export function SimilarFilmsSlider({ films }: { films: Film[] }) {
               key={f.id}
               className="w-52 flex-shrink-0"
               onClickCapture={(e) => {
-                if (dragging.current) {
+                // block the click that the browser fires after a drag gesture
+                if (didMove.current) {
                   e.preventDefault();
                   e.stopPropagation();
                 }
@@ -105,7 +133,7 @@ export function SimilarFilmsSlider({ films }: { films: Film[] }) {
         </motion.div>
       </div>
 
-      {/* Next */}
+      {/* ── Next ───────────────────────────────────────────────────────── */}
       <button
         onClick={() => goTo(index + 1)}
         disabled={index >= maxIndex}
