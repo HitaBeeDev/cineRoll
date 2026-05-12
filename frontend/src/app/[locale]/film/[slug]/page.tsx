@@ -209,13 +209,23 @@ export default async function FilmPage({
             {/* Left column */}
             <div className="flex flex-col gap-10">
               {/* Trailer */}
-              {film.trailerUrl && (
+              {film.trailerUrl ? (
                 <FilmTrailer
                   title={film.title}
                   trailerUrl={film.trailerUrl}
                   youtubeId={youtubeId}
                   thumbnailUrl={film.backdropUrl ?? film.posterUrl}
                 />
+              ) : (
+                <section>
+                  <h2 className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-zinc-500">
+                    <PlayCircle className="h-3.5 w-3.5" aria-hidden />
+                    Trailer
+                  </h2>
+                  <div className="flex aspect-video w-full items-center justify-center rounded-2xl border border-zinc-800 bg-zinc-900/60">
+                    <p className="text-sm text-zinc-600">No trailer available</p>
+                  </div>
+                </section>
               )}
 
               {/* Plot */}

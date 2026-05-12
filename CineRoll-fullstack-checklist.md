@@ -783,7 +783,7 @@ Three handpicked film slots per day, each with a different mood/filter combo. Ca
 - [x] **Trailer Modal** — clicking the trailer thumbnail opens a modal with the embedded YouTube player; user stays on the film page
 - [x] Show a play-button overlay on the trailer thumbnail so it's obvious it's clickable
 - [x] Modal closes on Escape key or clicking outside; pause/stop video on close
-- [ ] Fallback: if no trailer URL, show "No trailer available" placeholder
+- [x] Fallback: if no trailer URL, show "No trailer available" placeholder
 - [ ] Add SEO metadata: dynamic title, description, Open Graph images, Twitter cards
 - [ ] Create 404 page if film slug not found
 - [ ] Make responsive: stack all content vertically on mobile, use grid layout on desktop
