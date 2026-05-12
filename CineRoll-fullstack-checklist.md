@@ -785,7 +785,7 @@ Three handpicked film slots per day, each with a different mood/filter combo. Ca
 - [x] Modal closes on Escape key or clicking outside; pause/stop video on close
 - [x] Fallback: if no trailer URL, show "No trailer available" placeholder
 - [x] Add SEO metadata: dynamic title, description, Open Graph images, Twitter cards
-- [ ] Create 404 page if film slug not found
+- [x] Create 404 page if film slug not found
 - [ ] Make responsive: stack all content vertically on mobile, use grid layout on desktop
 - [ ] Add "Back to Browse" or "Roll Again" navigation buttons
 - [ ] **Original Title** — if `originalTitle` is set and differs from `title`, display it in smaller text directly below the main title (e.g. _Das Leben der Anderen_ under "The Lives of Others"); skip if null or identical
