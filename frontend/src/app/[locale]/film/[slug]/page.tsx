@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 import { formatRuntime } from "@/lib/format";
 import { AppHeader } from "@/components/app-header";
 import { FilmTrailer } from "@/components/film-trailer";
+import { AnimatedJumpLink } from "@/components/animated-jump-link";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 const FALLBACK_ACCENT = "#D4AF37";
@@ -271,10 +272,10 @@ export default async function FilmPage({
               {(film.trailerUrl || film.cast.length > 0) && (
                 <div className="flex items-center gap-2">
                   {film.trailerUrl && (
-                    <DetailActionLink href="#trailer">Jump to Trailer</DetailActionLink>
+                    <AnimatedJumpLink href="#trailer">Jump to Trailer</AnimatedJumpLink>
                   )}
                   {film.cast.length > 0 && (
-                    <DetailActionLink href="#cast">Jump to Cast</DetailActionLink>
+                    <AnimatedJumpLink href="#cast">Jump to Cast</AnimatedJumpLink>
                   )}
                 </div>
               )}
@@ -483,29 +484,6 @@ function DetailActionButton({
     >
       {children}
     </button>
-  );
-}
-
-function DetailActionLink({
-  children,
-  href,
-}: {
-  children: ReactNode;
-  href: string;
-}) {
-  return (
-    <Link
-      href={href}
-      className={cn(
-        "flex h-11 items-center justify-center rounded-xl px-3",
-        "border border-[#e8453c]/25 bg-[#e8453c]/8 text-[#e8453c]",
-        "font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest",
-        "transition-colors hover:border-[#e8453c]/55 hover:bg-[#e8453c]/12 hover:text-[#F5F5F0]",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
-      )}
-    >
-      {children}
-    </Link>
   );
 }
 
