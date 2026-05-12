@@ -312,7 +312,7 @@ export default async function FilmPage({
                 {formattedRuntime ? `  •  ${formattedRuntime}` : ""}
                 {film.director ? `  •  Dir. ${film.director}` : ""}
               </p>
-              <h1 className="mt-8 max-w-5xl text-balance font-sans text-[clamp(3.3rem,7.5vw,7.8rem)] font-black uppercase leading-[0.86] tracking-normal text-[#ededf0]">
+              <h1 className="mt-6 max-w-5xl text-balance font-[family-name:var(--font-display)] text-[clamp(3rem,6vw,5.75rem)] font-bold leading-none tracking-tight text-[#F5F5F0]">
                 {film.title}
               </h1>
               {film.originalTitle && film.originalTitle !== film.title && (
