@@ -17,6 +17,7 @@ import type { Film, AwardRecord } from "@cineroll/types";
 import { cn } from "@/lib/utils";
 import { formatRuntime } from "@/lib/format";
 import { RollAgainButton } from "@/components/roll-again-button";
+import { AppHeader } from "@/components/app-header";
 import { FilmTrailer } from "@/components/film-trailer";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
@@ -159,16 +160,10 @@ export default async function FilmPage({
       className="min-h-screen overflow-x-hidden bg-[#07070b] text-[#f4f4f5]"
       style={accentStyle}
     >
-      <div className="grid min-h-screen lg:grid-cols-[minmax(320px,400px)_1fr] xl:grid-cols-[420px_1fr]">
-        <aside className="border-b border-[#20202d] bg-[#08080d] px-5 py-7 sm:px-8 lg:sticky lg:top-0 lg:h-screen lg:border-b-0 lg:border-r lg:px-9 lg:py-10">
-          <Link
-            href="/"
-            className="font-[family-name:var(--font-geist-mono)] text-2xl font-bold uppercase tracking-[0.24em] text-[#ff4558]"
-          >
-            Cine-Roll
-          </Link>
-
-          <div className="mt-12 flex flex-col gap-7">
+      <AppHeader />
+      <div className="grid min-h-[calc(100vh-4rem)] lg:grid-cols-[minmax(320px,400px)_1fr] xl:grid-cols-[420px_1fr]">
+        <aside className="border-b border-[#20202d] bg-[#08080d] px-5 py-7 sm:px-8 lg:sticky lg:top-16 lg:h-[calc(100vh-4rem)] lg:border-b-0 lg:border-r lg:px-9 lg:py-10">
+          <div className="flex flex-col gap-7">
             <div className="relative aspect-[2/3] w-full overflow-hidden rounded border border-[#20202d] bg-[#0d0d14] shadow-[0_30px_90px_rgba(0,0,0,0.5)]">
               {film.posterUrl ? (
                 <Image
