@@ -7,7 +7,6 @@ import {
   ExternalLink,
   Users,
   Share2,
-  Sparkles,
   Trophy,
 } from "lucide-react";
 import type { Film, AwardRecord } from "@cineroll/types";
@@ -346,25 +345,18 @@ export default async function FilmPage({
             )}
 
             {hasAwards && (
-              <section id="awards" className="relative scroll-mt-24 overflow-hidden py-8">
-                <div
-                  className="pointer-events-none absolute inset-0 opacity-80"
-                  style={{
-                    background: `radial-gradient(ellipse 72% 52% at 8% 0%, ${accent}30, transparent 70%), radial-gradient(ellipse 44% 40% at 100% 18%, rgba(232,69,60,0.18), transparent 68%)`,
-                  }}
-                />
+              <section id="awards" className="relative scroll-mt-24 py-8">
                 <div className="relative">
                   <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
                     <div>
-                      <p className="inline-flex items-center gap-2 rounded-full border border-[#e8453c]/22 bg-[#e8453c]/10 px-3 py-1.5 font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.24em] text-[#e8453c]">
-                        <Sparkles className="h-3.5 w-3.5" aria-hidden />
+                      <p className="font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.28em] text-[#e8453c]">
                         Awards Season
                       </p>
                       <h2 className="mt-3 max-w-3xl font-[family-name:var(--font-display)] text-[clamp(2.25rem,4vw,4.25rem)] font-bold leading-none text-[#F5F5F0]">
                         Awards &amp; Recognition
                       </h2>
                     </div>
-                    <div className="grid grid-cols-2 gap-3 sm:min-w-64">
+                    <div className="flex items-center gap-8 border-l border-[#292936] pl-5">
                       <AwardStat label="Wins" value={totalAwardWins} />
                       <AwardStat label="Nominations" value={totalAwardNoms} />
                     </div>
@@ -538,11 +530,11 @@ function SectionLabel({ children }: { children: ReactNode }) {
 
 function AwardStat({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-full bg-[#0f0f18]/82 px-5 py-3 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08),0_18px_48px_rgba(0,0,0,0.28)] backdrop-blur">
+    <div>
       <span className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.2em] text-[#858596]">
         {label}
       </span>
-      <strong className="mt-1 block font-[family-name:var(--font-display)] text-3xl leading-none text-[#F5F5F0]">
+      <strong className="mt-1 block font-[family-name:var(--font-display)] text-4xl leading-none text-[#F5F5F0]">
         {value}
       </strong>
     </div>
@@ -570,15 +562,7 @@ function AwardSummaryCard({
   );
   const wonRecords = sorted.filter((record) => record.won);
   const summaryRecords = wonRecords.length > 0 ? wonRecords : sorted;
-  const firstCategories = summaryRecords
-    .slice(0, 2)
-    .map((record) => record.category);
-  const remainingCount = Math.max(nominations - firstCategories.length, 0);
-  const categorySummary =
-    firstCategories.length > 0
-      ? `${firstCategories.join(", ")}${remainingCount > 0 ? `, and ${remainingCount} more` : ""}`
-      : `${nominations} ${nominations === 1 ? "nomination" : "nominations"}`;
-  const featuredRecords = summaryRecords.slice(0, 3);
+  const featuredRecords = summaryRecords;
   const ceremonyLabel =
     icon === "oscar"
       ? "Academy"
@@ -591,17 +575,18 @@ function AwardSummaryCard({
       : "from-[#222234]/78 via-[#0f0f18]/88 to-[#08080d]/70";
 
   return (
-    <article className="group relative overflow-hidden rounded-[2rem] bg-gradient-to-br p-px shadow-[0_26px_80px_rgba(0,0,0,0.34)] shadow-black/30 transition-transform duration-300 hover:-translate-y-0.5">
+    <article className="group relative overflow-hidden rounded-[1.25rem] bg-gradient-to-br p-px shadow-[0_22px_60px_rgba(0,0,0,0.28)] shadow-black/30 transition-transform duration-300 hover:-translate-y-0.5">
       <div className={cn("absolute inset-0 bg-gradient-to-br", tone)} />
       <div className="absolute inset-0 bg-[linear-gradient(110deg,transparent,rgba(255,255,255,0.075),transparent)] opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
 
-      <div className="relative grid gap-5 rounded-[calc(2rem-1px)] bg-[#08080d]/62 px-5 py-5 backdrop-blur sm:px-6 sm:py-6 lg:grid-cols-[1fr_auto] lg:items-center">
+      <div className="relative rounded-[calc(1.25rem-1px)] bg-[#08080d]/70 px-5 py-5 backdrop-blur sm:px-6 sm:py-6">
         <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-4">
-            <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[#e8453c]/12 text-[#ff4558] shadow-[inset_0_0_0_1px_rgba(232,69,60,0.28)]">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div className="flex min-w-0 items-center gap-4">
+            <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#e8453c]/12 text-[#ff4558] shadow-[inset_0_0_0_1px_rgba(232,69,60,0.24)]">
               <Trophy className="h-5 w-5" aria-hidden />
             </span>
-            <div>
+            <div className="min-w-0">
               <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.24em] text-[#9a9aaa]">
                 {ceremonyLabel} Circuit
               </p>
@@ -610,19 +595,20 @@ function AwardSummaryCard({
               </h3>
             </div>
           </div>
-
-          <p className="mt-4 max-w-3xl text-base leading-7 text-[#a0a0af]">
-            {categorySummary}
-          </p>
+            <div className="flex shrink-0 items-end gap-5">
+              <AwardStat label="Wins" value={wins} />
+              <AwardStat label="Noms" value={nominations} />
+            </div>
+          </div>
 
           {featuredRecords.length > 0 && (
-            <div className="mt-5 flex flex-wrap gap-2">
+            <div className="mt-5 grid gap-2 sm:grid-cols-2">
               {featuredRecords.map((record) => (
                 <span
                   key={`${record.awardYear}-${record.category}-${record.nominee}`}
-                  className="inline-flex max-w-full items-center gap-2 rounded-full bg-[#f5f5f0]/7 px-3 py-1.5 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.16em] text-[#b7b7c4] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]"
+                  className="flex min-w-0 items-center gap-3 rounded-lg bg-[#f5f5f0]/[0.045] px-3 py-2 text-sm leading-5 text-[#c9c9d2] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.055)]"
                 >
-                  <span className="shrink-0 text-[#ff4558]">
+                  <span className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.18em] text-[#ff4558]">
                     {record.won ? "Won" : "Nom"}
                   </span>
                   <span className="min-w-0 truncate">{record.category}</span>
@@ -630,25 +616,6 @@ function AwardSummaryCard({
               ))}
             </div>
           )}
-        </div>
-
-        <div className="flex min-w-52 items-stretch gap-2 lg:justify-end">
-          <div className="flex min-w-24 flex-1 flex-col justify-center rounded-full bg-black/26 px-5 py-3 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]">
-            <span className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.22em] text-[#858596]">
-              Wins
-            </span>
-            <strong className="mt-1 block font-[family-name:var(--font-display)] text-5xl leading-none text-[#ff4558]">
-              {wins}
-            </strong>
-          </div>
-          <div className="flex min-w-24 flex-1 flex-col justify-center rounded-full bg-black/20 px-5 py-3 text-right shadow-[inset_0_0_0_1px_rgba(255,255,255,0.07)]">
-            <span className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.22em] text-[#858596]">
-              Nominations
-            </span>
-            <strong className="mt-1 block font-[family-name:var(--font-display)] text-3xl leading-none text-[#F5F5F0]">
-              {nominations}
-            </strong>
-          </div>
         </div>
       </div>
     </article>
