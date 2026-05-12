@@ -344,7 +344,7 @@ export default async function FilmPage({
             )}
 
             {hasAwards && (
-              <section id="cast" className="scroll-mt-24">
+              <section id="awards" className="scroll-mt-24">
                 <EditorialLabel
                   icon={<Award className="h-4 w-4" aria-hidden />}
                 >
@@ -365,7 +365,7 @@ export default async function FilmPage({
             )}
 
             {film.cast.length > 0 && (
-              <section>
+              <section id="cast" className="scroll-mt-24">
                 <EditorialLabel
                   icon={<Users className="h-4 w-4" aria-hidden />}
                 >

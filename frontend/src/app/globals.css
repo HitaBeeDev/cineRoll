@@ -8,6 +8,7 @@ body {
 }
 
 html {
+  scroll-behavior: smooth;
   scrollbar-color: rgba(232, 69, 60, 0.58) rgba(9, 9, 15, 0.72);
   scrollbar-width: thin;
 }
