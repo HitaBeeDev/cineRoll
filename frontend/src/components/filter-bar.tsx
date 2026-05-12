@@ -97,51 +97,72 @@ export function FilterBar({
   return (
     <div aria-label="Filter films" className={cn("flex flex-col gap-3", className)}>
 
-      {/* BODY + STATUS in one row */}
-      <div className="flex gap-3">
-        <div className="flex-1">
-          <FilterRow label="Body">
-            {AWARD_BODIES.map(({ value, label }) => (
-              <PillToggle
-                key={value}
-                active={filters.awardBody === value}
-                onClick={() => onFiltersChange({ awardBody: value, page: 1 })}
-              >
-                {label}
-              </PillToggle>
-            ))}
-          </FilterRow>
-        </div>
+      {/* BODY */}
+      <FilterRow label="Body">
+        {AWARD_BODIES.map(({ value, label }) => (
+          <PillToggle
+            key={value}
+            active={filters.awardBody === value && !filters.imdbTopMoviesOnly && !filters.imdbTopTvOnly}
+            onClick={() =>
+              onFiltersChange({ awardBody: value, imdbTopMoviesOnly: false, imdbTopTvOnly: false, page: 1 })
+            }
+          >
+            {label}
+          </PillToggle>
+        ))}
+        <PillToggle
+          active={filters.imdbTopMoviesOnly}
+          onClick={() =>
+            onFiltersChange({
+              imdbTopMoviesOnly: !filters.imdbTopMoviesOnly,
+              imdbTopTvOnly: false,
+              page: 1,
+            })
+          }
+        >
+          IMDb Top 250 Movies
+        </PillToggle>
+        <PillToggle
+          active={filters.imdbTopTvOnly}
+          onClick={() =>
+            onFiltersChange({
+              imdbTopTvOnly: !filters.imdbTopTvOnly,
+              imdbTopMoviesOnly: false,
+              page: 1,
+            })
+          }
+        >
+          IMDb Top 250 Shows
+        </PillToggle>
+      </FilterRow>
 
-        <div className="flex-1">
-          <FilterRow label="Status">
-            <PillToggle
-              active={!filters.winnerOnly && !filters.nominatedOnly}
-              onClick={() =>
-                onFiltersChange({ winnerOnly: false, nominatedOnly: false, page: 1 })
-              }
-            >
-              Any
-            </PillToggle>
-            <PillToggle
-              active={filters.winnerOnly}
-              onClick={() =>
-                onFiltersChange({ winnerOnly: true, nominatedOnly: false, page: 1 })
-              }
-            >
-              Won
-            </PillToggle>
-            <PillToggle
-              active={filters.nominatedOnly && !filters.winnerOnly}
-              onClick={() =>
-                onFiltersChange({ winnerOnly: false, nominatedOnly: true, page: 1 })
-              }
-            >
-              Nominated
-            </PillToggle>
-          </FilterRow>
-        </div>
-      </div>
+      {/* STATUS */}
+      <FilterRow label="Status">
+        <PillToggle
+          active={!filters.winnerOnly && !filters.nominatedOnly}
+          onClick={() =>
+            onFiltersChange({ winnerOnly: false, nominatedOnly: false, page: 1 })
+          }
+        >
+          Any
+        </PillToggle>
+        <PillToggle
+          active={filters.winnerOnly}
+          onClick={() =>
+            onFiltersChange({ winnerOnly: true, nominatedOnly: false, page: 1 })
+          }
+        >
+          Won
+        </PillToggle>
+        <PillToggle
+          active={filters.nominatedOnly && !filters.winnerOnly}
+          onClick={() =>
+            onFiltersChange({ winnerOnly: false, nominatedOnly: true, page: 1 })
+          }
+        >
+          Nominated
+        </PillToggle>
+      </FilterRow>
 
       {/* PERSON + GENRE selects */}
       <div className="flex gap-3">
@@ -315,34 +336,6 @@ export function FilterBar({
             {score === 0 ? "Any" : `${score}%+`}
           </PillToggle>
         ))}
-      </FilterRow>
-
-      {/* IMDb Top 250 row */}
-      <FilterRow label="Lists">
-        <PillToggle
-          active={filters.imdbTopMoviesOnly}
-          onClick={() =>
-            onFiltersChange({
-              imdbTopMoviesOnly: !filters.imdbTopMoviesOnly,
-              imdbTopTvOnly: false,
-              page: 1,
-            })
-          }
-        >
-          IMDb Top 250 Movies
-        </PillToggle>
-        <PillToggle
-          active={filters.imdbTopTvOnly}
-          onClick={() =>
-            onFiltersChange({
-              imdbTopTvOnly: !filters.imdbTopTvOnly,
-              imdbTopMoviesOnly: false,
-              page: 1,
-            })
-          }
-        >
-          IMDb Top 250 Shows
-        </PillToggle>
       </FilterRow>
 
       {/* Content type row */}
