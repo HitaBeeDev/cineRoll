@@ -307,12 +307,12 @@ export default async function FilmPage({
           />
           <div className="relative mx-auto flex max-w-6xl flex-col gap-14">
             <header className="max-w-5xl pt-2 lg:pt-4">
-              <p className="font-[family-name:var(--font-geist-mono)] text-xs font-bold uppercase tracking-[0.26em] text-[#ff4558] sm:text-sm">
+              <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.3em] text-[#e8453c]/70">
                 {film.year}
                 {formattedRuntime ? `  •  ${formattedRuntime}` : ""}
                 {film.director ? `  •  Dir. ${film.director}` : ""}
               </p>
-              <h1 className="mt-6 max-w-5xl text-balance font-[family-name:var(--font-display)] text-[clamp(3rem,6vw,5.75rem)] font-bold leading-none tracking-tight text-[#F5F5F0]">
+              <h1 className="mt-3 max-w-5xl text-balance font-[family-name:var(--font-display)] text-[clamp(2.5rem,5vw,4.75rem)] font-bold leading-none tracking-tight text-[#F5F5F0]">
                 {film.title}
               </h1>
               {film.originalTitle && film.originalTitle !== film.title && (
