@@ -48,6 +48,7 @@ type SimilarFilm = {
   releaseYear: number;
   genres: string[];
   contentType: string;
+  director: string | null;
   posterUrl: string | null;
   posterColor: string | null;
   imdbRating: number | null;
@@ -502,11 +503,23 @@ export default async function FilmPage({
           )}
 
           {/* ── SIMILAR FILMS ─────────────────────────────────────────── */}
-          {similarFilms.length > 0 && (
+          {similarFilms.length >= 3 && (
             <section id="similar" className="scroll-mt-24">
               <SectionLabel>You Might Also Like</SectionLabel>
               <div className="mt-8">
-                <SimilarFilmsSlider films={similarFilms as unknown as Film[]} />
+                <SimilarFilmsSlider
+                  films={similarFilms as unknown as Film[]}
+                  reasons={similarFilms.map((sf) => {
+                    if (film.director && sf.director === film.director)
+                      return "Same director";
+                    const shared = sf.genres.find((g) =>
+                      film.genres.includes(g),
+                    );
+                    if (shared) return "Same genre";
+                    if (sf.year === film.year) return "From the same year";
+                    return null;
+                  })}
+                />
               </div>
             </section>
           )}

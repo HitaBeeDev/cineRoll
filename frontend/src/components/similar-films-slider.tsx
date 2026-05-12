@@ -11,7 +11,13 @@ const GAP = 12;
 const STEP = CARD_W + GAP;
 const SPRING = { type: "spring", stiffness: 320, damping: 38 } as const;
 
-export function SimilarFilmsSlider({ films }: { films: Film[] }) {
+export function SimilarFilmsSlider({
+  films,
+  reasons,
+}: {
+  films: Film[];
+  reasons?: (string | null)[];
+}) {
   const containerRef = useRef<HTMLDivElement>(null);
   const x = useMotionValue(0);
 
@@ -122,21 +128,32 @@ export function SimilarFilmsSlider({ films }: { films: Film[] }) {
           onDragStart={(e) => e.preventDefault()}
           className="flex cursor-grab gap-3 pb-3 active:cursor-grabbing"
         >
-          {films.map((f) => (
-            <div
-              key={f.id}
-              // stop the click that follows a drag from navigating
-              onClickCapture={(e) => {
-                if (didMove.current) {
-                  e.preventDefault();
-                  e.stopPropagation();
-                }
-              }}
-              className="w-52 flex-shrink-0"
-            >
-              <FilmCard film={f} />
-            </div>
-          ))}
+          {films.map((f, i) => {
+            const reason = reasons?.[i] ?? null;
+            return (
+              <div
+                key={f.id}
+                onClickCapture={(e) => {
+                  if (didMove.current) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }
+                }}
+                className="w-52 flex-shrink-0"
+              >
+                <div className="relative">
+                  <FilmCard film={f} />
+                  {reason && (
+                    <div className="pointer-events-none absolute right-2 top-2 z-20">
+                      <span className="inline-flex items-center rounded-full border border-white/12 bg-black/60 px-2 py-0.5 font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-widest text-white/55 backdrop-blur-sm">
+                        {reason}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
         </motion.div>
       </div>
 

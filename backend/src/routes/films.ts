@@ -392,6 +392,7 @@ filmsRouter.get("/:slug/similar", validate(slugParamsSchema, "params"), async (r
   type SimilarRow = {
     id: string; slug: string; title: string; originalTitle: string | null;
     releaseYear: number; year: number; genres: string[]; contentType: string;
+    director: string | null;
     posterUrl: string | null; posterColor: string | null; imdbRating: number | null;
     imdbTopMovieRank: number | null; imdbTopTvRank: number | null;
     certificate: string | null; tvType: string | null;
@@ -411,6 +412,7 @@ filmsRouter.get("/:slug/similar", validate(slugParamsSchema, "params"), async (r
       "Film"."year",
       "Film"."genres",
       "Film"."contentType",
+      "Film"."director",
       "Film"."posterUrl",
       "Film"."posterColor",
       "Film"."imdbRating",
