@@ -2,13 +2,7 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import type { ButtonHTMLAttributes, CSSProperties, ReactNode } from "react";
-import {
-  Bookmark,
-  ExternalLink,
-  Users,
-  Share2,
-  Trophy,
-} from "lucide-react";
+import { Bookmark, ExternalLink, Share2 } from "lucide-react";
 import type { Film, AwardRecord, CastMember } from "@cineroll/types";
 import { cn } from "@/lib/utils";
 import { formatRuntime } from "@/lib/format";
@@ -185,87 +179,87 @@ export default async function FilmPage({
     >
       <AppHeader />
       <div className="min-h-[calc(100vh-4rem)] lg:block">
+        {/* ── LEFT SIDEBAR ───────────────────────────────────────────── */}
         <aside className="border-b border-[#20202d] bg-[#08080d] px-4 py-6 sm:px-6 lg:fixed lg:bottom-0 lg:left-0 lg:top-16 lg:z-30 lg:h-[calc(100vh-4rem)] lg:w-[41.666667%] lg:border-b-0 lg:border-r lg:p-4">
           <div className="flex h-full flex-col justify-between gap-6">
             <div className="flex flex-col">
-            <div className="-mx-1 -mt-1 mb-2 flex items-center">
-              <span className="inline-flex max-w-full items-center rounded-full border border-[#e8453c]/22 bg-[#e8453c]/10 px-3 py-1 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#e8453c]">
-                Reel // {film.title.toUpperCase()}
-              </span>
-            </div>
-
-            <div className="relative aspect-video w-full overflow-hidden border border-[#171724] bg-[#0d0d14]">
-              {sidebarImageUrl ? (
-                <Image
-                  src={sidebarImageUrl}
-                  alt={film.title}
-                  fill
-                  sizes="(max-width: 1024px) 100vw, 500px"
-                  className="object-cover"
-                  priority
-                />
-              ) : (
-                <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[#1a1a2e] to-[#0a0a18]">
-                  <span className="font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-widest text-[#888899]">
-                    No image
-                  </span>
-                </div>
-              )}
-              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#09090f]/55 to-transparent" />
-            </div>
-
-            <div className="flex flex-col gap-2 p-4">
-              <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.2em] text-[#888899]">
-                {film.genres.length > 0
-                  ? film.genres.join(" · ")
-                  : "Genres unavailable"}
-              </p>
-
-              <div className="mt-1 flex items-start justify-between gap-3">
-                <h2 className="font-[family-name:var(--font-display)] text-xl font-bold leading-tight text-[#F5F5F0] sm:text-2xl">
-                  {film.title}
-                </h2>
-                <button
-                  type="button"
-                  aria-label="Add to watchlist"
-                  className="mt-0.5 shrink-0 text-[#555568] transition-colors hover:text-[#e8453c] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
-                >
-                  <Bookmark className="h-5 w-5" aria-hidden />
-                </button>
+              <div className="-mx-1 -mt-1 mb-2 flex items-center">
+                <span className="inline-flex max-w-full items-center rounded-full border border-[#e8453c]/22 bg-[#e8453c]/10 px-3 py-1 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#e8453c]">
+                  Reel // {film.title.toUpperCase()}
+                </span>
               </div>
 
-              <div className="mt-2 grid grid-cols-3 gap-2">
-                <HomeStyleStatBox
-                  label="IMDb"
-                  value={
-                    film.imdbRating != null ? film.imdbRating.toFixed(1) : "—"
-                  }
-                />
-                <HomeStyleStatBox
-                  label="RT"
-                  value={film.rtScore != null ? `${film.rtScore}%` : "—"}
-                />
-                <HomeStyleStatBox
-                  label="Awards"
-                  value={
-                    totalAwardWins > 0
-                      ? `${totalAwardWins}W`
-                      : totalAwardNoms > 0
-                        ? `${totalAwardNoms}N`
-                        : "—"
-                  }
-                />
+              <div className="relative aspect-video w-full overflow-hidden border border-[#171724] bg-[#0d0d14]">
+                {sidebarImageUrl ? (
+                  <Image
+                    src={sidebarImageUrl}
+                    alt={film.title}
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 500px"
+                    className="object-cover"
+                    priority
+                  />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[#1a1a2e] to-[#0a0a18]">
+                    <span className="font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-widest text-[#888899]">
+                      No image
+                    </span>
+                  </div>
+                )}
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#09090f]/55 to-transparent" />
               </div>
 
-              {sidebarAwardTags.length > 0 && (
-                <div className="flex flex-wrap gap-1.5">
-                  {sidebarAwardTags.map((tag) => (
-                    <DetailAwardTag key={tag}>{tag}</DetailAwardTag>
-                  ))}
-                </div>
-              )}
+              <div className="flex flex-col gap-2 p-4">
+                <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.2em] text-[#888899]">
+                  {film.genres.length > 0
+                    ? film.genres.join(" · ")
+                    : "Genres unavailable"}
+                </p>
 
-            </div>
+                <div className="mt-1 flex items-start justify-between gap-3">
+                  <h2 className="font-[family-name:var(--font-display)] text-xl font-bold leading-tight text-[#F5F5F0] sm:text-2xl">
+                    {film.title}
+                  </h2>
+                  <button
+                    type="button"
+                    aria-label="Add to watchlist"
+                    className="mt-0.5 shrink-0 text-[#555568] transition-colors hover:text-[#e8453c] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
+                  >
+                    <Bookmark className="h-5 w-5" aria-hidden />
+                  </button>
+                </div>
+
+                <div className="mt-2 grid grid-cols-3 gap-2">
+                  <HomeStyleStatBox
+                    label="IMDb"
+                    value={
+                      film.imdbRating != null ? film.imdbRating.toFixed(1) : "—"
+                    }
+                  />
+                  <HomeStyleStatBox
+                    label="RT"
+                    value={film.rtScore != null ? `${film.rtScore}%` : "—"}
+                  />
+                  <HomeStyleStatBox
+                    label="Awards"
+                    value={
+                      totalAwardWins > 0
+                        ? `${totalAwardWins}W`
+                        : totalAwardNoms > 0
+                          ? `${totalAwardNoms}N`
+                          : "—"
+                    }
+                  />
+                </div>
+
+                {sidebarAwardTags.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5">
+                    {sidebarAwardTags.map((tag) => (
+                      <DetailAwardTag key={tag}>{tag}</DetailAwardTag>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="flex flex-col gap-2 px-4 pb-4">
@@ -311,59 +305,131 @@ export default async function FilmPage({
           </div>
         </aside>
 
+        {/* ── RIGHT COLUMN ───────────────────────────────────────────── */}
         <section
           id="details"
-          className="relative min-w-0 scroll-mt-24 px-5 py-10 sm:px-7 lg:ml-[41.666667%] lg:w-[58.333333%] lg:px-10 lg:py-12 xl:px-12"
+          className="relative min-w-0 scroll-mt-24 px-6 py-12 sm:px-8 lg:ml-[41.666667%] lg:w-[58.333333%] lg:px-12 lg:py-16 xl:px-16"
         >
+          {/* Layered atmospheric glow */}
           <div
-            className="pointer-events-none absolute inset-0 opacity-55"
+            className="pointer-events-none absolute inset-0"
             style={{
-              background: `radial-gradient(ellipse 42% 52% at 100% 0%, ${accent}24, transparent 62%), linear-gradient(90deg, transparent, rgba(18,18,31,0.64))`,
+              background: `
+                radial-gradient(ellipse 80% 40% at 100% 0%, ${accent}16, transparent 55%),
+                radial-gradient(ellipse 50% 60% at 15% 100%, ${accent}09, transparent 65%)
+              `,
             }}
           />
-          <div className="relative mx-auto flex max-w-6xl flex-col gap-14">
-            <header className="max-w-5xl pt-2 lg:pt-4">
-              <p className="font-[family-name:var(--font-geist-mono)] text-[12px] uppercase tracking-[0.3em] text-[#e8453c]/70">
-                {film.year}
-                {formattedRuntime ? `  •  ${formattedRuntime}` : ""}
-                {film.director ? `  •  Dir. ${film.director}` : ""}
-              </p>
-              <h1 className="mt-3 max-w-5xl text-balance font-[family-name:var(--font-display)] text-[clamp(2.5rem,5vw,4.75rem)] font-bold leading-none tracking-tight text-[#F5F5F0]">
+
+          <div className="relative mx-auto flex max-w-5xl flex-col gap-14">
+
+            {/* ── HEADER ─────────────────────────────────────────────── */}
+            <header className="pt-4 lg:pt-8">
+              {/* Year · Runtime centered in a decorative rule */}
+              <div className="mb-8 flex items-center gap-5">
+                <div
+                  className="h-px flex-1"
+                  style={{
+                    background: `linear-gradient(to right, transparent, ${accent}55)`,
+                  }}
+                />
+                <p className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.55em] text-[#e8453c]/70">
+                  {film.year}
+                  {formattedRuntime ? `  ·  ${formattedRuntime}` : ""}
+                </p>
+                <div
+                  className="h-px flex-1"
+                  style={{
+                    background: `linear-gradient(to left, transparent, ${accent}55)`,
+                  }}
+                />
+              </div>
+
+              <h1 className="text-balance font-[family-name:var(--font-display)] text-[clamp(2.8rem,6.5vw,5.5rem)] font-bold leading-[0.9] tracking-tight text-[#F5F5F0]">
                 {film.title}
               </h1>
+
               {film.originalTitle && film.originalTitle !== film.title && (
-                <p className="mt-4 font-[family-name:var(--font-display)] text-2xl italic text-[#8c8c9d]">
+                <p className="mt-5 font-[family-name:var(--font-display)] text-[1.35rem] italic text-[#56566a]">
                   {film.originalTitle}
                 </p>
               )}
+
+              {film.director && (
+                <div className="mt-8 flex items-center gap-4">
+                  <span className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.45em] text-[#363648]">
+                    Directed by
+                  </span>
+                  <div className="h-px w-6 bg-[#222232]" />
+                  <span className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.3em] text-[#7878909a]">
+                    {film.director}
+                  </span>
+                </div>
+              )}
             </header>
 
+            {/* ── SYNOPSIS ───────────────────────────────────────────── */}
             {film.plot && (
-              <blockquote className="max-w-5xl border-l-2 border-[#ff4558] py-1 pl-5 font-[family-name:var(--font-geist-mono)] text-[0.8rem] uppercase leading-8 tracking-[0.16em] text-[#8d8da1] sm:pl-6">
-                {film.plot}
-              </blockquote>
+              <div className="relative pl-7">
+                <div
+                  className="absolute left-0 top-0 bottom-0 w-[2px] rounded-full"
+                  style={{
+                    background: `linear-gradient(to bottom, ${accent}cc, ${accent}22, transparent)`,
+                  }}
+                />
+                <p className="mb-4 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.65em] text-[#e8453c]/50">
+                  Synopsis
+                </p>
+                <p className="font-[family-name:var(--font-geist-mono)] text-[0.77rem] uppercase leading-[2.5] tracking-[0.13em] text-[#5e5e74]">
+                  {film.plot}
+                </p>
+              </div>
             )}
 
+            {/* ── AWARDS ─────────────────────────────────────────────── */}
             {hasAwards && (
-              <section id="awards" className="relative scroll-mt-24 py-8">
+              <section id="awards" className="relative scroll-mt-24">
+                {/* Ghost number backdrop */}
+                <div
+                  className="pointer-events-none absolute -right-2 -top-16 select-none font-[family-name:var(--font-display)] text-[13rem] font-bold leading-none tabular-nums text-white/[0.022]"
+                  aria-hidden
+                >
+                  {totalAwardWins > 0 ? totalAwardWins : totalAwardNoms}
+                </div>
+
                 <div className="relative">
-                  <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-                    <div>
-                      <p className="font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.28em] text-[#e8453c]">
-                        Awards Season
-                      </p>
-                      <h2 className="mt-3 max-w-3xl font-[family-name:var(--font-display)] text-[clamp(2.25rem,4vw,4.25rem)] font-bold leading-none text-[#F5F5F0]">
-                        Awards &amp; Recognition
-                      </h2>
+                  <p className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.65em] text-[#e8453c]/50">
+                    ◆&nbsp;&nbsp;Awards Season&nbsp;&nbsp;◆
+                  </p>
+                  <h2 className="mt-5 font-[family-name:var(--font-display)] text-[clamp(2.1rem,4.5vw,3.75rem)] font-bold leading-[1.02] text-[#F5F5F0]">
+                    Awards &amp;<br />Recognition
+                  </h2>
+
+                  {/* Big wins / noms counter */}
+                  <div className="mt-10 flex items-baseline gap-10 border-b border-[#111118] pb-10">
+                    <div className="flex items-baseline gap-3">
+                      <span
+                        className="font-[family-name:var(--font-display)] text-[5rem] font-bold leading-none tabular-nums"
+                        style={{ color: totalAwardWins > 0 ? accent : "#252532" }}
+                      >
+                        {totalAwardWins}
+                      </span>
+                      <span className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.5em] text-[#404052]">
+                        Wins
+                      </span>
                     </div>
-                    <div className="flex items-center gap-8 border-l border-[#292936] pl-5">
-                      <AwardStat label="Wins" value={totalAwardWins} />
-                      <AwardStat label="Nominations" value={totalAwardNoms} />
+                    <div className="flex items-baseline gap-3">
+                      <span className="font-[family-name:var(--font-display)] text-[3.25rem] font-bold leading-none tabular-nums text-[#222230]">
+                        {totalAwardNoms}
+                      </span>
+                      <span className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.5em] text-[#303040]">
+                        Nominations
+                      </span>
                     </div>
                   </div>
                 </div>
 
-                <div className="relative mt-8 space-y-5">
+                <div className="mt-10 space-y-5">
                   {activeCeremonies.map((c) => (
                     <AwardSummaryCard
                       key={c.title}
@@ -372,57 +438,63 @@ export default async function FilmPage({
                       wins={c.wins}
                       nominations={c.nominations}
                       records={c.records}
+                      accent={accent}
                     />
                   ))}
                 </div>
               </section>
             )}
 
+            {/* ── CAST ───────────────────────────────────────────────── */}
             {film.cast.length > 0 && (
               <section id="cast" className="scroll-mt-24">
-                <EditorialLabel
-                  icon={<Users className="h-4 w-4" aria-hidden />}
-                >
-                  Cast
-                </EditorialLabel>
-                <div className="mt-7 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+                <CinematicSectionLabel>Cast</CinematicSectionLabel>
+                <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
                   {normalizeCast(film.cast).slice(0, 8).map((member, i) => (
-                    <CastCard key={`${member.name}-${i}`} member={member} />
+                    <CastCard
+                      key={`${member.name}-${i}`}
+                      member={member}
+                      accent={accent}
+                    />
                   ))}
                 </div>
               </section>
             )}
 
-            <div className="grid gap-10 xl:grid-cols-[1fr_300px]">
+            {/* ── TRAILER + META ─────────────────────────────────────── */}
+            <div className="grid gap-14 xl:grid-cols-[1fr_240px]">
               {film.trailerUrl ? (
                 <div id="trailer" className="scroll-mt-24">
-                  <FilmTrailer
-                    title={film.title}
-                    trailerUrl={film.trailerUrl}
-                    youtubeId={youtubeId}
-                    thumbnailUrl={film.backdropUrl ?? film.posterUrl}
-                  />
+                  <CinematicSectionLabel>Trailer</CinematicSectionLabel>
+                  <div className="mt-8">
+                    <FilmTrailer
+                      title={film.title}
+                      trailerUrl={film.trailerUrl}
+                      youtubeId={youtubeId}
+                      thumbnailUrl={film.backdropUrl ?? film.posterUrl}
+                    />
+                  </div>
                 </div>
               ) : (
                 <section id="trailer" className="scroll-mt-24">
-                  <SectionLabel>Trailer</SectionLabel>
-                  <div className="flex aspect-video w-full items-center justify-center border border-[#1a1a28] bg-[#0b0b14]">
-                    <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest text-[#444458]">
+                  <CinematicSectionLabel>Trailer</CinematicSectionLabel>
+                  <div className="mt-8 flex aspect-video w-full items-center justify-center border border-[#111118] bg-[#07070c]">
+                    <p className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.5em] text-[#252530]">
                       No trailer available
                     </p>
                   </div>
                 </section>
               )}
 
-              <div className="flex flex-col gap-6">
+              <div className="flex flex-col gap-10">
                 {film.genres.length > 0 && (
                   <section>
-                    <SectionLabel>Genres</SectionLabel>
-                    <div className="flex flex-wrap gap-2">
+                    <CinematicSectionLabel>Genres</CinematicSectionLabel>
+                    <div className="mt-6 flex flex-wrap gap-2">
                       {film.genres.map((g) => (
                         <span
                           key={g}
-                          className="border border-[#20202d] px-3 py-1.5 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.2em] text-[#9a9aaa]"
+                          className="border border-[#181824] px-3.5 py-2 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.35em] text-[#484858] transition-colors hover:border-[#e8453c]/25 hover:text-[#b8b8cc]"
                         >
                           {g}
                         </span>
@@ -433,19 +505,23 @@ export default async function FilmPage({
 
                 {film.imdbId && (
                   <section>
-                    <SectionLabel>External Links</SectionLabel>
-                    <a
-                      href={`https://www.imdb.com/title/${film.imdbId}/`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="group inline-flex w-full items-center justify-between border border-[#20202d] px-5 py-4 font-[family-name:var(--font-geist-mono)] text-xs font-bold uppercase tracking-[0.2em] text-[#f4f4f5] transition-colors hover:border-[#ff4558]/55 hover:text-[#ff4558]"
-                    >
-                      IMDb
-                      <ExternalLink
-                        className="h-4 w-4 text-[#777787] transition-colors group-hover:text-[#ff4558]"
-                        aria-hidden
-                      />
-                    </a>
+                    <CinematicSectionLabel>Links</CinematicSectionLabel>
+                    <div className="mt-6">
+                      <a
+                        href={`https://www.imdb.com/title/${film.imdbId}/`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group flex items-center justify-between border border-[#161622] bg-[#08080e] px-5 py-4 transition-colors hover:border-[#e8453c]/30"
+                      >
+                        <span className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.4em] text-[#888898] transition-colors group-hover:text-[#f4f4f5]">
+                          IMDb
+                        </span>
+                        <ExternalLink
+                          className="h-3.5 w-3.5 text-[#333342] transition-colors group-hover:text-[#e8453c]"
+                          aria-hidden
+                        />
+                      </a>
+                    </div>
                   </section>
                 )}
               </div>
@@ -456,6 +532,8 @@ export default async function FilmPage({
     </main>
   );
 }
+
+// ── Left sidebar helpers ───────────────────────────────────────────────────────
 
 function HomeStyleStatBox({ label, value }: { label: string; value: string }) {
   return (
@@ -500,46 +578,23 @@ function DetailActionButton({
   );
 }
 
-function EditorialLabel({
-  children,
-  icon,
-}: {
-  children: ReactNode;
-  icon: ReactNode;
-}) {
-  return (
-    <h2 className="flex items-center gap-3 font-[family-name:var(--font-geist-mono)] text-sm font-bold uppercase tracking-[0.2em] text-[#f4f4f5]">
-      <span className="text-[#ff4558]">{icon}</span>
-      {children}
-    </h2>
-  );
-}
+// ── Right column shared components ────────────────────────────────────────────
 
-// ── SectionLabel ──────────────────────────────────────────────────────────────
-
-function SectionLabel({ children }: { children: ReactNode }) {
+function CinematicSectionLabel({ children }: { children: ReactNode }) {
   return (
-    <div className="mb-3 flex items-center gap-2.5">
-      <h2 className="flex shrink-0 items-center gap-1.5 font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.24em] text-[#888899]">
+    <div className="flex items-center gap-4">
+      <span className="font-[family-name:var(--font-geist-mono)] text-[8px] text-[#e8453c]/40">
+        ◆
+      </span>
+      <h2 className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.6em] text-[#484858]">
         {children}
       </h2>
-      <div className="h-px flex-1 bg-[#1a1a28]" />
+      <div className="h-px flex-1 bg-gradient-to-r from-[#1a1a26] to-transparent" />
     </div>
   );
 }
 
-function AwardStat({ label, value }: { label: string; value: number }) {
-  return (
-    <div>
-      <span className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.2em] text-[#858596]">
-        {label}
-      </span>
-      <strong className="mt-1 block font-[family-name:var(--font-display)] text-4xl leading-none text-[#F5F5F0]">
-        {value}
-      </strong>
-    </div>
-  );
-}
+// ── Award components ───────────────────────────────────────────────────────────
 
 function AwardSummaryCard({
   title,
@@ -547,12 +602,14 @@ function AwardSummaryCard({
   wins,
   nominations,
   records,
+  accent,
 }: {
   title: string;
   icon: "oscar" | "globe" | "cannes";
   wins: number;
   nominations: number;
   records: AwardRecord[];
+  accent: string;
 }) {
   const sorted = [...records].sort(
     (a, b) =>
@@ -560,76 +617,88 @@ function AwardSummaryCard({
       a.awardYear - b.awardYear ||
       a.category.localeCompare(b.category),
   );
-  const ceremonyLabel =
-    icon === "oscar"
-      ? "Academy"
-      : icon === "globe"
-        ? "Globes"
-        : "Cannes";
-  const tone =
-    wins > 0
-      ? "from-[#e8453c]/24 via-[#11111b]/90 to-[#08080d]/76"
-      : "from-[#222234]/78 via-[#0f0f18]/88 to-[#08080d]/70";
+  const ceremonyCode =
+    icon === "oscar" ? "AMPAS" : icon === "globe" ? "HFPA" : "Cannes";
 
   return (
-    <article className="group relative overflow-hidden rounded-[1.25rem] bg-gradient-to-br p-px shadow-[0_22px_60px_rgba(0,0,0,0.28)] shadow-black/30 transition-transform duration-300 hover:-translate-y-0.5">
-      <div className={cn("absolute inset-0 bg-gradient-to-br", tone)} />
-      <div className="absolute inset-0 bg-[linear-gradient(110deg,transparent,rgba(255,255,255,0.075),transparent)] opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-
-      <div className="relative rounded-[calc(1.25rem-1px)] bg-[#08080d]/70 px-5 py-5 backdrop-blur sm:px-6 sm:py-6">
-        <div className="min-w-0">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div className="flex min-w-0 items-center gap-4">
-              <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#e8453c]/12 text-[#ff4558] shadow-[inset_0_0_0_1px_rgba(232,69,60,0.24)]">
-                <Trophy className="h-5 w-5" aria-hidden />
-              </span>
-              <div className="min-w-0">
-                <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.24em] text-[#9a9aaa]">
-                  {ceremonyLabel} Circuit
-                </p>
-                <h3 className="mt-1 text-2xl font-bold leading-tight text-[#f4f4f5]">
-                  {title}
-                </h3>
-              </div>
-            </div>
-            <div className="flex shrink-0 items-end gap-5">
-              <AwardStat label="Wins" value={wins} />
-              <AwardStat label="Noms" value={nominations} />
-            </div>
+    <article className="overflow-hidden border border-[#111118]">
+      {/* Card header */}
+      <div className="flex items-center justify-between border-b border-[#111118] bg-[#090910] px-5 py-4">
+        <div>
+          <p className="font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-[0.55em] text-[#363648]">
+            {ceremonyCode}
+          </p>
+          <h3 className="mt-1.5 font-[family-name:var(--font-display)] text-lg font-bold leading-tight text-[#c8c8da]">
+            {title}
+          </h3>
+        </div>
+        <div className="flex items-baseline gap-6">
+          <div className="text-right">
+            <span
+              className="block font-[family-name:var(--font-display)] text-2xl font-bold leading-none tabular-nums"
+              style={{ color: wins > 0 ? accent : "#232330" }}
+            >
+              {wins}
+            </span>
+            <span className="font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-[0.4em] text-[#363648]">
+              Wins
+            </span>
           </div>
-
-          {sorted.length > 0 && (
-            <div className="mt-5 grid gap-2">
-              {sorted.map((record) => (
-                <div
-                  key={`${record.awardYear}-${record.category}-${record.nominee}`}
-                  className="grid gap-2 rounded-lg bg-[#f5f5f0]/[0.045] px-3 py-3 text-[#c9c9d2] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.055)] sm:grid-cols-[auto_1fr_auto] sm:items-center sm:gap-4"
-                >
-                  <span className="w-fit shrink-0 rounded-full bg-[#e8453c]/10 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.18em] text-[#ff4558]">
-                    {record.won ? "Won" : "Nom"}
-                  </span>
-                  <div className="min-w-0">
-                    <p className="text-base font-medium leading-6 text-[#ececf1]">
-                      {record.category}
-                    </p>
-                    <p className="mt-0.5 text-sm leading-5 text-[#8f8f9e]">
-                      {record.nominee}
-                    </p>
-                  </div>
-                  <span className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.18em] text-[#777787]">
-                    {record.awardYear}
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
+          <div className="text-right">
+            <span className="block font-[family-name:var(--font-display)] text-xl font-bold leading-none tabular-nums text-[#232330]">
+              {nominations}
+            </span>
+            <span className="font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-[0.4em] text-[#363648]">
+              Noms
+            </span>
+          </div>
         </div>
       </div>
+
+      {/* Award rows */}
+      {sorted.length > 0 && (
+        <div className="divide-y divide-[#0b0b12]">
+          {sorted.map((record) => (
+            <div
+              key={`${record.awardYear}-${record.category}-${record.nominee}`}
+              className={cn(
+                "grid grid-cols-[auto_1fr_auto] items-center gap-4 px-5 py-3.5",
+                record.won ? "bg-[#0c0b0a]" : "bg-[#080810]",
+              )}
+            >
+              <span
+                className={cn(
+                  "shrink-0 font-[family-name:var(--font-geist-mono)] text-[7px] font-bold uppercase tracking-[0.4em]",
+                  record.won ? "text-[#b8923c]" : "text-[#2a2a3a]",
+                )}
+              >
+                {record.won ? "◆ Won" : "Nom"}
+              </span>
+              <div className="min-w-0">
+                <p
+                  className={cn(
+                    "text-[0.8rem] font-medium leading-5",
+                    record.won ? "text-[#d8cfa8]" : "text-[#686878]",
+                  )}
+                >
+                  {record.category}
+                </p>
+                <p className="mt-0.5 truncate font-[family-name:var(--font-geist-mono)] text-[0.62rem] uppercase tracking-[0.14em] text-[#363646]">
+                  {record.nominee}
+                </p>
+              </div>
+              <span className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-[0.3em] text-[#222230]">
+                {record.awardYear}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
     </article>
   );
 }
 
-// ── CastCard ──────────────────────────────────────────────────────────────────
+// ── Cast components ────────────────────────────────────────────────────────────
 
 function normalizeCast(raw: unknown[]): CastMember[] {
   return raw.map((item) =>
@@ -654,37 +723,45 @@ function nameHue(name: string): number {
   return Math.abs(h) % 360;
 }
 
-function CastCard({ member }: { member: CastMember }) {
+function CastCard({ member, accent }: { member: CastMember; accent: string }) {
   const initials = nameInitials(member.name);
   const hue = nameHue(member.name);
   return (
-    <div className="flex flex-col items-center gap-3 border border-[#181823] bg-[#08080d]/62 px-4 py-6 text-center">
-      <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-full">
+    <div className="group relative flex flex-col overflow-hidden border border-[#111118] bg-[#08080d] transition-colors hover:border-[#1e1e2c]">
+      {/* Portrait image — 2:3 aspect ratio */}
+      <div className="relative w-full overflow-hidden" style={{ aspectRatio: "2/3" }}>
         {member.profileUrl ? (
           <Image
             src={member.profileUrl}
             alt={member.name}
             fill
-            sizes="64px"
-            className="object-cover"
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 200px"
+            className="object-cover object-top grayscale-[15%] transition-all duration-500 group-hover:scale-[1.04] group-hover:grayscale-0"
           />
         ) : (
           <div
-            className="flex h-full w-full items-center justify-center text-base font-bold text-[#f4f4f5]"
-            style={{ background: `hsl(${hue},38%,26%)` }}
+            className="flex h-full w-full items-center justify-center text-3xl font-bold text-white/20"
+            style={{ background: `hsl(${hue},18%,12%)` }}
           >
             {initials}
           </div>
         )}
+        {/* Bottom gradient */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#08080d] via-[#08080d]/30 to-transparent" />
       </div>
-      <div className="w-full">
-        <span className="block truncate text-sm font-medium leading-5 text-[#d7d7de]">
+
+      {/* Name + character */}
+      <div className="px-3 pb-4 pt-2.5">
+        <p className="truncate text-[0.75rem] font-semibold leading-5 text-[#b8b8c8]">
           {member.name}
-        </span>
+        </p>
         {member.character && (
-          <span className="mt-0.5 block truncate font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.14em] text-[#e8453c]/70">
+          <p
+            className="mt-0.5 truncate font-[family-name:var(--font-geist-mono)] text-[0.6rem] uppercase tracking-[0.2em]"
+            style={{ color: `${accent}88` }}
+          >
             {member.character}
-          </span>
+          </p>
         )}
       </div>
     </div>
