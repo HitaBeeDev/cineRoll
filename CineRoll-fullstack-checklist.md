@@ -766,7 +766,7 @@ Three handpicked film slots per day, each with a different mood/filter combo. Ca
 
 - [x] Create `src/app/film/[slug]/page.tsx` dynamic route
 - [x] Fetch film data by slug from `/api/films/:slug` endpoint
-- [ ] Display complete film information:
+- [x] Display complete film information:
   - Large poster and backdrop images
   - Title, year, runtime (formatted as "2h 22m" via `formatRuntime()`), genres
   - Director and main cast
