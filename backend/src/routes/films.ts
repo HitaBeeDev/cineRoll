@@ -333,6 +333,110 @@ filmsRouter.get("/", validate(listQuerySchema), async (req, res) => {
   });
 });
 
+filmsRouter.get("/:slug/similar", validate(slugParamsSchema, "params"), async (req, res) => {
+  const { slug } = getValidated<z.infer<typeof slugParamsSchema>>(req, "params");
+
+  const film = await prisma.film.findUnique({
+    where: { slug },
+    select: {
+      id: true,
+      director: true,
+      genres: true,
+      oscarCategories: true,
+      ggCategories: true,
+      cannesCategories: true,
+    },
+  });
+
+  if (!film) throw new HttpError(404, "Film not found", "FILM_NOT_FOUND");
+
+  type AwardRec = { awardYear: number };
+  const allAwards = [
+    ...((film.oscarCategories as AwardRec[]) ?? []),
+    ...((film.ggCategories as AwardRec[]) ?? []),
+    ...((film.cannesCategories as AwardRec[]) ?? []),
+  ];
+  const ceremonyYears = [...new Set(allAwards.map(r => r.awardYear))];
+
+  const orParts: Prisma.Sql[] = [];
+  const scoreParts: Prisma.Sql[] = [];
+
+  if (film.director) {
+    orParts.push(Prisma.sql`"Film"."director" = ${film.director}`);
+    scoreParts.push(Prisma.sql`CASE WHEN "Film"."director" = ${film.director} THEN 1 ELSE 0 END`);
+  }
+
+  if (film.genres.length > 0) {
+    const mkGenreArr = () => Prisma.join(film.genres.map(g => Prisma.sql`${g}`), ",");
+    orParts.push(Prisma.sql`"Film"."genres" && ARRAY[${mkGenreArr()}]::text[]`);
+    scoreParts.push(Prisma.sql`CASE WHEN "Film"."genres" && ARRAY[${mkGenreArr()}]::text[] THEN 1 ELSE 0 END`);
+  }
+
+  if (ceremonyYears.length > 0) {
+    const mkYearArr = () => Prisma.join(ceremonyYears.map(y => Prisma.sql`${y}`), ",");
+    const mkYearCheck = () => Prisma.sql`(
+      EXISTS (SELECT 1 FROM jsonb_array_elements("Film"."oscarCategories") AS a WHERE (a->>'awardYear')::int = ANY(ARRAY[${mkYearArr()}]::int[]))
+      OR EXISTS (SELECT 1 FROM jsonb_array_elements("Film"."ggCategories") AS a WHERE (a->>'awardYear')::int = ANY(ARRAY[${mkYearArr()}]::int[]))
+      OR EXISTS (SELECT 1 FROM jsonb_array_elements("Film"."cannesCategories") AS a WHERE (a->>'awardYear')::int = ANY(ARRAY[${mkYearArr()}]::int[]))
+    )`;
+    orParts.push(mkYearCheck());
+    scoreParts.push(Prisma.sql`CASE WHEN ${mkYearCheck()} THEN 1 ELSE 0 END`);
+  }
+
+  if (orParts.length === 0) {
+    setPublicCache(res, 3600);
+    res.json([]);
+    return;
+  }
+
+  type SimilarRow = {
+    id: string; slug: string; title: string; originalTitle: string | null;
+    releaseYear: number; year: number; genres: string[]; contentType: string;
+    posterUrl: string | null; posterColor: string | null; imdbRating: number | null;
+    imdbTopMovieRank: number | null; imdbTopTvRank: number | null;
+    certificate: string | null; tvType: string | null;
+    tvStartYear: number | null; tvEndYear: number | null;
+    oscarNominations: number; oscarWins: number;
+    ggNominations: number; ggWins: number;
+    cannesNominations: number; cannesWins: number;
+  };
+
+  const rows = await prisma.$queryRaw<SimilarRow[]>(Prisma.sql`
+    SELECT
+      "Film"."id",
+      "Film"."slug",
+      "Film"."title",
+      "Film"."originalTitle",
+      "Film"."year" AS "releaseYear",
+      "Film"."year",
+      "Film"."genres",
+      "Film"."contentType",
+      "Film"."posterUrl",
+      "Film"."posterColor",
+      "Film"."imdbRating",
+      "Film"."imdbTopMovieRank",
+      "Film"."imdbTopTvRank",
+      "Film"."certificate",
+      "Film"."tvType",
+      "Film"."tvStartYear",
+      "Film"."tvEndYear",
+      "Film"."oscarNominations",
+      "Film"."oscarWins",
+      "Film"."ggNominations",
+      "Film"."ggWins",
+      "Film"."cannesNominations",
+      "Film"."cannesWins"
+    FROM "Film"
+    WHERE "Film"."id" != ${film.id}
+      AND (${Prisma.join(orParts, " OR ")})
+    ORDER BY (${Prisma.join(scoreParts, " + ")}) DESC, "Film"."imdbRating" DESC NULLS LAST
+    LIMIT 6
+  `);
+
+  setPublicCache(res, 3600);
+  res.json(rows.map(f => ({ ...f, year: f.releaseYear })));
+});
+
 filmsRouter.get("/:slug", validate(slugParamsSchema, "params"), async (req, res) => {
   const { slug } = getValidated<z.infer<typeof slugParamsSchema>>(req, "params");
   const film = await prisma.film.findUnique({
