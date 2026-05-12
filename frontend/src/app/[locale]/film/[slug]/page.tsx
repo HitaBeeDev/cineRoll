@@ -9,7 +9,7 @@ import {
   Share2,
   Trophy,
 } from "lucide-react";
-import type { Film, AwardRecord } from "@cineroll/types";
+import type { Film, AwardRecord, CastMember } from "@cineroll/types";
 import { cn } from "@/lib/utils";
 import { formatRuntime } from "@/lib/format";
 import { AppHeader } from "@/components/app-header";
@@ -385,9 +385,9 @@ export default async function FilmPage({
                 >
                   Cast
                 </EditorialLabel>
-                <div className="mt-7 grid gap-4 sm:grid-cols-2">
-                  {(film.cast as string[]).slice(0, 8).map((name) => (
-                    <CastItem key={name} name={name} />
+                <div className="mt-7 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+                  {normalizeCast(film.cast).slice(0, 8).map((member, i) => (
+                    <CastCard key={`${member.name}-${i}`} member={member} />
                   ))}
                 </div>
               </section>
@@ -629,15 +629,64 @@ function AwardSummaryCard({
   );
 }
 
-// ── CastItem ──────────────────────────────────────────────────────────────────
+// ── CastCard ──────────────────────────────────────────────────────────────────
 
-function CastItem({ name }: { name: string }) {
+function normalizeCast(raw: unknown[]): CastMember[] {
+  return raw.map((item) =>
+    typeof item === "string"
+      ? { name: item, character: "", profileUrl: null }
+      : (item as CastMember),
+  );
+}
+
+function nameInitials(name: string): string {
+  return name
+    .split(" ")
+    .slice(0, 2)
+    .map((p) => p[0] ?? "")
+    .join("")
+    .toUpperCase();
+}
+
+function nameHue(name: string): number {
+  let h = 0;
+  for (const c of name) h = c.charCodeAt(0) + ((h << 5) - h);
+  return Math.abs(h) % 360;
+}
+
+function CastCard({ member }: { member: CastMember }) {
+  const initials = nameInitials(member.name);
+  const hue = nameHue(member.name);
   return (
-    <div className="flex min-h-16 items-center justify-between gap-4 border border-[#181823] bg-[#08080d]/62 px-5 py-4">
-      <span className="min-w-0 truncate text-lg text-[#d7d7de]">{name}</span>
-      <span className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.16em] text-[#858596]">
-        Actor
-      </span>
+    <div className="flex flex-col items-center gap-3 border border-[#181823] bg-[#08080d]/62 px-4 py-6 text-center">
+      <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-full">
+        {member.profileUrl ? (
+          <Image
+            src={member.profileUrl}
+            alt={member.name}
+            fill
+            sizes="64px"
+            className="object-cover"
+          />
+        ) : (
+          <div
+            className="flex h-full w-full items-center justify-center text-base font-bold text-[#f4f4f5]"
+            style={{ background: `hsl(${hue},38%,26%)` }}
+          >
+            {initials}
+          </div>
+        )}
+      </div>
+      <div className="w-full">
+        <span className="block truncate text-sm font-medium leading-5 text-[#d7d7de]">
+          {member.name}
+        </span>
+        {member.character && (
+          <span className="mt-0.5 block truncate font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.14em] text-[#e8453c]/70">
+            {member.character}
+          </span>
+        )}
+      </div>
     </div>
   );
 }

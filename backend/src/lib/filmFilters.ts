@@ -179,8 +179,8 @@ export function buildWhereClause(
         "Film"."director" ILIKE ${personLike}
         OR EXISTS (
           SELECT 1
-          FROM jsonb_array_elements_text("Film"."cast") AS "castName"
-          WHERE "castName" ILIKE ${personLike}
+          FROM jsonb_array_elements("Film"."cast") AS "castMember"
+          WHERE "castMember"->>'name' ILIKE ${personLike}
         )
         OR ${awardExists(query.awardBody, [
           Prisma.sql`(

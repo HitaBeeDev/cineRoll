@@ -1,3 +1,9 @@
+export interface CastMember {
+  name: string;
+  character: string;
+  profileUrl: string | null;
+}
+
 export interface AwardRecord {
   awardBody: "oscar" | "goldenglobe" | "cannes";
   awardYear: number;
@@ -23,7 +29,7 @@ export interface Film {
   contentType: string;
   plot: string | null;
   director: string | null;
-  cast: string[];
+  cast: CastMember[];
   language: string | null;
   posterUrl: string | null;
   posterColor: string | null;
