@@ -780,7 +780,7 @@ Three handpicked film slots per day, each with a different mood/filter combo. Ca
   - Cannes nominations and wins (organized by category and year)
   - Total award counts across all bodies (e.g. "5 total wins · 12 total nominations")
   - Group by award body with clear headings; do not mix records from different bodies in the same table
-- [ ] **Trailer Modal** — clicking the trailer thumbnail opens a modal with the embedded YouTube player; user stays on the film page
+- [x] **Trailer Modal** — clicking the trailer thumbnail opens a modal with the embedded YouTube player; user stays on the film page
 - [ ] Show a play-button overlay on the trailer thumbnail so it's obvious it's clickable
 - [ ] Modal closes on Escape key or clicking outside; pause/stop video on close
 - [ ] Fallback: if no trailer URL, show "No trailer available" placeholder
