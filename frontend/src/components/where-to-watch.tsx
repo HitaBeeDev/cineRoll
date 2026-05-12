@@ -89,14 +89,13 @@ export function WhereToWatch({
     setCountry(detectCountry());
   }, []);
 
-  if (!watchProviders) return null;
-
-  const providers = parseProviders(watchProviders);
+  const noData = !watchProviders;
+  const providers = watchProviders ? parseProviders(watchProviders) : {};
 
   // While country is being detected, show nothing to avoid a flash
-  if (country === null) return null;
+  if (!noData && country === null) return null;
 
-  const countryData = providers[country];
+  const countryData = country ? providers[country] : undefined;
   const flatrate = countryData?.flatrate ?? [];
   const rent = countryData?.rent ?? [];
   const buy = countryData?.buy ?? [];
@@ -115,7 +114,11 @@ export function WhereToWatch({
       </div>
 
       <div className="mt-8 border border-[#111118] bg-[#08080d] p-6">
-        {hasAny ? (
+        {noData ? (
+          <p className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.4em] text-[#2a2a38]">
+            Streaming data not yet available
+          </p>
+        ) : hasAny ? (
           <div className="flex flex-col gap-7">
             <ProviderGroup label="Stream" providers={flatrate} accent={accent} />
             <ProviderGroup label="Rent" providers={rent} accent={accent} />
