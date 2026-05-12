@@ -7,8 +7,8 @@ import {
   Star,
   Trophy,
   ExternalLink,
-  Play,
   Clapperboard,
+  Users,
 } from "lucide-react";
 import type { Film, AwardRecord } from "@cineroll/types";
 import { cn } from "@/lib/utils";
@@ -27,7 +27,7 @@ function extractYouTubeId(url: string): string | null {
     if (u.hostname === "youtu.be") return u.pathname.slice(1) || null;
     if (u.hostname.includes("youtube.com")) return u.searchParams.get("v");
   } catch {
-    // invalid URL
+    /* invalid URL */
   }
   return null;
 }
@@ -38,8 +38,7 @@ async function fetchFilm(slug: string): Promise<Film | null> {
   });
   if (res.status === 404) return null;
   if (!res.ok) throw new Error(`Failed to fetch film: ${res.status}`);
-  const data = (await res.json()) as Film;
-  return data;
+  return (await res.json()) as Film;
 }
 
 function getAwardSummary(film: Film) {
@@ -51,7 +50,6 @@ function getAwardSummary(film: Film) {
     film.ggNominations > 0 ? `${film.ggNominations} Golden Globe` : null,
     film.cannesNominations > 0 ? `${film.cannesNominations} Cannes` : null,
   ].filter(Boolean);
-
   if (wins > 0) return `${wins} wins across ${nominations} major nominations.`;
   if (parts.length > 0) return `${parts.join(", ")} nominations.`;
   return "Explore its CineRoll film profile.";
@@ -65,7 +63,6 @@ export async function generateMetadata({
   const { slug } = await params;
   const film = await fetchFilm(slug);
   if (!film) return { title: "Film Not Found" };
-
   const title = `${film.title} (${film.year})`;
   const awardSummary = getAwardSummary(film);
   const rawDescription = film.plot
@@ -76,7 +73,6 @@ export async function generateMetadata({
       ? `${rawDescription.slice(0, 152)}…`
       : rawDescription;
   const socialImage = film.posterUrl ?? film.backdropUrl;
-
   return {
     title,
     description,
@@ -114,12 +110,53 @@ export default async function FilmPage({
   const totalAwardNoms =
     film.oscarNominations + film.ggNominations + film.cannesNominations;
   const hasAwards = totalAwardNoms > 0;
-  const filmAccentStyle = {
+
+  /* FilmTrailer needs --film-accent on a parent via style prop */
+  const accentStyle = {
     "--film-accent": film.posterColor ?? FALLBACK_ACCENT,
   } as CSSProperties;
 
+  const activeCeremonies = [
+    film.oscarNominations > 0
+      ? {
+          title: "Academy Awards",
+          icon: "oscar" as const,
+          wins: film.oscarWins,
+          nominations: film.oscarNominations,
+          records: oscarAwards,
+        }
+      : null,
+    film.ggNominations > 0
+      ? {
+          title: "Golden Globes",
+          icon: "globe" as const,
+          wins: film.ggWins,
+          nominations: film.ggNominations,
+          records: ggAwards,
+        }
+      : null,
+    film.cannesNominations > 0
+      ? {
+          title: "Cannes Film Festival",
+          icon: "cannes" as const,
+          wins: film.cannesWins,
+          nominations: film.cannesNominations,
+          records: cannesAwards,
+        }
+      : null,
+  ].filter(Boolean) as {
+    title: string;
+    icon: "oscar" | "globe" | "cannes";
+    wins: number;
+    nominations: number;
+    records: AwardRecord[];
+  }[];
+
   return (
-    <div className="flex flex-col min-h-screen bg-[#09090f] text-[#F5F5F0]">
+    <div
+      className="flex flex-col min-h-screen bg-[#09090f] text-[#F5F5F0]"
+      style={accentStyle}
+    >
       <AppHeader />
 
       <main className="flex-1">
@@ -135,111 +172,66 @@ export default async function FilmPage({
           isPickOfDay={film.isPickOfDay}
         />
 
-        <div
-          className="relative mx-auto max-w-5xl px-4 pb-24 sm:px-6 lg:px-8"
-          style={filmAccentStyle}
-        >
-          {/* ── POSTER + META STRIP ─────────────────────────────────── */}
-          <div className="-mt-20 sm:-mt-28 flex flex-col sm:flex-row gap-6 sm:gap-8 sm:items-end">
+        <div className="bg-[#09090f] mx-auto max-w-5xl px-4 pb-28 sm:px-6 lg:px-8">
+
+          {/* ── 1. POSTER + STATS ──────────────────────────────────── */}
+          <div className="pt-10 flex flex-col sm:flex-row gap-6 sm:gap-8 sm:items-start">
+
             {/* Poster */}
             <div className="relative mx-auto sm:mx-0 shrink-0">
-              <div
-                className="absolute -inset-8 rounded-full opacity-30 blur-3xl pointer-events-none"
-                style={{
-                  background:
-                    "radial-gradient(circle, var(--film-accent) 0%, transparent 68%)",
-                }}
-                aria-hidden
-              />
-              <div
-                className={cn(
-                  "relative w-32 sm:w-40 md:w-48 aspect-[2/3] overflow-hidden rounded-xl",
-                  "border border-white/10 shadow-[0_24px_80px_rgba(0,0,0,0.8)]",
-                )}
-              >
+              <div className="relative w-36 sm:w-44 md:w-52 aspect-[2/3] overflow-hidden rounded-2xl border border-white/10 shadow-[0_24px_80px_rgba(0,0,0,0.85)]">
                 {film.posterUrl ? (
                   <Image
                     src={film.posterUrl}
                     alt={`${film.title} poster`}
                     fill
-                    sizes="(max-width: 640px) 128px, (max-width: 768px) 160px, 192px"
+                    sizes="(max-width: 640px) 144px, (max-width: 768px) 176px, 208px"
                     className="object-cover"
                     priority
                   />
                 ) : (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-[#111118]">
-                    <Clapperboard
-                      className="h-8 w-8 text-[#2a2a3e]"
-                      aria-hidden
-                    />
-                    <span className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-widest text-[#444458]">
-                      No poster
-                    </span>
+                  <div className="absolute inset-0 flex items-center justify-center bg-[#111118]">
+                    <Clapperboard className="h-8 w-8 text-[#2a2a3e]" aria-hidden />
                   </div>
                 )}
               </div>
             </div>
 
-            {/* Ratings + genres */}
-            <div className="flex flex-col gap-4 pb-1 text-center sm:text-left">
-              <div className="flex flex-wrap justify-center sm:justify-start gap-3">
-                {film.imdbRating != null && (
-                  <div className="flex flex-col gap-1 rounded-lg border border-[#1e1e2a] bg-[#0d0d14] px-4 py-2.5 min-w-[72px]">
-                    <span className="flex items-center justify-center sm:justify-start gap-1">
-                      <Star
-                        className="h-3 w-3 fill-[#D4AF37] text-[#D4AF37]"
-                        aria-hidden
-                      />
-                      <span className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-widest text-[#888899]">
-                        IMDb
-                      </span>
-                    </span>
-                    <span className="font-[family-name:var(--font-geist-mono)] text-xl font-bold text-[#F5F5F0] tabular-nums">
-                      {film.imdbRating.toFixed(1)}
-                    </span>
-                  </div>
-                )}
-                {film.rtScore != null && (
-                  <div className="flex flex-col gap-1 rounded-lg border border-[#1e1e2a] bg-[#0d0d14] px-4 py-2.5 min-w-[72px]">
-                    <span className="flex items-center justify-center sm:justify-start gap-1">
-                      <span className="text-[10px] leading-none" aria-hidden>
-                        🍅
-                      </span>
-                      <span className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-widest text-[#888899]">
-                        RT
-                      </span>
-                    </span>
-                    <span className="font-[family-name:var(--font-geist-mono)] text-xl font-bold text-[#F5F5F0] tabular-nums">
-                      {film.rtScore}%
-                    </span>
-                  </div>
-                )}
-                {hasAwards && (
-                  <div className="flex flex-col gap-1 rounded-lg border border-[color:color-mix(in_srgb,var(--film-accent)_25%,#1e1e2a)] bg-[color:color-mix(in_srgb,var(--film-accent)_6%,#0d0d14)] px-4 py-2.5 min-w-[72px]">
-                    <span className="flex items-center justify-center sm:justify-start gap-1">
-                      <Trophy
-                        className="h-3 w-3 text-[var(--film-accent)]"
-                        aria-hidden
-                      />
-                      <span className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-widest text-[#888899]">
-                        Awards
-                      </span>
-                    </span>
-                    <span className="font-[family-name:var(--font-geist-mono)] text-xl font-bold text-[var(--film-accent)] tabular-nums">
-                      {totalAwardWins > 0
-                        ? `${totalAwardWins}W`
-                        : `${totalAwardNoms}N`}
-                    </span>
-                  </div>
-                )}
+            {/* Stats + genres */}
+            <div className="flex flex-col gap-4 pb-2 text-center sm:text-left">
+              {/* Stat boxes — exact same pattern as home page FilmCard */}
+              <div className="grid grid-cols-3 gap-2 w-fit mx-auto sm:mx-0">
+                <StatBox
+                  label="IMDb"
+                  value={
+                    film.imdbRating != null
+                      ? film.imdbRating.toFixed(1)
+                      : "—"
+                  }
+                />
+                <StatBox
+                  label="RT"
+                  value={film.rtScore != null ? `${film.rtScore}%` : "—"}
+                />
+                <StatBox
+                  label="Awards"
+                  value={
+                    totalAwardWins > 0
+                      ? `${totalAwardWins}W`
+                      : totalAwardNoms > 0
+                        ? `${totalAwardNoms}N`
+                        : "—"
+                  }
+                />
               </div>
 
+              {/* Genre pills */}
               {film.genres.length > 0 && (
-                <div className="flex flex-wrap justify-center sm:justify-start gap-2">
+                <div className="flex flex-wrap justify-center sm:justify-start gap-1.5">
                   {film.genres.map((g) => (
                     <span
                       key={g}
-                      className="rounded-full border border-[#2a2a3e] bg-[#111118] px-3 py-1 font-[family-name:var(--font-geist-mono)] text-[9px] font-bold uppercase tracking-[0.18em] text-[#888899]"
+                      className="inline-flex items-center rounded-full border border-[#1e1e2a] px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#888899]"
                     >
                       {g}
                     </span>
@@ -249,14 +241,61 @@ export default async function FilmPage({
             </div>
           </div>
 
-          {/* ── FILM STRIP DIVIDER ──────────────────────────────────── */}
-          <FilmStripDivider className="mt-10 mb-8" />
+          {/* ── STRIP ──────────────────────────────────────────────── */}
+          <FilmStrip className="mt-10 mb-8" />
 
-          {/* ── MAIN GRID ───────────────────────────────────────────── */}
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-8 lg:gap-10">
-            {/* ── LEFT: Trailer + Synopsis + Cast ─────────────────── */}
-            <div className="flex flex-col gap-10">
-              {/* Trailer */}
+          {/* ── 2. AWARDS ──────────────────────────────────────────── */}
+          {hasAwards && (
+            <section>
+              <ChannelLabel>Awards &amp; Recognition</ChannelLabel>
+
+              {/* Summary line */}
+              <div className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-1">
+                <span className="font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.2em] text-[#D4AF37]">
+                  {totalAwardWins} {totalAwardWins === 1 ? "Win" : "Wins"}
+                </span>
+                <span className="font-[family-name:var(--font-geist-mono)] text-[10px] text-[#2a2a3e]">
+                  ·
+                </span>
+                <span className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.2em] text-[#888899]">
+                  {totalAwardNoms}{" "}
+                  {totalAwardNoms === 1 ? "Nomination" : "Nominations"}
+                </span>
+              </div>
+
+              {/* Ceremony cards */}
+              <div
+                className={cn(
+                  "grid grid-cols-1 divide-y divide-[#1a1a28] overflow-hidden rounded-xl border border-[#1e1e2a] bg-[#0b0b14]",
+                  activeCeremonies.length === 2
+                    ? "sm:grid-cols-2 sm:divide-y-0 sm:divide-x"
+                    : activeCeremonies.length >= 3
+                      ? "md:grid-cols-3 md:divide-y-0 md:divide-x"
+                      : "",
+                )}
+              >
+                {activeCeremonies.map((c) => (
+                  <CeremonyPanel
+                    key={c.title}
+                    title={c.title}
+                    icon={c.icon}
+                    wins={c.wins}
+                    nominations={c.nominations}
+                    records={c.records}
+                  />
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* ── STRIP ──────────────────────────────────────────────── */}
+          <FilmStrip className={cn(hasAwards ? "mt-10 mb-8" : "mt-0 mb-8")} />
+
+          {/* ── 3. TRAILER + PLOT (left) / CAST + LINKS (right) ───── */}
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_268px] gap-8 lg:gap-10">
+
+            {/* Left */}
+            <div className="flex flex-col gap-8">
               {film.trailerUrl ? (
                 <FilmTrailer
                   title={film.title}
@@ -266,11 +305,8 @@ export default async function FilmPage({
                 />
               ) : (
                 <section>
-                  <SectionLabel>
-                    <Play className="h-3 w-3 text-[#e8453c]" aria-hidden />
-                    Trailer
-                  </SectionLabel>
-                  <div className="flex aspect-video w-full items-center justify-center rounded-xl border border-[#1a1a28] bg-[#0d0d14]">
+                  <SectionLabel>Trailer</SectionLabel>
+                  <div className="flex aspect-video w-full items-center justify-center rounded-xl border border-[#1a1a28] bg-[#0b0b14]">
                     <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest text-[#444458]">
                       No trailer available
                     </p>
@@ -278,118 +314,54 @@ export default async function FilmPage({
                 </section>
               )}
 
-              {/* Synopsis */}
               {film.plot && (
                 <section>
-                  <SectionLabel>Synopsis</SectionLabel>
-                  <p className="text-[#a6a6b5] leading-7 text-sm">
+                  <SectionLabel>Plot</SectionLabel>
+                  <p className="text-sm leading-7 text-[#a6a6b5]">
                     {film.plot}
                   </p>
                 </section>
               )}
+            </div>
+
+            {/* Right */}
+            <div className="flex flex-col gap-8">
 
               {/* Cast */}
               {film.cast.length > 0 && (
                 <section>
-                  <SectionLabel>Cast</SectionLabel>
-                  <div className="flex gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden -mx-1 px-1">
-                    {(film.cast as string[]).slice(0, 10).map((name) => (
-                      <CastAvatar
-                        key={name}
-                        name={name}
-                        accentColor={film.posterColor ?? FALLBACK_ACCENT}
-                      />
+                  <SectionLabel>
+                    <Users className="h-3 w-3" aria-hidden />
+                    Cast
+                  </SectionLabel>
+                  <div className="flex flex-col gap-1.5">
+                    {(film.cast as string[]).slice(0, 8).map((name, i) => (
+                      <CastItem key={name} name={name} index={i} />
                     ))}
                   </div>
                 </section>
               )}
-            </div>
 
-            {/* ── RIGHT: Awards + Links ────────────────────────────── */}
-            <div className="flex flex-col gap-8">
-              {/* Awards */}
-              {hasAwards && (
-                <section>
-                  <SectionLabel>
-                    <Trophy
-                      className="h-3 w-3 text-[var(--film-accent)]"
-                      aria-hidden
-                    />
-                    Awards
-                  </SectionLabel>
-
-                  {/* Summary bar */}
-                  <div className="mb-4 flex overflow-hidden rounded-lg border border-[#1e1e2a] bg-[#0d0d14]">
-                    <div className="flex-1 border-r border-[#1e1e2a] px-4 py-3">
-                      <p className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-widest text-[#444458]">
-                        Wins
-                      </p>
-                      <p className="font-[family-name:var(--font-geist-mono)] text-2xl font-bold text-[var(--film-accent)] tabular-nums leading-none mt-1">
-                        {totalAwardWins}
-                      </p>
-                    </div>
-                    <div className="flex-1 px-4 py-3">
-                      <p className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-widest text-[#444458]">
-                        Nominations
-                      </p>
-                      <p className="font-[family-name:var(--font-geist-mono)] text-2xl font-bold text-[#F5F5F0] tabular-nums leading-none mt-1">
-                        {totalAwardNoms}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col gap-4">
-                    {film.oscarNominations > 0 && (
-                      <AwardSection
-                        title="Academy Awards"
-                        icon="oscar"
-                        wins={film.oscarWins}
-                        nominations={film.oscarNominations}
-                        records={oscarAwards}
-                      />
-                    )}
-                    {film.ggNominations > 0 && (
-                      <AwardSection
-                        title="Golden Globes"
-                        icon="globe"
-                        wins={film.ggWins}
-                        nominations={film.ggNominations}
-                        records={ggAwards}
-                      />
-                    )}
-                    {film.cannesNominations > 0 && (
-                      <AwardSection
-                        title="Cannes Film Festival"
-                        icon="cannes"
-                        wins={film.cannesWins}
-                        nominations={film.cannesNominations}
-                        records={cannesAwards}
-                      />
-                    )}
-                  </div>
-                </section>
-              )}
-
-              {/* External links */}
+              {/* IMDb link */}
               {film.imdbId && (
                 <section>
-                  <SectionLabel>Links</SectionLabel>
+                  <SectionLabel>External Links</SectionLabel>
                   <a
                     href={`https://www.imdb.com/title/${film.imdbId}/`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className={cn(
-                      "group inline-flex items-center gap-3 w-full",
-                      "rounded-lg border border-[#1e1e2a] bg-[#0d0d14]",
+                      "group inline-flex w-full items-center gap-3",
+                      "rounded-xl border border-[#1e1e2a] bg-[#0b0b14]",
                       "px-4 py-3 transition-colors",
                       "hover:border-[#2a2a3e] hover:bg-[#111118]",
                       "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
                     )}
                   >
-                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded border border-[#2a2a3e] bg-[#09090f] font-[family-name:var(--font-geist-mono)] text-[10px] font-bold text-[#D4AF37]">
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[#2a2a3e] bg-[#09090f] font-[family-name:var(--font-geist-mono)] text-[10px] font-bold text-[#D4AF37]">
                       IM
                     </span>
-                    <span className="flex-1 min-w-0">
+                    <span className="min-w-0 flex-1">
                       <span className="block font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.15em] text-[#F5F5F0]">
                         IMDb
                       </span>
@@ -398,7 +370,7 @@ export default async function FilmPage({
                       </span>
                     </span>
                     <ExternalLink
-                      className="h-3.5 w-3.5 shrink-0 text-[#444458] group-hover:text-[#888899] transition-colors"
+                      className="h-3.5 w-3.5 shrink-0 text-[#444458] transition-colors group-hover:text-[#888899]"
                       aria-hidden
                     />
                   </a>
@@ -407,18 +379,18 @@ export default async function FilmPage({
             </div>
           </div>
 
-          {/* ── FILM STRIP DIVIDER ──────────────────────────────────── */}
-          <FilmStripDivider className="mt-16 mb-8" />
+          {/* ── STRIP ──────────────────────────────────────────────── */}
+          <FilmStrip className="mt-14 mb-8" />
 
-          {/* ── BOTTOM NAV ──────────────────────────────────────────── */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          {/* ── BOTTOM NAV ─────────────────────────────────────────── */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link
               href="/browse"
               className={cn(
-                "inline-flex items-center justify-center gap-2",
-                "rounded-xl border border-[#2a2a3e] bg-[#0d0d14]",
+                "inline-flex items-center justify-center gap-2 rounded-xl",
+                "border border-[#1e1e2a] bg-[#0b0b14]",
                 "px-5 py-3 font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.18em]",
-                "text-[#888899] transition-colors hover:border-[#e8453c]/45 hover:text-[#F5F5F0]",
+                "text-[#888899] transition-colors hover:border-[#2a2a3e] hover:text-[#F5F5F0]",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
               )}
             >
@@ -435,28 +407,57 @@ export default async function FilmPage({
   );
 }
 
-// ── FilmStripDivider ──────────────────────────────────────────────────────────
+// ── StatBox — identical to home page FilmCard ─────────────────────────────────
 
-function FilmStripDivider({ className }: { className?: string }) {
+function StatBox({ label, value }: { label: string; value: string }) {
   return (
-    <div className={cn("flex items-center gap-3", className)} aria-hidden>
-      <div className="flex shrink-0 items-center gap-[3px]">
-        {Array.from({ length: 10 }).map((_, i) => (
+    <div className="flex flex-col gap-1 rounded-lg border border-[#1e1e2a] bg-[#0d0d1a] px-3 py-2.5">
+      <span className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-widest text-[#444458]">
+        {label}
+      </span>
+      <span className="font-[family-name:var(--font-geist-mono)] text-base font-bold text-[#F5F5F0]">
+        {value}
+      </span>
+    </div>
+  );
+}
+
+// ── FilmStrip ─────────────────────────────────────────────────────────────────
+
+function FilmStrip({ className }: { className?: string }) {
+  return (
+    <div className={cn("flex shrink-0 items-center", className)} aria-hidden>
+      <div className="flex h-5 shrink-0 items-center gap-[4px] border-y border-[#111120] bg-[#060610] px-2">
+        {Array.from({ length: 9 }).map((_, i) => (
           <div
             key={i}
-            className="h-[9px] w-[6px] rounded-[1px] bg-[#1a1a28]"
+            className="h-[10px] w-[7px] shrink-0 rounded-[2px] bg-[#111120]"
           />
         ))}
       </div>
+      <div className="h-px flex-1 bg-[#111120]" />
+      <div className="flex h-5 shrink-0 items-center gap-[4px] border-y border-[#111120] bg-[#060610] px-2">
+        {Array.from({ length: 9 }).map((_, i) => (
+          <div
+            key={i}
+            className="h-[10px] w-[7px] shrink-0 rounded-[2px] bg-[#111120]"
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── ChannelLabel — matches home page roll history / FilmCard style ────────────
+
+function ChannelLabel({ children }: { children: ReactNode }) {
+  return (
+    <div className="mb-4 flex items-center gap-3">
+      <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-[#e8453c]/22 bg-[#e8453c]/10 px-3 py-1 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#e8453c]">
+        <Trophy className="h-3 w-3" aria-hidden />
+        {children}
+      </span>
       <div className="h-px flex-1 bg-[#1a1a28]" />
-      <div className="flex shrink-0 items-center gap-[3px]">
-        {Array.from({ length: 10 }).map((_, i) => (
-          <div
-            key={i}
-            className="h-[9px] w-[6px] rounded-[1px] bg-[#1a1a28]"
-          />
-        ))}
-      </div>
     </div>
   );
 }
@@ -465,7 +466,7 @@ function FilmStripDivider({ className }: { className?: string }) {
 
 function SectionLabel({ children }: { children: ReactNode }) {
   return (
-    <div className="mb-4 flex items-center gap-2.5">
+    <div className="mb-3 flex items-center gap-2.5">
       <h2 className="flex shrink-0 items-center gap-1.5 font-[family-name:var(--font-geist-mono)] text-[9px] font-bold uppercase tracking-[0.28em] text-[#888899]">
         {children}
       </h2>
@@ -474,43 +475,9 @@ function SectionLabel({ children }: { children: ReactNode }) {
   );
 }
 
-// ── CastAvatar ────────────────────────────────────────────────────────────────
+// ── CeremonyPanel ─────────────────────────────────────────────────────────────
 
-function CastAvatar({
-  name,
-  accentColor,
-}: {
-  name: string;
-  accentColor: string;
-}) {
-  const parts = name.trim().split(/\s+/);
-  const initials =
-    parts.length >= 2
-      ? `${parts[0]?.[0] ?? ""}${parts[parts.length - 1]?.[0] ?? ""}`.toUpperCase()
-      : name.slice(0, 2).toUpperCase();
-
-  return (
-    <div className="flex shrink-0 flex-col items-center gap-2 w-16">
-      <div
-        className="flex h-12 w-12 items-center justify-center rounded-full border font-[family-name:var(--font-geist-mono)] text-xs font-bold"
-        style={{
-          background: `color-mix(in srgb, ${accentColor} 12%, #111118)`,
-          borderColor: `color-mix(in srgb, ${accentColor} 28%, #2a2a3e)`,
-          color: accentColor,
-        }}
-      >
-        {initials}
-      </div>
-      <p className="w-full text-center font-[family-name:var(--font-geist-mono)] text-[0.6rem] leading-tight text-[#555568] line-clamp-2">
-        {name}
-      </p>
-    </div>
-  );
-}
-
-// ── AwardSection ──────────────────────────────────────────────────────────────
-
-function AwardSection({
+function CeremonyPanel({
   title,
   icon,
   wins,
@@ -526,93 +493,122 @@ function AwardSection({
   const AwardIcon =
     icon === "globe" ? Star : icon === "cannes" ? Clapperboard : Trophy;
 
+  const sorted = [...records].sort(
+    (a, b) =>
+      (b.won ? 1 : 0) - (a.won ? 1 : 0) ||
+      a.awardYear - b.awardYear ||
+      a.category.localeCompare(b.category),
+  );
+
   return (
-    <div className="overflow-hidden rounded-lg border border-[#1e1e2a] bg-[#0d0d14]">
-      {/* Ceremony header */}
-      <div className="flex items-center justify-between gap-3 border-b border-[#1e1e2a] px-4 py-3">
-        <div className="flex items-center gap-2.5 min-w-0">
-          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded border border-[color:color-mix(in_srgb,var(--film-accent)_28%,#2a2a3e)] bg-[color:color-mix(in_srgb,var(--film-accent)_8%,#09090f)]">
-            <AwardIcon
-              className="h-3.5 w-3.5 text-[var(--film-accent)]"
-              aria-hidden
-            />
-          </span>
-          <h3 className="font-[family-name:var(--font-display)] text-base font-semibold leading-none text-[#F5F5F0] truncate">
+    <div className="flex flex-col gap-4 p-5">
+      {/* Header */}
+      <div className="flex items-center gap-2.5">
+        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-[#1e1e2a] bg-[#09090f]">
+          <AwardIcon className="h-3.5 w-3.5 text-[#D4AF37]" aria-hidden />
+        </span>
+        <div className="min-w-0">
+          <h3 className="font-[family-name:var(--font-display)] text-sm font-semibold leading-none text-[#F5F5F0]">
             {title}
           </h3>
         </div>
-        <div className="shrink-0 text-right">
-          <span className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[var(--film-accent)]">
-            {wins}W
+      </div>
+
+      {/* Big win number */}
+      <div className="flex items-baseline gap-2">
+        <span
+          className={cn(
+            "font-[family-name:var(--font-geist-mono)] text-5xl font-bold leading-none tabular-nums",
+            wins > 0 ? "text-[#D4AF37]" : "text-[#2a2a3e]",
+          )}
+        >
+          {wins}
+        </span>
+        <div className="flex flex-col pb-0.5">
+          <span
+            className={cn(
+              "font-[family-name:var(--font-geist-mono)] text-[8px] font-bold uppercase tracking-[0.22em]",
+              wins > 0 ? "text-[#D4AF37]" : "text-[#444458]",
+            )}
+          >
+            {wins === 1 ? "Win" : "Wins"}
           </span>
-          <span className="font-[family-name:var(--font-geist-mono)] text-[9px] text-[#2a2a3e] mx-1">
-            ·
-          </span>
-          <span className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#888899]">
-            {nominations}N
+          <span className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-widest text-[#444458]">
+            / {nominations} noms
           </span>
         </div>
       </div>
 
-      {/* Individual records */}
-      {records.length > 0 && (
-        <div className="divide-y divide-[#111118]">
-          {records
-            .slice()
-            .sort(
-              (a, b) =>
-                a.awardYear - b.awardYear ||
-                (b.won ? 1 : 0) - (a.won ? 1 : 0) ||
-                a.category.localeCompare(b.category),
-            )
-            .map((r, i) => (
+      {/* Category rows */}
+      {sorted.length > 0 && (
+        <div className="flex flex-col gap-2 border-t border-[#1a1a28] pt-4">
+          {sorted.map((r, i) => (
+            <div key={i} className="flex items-start gap-2">
               <div
-                key={i}
                 className={cn(
-                  "flex items-start gap-3 px-4 py-3",
-                  r.won &&
-                    "bg-[color:color-mix(in_srgb,var(--film-accent)_5%,transparent)]",
+                  "mt-[5px] h-1.5 w-1.5 shrink-0 rounded-full",
+                  r.won ? "bg-[#D4AF37]" : "bg-[#2a2a3e]",
                 )}
-              >
-                <div
+              />
+              <div className="min-w-0 flex-1">
+                <p
                   className={cn(
-                    "mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full",
-                    r.won ? "bg-[var(--film-accent)]" : "bg-[#2a2a3e]",
+                    "text-xs font-medium leading-tight",
+                    r.won ? "text-[#D4AF37]" : "text-[#888899]",
                   )}
-                />
-                <div className="min-w-0 flex-1">
-                  <p
-                    className={cn(
-                      "text-xs font-semibold leading-tight",
-                      r.won ? "text-[var(--film-accent)]" : "text-[#888899]",
-                    )}
-                  >
-                    {r.category}
+                >
+                  {r.category}
+                </p>
+                {r.nominee && (
+                  <p className="mt-0.5 font-[family-name:var(--font-geist-mono)] text-[0.6rem] leading-tight text-[#555568]">
+                    {r.nominee}
                   </p>
-                  {r.nominee && (
-                    <p className="mt-0.5 font-[family-name:var(--font-geist-mono)] text-[0.6rem] text-[#555568]">
-                      {r.nominee}
-                    </p>
-                  )}
-                </div>
-                <div className="shrink-0 flex flex-col items-end gap-0.5">
-                  <span
-                    className={cn(
-                      "rounded-full px-1.5 py-0.5 font-[family-name:var(--font-geist-mono)] text-[0.55rem] font-bold uppercase tracking-[0.12em]",
-                      r.won
-                        ? "bg-[var(--film-accent)] text-[#09090f]"
-                        : "border border-[#2a2a3e] text-[#444458]",
-                    )}
-                  >
-                    {r.won ? "Won" : "Nom"}
-                  </span>
-                  <span className="font-[family-name:var(--font-geist-mono)] text-[0.55rem] text-[#2a2a3e] tabular-nums">
-                    {r.awardYear}
-                  </span>
-                </div>
+                )}
               </div>
-            ))}
+              <div className="shrink-0 flex items-center gap-1 mt-0.5">
+                {r.won && (
+                  <span className="rounded-full bg-[#D4AF37] px-1.5 py-0.5 font-[family-name:var(--font-geist-mono)] text-[0.55rem] font-bold uppercase tracking-[0.12em] text-[#09090f]">
+                    Won
+                  </span>
+                )}
+                <span className="font-[family-name:var(--font-geist-mono)] text-[0.6rem] tabular-nums text-[#333348]">
+                  {r.awardYear}
+                </span>
+              </div>
+            </div>
+          ))}
         </div>
+      )}
+    </div>
+  );
+}
+
+// ── CastItem ──────────────────────────────────────────────────────────────────
+
+function CastItem({ name, index }: { name: string; index: number }) {
+  const parts = name.trim().split(/\s+/);
+  const initials =
+    parts.length >= 2
+      ? `${parts[0]?.[0] ?? ""}${parts[parts.length - 1]?.[0] ?? ""}`.toUpperCase()
+      : name.slice(0, 2).toUpperCase();
+
+  return (
+    <div className="flex items-center gap-2.5 rounded-lg border border-[#1a1a28] bg-[#0b0b14] px-3 py-2">
+      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[#2a2a3e] bg-[#111118] font-[family-name:var(--font-geist-mono)] text-[9px] font-bold text-[#555568]">
+        {initials}
+      </div>
+      <span
+        className={cn(
+          "min-w-0 flex-1 truncate text-sm",
+          index === 0 ? "font-medium text-[#F5F5F0]" : "text-[#a6a6b5]",
+        )}
+      >
+        {name}
+      </span>
+      {index === 0 && (
+        <span className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[7px] font-bold uppercase tracking-[0.2em] text-[#444458]">
+          Lead
+        </span>
       )}
     </div>
   );
