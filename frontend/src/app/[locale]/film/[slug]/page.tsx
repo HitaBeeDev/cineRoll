@@ -324,7 +324,7 @@ export default async function FilmPage({
           <div className="relative mx-auto flex max-w-5xl flex-col gap-14">
 
             {/* ── HEADER ─────────────────────────────────────────────── */}
-            <header className="pt-4 lg:pt-8">
+            <header>
               {/* Year · Runtime centered in a decorative rule */}
               <div className="mb-8 flex items-center gap-5">
                 <div
