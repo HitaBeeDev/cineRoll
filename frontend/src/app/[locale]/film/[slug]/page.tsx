@@ -312,7 +312,7 @@ export default async function FilmPage({
 
         <section
           id="details"
-          className="relative min-w-0 scroll-mt-24 px-5 py-10 sm:px-8 lg:ml-[41.666667%] lg:w-[58.333333%] lg:px-12 lg:py-14 xl:px-16"
+          className="relative min-w-0 scroll-mt-24 px-5 py-10 sm:px-7 lg:ml-[41.666667%] lg:w-[58.333333%] lg:px-10 lg:py-12 xl:px-12"
         >
           <div
             className="pointer-events-none absolute inset-0 opacity-55"
