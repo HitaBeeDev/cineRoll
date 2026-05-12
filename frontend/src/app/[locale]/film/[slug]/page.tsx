@@ -184,12 +184,12 @@ export default async function FilmPage({
       style={accentStyle}
     >
       <AppHeader />
-      <div className="grid min-h-[calc(100vh-4rem)] lg:grid-cols-[minmax(360px,480px)_1fr] xl:grid-cols-[500px_1fr]">
-        <aside className="border-b border-[#20202d] bg-[#08080d] px-4 py-6 sm:px-6 lg:sticky lg:top-16 lg:h-[calc(100vh-4rem)] lg:overflow-y-auto lg:border-b-0 lg:border-r lg:px-7 lg:py-8">
+      <div className="grid min-h-[calc(100vh-4rem)] lg:grid-cols-12">
+        <aside className="border-b border-[#20202d] bg-[#08080d] px-4 py-6 sm:px-6 lg:sticky lg:top-16 lg:col-span-5 lg:h-[calc(100vh-4rem)] lg:overflow-y-auto lg:border-b-0 lg:border-r lg:p-4">
           <div className="flex flex-col">
             <div className="-mx-1 -mt-1 mb-2 flex items-center">
-              <span className="inline-flex items-center rounded-full border border-[#e8453c]/22 bg-[#e8453c]/10 px-3 py-1 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#e8453c]">
-                Reel // {film.title.toUpperCase().slice(0, 11)}
+              <span className="inline-flex max-w-full items-center rounded-full border border-[#e8453c]/22 bg-[#e8453c]/10 px-3 py-1 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#e8453c]">
+                Reel // {film.title.toUpperCase()}
               </span>
             </div>
 
@@ -275,18 +275,10 @@ export default async function FilmPage({
               )}
 
               <div className="mt-1 flex items-center gap-2">
-                <Link
-                  href="#details"
-                  className={cn(
-                    "flex flex-1 items-center justify-center rounded-xl py-3",
-                    "bg-[#e8453c] text-[#F5F5F0]",
-                    "font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.2em]",
-                    "transition-colors hover:bg-[#d5342b]",
-                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
-                  )}
-                >
-                  View Full Details
-                </Link>
+                <RollAgainButton className="h-12 flex-1 rounded-xl font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.2em]" />
+              </div>
+
+              <div className="flex items-center gap-2 pt-1">
                 <DetailActionButton>
                   <span className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest">
                     Watched
@@ -300,13 +292,9 @@ export default async function FilmPage({
                 <DetailActionButton aria-label="Share this film">
                   <Share2 className="h-4 w-4" aria-hidden />
                 </DetailActionButton>
-              </div>
-
-              <div className="flex items-center justify-between gap-3 pt-1">
-                <RollAgainButton className="h-11 flex-1 rounded-xl font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.2em]" />
                 <Link
                   href="/browse"
-                  className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-[#1e1e2a] px-3 font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.16em] text-[#66667a] transition-colors hover:border-[#2a2a3e] hover:text-[#F5F5F0]"
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-[#1e1e2a] px-3 font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.16em] text-[#66667a] transition-colors hover:border-[#2a2a3e] hover:text-[#F5F5F0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
                 >
                   <ArrowLeft className="h-3.5 w-3.5" aria-hidden />
                   Browse
@@ -316,7 +304,7 @@ export default async function FilmPage({
           </div>
         </aside>
 
-        <section id="details" className="relative min-w-0 scroll-mt-24 px-5 py-10 sm:px-8 lg:px-12 lg:py-14 xl:px-16">
+        <section id="details" className="relative min-w-0 scroll-mt-24 px-5 py-10 sm:px-8 lg:col-span-7 lg:px-12 lg:py-14 xl:px-16">
           <div
             className="pointer-events-none absolute inset-0 opacity-55"
             style={{
