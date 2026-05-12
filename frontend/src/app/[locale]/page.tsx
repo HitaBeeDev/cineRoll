@@ -356,7 +356,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-[#09090f] text-[#F5F5F0]">
+    <div className="isolate flex flex-col h-screen overflow-hidden bg-[#09090f] text-[#F5F5F0]">
       <AppHeader />
 
       {/* ── Two-column body ─────────────────────────────────────────── */}
@@ -755,7 +755,7 @@ function RollHistoryDrawer({
                       </div>
 
                       {/* Content */}
-                      <div className="flex flex-1 min-w-0 items-center gap-3 pl-2 pr-4">
+                      <div className="flex flex-1 min-w-0 items-center pl-2 pr-5">
                         <div className="min-w-0 flex-1">
                           <p className="font-[family-name:var(--font-geist-mono)] text-[7.5px] font-bold uppercase tracking-[0.34em] text-[#e8453c]/50 mb-1.5">
                             Roll {String(index + 1).padStart(2, "0")}
@@ -766,18 +766,6 @@ function RollHistoryDrawer({
                           <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.24em] text-[#252535]">
                             {film.year}
                           </p>
-                        </div>
-
-                        {/* Arrow button */}
-                        <div
-                          className={cn(
-                            "shrink-0 flex h-7 w-7 items-center justify-center",
-                            "border border-[#1a1a28] text-[#252535]",
-                            "transition-all duration-200",
-                            "group-hover:border-[#e8453c] group-hover:bg-[#e8453c] group-hover:text-white",
-                          )}
-                        >
-                          <ArrowUpRight className="h-3 w-3" aria-hidden />
                         </div>
                       </div>
                     </Link>
