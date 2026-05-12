@@ -111,7 +111,6 @@ export default async function FilmPage({
   const hasAwards = totalAwardNoms > 0;
   const accent = film.posterColor ?? FALLBACK_ACCENT;
   const formattedRuntime = formatRuntime(film.runtime);
-  const primaryGenre = film.genres[0] ?? null;
   const sidebarImageUrl = film.backdropUrl ?? film.posterUrl;
   const sidebarAwardTags = [
     film.imdbTopMovieRank !== null
@@ -215,9 +214,7 @@ export default async function FilmPage({
 
             <div className="flex flex-col gap-2 p-4">
               <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.2em] text-[#888899]">
-                {film.year}
-                {formattedRuntime && ` · ${formattedRuntime}`}
-                {primaryGenre && ` · ${primaryGenre}`}
+                {film.genres.length > 0 ? film.genres.join(" · ") : "Genres unavailable"}
               </p>
 
               <div className="mt-1 flex items-start justify-between gap-3">
