@@ -1,17 +1,14 @@
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import type { CSSProperties, ReactNode } from "react";
+import type { ButtonHTMLAttributes, CSSProperties, ReactNode } from "react";
 import {
   ArrowLeft,
-  Star,
-  Trophy,
+  Bookmark,
   ExternalLink,
-  Clapperboard,
   Users,
   Award,
-  Gauge,
-  RefreshCw,
+  Share2,
 } from "lucide-react";
 import type { Film, AwardRecord } from "@cineroll/types";
 import { cn } from "@/lib/utils";
@@ -114,6 +111,32 @@ export default async function FilmPage({
   const hasAwards = totalAwardNoms > 0;
   const accent = film.posterColor ?? FALLBACK_ACCENT;
   const formattedRuntime = formatRuntime(film.runtime);
+  const primaryGenre = film.genres[0] ?? null;
+  const sidebarImageUrl = film.backdropUrl ?? film.posterUrl;
+  const sidebarAwardTags = [
+    film.imdbTopMovieRank !== null
+      ? `IMDb Top 250 Movies #${film.imdbTopMovieRank}`
+      : null,
+    film.imdbTopTvRank !== null ? `IMDb Top 250 TV #${film.imdbTopTvRank}` : null,
+    film.oscarWins > 0
+      ? `+ ${film.oscarWins} Oscar ${film.oscarWins === 1 ? "Win" : "Wins"}`
+      : null,
+    film.oscarNominations > film.oscarWins
+      ? `+ ${film.oscarNominations} Oscar Nom${film.oscarNominations === 1 ? "" : "s"}`
+      : null,
+    film.ggWins > 0
+      ? `+ ${film.ggWins} GG ${film.ggWins === 1 ? "Win" : "Wins"}`
+      : null,
+    film.ggNominations > film.ggWins
+      ? `+ ${film.ggNominations} GG Nom${film.ggNominations === 1 ? "" : "s"}`
+      : null,
+    film.cannesWins > 0
+      ? `+ ${film.cannesWins} Cannes ${film.cannesWins === 1 ? "Win" : "Wins"}`
+      : null,
+    film.cannesNominations > film.cannesWins
+      ? `+ ${film.cannesNominations} Cannes Nom${film.cannesNominations === 1 ? "" : "s"}`
+      : null,
+  ].filter(Boolean) as string[];
 
   const accentStyle = {
     "--film-accent": accent,
@@ -161,84 +184,139 @@ export default async function FilmPage({
       style={accentStyle}
     >
       <AppHeader />
-      <div className="grid min-h-[calc(100vh-4rem)] lg:grid-cols-[minmax(320px,400px)_1fr] xl:grid-cols-[420px_1fr]">
-        <aside className="border-b border-[#20202d] bg-[#08080d] px-5 py-7 sm:px-8 lg:sticky lg:top-16 lg:h-[calc(100vh-4rem)] lg:border-b-0 lg:border-r lg:px-9 lg:py-10">
-          <div className="flex flex-col gap-7">
-            <div className="relative aspect-[2/3] w-full overflow-hidden rounded border border-[#20202d] bg-[#0d0d14] shadow-[0_30px_90px_rgba(0,0,0,0.5)]">
-              {film.posterUrl ? (
+      <div className="grid min-h-[calc(100vh-4rem)] lg:grid-cols-[minmax(360px,480px)_1fr] xl:grid-cols-[500px_1fr]">
+        <aside className="border-b border-[#20202d] bg-[#08080d] px-4 py-6 sm:px-6 lg:sticky lg:top-16 lg:h-[calc(100vh-4rem)] lg:overflow-y-auto lg:border-b-0 lg:border-r lg:px-7 lg:py-8">
+          <div className="flex flex-col">
+            <div className="-mx-1 -mt-1 mb-2 flex items-center">
+              <span className="inline-flex items-center rounded-full border border-[#e8453c]/22 bg-[#e8453c]/10 px-3 py-1 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#e8453c]">
+                Reel // {film.title.toUpperCase().slice(0, 11)}
+              </span>
+            </div>
+
+            <div className="relative aspect-video w-full overflow-hidden border border-[#171724] bg-[#0d0d14]">
+              {sidebarImageUrl ? (
                 <Image
-                  src={film.posterUrl}
-                  alt={`${film.title} poster`}
+                  src={sidebarImageUrl}
+                  alt={film.title}
                   fill
-                  sizes="(max-width: 1024px) 90vw, 360px"
+                  sizes="(max-width: 1024px) 100vw, 500px"
                   className="object-cover"
                   priority
                 />
               ) : (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <Clapperboard className="h-10 w-10 text-[#343445]" aria-hidden />
+                <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[#1a1a2e] to-[#0a0a18]">
+                  <span className="font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-widest text-[#888899]">
+                    No image
+                  </span>
                 </div>
               )}
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#09090f]/55 to-transparent" />
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <StatBox
-                icon={<Star className="h-3.5 w-3.5" aria-hidden />}
-                label="IMDb"
-                value={film.imdbRating != null ? film.imdbRating.toFixed(1) : "—"}
-                highlight={film.imdbRating != null && film.imdbRating >= 8.0}
-              />
-              <StatBox
-                icon={<Award className="h-3.5 w-3.5" aria-hidden />}
-                label="Awards"
-                value={
-                  totalAwardWins > 0
-                    ? `${totalAwardWins}W`
-                    : totalAwardNoms > 0
-                      ? `${totalAwardNoms}N`
-                      : "—"
-                }
-                highlight={totalAwardWins > 0}
-              />
-              {film.rtScore != null && (
-                <StatBox
-                  icon={<Gauge className="h-3.5 w-3.5" aria-hidden />}
+            <div className="flex flex-col gap-2 p-4">
+              <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.2em] text-[#888899]">
+                {film.year}
+                {formattedRuntime && ` · ${formattedRuntime}`}
+                {primaryGenre && ` · ${primaryGenre}`}
+              </p>
+
+              <div className="mt-1 flex items-start justify-between gap-3">
+                <h2 className="font-[family-name:var(--font-display)] text-xl font-bold leading-tight text-[#F5F5F0] sm:text-2xl">
+                  {film.title}
+                </h2>
+                <button
+                  type="button"
+                  aria-label="Add to watchlist"
+                  className="mt-0.5 shrink-0 text-[#555568] transition-colors hover:text-[#e8453c] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
+                >
+                  <Bookmark className="h-5 w-5" aria-hidden />
+                </button>
+              </div>
+
+              {film.director && (
+                <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.2em] text-[#888899]">
+                  Dir. {film.director}
+                </p>
+              )}
+
+              {film.plot && (
+                <p className="line-clamp-3 text-xs leading-relaxed text-[#888899]">
+                  {film.plot}
+                </p>
+              )}
+
+              <div className="mt-2 grid grid-cols-3 gap-2">
+                <HomeStyleStatBox
+                  label="IMDb"
+                  value={film.imdbRating != null ? film.imdbRating.toFixed(1) : "—"}
+                />
+                <HomeStyleStatBox
                   label="RT"
-                  value={`${film.rtScore}%`}
-                  highlight={film.rtScore >= 85}
+                  value={film.rtScore != null ? `${film.rtScore}%` : "—"}
                 />
-              )}
-              {film.imdbTopMovieRank !== null && (
-                <StatBox
-                  icon={<Trophy className="h-3.5 w-3.5" aria-hidden />}
-                  label="Top 250"
-                  value={`#${film.imdbTopMovieRank}`}
-                  highlight
+                <HomeStyleStatBox
+                  label="Awards"
+                  value={
+                    totalAwardWins > 0
+                      ? `${totalAwardWins}W`
+                      : totalAwardNoms > 0
+                        ? `${totalAwardNoms}N`
+                        : "—"
+                  }
                 />
-              )}
-            </div>
+              </div>
 
-            <div className="flex flex-col gap-3">
-              <RollAgainButton className="h-14 w-full rounded bg-[#ef3347] text-sm font-bold uppercase tracking-[0.14em] text-white shadow-[0_18px_42px_rgba(239,51,71,0.2)] hover:bg-[#ff4558]" />
-              <Link
-                href="/"
-                className="inline-flex h-14 items-center justify-center gap-3 rounded border border-[#20202d] bg-transparent font-[family-name:var(--font-geist-mono)] text-sm font-bold uppercase tracking-[0.14em] text-[#f4f4f5] transition-colors hover:border-[#ff4558]/55 hover:text-[#ff4558]"
-              >
-                <RefreshCw className="h-4 w-4" aria-hidden />
-                Roll Another
-              </Link>
-              <Link
-                href="/browse"
-                className="inline-flex items-center justify-center gap-2 pt-1 font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.22em] text-[#777787] transition-colors hover:text-[#f4f4f5]"
-              >
-                <ArrowLeft className="h-3.5 w-3.5" aria-hidden />
-                Back to Browse
-              </Link>
+              {sidebarAwardTags.length > 0 && (
+                <div className="flex flex-wrap gap-1.5">
+                  {sidebarAwardTags.map((tag) => (
+                    <DetailAwardTag key={tag}>{tag}</DetailAwardTag>
+                  ))}
+                </div>
+              )}
+
+              <div className="mt-1 flex items-center gap-2">
+                <Link
+                  href="#details"
+                  className={cn(
+                    "flex flex-1 items-center justify-center rounded-xl py-3",
+                    "bg-[#e8453c] text-[#F5F5F0]",
+                    "font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.2em]",
+                    "transition-colors hover:bg-[#d5342b]",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
+                  )}
+                >
+                  View Full Details
+                </Link>
+                <DetailActionButton>
+                  <span className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest">
+                    Watched
+                  </span>
+                </DetailActionButton>
+                <DetailActionButton>
+                  <span className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest">
+                    Pass
+                  </span>
+                </DetailActionButton>
+                <DetailActionButton aria-label="Share this film">
+                  <Share2 className="h-4 w-4" aria-hidden />
+                </DetailActionButton>
+              </div>
+
+              <div className="flex items-center justify-between gap-3 pt-1">
+                <RollAgainButton className="h-11 flex-1 rounded-xl font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.2em]" />
+                <Link
+                  href="/browse"
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-[#1e1e2a] px-3 font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.16em] text-[#66667a] transition-colors hover:border-[#2a2a3e] hover:text-[#F5F5F0]"
+                >
+                  <ArrowLeft className="h-3.5 w-3.5" aria-hidden />
+                  Browse
+                </Link>
+              </div>
             </div>
           </div>
         </aside>
 
-        <section className="relative min-w-0 px-5 py-10 sm:px-8 lg:px-12 lg:py-14 xl:px-16">
+        <section id="details" className="relative min-w-0 scroll-mt-24 px-5 py-10 sm:px-8 lg:px-12 lg:py-14 xl:px-16">
           <div
             className="pointer-events-none absolute inset-0 opacity-55"
             style={{
@@ -359,41 +437,46 @@ export default async function FilmPage({
   );
 }
 
-// ── StatBox ────────────────────────────────────────────────────────────────────
-
-function StatBox({
-  icon,
-  label,
-  value,
-  highlight = false,
-}: {
-  icon: ReactNode;
-  label: string;
-  value: string;
-  highlight?: boolean;
-}) {
+function HomeStyleStatBox({ label, value }: { label: string; value: string }) {
   return (
-    <div className={cn(
-      "flex min-h-20 flex-col justify-between border px-5 py-4 transition-colors",
-      highlight
-        ? "border-[#2a2a3a] bg-[#0b0b12] text-[#ff4558]"
-        : "border-[#20202d] bg-[#09090f] text-[#f4f4f5]",
-    )}>
-      <div className="flex items-center justify-between gap-2">
-        <span className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.2em] text-[#858596]">
-          {label}
-        </span>
-        <span className={cn("text-[#616174]", highlight && "text-[#ff4558]")}>
-          {icon}
-        </span>
-      </div>
-      <span className={cn(
-        "font-[family-name:var(--font-geist-mono)] text-2xl font-bold leading-none",
-        highlight ? "text-[#ff4558]" : "text-[#f4f4f5]",
-      )}>
+    <div className="flex flex-col gap-1 rounded-lg border border-[#1e1e2a] bg-[#0d0d1a] px-3 py-2.5">
+      <span className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-widest text-[#444458]">
+        {label}
+      </span>
+      <span className="font-[family-name:var(--font-geist-mono)] text-base font-bold text-[#F5F5F0]">
         {value}
       </span>
     </div>
+  );
+}
+
+function DetailAwardTag({ children }: { children: ReactNode }) {
+  return (
+    <span className="inline-flex items-center rounded-full border border-[#1e1e2a] px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#888899]">
+      {children}
+    </span>
+  );
+}
+
+function DetailActionButton({
+  children,
+  className,
+  ...props
+}: ButtonHTMLAttributes<HTMLButtonElement>) {
+  return (
+    <button
+      type="button"
+      className={cn(
+        "flex h-11 items-center justify-center rounded-xl px-3",
+        "border border-[#1e1e2a] text-[#555568]",
+        "transition-colors hover:border-[#2a2a3e] hover:text-[#F5F5F0]",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
+        className,
+      )}
+      {...props}
+    >
+      {children}
+    </button>
   );
 }
 
