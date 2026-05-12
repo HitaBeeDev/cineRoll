@@ -581,161 +581,221 @@ function RollHistoryDrawer({
     <AnimatePresence>
       {open && (
         <>
+          {/* Backdrop */}
           <motion.button
             type="button"
             aria-label="Close history"
-            className="fixed inset-0 z-[80] bg-black/70 backdrop-blur-md"
+            className="fixed inset-0 z-[80] bg-black/55 backdrop-blur-[2px]"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.18 }}
+            transition={{ duration: 0.22 }}
             onClick={onClose}
           />
+
           <motion.aside
             role="dialog"
             aria-modal="true"
             aria-labelledby="roll-history-title"
-            className="fixed right-0 top-0 z-[90] flex h-screen w-full max-w-[480px] flex-col overflow-hidden border-l border-[#2a1420] bg-[#06060b] text-[#F5F5F0] shadow-[0_0_100px_rgba(0,0,0,0.78)]"
+            className="fixed right-0 top-0 z-[90] flex h-screen w-full max-w-[440px] flex-col overflow-hidden bg-[#05050a] text-[#F5F5F0]"
+            style={{
+              boxShadow:
+                "-1px 0 0 rgba(232,69,60,0.12), -40px 0 120px rgba(0,0,0,0.98)",
+            }}
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
-            transition={{ type: "spring", stiffness: 320, damping: 34 }}
+            transition={{ type: "spring", stiffness: 340, damping: 36 }}
           >
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_10%,rgba(232,69,60,0.18),transparent_28%),radial-gradient(circle_at_92%_42%,rgba(212,175,55,0.12),transparent_30%),linear-gradient(180deg,rgba(17,17,27,0.82),rgba(6,6,11,0.96))]" />
-            <div className="pointer-events-none absolute inset-0 opacity-[0.05] [background-image:linear-gradient(rgba(245,245,240,0.65)_1px,transparent_1px),linear-gradient(90deg,rgba(245,245,240,0.65)_1px,transparent_1px)] [background-size:38px_38px]" />
+            {/* Atmospheric glows */}
+            <div
+              className="pointer-events-none absolute -left-24 -top-24 z-0 h-72 w-72 rounded-full bg-[#e8453c] opacity-[0.09] blur-[80px]"
+              aria-hidden
+            />
+            <div
+              className="pointer-events-none absolute bottom-0 right-0 z-0 h-56 w-56 rounded-full bg-[#D4AF37] opacity-[0.04] blur-[90px]"
+              aria-hidden
+            />
 
-            <header className="relative z-10 flex shrink-0 items-start justify-between border-b border-[#2a2a3e]/70 px-6 py-6">
-              <div className="min-w-0">
-                <p className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.28em] text-[#e8453c]">
-                  Session Reel
-                </p>
-                <h2
-                  id="roll-history-title"
-                  className="mt-2 font-[family-name:var(--font-display)] text-[2.75rem] font-bold leading-[0.86] tracking-tight"
-                >
-                  Roll
-                  <br />
-                  History
-                </h2>
-                <div className="mt-5 flex items-center gap-2">
-                  <span className="inline-flex items-center gap-2 rounded-full border border-[#e8453c]/30 bg-[#e8453c]/10 px-3 py-1 font-[family-name:var(--font-geist-mono)] text-[9px] font-bold uppercase tracking-[0.18em] text-[#F5F5F0]">
-                    <Film className="h-3.5 w-3.5 text-[#e8453c]" aria-hidden />
-                    {visibleHistory.length}/10 shown
-                  </span>
-                  <span className="hidden rounded-full border border-[#2a2a3e] bg-[#09090f]/70 px-3 py-1 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.18em] text-[#888899] sm:inline-flex">
-                    This tab only
-                  </span>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={onClose}
-                aria-label="Close history"
-                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-[#2a2a3e] bg-[#09090f]/75 text-[#888899] transition hover:border-[#e8453c]/45 hover:bg-[#11111b] hover:text-[#F5F5F0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
-              >
-                <X className="h-4 w-4" aria-hidden />
-              </button>
-            </header>
+            {/* Film strip — top */}
+            <div
+              className="relative z-20 flex shrink-0 items-center gap-[3px] bg-[#020206] px-3 py-[6px]"
+              aria-hidden
+            >
+              {Array.from({ length: 34 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="h-[7px] w-[6px] shrink-0 rounded-[1.5px] bg-[#0e0e18]"
+                />
+              ))}
+            </div>
 
-            <div className="relative z-10 flex-1 overflow-y-auto px-5 py-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              <div className="pointer-events-none mb-5 flex h-7 items-center justify-between rounded-sm bg-[#050508] px-2">
-                {Array.from({ length: 24 }).map((_, index) => (
-                  <span
-                    key={index}
-                    className="h-3 w-2 rounded-[2px] bg-[#1b1b27]"
-                  />
-                ))}
-              </div>
-              <div className="flex flex-col gap-4">
-                {visibleHistory.length === 0 ? (
-                  <div className="relative overflow-hidden border border-[#2a2a3e] bg-[#0b0b14]/90 px-5 py-8 shadow-[inset_0_0_40px_rgba(232,69,60,0.06)]">
-                    <div className="absolute -right-10 -top-10 h-28 w-28 rounded-full border border-[#e8453c]/20" />
-                    <div className="absolute -right-4 -top-4 h-16 w-16 rounded-full border border-[#D4AF37]/15" />
-                    <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-full border border-[#e8453c]/35 bg-[#e8453c]/10 text-[#e8453c]">
-                      <Dices className="h-6 w-6" aria-hidden />
-                    </div>
-                    <p className="font-[family-name:var(--font-display)] text-3xl font-bold leading-[0.95] tracking-tight text-[#F5F5F0]">
-                      Your reel is empty.
-                    </p>
-                    <p className="mt-3 max-w-[24rem] text-sm leading-6 text-[#a6a6b5]">
-                      Roll a film and this drawer turns into a fast, clickable
-                      trail of tonight&apos;s picks.
+            {/* Header */}
+            <header className="relative z-10 shrink-0 px-7 pt-7 pb-5">
+              <div className="flex items-start justify-between">
+                <div>
+                  {/* Eyebrow */}
+                  <div className="flex items-center gap-2 mb-4">
+                    <span className="block h-px w-7 bg-[#e8453c]" aria-hidden />
+                    <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.38em] text-[#e8453c]">
+                      Session Reel
                     </p>
                   </div>
-                ) : null}
-                {visibleHistory.map((film, index) => (
-                  <Link
-                    key={film.id}
-                    href={`/film/${film.slug}`}
-                    onClick={onClose}
-                    className={cn(
-                      "group relative grid grid-cols-[76px_1fr_auto] gap-4 overflow-hidden border border-[#27273a] bg-[#0b0b14]/92 p-3",
-                      "shadow-[0_18px_50px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(245,245,240,0.04)]",
-                      "transition duration-200 hover:-translate-y-0.5 hover:border-[#e8453c]/55 hover:bg-[#11111b] hover:shadow-[0_24px_70px_rgba(232,69,60,0.13)]",
-                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
-                    )}
+
+                  {/* Title */}
+                  <h2
+                    id="roll-history-title"
+                    className="font-[family-name:var(--font-display)] text-[3.4rem] font-bold leading-[0.86] tracking-tight"
                   >
-                    <div className="pointer-events-none absolute inset-x-0 top-0 flex h-3 items-center justify-between bg-[#050508] px-1.5">
-                      {Array.from({ length: 18 }).map((_, holeIndex) => (
-                        <span
-                          key={holeIndex}
-                          className="h-1.5 w-1.5 rounded-[1px] bg-[#20202e]"
-                        />
-                      ))}
+                    Roll
+                    <br />
+                    <span className="text-[#e8453c]">History</span>
+                  </h2>
+
+                  {/* Meta */}
+                  <div className="mt-5 flex items-center gap-2.5">
+                    <span className="inline-flex items-center gap-1.5 border border-[#e8453c]/22 bg-[#e8453c]/8 px-2.5 py-[5px] font-[family-name:var(--font-geist-mono)] text-[9px] font-bold uppercase tracking-[0.2em] text-[#F5F5F0]">
+                      <Film className="h-3 w-3 text-[#e8453c]" aria-hidden />
+                      {visibleHistory.length} / 10
+                    </span>
+                    <span className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.22em] text-[#252535]">
+                      This tab only
+                    </span>
+                  </div>
+                </div>
+
+                {/* Close */}
+                <button
+                  type="button"
+                  onClick={onClose}
+                  aria-label="Close history"
+                  className={cn(
+                    "mt-1 flex h-9 w-9 shrink-0 items-center justify-center",
+                    "border border-[#1a1a28] text-[#3a3a52]",
+                    "transition-all duration-150",
+                    "hover:border-[#e8453c]/50 hover:bg-[#e8453c]/8 hover:text-[#e8453c]",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
+                  )}
+                >
+                  <X className="h-3.5 w-3.5" aria-hidden />
+                </button>
+              </div>
+
+              {/* Divider */}
+              <div className="mt-6 flex items-center gap-3">
+                <div className="h-px flex-1 bg-gradient-to-r from-[#e8453c]/25 via-[#1a1a28] to-transparent" />
+                <span className="font-[family-name:var(--font-geist-mono)] text-[7.5px] uppercase tracking-[0.35em] text-[#1e1e30]">
+                  Tonight
+                </span>
+              </div>
+            </header>
+
+            {/* Scroll area */}
+            <div className="relative z-10 flex-1 overflow-y-auto pt-2 pb-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {visibleHistory.length === 0 ? (
+                /* Empty state */
+                <div className="flex flex-col items-center justify-center min-h-[300px] px-8 text-center">
+                  <div className="relative mb-6">
+                    <div className="h-[72px] w-[72px] rounded-full border border-[#e8453c]/15 bg-[#e8453c]/5 flex items-center justify-center shadow-[0_0_50px_rgba(232,69,60,0.1)]">
+                      <Dices className="h-7 w-7 text-[#e8453c]/40" aria-hidden />
                     </div>
-                    <div className="pointer-events-none absolute inset-x-0 bottom-0 flex h-3 items-center justify-between bg-[#050508] px-1.5">
-                      {Array.from({ length: 18 }).map((_, holeIndex) => (
-                        <span
-                          key={holeIndex}
-                          className="h-1.5 w-1.5 rounded-[1px] bg-[#20202e]"
-                        />
-                      ))}
-                    </div>
-                    <div
-                      className="relative mt-3 overflow-hidden border border-[#303045] bg-[#111120]"
-                      style={{ aspectRatio: "2/3" }}
-                    >
-                      {film.posterUrl ? (
-                        <Image
-                          src={film.posterUrl}
-                          alt={`${film.title} poster`}
-                          fill
-                          sizes="54px"
-                          className="object-cover"
-                        />
-                      ) : (
-                        <div className="absolute inset-0 flex items-center justify-center px-1 text-center">
-                          <span className="font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-wider text-[#555568]">
-                            No poster
-                          </span>
-                        </div>
+                    <div className="absolute inset-0 rounded-full border border-[#e8453c]/6 scale-[1.35]" />
+                  </div>
+                  <p className="font-[family-name:var(--font-display)] text-[1.9rem] font-bold leading-[0.93] tracking-tight text-[#F5F5F0]">
+                    Your reel<br />is empty.
+                  </p>
+                  <p className="mt-3 text-xs leading-6 text-[#383850] max-w-[22ch]">
+                    Roll a film — it shows up here as a fast, clickable trail.
+                  </p>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-[2px] px-4">
+                  {visibleHistory.map((film, index) => (
+                    <Link
+                      key={film.id}
+                      href={`/film/${film.slug}`}
+                      onClick={onClose}
+                      className={cn(
+                        "group relative flex h-[90px] overflow-hidden",
+                        "border border-[#0f0f1a] bg-[#080812]",
+                        "transition-all duration-200",
+                        "hover:border-[#e8453c]/28 hover:bg-[#0c0c16]",
+                        "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#e8453c] focus-visible:ring-inset",
                       )}
-                    </div>
-                    <div className="min-w-0 self-center py-4">
-                      <p className="font-[family-name:var(--font-geist-mono)] text-[8px] font-bold uppercase tracking-[0.24em] text-[#e8453c]">
-                        Roll {String(index + 1).padStart(2, "0")}
-                      </p>
-                      <p className="mt-2 line-clamp-2 font-[family-name:var(--font-display)] text-xl font-bold leading-[0.95] text-[#F5F5F0]">
-                        {film.title}
-                      </p>
-                      <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.18em] text-[#888899]">
-                        {film.year}
-                      </p>
-                    </div>
-                    <div className="mr-1 mt-3 flex h-9 w-9 items-center justify-center self-center rounded-full border border-[#2a2a3e] bg-[#09090f]/75 text-[#888899] transition group-hover:border-[#e8453c]/60 group-hover:bg-[#e8453c] group-hover:text-[#F5F5F0]">
-                      <ArrowUpRight className="h-3.5 w-3.5" aria-hidden />
-                    </div>
-                  </Link>
-                ))}
-              </div>
-              <div className="pointer-events-none mt-5 flex h-7 items-center justify-between rounded-sm bg-[#050508] px-2">
-                {Array.from({ length: 24 }).map((_, index) => (
-                  <span
-                    key={index}
-                    className="h-3 w-2 rounded-[2px] bg-[#1b1b27]"
-                  />
-                ))}
-              </div>
+                    >
+                      {/* Giant ghost number watermark */}
+                      <span
+                        className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 select-none font-[family-name:var(--font-display)] font-bold leading-none text-[#0c0c18] transition-colors duration-200 group-hover:text-[#100f1e]"
+                        style={{ fontSize: "5rem" }}
+                        aria-hidden
+                      >
+                        {String(index + 1).padStart(2, "0")}
+                      </span>
+
+                      {/* Poster */}
+                      <div className="relative w-[60px] shrink-0 overflow-hidden">
+                        {film.posterUrl ? (
+                          <Image
+                            src={film.posterUrl}
+                            alt={`${film.title} poster`}
+                            fill
+                            sizes="60px"
+                            className="object-cover transition-transform duration-500 group-hover:scale-[1.07]"
+                          />
+                        ) : (
+                          <div className="absolute inset-0 flex items-center justify-center bg-[#0f0f1c]">
+                            <span className="font-[family-name:var(--font-geist-mono)] text-[6px] uppercase tracking-wider text-[#1e1e30]">
+                              —
+                            </span>
+                          </div>
+                        )}
+                        {/* Feather blend into card bg */}
+                        <div className="absolute inset-y-0 right-0 w-14 bg-gradient-to-r from-transparent to-[#080812] transition-colors duration-200 group-hover:to-[#0c0c16]" />
+                      </div>
+
+                      {/* Content */}
+                      <div className="flex flex-1 min-w-0 items-center gap-3 pl-2 pr-4">
+                        <div className="min-w-0 flex-1">
+                          <p className="font-[family-name:var(--font-geist-mono)] text-[7.5px] font-bold uppercase tracking-[0.34em] text-[#e8453c]/50 mb-1.5">
+                            Roll {String(index + 1).padStart(2, "0")}
+                          </p>
+                          <p className="font-[family-name:var(--font-display)] text-[1.05rem] font-bold leading-[1.15] text-[#F5F5F0] line-clamp-2 transition-colors duration-150 group-hover:text-white">
+                            {film.title}
+                          </p>
+                          <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.24em] text-[#252535]">
+                            {film.year}
+                          </p>
+                        </div>
+
+                        {/* Arrow button */}
+                        <div
+                          className={cn(
+                            "shrink-0 flex h-7 w-7 items-center justify-center",
+                            "border border-[#1a1a28] text-[#252535]",
+                            "transition-all duration-200",
+                            "group-hover:border-[#e8453c] group-hover:bg-[#e8453c] group-hover:text-white",
+                          )}
+                        >
+                          <ArrowUpRight className="h-3 w-3" aria-hidden />
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Film strip — bottom */}
+            <div
+              className="relative z-20 flex shrink-0 items-center gap-[3px] bg-[#020206] px-3 py-[6px]"
+              aria-hidden
+            >
+              {Array.from({ length: 34 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="h-[7px] w-[6px] shrink-0 rounded-[1.5px] bg-[#0e0e18]"
+                />
+              ))}
             </div>
           </motion.aside>
         </>
