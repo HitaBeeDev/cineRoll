@@ -109,6 +109,11 @@ export function FilmCard({ film, className }: FilmCardProps) {
               {film.imdbRating.toFixed(1)}
             </span>
           )}
+          {film.rtScore != null && (
+            <span className="text-xs font-semibold text-[#FA320A]">
+              {film.rtScore}%
+            </span>
+          )}
         </div>
 
         {(() => {

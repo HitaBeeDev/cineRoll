@@ -317,6 +317,56 @@ export function FilterBar({
         ))}
       </FilterRow>
 
+      {/* IMDb Top 250 row */}
+      <FilterRow label="Lists">
+        <PillToggle
+          active={filters.imdbTopMoviesOnly}
+          onClick={() =>
+            onFiltersChange({
+              imdbTopMoviesOnly: !filters.imdbTopMoviesOnly,
+              imdbTopTvOnly: false,
+              page: 1,
+            })
+          }
+        >
+          IMDb Top 250 Movies
+        </PillToggle>
+        <PillToggle
+          active={filters.imdbTopTvOnly}
+          onClick={() =>
+            onFiltersChange({
+              imdbTopTvOnly: !filters.imdbTopTvOnly,
+              imdbTopMoviesOnly: false,
+              page: 1,
+            })
+          }
+        >
+          IMDb Top 250 Shows
+        </PillToggle>
+      </FilterRow>
+
+      {/* Content type row */}
+      <FilterRow label="Type">
+        {(
+          [
+            { value: "", label: "All" },
+            { value: "movie", label: "Movie" },
+            { value: "short", label: "Short" },
+            { value: "animation", label: "Animation" },
+            { value: "documentary", label: "Doc" },
+            { value: "tv-series", label: "TV Series" },
+          ] as { value: string; label: string }[]
+        ).map(({ value, label }) => (
+          <PillToggle
+            key={value}
+            active={filters.contentType === value}
+            onClick={() => onFiltersChange({ contentType: value, page: 1 })}
+          >
+            {label}
+          </PillToggle>
+        ))}
+      </FilterRow>
+
       {/* PRESET tags */}
       <div className="flex flex-wrap gap-2">
         {MOOD_PRESETS.map((preset) => {
@@ -535,6 +585,38 @@ function getActiveFilterChips(
       key: "nominationCount",
       label: `${filters.nominationCount} nomination${filters.nominationCount === 1 ? "" : "s"}`,
       onRemove: () => onFiltersChange({ nominationCount: null, page: 1 }),
+    });
+  }
+
+  if (filters.contentType) {
+    const contentTypeLabels: Record<string, string> = {
+      movie: "Movie",
+      short: "Short",
+      animation: "Animation",
+      documentary: "Documentary",
+      "tv-series": "TV Series",
+      "tv-mini-series": "TV Mini-Series",
+    };
+    chips.push({
+      key: "contentType",
+      label: contentTypeLabels[filters.contentType] ?? filters.contentType,
+      onRemove: () => onFiltersChange({ contentType: "", page: 1 }),
+    });
+  }
+
+  if (filters.imdbTopMoviesOnly) {
+    chips.push({
+      key: "imdbTopMovies",
+      label: "IMDb Top 250 Movies",
+      onRemove: () => onFiltersChange({ imdbTopMoviesOnly: false, page: 1 }),
+    });
+  }
+
+  if (filters.imdbTopTvOnly) {
+    chips.push({
+      key: "imdbTopTv",
+      label: "IMDb Top 250 Shows",
+      onRemove: () => onFiltersChange({ imdbTopTvOnly: false, page: 1 }),
     });
   }
 
