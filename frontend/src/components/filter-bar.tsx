@@ -45,14 +45,19 @@ export function FilterBar({
   className,
 }: FilterBarProps) {
   const activeChips = getActiveFilterChips(filters, onFiltersChange);
-  const [personSuggestions, setPersonSuggestions] = React.useState<PersonSuggestion[]>([]);
-  const [isPersonSuggestionsOpen, setIsPersonSuggestionsOpen] = React.useState(false);
+  const [personSuggestions, setPersonSuggestions] = React.useState<
+    PersonSuggestion[]
+  >([]);
+  const [isPersonSuggestionsOpen, setIsPersonSuggestionsOpen] =
+    React.useState(false);
   const [activePreset, setActivePreset] = React.useState<string | null>(null);
 
   function applyPreset(preset: MoodPreset) {
     if (activePreset === preset.label) {
       const resetValues: Partial<FilterState> = { page: 1 };
-      for (const key of Object.keys(preset.filters) as Array<keyof FilterState>) {
+      for (const key of Object.keys(preset.filters) as Array<
+        keyof FilterState
+      >) {
         Object.assign(resetValues, { [key]: DEFAULT_FILTERS[key] });
       }
       onFiltersChange(resetValues);
@@ -95,16 +100,27 @@ export function FilterBar({
   }, [filters.person]);
 
   return (
-    <div aria-label="Filter films" className={cn("flex flex-col gap-3", className)}>
-
+    <div
+      aria-label="Filter films"
+      className={cn("flex flex-col gap-3", className)}
+    >
       {/* BODY */}
       <FilterRow label="Body">
         {AWARD_BODIES.map(({ value, label }) => (
           <PillToggle
             key={value}
-            active={filters.awardBody === value && !filters.imdbTopMoviesOnly && !filters.imdbTopTvOnly}
+            active={
+              filters.awardBody === value &&
+              !filters.imdbTopMoviesOnly &&
+              !filters.imdbTopTvOnly
+            }
             onClick={() =>
-              onFiltersChange({ awardBody: value, imdbTopMoviesOnly: false, imdbTopTvOnly: false, page: 1 })
+              onFiltersChange({
+                awardBody: value,
+                imdbTopMoviesOnly: false,
+                imdbTopTvOnly: false,
+                page: 1,
+              })
             }
           >
             {label}
@@ -141,7 +157,11 @@ export function FilterBar({
         <PillToggle
           active={!filters.winnerOnly && !filters.nominatedOnly}
           onClick={() =>
-            onFiltersChange({ winnerOnly: false, nominatedOnly: false, page: 1 })
+            onFiltersChange({
+              winnerOnly: false,
+              nominatedOnly: false,
+              page: 1,
+            })
           }
         >
           Any
@@ -176,11 +196,16 @@ export function FilterBar({
               placeholder="Director, actor…"
               value={filters.person}
               autoComplete="off"
-              onChange={(e) => onFiltersChange({ person: e.target.value, page: 1 })}
+              onChange={(e) =>
+                onFiltersChange({ person: e.target.value, page: 1 })
+              }
               onFocus={() => {
-                if (personSuggestions.length > 0) setIsPersonSuggestionsOpen(true);
+                if (personSuggestions.length > 0)
+                  setIsPersonSuggestionsOpen(true);
               }}
-              onBlur={() => window.setTimeout(() => setIsPersonSuggestionsOpen(false), 120)}
+              onBlur={() =>
+                window.setTimeout(() => setIsPersonSuggestionsOpen(false), 120)
+              }
               className={cn(
                 "h-9 w-full rounded-md border border-[#1e1e2a] bg-[#0d0d1a] px-3",
                 "font-[family-name:var(--font-geist-mono)] text-[11px] text-[#F5F5F0]",
@@ -286,9 +311,14 @@ export function FilterBar({
             Year
           </span>
           <Select
-            value={filters.awardYear != null ? String(filters.awardYear) : "_any"}
+            value={
+              filters.awardYear != null ? String(filters.awardYear) : "_any"
+            }
             onValueChange={(val) =>
-              onFiltersChange({ awardYear: val === "_any" ? null : Number(val), page: 1 })
+              onFiltersChange({
+                awardYear: val === "_any" ? null : Number(val),
+                page: 1,
+              })
             }
           >
             <SelectTrigger
@@ -388,7 +418,7 @@ export function FilterBar({
 
       {/* Active filter chips */}
       {activeChips.length > 0 && (
-        <div className="flex items-start gap-2 pt-1">
+        <div className="flex items-start gap-2 -mt-3 mb-2">
           <div className="flex flex-1 flex-wrap gap-1.5">
             {activeChips.map((chip) => (
               <button
@@ -405,7 +435,10 @@ export function FilterBar({
                 aria-label={`Remove ${chip.label} filter`}
               >
                 {chip.label}
-                <X className="h-2.5 w-2.5 shrink-0 text-[#555568]" aria-hidden />
+                <X
+                  className="h-2.5 w-2.5 shrink-0 text-[#555568]"
+                  aria-hidden
+                />
               </button>
             ))}
           </div>
@@ -569,7 +602,11 @@ function getActiveFilterChips(
       key: "decade",
       label: `${filters.decadeMin}–${filters.decadeMax}`,
       onRemove: () =>
-        onFiltersChange({ decadeMin: DECADE_MIN, decadeMax: DECADE_MAX, page: 1 }),
+        onFiltersChange({
+          decadeMin: DECADE_MIN,
+          decadeMax: DECADE_MAX,
+          page: 1,
+        }),
     });
   }
 
