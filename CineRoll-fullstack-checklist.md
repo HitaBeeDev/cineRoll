@@ -784,7 +784,7 @@ Three handpicked film slots per day, each with a different mood/filter combo. Ca
 - [x] Show a play-button overlay on the trailer thumbnail so it's obvious it's clickable
 - [x] Modal closes on Escape key or clicking outside; pause/stop video on close
 - [x] Fallback: if no trailer URL, show "No trailer available" placeholder
-- [ ] Add SEO metadata: dynamic title, description, Open Graph images, Twitter cards
+- [x] Add SEO metadata: dynamic title, description, Open Graph images, Twitter cards
 - [ ] Create 404 page if film slug not found
 - [ ] Make responsive: stack all content vertically on mobile, use grid layout on desktop
 - [ ] Add "Back to Browse" or "Roll Again" navigation buttons
