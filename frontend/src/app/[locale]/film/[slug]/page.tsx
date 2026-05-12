@@ -185,7 +185,7 @@ export default async function FilmPage({
     >
       <AppHeader />
       <div className="grid min-h-[calc(100vh-4rem)] lg:grid-cols-12">
-        <aside className="border-b border-[#20202d] bg-[#08080d] px-4 py-6 sm:px-6 lg:sticky lg:top-16 lg:col-span-5 lg:h-[calc(100vh-4rem)] lg:overflow-y-auto lg:border-b-0 lg:border-r lg:p-4">
+        <aside className="border-b border-[#20202d] bg-[#08080d] px-4 py-6 sm:px-6 lg:col-span-5 lg:border-b-0 lg:border-r lg:p-4">
           <div className="flex flex-col">
             <div className="-mx-1 -mt-1 mb-2 flex items-center">
               <span className="inline-flex max-w-full items-center rounded-full border border-[#e8453c]/22 bg-[#e8453c]/10 px-3 py-1 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#e8453c]">
@@ -275,10 +275,7 @@ export default async function FilmPage({
               )}
 
               <div className="mt-1 flex items-center gap-2">
-                <RollAgainButton className="h-12 flex-1 rounded-xl font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.2em]" />
-              </div>
-
-              <div className="flex items-center gap-2 pt-1">
+                <RollAgainButton className="h-11 flex-1 rounded-xl font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.2em]" />
                 <DetailActionButton>
                   <span className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest">
                     Watched
@@ -294,7 +291,7 @@ export default async function FilmPage({
                 </DetailActionButton>
                 <Link
                   href="/browse"
-                  className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-[#1e1e2a] px-3 font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.16em] text-[#66667a] transition-colors hover:border-[#2a2a3e] hover:text-[#F5F5F0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
+                  className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl border border-[#1e1e2a] px-3 font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.16em] text-[#66667a] transition-colors hover:border-[#2a2a3e] hover:text-[#F5F5F0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
                 >
                   <ArrowLeft className="h-3.5 w-3.5" aria-hidden />
                   Browse
