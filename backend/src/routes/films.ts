@@ -71,6 +71,7 @@ const filmDetailSelect = {
   cannesNominations: true,
   cannesWins: true,
   cannesCategories: true,
+  watchProviders: true,
   isPickOfDay: true,
   pickOfDayDate: true,
 };

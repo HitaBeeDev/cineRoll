@@ -42,6 +42,7 @@ model Film {
   cannesNominations Int         @default(0)
   cannesWins        Int         @default(0)
   cannesCategories  Json        @default("[]")
+  watchProviders    Json?
   isPickOfDay       Boolean     @default(false)
   pickOfDayDate     DateTime?
   rollEvents        RollEvent[]

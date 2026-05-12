@@ -52,6 +52,7 @@ export interface Film {
   cannesNominations: number;
   cannesWins: number;
   cannesCategories: AwardRecord[];
+  watchProviders: Record<string, unknown> | null;
   isPickOfDay: boolean;
   pickOfDayDate: string | null;
 }
