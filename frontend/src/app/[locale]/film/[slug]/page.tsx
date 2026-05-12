@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import type { CSSProperties } from "react";
-import { ArrowLeft, Star, Trophy, Users, Clapperboard, ExternalLink } from "lucide-react";
+import { ArrowLeft, Star, Trophy, Users, Clapperboard, ExternalLink, UserCircle2 } from "lucide-react";
 import type { Film, AwardRecord } from "@cineroll/types";
 import { cn } from "@/lib/utils";
 import { RollAgainButton } from "@/components/roll-again-button";
@@ -248,14 +248,19 @@ export default async function FilmPage({
                     <Users className="h-3.5 w-3.5" aria-hidden />
                     Cast
                   </h2>
-                  <div className="flex flex-wrap gap-2">
-                    {film.cast.map((name) => (
-                      <span
+                  <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-none">
+                    {(film.cast as string[]).map((name) => (
+                      <div
                         key={name}
-                        className="rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-1.5 text-sm text-zinc-300"
+                        className="flex shrink-0 flex-col items-center gap-2 w-20"
                       >
-                        {name}
-                      </span>
+                        <div className="flex h-16 w-16 items-center justify-center rounded-full border border-zinc-800 bg-zinc-900 overflow-hidden">
+                          <UserCircle2 className="h-10 w-10 text-zinc-700" aria-hidden />
+                        </div>
+                        <p className="w-full text-center text-[0.65rem] leading-tight text-zinc-400 line-clamp-2">
+                          {name}
+                        </p>
+                      </div>
                     ))}
                   </div>
                 </section>
