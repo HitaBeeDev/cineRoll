@@ -787,7 +787,7 @@ Three handpicked film slots per day, each with a different mood/filter combo. Ca
 - [x] Add SEO metadata: dynamic title, description, Open Graph images, Twitter cards
 - [x] Create 404 page if film slug not found
 - [x] Make responsive: stack all content vertically on mobile, use grid layout on desktop
-- [ ] Add "Back to Browse" or "Roll Again" navigation buttons
+- [x] Add "Back to Browse" or "Roll Again" navigation buttons
 - [ ] **Original Title** — if `originalTitle` is set and differs from `title`, display it in smaller text directly below the main title (e.g. _Das Leben der Anderen_ under "The Lives of Others"); skip if null or identical
 - [ ] **IMDB page link** — if `imdbId` is set, show a clickable "View on IMDB" link (opens in new tab) on the detail page; use the IMDB logo or a recognizable label; link format: `https://www.imdb.com/title/{imdbId}/`
 - [ ] **Full cast with photos** — replace the plain cast name list with a horizontally scrollable row of cast member cards; each card shows the actor's TMDB profile photo (fetch from `/api/person/:id/images` or use TMDB's `profile_path` stored at enrich time), their name, and character name if available; fall back to a generic silhouette avatar if no photo
