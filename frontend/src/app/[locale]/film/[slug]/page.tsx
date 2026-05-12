@@ -289,6 +289,12 @@ export default async function FilmPage({
                 <DetailActionButton aria-label="Share this film">
                   <Share2 className="h-4 w-4" aria-hidden />
                 </DetailActionButton>
+                {film.trailerUrl && (
+                  <DetailActionLink href="#trailer">Trailer</DetailActionLink>
+                )}
+                {film.cast.length > 0 && (
+                  <DetailActionLink href="#cast">Cast</DetailActionLink>
+                )}
               </div>
             </div>
           </div>
@@ -328,7 +334,7 @@ export default async function FilmPage({
             )}
 
             {hasAwards && (
-              <section>
+              <section id="cast" className="scroll-mt-24">
                 <EditorialLabel
                   icon={<Award className="h-4 w-4" aria-hidden />}
                 >
@@ -365,14 +371,16 @@ export default async function FilmPage({
 
             <div className="grid gap-10 xl:grid-cols-[1fr_300px]">
               {film.trailerUrl ? (
-                <FilmTrailer
-                  title={film.title}
-                  trailerUrl={film.trailerUrl}
-                  youtubeId={youtubeId}
-                  thumbnailUrl={film.backdropUrl ?? film.posterUrl}
-                />
+                <div id="trailer" className="scroll-mt-24">
+                  <FilmTrailer
+                    title={film.title}
+                    trailerUrl={film.trailerUrl}
+                    youtubeId={youtubeId}
+                    thumbnailUrl={film.backdropUrl ?? film.posterUrl}
+                  />
+                </div>
               ) : (
-                <section>
+                <section id="trailer" className="scroll-mt-24">
                   <SectionLabel>Trailer</SectionLabel>
                   <div className="flex aspect-video w-full items-center justify-center border border-[#1a1a28] bg-[#0b0b14]">
                     <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest text-[#444458]">
@@ -465,6 +473,29 @@ function DetailActionButton({
     >
       {children}
     </button>
+  );
+}
+
+function DetailActionLink({
+  children,
+  href,
+}: {
+  children: ReactNode;
+  href: string;
+}) {
+  return (
+    <Link
+      href={href}
+      className={cn(
+        "flex h-11 items-center justify-center rounded-xl px-3",
+        "border border-[#1e1e2a] text-[#555568]",
+        "font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest",
+        "transition-colors hover:border-[#2a2a3e] hover:text-[#F5F5F0]",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
+      )}
+    >
+      {children}
+    </Link>
   );
 }
 
