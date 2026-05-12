@@ -18,6 +18,9 @@ import { WhereToWatch } from "@/components/where-to-watch";
 import { SimilarFilmsSlider } from "@/components/similar-films-slider";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://cineroll.app");
 const FALLBACK_ACCENT = "#D4AF37";
 
 function extractYouTubeId(url: string): string | null {
@@ -110,7 +113,7 @@ export async function generateMetadata({
     rawDescription.length > 155
       ? `${rawDescription.slice(0, 152)}…`
       : rawDescription;
-  const socialImage = film.posterUrl ?? film.backdropUrl;
+  const socialImage = new URL(`/api/og/film/${encodeURIComponent(slug)}`, SITE_URL).toString();
   return {
     title,
     description,
@@ -118,15 +121,13 @@ export async function generateMetadata({
       title,
       description,
       type: "video.movie",
-      images: socialImage
-        ? [{ url: socialImage, alt: `${film.title} (${film.year})` }]
-        : [],
+      images: [{ url: socialImage, alt: `${film.title} (${film.year})` }],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: socialImage ? [socialImage] : [],
+      images: [socialImage],
     },
   };
 }
@@ -212,6 +213,7 @@ export default async function FilmPage({
   }[];
 
   const heroImageUrl = film.backdropUrl ?? film.posterUrl;
+  const shareCardPath = `/api/og/film/${encodeURIComponent(film.slug)}`;
 
   return (
     <main
@@ -387,13 +389,15 @@ export default async function FilmPage({
                     <Bookmark className="h-3.5 w-3.5" aria-hidden />
                     Watchlist
                   </button>
-                  <button
-                    type="button"
+                  <a
+                    href={shareCardPath}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     aria-label="Share this film"
                     className="flex h-11 w-11 items-center justify-center border border-white/10 bg-black/30 text-white/32 backdrop-blur-sm transition-colors hover:bg-black/50 hover:text-white/58 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
                   >
                     <Share2 className="h-4 w-4" aria-hidden />
-                  </button>
+                  </a>
                 </div>
               </div>
 
