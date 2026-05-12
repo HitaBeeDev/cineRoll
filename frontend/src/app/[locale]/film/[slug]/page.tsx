@@ -3,7 +3,6 @@ import Image from "next/image";
 import Link from "next/link";
 import type { ButtonHTMLAttributes, CSSProperties, ReactNode } from "react";
 import {
-  ArrowLeft,
   Bookmark,
   ExternalLink,
   Users,
@@ -13,7 +12,6 @@ import {
 import type { Film, AwardRecord } from "@cineroll/types";
 import { cn } from "@/lib/utils";
 import { formatRuntime } from "@/lib/format";
-import { RollAgainButton } from "@/components/roll-again-button";
 import { AppHeader } from "@/components/app-header";
 import { FilmTrailer } from "@/components/film-trailer";
 
@@ -266,7 +264,18 @@ export default async function FilmPage({
               )}
 
               <div className="mt-1 flex items-center gap-2">
-                <RollAgainButton className="h-11 flex-1 rounded-xl font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.2em]" />
+                <Link
+                  href="/"
+                  className={cn(
+                    "flex h-11 flex-1 items-center justify-center rounded-xl",
+                    "bg-[#e8453c] text-[#F5F5F0]",
+                    "font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.2em]",
+                    "transition-colors hover:bg-[#d5342b]",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
+                  )}
+                >
+                  Back Home
+                </Link>
                 <DetailActionButton>
                   <span className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest">
                     Watched
@@ -280,13 +289,6 @@ export default async function FilmPage({
                 <DetailActionButton aria-label="Share this film">
                   <Share2 className="h-4 w-4" aria-hidden />
                 </DetailActionButton>
-                <Link
-                  href="/browse"
-                  className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl border border-[#1e1e2a] px-3 font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.16em] text-[#66667a] transition-colors hover:border-[#2a2a3e] hover:text-[#F5F5F0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
-                >
-                  <ArrowLeft className="h-3.5 w-3.5" aria-hidden />
-                  Browse
-                </Link>
               </div>
             </div>
           </div>
