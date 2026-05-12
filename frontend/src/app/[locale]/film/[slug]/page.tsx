@@ -4,7 +4,6 @@ import Link from "next/link";
 import type { ButtonHTMLAttributes, CSSProperties, ReactNode } from "react";
 import {
   Bookmark,
-  ChevronDown,
   ExternalLink,
   Users,
   Award,
@@ -185,7 +184,7 @@ export default async function FilmPage({
     >
       <AppHeader />
       <div className="grid min-h-[calc(100vh-4rem)] lg:grid-cols-12">
-        <aside className="border-b border-[#20202d] bg-[#08080d] px-4 py-6 sm:px-6 lg:sticky lg:top-16 lg:col-span-5 lg:h-[calc(100vh-4rem)] lg:border-b-0 lg:border-r lg:p-4">
+        <aside className="border-b border-[#20202d] bg-[#08080d] px-4 py-6 sm:px-6 lg:sticky lg:top-16 lg:col-span-5 lg:h-[calc(100vh-4rem)] lg:self-start lg:border-b-0 lg:border-r lg:p-4">
           <div className="flex h-full flex-col justify-between gap-6">
             <div className="flex flex-col">
             <div className="-mx-1 -mt-1 mb-2 flex items-center">
@@ -505,7 +504,6 @@ function DetailActionLink({
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
       )}
     >
-      <ChevronDown className="h-3.5 w-3.5" aria-hidden />
       {children}
     </Link>
   );
