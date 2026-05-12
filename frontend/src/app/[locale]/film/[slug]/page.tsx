@@ -104,7 +104,9 @@ export default async function FilmPage({
   const oscarAwards = (film.oscarCategories as AwardRecord[]) ?? [];
   const ggAwards = (film.ggCategories as AwardRecord[]) ?? [];
   const cannesAwards = (film.cannesCategories as AwardRecord[]) ?? [];
-  const hasAwards = film.oscarNominations > 0 || film.ggNominations > 0 || film.cannesNominations > 0;
+  const totalAwardWins = film.oscarWins + film.ggWins + film.cannesWins;
+  const totalAwardNoms = film.oscarNominations + film.ggNominations + film.cannesNominations;
+  const hasAwards = totalAwardNoms > 0;
   const filmAccentStyle = { "--film-accent": film.posterColor ?? FALLBACK_ACCENT } as CSSProperties;
 
   return (
@@ -252,10 +254,17 @@ export default async function FilmPage({
               {/* Awards */}
               {hasAwards && (
                 <section>
-                  <h2 className="mb-4 flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-[color:color-mix(in_srgb,var(--film-accent)_72%,rgb(113_113_122))]">
-                    <Trophy className="h-3.5 w-3.5 text-[var(--film-accent)]" aria-hidden />
-                    Awards
-                  </h2>
+                  <div className="mb-4 flex items-start justify-between gap-2">
+                    <h2 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-[color:color-mix(in_srgb,var(--film-accent)_72%,rgb(113_113_122))]">
+                      <Trophy className="h-3.5 w-3.5 text-[var(--film-accent)]" aria-hidden />
+                      Awards
+                    </h2>
+                    <p className="text-right text-[0.67rem] tabular-nums text-zinc-500">
+                      <span className="text-[var(--film-accent)]">{totalAwardWins} {totalAwardWins === 1 ? "win" : "wins"}</span>
+                      <span className="mx-1.5 text-zinc-700">·</span>
+                      {totalAwardNoms} {totalAwardNoms === 1 ? "nomination" : "nominations"}
+                    </p>
+                  </div>
                   <div className="flex flex-col gap-6">
                     {film.oscarNominations > 0 && (
                       <AwardSection

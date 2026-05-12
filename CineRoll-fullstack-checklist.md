@@ -773,7 +773,7 @@ Three handpicked film slots per day, each with a different mood/filter combo. Ca
   - Full plot synopsis
   - IMDB and Rotten Tomatoes ratings with icons
   - Language information
-- [ ] Display **all awards combined** in a unified awards section:
+- [x] Display **all awards combined** in a unified awards section:
   - A film may have Oscar, Golden Globe, and Cannes records simultaneously — show all of them
   - Oscar nominations and wins (organized by category and year)
   - Golden Globe nominations and wins (organized by category and year)
