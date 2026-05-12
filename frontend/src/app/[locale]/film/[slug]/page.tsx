@@ -10,7 +10,7 @@ import { AppHeader } from "@/components/app-header";
 import { FilmTrailer } from "@/components/film-trailer";
 import { AnimatedJumpLink } from "@/components/animated-jump-link";
 import { WhereToWatch } from "@/components/where-to-watch";
-import { FilmCard } from "@/components/film-card";
+import { SimilarFilmsSlider } from "@/components/similar-films-slider";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 const FALLBACK_ACCENT = "#D4AF37";
@@ -492,10 +492,8 @@ export default async function FilmPage({
             {similarFilms.length > 0 && (
               <section id="similar" className="scroll-mt-24">
                 <CinematicSectionLabel>You Might Also Like</CinematicSectionLabel>
-                <div className="mt-8 grid grid-cols-3 gap-3 xl:grid-cols-6">
-                  {similarFilms.map((f) => (
-                    <FilmCard key={f.id} film={f as unknown as Film} />
-                  ))}
+                <div className="mt-8">
+                  <SimilarFilmsSlider films={similarFilms as unknown as Film[]} />
                 </div>
               </section>
             )}
