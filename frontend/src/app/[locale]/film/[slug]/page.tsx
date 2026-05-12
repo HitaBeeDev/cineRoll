@@ -560,9 +560,6 @@ function AwardSummaryCard({
       a.awardYear - b.awardYear ||
       a.category.localeCompare(b.category),
   );
-  const wonRecords = sorted.filter((record) => record.won);
-  const summaryRecords = wonRecords.length > 0 ? wonRecords : sorted;
-  const featuredRecords = summaryRecords;
   const ceremonyLabel =
     icon === "oscar"
       ? "Academy"
@@ -583,36 +580,46 @@ function AwardSummaryCard({
         <div className="min-w-0">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="flex min-w-0 items-center gap-4">
-            <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#e8453c]/12 text-[#ff4558] shadow-[inset_0_0_0_1px_rgba(232,69,60,0.24)]">
-              <Trophy className="h-5 w-5" aria-hidden />
-            </span>
-            <div className="min-w-0">
-              <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.24em] text-[#9a9aaa]">
-                {ceremonyLabel} Circuit
-              </p>
-              <h3 className="mt-1 text-2xl font-bold leading-tight text-[#f4f4f5]">
-                {title}
-              </h3>
+              <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#e8453c]/12 text-[#ff4558] shadow-[inset_0_0_0_1px_rgba(232,69,60,0.24)]">
+                <Trophy className="h-5 w-5" aria-hidden />
+              </span>
+              <div className="min-w-0">
+                <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.24em] text-[#9a9aaa]">
+                  {ceremonyLabel} Circuit
+                </p>
+                <h3 className="mt-1 text-2xl font-bold leading-tight text-[#f4f4f5]">
+                  {title}
+                </h3>
+              </div>
             </div>
-          </div>
             <div className="flex shrink-0 items-end gap-5">
               <AwardStat label="Wins" value={wins} />
               <AwardStat label="Noms" value={nominations} />
             </div>
           </div>
 
-          {featuredRecords.length > 0 && (
-            <div className="mt-5 grid gap-2 sm:grid-cols-2">
-              {featuredRecords.map((record) => (
-                <span
+          {sorted.length > 0 && (
+            <div className="mt-5 grid gap-2">
+              {sorted.map((record) => (
+                <div
                   key={`${record.awardYear}-${record.category}-${record.nominee}`}
-                  className="flex min-w-0 items-center gap-3 rounded-lg bg-[#f5f5f0]/[0.045] px-3 py-2 text-sm leading-5 text-[#c9c9d2] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.055)]"
+                  className="grid gap-2 rounded-lg bg-[#f5f5f0]/[0.045] px-3 py-3 text-[#c9c9d2] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.055)] sm:grid-cols-[auto_1fr_auto] sm:items-center sm:gap-4"
                 >
-                  <span className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.18em] text-[#ff4558]">
+                  <span className="w-fit shrink-0 rounded-full bg-[#e8453c]/10 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.18em] text-[#ff4558]">
                     {record.won ? "Won" : "Nom"}
                   </span>
-                  <span className="min-w-0 truncate">{record.category}</span>
-                </span>
+                  <div className="min-w-0">
+                    <p className="text-base font-medium leading-6 text-[#ececf1]">
+                      {record.category}
+                    </p>
+                    <p className="mt-0.5 text-sm leading-5 text-[#8f8f9e]">
+                      {record.nominee}
+                    </p>
+                  </div>
+                  <span className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.18em] text-[#777787]">
+                    {record.awardYear}
+                  </span>
+                </div>
               ))}
             </div>
           )}
