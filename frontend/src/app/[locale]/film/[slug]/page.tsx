@@ -9,17 +9,15 @@ import {
   ExternalLink,
   Clapperboard,
   Users,
-  Dices,
   Award,
   Gauge,
+  RefreshCw,
 } from "lucide-react";
 import type { Film, AwardRecord } from "@cineroll/types";
 import { cn } from "@/lib/utils";
+import { formatRuntime } from "@/lib/format";
 import { RollAgainButton } from "@/components/roll-again-button";
-import { AppHeader } from "@/components/app-header";
-import { FilmDetailHero } from "@/components/film-detail-hero";
 import { FilmTrailer } from "@/components/film-trailer";
-import { WatchTonightButton } from "@/components/watch-tonight-button";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 const FALLBACK_ACCENT = "#D4AF37";
@@ -114,6 +112,7 @@ export default async function FilmPage({
     film.oscarNominations + film.ggNominations + film.cannesNominations;
   const hasAwards = totalAwardNoms > 0;
   const accent = film.posterColor ?? FALLBACK_ACCENT;
+  const formattedRuntime = formatRuntime(film.runtime);
 
   const accentStyle = {
     "--film-accent": accent,
@@ -156,208 +155,157 @@ export default async function FilmPage({
   }[];
 
   return (
-    <div
-      className="flex min-h-screen flex-col overflow-x-hidden bg-[#09090f] text-[#F5F5F0]"
+    <main
+      className="min-h-screen overflow-x-hidden bg-[#07070b] text-[#f4f4f5]"
       style={accentStyle}
     >
-      <AppHeader />
-
-      <main className="flex-1">
-        <FilmDetailHero
-          title={film.title}
-          originalTitle={film.originalTitle}
-          year={film.year}
-          runtime={film.runtime}
-          language={film.language}
-          director={film.director}
-          backdropUrl={film.backdropUrl}
-          posterColor={film.posterColor}
-          isPickOfDay={film.isPickOfDay}
-        />
-
-        {/* ── CONTENT AREA ───────────────────────────────────────── */}
-        <div className="relative z-10 mx-auto max-w-6xl px-4 pb-28 sm:px-6 lg:px-8">
-
-          {/* ── 1. POSTER + STATS ──────────────────────────────────── */}
-          <section
-            className={cn(
-              "relative -mt-20 overflow-hidden rounded-[1.35rem] border border-white/10",
-              "bg-[#0b0b14]/78 shadow-[0_30px_120px_rgba(0,0,0,0.58)] backdrop-blur-2xl",
-            )}
+      <div className="grid min-h-screen lg:grid-cols-[minmax(320px,400px)_1fr] xl:grid-cols-[420px_1fr]">
+        <aside className="border-b border-[#20202d] bg-[#08080d] px-5 py-7 sm:px-8 lg:sticky lg:top-0 lg:h-screen lg:border-b-0 lg:border-r lg:px-9 lg:py-10">
+          <Link
+            href="/"
+            className="font-[family-name:var(--font-geist-mono)] text-2xl font-bold uppercase tracking-[0.24em] text-[#ff4558]"
           >
-            <div
-              className="pointer-events-none absolute inset-0 opacity-70"
-              style={{
-                background: `radial-gradient(ellipse 44% 80% at 8% 0%, ${accent}2f, transparent 62%), linear-gradient(135deg, rgba(232,69,60,0.1), transparent 34%)`,
-              }}
-            />
-            <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/24 to-transparent" />
+            Cine-Roll
+          </Link>
 
-            <div className="relative flex flex-col gap-6 p-4 sm:flex-row sm:gap-7 sm:p-5 md:p-6">
-
-            {/* Poster */}
-            <div className="relative mx-auto shrink-0 sm:mx-0">
-              <div
-                className="relative aspect-[2/3] w-40 overflow-hidden rounded-2xl border border-white/12 sm:w-48 md:w-56"
-                style={{
-                  boxShadow: `0 28px 88px rgba(0,0,0,0.92), 0 0 68px 0px ${accent}34`,
-                }}
-              >
-                {film.posterUrl ? (
-                  <Image
-                    src={film.posterUrl}
-                    alt={`${film.title} poster`}
-                    fill
-                    sizes="(max-width: 640px) 160px, (max-width: 768px) 192px, 224px"
-                    className="object-cover"
-                    priority
-                  />
-                ) : (
-                  <div className="absolute inset-0 flex items-center justify-center bg-[#111118]">
-                    <Clapperboard className="h-8 w-8 text-[#2a2a3e]" aria-hidden />
-                  </div>
-                )}
-              </div>
+          <div className="mt-12 flex flex-col gap-7">
+            <div className="relative aspect-[2/3] w-full overflow-hidden rounded border border-[#20202d] bg-[#0d0d14] shadow-[0_30px_90px_rgba(0,0,0,0.5)]">
+              {film.posterUrl ? (
+                <Image
+                  src={film.posterUrl}
+                  alt={`${film.title} poster`}
+                  fill
+                  sizes="(max-width: 1024px) 90vw, 360px"
+                  className="object-cover"
+                  priority
+                />
+              ) : (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Clapperboard className="h-10 w-10 text-[#343445]" aria-hidden />
+                </div>
+              )}
             </div>
 
-            {/* Stats + genres + rank badges */}
-            <div className="flex min-w-0 flex-1 flex-col justify-center gap-5 text-center sm:text-left">
-              <div>
-                <p className="font-[family-name:var(--font-geist-mono)] text-[9px] font-bold uppercase tracking-[0.24em] text-[#e8453c]">
-                  CineRoll dossier
-                </p>
-                <h2 className="mt-2 text-balance font-[family-name:var(--font-display)] text-2xl font-semibold leading-tight text-[#F5F5F0] sm:text-3xl">
-                  {film.title} is ready for your next roll.
-                </h2>
-                {film.plot && (
-                  <p className="mt-3 max-w-2xl text-sm leading-6 text-[#a6a6b5] line-clamp-3">
-                    {film.plot}
-                  </p>
-                )}
-              </div>
-
-              {/* Stat boxes */}
-              <div className="grid w-full max-w-xl grid-cols-3 gap-2.5 sm:w-fit sm:min-w-[24rem]">
-                <StatBox
-                  icon={<Star className="h-3.5 w-3.5" aria-hidden />}
-                  label="IMDb"
-                  value={
-                    film.imdbRating != null
-                      ? film.imdbRating.toFixed(1)
+            <div className="grid grid-cols-2 gap-3">
+              <StatBox
+                icon={<Star className="h-3.5 w-3.5" aria-hidden />}
+                label="IMDb"
+                value={film.imdbRating != null ? film.imdbRating.toFixed(1) : "—"}
+                highlight={film.imdbRating != null && film.imdbRating >= 8.0}
+              />
+              <StatBox
+                icon={<Award className="h-3.5 w-3.5" aria-hidden />}
+                label="Awards"
+                value={
+                  totalAwardWins > 0
+                    ? `${totalAwardWins}W`
+                    : totalAwardNoms > 0
+                      ? `${totalAwardNoms}N`
                       : "—"
-                  }
-                  highlight={film.imdbRating != null && film.imdbRating >= 8.0}
-                />
+                }
+                highlight={totalAwardWins > 0}
+              />
+              {film.rtScore != null && (
                 <StatBox
                   icon={<Gauge className="h-3.5 w-3.5" aria-hidden />}
                   label="RT"
-                  value={film.rtScore != null ? `${film.rtScore}%` : "—"}
-                  highlight={film.rtScore != null && film.rtScore >= 85}
+                  value={`${film.rtScore}%`}
+                  highlight={film.rtScore >= 85}
                 />
-                <StatBox
-                  icon={<Award className="h-3.5 w-3.5" aria-hidden />}
-                  label="Awards"
-                  value={
-                    totalAwardWins > 0
-                      ? `${totalAwardWins}W`
-                      : totalAwardNoms > 0
-                        ? `${totalAwardNoms}N`
-                        : "—"
-                  }
-                  highlight={totalAwardWins > 0}
-                />
-              </div>
-
-              {/* IMDb list rank badges */}
-              {(film.imdbTopMovieRank !== null || film.imdbTopTvRank !== null) && (
-                <div className="flex flex-wrap justify-center sm:justify-start gap-1.5">
-                  {film.imdbTopMovieRank !== null && (
-                    <span className="inline-flex items-center gap-1.5 rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/10 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[9px] font-bold uppercase tracking-widest text-[#D4AF37]">
-                      <Trophy className="h-2.5 w-2.5" aria-hidden />
-                      IMDb Top 250 Movies #{film.imdbTopMovieRank}
-                    </span>
-                  )}
-                  {film.imdbTopTvRank !== null && (
-                    <span className="inline-flex items-center gap-1.5 rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/10 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[9px] font-bold uppercase tracking-widest text-[#D4AF37]">
-                      <Trophy className="h-2.5 w-2.5" aria-hidden />
-                      IMDb Top 250 TV #{film.imdbTopTvRank}
-                    </span>
-                  )}
-                </div>
               )}
+              {film.imdbTopMovieRank !== null && (
+                <StatBox
+                  icon={<Trophy className="h-3.5 w-3.5" aria-hidden />}
+                  label="Top 250"
+                  value={`#${film.imdbTopMovieRank}`}
+                  highlight
+                />
+              )}
+            </div>
 
-              {/* Genre pills */}
-              {film.genres.length > 0 && (
-                <div className="flex flex-wrap justify-center sm:justify-start gap-1.5">
-                  {film.genres.map((g) => (
-                    <span
-                      key={g}
-                      className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#a6a6b5]"
-                    >
-                      {g}
-                    </span>
+            <div className="flex flex-col gap-3">
+              <RollAgainButton className="h-14 w-full rounded bg-[#ef3347] text-sm font-bold uppercase tracking-[0.14em] text-white shadow-[0_18px_42px_rgba(239,51,71,0.2)] hover:bg-[#ff4558]" />
+              <Link
+                href="/"
+                className="inline-flex h-14 items-center justify-center gap-3 rounded border border-[#20202d] bg-transparent font-[family-name:var(--font-geist-mono)] text-sm font-bold uppercase tracking-[0.14em] text-[#f4f4f5] transition-colors hover:border-[#ff4558]/55 hover:text-[#ff4558]"
+              >
+                <RefreshCw className="h-4 w-4" aria-hidden />
+                Roll Another
+              </Link>
+              <Link
+                href="/browse"
+                className="inline-flex items-center justify-center gap-2 pt-1 font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.22em] text-[#777787] transition-colors hover:text-[#f4f4f5]"
+              >
+                <ArrowLeft className="h-3.5 w-3.5" aria-hidden />
+                Back to Browse
+              </Link>
+            </div>
+          </div>
+        </aside>
+
+        <section className="relative min-w-0 px-5 py-10 sm:px-8 lg:px-12 lg:py-14 xl:px-16">
+          <div
+            className="pointer-events-none absolute inset-0 opacity-55"
+            style={{
+              background: `radial-gradient(ellipse 42% 52% at 100% 0%, ${accent}24, transparent 62%), linear-gradient(90deg, transparent, rgba(18,18,31,0.64))`,
+            }}
+          />
+          <div className="relative mx-auto flex max-w-6xl flex-col gap-14">
+            <header className="max-w-5xl pt-2 lg:pt-4">
+              <p className="font-[family-name:var(--font-geist-mono)] text-xs font-bold uppercase tracking-[0.26em] text-[#ff4558] sm:text-sm">
+                {film.year}
+                {formattedRuntime ? `  •  ${formattedRuntime}` : ""}
+                {film.director ? `  •  Dir. ${film.director}` : ""}
+              </p>
+              <h1 className="mt-8 max-w-5xl text-balance font-sans text-[clamp(3.3rem,7.5vw,7.8rem)] font-black uppercase leading-[0.86] tracking-normal text-[#ededf0]">
+                {film.title}
+              </h1>
+              {film.originalTitle && film.originalTitle !== film.title && (
+                <p className="mt-4 font-[family-name:var(--font-display)] text-2xl italic text-[#8c8c9d]">
+                  {film.originalTitle}
+                </p>
+              )}
+            </header>
+
+            {film.plot && (
+              <blockquote className="max-w-5xl border-l-2 border-[#ff4558] py-1 pl-6 text-xl leading-9 text-[#9696a7] sm:pl-8 sm:text-2xl sm:leading-10">
+                {film.plot}
+              </blockquote>
+            )}
+
+            {hasAwards && (
+              <section>
+                <EditorialLabel icon={<Award className="h-4 w-4" aria-hidden />}>
+                  Awards &amp; Recognition
+                </EditorialLabel>
+                <div className="mt-7 grid gap-4">
+                  {activeCeremonies.map((c) => (
+                    <AwardSummaryCard
+                      key={c.title}
+                      title={c.title}
+                      wins={c.wins}
+                      nominations={c.nominations}
+                      records={c.records}
+                    />
                   ))}
                 </div>
-              )}
-            </div>
-            </div>
-          </section>
+              </section>
+            )}
 
-          {/* ── STRIP ──────────────────────────────────────────────── */}
-          <FilmStrip className="mt-12 mb-8" />
+            {film.cast.length > 0 && (
+              <section>
+                <EditorialLabel icon={<Users className="h-4 w-4" aria-hidden />}>
+                  Cast
+                </EditorialLabel>
+                <div className="mt-7 grid gap-4 sm:grid-cols-2">
+                  {(film.cast as string[]).slice(0, 8).map((name) => (
+                    <CastItem key={name} name={name} />
+                  ))}
+                </div>
+              </section>
+            )}
 
-          {/* ── 2. AWARDS ──────────────────────────────────────────── */}
-          {hasAwards && (
-            <section>
-              <ChannelLabel>Awards &amp; Recognition</ChannelLabel>
-
-              {/* Summary line */}
-              <div className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-1">
-                <span className="font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.2em] text-[#D4AF37]">
-                  {totalAwardWins} {totalAwardWins === 1 ? "Win" : "Wins"}
-                </span>
-                <span className="font-[family-name:var(--font-geist-mono)] text-[10px] text-[#2a2a3e]">
-                  ·
-                </span>
-                <span className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.2em] text-[#888899]">
-                  {totalAwardNoms}{" "}
-                  {totalAwardNoms === 1 ? "Nomination" : "Nominations"}
-                </span>
-              </div>
-
-              {/* Ceremony cards */}
-              <div
-                className={cn(
-                  "grid grid-cols-1 divide-y divide-[#1a1a28] overflow-hidden rounded-2xl border border-white/10 bg-[#0b0b14]/80 shadow-[0_18px_70px_rgba(0,0,0,0.34)]",
-                  activeCeremonies.length === 2
-                    ? "sm:grid-cols-2 sm:divide-y-0 sm:divide-x"
-                    : activeCeremonies.length >= 3
-                      ? "md:grid-cols-3 md:divide-y-0 md:divide-x"
-                      : "",
-                )}
-              >
-                {activeCeremonies.map((c) => (
-                  <CeremonyPanel
-                    key={c.title}
-                    title={c.title}
-                    icon={c.icon}
-                    wins={c.wins}
-                    nominations={c.nominations}
-                    records={c.records}
-                  />
-                ))}
-              </div>
-            </section>
-          )}
-
-          {/* ── STRIP ──────────────────────────────────────────────── */}
-          <FilmStrip className={cn(hasAwards ? "mt-10 mb-8" : "mt-0 mb-8")} />
-
-          {/* ── 3. TRAILER + PLOT (left) / CAST + LINKS (right) ───── */}
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_268px] gap-8 lg:gap-10">
-
-            {/* Left */}
-            <div className="flex flex-col gap-8">
+            <div className="grid gap-10 xl:grid-cols-[1fr_300px]">
               {film.trailerUrl ? (
                 <FilmTrailer
                   title={film.title}
@@ -368,7 +316,7 @@ export default async function FilmPage({
               ) : (
                 <section>
                   <SectionLabel>Trailer</SectionLabel>
-                  <div className="flex aspect-video w-full items-center justify-center rounded-xl border border-[#1a1a28] bg-[#0b0b14]">
+                  <div className="flex aspect-video w-full items-center justify-center border border-[#1a1a28] bg-[#0b0b14]">
                     <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest text-[#444458]">
                       No trailer available
                     </p>
@@ -376,109 +324,43 @@ export default async function FilmPage({
                 </section>
               )}
 
-              {film.plot && (
-                <section>
-                  <SectionLabel>Plot</SectionLabel>
-                  <p className="text-sm leading-7 text-[#a6a6b5]">
-                    {film.plot}
-                  </p>
-                </section>
-              )}
-            </div>
+              <div className="flex flex-col gap-6">
+                {film.genres.length > 0 && (
+                  <section>
+                    <SectionLabel>Genres</SectionLabel>
+                    <div className="flex flex-wrap gap-2">
+                      {film.genres.map((g) => (
+                        <span
+                          key={g}
+                          className="border border-[#20202d] px-3 py-1.5 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.2em] text-[#9a9aaa]"
+                        >
+                          {g}
+                        </span>
+                      ))}
+                    </div>
+                  </section>
+                )}
 
-            {/* Right */}
-            <div className="flex flex-col gap-8">
-
-              {/* Cast */}
-              {film.cast.length > 0 && (
-                <section>
-                  <SectionLabel>
-                    <Users className="h-3 w-3" aria-hidden />
-                    Cast
-                  </SectionLabel>
-                  <div className="flex flex-col gap-1.5">
-                    {(film.cast as string[]).slice(0, 8).map((name, i) => (
-                      <CastItem key={name} name={name} index={i} />
-                    ))}
-                  </div>
-                </section>
-              )}
-
-              {/* IMDb link */}
-              {film.imdbId && (
-                <section>
-                  <SectionLabel>External Links</SectionLabel>
-                  <a
-                    href={`https://www.imdb.com/title/${film.imdbId}/`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={cn(
-                      "group inline-flex w-full items-center gap-3",
-                      "rounded-xl border border-[#1e1e2a] bg-[#0b0b14]",
-                      "px-4 py-3 transition-colors",
-                      "hover:border-[#2a2a3e] hover:bg-[#111118]",
-                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
-                    )}
-                  >
-                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[#2a2a3e] bg-[#09090f] font-[family-name:var(--font-geist-mono)] text-[10px] font-bold text-[#D4AF37]">
-                      IM
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="block font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.15em] text-[#F5F5F0]">
-                        IMDb
-                      </span>
-                      <span className="block font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-widest text-[#444458]">
-                        View full page
-                      </span>
-                    </span>
-                    <ExternalLink
-                      className="h-3.5 w-3.5 shrink-0 text-[#444458] transition-colors group-hover:text-[#888899]"
-                      aria-hidden
-                    />
-                  </a>
-                </section>
-              )}
+                {film.imdbId && (
+                  <section>
+                    <SectionLabel>External Links</SectionLabel>
+                    <a
+                      href={`https://www.imdb.com/title/${film.imdbId}/`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group inline-flex w-full items-center justify-between border border-[#20202d] px-5 py-4 font-[family-name:var(--font-geist-mono)] text-xs font-bold uppercase tracking-[0.2em] text-[#f4f4f5] transition-colors hover:border-[#ff4558]/55 hover:text-[#ff4558]"
+                    >
+                      IMDb
+                      <ExternalLink className="h-4 w-4 text-[#777787] transition-colors group-hover:text-[#ff4558]" aria-hidden />
+                    </a>
+                  </section>
+                )}
+              </div>
             </div>
           </div>
-
-          {/* ── STRIP ──────────────────────────────────────────────── */}
-          <FilmStrip className="mt-14 mb-8" />
-
-          {/* ── BOTTOM NAV ─────────────────────────────────────────── */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Link
-              href="/browse"
-              className={cn(
-                "inline-flex items-center justify-center gap-2 rounded-xl",
-                "border border-[#1e1e2a] bg-[#0b0b14]",
-                "px-5 py-3 font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.18em]",
-                "text-[#888899] transition-colors hover:border-[#2a2a3e] hover:text-[#F5F5F0]",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
-              )}
-            >
-              <ArrowLeft className="h-3.5 w-3.5" aria-hidden />
-              Back to Browse
-            </Link>
-            <RollAgainButton />
-            <Link
-              href="/"
-              className={cn(
-                "inline-flex items-center justify-center gap-2 rounded-xl",
-                "bg-[#e8453c] text-[#F5F5F0]",
-                "px-5 py-3 font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.18em]",
-                "transition-colors hover:bg-[#d5342b]",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
-              )}
-            >
-              <Dices className="h-3.5 w-3.5" aria-hidden />
-              Roll Another
-            </Link>
-          </div>
-
-          <WatchTonightButton title={film.title} year={film.year} />
-        </div>
-      </main>
-    </div>
+        </section>
+      </div>
+    </main>
   );
 }
 
@@ -497,22 +379,22 @@ function StatBox({
 }) {
   return (
     <div className={cn(
-      "flex min-h-24 flex-col justify-between rounded-2xl border px-3.5 py-3.5 transition-colors",
+      "flex min-h-20 flex-col justify-between border px-5 py-4 transition-colors",
       highlight
-        ? "border-[#D4AF37]/36 bg-[#D4AF37]/10 shadow-[0_0_34px_rgba(212,175,55,0.1)]"
-        : "border-white/10 bg-white/[0.035]",
+        ? "border-[#2a2a3a] bg-[#0b0b12] text-[#ff4558]"
+        : "border-[#20202d] bg-[#09090f] text-[#f4f4f5]",
     )}>
       <div className="flex items-center justify-between gap-2">
-        <span className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-widest text-[#66667a]">
+        <span className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.2em] text-[#858596]">
           {label}
         </span>
-        <span className={cn("text-[#66667a]", highlight && "text-[#D4AF37]")}>
+        <span className={cn("text-[#616174]", highlight && "text-[#ff4558]")}>
           {icon}
         </span>
       </div>
       <span className={cn(
         "font-[family-name:var(--font-geist-mono)] text-2xl font-bold leading-none",
-        highlight ? "text-[#D4AF37]" : "text-[#F5F5F0]",
+        highlight ? "text-[#ff4558]" : "text-[#f4f4f5]",
       )}>
         {value}
       </span>
@@ -520,43 +402,18 @@ function StatBox({
   );
 }
 
-// ── FilmStrip ─────────────────────────────────────────────────────────────────
-
-function FilmStrip({ className }: { className?: string }) {
+function EditorialLabel({
+  children,
+  icon,
+}: {
+  children: ReactNode;
+  icon: ReactNode;
+}) {
   return (
-    <div className={cn("flex shrink-0 items-center", className)} aria-hidden>
-      <div className="flex h-5 shrink-0 items-center gap-[4px] border-y border-[#111120] bg-[#060610] px-2">
-        {Array.from({ length: 9 }).map((_, i) => (
-          <div
-            key={i}
-            className="h-[10px] w-[7px] shrink-0 rounded-[2px] bg-[#111120]"
-          />
-        ))}
-      </div>
-      <div className="h-px flex-1 bg-[#111120]" />
-      <div className="flex h-5 shrink-0 items-center gap-[4px] border-y border-[#111120] bg-[#060610] px-2">
-        {Array.from({ length: 9 }).map((_, i) => (
-          <div
-            key={i}
-            className="h-[10px] w-[7px] shrink-0 rounded-[2px] bg-[#111120]"
-          />
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// ── ChannelLabel ──────────────────────────────────────────────────────────────
-
-function ChannelLabel({ children }: { children: ReactNode }) {
-  return (
-    <div className="mb-4 flex items-center gap-3">
-      <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-[#e8453c]/22 bg-[#e8453c]/10 px-3 py-1 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#e8453c]">
-        <Trophy className="h-3 w-3" aria-hidden />
-        {children}
-      </span>
-      <div className="h-px flex-1 bg-[#1a1a28]" />
-    </div>
+    <h2 className="flex items-center gap-3 font-[family-name:var(--font-geist-mono)] text-sm font-bold uppercase tracking-[0.2em] text-[#f4f4f5]">
+      <span className="text-[#ff4558]">{icon}</span>
+      {children}
+    </h2>
   );
 }
 
@@ -565,7 +422,7 @@ function ChannelLabel({ children }: { children: ReactNode }) {
 function SectionLabel({ children }: { children: ReactNode }) {
   return (
     <div className="mb-3 flex items-center gap-2.5">
-      <h2 className="flex shrink-0 items-center gap-1.5 font-[family-name:var(--font-geist-mono)] text-[9px] font-bold uppercase tracking-[0.28em] text-[#888899]">
+      <h2 className="flex shrink-0 items-center gap-1.5 font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.24em] text-[#888899]">
         {children}
       </h2>
       <div className="h-px flex-1 bg-[#1a1a28]" />
@@ -573,141 +430,60 @@ function SectionLabel({ children }: { children: ReactNode }) {
   );
 }
 
-// ── CeremonyPanel ─────────────────────────────────────────────────────────────
-
-function CeremonyPanel({
+function AwardSummaryCard({
   title,
-  icon,
   wins,
   nominations,
   records,
 }: {
   title: string;
-  icon: "oscar" | "globe" | "cannes";
   wins: number;
   nominations: number;
   records: AwardRecord[];
 }) {
-  const AwardIcon =
-    icon === "globe" ? Star : icon === "cannes" ? Clapperboard : Trophy;
-
   const sorted = [...records].sort(
     (a, b) =>
       (b.won ? 1 : 0) - (a.won ? 1 : 0) ||
       a.awardYear - b.awardYear ||
       a.category.localeCompare(b.category),
   );
+  const wonRecords = sorted.filter((record) => record.won);
+  const summaryRecords = wonRecords.length > 0 ? wonRecords : sorted;
+  const firstCategories = summaryRecords.slice(0, 2).map((record) => record.category);
+  const remainingCount = Math.max(nominations - firstCategories.length, 0);
+  const categorySummary =
+    firstCategories.length > 0
+      ? `${firstCategories.join(", ")}${remainingCount > 0 ? `, and ${remainingCount} more` : ""}`
+      : `${nominations} ${nominations === 1 ? "nomination" : "nominations"}`;
 
   return (
-    <div className="flex flex-col gap-4 p-5">
-      {/* Header */}
-      <div className="flex items-center gap-2.5">
-        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-[#1e1e2a] bg-[#09090f]">
-          <AwardIcon className="h-3.5 w-3.5 text-[#D4AF37]" aria-hidden />
-        </span>
-        <div className="min-w-0">
-          <h3 className="font-[family-name:var(--font-display)] text-sm font-semibold leading-none text-[#F5F5F0]">
-            {title}
-          </h3>
-        </div>
+    <div className="flex items-center justify-between gap-6 border border-[#20202d] bg-[#08080d]/70 px-5 py-5 sm:px-6">
+      <div className="min-w-0">
+        <h3 className="text-xl font-bold leading-tight text-[#f4f4f5]">
+          {title}
+        </h3>
+        <p className="mt-2 text-sm leading-6 text-[#858596] sm:text-base">
+          {categorySummary}
+        </p>
       </div>
-
-      {/* Big win number */}
-      <div className="flex items-baseline gap-2">
-        <span
-          className={cn(
-            "font-[family-name:var(--font-geist-mono)] text-5xl font-bold leading-none tabular-nums",
-            wins > 0 ? "text-[#D4AF37]" : "text-[#2a2a3e]",
-          )}
-        >
-          {wins}
-        </span>
-        <div className="flex flex-col pb-0.5">
-          <span
-            className={cn(
-              "font-[family-name:var(--font-geist-mono)] text-[8px] font-bold uppercase tracking-[0.22em]",
-              wins > 0 ? "text-[#D4AF37]" : "text-[#444458]",
-            )}
-          >
-            {wins === 1 ? "Win" : "Wins"}
-          </span>
-          <span className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-widest text-[#444458]">
-            / {nominations} noms
-          </span>
-        </div>
-      </div>
-
-      {/* Category rows */}
-      {sorted.length > 0 && (
-        <div className="flex flex-col gap-2 border-t border-[#1a1a28] pt-4">
-          {sorted.map((r, i) => (
-            <div key={i} className="flex items-start gap-2">
-              <div
-                className={cn(
-                  "mt-[5px] h-1.5 w-1.5 shrink-0 rounded-full",
-                  r.won ? "bg-[#D4AF37]" : "bg-[#2a2a3e]",
-                )}
-              />
-              <div className="min-w-0 flex-1">
-                <p
-                  className={cn(
-                    "text-xs font-medium leading-tight",
-                    r.won ? "text-[#D4AF37]" : "text-[#888899]",
-                  )}
-                >
-                  {r.category}
-                </p>
-                {r.nominee && (
-                  <p className="mt-0.5 font-[family-name:var(--font-geist-mono)] text-[0.6rem] leading-tight text-[#555568]">
-                    {r.nominee}
-                  </p>
-                )}
-              </div>
-              <div className="shrink-0 flex items-center gap-1 mt-0.5">
-                {r.won && (
-                  <span className="rounded-full bg-[#D4AF37] px-1.5 py-0.5 font-[family-name:var(--font-geist-mono)] text-[0.55rem] font-bold uppercase tracking-[0.12em] text-[#09090f]">
-                    Won
-                  </span>
-                )}
-                <span className="font-[family-name:var(--font-geist-mono)] text-[0.6rem] tabular-nums text-[#333348]">
-                  {r.awardYear}
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+      <span className="shrink-0 font-[family-name:var(--font-geist-mono)] text-4xl font-bold leading-none text-[#ff4558]">
+        {wins > 0 ? wins : nominations}
+      </span>
     </div>
   );
 }
 
 // ── CastItem ──────────────────────────────────────────────────────────────────
 
-function CastItem({ name, index }: { name: string; index: number }) {
-  const parts = name.trim().split(/\s+/);
-  const initials =
-    parts.length >= 2
-      ? `${parts[0]?.[0] ?? ""}${parts[parts.length - 1]?.[0] ?? ""}`.toUpperCase()
-      : name.slice(0, 2).toUpperCase();
-
+function CastItem({ name }: { name: string }) {
   return (
-    <div className="flex items-center gap-2.5 rounded-lg border border-[#1a1a28] bg-[#0b0b14] px-3 py-2">
-      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[#2a2a3e] bg-[#111118] font-[family-name:var(--font-geist-mono)] text-[9px] font-bold text-[#555568]">
-        {initials}
-      </div>
-      <span
-        className={cn(
-          "min-w-0 flex-1 truncate text-sm",
-          index === 0 ? "font-medium text-[#F5F5F0]" : "text-[#a6a6b5]",
-        )}
-      >
+    <div className="flex min-h-16 items-center justify-between gap-4 border border-[#181823] bg-[#08080d]/62 px-5 py-4">
+      <span className="min-w-0 truncate text-lg text-[#d7d7de]">
         {name}
       </span>
-      {index === 0 && (
-        <span className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[7px] font-bold uppercase tracking-[0.2em] text-[#444458]">
-          Lead
-        </span>
-      )}
+      <span className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.16em] text-[#858596]">
+        Actor
+      </span>
     </div>
   );
 }

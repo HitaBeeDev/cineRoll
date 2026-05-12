@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Dices } from "lucide-react";
+import { Play } from "lucide-react";
 import { fetchRandom } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
-export function RollAgainButton() {
+export function RollAgainButton({ className }: { className?: string }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
@@ -26,13 +26,14 @@ export function RollAgainButton() {
       onClick={handleRoll}
       disabled={loading}
       className={cn(
-        "inline-flex items-center justify-center gap-2 rounded-xl bg-amber-400 px-5 py-2.5",
-        "text-sm font-semibold text-zinc-950 transition-colors",
-        "hover:bg-amber-300 disabled:opacity-60 disabled:cursor-not-allowed",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
+        "inline-flex items-center justify-center gap-2 rounded bg-[#ef3347] px-5 py-2.5",
+        "text-sm font-semibold text-white transition-colors",
+        "hover:bg-[#ff4558] disabled:cursor-not-allowed disabled:opacity-60",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff4558]",
+        className,
       )}
     >
-      <Dices className="h-4 w-4" aria-hidden />
+      <Play className="h-4 w-4" aria-hidden />
       {loading ? "Rolling…" : "Roll Again"}
     </button>
   );
