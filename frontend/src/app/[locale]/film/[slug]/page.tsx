@@ -10,6 +10,8 @@ import {
   Clapperboard,
   Users,
   Dices,
+  Award,
+  Gauge,
 } from "lucide-react";
 import type { Film, AwardRecord } from "@cineroll/types";
 import { cn } from "@/lib/utils";
@@ -155,7 +157,7 @@ export default async function FilmPage({
 
   return (
     <div
-      className="flex flex-col min-h-screen bg-[#09090f] text-[#F5F5F0]"
+      className="flex min-h-screen flex-col overflow-x-hidden bg-[#09090f] text-[#F5F5F0]"
       style={accentStyle}
     >
       <AppHeader />
@@ -174,17 +176,31 @@ export default async function FilmPage({
         />
 
         {/* ── CONTENT AREA ───────────────────────────────────────── */}
-        <div className="relative z-10 mx-auto max-w-5xl px-4 pb-28 sm:px-6 lg:px-8">
+        <div className="relative z-10 mx-auto max-w-6xl px-4 pb-28 sm:px-6 lg:px-8">
 
           {/* ── 1. POSTER + STATS ──────────────────────────────────── */}
-          <div className="flex flex-col sm:flex-row gap-6 sm:gap-8 sm:items-start pt-10">
+          <section
+            className={cn(
+              "relative -mt-20 overflow-hidden rounded-[1.35rem] border border-white/10",
+              "bg-[#0b0b14]/78 shadow-[0_30px_120px_rgba(0,0,0,0.58)] backdrop-blur-2xl",
+            )}
+          >
+            <div
+              className="pointer-events-none absolute inset-0 opacity-70"
+              style={{
+                background: `radial-gradient(ellipse 44% 80% at 8% 0%, ${accent}2f, transparent 62%), linear-gradient(135deg, rgba(232,69,60,0.1), transparent 34%)`,
+              }}
+            />
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/24 to-transparent" />
+
+            <div className="relative flex flex-col gap-6 p-4 sm:flex-row sm:gap-7 sm:p-5 md:p-6">
 
             {/* Poster */}
-            <div className="relative mx-auto sm:mx-0 shrink-0">
+            <div className="relative mx-auto shrink-0 sm:mx-0">
               <div
-                className="relative w-36 sm:w-44 md:w-52 aspect-[2/3] overflow-hidden rounded-2xl border border-white/10"
+                className="relative aspect-[2/3] w-40 overflow-hidden rounded-2xl border border-white/12 sm:w-48 md:w-56"
                 style={{
-                  boxShadow: `0 28px 88px rgba(0,0,0,0.92), 0 0 56px 0px ${accent}28`,
+                  boxShadow: `0 28px 88px rgba(0,0,0,0.92), 0 0 68px 0px ${accent}34`,
                 }}
               >
                 {film.posterUrl ? (
@@ -192,7 +208,7 @@ export default async function FilmPage({
                     src={film.posterUrl}
                     alt={`${film.title} poster`}
                     fill
-                    sizes="(max-width: 640px) 144px, (max-width: 768px) 176px, 208px"
+                    sizes="(max-width: 640px) 160px, (max-width: 768px) 192px, 224px"
                     className="object-cover"
                     priority
                   />
@@ -205,11 +221,25 @@ export default async function FilmPage({
             </div>
 
             {/* Stats + genres + rank badges */}
-            <div className="flex flex-col gap-4 pb-2 text-center sm:text-left">
+            <div className="flex min-w-0 flex-1 flex-col justify-center gap-5 text-center sm:text-left">
+              <div>
+                <p className="font-[family-name:var(--font-geist-mono)] text-[9px] font-bold uppercase tracking-[0.24em] text-[#e8453c]">
+                  CineRoll dossier
+                </p>
+                <h2 className="mt-2 text-balance font-[family-name:var(--font-display)] text-2xl font-semibold leading-tight text-[#F5F5F0] sm:text-3xl">
+                  {film.title} is ready for your next roll.
+                </h2>
+                {film.plot && (
+                  <p className="mt-3 max-w-2xl text-sm leading-6 text-[#a6a6b5] line-clamp-3">
+                    {film.plot}
+                  </p>
+                )}
+              </div>
 
               {/* Stat boxes */}
-              <div className="grid grid-cols-3 gap-2 w-fit mx-auto sm:mx-0">
+              <div className="grid w-full max-w-xl grid-cols-3 gap-2.5 sm:w-fit sm:min-w-[24rem]">
                 <StatBox
+                  icon={<Star className="h-3.5 w-3.5" aria-hidden />}
                   label="IMDb"
                   value={
                     film.imdbRating != null
@@ -219,11 +249,13 @@ export default async function FilmPage({
                   highlight={film.imdbRating != null && film.imdbRating >= 8.0}
                 />
                 <StatBox
+                  icon={<Gauge className="h-3.5 w-3.5" aria-hidden />}
                   label="RT"
                   value={film.rtScore != null ? `${film.rtScore}%` : "—"}
                   highlight={film.rtScore != null && film.rtScore >= 85}
                 />
                 <StatBox
+                  icon={<Award className="h-3.5 w-3.5" aria-hidden />}
                   label="Awards"
                   value={
                     totalAwardWins > 0
@@ -260,7 +292,7 @@ export default async function FilmPage({
                   {film.genres.map((g) => (
                     <span
                       key={g}
-                      className="inline-flex items-center rounded-full border border-[#1e1e2a] px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#888899]"
+                      className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#a6a6b5]"
                     >
                       {g}
                     </span>
@@ -268,10 +300,11 @@ export default async function FilmPage({
                 </div>
               )}
             </div>
-          </div>
+            </div>
+          </section>
 
           {/* ── STRIP ──────────────────────────────────────────────── */}
-          <FilmStrip className="mt-10 mb-8" />
+          <FilmStrip className="mt-12 mb-8" />
 
           {/* ── 2. AWARDS ──────────────────────────────────────────── */}
           {hasAwards && (
@@ -295,7 +328,7 @@ export default async function FilmPage({
               {/* Ceremony cards */}
               <div
                 className={cn(
-                  "grid grid-cols-1 divide-y divide-[#1a1a28] overflow-hidden rounded-xl border border-[#1e1e2a] bg-[#0b0b14]",
+                  "grid grid-cols-1 divide-y divide-[#1a1a28] overflow-hidden rounded-2xl border border-white/10 bg-[#0b0b14]/80 shadow-[0_18px_70px_rgba(0,0,0,0.34)]",
                   activeCeremonies.length === 2
                     ? "sm:grid-cols-2 sm:divide-y-0 sm:divide-x"
                     : activeCeremonies.length >= 3
@@ -452,26 +485,33 @@ export default async function FilmPage({
 // ── StatBox ────────────────────────────────────────────────────────────────────
 
 function StatBox({
+  icon,
   label,
   value,
   highlight = false,
 }: {
+  icon: ReactNode;
   label: string;
   value: string;
   highlight?: boolean;
 }) {
   return (
     <div className={cn(
-      "flex flex-col gap-1 rounded-lg border px-3 py-2.5 transition-colors",
+      "flex min-h-24 flex-col justify-between rounded-2xl border px-3.5 py-3.5 transition-colors",
       highlight
-        ? "border-[#D4AF37]/30 bg-[#D4AF37]/08"
-        : "border-[#1e1e2a] bg-[#0d0d1a]",
+        ? "border-[#D4AF37]/36 bg-[#D4AF37]/10 shadow-[0_0_34px_rgba(212,175,55,0.1)]"
+        : "border-white/10 bg-white/[0.035]",
     )}>
-      <span className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-widest text-[#444458]">
-        {label}
-      </span>
+      <div className="flex items-center justify-between gap-2">
+        <span className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-widest text-[#66667a]">
+          {label}
+        </span>
+        <span className={cn("text-[#66667a]", highlight && "text-[#D4AF37]")}>
+          {icon}
+        </span>
+      </div>
       <span className={cn(
-        "font-[family-name:var(--font-geist-mono)] text-base font-bold",
+        "font-[family-name:var(--font-geist-mono)] text-2xl font-bold leading-none",
         highlight ? "text-[#D4AF37]" : "text-[#F5F5F0]",
       )}>
         {value}
