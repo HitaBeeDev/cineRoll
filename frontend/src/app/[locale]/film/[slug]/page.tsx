@@ -179,12 +179,12 @@ export default async function FilmPage({
 
   return (
     <main
-      className="min-h-screen overflow-x-hidden bg-[#07070b] text-[#f4f4f5]"
+      className="min-h-screen bg-[#07070b] text-[#f4f4f5]"
       style={accentStyle}
     >
       <AppHeader />
-      <div className="grid min-h-[calc(100vh-4rem)] lg:grid-cols-12">
-        <aside className="border-b border-[#20202d] bg-[#08080d] px-4 py-6 sm:px-6 lg:sticky lg:top-16 lg:col-span-5 lg:h-[calc(100vh-4rem)] lg:self-start lg:border-b-0 lg:border-r lg:p-4">
+      <div className="min-h-[calc(100vh-4rem)] lg:block">
+        <aside className="border-b border-[#20202d] bg-[#08080d] px-4 py-6 sm:px-6 lg:fixed lg:bottom-0 lg:left-0 lg:top-16 lg:z-30 lg:h-[calc(100vh-4rem)] lg:w-[41.666667%] lg:border-b-0 lg:border-r lg:p-4">
           <div className="flex h-full flex-col justify-between gap-6">
             <div className="flex flex-col">
             <div className="-mx-1 -mt-1 mb-2 flex items-center">
@@ -312,7 +312,7 @@ export default async function FilmPage({
 
         <section
           id="details"
-          className="relative min-w-0 scroll-mt-24 px-5 py-10 sm:px-8 lg:col-span-7 lg:px-12 lg:py-14 xl:px-16"
+          className="relative min-w-0 scroll-mt-24 px-5 py-10 sm:px-8 lg:ml-[41.666667%] lg:w-[58.333333%] lg:px-12 lg:py-14 xl:px-16"
         >
           <div
             className="pointer-events-none absolute inset-0 opacity-55"
