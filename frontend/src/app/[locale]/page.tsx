@@ -410,7 +410,7 @@ export default function HomePage() {
           />
 
           {/* ROLL button + pool count + natural language CTA */}
-          <div className="mt-5 flex flex-wrap items-center gap-4">
+          <div className="mt-1 flex flex-wrap items-center gap-4">
             {/* Marquee-border ROLL box */}
             <div className="w-[185px] shrink-0 rounded-2xl border-2 border-dashed border-[#e8453c]/30 p-1.5">
               <button
@@ -1081,7 +1081,10 @@ function FilmCard({ film }: { film: RollFilm }) {
         </div>
 
         {/* Award tags */}
-        {(totalWins > 0 || totalNoms > 0 || film.imdbTopMovieRank !== null || film.imdbTopTvRank !== null) ? (
+        {totalWins > 0 ||
+        totalNoms > 0 ||
+        film.imdbTopMovieRank !== null ||
+        film.imdbTopTvRank !== null ? (
           <div className="flex flex-wrap gap-1.5">
             {film.imdbTopMovieRank !== null && (
               <AwardTag>IMDb Top 250 Movies #{film.imdbTopMovieRank}</AwardTag>
