@@ -1081,8 +1081,14 @@ function FilmCard({ film }: { film: RollFilm }) {
         </div>
 
         {/* Award tags */}
-        {totalWins > 0 || totalNoms > 0 ? (
+        {(totalWins > 0 || totalNoms > 0 || film.imdbTopMovieRank !== null || film.imdbTopTvRank !== null) ? (
           <div className="flex flex-wrap gap-1.5">
+            {film.imdbTopMovieRank !== null && (
+              <AwardTag>IMDb Top 250 Movies #{film.imdbTopMovieRank}</AwardTag>
+            )}
+            {film.imdbTopTvRank !== null && (
+              <AwardTag>IMDb Top 250 TV #{film.imdbTopTvRank}</AwardTag>
+            )}
             {film.oscarWins > 0 && (
               <AwardTag>
                 + {film.oscarWins} Oscar {film.oscarWins === 1 ? "Win" : "Wins"}
@@ -1160,10 +1166,6 @@ function FilmCard({ film }: { film: RollFilm }) {
 function getListBadges(film: RollFilm) {
   const badges: string[] = [];
   if (film.cannesNominations > 0) badges.push("Cannes");
-  if (film.imdbTopMovieRank !== null)
-    badges.push(`IMDb Top 250 Movies #${film.imdbTopMovieRank}`);
-  if (film.imdbTopTvRank !== null)
-    badges.push(`IMDb Top 250 TV #${film.imdbTopTvRank}`);
   return badges;
 }
 
