@@ -799,8 +799,8 @@ Three handpicked film slots per day, each with a different mood/filter combo. Ca
 - [x] In the enrich script, after fetching TMDB movie details, make one additional call to `GET /movie/{tmdb_id}/watch/providers` (free, no new API key — uses JustWatch data via TMDB); store the result per country as a `watchProviders` JSON field on the film
 - [x] Add `watchProviders` (Json, nullable) to the Prisma Film model and run migration
 - [x] Include `watchProviders` in the `/api/films/:slug` response
-- [ ] Frontend — Film Detail Page: add a "Where to Watch" section showing streaming service logos (Netflix, Hulu, Disney+, etc.) for the user's country; group by flatrate (subscription), rent, and buy
-- [ ] Fall back gracefully if no providers available for the user's region: show "Not available for streaming in your region"
+- [x] Frontend — Film Detail Page: add a "Where to Watch" section showing streaming service logos (Netflix, Hulu, Disney+, etc.) for the user's country; group by flatrate (subscription), rent, and buy
+- [x] Fall back gracefully if no providers available for the user's region: show "Not available for streaming in your region"
 
 ### Similar Films
 

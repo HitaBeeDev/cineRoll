@@ -9,6 +9,7 @@ import { formatRuntime } from "@/lib/format";
 import { AppHeader } from "@/components/app-header";
 import { FilmTrailer } from "@/components/film-trailer";
 import { AnimatedJumpLink } from "@/components/animated-jump-link";
+import { WhereToWatch } from "@/components/where-to-watch";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 const FALLBACK_ACCENT = "#D4AF37";
@@ -460,6 +461,9 @@ export default async function FilmPage({
                 </div>
               </section>
             )}
+
+            {/* ── WHERE TO WATCH ─────────────────────────────────────── */}
+            <WhereToWatch watchProviders={film.watchProviders ?? null} accent={accent} />
 
             {/* ── TRAILER + META ─────────────────────────────────────── */}
             <div className="grid gap-14 xl:grid-cols-[1fr_240px]">
