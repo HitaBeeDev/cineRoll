@@ -125,7 +125,7 @@ export function FilmCard({ film, className }: FilmCardProps) {
             "text-xs font-medium text-[#F5F5F0]/80",
           )}
         >
-          Roll Similar →
+          View Film →
         </span>
       </div>
     </Link>
