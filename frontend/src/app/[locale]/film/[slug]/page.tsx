@@ -116,7 +116,9 @@ export default async function FilmPage({
     film.imdbTopMovieRank !== null
       ? `IMDb Top 250 Movies #${film.imdbTopMovieRank}`
       : null,
-    film.imdbTopTvRank !== null ? `IMDb Top 250 TV #${film.imdbTopTvRank}` : null,
+    film.imdbTopTvRank !== null
+      ? `IMDb Top 250 TV #${film.imdbTopTvRank}`
+      : null,
     film.oscarWins > 0
       ? `+ ${film.oscarWins} Oscar ${film.oscarWins === 1 ? "Win" : "Wins"}`
       : null,
@@ -214,7 +216,9 @@ export default async function FilmPage({
 
             <div className="flex flex-col gap-2 p-4">
               <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.2em] text-[#888899]">
-                {film.genres.length > 0 ? film.genres.join(" · ") : "Genres unavailable"}
+                {film.genres.length > 0
+                  ? film.genres.join(" · ")
+                  : "Genres unavailable"}
               </p>
 
               <div className="mt-1 flex items-start justify-between gap-3">
@@ -230,22 +234,12 @@ export default async function FilmPage({
                 </button>
               </div>
 
-              {film.director && (
-                <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.2em] text-[#888899]">
-                  Dir. {film.director}
-                </p>
-              )}
-
-              {film.plot && (
-                <p className="line-clamp-3 text-xs leading-relaxed text-[#888899]">
-                  {film.plot}
-                </p>
-              )}
-
               <div className="mt-2 grid grid-cols-3 gap-2">
                 <HomeStyleStatBox
                   label="IMDb"
-                  value={film.imdbRating != null ? film.imdbRating.toFixed(1) : "—"}
+                  value={
+                    film.imdbRating != null ? film.imdbRating.toFixed(1) : "—"
+                  }
                 />
                 <HomeStyleStatBox
                   label="RT"
@@ -298,7 +292,10 @@ export default async function FilmPage({
           </div>
         </aside>
 
-        <section id="details" className="relative min-w-0 scroll-mt-24 px-5 py-10 sm:px-8 lg:col-span-7 lg:px-12 lg:py-14 xl:px-16">
+        <section
+          id="details"
+          className="relative min-w-0 scroll-mt-24 px-5 py-10 sm:px-8 lg:col-span-7 lg:px-12 lg:py-14 xl:px-16"
+        >
           <div
             className="pointer-events-none absolute inset-0 opacity-55"
             style={{
@@ -307,7 +304,7 @@ export default async function FilmPage({
           />
           <div className="relative mx-auto flex max-w-6xl flex-col gap-14">
             <header className="max-w-5xl pt-2 lg:pt-4">
-              <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.3em] text-[#e8453c]/70">
+              <p className="font-[family-name:var(--font-geist-mono)] text-[12px] uppercase tracking-[0.3em] text-[#e8453c]/70">
                 {film.year}
                 {formattedRuntime ? `  •  ${formattedRuntime}` : ""}
                 {film.director ? `  •  Dir. ${film.director}` : ""}
@@ -330,7 +327,9 @@ export default async function FilmPage({
 
             {hasAwards && (
               <section>
-                <EditorialLabel icon={<Award className="h-4 w-4" aria-hidden />}>
+                <EditorialLabel
+                  icon={<Award className="h-4 w-4" aria-hidden />}
+                >
                   Awards &amp; Recognition
                 </EditorialLabel>
                 <div className="mt-7 grid gap-4">
@@ -349,7 +348,9 @@ export default async function FilmPage({
 
             {film.cast.length > 0 && (
               <section>
-                <EditorialLabel icon={<Users className="h-4 w-4" aria-hidden />}>
+                <EditorialLabel
+                  icon={<Users className="h-4 w-4" aria-hidden />}
+                >
                   Cast
                 </EditorialLabel>
                 <div className="mt-7 grid gap-4 sm:grid-cols-2">
@@ -406,7 +407,10 @@ export default async function FilmPage({
                       className="group inline-flex w-full items-center justify-between border border-[#20202d] px-5 py-4 font-[family-name:var(--font-geist-mono)] text-xs font-bold uppercase tracking-[0.2em] text-[#f4f4f5] transition-colors hover:border-[#ff4558]/55 hover:text-[#ff4558]"
                     >
                       IMDb
-                      <ExternalLink className="h-4 w-4 text-[#777787] transition-colors group-hover:text-[#ff4558]" aria-hidden />
+                      <ExternalLink
+                        className="h-4 w-4 text-[#777787] transition-colors group-hover:text-[#ff4558]"
+                        aria-hidden
+                      />
                     </a>
                   </section>
                 )}
@@ -509,7 +513,9 @@ function AwardSummaryCard({
   );
   const wonRecords = sorted.filter((record) => record.won);
   const summaryRecords = wonRecords.length > 0 ? wonRecords : sorted;
-  const firstCategories = summaryRecords.slice(0, 2).map((record) => record.category);
+  const firstCategories = summaryRecords
+    .slice(0, 2)
+    .map((record) => record.category);
   const remainingCount = Math.max(nominations - firstCategories.length, 0);
   const categorySummary =
     firstCategories.length > 0
@@ -538,9 +544,7 @@ function AwardSummaryCard({
 function CastItem({ name }: { name: string }) {
   return (
     <div className="flex min-h-16 items-center justify-between gap-4 border border-[#181823] bg-[#08080d]/62 px-5 py-4">
-      <span className="min-w-0 truncate text-lg text-[#d7d7de]">
-        {name}
-      </span>
+      <span className="min-w-0 truncate text-lg text-[#d7d7de]">{name}</span>
       <span className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.16em] text-[#858596]">
         Actor
       </span>
