@@ -338,7 +338,7 @@ export default async function FilmPage({
             </header>
 
             {film.plot && (
-              <blockquote className="max-w-5xl border-l-2 border-[#ff4558] py-1 pl-6 font-[family-name:var(--font-geist-mono)] text-[0.8rem] uppercase leading-8 tracking-[0.16em] text-[#8d8da1] sm:pl-8">
+              <blockquote className="max-w-5xl border-l-2 border-[#ff4558] py-1 pl-5 font-[family-name:var(--font-geist-mono)] text-[0.8rem] uppercase leading-8 tracking-[0.16em] text-[#8d8da1] sm:pl-6">
                 {film.plot}
               </blockquote>
             )}
