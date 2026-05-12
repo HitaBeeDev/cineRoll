@@ -6,8 +6,9 @@ import {
   Bookmark,
   ExternalLink,
   Users,
-  Award,
   Share2,
+  Sparkles,
+  Trophy,
 } from "lucide-react";
 import type { Film, AwardRecord } from "@cineroll/types";
 import { cn } from "@/lib/utils";
@@ -345,17 +346,37 @@ export default async function FilmPage({
             )}
 
             {hasAwards && (
-              <section id="awards" className="scroll-mt-24">
-                <EditorialLabel
-                  icon={<Award className="h-4 w-4" aria-hidden />}
-                >
-                  Awards &amp; Recognition
-                </EditorialLabel>
-                <div className="mt-7 grid gap-4">
+              <section id="awards" className="relative scroll-mt-24 overflow-hidden py-8">
+                <div
+                  className="pointer-events-none absolute inset-0 opacity-80"
+                  style={{
+                    background: `radial-gradient(ellipse 72% 52% at 8% 0%, ${accent}30, transparent 70%), radial-gradient(ellipse 44% 40% at 100% 18%, rgba(232,69,60,0.18), transparent 68%)`,
+                  }}
+                />
+                <div className="relative">
+                  <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+                    <div>
+                      <p className="inline-flex items-center gap-2 rounded-full border border-[#e8453c]/22 bg-[#e8453c]/10 px-3 py-1.5 font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.24em] text-[#e8453c]">
+                        <Sparkles className="h-3.5 w-3.5" aria-hidden />
+                        Awards Season
+                      </p>
+                      <h2 className="mt-3 max-w-3xl font-[family-name:var(--font-display)] text-[clamp(2.25rem,4vw,4.25rem)] font-bold leading-none text-[#F5F5F0]">
+                        Awards &amp; Recognition
+                      </h2>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3 sm:min-w-64">
+                      <AwardStat label="Wins" value={totalAwardWins} />
+                      <AwardStat label="Nominations" value={totalAwardNoms} />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="relative mt-8 space-y-5">
                   {activeCeremonies.map((c) => (
                     <AwardSummaryCard
                       key={c.title}
                       title={c.title}
+                      icon={c.icon}
                       wins={c.wins}
                       nominations={c.nominations}
                       records={c.records}
@@ -515,13 +536,28 @@ function SectionLabel({ children }: { children: ReactNode }) {
   );
 }
 
+function AwardStat({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="rounded-full bg-[#0f0f18]/82 px-5 py-3 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08),0_18px_48px_rgba(0,0,0,0.28)] backdrop-blur">
+      <span className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.2em] text-[#858596]">
+        {label}
+      </span>
+      <strong className="mt-1 block font-[family-name:var(--font-display)] text-3xl leading-none text-[#F5F5F0]">
+        {value}
+      </strong>
+    </div>
+  );
+}
+
 function AwardSummaryCard({
   title,
+  icon,
   wins,
   nominations,
   records,
 }: {
   title: string;
+  icon: "oscar" | "globe" | "cannes";
   wins: number;
   nominations: number;
   records: AwardRecord[];
@@ -542,21 +578,80 @@ function AwardSummaryCard({
     firstCategories.length > 0
       ? `${firstCategories.join(", ")}${remainingCount > 0 ? `, and ${remainingCount} more` : ""}`
       : `${nominations} ${nominations === 1 ? "nomination" : "nominations"}`;
+  const featuredRecords = summaryRecords.slice(0, 3);
+  const ceremonyLabel =
+    icon === "oscar"
+      ? "Academy"
+      : icon === "globe"
+        ? "Globes"
+        : "Cannes";
+  const tone =
+    wins > 0
+      ? "from-[#e8453c]/24 via-[#11111b]/90 to-[#08080d]/76"
+      : "from-[#222234]/78 via-[#0f0f18]/88 to-[#08080d]/70";
 
   return (
-    <div className="flex items-center justify-between gap-6 border border-[#20202d] bg-[#08080d]/70 px-5 py-5 sm:px-6">
-      <div className="min-w-0">
-        <h3 className="text-xl font-bold leading-tight text-[#f4f4f5]">
-          {title}
-        </h3>
-        <p className="mt-2 text-sm leading-6 text-[#858596] sm:text-base">
-          {categorySummary}
-        </p>
+    <article className="group relative overflow-hidden rounded-[2rem] bg-gradient-to-br p-px shadow-[0_26px_80px_rgba(0,0,0,0.34)] shadow-black/30 transition-transform duration-300 hover:-translate-y-0.5">
+      <div className={cn("absolute inset-0 bg-gradient-to-br", tone)} />
+      <div className="absolute inset-0 bg-[linear-gradient(110deg,transparent,rgba(255,255,255,0.075),transparent)] opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+
+      <div className="relative grid gap-5 rounded-[calc(2rem-1px)] bg-[#08080d]/62 px-5 py-5 backdrop-blur sm:px-6 sm:py-6 lg:grid-cols-[1fr_auto] lg:items-center">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-4">
+            <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[#e8453c]/12 text-[#ff4558] shadow-[inset_0_0_0_1px_rgba(232,69,60,0.28)]">
+              <Trophy className="h-5 w-5" aria-hidden />
+            </span>
+            <div>
+              <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.24em] text-[#9a9aaa]">
+                {ceremonyLabel} Circuit
+              </p>
+              <h3 className="mt-1 text-2xl font-bold leading-tight text-[#f4f4f5]">
+                {title}
+              </h3>
+            </div>
+          </div>
+
+          <p className="mt-4 max-w-3xl text-base leading-7 text-[#a0a0af]">
+            {categorySummary}
+          </p>
+
+          {featuredRecords.length > 0 && (
+            <div className="mt-5 flex flex-wrap gap-2">
+              {featuredRecords.map((record) => (
+                <span
+                  key={`${record.awardYear}-${record.category}-${record.nominee}`}
+                  className="inline-flex max-w-full items-center gap-2 rounded-full bg-[#f5f5f0]/7 px-3 py-1.5 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.16em] text-[#b7b7c4] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]"
+                >
+                  <span className="shrink-0 text-[#ff4558]">
+                    {record.won ? "Won" : "Nom"}
+                  </span>
+                  <span className="min-w-0 truncate">{record.category}</span>
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="flex min-w-52 items-stretch gap-2 lg:justify-end">
+          <div className="flex min-w-24 flex-1 flex-col justify-center rounded-full bg-black/26 px-5 py-3 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]">
+            <span className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.22em] text-[#858596]">
+              Wins
+            </span>
+            <strong className="mt-1 block font-[family-name:var(--font-display)] text-5xl leading-none text-[#ff4558]">
+              {wins}
+            </strong>
+          </div>
+          <div className="flex min-w-24 flex-1 flex-col justify-center rounded-full bg-black/20 px-5 py-3 text-right shadow-[inset_0_0_0_1px_rgba(255,255,255,0.07)]">
+            <span className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.22em] text-[#858596]">
+              Nominations
+            </span>
+            <strong className="mt-1 block font-[family-name:var(--font-display)] text-3xl leading-none text-[#F5F5F0]">
+              {nominations}
+            </strong>
+          </div>
+        </div>
       </div>
-      <span className="shrink-0 font-[family-name:var(--font-geist-mono)] text-4xl font-bold leading-none text-[#ff4558]">
-        {wins > 0 ? wins : nominations}
-      </span>
-    </div>
+    </article>
   );
 }
 
