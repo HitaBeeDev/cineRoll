@@ -469,6 +469,7 @@ export default function HomePage() {
         <div
           ref={filmCardRef}
           className={cn(
+            "relative z-0",
             "border-t border-[#1a1a28] lg:border-t-0 lg:border-l",
             "lg:col-span-5",
             "min-h-[400px] lg:min-h-0 lg:flex lg:flex-col lg:overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:w-0",
@@ -585,7 +586,7 @@ function RollHistoryDrawer({
           <motion.button
             type="button"
             aria-label="Close history"
-            className="fixed inset-0 z-[80] bg-black/55 backdrop-blur-[2px]"
+            className="fixed inset-0 z-[80] bg-black/75 backdrop-blur-[3px]"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
