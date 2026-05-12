@@ -10,6 +10,7 @@ import { AppHeader } from "@/components/app-header";
 import { FilmTrailer } from "@/components/film-trailer";
 import { AnimatedJumpLink } from "@/components/animated-jump-link";
 import { WhereToWatch } from "@/components/where-to-watch";
+import { FilmCard } from "@/components/film-card";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 const FALLBACK_ACCENT = "#D4AF37";
@@ -32,6 +33,44 @@ async function fetchFilm(slug: string): Promise<Film | null> {
   if (res.status === 404) return null;
   if (!res.ok) throw new Error(`Failed to fetch film: ${res.status}`);
   return (await res.json()) as Film;
+}
+
+type SimilarFilm = {
+  id: string;
+  slug: string;
+  title: string;
+  year: number;
+  releaseYear: number;
+  genres: string[];
+  contentType: string;
+  posterUrl: string | null;
+  posterColor: string | null;
+  imdbRating: number | null;
+  imdbTopMovieRank: number | null;
+  imdbTopTvRank: number | null;
+  certificate: string | null;
+  tvType: string | null;
+  tvStartYear: number | null;
+  tvEndYear: number | null;
+  oscarWins: number;
+  oscarNominations: number;
+  ggWins: number;
+  ggNominations: number;
+  cannesWins: number;
+  cannesNominations: number;
+};
+
+async function fetchSimilarFilms(slug: string): Promise<SimilarFilm[]> {
+  try {
+    const res = await fetch(
+      `${API_URL}/api/films/${encodeURIComponent(slug)}/similar`,
+      { next: { revalidate: 3600 } },
+    );
+    if (!res.ok) return [];
+    return (await res.json()) as SimilarFilm[];
+  } catch {
+    return [];
+  }
 }
 
 function getAwardSummary(film: Film) {
@@ -92,7 +131,10 @@ export default async function FilmPage({
   params: Promise<{ locale: string; slug: string }>;
 }) {
   const { slug } = await params;
-  const film = await fetchFilm(slug);
+  const [film, similarFilms] = await Promise.all([
+    fetchFilm(slug),
+    fetchSimilarFilms(slug),
+  ]);
   if (!film) notFound();
 
   const youtubeId = film.trailerUrl ? extractYouTubeId(film.trailerUrl) : null;
@@ -441,6 +483,18 @@ export default async function FilmPage({
                       records={c.records}
                       accent={accent}
                     />
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* ── YOU MIGHT ALSO LIKE ────────────────────────────────── */}
+            {similarFilms.length > 0 && (
+              <section id="similar" className="scroll-mt-24">
+                <CinematicSectionLabel>You Might Also Like</CinematicSectionLabel>
+                <div className="mt-8 grid grid-cols-3 gap-3 xl:grid-cols-6">
+                  {similarFilms.map((f) => (
+                    <FilmCard key={f.id} film={f as unknown as Film} />
                   ))}
                 </div>
               </section>

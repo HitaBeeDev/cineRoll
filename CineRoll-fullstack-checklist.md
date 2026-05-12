@@ -805,7 +805,7 @@ Three handpicked film slots per day, each with a different mood/filter combo. Ca
 ### Similar Films
 
 - [x] Backend: add GET /api/films/:slug/similar — return 6 films from the dataset that share at least one of: same director, same genre, or same ceremony year; exclude the current film; ordered by most shared dimensions first
-- [ ] Frontend — Film Detail Page: add "You Might Also Like" section below the awards section
+- [x] Frontend — Film Detail Page: add "You Might Also Like" section below the awards section
 - [ ] Display as a horizontal scrollable row of film cards (poster, title, year, award badge)
 - [ ] Each card links to its own detail page
 - [ ] Show a small tag on each card explaining why it was suggested: "Same director", "Same genre", "From the same year"
