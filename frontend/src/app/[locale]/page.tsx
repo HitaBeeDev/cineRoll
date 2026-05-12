@@ -1159,8 +1159,6 @@ function FilmCard({ film }: { film: RollFilm }) {
 
 function getListBadges(film: RollFilm) {
   const badges: string[] = [];
-  if (film.oscarNominations > 0) badges.push("Oscar");
-  if (film.ggNominations > 0) badges.push("Golden Globe");
   if (film.cannesNominations > 0) badges.push("Cannes");
   if (film.imdbTopMovieRank !== null)
     badges.push(`IMDb Top 250 Movies #${film.imdbTopMovieRank}`);
