@@ -843,15 +843,15 @@ A dedicated page for every director and actor in the dataset. High SEO value —
 
 ### Frontend
 
-- [ ] Create `src/app/person/[slug]/page.tsx` dynamic route
-- [ ] Fetch person data from /api/persons/:slug
-- [ ] Display: name, photo (from TMDB), short bio
-- [ ] Awards table: all nominations and wins grouped by award body (Oscar / GG / Cannes), with film title links and category per row
-- [ ] "Films" grid: poster cards of all films this person is associated with; clicking navigates to /film/:slug
-- [ ] Add "Browse films with [Name]" button → links to `/browse?person=meryl-streep`
-- [ ] Add SEO metadata: dynamic title ("Meryl Streep — Oscar & Golden Globe Award History | CineRoll"), description listing their win/nomination counts
-- [ ] Add structured data (JSON-LD Person schema) for Google rich results
-- [ ] Create 404 page if person slug not found
+- [x] Create `src/app/person/[slug]/page.tsx` dynamic route
+- [x] Fetch person data from /api/persons/:slug
+- [x] Display: name, photo (from TMDB), short bio
+- [x] Awards table: all nominations and wins grouped by award body (Oscar / GG / Cannes), with film title links and category per row
+- [x] "Films" grid: poster cards of all films this person is associated with; clicking navigates to /film/:slug
+- [x] Add "Browse films with [Name]" button → links to `/browse?person=meryl-streep`
+- [x] Add SEO metadata: dynamic title ("Meryl Streep — Oscar & Golden Globe Award History | CineRoll"), description listing their win/nomination counts
+- [x] Add structured data (JSON-LD Person schema) for Google rich results
+- [x] Create 404 page if person slug not found
 - [ ] Link to person pages from: film detail cast/director section, autocomplete results, browse filter chips
 
 ---

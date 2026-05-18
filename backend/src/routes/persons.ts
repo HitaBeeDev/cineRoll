@@ -202,7 +202,10 @@ personsRouter.get("/:slug", async (req, res) => {
   }
   const films = [...filmMap.values()].sort((a, b) => b.releaseYear - a.releaseYear);
 
-  const allRecords = [...oscarRows, ...ggRows, ...cannesRows];
+  const [allRecords, personRecord] = [
+    [...oscarRows, ...ggRows, ...cannesRows],
+    await prisma.person.findUnique({ where: { slug }, select: { photoUrl: true, bio: true } }),
+  ];
   const totalNominations = allRecords.length;
   const totalWins = allRecords.filter((r) => r.won).length;
 
@@ -210,6 +213,8 @@ personsRouter.get("/:slug", async (req, res) => {
   res.json({
     name: canonicalName,
     slug,
+    photoUrl: personRecord?.photoUrl ?? null,
+    bio: personRecord?.bio ?? null,
     totalNominations,
     totalWins,
     oscarRecords: oscarRows,
