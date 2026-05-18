@@ -666,7 +666,7 @@ function SectionLabel({ children }: { children: ReactNode }) {
       <span className="font-[family-name:var(--font-geist-mono)] text-[9px] text-[#e8453c]">
         ◆
       </span>
-      <h2 className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[10px] font-semibold uppercase tracking-[0.5em] text-[#a0a0c0]">
+      <h2 className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[10px] font-semibold uppercase tracking-[0.5em] text-[#c8c8e0]">
         {children}
       </h2>
       <div className="h-px flex-1 bg-gradient-to-r from-[#2a2a42] to-transparent" />

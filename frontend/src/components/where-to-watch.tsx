@@ -51,7 +51,7 @@ function ProviderGroup({
     <div>
       <p
         className="mb-3 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.5em]"
-        style={{ color: `${accent}66` }}
+        style={{ color: `${accent}cc` }}
       >
         {label}
       </p>
@@ -104,18 +104,18 @@ export function WhereToWatch({
   return (
     <section id="where-to-watch" className="scroll-mt-24">
       <div className="flex items-center gap-4">
-        <span className="font-[family-name:var(--font-geist-mono)] text-[8px] text-[#e8453c]/40">
+        <span className="font-[family-name:var(--font-geist-mono)] text-[9px] text-[#e8453c]">
           ◆
         </span>
-        <h2 className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.6em] text-[#484858]">
+        <h2 className="font-[family-name:var(--font-geist-mono)] text-[10px] font-semibold uppercase tracking-[0.5em] text-[#a0a0c0]">
           Where to Watch
         </h2>
-        <div className="h-px flex-1 bg-gradient-to-r from-[#1a1a26] to-transparent" />
+        <div className="h-px flex-1 bg-gradient-to-r from-[#2a2a42] to-transparent" />
       </div>
 
-      <div className="mt-8 border border-[#111118] bg-[#08080d] p-6">
+      <div className="mt-8 border border-[#1e1e30] bg-[#0d0d18] p-6">
         {noData ? (
-          <p className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.4em] text-[#2a2a38]">
+          <p className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.4em] text-[#666680]">
             Streaming data not yet available
           </p>
         ) : hasAny ? (
@@ -129,15 +129,15 @@ export function WhereToWatch({
                 href={countryData.link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group inline-flex w-fit items-center gap-2 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.4em] text-[#444458] transition-colors hover:text-[#888898]"
+                className="group inline-flex w-fit items-center gap-2 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.4em] text-[#7878a0] transition-colors hover:text-[#c0c0d8]"
               >
                 More options on JustWatch
-                <ExternalLink className="h-3 w-3 text-[#333342] transition-colors group-hover:text-[#e8453c]" aria-hidden />
+                <ExternalLink className="h-3 w-3 text-[#7878a0] transition-colors group-hover:text-[#e8453c]" aria-hidden />
               </a>
             )}
           </div>
         ) : (
-          <p className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.4em] text-[#2a2a38]">
+          <p className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.4em] text-[#666680]">
             Not available for streaming in your region
           </p>
         )}
