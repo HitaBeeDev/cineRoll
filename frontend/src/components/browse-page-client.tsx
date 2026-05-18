@@ -34,6 +34,7 @@ import { cn } from "@/lib/utils";
 const PAGE_SIZE = 25;
 const DECADE_MIN = 1900;
 const DECADE_MAX = 2030;
+const BROWSE_DECADE_OPTIONS = Array.from({ length: (DECADE_MAX - DECADE_MIN) / 10 + 1 }, (_, i) => DECADE_MIN + i * 10);
 const GRAIN_SVG = `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`;
 
 const AWARD_BODIES: { value: AwardBody; label: string }[] = [
@@ -431,6 +432,42 @@ export function BrowsePageClient() {
                       {awardYears.map((y) => <SelectItem key={y} value={String(y)}>{y}</SelectItem>)}
                     </SelectContent>
                   </Select>
+                </PanelSection>
+
+                {/* Decade */}
+                <PanelSection label="Decade">
+                  <div className="flex gap-2">
+                    <Select
+                      value={String(filters.decadeMin)}
+                      onValueChange={(val) => setFilters({ decadeMin: Number(val), page: 1 })}
+                    >
+                      <SelectTrigger className="h-10 flex-1 rounded-md border-white/10 bg-white/[0.045] font-[family-name:var(--font-geist-mono)] text-[10px] text-[#b8b5c8] transition-colors hover:border-white/20 focus:ring-[#e8453c]/60 focus:ring-offset-0">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="border-white/10 bg-[#101019]">
+                        {BROWSE_DECADE_OPTIONS.map((d) => (
+                          <SelectItem key={d} value={String(d)}>
+                            {d === DECADE_MIN ? "Any" : `${d}s`}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Select
+                      value={String(filters.decadeMax)}
+                      onValueChange={(val) => setFilters({ decadeMax: Number(val), page: 1 })}
+                    >
+                      <SelectTrigger className="h-10 flex-1 rounded-md border-white/10 bg-white/[0.045] font-[family-name:var(--font-geist-mono)] text-[10px] text-[#b8b5c8] transition-colors hover:border-white/20 focus:ring-[#e8453c]/60 focus:ring-offset-0">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="border-white/10 bg-[#101019]">
+                        {BROWSE_DECADE_OPTIONS.map((d) => (
+                          <SelectItem key={d} value={String(d)}>
+                            {d === DECADE_MAX ? "Any" : `${d}s`}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </PanelSection>
               </div>
             </div>

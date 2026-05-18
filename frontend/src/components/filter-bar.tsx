@@ -28,6 +28,7 @@ interface FilterBarProps {
 
 const DECADE_MIN = 1900;
 const DECADE_MAX = 2030;
+const DECADE_OPTIONS = Array.from({ length: (DECADE_MAX - DECADE_MIN) / 10 + 1 }, (_, i) => DECADE_MIN + i * 10);
 
 const AWARD_BODIES: { value: AwardBody; label: string }[] = [
   { value: "all", label: "All" },
@@ -346,6 +347,67 @@ export function FilterBar({
               {awardYears.map((year) => (
                 <SelectItem key={year} value={String(year)}>
                   {year}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      {/* DECADE selects */}
+      <div className="flex gap-3">
+        <div className="flex-1">
+          <span className="mb-1 block font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#9090a8]">
+            From
+          </span>
+          <Select
+            value={String(filters.decadeMin)}
+            onValueChange={(val) =>
+              onFiltersChange({ decadeMin: Number(val), page: 1 })
+            }
+          >
+            <SelectTrigger
+              className={cn(
+                "h-9 border-[#25253a] bg-[#0d0d1a]",
+                "font-[family-name:var(--font-geist-mono)] text-[11px] text-[#F5F5F0]",
+                "hover:border-[#2a2a3e] focus:ring-[#e8453c] focus:ring-offset-[#09090f]",
+              )}
+            >
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {DECADE_OPTIONS.map((d) => (
+                <SelectItem key={d} value={String(d)}>
+                  {d === DECADE_MIN ? "Any" : `${d}s`}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="flex-1">
+          <span className="mb-1 block font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#9090a8]">
+            To
+          </span>
+          <Select
+            value={String(filters.decadeMax)}
+            onValueChange={(val) =>
+              onFiltersChange({ decadeMax: Number(val), page: 1 })
+            }
+          >
+            <SelectTrigger
+              className={cn(
+                "h-9 border-[#25253a] bg-[#0d0d1a]",
+                "font-[family-name:var(--font-geist-mono)] text-[11px] text-[#F5F5F0]",
+                "hover:border-[#2a2a3e] focus:ring-[#e8453c] focus:ring-offset-[#09090f]",
+              )}
+            >
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {DECADE_OPTIONS.map((d) => (
+                <SelectItem key={d} value={String(d)}>
+                  {d === DECADE_MAX ? "Any" : `${d}s`}
                 </SelectItem>
               ))}
             </SelectContent>
