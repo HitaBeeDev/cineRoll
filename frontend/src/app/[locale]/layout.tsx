@@ -24,7 +24,12 @@ const playfairDisplay = Playfair_Display({
   weight: ["400", "600", "700"],
 });
 
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://cineroll.app");
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "CineRoll",
     template: "%s | CineRoll",

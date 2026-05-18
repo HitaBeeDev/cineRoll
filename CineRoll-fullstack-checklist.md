@@ -822,8 +822,8 @@ One button on any film detail page generates a beautiful branded image card read
 - [x] Clicking it:
   - On mobile: opens the native share sheet (`navigator.share`) with the film URL and a pre-written caption: _"Watching [Film Title] tonight — [X Oscar wins, Y GG nominations] 🎬 via CineRoll"_
   - On desktop: copies the shareable URL to clipboard and shows "Link copied!" toast
-- [ ] The shared URL (`/film/:slug?from=share`) loads the film detail page with a subtle "Shared by a CineRoll user" banner at the top — drives curiosity and signups
-- [ ] The OG image is also used automatically when the film URL is pasted into Twitter, iMessage, Slack, etc. (no extra step needed)
+- [x] The shared URL (`/film/:slug?from=share`) loads the film detail page with a subtle "Shared by a CineRoll user" banner at the top — drives curiosity and signups
+- [x] The OG image is also used automatically when the film URL is pasted into Twitter, iMessage, Slack, etc. (no extra step needed)
 - [ ] Test OG image rendering with Twitter Card Validator and Facebook Sharing Debugger
 
 ---

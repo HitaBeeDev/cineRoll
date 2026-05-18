@@ -131,20 +131,23 @@ export async function generateMetadata({
       ? `${rawDescription.slice(0, 152)}…`
       : rawDescription;
   const socialImage = new URL(`/api/og/film/${encodeURIComponent(slug)}`, SITE_URL).toString();
+  const pageUrl = new URL(`/film/${slug}`, SITE_URL).toString();
   return {
     title,
     description,
+    alternates: { canonical: pageUrl },
     openGraph: {
       title,
       description,
       type: "video.movie",
-      images: [{ url: socialImage, alt: `${film.title} (${film.year})` }],
+      url: pageUrl,
+      images: [{ url: socialImage, width: 1200, height: 630, alt: `${film.title} (${film.year})` }],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: [socialImage],
+      images: [{ url: socialImage, width: 1200, height: 630, alt: `${film.title} (${film.year})` }],
     },
   };
 }
