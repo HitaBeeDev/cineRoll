@@ -7,7 +7,6 @@ import {
   ArrowLeft,
   ArrowRight,
   Clapperboard,
-  Dices,
   Search,
   SlidersHorizontal,
   X,
@@ -22,7 +21,6 @@ import {
   fetchFilms,
   fetchGenres,
   fetchPersonSuggestions,
-  fetchRandom,
   filtersToParams,
   type PersonSuggestion,
 } from "@/lib/api";
@@ -63,8 +61,7 @@ export function BrowsePageClient() {
   const [awardYears, setAwardYears] = useState<number[]>([]);
   const [result,     setResult]     = useState<PaginatedFilms | null>(null);
   const [status,     setStatus]     = useState<LoadStatus>("loading");
-  const [isRolling,  setIsRolling]  = useState(false);
-  const [showMore,   setShowMore]   = useState(false);
+  const [showMore, setShowMore] = useState(false);
 
   // person autocomplete
   const [personSuggestions,    setPersonSuggestions]    = useState<PersonSuggestion[]>([]);
@@ -131,14 +128,6 @@ export function BrowsePageClient() {
     [setFilter],
   );
 
-  async function handleRoll() {
-    setIsRolling(true);
-    try {
-      const data = await fetchRandom(filters);
-      router.push(`/film/${data.film.slug}`);
-    } catch { setIsRolling(false); }
-  }
-
   const total       = result?.total    ?? 0;
   const page        = result?.page     ?? filters.page;
   const totalPages  = Math.max(result?.totalPages ?? 1, 1);
@@ -182,16 +171,6 @@ export function BrowsePageClient() {
               </p>
             </div>
 
-            {/* Hero roll */}
-            <button
-              type="button"
-              disabled={isRolling}
-              onClick={() => void handleRoll()}
-              className="group hidden shrink-0 items-center gap-2.5 border border-[#e8453c]/25 px-6 py-3 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.35em] text-[#e8453c]/70 transition-all hover:border-[#e8453c] hover:bg-[#e8453c] hover:text-white disabled:opacity-30 sm:flex focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#e8453c]"
-            >
-              <Dices className={cn("h-3.5 w-3.5", isRolling && "motion-safe:animate-spin")} />
-              {isRolling ? "Rolling…" : "Roll the dice"}
-            </button>
           </div>
         </div>
 
@@ -324,22 +303,11 @@ export function BrowsePageClient() {
 
             {/* Count */}
             {status === "success" && total > 0 && (
-              <span className="hidden font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.2em] text-[#303048] lg:block">
+              <span className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.2em] text-[#303048]">
                 <span className="text-[#8080a0]">{total.toLocaleString()}</span> films
                 <span className="ml-2 text-[#252538]">· {showingStart}–{showingEnd}</span>
               </span>
             )}
-
-            {/* Roll */}
-            <button
-              type="button"
-              disabled={total === 0 || isRolling || status !== "success"}
-              onClick={() => void handleRoll()}
-              className="flex h-7 items-center gap-2 bg-[#e8453c] px-4 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.3em] text-white shadow-md shadow-[#e8453c]/25 transition-all hover:bg-[#d5342b] disabled:opacity-30 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#e8453c]"
-            >
-              <Dices className={cn("h-3 w-3 shrink-0", isRolling && "motion-safe:animate-spin")} aria-hidden />
-              <span className="hidden sm:inline">{isRolling ? "Rolling…" : "Roll"}</span>
-            </button>
           </div>
 
           {/* Active chips */}
