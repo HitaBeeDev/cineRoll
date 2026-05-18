@@ -5,38 +5,32 @@ import type { Film } from "@cineroll/types";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 
-function getHighestAward(film: Film): { label: "Won" | "Nominated"; body: string } | null {
-  if (film.oscarWins > 0)        return { label: "Won",       body: "Oscar" };
-  if (film.ggWins > 0)           return { label: "Won",       body: "Golden Globe" };
-  if (film.cannesWins > 0)       return { label: "Won",       body: "Cannes" };
-  if (film.oscarNominations > 0) return { label: "Nominated", body: "Oscar" };
-  if (film.ggNominations > 0)    return { label: "Nominated", body: "Golden Globe" };
-  if (film.cannesNominations > 0)return { label: "Nominated", body: "Cannes" };
+type AwardBadge = { label: "Won" | "Nominated"; body: string } | null;
+
+function getAwardBadge(film: Film): AwardBadge {
+  if (film.oscarWins > 0)         return { label: "Won",       body: "Oscar"        };
+  if (film.ggWins > 0)            return { label: "Won",       body: "Golden Globe" };
+  if (film.cannesWins > 0)        return { label: "Won",       body: "Cannes"       };
+  if (film.oscarNominations > 0)  return { label: "Nominated", body: "Oscar"        };
+  if (film.ggNominations > 0)     return { label: "Nominated", body: "Golden Globe" };
+  if (film.cannesNominations > 0) return { label: "Nominated", body: "Cannes"       };
   return null;
 }
 
-
 interface FilmCardProps {
   film: Film;
-  className?: string;
+  className?: string | undefined;
 }
 
 export function FilmCard({ film, className }: FilmCardProps) {
-  const award = getHighestAward(film);
-  const isWinner = award?.label === "Won";
+  const badge = getAwardBadge(film);
+  const isWin = badge?.label === "Won";
 
   return (
     <Link
       href={`/film/${film.slug}`}
       aria-label={`${film.title} (${film.year})`}
-      className={cn(
-        "group relative flex flex-col overflow-hidden",
-        "border border-[#161624] bg-[#0b0b14]",
-        "transition-all duration-200 ease-out",
-        "hover:border-[#e8453c]/30 hover:shadow-[0_0_0_1px_rgba(232,69,60,0.15),0_8px_32px_rgba(0,0,0,0.7)]",
-        "outline-none focus-visible:border-[#e8453c]/50 focus-visible:shadow-[0_0_0_1px_rgba(232,69,60,0.25)]",
-        className
-      )}
+      className={cn("group block outline-none", className)}
     >
       {/* Poster */}
       <div className="relative aspect-[2/3] overflow-hidden bg-[#0d0d18]">
@@ -45,61 +39,63 @@ export function FilmCard({ film, className }: FilmCardProps) {
             src={film.posterUrl}
             alt={`${film.title} poster`}
             fill
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-            className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.06]"
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 25vw, 20vw"
+            className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.05]"
           />
         ) : (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
-            <span className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.4em] text-[#303048]">
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.4em] text-[#252538]">
               No Poster
             </span>
           </div>
         )}
 
-        {/* Persistent bottom gradient */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/60 to-transparent" />
+        {/* Red hover glow overlay */}
+        <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100"
+          style={{ boxShadow: "inset 0 0 0 1px rgba(232,69,60,0.4)" }}
+        />
 
-        {/* Award badge — top left */}
-        {award && (
+        {/* Award badge — sharp edge, top-left */}
+        {badge && (
           <div
-            aria-label={`${award.body} ${award.label}`}
+            aria-label={`${badge.body} ${badge.label}`}
             className={cn(
-              "absolute left-0 top-3 flex items-center gap-1.5 pl-2.5 pr-2.5 py-1",
-              "font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.25em]",
-              isWinner
+              "absolute left-0 top-2.5 flex items-center gap-1 pl-2 pr-2.5 py-0.5",
+              "font-[family-name:var(--font-geist-mono)] text-[7px] font-semibold uppercase tracking-[0.2em]",
+              isWin
                 ? "bg-[#D4AF37] text-[#09090f]"
-                : "bg-black/80 text-[#D4AF37]/80 backdrop-blur-sm border-r border-t border-b border-[#D4AF37]/25",
+                : "bg-black/85 text-[#D4AF37] border-r border-t border-b border-[#D4AF37]/30 backdrop-blur-sm",
             )}
           >
-            <Trophy className="h-2.5 w-2.5 shrink-0" aria-hidden />
-            {isWinner ? award.body : `Nom.`}
+            <Trophy className="h-2 w-2 shrink-0" aria-hidden />
+            {isWin ? badge.body : "Nom."}
           </div>
         )}
 
-        {/* Rating — bottom right on hover */}
+        {/* IMDb score — bottom right, appears on hover */}
         {film.imdbRating != null && (
-          <div className="absolute bottom-2 right-2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-            <Star className="h-3 w-3 fill-[#D4AF37] text-[#D4AF37]" aria-hidden />
-            <span className="font-[family-name:var(--font-geist-mono)] text-[10px] font-semibold text-[#D4AF37]">
+          <div className="absolute bottom-2 right-2 flex items-center gap-1 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+            <Star className="h-2.5 w-2.5 fill-[#D4AF37] text-[#D4AF37]" aria-hidden />
+            <span className="font-[family-name:var(--font-geist-mono)] text-[9px] font-semibold tabular-nums text-[#D4AF37]">
               {film.imdbRating.toFixed(1)}
             </span>
           </div>
         )}
       </div>
 
-      {/* Info strip — always visible */}
-      <div className="flex flex-col gap-0.5 px-2.5 py-2 border-t border-[#161624]">
-        <h3 className="font-[family-name:var(--font-display)] line-clamp-1 text-[13px] font-semibold leading-snug text-[#e8e8f0] group-hover:text-white transition-colors">
+      {/* Info strip — always visible, below poster */}
+      <div className="pt-2.5">
+        <h3 className="line-clamp-1 font-[family-name:var(--font-display)] text-[13px] font-semibold leading-snug text-[#d8d8f0] transition-colors group-hover:text-white group-focus-visible:text-white">
           {film.title}
         </h3>
-        <div className="flex items-center gap-1.5">
-          <span className="font-[family-name:var(--font-geist-mono)] text-[9px] text-[#505068]">
+        <div className="mt-0.5 flex items-center gap-1.5">
+          <span className="font-[family-name:var(--font-geist-mono)] text-[9px] text-[#454560]">
             {film.year}
           </span>
           {film.genres.length > 0 && (
             <>
-              <span className="text-[#252538] text-[9px]">·</span>
-              <span className="font-[family-name:var(--font-geist-mono)] text-[9px] text-[#404058] line-clamp-1">
+              <span className="text-[9px] text-[#252535]">·</span>
+              <span className="font-[family-name:var(--font-geist-mono)] text-[9px] text-[#383855] line-clamp-1">
                 {film.genres[0]}
               </span>
             </>
@@ -110,14 +106,14 @@ export function FilmCard({ film, className }: FilmCardProps) {
   );
 }
 
-export function FilmCardSkeleton({ className }: { className?: string }) {
+export function FilmCardSkeleton({ className }: { className?: string | undefined }) {
   return (
-    <Skeleton
-      className={cn(
-        "aspect-[2/3] rounded-xl border border-transparent",
-        "shadow-[0_4px_24px_rgba(0,0,0,0.5)]",
-        className,
-      )}
-    />
+    <div className={cn("block", className)}>
+      <Skeleton className="aspect-[2/3] w-full" />
+      <div className="pt-2.5 space-y-1.5">
+        <Skeleton className="h-3.5 w-4/5" />
+        <Skeleton className="h-2.5 w-1/3" />
+      </div>
+    </div>
   );
 }

@@ -86,7 +86,8 @@ export function WhereToWatch({
   const [country, setCountry] = useState<string | null>(null);
 
   useEffect(() => {
-    setCountry(detectCountry());
+    const t = window.setTimeout(() => setCountry(detectCountry()), 0);
+    return () => window.clearTimeout(t);
   }, []);
 
   const noData = !watchProviders;
