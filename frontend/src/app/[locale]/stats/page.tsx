@@ -105,7 +105,7 @@ export default async function StatsPage() {
               <h1 className="font-[family-name:var(--font-display)] text-4xl font-bold text-[#F5F5F0] sm:text-5xl">
                 Stats &amp; Records
               </h1>
-              <p className="mt-2 max-w-xl font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#444458]">
+              <p className="mt-2 max-w-xl font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#888899]">
                 Oscar · Golden Globe · Cannes — across our full dataset
               </p>
             </div>
@@ -135,7 +135,7 @@ export default async function StatsPage() {
                   <p className="font-[family-name:var(--font-display)] text-3xl font-bold text-[#F5F5F0] sm:text-4xl">
                     {value}
                   </p>
-                  <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#444458]">
+                  <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#888899]">
                     {label}
                   </p>
                 </div>
@@ -161,7 +161,7 @@ export default async function StatsPage() {
                   <p className="font-[family-name:var(--font-display)] text-lg font-bold leading-tight text-[#F5F5F0]">
                     {stats.mostNominatedPerson.name}
                   </p>
-                  <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[10px] text-[#555568]">
+                  <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[10px] text-[#888899]">
                     {stats.mostNominatedPerson.count} nominations
                   </p>
                 </div>
@@ -182,7 +182,7 @@ export default async function StatsPage() {
                   <p className="font-[family-name:var(--font-display)] text-lg font-bold leading-tight text-[#F5F5F0]">
                     {stats.mostWinningPerson.name}
                   </p>
-                  <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[10px] text-[#555568]">
+                  <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[10px] text-[#888899]">
                     {stats.mostWinningPerson.count} wins
                   </p>
                 </div>
@@ -214,12 +214,12 @@ export default async function StatsPage() {
                       <p className="font-[family-name:var(--font-display)] text-base font-bold leading-tight text-[#F5F5F0] group-hover:text-[#a78bfa] transition-colors">
                         {stats.mostNominatedFilm.title}
                       </p>
-                      <p className="mt-0.5 font-[family-name:var(--font-geist-mono)] text-[9px] text-[#555568]">
+                      <p className="mt-0.5 font-[family-name:var(--font-geist-mono)] text-[9px] text-[#888899]">
                         {stats.mostNominatedFilm.releaseYear}
                       </p>
                     </div>
                   </div>
-                  <p className="font-[family-name:var(--font-geist-mono)] text-[10px] text-[#555568]">
+                  <p className="font-[family-name:var(--font-geist-mono)] text-[10px] text-[#888899]">
                     {stats.mostNominatedFilm.count} nominations
                   </p>
                 </Link>
@@ -251,12 +251,12 @@ export default async function StatsPage() {
                       <p className="font-[family-name:var(--font-display)] text-base font-bold leading-tight text-[#F5F5F0] group-hover:text-[#e8453c] transition-colors">
                         {stats.mostWinningFilm.title}
                       </p>
-                      <p className="mt-0.5 font-[family-name:var(--font-geist-mono)] text-[9px] text-[#555568]">
+                      <p className="mt-0.5 font-[family-name:var(--font-geist-mono)] text-[9px] text-[#888899]">
                         {stats.mostWinningFilm.releaseYear}
                       </p>
                     </div>
                   </div>
-                  <p className="font-[family-name:var(--font-geist-mono)] text-[10px] text-[#555568]">
+                  <p className="font-[family-name:var(--font-geist-mono)] text-[10px] text-[#888899]">
                     {stats.mostWinningFilm.count} wins
                   </p>
                 </Link>
@@ -274,7 +274,7 @@ export default async function StatsPage() {
                 <div className="flex items-center gap-5">
                   <Calendar className="h-5 w-5 shrink-0 text-[#e8453c]/60" />
                   <div>
-                    <p className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.3em] text-[#444458]">
+                    <p className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.3em] text-[#888899]">
                       Most Competitive Ceremony Year
                     </p>
                     <p className="mt-1 font-[family-name:var(--font-display)] text-3xl font-bold text-[#F5F5F0] sm:text-4xl">
@@ -283,7 +283,7 @@ export default async function StatsPage() {
                   </div>
                   <div className="hidden h-10 w-px bg-[#1a1a28] sm:block" />
                   <div className="hidden sm:block">
-                    <p className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.3em] text-[#444458]">
+                    <p className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.3em] text-[#888899]">
                       Total Nominations
                     </p>
                     <p className="mt-1 font-[family-name:var(--font-display)] text-3xl font-bold text-[#e8453c]">
@@ -291,7 +291,7 @@ export default async function StatsPage() {
                     </p>
                   </div>
                 </div>
-                <span className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#444458] transition-colors group-hover:text-[#F5F5F0]">
+                <span className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#888899] transition-colors group-hover:text-[#F5F5F0]">
                   Browse →
                 </span>
               </Link>
@@ -304,7 +304,7 @@ export default async function StatsPage() {
               <div className="rounded-2xl border border-[#1a1a28] bg-[#0e0e18] p-5 sm:p-6">
                 <div className="mb-5 flex items-center gap-2">
                   <TrendingUp className="h-3.5 w-3.5 text-[#4a9eff]/60" />
-                  <h2 className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.3em] text-[#444458]">
+                  <h2 className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.3em] text-[#888899]">
                     Avg. Nominations by Decade
                   </h2>
                 </div>
@@ -324,7 +324,7 @@ export default async function StatsPage() {
                             style={{ height: `${heightPct}%` }}
                           />
                         </div>
-                        <span className="font-[family-name:var(--font-geist-mono)] text-[7px] text-[#2e2e46] group-hover:text-[#555568]">
+                        <span className="font-[family-name:var(--font-geist-mono)] text-[7px] text-[#666680] group-hover:text-[#888899]">
                           {String(d.decade).slice(2)}s
                         </span>
                       </Link>
@@ -339,7 +339,7 @@ export default async function StatsPage() {
               <div className="rounded-2xl border border-[#1a1a28] bg-[#0e0e18] p-5 sm:p-6">
                 <div className="mb-5 flex items-center gap-2">
                   <Award className="h-3.5 w-3.5 text-[#e8453c]/60" />
-                  <h2 className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.3em] text-[#444458]">
+                  <h2 className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.3em] text-[#888899]">
                     Films by Award Body
                   </h2>
                 </div>
@@ -378,7 +378,7 @@ export default async function StatsPage() {
                     >
                       <div className="mb-1 flex items-center gap-1.5">
                         <div className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: color }} />
-                        <span className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-wider text-[#444458]">
+                        <span className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-wider text-[#888899]">
                           {label}
                         </span>
                       </div>
@@ -397,14 +397,14 @@ export default async function StatsPage() {
             <div className="rounded-2xl border border-[#1a1a28] bg-[#0e0e18] p-5 sm:p-6">
               <div className="mb-5 flex items-center gap-2">
                 <TrendingUp className="h-3.5 w-3.5 text-[#e8453c]/60" />
-                <h2 className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.3em] text-[#444458]">
+                <h2 className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.3em] text-[#888899]">
                   Currently Trending on CineRoll
                 </h2>
               </div>
               <div className="grid gap-6 sm:grid-cols-2">
                 {stats.topRolledFilms.length > 0 && (
                   <div>
-                    <p className="mb-3 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#2e2e46]">
+                    <p className="mb-3 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#666680]">
                       Most Rolled
                     </p>
                     <ol className="flex flex-col gap-2">
@@ -414,7 +414,7 @@ export default async function StatsPage() {
                             href={`/film/${film.slug}`}
                             className="group flex items-center gap-3"
                           >
-                            <span className="w-4 shrink-0 font-[family-name:var(--font-geist-mono)] text-[10px] text-[#2e2e46]">
+                            <span className="w-4 shrink-0 font-[family-name:var(--font-geist-mono)] text-[10px] text-[#666680]">
                               {i + 1}
                             </span>
                             {film.posterUrl && (
@@ -430,7 +430,7 @@ export default async function StatsPage() {
                               <p className="truncate font-[family-name:var(--font-geist-mono)] text-[11px] text-[#c8c8d8] transition-colors group-hover:text-[#F5F5F0]">
                                 {film.title}
                               </p>
-                              <p className="font-[family-name:var(--font-geist-mono)] text-[9px] text-[#2e2e46]">
+                              <p className="font-[family-name:var(--font-geist-mono)] text-[9px] text-[#666680]">
                                 {film.count.toLocaleString()} rolls
                               </p>
                             </div>
@@ -443,7 +443,7 @@ export default async function StatsPage() {
 
                 {stats.topWatchlistedFilms.length > 0 && (
                   <div>
-                    <p className="mb-3 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#2e2e46]">
+                    <p className="mb-3 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#666680]">
                       Most Watchlisted
                     </p>
                     <ol className="flex flex-col gap-2">
@@ -453,7 +453,7 @@ export default async function StatsPage() {
                             href={`/film/${film.slug}`}
                             className="group flex items-center gap-3"
                           >
-                            <span className="w-4 shrink-0 font-[family-name:var(--font-geist-mono)] text-[10px] text-[#2e2e46]">
+                            <span className="w-4 shrink-0 font-[family-name:var(--font-geist-mono)] text-[10px] text-[#666680]">
                               {i + 1}
                             </span>
                             {film.posterUrl && (
@@ -469,7 +469,7 @@ export default async function StatsPage() {
                               <p className="truncate font-[family-name:var(--font-geist-mono)] text-[11px] text-[#c8c8d8] transition-colors group-hover:text-[#F5F5F0]">
                                 {film.title}
                               </p>
-                              <p className="font-[family-name:var(--font-geist-mono)] text-[9px] text-[#2e2e46]">
+                              <p className="font-[family-name:var(--font-geist-mono)] text-[9px] text-[#666680]">
                                 {film.count.toLocaleString()} saves
                               </p>
                             </div>
@@ -485,7 +485,7 @@ export default async function StatsPage() {
 
           {!stats && (
             <div className="flex flex-col items-center justify-center py-24 text-center">
-              <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest text-[#2e2e46]">
+              <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest text-[#666680]">
                 Stats unavailable — make sure the backend is running
               </p>
             </div>
