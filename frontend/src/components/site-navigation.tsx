@@ -51,52 +51,54 @@ export function SiteNavigation({
   return (
     <>
       {/* Desktop nav */}
-      <nav className="hidden items-center gap-1 md:flex" aria-label="Primary navigation">
-        {primaryNavItems.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={cn(
-              "rounded-full border px-3 py-1.5",
-              "font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.16em]",
-              "transition-colors duration-150",
-              "focus-visible:outline-none focus-visible:ring-2",
-              focusRingClassName,
-              isActive(item.href)
-                ? "border-[#e8453c]/60 bg-[#e8453c]/8 text-[#ff625a]"
-                : "border-transparent text-[#858196] hover:border-white/10 hover:bg-white/[0.035] hover:text-[#F5F5F0]",
-            )}
-          >
-            {item.label}
-          </Link>
-        ))}
-        <div className="mx-1 h-5 w-px bg-white/12" aria-hidden />
-        <div className="hidden items-center gap-1 lg:flex" aria-label="Game modes">
-          {gameModeItems.map((item) => (
+      <nav className="hidden flex-1 items-center justify-end gap-4 md:flex" aria-label="Primary navigation">
+        <div className="flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.035] p-1 shadow-[0_14px_40px_rgba(0,0,0,0.24)]">
+          {primaryNavItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}
               className={cn(
-                "rounded-full border px-3 py-1.5",
-                "font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.16em]",
+                "rounded-full px-3.5 py-2",
+                "font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.13em]",
                 "transition-colors duration-150",
                 "focus-visible:outline-none focus-visible:ring-2",
                 focusRingClassName,
                 isActive(item.href)
-                  ? "border-[#e8453c]/60 bg-[#e8453c]/8 text-[#ff625a]"
-                  : "border-transparent text-[#858196] hover:border-white/10 hover:bg-white/[0.035] hover:text-[#F5F5F0]",
+                  ? "bg-[#e8453c] text-white shadow-[0_8px_22px_rgba(232,69,60,0.24)]"
+                  : "text-[#9b96aa] hover:bg-white/[0.06] hover:text-[#F5F5F0]",
               )}
             >
               {item.label}
             </Link>
           ))}
         </div>
-        <div className="ml-1 flex items-center gap-1">
+
+        <div className="hidden items-center gap-4 xl:flex" aria-label="Game modes">
+          {gameModeItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                "font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.14em]",
+                "transition-colors duration-150",
+                "focus-visible:outline-none focus-visible:ring-2",
+                focusRingClassName,
+                isActive(item.href)
+                  ? "text-[#ff625a]"
+                  : "text-[#777287] hover:text-[#F5F5F0]",
+              )}
+            >
+              {item.label}
+            </Link>
+          ))}
+        </div>
+
+        <div className="flex items-center gap-2">
           <Link
             href="/sign-in"
             className={cn(
-              "rounded-full border border-white/10 px-3 py-1.5",
-              "font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.16em]",
+              "rounded-full border border-white/10 px-4 py-2",
+              "font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.13em]",
               "text-[#d8d4e6] transition-colors duration-150",
               "hover:border-white/20 hover:text-white",
               "focus-visible:outline-none focus-visible:ring-2",
@@ -108,8 +110,8 @@ export function SiteNavigation({
           <Link
             href="/sign-up"
             className={cn(
-              "rounded-full px-3 py-1.5",
-              "font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.16em]",
+              "rounded-full px-4 py-2",
+              "font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.13em]",
               "bg-[#e8453c] text-[#F5F5F0] transition-colors duration-150",
               "hover:bg-[#d5342b]",
               "focus-visible:outline-none focus-visible:ring-2",

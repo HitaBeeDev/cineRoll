@@ -3,19 +3,17 @@ import { SiteNavigation } from "@/components/site-navigation";
 
 export function AppHeader() {
   return (
-    <header className="sticky top-0 z-50 flex h-14 shrink-0 items-center justify-between border-b border-white/10 bg-[#08080d]/95 px-4 backdrop-blur-xl sm:px-6 lg:px-8">
-      <div className="flex items-center gap-3">
+    <header className="sticky top-0 z-50 shrink-0 border-b border-white/10 bg-[#08080d]/92 backdrop-blur-xl">
+      <div className="mx-auto flex h-16 max-w-screen-2xl items-center justify-between gap-5 px-4 sm:px-6 lg:px-8 xl:px-12">
         <Link
           href="/"
-          className="font-[family-name:var(--font-geist-mono)] text-[1rem] font-bold uppercase tracking-[0.16em] text-[#ff554c]"
+          className="flex items-center gap-2 font-[family-name:var(--font-geist-mono)] text-[1rem] font-bold uppercase tracking-[0.16em] text-[#ff554c] transition-colors hover:text-[#ff7068]"
         >
+          <span className="h-2 w-2 rounded-full bg-[#e8453c] shadow-[0_0_18px_rgba(232,69,60,0.7)]" aria-hidden />
           Cine·Roll
         </Link>
-        <span className="hidden items-center rounded-full border border-[#e8453c]/20 bg-[#e8453c]/5 px-2 py-0.5 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.18em] text-[#e8453c]/65 sm:inline-flex">
-          Now Showing
-        </span>
+        <SiteNavigation />
       </div>
-      <SiteNavigation />
     </header>
   );
 }
