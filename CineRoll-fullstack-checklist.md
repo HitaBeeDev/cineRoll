@@ -1497,16 +1497,16 @@ A public page surfacing interesting facts from the dataset. Great for SEO — un
 
 ### Frontend
 
-- [ ] Create `src/app/stats/page.tsx` — server-rendered for SEO
-- [ ] Display stats in visual cards/sections:
-  - [ ] "Most decorated person" — name, photo (TMDB), total wins
-  - [ ] "Most awarded film" — poster, title, total wins across all bodies
-  - [ ] "Most competitive year" — year, total nominations, top films that year
-  - [ ] Decade timeline bar chart (simple CSS bars, no heavy chart library)
-  - [ ] "Currently trending on CineRoll" — top 5 rolled + top 5 watchlisted this week
-- [ ] Add `/stats` to main navigation
-- [ ] Add structured data (JSON-LD) to the page for SEO
-- [ ] Each stat card links to a pre-filtered browse view (e.g. clicking "Most competitive year: 1994" opens `/browse?awardYear=1994`)
+- [x] Create `src/app/stats/page.tsx` — server-rendered for SEO
+- [x] Display stats in visual cards/sections:
+  - [x] "Most decorated person" — name, initials avatar, total wins
+  - [x] "Most awarded film" — poster, title, total wins across all bodies
+  - [x] "Most competitive year" — year, total nominations, top films that year
+  - [x] Decade timeline bar chart (simple CSS bars, no heavy chart library)
+  - [x] "Currently trending on CineRoll" — top 5 rolled + top 5 watchlisted this week
+- [x] Add `/stats` to main navigation (already present in site-navigation.tsx)
+- [x] Add structured data (JSON-LD) to the page for SEO
+- [x] Each stat card links to a pre-filtered browse view (e.g. clicking "Most competitive year: 1994" opens `/browse?awardYear=1994`)
 
 ---
 
