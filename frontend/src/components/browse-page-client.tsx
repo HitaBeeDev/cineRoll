@@ -5,11 +5,9 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowLeft, ArrowRight, Clapperboard, Dices, Search, Share2 } from "lucide-react";
 import type { FilterState, PaginatedFilms } from "@cineroll/types";
-import { Button } from "@/components/ui/button";
 import { FilmCard, FilmCardSkeleton } from "@/components/film-card";
 import { FilterBar } from "@/components/filter-bar";
 import { AppHeader } from "@/components/app-header";
-import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/toast";
 import { DEFAULT_FILTERS, useFilters } from "@/hooks/useFilters";
 import { fetchAwardYears, fetchCategories, fetchFilms, fetchGenres, fetchRandom, filtersToParams } from "@/lib/api";
@@ -47,7 +45,6 @@ export function BrowsePageClient() {
   useEffect(() => {
     const urlFilters = filtersFromSearchParams(searchParams);
     const urlQuery = serializeFilters(urlFilters);
-
     if (lastSyncedQuery.current === urlQuery) return;
     setFilter(urlFilters);
   }, [searchParams, setFilter]);
@@ -55,12 +52,10 @@ export function BrowsePageClient() {
   useEffect(() => {
     const query = serializeFilters(filters);
     const current = searchParams.toString();
-
     if (query === current) {
       lastSyncedQuery.current = query;
       return;
     }
-
     lastSyncedQuery.current = query;
     router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
   }, [filters, pathname, router, searchParams]);
@@ -71,23 +66,13 @@ export function BrowsePageClient() {
       setStatus("loading");
       void fetchFilms(filters, PAGE_SIZE)
         .then((data) => {
-          if (!cancelled) {
-            setResult(data);
-            setStatus("success");
-          }
+          if (!cancelled) { setResult(data); setStatus("success"); }
         })
         .catch(() => {
-          if (!cancelled) {
-            setResult(null);
-            setStatus("error");
-          }
+          if (!cancelled) { setResult(null); setStatus("error"); }
         });
     }, 300);
-
-    return () => {
-      cancelled = true;
-      window.clearTimeout(timer);
-    };
+    return () => { cancelled = true; window.clearTimeout(timer); };
   }, [filters]);
 
   const setFilters = useCallback(
@@ -109,20 +94,11 @@ export function BrowsePageClient() {
     const query = serializeFilters(filters);
     const path = query ? `${pathname}?${query}` : pathname;
     const url = `${window.location.origin}${path}`;
-
     try {
       await navigator.clipboard.writeText(url);
-      toast({
-        variant: "success",
-        title: "Link copied!",
-        description: "Current filters are ready to share.",
-      });
+      toast({ variant: "success", title: "Link copied!", description: "Current filters are ready to share." });
     } catch {
-      toast({
-        variant: "error",
-        title: "Could not copy link",
-        description: "Copying is not available in this browser.",
-      });
+      toast({ variant: "error", title: "Could not copy link", description: "Copying is not available in this browser." });
     }
   }
 
@@ -133,31 +109,54 @@ export function BrowsePageClient() {
   const showingEnd = result ? Math.min(page * PAGE_SIZE, result.total) : 0;
 
   return (
-    <div className="flex min-h-screen flex-col bg-zinc-950 text-zinc-100">
+    <div className="flex min-h-screen flex-col bg-[#09090f] text-[#F5F5F0]">
       <AppHeader />
 
-      <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-8 px-4 py-8 sm:px-6 lg:px-8">
-        <section className="flex flex-col gap-3">
-          <h1 className="text-2xl font-bold tracking-tight text-zinc-50 sm:text-3xl">
+      {/* ── PAGE HEADER ──────────────────────────────────────────────── */}
+      <div className="border-b border-[#1a1a28] bg-[#09090f]">
+        <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
+          <div className="mb-3 flex items-center gap-3">
+            <span className="text-[#e8453c]">◆</span>
+            <span className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.5em] text-[#606078]">
+              CineRoll Archive
+            </span>
+          </div>
+          <h1 className="font-[family-name:var(--font-display)] text-4xl font-bold leading-tight text-[#F5F5F0] sm:text-5xl">
             Browse Films
           </h1>
-          <p className="max-w-2xl text-sm leading-6 text-zinc-400">
-            Search and filter the award dataset by title, people, award body,
-            ceremony year, category, genre, and decade.
+          <p className="mt-3 max-w-2xl font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em] leading-[1.9] text-[#7070888]">
+            Search &amp; filter by title · people · award body · ceremony year · category · genre · decade
           </p>
-        </section>
+        </div>
+      </div>
 
-        <section className="grid gap-5 lg:grid-cols-[320px_1fr] lg:items-start">
+      <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-0 px-4 sm:px-6 lg:px-8">
+
+        {/* ── FILTER + GRID LAYOUT ─────────────────────────────────── */}
+        <section className="grid gap-8 py-8 lg:grid-cols-[300px_1fr] lg:items-start">
+
+          {/* ── LEFT: FILTERS ────────────────────────────────────────── */}
           <div className="flex flex-col gap-4 lg:sticky lg:top-6">
-            <Input
-              label="Film title"
-              placeholder="e.g. Casablanca"
-              value={filters.search}
-              onChange={(event) =>
-                setFilters({ search: event.target.value, page: 1 })
-              }
-              leftIcon={<Search className="h-4 w-4" />}
-            />
+            {/* Search */}
+            <div>
+              <span className="mb-1.5 block font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.45em] text-[#9090a8]">
+                Film Title
+              </span>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#555568] pointer-events-none" />
+                <input
+                  type="text"
+                  placeholder="e.g. Casablanca"
+                  value={filters.search}
+                  onChange={(e) => setFilters({ search: e.target.value, page: 1 })}
+                  className={cn(
+                    "h-10 w-full border border-[#1e1e30] bg-[#0d0d1a] pl-9 pr-3 rounded-none",
+                    "font-[family-name:var(--font-geist-mono)] text-[11px] text-[#F5F5F0] placeholder:text-[#404058]",
+                    "outline-none focus:border-[#e8453c]/60 focus:ring-1 focus:ring-[#e8453c]/25 transition-colors",
+                  )}
+                />
+              </div>
+            </div>
             <FilterBar
               filters={filters}
               genres={genres}
@@ -168,70 +167,81 @@ export function BrowsePageClient() {
             />
           </div>
 
+          {/* ── RIGHT: RESULTS ───────────────────────────────────────── */}
           <div className="flex min-w-0 flex-col gap-5">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div className="min-h-5 text-sm text-zinc-400">
-                {status === "loading" && "Loading films..."}
-                {status === "error" && "Could not load films."}
-                {status === "success" &&
-                  `${total.toLocaleString()} ${total === 1 ? "film" : "films"} match your filters`}
+
+            {/* Toolbar */}
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#1a1a28] pb-4">
+              <div className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.25em]">
+                {status === "loading" && <span className="text-[#555568]">Loading…</span>}
+                {status === "error"   && <span className="text-[#e8453c]/70">Could not load films</span>}
+                {status === "success" && (
+                  <span className="text-[#9090a8]">
+                    <span className="text-[#e0e0f0] font-semibold">{total.toLocaleString()}</span>
+                    {" "}{total === 1 ? "film" : "films"} match your filters
+                    {total > 0 && (
+                      <span className="ml-3 text-[#555568]">
+                        ({showingStart}–{showingEnd})
+                      </span>
+                    )}
+                  </span>
+                )}
               </div>
 
-              <div className="flex items-center gap-3">
-                <Button
-                  variant="secondary"
-                  size="sm"
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
                   onClick={() => void shareFilters()}
+                  className="flex h-9 items-center gap-2 border border-[#25253a] bg-transparent px-4 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.25em] text-[#9090a8] transition-colors hover:border-[#e8453c]/40 hover:text-[#e0e0f0] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#e8453c]"
                 >
-                  <Share2 className="h-4 w-4" aria-hidden />
-                  Share these filters
-                </Button>
+                  <Share2 className="h-3.5 w-3.5" aria-hidden />
+                  Share filters
+                </button>
                 {hasActiveFilters && status === "success" && (
-                  <Button
-                    variant="primary"
-                    size="sm"
+                  <button
+                    type="button"
                     disabled={total === 0 || isRolling}
                     onClick={() => void handleRoll()}
+                    className="flex h-9 items-center gap-2 bg-[#e8453c] px-4 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.25em] text-white shadow-lg shadow-[#e8453c]/20 transition-all hover:bg-[#d5342b] disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
                   >
-                    <Dices className={cn("h-4 w-4", isRolling && "motion-safe:animate-spin")} aria-hidden />
-                    {isRolling
-                      ? "Rolling…"
-                      : total === 0
-                        ? "No matches"
-                        : `Roll from ${total.toLocaleString()} ${total === 1 ? "film" : "films"}`}
-                  </Button>
-                )}
-                {status === "success" && total > 0 && (
-                  <p className="text-xs text-zinc-500">
-                    Showing {showingStart.toLocaleString()}–
-                    {showingEnd.toLocaleString()} of {total.toLocaleString()}
-                  </p>
+                    <Dices className={cn("h-3.5 w-3.5", isRolling && "motion-safe:animate-spin")} aria-hidden />
+                    {isRolling ? "Rolling…" : total === 0 ? "No matches" : `Roll from ${total.toLocaleString()}`}
+                  </button>
                 )}
               </div>
             </div>
 
+            {/* States */}
             {status === "loading" && <BrowseSkeleton />}
 
             {status === "error" && (
-              <div className="flex min-h-72 flex-col items-center justify-center gap-3 rounded-lg border border-zinc-800 bg-zinc-900/50 px-6 py-12 text-center">
-                <p className="text-sm text-zinc-400">Something went wrong loading films.</p>
-                <Button
-                  variant="secondary"
-                  size="sm"
+              <div className="flex min-h-72 flex-col items-center justify-center gap-4 border border-[#1e1e30] bg-[#0a0a10] px-6 py-12 text-center">
+                <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.3em] text-[#9090a8]">
+                  Something went wrong
+                </p>
+                <button
+                  type="button"
                   onClick={() => setFilter({ ...filters })}
+                  className="border border-[#25253a] px-4 py-2 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.3em] text-[#9090a8] transition-colors hover:border-[#e8453c]/40 hover:text-[#e0e0f0]"
                 >
                   Try again
-                </Button>
+                </button>
               </div>
             )}
 
             {status === "success" && result && result.films.length === 0 && (
-              <div className="flex min-h-72 flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-zinc-800 px-6 py-12 text-center">
-                <Clapperboard className="h-8 w-8 text-zinc-700" aria-hidden />
-                <p className="text-sm text-zinc-500">No films match — try adjusting your filters</p>
-                <Button variant="ghost" size="sm" onClick={resetFilters}>
+              <div className="flex min-h-72 flex-col items-center justify-center gap-4 border border-dashed border-[#1e1e30] bg-[#0a0a10] px-6 py-12 text-center">
+                <Clapperboard className="h-8 w-8 text-[#2a2a42]" aria-hidden />
+                <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.3em] text-[#666680]">
+                  No films match — try adjusting your filters
+                </p>
+                <button
+                  type="button"
+                  onClick={resetFilters}
+                  className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.3em] text-[#e8453c]/70 transition-colors hover:text-[#e8453c]"
+                >
                   Reset filters
-                </Button>
+                </button>
               </div>
             )}
 
@@ -289,34 +299,33 @@ function Pagination({
   return (
     <nav
       aria-label="Browse pagination"
-      className="flex flex-col items-center justify-between gap-3 border-t border-zinc-800 pt-5 sm:flex-row"
+      className="flex items-center justify-between border-t border-[#1a1a28] pt-6"
     >
-      <Button
-        variant="secondary"
-        size="sm"
+      <button
+        type="button"
         disabled={page <= 1}
         onClick={() => onPageChange(page - 1)}
-        className="w-full sm:w-auto"
+        className="flex items-center gap-2 border border-[#25253a] px-5 py-2.5 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.3em] text-[#9090a8] transition-colors hover:border-[#e8453c]/40 hover:text-[#e0e0f0] disabled:opacity-30 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#e8453c]"
       >
-        <ArrowLeft className="h-4 w-4" aria-hidden />
-        Previous
-      </Button>
+        <ArrowLeft className="h-3.5 w-3.5" aria-hidden />
+        Prev
+      </button>
 
-      <p className="text-xs text-zinc-500">
-        Page <span className="text-zinc-300">{page.toLocaleString()}</span> of{" "}
-        <span className="text-zinc-300">{totalPages.toLocaleString()}</span>
+      <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.3em] text-[#555568]">
+        <span className="text-[#c0c0d8]">{page.toLocaleString()}</span>
+        {" / "}
+        <span className="text-[#c0c0d8]">{totalPages.toLocaleString()}</span>
       </p>
 
-      <Button
-        variant="secondary"
-        size="sm"
+      <button
+        type="button"
         disabled={page >= totalPages}
         onClick={() => onPageChange(page + 1)}
-        className="w-full sm:w-auto"
+        className="flex items-center gap-2 border border-[#25253a] px-5 py-2.5 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.3em] text-[#9090a8] transition-colors hover:border-[#e8453c]/40 hover:text-[#e0e0f0] disabled:opacity-30 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#e8453c]"
       >
         Next
-        <ArrowRight className="h-4 w-4" aria-hidden />
-      </Button>
+        <ArrowRight className="h-3.5 w-3.5" aria-hidden />
+      </button>
     </nav>
   );
 }
@@ -339,10 +348,7 @@ function filtersFromSearchParams(params: URLSearchParams): FilterState {
     director: params.get("director") ?? "",
     femaleDirectorOnly: params.get("femaleDirectorOnly") === "true",
     awardBody:
-      awardBody === "oscar" ||
-      awardBody === "goldenglobe" ||
-      awardBody === "cannes" ||
-      awardBody === "all"
+      awardBody === "oscar" || awardBody === "goldenglobe" || awardBody === "cannes" || awardBody === "all"
         ? awardBody
         : DEFAULT_FILTERS.awardBody,
     winnerOnly: params.get("winnerOnly") === "true",

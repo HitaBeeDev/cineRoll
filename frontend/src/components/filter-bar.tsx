@@ -187,7 +187,7 @@ export function FilterBar({
       {/* PERSON + GENRE selects */}
       <div className="flex gap-3">
         <div className="flex-1">
-          <span className="mb-1 block font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#555568]">
+          <span className="mb-1 block font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#9090a8]">
             Person
           </span>
           <div className="relative">
@@ -207,7 +207,7 @@ export function FilterBar({
                 window.setTimeout(() => setIsPersonSuggestionsOpen(false), 120)
               }
               className={cn(
-                "h-9 w-full rounded-md border border-[#1e1e2a] bg-[#0d0d1a] px-3",
+                "h-9 w-full rounded-md border border-[#25253a] bg-[#0d0d1a] px-3",
                 "font-[family-name:var(--font-geist-mono)] text-[11px] text-[#F5F5F0]",
                 "placeholder:text-[#444458] outline-none",
                 "focus:border-[#e8453c]/50 focus:ring-1 focus:ring-[#e8453c]/30",
@@ -244,7 +244,7 @@ export function FilterBar({
         </div>
 
         <div className="flex-1">
-          <span className="mb-1 block font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#555568]">
+          <span className="mb-1 block font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#9090a8]">
             Genre
           </span>
           <Select
@@ -255,7 +255,7 @@ export function FilterBar({
           >
             <SelectTrigger
               className={cn(
-                "h-9 border-[#1e1e2a] bg-[#0d0d1a]",
+                "h-9 border-[#25253a] bg-[#0d0d1a]",
                 "font-[family-name:var(--font-geist-mono)] text-[11px] text-[#F5F5F0]",
                 "hover:border-[#2a2a3e] focus:ring-[#e8453c] focus:ring-offset-[#09090f]",
               )}
@@ -277,7 +277,7 @@ export function FilterBar({
       {/* CATEGORY + YEAR selects */}
       <div className="flex gap-3">
         <div className="flex-1">
-          <span className="mb-1 block font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#555568]">
+          <span className="mb-1 block font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#9090a8]">
             Category
           </span>
           <Select
@@ -288,7 +288,7 @@ export function FilterBar({
           >
             <SelectTrigger
               className={cn(
-                "h-9 border-[#1e1e2a] bg-[#0d0d1a]",
+                "h-9 border-[#25253a] bg-[#0d0d1a]",
                 "font-[family-name:var(--font-geist-mono)] text-[11px] text-[#F5F5F0]",
                 "hover:border-[#2a2a3e] focus:ring-[#e8453c] focus:ring-offset-[#09090f]",
               )}
@@ -307,7 +307,7 @@ export function FilterBar({
         </div>
 
         <div className="flex-1">
-          <span className="mb-1 block font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#555568]">
+          <span className="mb-1 block font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#9090a8]">
             Year
           </span>
           <Select
@@ -323,7 +323,7 @@ export function FilterBar({
           >
             <SelectTrigger
               className={cn(
-                "h-9 border-[#1e1e2a] bg-[#0d0d1a]",
+                "h-9 border-[#25253a] bg-[#0d0d1a]",
                 "font-[family-name:var(--font-geist-mono)] text-[11px] text-[#F5F5F0]",
                 "hover:border-[#2a2a3e] focus:ring-[#e8453c] focus:ring-offset-[#09090f]",
               )}
@@ -407,7 +407,7 @@ export function FilterBar({
                 "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#e8453c]",
                 active
                   ? "border-[#e8453c] bg-[#e8453c] text-[#F5F5F0]"
-                  : "border-[#1e1e2a] text-[#555568] hover:border-[#e8453c]/40 hover:text-[#F5F5F0]",
+                  : "border-[#25253a] text-[#9090a8] hover:border-[#e8453c]/40 hover:text-[#F5F5F0]",
               )}
             >
               {preset.label}
@@ -427,8 +427,8 @@ export function FilterBar({
                 onClick={chip.onRemove}
                 className={cn(
                   "inline-flex h-6 items-center gap-1 rounded-full",
-                  "border border-[#1e1e2a] bg-[#0d0d1a] px-2.5",
-                  "font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-wide text-[#888899]",
+                  "border border-[#25253a] bg-[#0d0d1a] px-2.5",
+                  "font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-wide text-[#9898b8]",
                   "transition-colors hover:border-[#e8453c]/40 hover:text-[#F5F5F0]",
                   "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#e8453c]",
                 )}
@@ -436,7 +436,7 @@ export function FilterBar({
               >
                 {chip.label}
                 <X
-                  className="h-2.5 w-2.5 shrink-0 text-[#555568]"
+                  className="h-2.5 w-2.5 shrink-0 text-[#9090a8]"
                   aria-hidden
                 />
               </button>
@@ -445,7 +445,7 @@ export function FilterBar({
           <button
             type="button"
             onClick={clearAllFilters}
-            className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#555568] transition-colors hover:text-[#e8453c] focus-visible:outline-none"
+            className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#9090a8] transition-colors hover:text-[#e8453c] focus-visible:outline-none"
           >
             Clear all
           </button>
@@ -464,7 +464,7 @@ function FilterRow({
 }) {
   return (
     <div className="flex items-center gap-3">
-      <span className="w-[42px] shrink-0 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#555568]">
+      <span className="w-[42px] shrink-0 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#9090a8]">
         {label}
       </span>
       <div className="flex flex-wrap gap-1.5">{children}</div>
@@ -492,7 +492,7 @@ function PillToggle({
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] focus-visible:ring-offset-1 focus-visible:ring-offset-[#09090f]",
         active
           ? "border-[#e8453c] bg-[#e8453c] text-[#F5F5F0]"
-          : "border-[#1e1e2a] text-[#888899] hover:border-[#e8453c]/40 hover:text-[#F5F5F0]",
+          : "border-[#25253a] text-[#9898b8] hover:border-[#e8453c]/40 hover:text-[#F5F5F0]",
       )}
     >
       {children}
