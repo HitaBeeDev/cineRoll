@@ -137,31 +137,33 @@ export function BrowsePageClient() {
   const activeChips = buildActiveChips(filters, setFilters);
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#09090f] text-[#F5F5F0]">
+    <div className="flex min-h-screen flex-col overflow-x-hidden bg-[#08080d] text-[#F5F5F0]">
       <AppHeader />
 
       {/* ── HERO ────────────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden border-b border-[#1a1a28]">
+      <section className="relative overflow-hidden border-b border-[#24202a] bg-[#0b0a10]">
         {/* Grain */}
         <div
-          className="pointer-events-none absolute inset-0 opacity-[0.045]"
+          className="pointer-events-none absolute inset-0 opacity-[0.035]"
           style={{ backgroundImage: GRAIN_SVG, backgroundSize: "256px 256px" }}
         />
-        {/* Red ambient from bottom */}
         <div
           className="pointer-events-none absolute inset-0"
-          style={{ background: "radial-gradient(ellipse 80% 160% at 20% 50%, #e8453c12, transparent 55%)" }}
+          style={{
+            background:
+              "radial-gradient(ellipse 70% 130% at 16% 20%, rgba(232,69,60,0.2), transparent 54%), linear-gradient(180deg, rgba(255,255,255,0.035), transparent 58%)",
+          }}
         />
 
-        <div className="relative mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8 xl:px-12">
-          <div className="flex items-center gap-6 py-5">
-            <div className="h-7 w-px bg-[#e8453c]" />
+        <div className="relative mx-auto w-full max-w-[100vw] px-4 sm:max-w-screen-2xl sm:px-6 lg:px-8 xl:px-12">
+          <div className="flex flex-col gap-4 py-7 sm:flex-row sm:items-end sm:justify-between sm:py-8">
             <div>
+              <div className="mb-3 h-px w-12 bg-[#e8453c]" />
               <h1
                 className="font-[family-name:var(--font-display)] font-bold leading-none tracking-tight"
                 style={{
-                  fontSize: "clamp(1.6rem, 3vw, 2.25rem)",
-                  background: "linear-gradient(135deg, #ffffff 0%, #a0a0c8 100%)",
+                  fontSize: "clamp(2.1rem, 5vw, 4.4rem)",
+                  background: "linear-gradient(135deg, #fffaf2 0%, #d7d4e6 58%, #8b8aa3 100%)",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
                   backgroundClip: "text",
@@ -169,44 +171,56 @@ export function BrowsePageClient() {
               >
                 Browse Films
               </h1>
-              <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.45em] text-[#404058]">
-                Oscar · Golden Globe · Cannes · 1929–Today
+              <p className="mt-3 max-w-full text-sm leading-6 text-[#a7a4b8] sm:max-w-xl sm:text-base">
+                <span className="sm:hidden">Search award films with fast filters.</span>
+                <span className="hidden sm:inline">
+                  Search award films, festival discoveries, and ranked favorites with fast filters built for browsing.
+                </span>
               </p>
+            </div>
+            <div className="flex flex-wrap gap-2 sm:justify-end">
+              {["Oscar", "Golden Globe", "Cannes", "1929-Today"].map((label) => (
+                <span
+                  key={label}
+                  className="rounded-full border border-white/10 bg-white/[0.035] px-3 py-1.5 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.2em] text-[#b8b5c8]"
+                >
+                  {label}
+                </span>
+              ))}
             </div>
           </div>
         </div>
 
-        {/* Accent line */}
         <div
           className="h-px w-full"
-          style={{ background: "linear-gradient(to right, #e8453c88 0%, #e8453c33 40%, transparent 70%)" }}
+          style={{ background: "linear-gradient(to right, #e8453c99 0%, rgba(212,175,55,0.45) 36%, transparent 78%)" }}
         />
       </section>
 
       {/* ── STICKY FILTER BAR ───────────────────────────────────────────── */}
-      <div className="sticky top-0 z-40 border-b border-[#141420] bg-[#09090f]/96 backdrop-blur-xl">
-        <div className="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8 xl:px-12">
+      <div className="sticky top-16 z-40 max-w-[100vw] border-b border-[#1c1a25] bg-[#08080d]/92 shadow-[0_18px_50px_rgba(0,0,0,0.28)] backdrop-blur-xl">
+        <div className="mx-auto w-full max-w-[100vw] px-4 sm:max-w-screen-2xl sm:px-6 lg:px-8 xl:px-12">
 
           {/* Primary filter row */}
-          <div className="flex flex-wrap items-center gap-2 py-2.5">
+          <div className="flex flex-wrap items-center gap-2 py-3">
 
             {/* Search */}
-            <div className="relative w-[200px] shrink-0">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-3 w-3 -translate-y-1/2 text-[#2a2a44]" />
+            <div className="relative w-full min-w-0 sm:max-w-[320px] sm:flex-1 lg:flex-none">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#6f6b80]" />
               <input
                 type="text"
                 placeholder="Title, director…"
                 value={filters.search}
                 onChange={(e) => setFilters({ search: e.target.value, page: 1 })}
-                className="h-8 w-full border border-[#1a1a2c] bg-[#0c0c18] pl-8 pr-3 font-[family-name:var(--font-geist-mono)] text-[10px] text-[#D0D0E8] placeholder:text-[#28283c] outline-none focus:border-[#e8453c]/40 focus:ring-1 focus:ring-[#e8453c]/15 transition-colors"
+                className="h-10 w-full rounded-md border border-white/10 bg-white/[0.045] pl-9 pr-3 font-[family-name:var(--font-geist-mono)] text-[11px] text-[#f1eff8] outline-none transition-colors placeholder:text-[#5e5a70] hover:border-white/18 focus:border-[#e8453c]/70 focus:ring-2 focus:ring-[#e8453c]/15"
               />
             </div>
 
             {/* Divider */}
-            <div className="h-5 w-px bg-[#1a1a2c]" />
+            <div className="hidden h-6 w-px bg-white/10 lg:block" />
 
             {/* Award body */}
-            <div className="flex items-center gap-0.5">
+            <div className="flex w-full max-w-full items-center gap-1 overflow-x-auto rounded-md border border-white/10 bg-white/[0.025] p-1 sm:w-auto sm:overflow-visible">
               {AWARD_BODIES.map(({ value, label }) => {
                 const active =
                   filters.awardBody === value &&
@@ -220,10 +234,10 @@ export function BrowsePageClient() {
                       setFilters({ awardBody: value, imdbTopMoviesOnly: false, imdbTopTvOnly: false, page: 1 })
                     }
                     className={cn(
-                      "h-7 px-3 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.25em] transition-all focus-visible:outline-none",
+                      "h-8 shrink-0 rounded px-3 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.18em] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40",
                       active
-                        ? "bg-[#e8453c] text-white"
-                        : "border border-[#1a1a2c] text-[#505068] hover:border-[#e8453c]/30 hover:text-[#a0a0c0]",
+                        ? "bg-[#e8453c] text-white shadow-[0_0_24px_rgba(232,69,60,0.24)]"
+                        : "text-[#7f7a91] hover:bg-white/[0.055] hover:text-[#f1eff8]",
                     )}
                   >
                     {label}
@@ -233,10 +247,10 @@ export function BrowsePageClient() {
             </div>
 
             {/* Divider */}
-            <div className="h-5 w-px bg-[#1a1a2c]" />
+            <div className="hidden h-6 w-px bg-white/10 xl:block" />
 
             {/* Status */}
-            <div className="flex items-center gap-0.5">
+            <div className="flex w-full max-w-full items-center gap-1 overflow-x-auto rounded-md border border-white/10 bg-white/[0.025] p-1 sm:w-auto sm:overflow-visible">
               {(
                 [
                   { label: "Any",  active: !filters.winnerOnly && !filters.nominatedOnly, fn: () => setFilters({ winnerOnly: false, nominatedOnly: false, page: 1 }) },
@@ -249,10 +263,10 @@ export function BrowsePageClient() {
                   type="button"
                   onClick={fn}
                   className={cn(
-                    "h-7 px-3 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.25em] transition-all focus-visible:outline-none",
+                    "h-8 shrink-0 rounded px-3 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.18em] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37]/35",
                     active
-                      ? "bg-[#D4AF37] text-[#09090f] font-semibold"
-                      : "border border-[#1a1a2c] text-[#505068] hover:border-[#D4AF37]/30 hover:text-[#a0a0c0]",
+                      ? "bg-[#D4AF37] font-semibold text-[#09090f] shadow-[0_0_24px_rgba(212,175,55,0.18)]"
+                      : "text-[#7f7a91] hover:bg-white/[0.055] hover:text-[#f1eff8]",
                   )}
                 >
                   {label}
@@ -261,7 +275,7 @@ export function BrowsePageClient() {
             </div>
 
             {/* Divider */}
-            <div className="hidden h-5 w-px bg-[#1a1a2c] sm:block" />
+            <div className="hidden h-6 w-px bg-white/10 sm:block" />
 
             {/* Genre */}
             <div className="hidden sm:block">
@@ -271,10 +285,10 @@ export function BrowsePageClient() {
                   setFilters({ genre: val === "_all" ? "" : val, page: 1 })
                 }
               >
-                <SelectTrigger className="h-7 w-[120px] border-[#1a1a2c] bg-[#0c0c18] font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.2em] text-[#505068] focus:ring-[#e8453c] hover:border-[#e8453c]/30 focus:ring-offset-0 transition-colors">
+                <SelectTrigger className="h-10 w-[152px] rounded-md border-white/10 bg-white/[0.045] font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.16em] text-[#b8b5c8] transition-colors hover:border-white/20 focus:ring-[#e8453c]/60 focus:ring-offset-0">
                   <SelectValue placeholder="Genre" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="border-white/10 bg-[#101019]">
                   <SelectItem value="_all">All genres</SelectItem>
                   {genres.map((g) => (
                     <SelectItem key={g} value={g}>{g}</SelectItem>
@@ -288,16 +302,16 @@ export function BrowsePageClient() {
               type="button"
               onClick={() => setShowMore((v) => !v)}
               className={cn(
-                "flex h-7 items-center gap-1.5 px-3 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.25em] transition-all border focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#e8453c]",
+                "flex h-10 items-center gap-2 rounded-md border px-3 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.18em] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40",
                 showMore
-                  ? "border-[#e8453c]/50 bg-[#e8453c]/10 text-[#e8453c]"
-                  : "border-[#1a1a2c] text-[#505068] hover:border-[#e8453c]/30 hover:text-[#a0a0c0]",
+                  ? "border-[#e8453c]/55 bg-[#e8453c]/12 text-[#ff766d]"
+                  : "border-white/10 bg-white/[0.045] text-[#b8b5c8] hover:border-white/20 hover:text-[#f1eff8]",
               )}
             >
-              <SlidersHorizontal className="h-2.5 w-2.5" aria-hidden />
+              <SlidersHorizontal className="h-3.5 w-3.5" aria-hidden />
               Filters
               {hasActiveFilters && (
-                <span className="h-1 w-1 rounded-full bg-[#e8453c]" />
+                <span className="h-1.5 w-1.5 rounded-full bg-[#e8453c]" />
               )}
             </button>
 
@@ -306,32 +320,32 @@ export function BrowsePageClient() {
 
             {/* Count */}
             {status === "success" && total > 0 && (
-              <span className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.2em] text-[#303048]">
-                <span className="text-[#8080a0]">{total.toLocaleString()}</span> films
-                <span className="ml-2 text-[#252538]">· {showingStart}–{showingEnd}</span>
+              <span className="hidden rounded-full border border-white/10 bg-white/[0.035] px-3 py-2 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.18em] text-[#767187] sm:inline-flex">
+                <span className="text-[#dedbea]">{total.toLocaleString()}</span>&nbsp;films
+                <span className="ml-2 text-[#575266]">{showingStart}-{showingEnd}</span>
               </span>
             )}
           </div>
 
           {/* Active chips */}
           {activeChips.length > 0 && (
-            <div className="flex flex-wrap items-center gap-1.5 pb-2">
+            <div className="flex flex-wrap items-center gap-1.5 pb-3">
               {activeChips.map((chip) => (
                 <button
                   key={chip.key}
                   type="button"
                   onClick={chip.onRemove}
                   aria-label={`Remove ${chip.label} filter`}
-                  className="inline-flex h-5 items-center gap-1 border border-[#1e1e30] bg-[#0d0d1a] px-2 font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-[0.25em] text-[#7070a0] transition-colors hover:border-[#e8453c]/40 hover:text-[#e8453c] focus-visible:outline-none"
+                  className="inline-flex h-7 items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.045] px-2.5 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.18em] text-[#a9a5bc] transition-colors hover:border-[#e8453c]/45 hover:text-[#ff766d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/30"
                 >
                   {chip.label}
-                  <X className="h-2 w-2 shrink-0" aria-hidden />
+                  <X className="h-2.5 w-2.5 shrink-0" aria-hidden />
                 </button>
               ))}
               <button
                 type="button"
                 onClick={() => { resetFilters(); setShowMore(false); }}
-                className="font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-[0.3em] text-[#303048] transition-colors hover:text-[#e8453c] focus-visible:outline-none ml-0.5"
+                className="ml-1 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.24em] text-[#706b82] transition-colors hover:text-[#ff766d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/30"
               >
                 Clear all
               </button>
@@ -341,9 +355,9 @@ export function BrowsePageClient() {
 
         {/* ── EXPANDED FILTER PANEL ─────────────────────────── */}
         {showMore && (
-          <div className="border-t border-[#141420] bg-[#06060f]/98">
-            <div className="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8 xl:px-12 py-6">
-              <div className="grid grid-cols-1 gap-x-10 gap-y-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="border-t border-white/10 bg-[#090910]/98">
+            <div className="mx-auto w-full max-w-[100vw] px-4 py-6 sm:max-w-screen-2xl sm:px-6 lg:px-8 xl:px-12">
+              <div className="grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
 
                 {/* IMDb */}
                 <PanelSection label="IMDb Rating">
@@ -410,17 +424,17 @@ export function BrowsePageClient() {
                       onChange={(e) => setFilters({ person: e.target.value, page: 1 })}
                       onFocus={() => { if (personSuggestions.length > 0) setPersonDropdownOpen(true); }}
                       onBlur={() => window.setTimeout(() => setPersonDropdownOpen(false), 120)}
-                      className="h-8 w-full border border-[#1a1a2c] bg-[#0c0c18] px-3 font-[family-name:var(--font-geist-mono)] text-[10px] text-[#C8C8E0] placeholder:text-[#252538] outline-none focus:border-[#e8453c]/40 transition-colors"
+                      className="h-10 w-full rounded-md border border-white/10 bg-white/[0.045] px-3 font-[family-name:var(--font-geist-mono)] text-[11px] text-[#f1eff8] outline-none transition-colors placeholder:text-[#5e5a70] hover:border-white/18 focus:border-[#e8453c]/65 focus:ring-2 focus:ring-[#e8453c]/15"
                     />
                     {personDropdownOpen && (
-                      <div className="absolute left-0 right-0 top-[calc(100%+4px)] z-50 border border-[#1e1e30] bg-[#0a0a16] shadow-2xl shadow-black/70">
+                      <div className="absolute left-0 right-0 top-[calc(100%+6px)] z-50 overflow-hidden rounded-md border border-white/10 bg-[#101019] shadow-2xl shadow-black/70">
                         {personSuggestions.map((s) => (
                           <button
                             key={s.name}
                             type="button"
                             onMouseDown={(e) => e.preventDefault()}
                             onClick={() => { setFilters({ person: s.name, page: 1 }); setPersonDropdownOpen(false); }}
-                            className="flex w-full items-center justify-between gap-3 px-3 py-2 text-left transition-colors hover:bg-[#121220] focus-visible:outline-none"
+                            className="flex w-full items-center justify-between gap-3 px-3 py-2 text-left transition-colors hover:bg-white/[0.06] focus-visible:bg-white/[0.06] focus-visible:outline-none"
                           >
                             <span className="truncate text-sm font-medium text-[#D8D8F0]">{s.name}</span>
                             <span className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-widest text-[#505068]">
@@ -439,10 +453,10 @@ export function BrowsePageClient() {
                     value={filters.category || "_all"}
                     onValueChange={(val) => setFilters({ category: val === "_all" ? "" : val, page: 1 })}
                   >
-                    <SelectTrigger className="h-8 w-full border-[#1a1a2c] bg-[#0c0c18] font-[family-name:var(--font-geist-mono)] text-[9px] text-[#505068] focus:ring-[#e8453c] transition-colors hover:border-[#e8453c]/30 focus:ring-offset-0">
+                    <SelectTrigger className="h-10 w-full rounded-md border-white/10 bg-white/[0.045] font-[family-name:var(--font-geist-mono)] text-[10px] text-[#b8b5c8] transition-colors hover:border-white/20 focus:ring-[#e8453c]/60 focus:ring-offset-0">
                       <SelectValue placeholder="Any category" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="border-white/10 bg-[#101019]">
                       <SelectItem value="_all">Any category</SelectItem>
                       {categories.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
                     </SelectContent>
@@ -457,10 +471,10 @@ export function BrowsePageClient() {
                       setFilters({ awardYear: val === "_any" ? null : Number(val), page: 1 })
                     }
                   >
-                    <SelectTrigger className="h-8 w-full border-[#1a1a2c] bg-[#0c0c18] font-[family-name:var(--font-geist-mono)] text-[9px] text-[#505068] focus:ring-[#e8453c] transition-colors hover:border-[#e8453c]/30 focus:ring-offset-0">
+                    <SelectTrigger className="h-10 w-full rounded-md border-white/10 bg-white/[0.045] font-[family-name:var(--font-geist-mono)] text-[10px] text-[#b8b5c8] transition-colors hover:border-white/20 focus:ring-[#e8453c]/60 focus:ring-offset-0">
                       <SelectValue placeholder="Any year" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="border-white/10 bg-[#101019]">
                       <SelectItem value="_any">Any year</SelectItem>
                       {awardYears.map((y) => <SelectItem key={y} value={String(y)}>{y}</SelectItem>)}
                     </SelectContent>
@@ -512,25 +526,25 @@ export function BrowsePageClient() {
       </div>
 
       {/* ── MAIN GRID ───────────────────────────────────────────────────── */}
-      <main className="mx-auto w-full max-w-screen-2xl flex-1 px-4 py-8 sm:px-6 lg:px-8 xl:px-12">
+      <main className="mx-auto w-full max-w-[100vw] flex-1 px-4 py-7 sm:max-w-screen-2xl sm:px-6 sm:py-9 lg:px-8 xl:px-12">
 
         {/* Loading */}
         {status === "loading" && (
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
+          <div className="grid grid-cols-1 gap-x-4 gap-y-8 min-[520px]:grid-cols-2 sm:grid-cols-3 sm:gap-x-5 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
             {Array.from({ length: 18 }).map((_, i) => <FilmCardSkeleton key={i} />)}
           </div>
         )}
 
         {/* Error */}
         {status === "error" && (
-          <div className="flex min-h-80 flex-col items-center justify-center gap-5 border border-dashed border-[#1e1e30] px-6 py-16 text-center">
-            <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.4em] text-[#606078]">
+          <div className="flex min-h-80 flex-col items-center justify-center gap-5 rounded-lg border border-dashed border-white/12 bg-white/[0.025] px-6 py-16 text-center">
+            <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.32em] text-[#8e899e]">
               Something went wrong
             </p>
             <button
               type="button"
               onClick={() => setFilter({ ...filters })}
-              className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.35em] text-[#e8453c]/60 transition-colors hover:text-[#e8453c]"
+              className="rounded-full border border-[#e8453c]/35 px-4 py-2 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.24em] text-[#ff766d] transition-colors hover:border-[#e8453c]/70 hover:text-white"
             >
               Try again →
             </button>
@@ -539,15 +553,15 @@ export function BrowsePageClient() {
 
         {/* Empty */}
         {status === "success" && result?.films.length === 0 && (
-          <div className="flex min-h-80 flex-col items-center justify-center gap-5 border border-dashed border-[#1e1e30] px-6 py-16 text-center">
-            <Clapperboard className="h-9 w-9 text-[#1e1e30]" aria-hidden />
-            <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.4em] text-[#505068]">
+          <div className="flex min-h-80 flex-col items-center justify-center gap-5 rounded-lg border border-dashed border-white/12 bg-white/[0.025] px-6 py-16 text-center">
+            <Clapperboard className="h-10 w-10 text-[#555064]" aria-hidden />
+            <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.28em] text-[#8e899e]">
               No films match — try adjusting your filters
             </p>
             <button
               type="button"
               onClick={resetFilters}
-              className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.35em] text-[#e8453c]/60 transition-colors hover:text-[#e8453c]"
+              className="rounded-full border border-[#e8453c]/35 px-4 py-2 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.24em] text-[#ff766d] transition-colors hover:border-[#e8453c]/70 hover:text-white"
             >
               Reset filters →
             </button>
@@ -557,7 +571,7 @@ export function BrowsePageClient() {
         {/* Grid */}
         {status === "success" && result && result.films.length > 0 && (
           <>
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
+            <div className="grid grid-cols-1 gap-x-4 gap-y-8 min-[520px]:grid-cols-2 sm:grid-cols-3 sm:gap-x-5 sm:gap-y-9 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
               {result.films.map((film, index) => (
                 <motion.div
                   key={film.id}
@@ -577,29 +591,29 @@ export function BrowsePageClient() {
             {/* Pagination */}
             <nav
               aria-label="Browse pagination"
-              className="mt-12 flex items-center justify-between border-t border-[#141420] pt-6"
+              className="mt-14 flex items-center justify-between border-t border-white/10 pt-6"
             >
               <button
                 type="button"
                 disabled={page <= 1}
                 onClick={() => setFilters({ page: page - 1 })}
-                className="flex items-center gap-2 border border-[#1a1a2c] px-5 py-2.5 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.3em] text-[#606080] transition-colors hover:border-[#e8453c]/30 hover:text-[#c0c0d8] disabled:opacity-20 disabled:cursor-not-allowed focus-visible:outline-none"
+                className="flex items-center gap-2 rounded-md border border-white/10 bg-white/[0.035] px-5 py-2.5 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.22em] text-[#a9a5bc] transition-colors hover:border-[#e8453c]/35 hover:text-white disabled:cursor-not-allowed disabled:opacity-25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/30"
               >
                 <ArrowLeft className="h-3.5 w-3.5" aria-hidden />
                 Prev
               </button>
 
-              <p className="font-[family-name:var(--font-geist-mono)] text-[9px] tracking-[0.3em] text-[#303048]">
-                <span className="text-[#8080a0]">{page.toLocaleString()}</span>
-                <span className="mx-1.5 text-[#252538]">/</span>
-                <span className="text-[#8080a0]">{totalPages.toLocaleString()}</span>
+              <p className="rounded-full border border-white/10 bg-white/[0.035] px-4 py-2 font-[family-name:var(--font-geist-mono)] text-[10px] tracking-[0.22em] text-[#686378]">
+                <span className="text-[#dedbea]">{page.toLocaleString()}</span>
+                <span className="mx-1.5 text-[#575266]">/</span>
+                <span className="text-[#dedbea]">{totalPages.toLocaleString()}</span>
               </p>
 
               <button
                 type="button"
                 disabled={page >= totalPages}
                 onClick={() => setFilters({ page: page + 1 })}
-                className="flex items-center gap-2 border border-[#1a1a2c] px-5 py-2.5 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.3em] text-[#606080] transition-colors hover:border-[#e8453c]/30 hover:text-[#c0c0d8] disabled:opacity-20 disabled:cursor-not-allowed focus-visible:outline-none"
+                className="flex items-center gap-2 rounded-md border border-white/10 bg-white/[0.035] px-5 py-2.5 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.22em] text-[#a9a5bc] transition-colors hover:border-[#e8453c]/35 hover:text-white disabled:cursor-not-allowed disabled:opacity-25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/30"
               >
                 Next
                 <ArrowRight className="h-3.5 w-3.5" aria-hidden />
@@ -617,7 +631,7 @@ export function BrowsePageClient() {
 function PanelSection({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-2">
-      <span className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.5em] text-[#404058]">
+      <span className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.3em] text-[#8e899e]">
         {label}
       </span>
       {children}
@@ -640,10 +654,10 @@ function FilterChip({
       aria-pressed={active}
       onClick={onClick}
       className={cn(
-        "h-6 px-2.5 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.2em] transition-all border focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#e8453c]",
+        "h-8 rounded-md border px-3 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.16em] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/35",
         active
           ? "border-[#e8453c] bg-[#e8453c] text-white"
-          : "border-[#1a1a2c] text-[#505068] hover:border-[#e8453c]/30 hover:text-[#a0a0c0]",
+          : "border-white/10 bg-white/[0.035] text-[#a9a5bc] hover:border-white/20 hover:text-white",
       )}
     >
       {children}
