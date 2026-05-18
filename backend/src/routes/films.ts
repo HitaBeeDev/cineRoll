@@ -85,6 +85,35 @@ const peopleQuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(12).default(8),
 });
 
+function filmListOrderBy(sort: ListQuery["sort"]) {
+  if (sort === "title") {
+    return Prisma.sql`"Film"."title" ASC, "Film"."year" DESC`;
+  }
+
+  if (sort === "rating") {
+    return Prisma.sql`"Film"."imdbRating" DESC NULLS LAST, "Film"."year" DESC, "Film"."title" ASC`;
+  }
+
+  if (sort === "awards") {
+    return Prisma.sql`
+      (
+        "Film"."oscarWins"
+        + "Film"."ggWins"
+        + "Film"."cannesWins"
+      ) DESC,
+      (
+        "Film"."oscarNominations"
+        + "Film"."ggNominations"
+        + "Film"."cannesNominations"
+      ) DESC,
+      "Film"."year" DESC,
+      "Film"."title" ASC
+    `;
+  }
+
+  return Prisma.sql`"Film"."year" DESC, "Film"."title" ASC`;
+}
+
 filmsRouter.get("/certificates", async (_req, res) => {
   const rows = await prisma.$queryRaw<{ certificate: string }[]>`
     SELECT DISTINCT "Film"."certificate"
@@ -311,7 +340,7 @@ filmsRouter.get("/", validate(listQuerySchema), async (req, res) => {
       SELECT ${filmListSelect}
       FROM "Film"
       ${whereSql}
-      ORDER BY "Film"."year" DESC, "Film"."title" ASC
+      ORDER BY ${filmListOrderBy(query.sort)}
       LIMIT ${query.limit}
       OFFSET ${offset}
     `,

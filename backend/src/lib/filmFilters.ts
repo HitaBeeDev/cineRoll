@@ -61,6 +61,7 @@ const listQueryBaseSchema = z.object({
   imdbTopMoviesOnly: queryBooleanSchema.optional(),
   imdbTopTvOnly: queryBooleanSchema.optional(),
   tvType: z.string().trim().min(1).max(60).optional(),
+  sort: z.enum(["newest", "title", "rating", "awards"]).default("newest"),
   sample: z.enum(["onboarding"]).optional(),
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(100).default(12),

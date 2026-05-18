@@ -7,6 +7,8 @@ import {
   ArrowLeft,
   ArrowRight,
   Clapperboard,
+  Grid3X3,
+  Rows3,
   Search,
   SlidersHorizontal,
   X,
@@ -47,6 +49,14 @@ const AWARD_BODIES: { value: AwardBody; label: string }[] = [
 ];
 
 type LoadStatus = "loading" | "success" | "error";
+type ViewMode = "gallery" | "dense";
+
+const SORT_OPTIONS: { value: FilterState["sort"]; label: string }[] = [
+  { value: "newest", label: "Newest" },
+  { value: "rating", label: "Rating" },
+  { value: "awards", label: "Awards" },
+  { value: "title", label: "A-Z" },
+];
 
 export function BrowsePageClient() {
   const shouldReduceMotion = useReducedMotion();
@@ -62,6 +72,7 @@ export function BrowsePageClient() {
   const [result,     setResult]     = useState<PaginatedFilms | null>(null);
   const [status,     setStatus]     = useState<LoadStatus>("loading");
   const [showMore, setShowMore] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>("gallery");
 
   // person autocomplete
   const [personSuggestions,    setPersonSuggestions]    = useState<PersonSuggestion[]>([]);
@@ -135,6 +146,11 @@ export function BrowsePageClient() {
   const showingStart = total === 0 ? 0 : (page - 1) * PAGE_SIZE + 1;
 
   const activeChips = buildActiveChips(filters, setFilters);
+  const resultContext = buildResultContext(filters);
+  const gridClassName =
+    viewMode === "dense"
+      ? "grid min-w-0 grid-cols-1 gap-x-3 gap-y-7 [&>*]:min-w-0 sm:grid-cols-4 sm:gap-x-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7"
+      : "grid min-w-0 grid-cols-1 gap-x-4 gap-y-8 [&>*]:min-w-0 sm:grid-cols-3 sm:gap-x-5 sm:gap-y-9 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6";
 
   return (
     <div className="flex min-h-screen flex-col overflow-x-hidden bg-[#08080d] text-[#F5F5F0]">
@@ -156,13 +172,13 @@ export function BrowsePageClient() {
         />
 
         <div className="relative mx-auto w-full max-w-[100vw] px-4 sm:max-w-screen-2xl sm:px-6 lg:px-8 xl:px-12">
-          <div className="flex flex-col gap-4 py-7 sm:flex-row sm:items-end sm:justify-between sm:py-8">
+          <div className="flex flex-col gap-4 py-5 sm:flex-row sm:items-end sm:justify-between sm:py-6">
             <div>
-              <div className="mb-3 h-px w-12 bg-[#e8453c]" />
+              <div className="mb-3 h-px w-10 bg-[#e8453c]" />
               <h1
                 className="font-[family-name:var(--font-display)] font-bold leading-none tracking-tight"
                 style={{
-                  fontSize: "clamp(2.1rem, 5vw, 4.4rem)",
+                  fontSize: "clamp(2rem, 4.1vw, 3.6rem)",
                   background: "linear-gradient(135deg, #fffaf2 0%, #d7d4e6 58%, #8b8aa3 100%)",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
@@ -171,18 +187,18 @@ export function BrowsePageClient() {
               >
                 Browse Films
               </h1>
-              <p className="mt-3 max-w-full text-sm leading-6 text-[#a7a4b8] sm:max-w-xl sm:text-base">
+              <p className="mt-2 max-w-full text-sm leading-6 text-[#a7a4b8] sm:max-w-xl">
                 <span className="sm:hidden">Search award films with fast filters.</span>
                 <span className="hidden sm:inline">
                   Search award films, festival discoveries, and ranked favorites with fast filters built for browsing.
                 </span>
               </p>
             </div>
-            <div className="flex flex-wrap gap-2 sm:justify-end">
+            <div className="hidden flex-wrap gap-2 sm:flex sm:justify-end">
               {["Oscar", "Golden Globe", "Cannes", "1929-Today"].map((label) => (
                 <span
                   key={label}
-                  className="rounded-full border border-white/10 bg-white/[0.035] px-3 py-1.5 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.2em] text-[#b8b5c8]"
+                  className="rounded-full border border-white/10 bg-white/[0.035] px-3 py-1.5 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.16em] text-[#b8b5c8]"
                 >
                   {label}
                 </span>
@@ -205,14 +221,14 @@ export function BrowsePageClient() {
           <div className="flex flex-wrap items-center gap-2 py-3">
 
             {/* Search */}
-            <div className="relative w-full min-w-0 sm:max-w-[320px] sm:flex-1 lg:flex-none">
+            <div className="relative w-full min-w-0 sm:max-w-[340px] sm:flex-1 lg:flex-none">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#6f6b80]" />
               <input
                 type="text"
                 placeholder="Title, director…"
                 value={filters.search}
                 onChange={(e) => setFilters({ search: e.target.value, page: 1 })}
-                className="h-10 w-full rounded-md border border-white/10 bg-white/[0.045] pl-9 pr-3 font-[family-name:var(--font-geist-mono)] text-[11px] text-[#f1eff8] outline-none transition-colors placeholder:text-[#5e5a70] hover:border-white/18 focus:border-[#e8453c]/70 focus:ring-2 focus:ring-[#e8453c]/15"
+                className="h-11 w-full rounded-md border border-white/10 bg-white/[0.045] pl-9 pr-3 font-[family-name:var(--font-geist-mono)] text-[12px] text-[#f1eff8] outline-none transition-colors placeholder:text-[#6f6a80] hover:border-white/18 focus:border-[#e8453c]/70 focus:ring-2 focus:ring-[#e8453c]/15"
               />
             </div>
 
@@ -234,7 +250,7 @@ export function BrowsePageClient() {
                       setFilters({ awardBody: value, imdbTopMoviesOnly: false, imdbTopTvOnly: false, page: 1 })
                     }
                     className={cn(
-                      "h-8 shrink-0 rounded px-3 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.18em] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40",
+                      "h-9 shrink-0 rounded px-3.5 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.14em] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40",
                       active
                         ? "bg-[#e8453c] text-white shadow-[0_0_24px_rgba(232,69,60,0.24)]"
                         : "text-[#7f7a91] hover:bg-white/[0.055] hover:text-[#f1eff8]",
@@ -263,7 +279,7 @@ export function BrowsePageClient() {
                   type="button"
                   onClick={fn}
                   className={cn(
-                    "h-8 shrink-0 rounded px-3 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.18em] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37]/35",
+                    "h-9 shrink-0 rounded px-3.5 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.14em] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37]/35",
                     active
                       ? "bg-[#D4AF37] font-semibold text-[#09090f] shadow-[0_0_24px_rgba(212,175,55,0.18)]"
                       : "text-[#7f7a91] hover:bg-white/[0.055] hover:text-[#f1eff8]",
@@ -285,7 +301,7 @@ export function BrowsePageClient() {
                   setFilters({ genre: val === "_all" ? "" : val, page: 1 })
                 }
               >
-                <SelectTrigger className="h-10 w-[152px] rounded-md border-white/10 bg-white/[0.045] font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.16em] text-[#b8b5c8] transition-colors hover:border-white/20 focus:ring-[#e8453c]/60 focus:ring-offset-0">
+                <SelectTrigger className="h-11 w-[158px] rounded-md border-white/10 bg-white/[0.045] font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.14em] text-[#b8b5c8] transition-colors hover:border-white/20 focus:ring-[#e8453c]/60 focus:ring-offset-0">
                   <SelectValue placeholder="Genre" />
                 </SelectTrigger>
                 <SelectContent className="border-white/10 bg-[#101019]">
@@ -302,7 +318,7 @@ export function BrowsePageClient() {
               type="button"
               onClick={() => setShowMore((v) => !v)}
               className={cn(
-                "flex h-10 items-center gap-2 rounded-md border px-3 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.18em] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40",
+                "flex h-11 items-center gap-2 rounded-md border px-3.5 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.14em] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40",
                 showMore
                   ? "border-[#e8453c]/55 bg-[#e8453c]/12 text-[#ff766d]"
                   : "border-white/10 bg-white/[0.045] text-[#b8b5c8] hover:border-white/20 hover:text-[#f1eff8]",
@@ -315,16 +331,7 @@ export function BrowsePageClient() {
               )}
             </button>
 
-            {/* Spacer */}
             <div className="flex-1" />
-
-            {/* Count */}
-            {status === "success" && total > 0 && (
-              <span className="hidden rounded-full border border-white/10 bg-white/[0.035] px-3 py-2 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.18em] text-[#767187] sm:inline-flex">
-                <span className="text-[#dedbea]">{total.toLocaleString()}</span>&nbsp;films
-                <span className="ml-2 text-[#575266]">{showingStart}-{showingEnd}</span>
-              </span>
-            )}
           </div>
 
           {/* Active chips */}
@@ -527,10 +534,74 @@ export function BrowsePageClient() {
 
       {/* ── MAIN GRID ───────────────────────────────────────────────────── */}
       <main className="mx-auto w-full max-w-[100vw] flex-1 px-4 py-7 sm:max-w-screen-2xl sm:px-6 sm:py-9 lg:px-8 xl:px-12">
+        <div className="mb-6 flex flex-col gap-4 border-b border-white/10 pb-5 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.22em] text-[#e8453c]">
+              {resultContext}
+            </p>
+            <h2 className="mt-2 text-xl font-semibold tracking-normal text-[#f2eff8] sm:text-2xl">
+              {status === "success" && total > 0
+                ? `${total.toLocaleString()} films`
+                : status === "loading"
+                  ? "Loading films"
+                  : "Browse results"}
+            </h2>
+            {status === "success" && total > 0 && (
+              <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.16em] text-[#817c91]">
+                Showing {showingStart.toLocaleString()}-{showingEnd.toLocaleString()} of {total.toLocaleString()}
+              </p>
+            )}
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <Select
+              value={filters.sort}
+              onValueChange={(value) =>
+                setFilters({ sort: value as FilterState["sort"], page: 1 })
+              }
+            >
+              <SelectTrigger className="h-10 w-[138px] rounded-md border-white/10 bg-white/[0.045] font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.14em] text-[#d8d4e6] transition-colors hover:border-white/20 focus:ring-[#e8453c]/60 focus:ring-offset-0">
+                <SelectValue placeholder="Sort" />
+              </SelectTrigger>
+              <SelectContent className="border-white/10 bg-[#101019]">
+                {SORT_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <div className="flex h-10 rounded-md border border-white/10 bg-white/[0.035] p-1">
+              {(
+                [
+                  { value: "gallery", label: "Gallery", icon: Grid3X3 },
+                  { value: "dense", label: "Dense", icon: Rows3 },
+                ] as const
+              ).map(({ value, label, icon: Icon }) => (
+                <button
+                  key={value}
+                  type="button"
+                  aria-label={`${label} view`}
+                  aria-pressed={viewMode === value}
+                  onClick={() => setViewMode(value)}
+                  className={cn(
+                    "inline-flex h-8 w-9 items-center justify-center rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/35",
+                    viewMode === value
+                      ? "bg-white/12 text-white"
+                      : "text-[#8c879d] hover:bg-white/[0.06] hover:text-white",
+                  )}
+                >
+                  <Icon className="h-4 w-4" aria-hidden />
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
 
         {/* Loading */}
         {status === "loading" && (
-          <div className="grid grid-cols-1 gap-x-4 gap-y-8 min-[520px]:grid-cols-2 sm:grid-cols-3 sm:gap-x-5 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
+          <div className={gridClassName}>
             {Array.from({ length: 18 }).map((_, i) => <FilmCardSkeleton key={i} />)}
           </div>
         )}
@@ -571,7 +642,7 @@ export function BrowsePageClient() {
         {/* Grid */}
         {status === "success" && result && result.films.length > 0 && (
           <>
-            <div className="grid grid-cols-1 gap-x-4 gap-y-8 min-[520px]:grid-cols-2 sm:grid-cols-3 sm:gap-x-5 sm:gap-y-9 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
+            <div className={gridClassName}>
               {result.films.map((film, index) => (
                 <motion.div
                   key={film.id}
@@ -699,6 +770,8 @@ function buildActiveChips(
     chips.push({ key: "imdbMovies", label: "IMDb Top 250 Films", onRemove: () => setFilters({ imdbTopMoviesOnly: false, page: 1 }) });
   if (filters.imdbTopTvOnly)
     chips.push({ key: "imdbTv", label: "IMDb Top 250 TV", onRemove: () => setFilters({ imdbTopTvOnly: false, page: 1 }) });
+  if (filters.sort !== "newest")
+    chips.push({ key: "sort", label: `Sort: ${sortLabel(filters.sort)}`, onRemove: () => setFilters({ sort: "newest", page: 1 }) });
   if (filters.imdbRatingMin > 0)
     chips.push({ key: "imdb", label: `IMDb ${filters.imdbRatingMin}+`, onRemove: () => setFilters({ imdbRatingMin: 0, page: 1 }) });
   if (filters.rtScoreMin > 0)
@@ -707,6 +780,25 @@ function buildActiveChips(
     chips.push({ key: "decade", label: `${filters.decadeMin}–${filters.decadeMax}`, onRemove: () => setFilters({ decadeMin: DECADE_MIN, decadeMax: DECADE_MAX, page: 1 }) });
 
   return chips;
+}
+
+function buildResultContext(filters: FilterState): string {
+  const body =
+    filters.imdbTopMoviesOnly
+      ? "IMDb Top 250 films"
+      : filters.imdbTopTvOnly
+        ? "IMDb Top 250 TV"
+        : filters.awardBody === "goldenglobe"
+          ? "Golden Globe"
+          : filters.awardBody === "all"
+            ? "All award bodies"
+            : filters.awardBody;
+  const status = filters.winnerOnly ? "winners" : filters.nominatedOnly ? "nominees" : "all results";
+  return `${body} / ${status} / ${sortLabel(filters.sort)}`;
+}
+
+function sortLabel(sort: FilterState["sort"]): string {
+  return SORT_OPTIONS.find((option) => option.value === sort)?.label ?? "Newest";
 }
 
 function filtersFromSearchParams(params: URLSearchParams): FilterState {
@@ -719,6 +811,7 @@ function filtersFromSearchParams(params: URLSearchParams): FilterState {
   const nominationCount = numberParam(params.get("nominationCount"));
   const rtScoreMin     = numberParam(params.get("rtScoreMin"));
   const page           = numberParam(params.get("page"));
+  const sort           = params.get("sort");
 
   return {
     ...DEFAULT_FILTERS,
@@ -747,6 +840,10 @@ function filtersFromSearchParams(params: URLSearchParams): FilterState {
     imdbTopMoviesOnly: params.get("imdbTopMoviesOnly") === "true",
     imdbTopTvOnly:     params.get("imdbTopTvOnly")     === "true",
     tvType:        params.get("tvType") ?? "",
+    sort:
+      sort === "title" || sort === "rating" || sort === "awards" || sort === "newest"
+        ? sort
+        : DEFAULT_FILTERS.sort,
     page:          page && page > 0 ? page : DEFAULT_FILTERS.page,
   };
 }

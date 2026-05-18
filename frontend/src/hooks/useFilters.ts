@@ -29,6 +29,7 @@ export const DEFAULT_FILTERS: FilterState = {
   imdbTopMoviesOnly: false,
   imdbTopTvOnly: false,
   tvType: "",
+  sort: "newest",
   page: 1,
 };
 
@@ -70,6 +71,7 @@ export function useFilters(initial?: Partial<FilterState>) {
       filters.imdbTopMoviesOnly ||
       filters.imdbTopTvOnly ||
       !!filters.tvType ||
+      filters.sort !== "newest" ||
       filters.rtScoreMin > 0,
     [filters],
   );

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { Star, Trophy } from "lucide-react";
 import type { Film } from "@cineroll/types";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -34,12 +35,15 @@ interface FilmCardProps {
 
 export function FilmCard({ film, className }: FilmCardProps) {
   const badge = getAwardBadge(film);
+  const wins = film.oscarWins + film.ggWins + film.cannesWins;
+  const nominations = film.oscarNominations + film.ggNominations + film.cannesNominations;
+  const primaryGenre = film.genres[0] ?? film.contentType;
 
   return (
     <Link
       href={`/film/${film.slug}`}
       aria-label={`${film.title} (${film.year})`}
-      className={cn("group block rounded-md outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/50 focus-visible:ring-offset-4 focus-visible:ring-offset-[#08080d]", className)}
+      className={cn("group block w-full min-w-0 rounded-md outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/50 focus-visible:ring-offset-4 focus-visible:ring-offset-[#08080d]", className)}
     >
       {/* Poster */}
       <div className="relative aspect-[2/3] overflow-hidden rounded-md border border-white/[0.08] bg-[#11111a] shadow-[0_18px_40px_rgba(0,0,0,0.34)] transition-all duration-300 group-hover:-translate-y-1 group-hover:border-white/[0.18] group-hover:shadow-[0_26px_60px_rgba(0,0,0,0.48)]">
@@ -59,7 +63,7 @@ export function FilmCard({ film, className }: FilmCardProps) {
           </div>
         )}
 
-        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0)_58%,rgba(0,0,0,0.55)_100%)] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0)_52%,rgba(0,0,0,0.76)_100%)] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
         <div className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-white/[0.04]" />
 
         {/* Award badge — rounded pill, inset from corner */}
@@ -89,6 +93,15 @@ export function FilmCard({ film, className }: FilmCardProps) {
             )}
           </div>
         )}
+
+        <div className="absolute inset-x-2.5 bottom-2.5 flex translate-y-2 items-center justify-between gap-2 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+          <span className="rounded-full border border-white/15 bg-black/55 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.14em] text-white backdrop-blur-md">
+            Open
+          </span>
+          <span className="rounded-full border border-white/15 bg-black/55 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.14em] text-white backdrop-blur-md">
+            {film.contentType.replace("-", " ")}
+          </span>
+        </div>
       </div>
 
       {/* Info below poster — always visible */}
@@ -96,12 +109,28 @@ export function FilmCard({ film, className }: FilmCardProps) {
         <h3 className="line-clamp-1 text-[13px] font-semibold leading-snug text-[#eeeaf6] transition-colors group-hover:text-white sm:text-[14px]">
           {film.title}
         </h3>
-        <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[10px] text-[#8f8a9f]">
+        <p className="mt-1 line-clamp-1 font-[family-name:var(--font-geist-mono)] text-[10px] text-[#8f8a9f]">
           {film.year}
-          {film.genres.length > 0 && (
-            <span className="text-[#5f5a70]"> · {film.genres[0]}</span>
-          )}
+          <span className="text-[#5f5a70]"> · {primaryGenre}</span>
         </p>
+        <div className="mt-2 flex min-h-5 flex-wrap items-center gap-1.5">
+          {film.imdbRating != null && (
+            <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 font-[family-name:var(--font-geist-mono)] text-[9px] text-[#d8d4e6]">
+              <Star className="h-2.5 w-2.5 fill-[#D4AF37] text-[#D4AF37]" aria-hidden />
+              {film.imdbRating.toFixed(1)}
+            </span>
+          )}
+          {wins > 0 ? (
+            <span className="inline-flex items-center gap-1 rounded-full border border-[#D4AF37]/25 bg-[#D4AF37]/10 px-2 py-0.5 font-[family-name:var(--font-geist-mono)] text-[9px] text-[#e6cf73]">
+              <Trophy className="h-2.5 w-2.5" aria-hidden />
+              {wins} win{wins === 1 ? "" : "s"}
+            </span>
+          ) : nominations > 0 ? (
+            <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 font-[family-name:var(--font-geist-mono)] text-[9px] text-[#a9a5bc]">
+              {nominations} nom.
+            </span>
+          ) : null}
+        </div>
       </div>
     </Link>
   );
