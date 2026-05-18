@@ -15,20 +15,6 @@ function getHighestAward(film: Film): { label: "Won" | "Nominated"; body: string
   return null;
 }
 
-function buildAwardSummary(film: Film): string | null {
-  const parts: string[] = [];
-  if (film.oscarWins > 0) {
-    parts.push(`${film.oscarWins} Oscar ${film.oscarWins === 1 ? "win" : "wins"}`);
-  } else if (film.oscarNominations > 0) {
-    parts.push(`${film.oscarNominations} Oscar ${film.oscarNominations === 1 ? "nom" : "noms"}`);
-  }
-  if (film.ggWins > 0) {
-    parts.push(`${film.ggWins} Golden Globe ${film.ggWins === 1 ? "win" : "wins"}`);
-  } else if (film.ggNominations > 0) {
-    parts.push(`${film.ggNominations} Golden Globe ${film.ggNominations === 1 ? "nom" : "noms"}`);
-  }
-  return parts.length > 0 ? parts.join(" · ") : null;
-}
 
 interface FilmCardProps {
   film: Film;
@@ -36,102 +22,89 @@ interface FilmCardProps {
 }
 
 export function FilmCard({ film, className }: FilmCardProps) {
+  const award = getHighestAward(film);
+  const isWinner = award?.label === "Won";
+
   return (
     <Link
       href={`/film/${film.slug}`}
       aria-label={`${film.title} (${film.year})`}
       className={cn(
-        "group relative block overflow-hidden rounded-xl",
-        "aspect-[2/3] border border-transparent bg-[#111118]",
-        "shadow-[0_4px_24px_rgba(0,0,0,0.5)]",
+        "group relative flex flex-col overflow-hidden",
+        "border border-[#161624] bg-[#0b0b14]",
         "transition-all duration-200 ease-out",
-        "hover:-translate-y-1 hover:shadow-[0_8px_32px_rgba(0,0,0,0.7)]",
-        "hover:border-[#D4AF37]/60",
-        "outline-none focus-visible:outline focus-visible:outline-2",
-        "focus-visible:outline-[#D4AF37] focus-visible:outline-offset-[3px]",
-        "focus-visible:border-[#D4AF37]/60 focus-visible:shadow-[0_8px_32px_rgba(0,0,0,0.7)]",
+        "hover:border-[#e8453c]/30 hover:shadow-[0_0_0_1px_rgba(232,69,60,0.15),0_8px_32px_rgba(0,0,0,0.7)]",
+        "outline-none focus-visible:border-[#e8453c]/50 focus-visible:shadow-[0_0_0_1px_rgba(232,69,60,0.25)]",
         className
       )}
     >
-      {film.posterUrl ? (
-        <Image
-          src={film.posterUrl}
-          alt={`${film.title} poster`}
-          fill
-          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-          className="object-cover transition-transform duration-300 ease-out group-hover:scale-[1.04]"
-        />
-      ) : (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-sm text-[#5a5a70]">No poster</span>
-        </div>
-      )}
+      {/* Poster */}
+      <div className="relative aspect-[2/3] overflow-hidden bg-[#0d0d18]">
+        {film.posterUrl ? (
+          <Image
+            src={film.posterUrl}
+            alt={`${film.title} poster`}
+            fill
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+            className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.06]"
+          />
+        ) : (
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
+            <span className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.4em] text-[#303048]">
+              No Poster
+            </span>
+          </div>
+        )}
 
-      {(() => {
-        const award = getHighestAward(film);
-        if (!award) return null;
-        return (
+        {/* Persistent bottom gradient */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/60 to-transparent" />
+
+        {/* Award badge — top left */}
+        {award && (
           <div
             aria-label={`${award.body} ${award.label}`}
             className={cn(
-              "absolute left-2 top-2 flex items-center gap-1",
-              "rounded-full px-2 py-0.5 backdrop-blur-sm",
-              award.label === "Won"
+              "absolute left-0 top-3 flex items-center gap-1.5 pl-2.5 pr-2.5 py-1",
+              "font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.25em]",
+              isWinner
                 ? "bg-[#D4AF37] text-[#09090f]"
-                : "border border-[#D4AF37]/60 bg-black/70 text-[#D4AF37]",
+                : "bg-black/80 text-[#D4AF37]/80 backdrop-blur-sm border-r border-t border-b border-[#D4AF37]/25",
             )}
           >
-            <Trophy className="h-3 w-3 shrink-0" aria-hidden />
-            <span className="text-xs font-semibold">{award.label}</span>
+            <Trophy className="h-2.5 w-2.5 shrink-0" aria-hidden />
+            {isWinner ? award.body : `Nom.`}
           </div>
-        );
-      })()}
-
-      {/* Hover overlay — slides up from below the card bottom */}
-      <div
-        className={cn(
-          "absolute inset-x-0 bottom-0",
-          "translate-y-full group-hover:translate-y-0 group-focus-visible:translate-y-0",
-          "transition-transform duration-300 ease-out",
-          "bg-gradient-to-t from-black/95 via-black/80 to-transparent",
-          "pt-14 pb-3 px-3 flex flex-col gap-1",
         )}
-      >
-        <h3 className="font-[family-name:var(--font-display)] line-clamp-2 text-sm font-bold leading-tight text-[#F5F5F0]">
-          {film.title}
-        </h3>
 
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-[#A0A0B0]">{film.year}</span>
-          {film.imdbRating != null && (
-            <span className="flex items-center gap-0.5 text-xs font-semibold text-[#D4AF37]">
-              <Star className="h-3 w-3 fill-[#D4AF37]" aria-hidden />
+        {/* Rating — bottom right on hover */}
+        {film.imdbRating != null && (
+          <div className="absolute bottom-2 right-2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+            <Star className="h-3 w-3 fill-[#D4AF37] text-[#D4AF37]" aria-hidden />
+            <span className="font-[family-name:var(--font-geist-mono)] text-[10px] font-semibold text-[#D4AF37]">
               {film.imdbRating.toFixed(1)}
             </span>
-          )}
-          {film.rtScore != null && (
-            <span className="text-xs font-semibold text-[#FA320A]">
-              {film.rtScore}%
-            </span>
+          </div>
+        )}
+      </div>
+
+      {/* Info strip — always visible */}
+      <div className="flex flex-col gap-0.5 px-2.5 py-2 border-t border-[#161624]">
+        <h3 className="font-[family-name:var(--font-display)] line-clamp-1 text-[13px] font-semibold leading-snug text-[#e8e8f0] group-hover:text-white transition-colors">
+          {film.title}
+        </h3>
+        <div className="flex items-center gap-1.5">
+          <span className="font-[family-name:var(--font-geist-mono)] text-[9px] text-[#505068]">
+            {film.year}
+          </span>
+          {film.genres.length > 0 && (
+            <>
+              <span className="text-[#252538] text-[9px]">·</span>
+              <span className="font-[family-name:var(--font-geist-mono)] text-[9px] text-[#404058] line-clamp-1">
+                {film.genres[0]}
+              </span>
+            </>
           )}
         </div>
-
-        {(() => {
-          const summary = buildAwardSummary(film);
-          return summary ? (
-            <p className="line-clamp-1 text-xs text-[#D4AF37]">{summary}</p>
-          ) : null;
-        })()}
-
-        <span
-          className={cn(
-            "mt-1.5 inline-flex w-fit items-center gap-1 rounded-lg",
-            "border border-[#F5F5F0]/25 px-2.5 py-1",
-            "text-xs font-medium text-[#F5F5F0]/80",
-          )}
-        >
-          View Film →
-        </span>
       </div>
     </Link>
   );
