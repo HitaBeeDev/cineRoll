@@ -154,46 +154,23 @@ export function BrowsePageClient() {
         />
 
         <div className="relative mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8 xl:px-12">
-          <div className="flex items-end justify-between gap-8 py-9">
+          <div className="flex items-center gap-6 py-5">
+            <div className="h-7 w-px bg-[#e8453c]" />
             <div>
-              {/* Eyebrow */}
-              <div className="mb-4 flex items-center gap-3">
-                <div className="h-px w-8 bg-[#e8453c]" />
-                <span className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.6em] text-[#e8453c]/60">
-                  The Archive
-                </span>
-              </div>
-
-              {/* Title — large, display font, gradient */}
               <h1
-                className="font-[family-name:var(--font-display)] font-bold leading-[0.92] tracking-tight"
+                className="font-[family-name:var(--font-display)] font-bold leading-none tracking-tight"
                 style={{
-                  fontSize: "clamp(2.8rem, 6vw, 5rem)",
+                  fontSize: "clamp(1.6rem, 3vw, 2.25rem)",
                   background: "linear-gradient(135deg, #ffffff 0%, #a0a0c8 100%)",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
                   backgroundClip: "text",
                 }}
               >
-                Browse<br />Films
+                Browse Films
               </h1>
-
-              {/* Tagline */}
-              <p className="mt-4 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.5em] text-[#505068]">
+              <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.45em] text-[#404058]">
                 Oscar · Golden Globe · Cannes · 1929–Today
-              </p>
-            </div>
-
-            {/* Ghost stat — right side */}
-            <div className="hidden shrink-0 pb-1 text-right lg:block">
-              <div
-                className="font-[family-name:var(--font-display)] font-bold leading-none tabular-nums"
-                style={{ fontSize: "clamp(3rem, 5vw, 4.5rem)", color: "#18182a" }}
-              >
-                8,500+
-              </div>
-              <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.5em] text-[#1e1e30]">
-                Films
               </p>
             </div>
           </div>
