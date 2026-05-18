@@ -162,12 +162,23 @@ export function BrowsePageClient() {
               </p>
             </div>
             <div className="hidden flex-wrap gap-2 sm:flex sm:justify-end">
-              {["Oscar", "Golden Globe", "Cannes", "1929-Today"].map((label) => (
+              {[
+                { label: "Oscar", detail: "Academy" },
+                { label: "Golden Globe", detail: "HFPA" },
+                { label: "Cannes", detail: "Festival" },
+                { label: "1929-Today", detail: "Archive" },
+              ].map(({ label, detail }) => (
                 <span
                   key={label}
-                  className="rounded-full border border-white/10 bg-white/[0.035] px-3 py-1.5 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.16em] text-[#b8b5c8]"
+                  className="group relative overflow-hidden rounded-full border border-[#D4AF37]/20 bg-[linear-gradient(180deg,rgba(255,255,255,0.075),rgba(255,255,255,0.02))] px-4 py-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_12px_32px_rgba(0,0,0,0.28)]"
                 >
-                  {label}
+                  <span className="pointer-events-none absolute inset-y-1 left-1 w-px bg-[#e8453c]/70" />
+                  <span className="block font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.2em] text-[#f3eedc]">
+                    {label}
+                  </span>
+                  <span className="mt-0.5 block font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-[0.22em] text-[#8d8798]">
+                    {detail}
+                  </span>
                 </span>
               ))}
             </div>
