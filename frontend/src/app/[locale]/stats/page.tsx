@@ -61,7 +61,7 @@ function SectionLabel({ index, label }: { index: string; label: string }) {
         ◈ {index}
       </span>
       <div className="h-px flex-1 bg-white/[0.05]" />
-      <span className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.35em] text-[#3a3a52]">
+      <span className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.35em] text-[#666680]">
         {label}
       </span>
     </div>
@@ -105,10 +105,10 @@ export default async function StatsPage() {
               Stats &amp;<br />Records
             </h1>
             <div className="lg:text-right">
-              <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.3em] text-[#3a3a52]">
+              <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.3em] text-[#666680]">
                 Oscar · Golden Globe · Cannes
               </p>
-              <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.3em] text-[#3a3a52]">
+              <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.3em] text-[#666680]">
                 Across our full dataset
               </p>
             </div>
@@ -134,7 +134,7 @@ export default async function StatsPage() {
                     <p className="mt-3 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.25em] text-[#888899]">
                       {label}
                     </p>
-                    <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[9px] text-[#3a3a52]">
+                    <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[9px] text-[#666680]">
                       {sub}
                     </p>
                   </div>
@@ -253,7 +253,7 @@ export default async function StatsPage() {
                     <p className="mt-3 font-[family-name:var(--font-display)] text-5xl font-black text-[#4a9eff]">
                       {stats.mostNominatedPerson.count}
                     </p>
-                    <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.3em] text-[#3a3a52]">
+                    <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.3em] text-[#666680]">
                       nominations across all award bodies
                     </p>
                   </div>
@@ -272,7 +272,7 @@ export default async function StatsPage() {
                     <p className="mt-3 font-[family-name:var(--font-display)] text-5xl font-black text-[#e8453c]">
                       {stats.mostWinningPerson.count}
                     </p>
-                    <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.3em] text-[#3a3a52]">
+                    <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.3em] text-[#666680]">
                       wins across all award bodies
                     </p>
                   </div>
@@ -306,7 +306,7 @@ export default async function StatsPage() {
                 <p className="relative mt-5 font-[family-name:var(--font-display)] text-3xl font-bold text-[#e8453c] sm:text-4xl">
                   {stats.mostCompetitiveYear.totalNominations.toLocaleString()} nominations
                 </p>
-                <div className="relative mt-6 inline-flex items-center gap-2 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.3em] text-[#3a3a52] transition-colors group-hover:text-[#888899]">
+                <div className="relative mt-6 inline-flex items-center gap-2 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.3em] text-[#666680] transition-colors group-hover:text-[#888899]">
                   Browse this year
                   <ArrowUpRight className="h-3 w-3" />
                 </div>
@@ -350,14 +350,14 @@ export default async function StatsPage() {
                   >
                     <div className="mb-3 flex items-center gap-2">
                       <div className="h-2 w-2 rounded-full" style={{ backgroundColor: color }} />
-                      <span className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.3em] text-[#555568]">
+                      <span className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.3em] text-[#888899]">
                         {label}
                       </span>
                     </div>
                     <p className="font-[family-name:var(--font-display)] text-3xl font-black text-[#F0F0EB]">
                       {count.toLocaleString()}
                     </p>
-                    <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[8px] text-[#3a3a52]">
+                    <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[8px] text-[#666680]">
                       {((count / awardTotal) * 100).toFixed(1)}% of total
                     </p>
                   </Link>
@@ -373,7 +373,7 @@ export default async function StatsPage() {
               <div className="grid gap-6 lg:grid-cols-2">
                 {/* Most rolled */}
                 <div>
-                  <p className="mb-5 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.35em] text-[#555568]">
+                  <p className="mb-5 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.35em] text-[#888899]">
                     Most Rolled This Week
                   </p>
                   <ol className="flex flex-col">
@@ -383,7 +383,7 @@ export default async function StatsPage() {
                           href={`/film/${film.slug}`}
                           className="group flex items-center gap-4 py-4 transition-colors hover:bg-white/[0.02]"
                         >
-                          <span className="w-6 shrink-0 font-[family-name:var(--font-display)] text-xl font-black text-[#1e1e2e]">
+                          <span className="w-6 shrink-0 font-[family-name:var(--font-display)] text-xl font-black text-[#666680]">
                             {i + 1}
                           </span>
                           {film.posterUrl && (
@@ -399,7 +399,7 @@ export default async function StatsPage() {
                             <p className="truncate font-[family-name:var(--font-display)] text-base font-bold text-[#c8c8d8] transition-colors group-hover:text-[#F0F0EB]">
                               {film.title}
                             </p>
-                            <p className="font-[family-name:var(--font-geist-mono)] text-[9px] text-[#3a3a52]">
+                            <p className="font-[family-name:var(--font-geist-mono)] text-[9px] text-[#666680]">
                               {film.releaseYear}
                             </p>
                           </div>
@@ -415,7 +415,7 @@ export default async function StatsPage() {
                 {/* Most watchlisted */}
                 {stats.topWatchlistedFilms.length > 0 && (
                   <div>
-                    <p className="mb-5 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.35em] text-[#555568]">
+                    <p className="mb-5 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.35em] text-[#888899]">
                       Most Watchlisted
                     </p>
                     <ol className="flex flex-col">
@@ -425,7 +425,7 @@ export default async function StatsPage() {
                             href={`/film/${film.slug}`}
                             className="group flex items-center gap-4 py-4 transition-colors hover:bg-white/[0.02]"
                           >
-                            <span className="w-6 shrink-0 font-[family-name:var(--font-display)] text-xl font-black text-[#1e1e2e]">
+                            <span className="w-6 shrink-0 font-[family-name:var(--font-display)] text-xl font-black text-[#666680]">
                               {i + 1}
                             </span>
                             {film.posterUrl && (
@@ -441,7 +441,7 @@ export default async function StatsPage() {
                               <p className="truncate font-[family-name:var(--font-display)] text-base font-bold text-[#c8c8d8] transition-colors group-hover:text-[#F0F0EB]">
                                 {film.title}
                               </p>
-                              <p className="font-[family-name:var(--font-geist-mono)] text-[9px] text-[#3a3a52]">
+                              <p className="font-[family-name:var(--font-geist-mono)] text-[9px] text-[#666680]">
                                 {film.releaseYear}
                               </p>
                             </div>
@@ -460,7 +460,7 @@ export default async function StatsPage() {
 
           {!stats && (
             <div className="flex flex-col items-center justify-center py-32">
-              <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest text-[#3a3a52]">
+              <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest text-[#666680]">
                 Stats unavailable — make sure the backend is running
               </p>
             </div>
