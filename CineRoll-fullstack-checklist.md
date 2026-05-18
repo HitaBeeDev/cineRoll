@@ -1481,8 +1481,8 @@ A public page surfacing interesting facts from the dataset. Great for SEO — un
 
 ### Backend
 
-- [ ] Create `backend/src/routes/stats.ts`:
-  - [ ] GET /api/stats — return pre-computed stats object:
+- [x] Create `backend/src/routes/stats.ts`:
+  - [x] GET /api/stats — return pre-computed stats object:
     - Most nominated person of all time (across Oscar + GG + Cannes)
     - Most winning person of all time
     - Film with the most nominations across all award bodies
@@ -1492,8 +1492,8 @@ A public page surfacing interesting facts from the dataset. Great for SEO — un
     - Award body breakdown: total films in each (Oscar-only, GG-only, Cannes-only, multi-award)
     - Top 5 most-rolled films (from RollEvent table)
     - Top 5 most-watchlisted films
-  - [ ] Cache this endpoint for 24 hours (changes rarely)
-- [ ] Mount stats route in `backend/src/app.ts`
+  - [x] Cache this endpoint for 24 hours (changes rarely)
+- [x] Mount stats route in `backend/src/routes/index.ts`
 
 ### Frontend
 
