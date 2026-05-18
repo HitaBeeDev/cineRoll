@@ -1,12 +1,12 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Star, Trophy } from "lucide-react";
 import type { Film } from "@cineroll/types";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 
 type AwardBadge = {
   body: string;
+  detail: string;
   won: boolean;
   color: string;   // bg color for wins
   text: string;    // text color for wins
@@ -14,17 +14,27 @@ type AwardBadge = {
 
 function getAwardBadge(film: Film): AwardBadge {
   if (film.oscarWins > 0)
-    return { body: "Oscar", won: true,  color: "#e8453c", text: "#ffffff" };
+    return { body: "Oscar", detail: `${film.oscarWins} win${film.oscarWins === 1 ? "" : "s"}`, won: true,  color: "#e8453c", text: "#ffffff" };
   if (film.ggWins > 0)
-    return { body: "Golden Globe", won: true,  color: "#D4AF37", text: "#09090f" };
+    return { body: "Golden Globe", detail: `${film.ggWins} win${film.ggWins === 1 ? "" : "s"}`, won: true,  color: "#D4AF37", text: "#09090f" };
   if (film.cannesWins > 0)
-    return { body: "Cannes", won: true,  color: "#c0a030", text: "#09090f" };
+    return { body: "Cannes", detail: `${film.cannesWins} win${film.cannesWins === 1 ? "" : "s"}`, won: true,  color: "#c0a030", text: "#09090f" };
   if (film.oscarNominations > 0)
-    return { body: "Oscar", won: false, color: "#e8453c", text: "#ffffff" };
+    return { body: "Oscar", detail: `${film.oscarNominations} nom.`, won: false, color: "#e8453c", text: "#ffffff" };
   if (film.ggNominations > 0)
-    return { body: "Golden Globe", won: false, color: "#D4AF37", text: "#09090f" };
+    return { body: "Golden Globe", detail: `${film.ggNominations} nom.`, won: false, color: "#D4AF37", text: "#09090f" };
   if (film.cannesNominations > 0)
-    return { body: "Cannes", won: false, color: "#c0a030", text: "#09090f" };
+    return { body: "Cannes", detail: `${film.cannesNominations} nom.`, won: false, color: "#c0a030", text: "#09090f" };
+  return null;
+}
+
+function getListBadge(film: Film) {
+  if (film.imdbTopMovieRank != null) {
+    return { label: "IMDb Top 250 Film", detail: `#${film.imdbTopMovieRank}` };
+  }
+  if (film.imdbTopTvRank != null) {
+    return { label: "IMDb Top 250 TV", detail: `#${film.imdbTopTvRank}` };
+  }
   return null;
 }
 
@@ -35,8 +45,7 @@ interface FilmCardProps {
 
 export function FilmCard({ film, className }: FilmCardProps) {
   const badge = getAwardBadge(film);
-  const wins = film.oscarWins + film.ggWins + film.cannesWins;
-  const nominations = film.oscarNominations + film.ggNominations + film.cannesNominations;
+  const listBadge = getListBadge(film);
   const primaryGenre = film.genres[0] ?? film.contentType;
 
   return (
@@ -66,31 +75,40 @@ export function FilmCard({ film, className }: FilmCardProps) {
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0)_52%,rgba(0,0,0,0.76)_100%)] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
         <div className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-white/[0.04]" />
 
-        {/* Award badge — rounded pill, inset from corner */}
-        {badge && (
-          <div
-            aria-label={`${badge.body} ${badge.won ? "winner" : "nominee"}`}
-            className="absolute left-2.5 top-2.5"
-          >
-            {badge.won ? (
+        {(listBadge || badge) && (
+          <div className="absolute left-2.5 top-2.5 flex max-w-[calc(100%-1.25rem)] flex-col items-start gap-1.5">
+            {listBadge && (
               <span
-                className="inline-flex items-center rounded-full px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[8px] font-semibold uppercase tracking-[0.14em] shadow-lg shadow-black/25"
+                aria-label={`${listBadge.label} ${listBadge.detail}`}
+                className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-[#D4AF37]/45 bg-black/70 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[8px] font-semibold uppercase tracking-[0.14em] text-[#f2d86f] shadow-lg shadow-black/25 backdrop-blur-sm"
+              >
+                <span className="truncate">{listBadge.label}</span>
+                <span className="shrink-0 text-[#f8f0b3]">{listBadge.detail}</span>
+              </span>
+            )}
+            {badge && (badge.won ? (
+              <span
+                aria-label={`${badge.body} ${badge.detail}`}
+                className="inline-flex max-w-full items-center gap-1.5 rounded-full px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[8px] font-semibold uppercase tracking-[0.14em] shadow-lg shadow-black/25"
                 style={{ backgroundColor: badge.color, color: badge.text }}
               >
-                {badge.body}
+                <span className="truncate">{badge.body}</span>
+                <span className="shrink-0">{badge.detail}</span>
               </span>
             ) : (
               <span
-                className="inline-flex items-center rounded-full border px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[8px] font-semibold uppercase tracking-[0.14em] shadow-lg shadow-black/25 backdrop-blur-sm"
+                aria-label={`${badge.body} ${badge.detail}`}
+                className="inline-flex max-w-full items-center gap-1.5 rounded-full border px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[8px] font-semibold uppercase tracking-[0.14em] shadow-lg shadow-black/25 backdrop-blur-sm"
                 style={{
                   borderColor: `${badge.color}60`,
                   color: badge.color,
                   backgroundColor: "rgba(0,0,0,0.65)",
                 }}
               >
-                {badge.body}
+                <span className="truncate">{badge.body}</span>
+                <span className="shrink-0">{badge.detail}</span>
               </span>
-            )}
+            ))}
           </div>
         )}
 
@@ -113,24 +131,6 @@ export function FilmCard({ film, className }: FilmCardProps) {
           {film.year}
           <span className="text-[#6f6a80]"> · {primaryGenre}</span>
         </p>
-        <div className="mt-2 flex min-h-5 flex-wrap items-center gap-1.5">
-          {film.imdbRating != null && (
-            <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.055] px-2 py-0.5 font-[family-name:var(--font-geist-mono)] text-[10px] text-[#d8d4e6]">
-              <Star className="h-3 w-3 fill-[#D4AF37] text-[#D4AF37]" aria-hidden />
-              {film.imdbRating.toFixed(1)}
-            </span>
-          )}
-          {wins > 0 ? (
-            <span className="inline-flex items-center gap-1 rounded-full border border-[#D4AF37]/25 bg-[#D4AF37]/10 px-2 py-0.5 font-[family-name:var(--font-geist-mono)] text-[10px] text-[#e6cf73]">
-              <Trophy className="h-3 w-3" aria-hidden />
-              {wins} win{wins === 1 ? "" : "s"}
-            </span>
-          ) : nominations > 0 ? (
-            <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.055] px-2 py-0.5 font-[family-name:var(--font-geist-mono)] text-[10px] text-[#a9a5bc]">
-              {nominations} nom.
-            </span>
-          ) : null}
-        </div>
       </div>
     </Link>
   );
