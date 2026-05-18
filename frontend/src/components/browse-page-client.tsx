@@ -22,9 +22,7 @@ import {
   fetchCategories,
   fetchFilms,
   fetchGenres,
-  fetchPersonSuggestions,
   filtersToParams,
-  type PersonSuggestion,
 } from "@/lib/api";
 import {
   Select,
@@ -73,10 +71,6 @@ export function BrowsePageClient() {
   const [showMore, setShowMore] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>("gallery");
 
-  // person autocomplete
-  const [personSuggestions,    setPersonSuggestions]    = useState<PersonSuggestion[]>([]);
-  const [personDropdownOpen,   setPersonDropdownOpen]   = useState(false);
-
   const lastSyncedQuery = useRef<string | null>(null);
 
   useEffect(() => {
@@ -112,27 +106,6 @@ export function BrowsePageClient() {
     return () => { cancelled = true; window.clearTimeout(timer); };
   }, [filters]);
 
-  // person suggestion debounce
-  useEffect(() => {
-    const query = filters.person.trim();
-    if (query.length < 2) {
-      const t = window.setTimeout(() => {
-        setPersonSuggestions([]);
-        setPersonDropdownOpen(false);
-      }, 0);
-      return () => window.clearTimeout(t);
-    }
-    let cancelled = false;
-    const timer = window.setTimeout(() => {
-      void fetchPersonSuggestions(query).then((s) => {
-        if (cancelled) return;
-        setPersonSuggestions(s);
-        setPersonDropdownOpen(s.length > 0);
-      });
-    }, 180);
-    return () => { cancelled = true; window.clearTimeout(timer); };
-  }, [filters.person]);
-
   const setFilters = useCallback(
     (updates: Partial<FilterState>) => setFilter(updates),
     [setFilter],
@@ -156,7 +129,7 @@ export function BrowsePageClient() {
       <AppHeader />
 
       {/* ── HERO ────────────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden border-b border-[#24202a] bg-[#0b0a10]">
+      <section className="relative overflow-hidden border-b border-[#24202a] bg-[#0a0a10]">
         {/* Grain */}
         <div
           className="pointer-events-none absolute inset-0 opacity-[0.035]"
@@ -165,8 +138,7 @@ export function BrowsePageClient() {
         <div
           className="pointer-events-none absolute inset-0"
           style={{
-            background:
-              "radial-gradient(ellipse 70% 130% at 16% 20%, rgba(232,69,60,0.2), transparent 54%), linear-gradient(180deg, rgba(255,255,255,0.035), transparent 58%)",
+            background: "linear-gradient(180deg, rgba(255,255,255,0.025), transparent 70%)",
           }}
         />
 
@@ -175,13 +147,9 @@ export function BrowsePageClient() {
             <div>
               <div className="mb-2.5 h-px w-10 bg-[#e8453c]" />
               <h1
-                className="font-[family-name:var(--font-display)] font-bold leading-none tracking-tight"
+                className="font-[family-name:var(--font-display)] font-bold leading-none tracking-tight text-[#f4f0f7]"
                 style={{
                   fontSize: "clamp(1.9rem, 3.6vw, 3.25rem)",
-                  background: "linear-gradient(135deg, #fffaf2 0%, #d7d4e6 58%, #8b8aa3 100%)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
                 }}
               >
                 Browse Films
@@ -416,40 +384,6 @@ export function BrowsePageClient() {
                         {label}
                       </FilterChip>
                     ))}
-                  </div>
-                </PanelSection>
-
-                {/* Person autocomplete */}
-                <PanelSection label="Person (Director / Actor)">
-                  <div className="relative">
-                    <input
-                      type="text"
-                      placeholder="e.g. Kubrick, Audrey Hepburn…"
-                      value={filters.person}
-                      autoComplete="off"
-                      onChange={(e) => setFilters({ person: e.target.value, page: 1 })}
-                      onFocus={() => { if (personSuggestions.length > 0) setPersonDropdownOpen(true); }}
-                      onBlur={() => window.setTimeout(() => setPersonDropdownOpen(false), 120)}
-                      className="h-10 w-full rounded-md border border-white/10 bg-white/[0.045] px-3 font-[family-name:var(--font-geist-mono)] text-[11px] text-[#f1eff8] outline-none transition-colors placeholder:text-[#5e5a70] hover:border-white/18 focus:border-[#e8453c]/65 focus:ring-2 focus:ring-[#e8453c]/15"
-                    />
-                    {personDropdownOpen && (
-                      <div className="absolute left-0 right-0 top-[calc(100%+6px)] z-50 overflow-hidden rounded-md border border-white/10 bg-[#101019] shadow-2xl shadow-black/70">
-                        {personSuggestions.map((s) => (
-                          <button
-                            key={s.name}
-                            type="button"
-                            onMouseDown={(e) => e.preventDefault()}
-                            onClick={() => { setFilters({ person: s.name, page: 1 }); setPersonDropdownOpen(false); }}
-                            className="flex w-full items-center justify-between gap-3 px-3 py-2 text-left transition-colors hover:bg-white/[0.06] focus-visible:bg-white/[0.06] focus-visible:outline-none"
-                          >
-                            <span className="truncate text-sm font-medium text-[#D8D8F0]">{s.name}</span>
-                            <span className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-widest text-[#505068]">
-                              {s.roles.slice(0, 2).join(" / ")}
-                            </span>
-                          </button>
-                        ))}
-                      </div>
-                    )}
                   </div>
                 </PanelSection>
 
