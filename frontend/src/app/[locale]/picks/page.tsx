@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { Bookmark, RefreshCw, Share2, Star, Trophy, Clapperboard } from "lucide-react";
+import { Bookmark, RefreshCw, Share2, Star, Trophy, Clapperboard, ArrowUpRight } from "lucide-react";
 import { AppHeader } from "@/components/app-header";
 import { fetchRandom, type RollFilm } from "@/lib/api";
 import { formatRuntime } from "@/lib/format";
@@ -17,34 +17,30 @@ const PICK_SLOTS: {
   mood: string;
   icon: React.ReactNode;
   accentColor: string;
-  borderColor: string;
   filters: Partial<FilterState>;
 }[] = [
   {
     num: "01",
     label: "Award Prestige",
     mood: "Moving & Acclaimed",
-    icon: <Trophy className="h-3.5 w-3.5" />,
+    icon: <Trophy className="h-3 w-3" />,
     accentColor: "#e8453c",
-    borderColor: "border-[#e8453c]/30",
     filters: { awardBody: "oscar", winnerOnly: true, imdbRatingMin: 7.5 },
   },
   {
     num: "02",
     label: "World Cinema",
     mood: "Daring & Original",
-    icon: <Clapperboard className="h-3.5 w-3.5" />,
+    icon: <Clapperboard className="h-3 w-3" />,
     accentColor: "#4a9eff",
-    borderColor: "border-[#4a9eff]/30",
     filters: { awardBody: "cannes", winnerOnly: true },
   },
   {
     num: "03",
     label: "Hidden Gem",
     mood: "Surprising & Rare",
-    icon: <Star className="h-3.5 w-3.5" />,
+    icon: <Star className="h-3 w-3" />,
     accentColor: "#a78bfa",
-    borderColor: "border-[#a78bfa]/30",
     filters: { imdbRatingMin: 7.5, decadeMin: 1960, decadeMax: 2005 },
   },
 ];
@@ -68,14 +64,14 @@ export default function PicksPage() {
         const cached = localStorage.getItem(key);
         if (cached) {
           const parsed = JSON.parse(cached) as Array<{ film: RollFilm; slot: { num: string } }>;
-          const picks = parsed
+          const restored = parsed
             .map(({ film, slot }) => {
               const fullSlot = PICK_SLOTS.find((s) => s.num === slot.num);
               if (!fullSlot) return null;
               return { film, slot: fullSlot };
             })
             .filter((p): p is DailyPick => p !== null);
-          setPicks(picks);
+          setPicks(restored);
           setIsLoading(false);
           return;
         }
@@ -111,83 +107,116 @@ export default function PicksPage() {
   });
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-[#09090f] text-[#F5F5F0]">
+    <div className="flex h-screen flex-col overflow-hidden bg-[#080810] text-[#F5F5F0]">
       <AppHeader />
 
-      {/* Main */}
-      <main className="flex flex-1 flex-col overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:w-0">
+      <main className="flex flex-1 flex-col overflow-hidden">
         {/* Page header */}
-        <div className="border-b border-[#1a1a28] px-6 py-6 sm:px-10">
-          <div className="flex items-end justify-between">
+        <div className="flex items-center justify-between border-b border-white/[0.05] px-6 py-4 sm:px-10">
+          <div className="flex items-center gap-5">
+            {/* Decorative accent bars */}
+            <div className="flex flex-col gap-[3px] shrink-0">
+              <div className="h-[2px] w-7 bg-[#e8453c]" />
+              <div className="h-[2px] w-4 bg-[#e8453c]/35" />
+            </div>
+
             <div>
-              <p className="mb-1 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.3em] text-[#e8453c]/70">
-                ◈ Three Films · One Day ◈
+              <p className="mb-0.5 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.35em] text-[#e8453c]/60">
+                Three Films · One Evening
               </p>
-              <h1 className="font-[family-name:var(--font-display)] text-3xl font-bold text-[#F5F5F0] sm:text-4xl">
+              <h1 className="font-[family-name:var(--font-display)] text-2xl font-bold leading-none text-[#F5F5F0]">
                 Today&apos;s Picks
               </h1>
-              <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest text-[#555568]">
-                {dateLabel} · Refreshes at midnight
-              </p>
             </div>
-            <button
-              type="button"
-              onClick={() => void loadPicks(true)}
-              disabled={isRefreshing}
-              className={cn(
-                "flex items-center gap-2 rounded-full border border-[#1e1e2a] px-4 py-2",
-                "font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#555568]",
-                "transition-colors hover:border-[#e8453c]/40 hover:text-[#F5F5F0]",
-                "disabled:opacity-40",
-              )}
-            >
-              <RefreshCw className={cn("h-3 w-3", isRefreshing && "motion-safe:animate-spin")} />
-              Reshuffle
-            </button>
+
+            <div className="hidden h-7 w-px bg-white/[0.07] sm:block" />
+            <p className="hidden font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#30304a] sm:block">
+              {dateLabel}
+            </p>
           </div>
+
+          <button
+            type="button"
+            onClick={() => void loadPicks(true)}
+            disabled={isRefreshing}
+            className={cn(
+              "group flex items-center gap-2 rounded-full border border-white/10 px-4 py-2",
+              "font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#3d3d58]",
+              "transition-all duration-200 hover:border-[#e8453c]/40 hover:text-[#F5F5F0]",
+              "disabled:pointer-events-none disabled:opacity-30",
+            )}
+          >
+            <RefreshCw
+              className={cn(
+                "h-3 w-3 transition-transform duration-500",
+                isRefreshing ? "animate-spin" : "group-hover:rotate-[180deg]",
+              )}
+            />
+            Reshuffle
+          </button>
         </div>
 
-        {/* Cards grid */}
-        <div className="flex flex-1 flex-col lg:flex-row">
+        {/* Cards */}
+        <div className="flex flex-1 overflow-hidden">
           <AnimatePresence mode="wait">
             {isLoading ? (
               <motion.div
                 key="loading"
-                layout={!shouldReduceMotion}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                exit={{ opacity: 0, transition: { duration: shouldReduceMotion ? 0 : 0.15, ease: "easeIn" } }}
-                transition={{ duration: shouldReduceMotion ? 0 : 0.2, ease: "easeOut" }}
-                className="flex flex-1 items-center justify-center"
+                exit={{ opacity: 0, transition: { duration: shouldReduceMotion ? 0 : 0.15 } }}
+                transition={{ duration: shouldReduceMotion ? 0 : 0.2 }}
+                className="flex flex-1 flex-col items-center justify-center gap-5"
               >
-                <div className="flex flex-col items-center gap-3">
-                  <div className="flex gap-1.5">
-                    {[0, 1, 2].map((i) => (
-                      <div
-                        key={i}
-                        className="h-2 w-2 rounded-full bg-[#e8453c]/40 motion-safe:animate-pulse"
-                        style={{ animationDelay: `${i * 150}ms` }}
-                      />
-                    ))}
-                  </div>
-                  <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#444458]">
-                    Curating today&apos;s selection…
-                  </p>
+                <div className="flex gap-2">
+                  {(["#e8453c", "#4a9eff", "#a78bfa"] as const).map((color, i) => (
+                    <motion.div
+                      key={color}
+                      className="h-[3px] w-10 rounded-full"
+                      style={{ backgroundColor: color }}
+                      animate={{ opacity: [0.2, 0.8, 0.2] }}
+                      transition={{
+                        duration: 1.4,
+                        repeat: Infinity,
+                        delay: i * 0.2,
+                        ease: "easeInOut",
+                      }}
+                    />
+                  ))}
                 </div>
+                <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.3em] text-[#2e2e46]">
+                  Curating today&apos;s selection
+                </p>
               </motion.div>
             ) : (
               <motion.div
                 key="picks"
-                layout={!shouldReduceMotion}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                exit={{ opacity: 0, transition: { duration: shouldReduceMotion ? 0 : 0.15, ease: "easeIn" } }}
-                transition={{ duration: shouldReduceMotion ? 0 : 0.25, ease: "easeOut" }}
-                className="flex flex-1 flex-col lg:flex-row"
+                exit={{ opacity: 0, transition: { duration: shouldReduceMotion ? 0 : 0.15 } }}
+                transition={{ duration: shouldReduceMotion ? 0 : 0.25 }}
+                className="flex flex-1 flex-col overflow-hidden lg:flex-row"
               >
-                {picks.map((pick, i) => (
-                  <PickCard key={pick.film.id} pick={pick} index={i} />
-                ))}
+                {/* Featured pick — 62% on desktop */}
+                {picks[0] && (
+                  <div className="flex min-h-[45vh] flex-1 lg:min-h-0 lg:w-[62%] lg:flex-none">
+                    <PickCard pick={picks[0]} index={0} featured />
+                  </div>
+                )}
+
+                {/* Secondary picks — 38% on desktop, stacked */}
+                <div className="flex flex-1 flex-col border-t border-white/[0.05] lg:w-[38%] lg:flex-none lg:border-l lg:border-t-0">
+                  {picks[1] && (
+                    <div className="flex flex-1">
+                      <PickCard pick={picks[1]} index={1} />
+                    </div>
+                  )}
+                  {picks[2] && (
+                    <div className="flex flex-1 border-t border-white/[0.05]">
+                      <PickCard pick={picks[2]} index={2} />
+                    </div>
+                  )}
+                </div>
               </motion.div>
             )}
           </AnimatePresence>
@@ -197,7 +226,15 @@ export default function PicksPage() {
   );
 }
 
-function PickCard({ pick, index }: { pick: DailyPick; index: number }) {
+function PickCard({
+  pick,
+  index,
+  featured = false,
+}: {
+  pick: DailyPick;
+  index: number;
+  featured?: boolean;
+}) {
   const shouldReduceMotion = useReducedMotion();
   const { film, slot } = pick;
   const imageUrl = film.backdropUrl ?? film.posterUrl;
@@ -207,105 +244,141 @@ function PickCard({ pick, index }: { pick: DailyPick; index: number }) {
 
   return (
     <motion.div
-      layout={!shouldReduceMotion}
-      initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 20 }}
+      initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 14 }}
       animate={{ opacity: 1, y: 0 }}
       transition={
         shouldReduceMotion
           ? { duration: 0 }
-          : {
-              delay: index * 0.1,
-              type: "spring",
-              stiffness: 300,
-              damping: 28,
-            }
+          : { delay: index * 0.07, type: "spring", stiffness: 300, damping: 28 }
       }
-      className="group relative flex flex-1 flex-col overflow-hidden border-b border-[#1a1a28] lg:border-b-0 lg:border-r"
+      className="group relative flex flex-1 overflow-hidden"
     >
-      {/* Backdrop */}
-      <div className="relative flex-1">
-        {imageUrl ? (
-          <Image
-            src={imageUrl}
-            alt={film.title}
-            fill
-            sizes="(max-width: 1024px) 100vw, 33vw"
-            className="object-cover transition-transform duration-[600ms] ease-out group-hover:scale-105"
-            priority={index === 0}
-          />
-        ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a2e] to-[#09090f]" />
-        )}
-        {/* Gradient overlays */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#09090f] via-[#09090f]/40 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#09090f]/20 to-transparent" />
+      {/* Top accent strip */}
+      <div
+        className="absolute inset-x-0 top-0 z-20 h-[2px]"
+        style={{ backgroundColor: slot.accentColor }}
+      />
 
-        {/* Pick number + slot label */}
-        <div className="absolute left-4 top-4 flex items-center gap-2">
-          <span
-            className="font-[family-name:var(--font-geist-mono)] text-[2rem] font-bold leading-none"
-            style={{ color: `${slot.accentColor}30` }}
-          >
-            {slot.num}
-          </span>
-        </div>
+      {/* Image */}
+      {imageUrl ? (
+        <Image
+          src={imageUrl}
+          alt={film.title}
+          fill
+          sizes={
+            featured ? "(max-width: 1024px) 100vw, 62vw" : "(max-width: 1024px) 100vw, 38vw"
+          }
+          className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+          priority={index === 0}
+        />
+      ) : (
+        <div className="absolute inset-0 bg-gradient-to-br from-[#16162a] to-[#080810]" />
+      )}
 
-        {/* Slot badge */}
-        <div className="absolute right-4 top-4">
-          <span
-            className={cn(
-              "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1",
-              "font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-widest",
-              slot.borderColor,
-            )}
-            style={{ color: slot.accentColor, backgroundColor: `${slot.accentColor}10` }}
-          >
-            {slot.icon}
-            {slot.label}
-          </span>
-        </div>
+      {/* Gradient overlay — softer, more image shows */}
+      <div className="absolute inset-0 bg-gradient-to-t from-[#080810] via-[#080810]/25 to-transparent" />
+
+      {/* Ghost slot number — decorative */}
+      <div className="pointer-events-none absolute right-3 top-2 select-none leading-none">
+        <span
+          className="font-[family-name:var(--font-display)] font-black leading-none"
+          style={{
+            fontSize: featured ? "9rem" : "6rem",
+            color: `${slot.accentColor}0f`,
+            lineHeight: 1,
+          }}
+        >
+          {slot.num}
+        </span>
+      </div>
+
+      {/* Slot badge — top left */}
+      <div className="absolute left-4 top-5 z-10">
+        <span
+          className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-[5px] font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-widest backdrop-blur-sm"
+          style={{
+            color: slot.accentColor,
+            borderColor: `${slot.accentColor}35`,
+            backgroundColor: `${slot.accentColor}12`,
+          }}
+        >
+          {slot.icon}
+          {slot.label}
+        </span>
       </div>
 
       {/* Content */}
-      <div className="absolute bottom-0 left-0 right-0 flex flex-col gap-2 p-5">
-        {/* Mood tag */}
-        <span className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.3em]"
-          style={{ color: slot.accentColor }}>
+      <div
+        className={cn(
+          "absolute bottom-0 left-0 right-0 z-10 flex flex-col",
+          featured ? "gap-2.5 p-6 lg:p-8" : "gap-2 p-5",
+        )}
+      >
+        {/* Mood */}
+        <p
+          className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.3em]"
+          style={{ color: `${slot.accentColor}b3` }}
+        >
           {slot.mood}
-        </span>
+        </p>
 
         {/* Title */}
-        <h2 className="font-[family-name:var(--font-display)] text-2xl font-bold leading-tight text-[#F5F5F0] sm:text-3xl">
+        <h2
+          className={cn(
+            "font-[family-name:var(--font-display)] font-bold leading-[1.1] text-[#F5F5F0]",
+            featured ? "text-3xl lg:text-[2.6rem]" : "text-xl lg:text-2xl",
+          )}
+        >
           {film.title}
         </h2>
 
         {/* Meta */}
-        <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest text-[#888899]">
-          {film.year}{runtime && ` · ${runtime}`}{genre && ` · ${genre}`}
-        </p>
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+          <span className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-wider text-[#555570]">
+            {film.year}
+          </span>
+          {runtime && (
+            <>
+              <span className="text-[#252538]">·</span>
+              <span className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-wider text-[#555570]">
+                {runtime}
+              </span>
+            </>
+          )}
+          {genre && (
+            <>
+              <span className="text-[#252538]">·</span>
+              <span className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-wider text-[#555570]">
+                {genre}
+              </span>
+            </>
+          )}
+        </div>
 
         {film.director && (
-          <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#555568]">
+          <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-wider text-[#3a3a56]">
             Dir. {film.director}
           </p>
         )}
 
-        {/* Stats row */}
+        {/* Scores */}
         <div className="flex items-center gap-3">
           {film.imdbRating != null && (
-            <span className="font-[family-name:var(--font-geist-mono)] text-[10px] font-bold text-[#F5F5F0]">
-              IMDb {film.imdbRating.toFixed(1)}
+            <span className="font-[family-name:var(--font-geist-mono)] text-[10px] font-bold text-[#c8c8d8]">
+              ★ {film.imdbRating.toFixed(1)}
             </span>
           )}
           {film.rtScore != null && (
-            <span className="font-[family-name:var(--font-geist-mono)] text-[10px] font-bold text-[#F5F5F0]">
+            <span className="font-[family-name:var(--font-geist-mono)] text-[10px] font-bold text-[#c8c8d8]">
               RT {film.rtScore}%
             </span>
           )}
           {totalWins > 0 && (
-            <span className="font-[family-name:var(--font-geist-mono)] text-[10px]"
-              style={{ color: slot.accentColor }}>
-              {totalWins}× Award Winner
+            <span
+              className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-wide"
+              style={{ color: slot.accentColor }}
+            >
+              {totalWins}× Winner
             </span>
           )}
         </div>
@@ -314,26 +387,23 @@ function PickCard({ pick, index }: { pick: DailyPick; index: number }) {
         <div className="flex items-center gap-2 pt-1">
           <Link
             href={`/film/${film.slug}`}
-            className={cn(
-              "flex flex-1 items-center justify-center rounded-xl py-2.5",
-              "font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-widest text-[#F5F5F0]",
-              "transition-all duration-150 hover:brightness-110",
-            )}
+            className="group/btn flex flex-1 items-center justify-between rounded-xl px-4 py-2.5 font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-widest text-[#F5F5F0] transition-all duration-150 hover:brightness-110"
             style={{ backgroundColor: slot.accentColor }}
           >
-            Watch Tonight
+            <span>Watch Tonight</span>
+            <ArrowUpRight className="h-3.5 w-3.5 transition-transform duration-150 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5" />
           </Link>
           <button
             type="button"
             aria-label="Add to watchlist"
-            className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#1e1e2a] text-[#444458] transition-colors hover:border-[#2a2a3e] hover:text-[#F5F5F0]"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/10 text-[#3d3d58] transition-colors hover:border-white/20 hover:text-[#F5F5F0]"
           >
             <Bookmark className="h-4 w-4" />
           </button>
           <button
             type="button"
             aria-label="Share"
-            className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#1e1e2a] text-[#444458] transition-colors hover:border-[#2a2a3e] hover:text-[#F5F5F0]"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/10 text-[#3d3d58] transition-colors hover:border-white/20 hover:text-[#F5F5F0]"
           >
             <Share2 className="h-4 w-4" />
           </button>
