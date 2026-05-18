@@ -106,27 +106,27 @@ export function FilmCard({ film, className }: FilmCardProps) {
 
       {/* Info below poster — always visible */}
       <div className="pt-3">
-        <h3 className="line-clamp-1 text-[13px] font-semibold leading-snug text-[#eeeaf6] transition-colors group-hover:text-white sm:text-[14px]">
+        <h3 className="line-clamp-1 text-[14px] font-semibold leading-snug text-[#eeeaf6] transition-colors group-hover:text-white sm:text-[15px]">
           {film.title}
         </h3>
-        <p className="mt-1 line-clamp-1 font-[family-name:var(--font-geist-mono)] text-[10px] text-[#8f8a9f]">
+        <p className="mt-1 line-clamp-1 font-[family-name:var(--font-geist-mono)] text-[10px] text-[#9d98ad]">
           {film.year}
-          <span className="text-[#5f5a70]"> · {primaryGenre}</span>
+          <span className="text-[#6f6a80]"> · {primaryGenre}</span>
         </p>
         <div className="mt-2 flex min-h-5 flex-wrap items-center gap-1.5">
           {film.imdbRating != null && (
-            <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 font-[family-name:var(--font-geist-mono)] text-[9px] text-[#d8d4e6]">
-              <Star className="h-2.5 w-2.5 fill-[#D4AF37] text-[#D4AF37]" aria-hidden />
+            <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.055] px-2 py-0.5 font-[family-name:var(--font-geist-mono)] text-[10px] text-[#d8d4e6]">
+              <Star className="h-3 w-3 fill-[#D4AF37] text-[#D4AF37]" aria-hidden />
               {film.imdbRating.toFixed(1)}
             </span>
           )}
           {wins > 0 ? (
-            <span className="inline-flex items-center gap-1 rounded-full border border-[#D4AF37]/25 bg-[#D4AF37]/10 px-2 py-0.5 font-[family-name:var(--font-geist-mono)] text-[9px] text-[#e6cf73]">
-              <Trophy className="h-2.5 w-2.5" aria-hidden />
+            <span className="inline-flex items-center gap-1 rounded-full border border-[#D4AF37]/25 bg-[#D4AF37]/10 px-2 py-0.5 font-[family-name:var(--font-geist-mono)] text-[10px] text-[#e6cf73]">
+              <Trophy className="h-3 w-3" aria-hidden />
               {wins} win{wins === 1 ? "" : "s"}
             </span>
           ) : nominations > 0 ? (
-            <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 font-[family-name:var(--font-geist-mono)] text-[9px] text-[#a9a5bc]">
+            <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.055] px-2 py-0.5 font-[family-name:var(--font-geist-mono)] text-[10px] text-[#a9a5bc]">
               {nominations} nom.
             </span>
           ) : null}

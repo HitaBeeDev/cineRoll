@@ -51,54 +51,54 @@ export function SiteNavigation({
   return (
     <>
       {/* Desktop nav */}
-      <nav className="hidden items-center gap-1.5 md:flex" aria-label="Primary navigation">
+      <nav className="hidden items-center gap-1 md:flex" aria-label="Primary navigation">
         {primaryNavItems.map((item) => (
           <Link
             key={item.href}
             href={item.href}
             className={cn(
-              "rounded-full border px-3.5 py-1.5",
-              "font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest",
+              "rounded-full border px-3 py-1.5",
+              "font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.16em]",
               "transition-colors duration-150",
               "focus-visible:outline-none focus-visible:ring-2",
               focusRingClassName,
               isActive(item.href)
-                ? "border-[#e8453c]/70 text-[#e8453c]"
-                : "border-[#222232] text-[#888899] hover:border-[#e8453c]/40 hover:text-[#F5F5F0]",
+                ? "border-[#e8453c]/60 bg-[#e8453c]/8 text-[#ff625a]"
+                : "border-transparent text-[#858196] hover:border-white/10 hover:bg-white/[0.035] hover:text-[#F5F5F0]",
             )}
           >
             {item.label}
           </Link>
         ))}
-        <div className="mx-1 h-5 w-px bg-[#2a2a3e]" aria-hidden />
-        <div className="flex items-center gap-1.5" aria-label="Game modes">
+        <div className="mx-1 h-5 w-px bg-white/12" aria-hidden />
+        <div className="hidden items-center gap-1 lg:flex" aria-label="Game modes">
           {gameModeItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}
               className={cn(
-                "rounded-full border px-3.5 py-1.5",
-                "font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest",
+                "rounded-full border px-3 py-1.5",
+                "font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.16em]",
                 "transition-colors duration-150",
                 "focus-visible:outline-none focus-visible:ring-2",
                 focusRingClassName,
                 isActive(item.href)
-                  ? "border-[#e8453c]/70 text-[#e8453c]"
-                  : "border-[#222232] text-[#888899] hover:border-[#e8453c]/40 hover:text-[#F5F5F0]",
+                  ? "border-[#e8453c]/60 bg-[#e8453c]/8 text-[#ff625a]"
+                  : "border-transparent text-[#858196] hover:border-white/10 hover:bg-white/[0.035] hover:text-[#F5F5F0]",
               )}
             >
               {item.label}
             </Link>
           ))}
         </div>
-        <div className="ml-2 flex items-center gap-1.5">
+        <div className="ml-1 flex items-center gap-1">
           <Link
             href="/sign-in"
             className={cn(
-              "rounded-full border border-[#2e2e42] px-3.5 py-1.5",
-              "font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest",
-              "text-[#F5F5F0] transition-colors duration-150",
-              "hover:border-[#F5F5F0]/30",
+              "rounded-full border border-white/10 px-3 py-1.5",
+              "font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.16em]",
+              "text-[#d8d4e6] transition-colors duration-150",
+              "hover:border-white/20 hover:text-white",
               "focus-visible:outline-none focus-visible:ring-2",
               focusRingClassName,
             )}
@@ -108,8 +108,8 @@ export function SiteNavigation({
           <Link
             href="/sign-up"
             className={cn(
-              "rounded-full px-3.5 py-1.5",
-              "font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest",
+              "rounded-full px-3 py-1.5",
+              "font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.16em]",
               "bg-[#e8453c] text-[#F5F5F0] transition-colors duration-150",
               "hover:bg-[#d5342b]",
               "focus-visible:outline-none focus-visible:ring-2",

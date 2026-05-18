@@ -172,13 +172,13 @@ export function BrowsePageClient() {
         />
 
         <div className="relative mx-auto w-full max-w-[100vw] px-4 sm:max-w-screen-2xl sm:px-6 lg:px-8 xl:px-12">
-          <div className="flex flex-col gap-4 py-5 sm:flex-row sm:items-end sm:justify-between sm:py-6">
+          <div className="flex flex-col gap-3 py-4 sm:flex-row sm:items-end sm:justify-between sm:py-5">
             <div>
-              <div className="mb-3 h-px w-10 bg-[#e8453c]" />
+              <div className="mb-2.5 h-px w-10 bg-[#e8453c]" />
               <h1
                 className="font-[family-name:var(--font-display)] font-bold leading-none tracking-tight"
                 style={{
-                  fontSize: "clamp(2rem, 4.1vw, 3.6rem)",
+                  fontSize: "clamp(1.9rem, 3.6vw, 3.25rem)",
                   background: "linear-gradient(135deg, #fffaf2 0%, #d7d4e6 58%, #8b8aa3 100%)",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
@@ -214,11 +214,11 @@ export function BrowsePageClient() {
       </section>
 
       {/* ── STICKY FILTER BAR ───────────────────────────────────────────── */}
-      <div className="sticky top-16 z-40 max-w-[100vw] border-b border-[#1c1a25] bg-[#08080d]/92 shadow-[0_18px_50px_rgba(0,0,0,0.28)] backdrop-blur-xl">
+      <div className="sticky top-14 z-40 max-w-[100vw] border-b border-[#1c1a25] bg-[#08080d]/92 shadow-[0_18px_50px_rgba(0,0,0,0.28)] backdrop-blur-xl">
         <div className="mx-auto w-full max-w-[100vw] px-4 sm:max-w-screen-2xl sm:px-6 lg:px-8 xl:px-12">
 
           {/* Primary filter row */}
-          <div className="flex flex-wrap items-center gap-2 py-3">
+          <div className="flex flex-wrap items-center gap-2 py-2.5">
 
             {/* Search */}
             <div className="relative w-full min-w-0 sm:max-w-[340px] sm:flex-1 lg:flex-none">
@@ -228,7 +228,7 @@ export function BrowsePageClient() {
                 placeholder="Title, director…"
                 value={filters.search}
                 onChange={(e) => setFilters({ search: e.target.value, page: 1 })}
-                className="h-11 w-full rounded-md border border-white/10 bg-white/[0.045] pl-9 pr-3 font-[family-name:var(--font-geist-mono)] text-[12px] text-[#f1eff8] outline-none transition-colors placeholder:text-[#6f6a80] hover:border-white/18 focus:border-[#e8453c]/70 focus:ring-2 focus:ring-[#e8453c]/15"
+                className="h-10 w-full rounded-md border border-white/10 bg-white/[0.045] pl-9 pr-3 font-[family-name:var(--font-geist-mono)] text-[12px] text-[#f1eff8] outline-none transition-colors placeholder:text-[#6f6a80] hover:border-white/18 focus:border-[#e8453c]/70 focus:ring-2 focus:ring-[#e8453c]/15"
               />
             </div>
 
@@ -250,7 +250,7 @@ export function BrowsePageClient() {
                       setFilters({ awardBody: value, imdbTopMoviesOnly: false, imdbTopTvOnly: false, page: 1 })
                     }
                     className={cn(
-                      "h-9 shrink-0 rounded px-3.5 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.14em] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40",
+                      "h-8 shrink-0 rounded px-3.5 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.14em] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40",
                       active
                         ? "bg-[#e8453c] text-white shadow-[0_0_24px_rgba(232,69,60,0.24)]"
                         : "text-[#7f7a91] hover:bg-white/[0.055] hover:text-[#f1eff8]",
@@ -279,7 +279,7 @@ export function BrowsePageClient() {
                   type="button"
                   onClick={fn}
                   className={cn(
-                    "h-9 shrink-0 rounded px-3.5 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.14em] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37]/35",
+                    "h-8 shrink-0 rounded px-3.5 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.14em] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37]/35",
                     active
                       ? "bg-[#D4AF37] font-semibold text-[#09090f] shadow-[0_0_24px_rgba(212,175,55,0.18)]"
                       : "text-[#7f7a91] hover:bg-white/[0.055] hover:text-[#f1eff8]",
@@ -301,7 +301,7 @@ export function BrowsePageClient() {
                   setFilters({ genre: val === "_all" ? "" : val, page: 1 })
                 }
               >
-                <SelectTrigger className="h-11 w-[158px] rounded-md border-white/10 bg-white/[0.045] font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.14em] text-[#b8b5c8] transition-colors hover:border-white/20 focus:ring-[#e8453c]/60 focus:ring-offset-0">
+                <SelectTrigger className="h-10 w-[158px] rounded-md border-white/10 bg-white/[0.045] font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.14em] text-[#b8b5c8] transition-colors hover:border-white/20 focus:ring-[#e8453c]/60 focus:ring-offset-0">
                   <SelectValue placeholder="Genre" />
                 </SelectTrigger>
                 <SelectContent className="border-white/10 bg-[#101019]">
@@ -318,7 +318,7 @@ export function BrowsePageClient() {
               type="button"
               onClick={() => setShowMore((v) => !v)}
               className={cn(
-                "flex h-11 items-center gap-2 rounded-md border px-3.5 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.14em] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40",
+                "flex h-10 items-center gap-2 rounded-md border px-3.5 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.14em] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40",
                 showMore
                   ? "border-[#e8453c]/55 bg-[#e8453c]/12 text-[#ff766d]"
                   : "border-white/10 bg-white/[0.045] text-[#b8b5c8] hover:border-white/20 hover:text-[#f1eff8]",
@@ -533,8 +533,8 @@ export function BrowsePageClient() {
       </div>
 
       {/* ── MAIN GRID ───────────────────────────────────────────────────── */}
-      <main className="mx-auto w-full max-w-[100vw] flex-1 px-4 py-7 sm:max-w-screen-2xl sm:px-6 sm:py-9 lg:px-8 xl:px-12">
-        <div className="mb-6 flex flex-col gap-4 border-b border-white/10 pb-5 lg:flex-row lg:items-end lg:justify-between">
+      <main className="mx-auto w-full max-w-[100vw] flex-1 px-4 py-6 sm:max-w-screen-2xl sm:px-6 sm:py-8 lg:px-8 xl:px-12">
+        <div className="mb-6 flex flex-col gap-4 border-b border-white/10 pb-5 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.22em] text-[#e8453c]">
               {resultContext}
@@ -553,14 +553,17 @@ export function BrowsePageClient() {
             )}
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex w-full flex-wrap items-center gap-2 rounded-lg border border-white/10 bg-white/[0.025] p-1.5 lg:w-auto">
+            <span className="hidden px-2 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.18em] text-[#7d788e] sm:inline">
+              View
+            </span>
             <Select
               value={filters.sort}
               onValueChange={(value) =>
                 setFilters({ sort: value as FilterState["sort"], page: 1 })
               }
             >
-              <SelectTrigger className="h-10 w-[138px] rounded-md border-white/10 bg-white/[0.045] font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.14em] text-[#d8d4e6] transition-colors hover:border-white/20 focus:ring-[#e8453c]/60 focus:ring-offset-0">
+              <SelectTrigger className="h-9 flex-1 rounded-md border-white/10 bg-[#111018] font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.14em] text-[#d8d4e6] transition-colors hover:border-white/20 focus:ring-[#e8453c]/60 focus:ring-offset-0 sm:w-[142px] sm:flex-none">
                 <SelectValue placeholder="Sort" />
               </SelectTrigger>
               <SelectContent className="border-white/10 bg-[#101019]">
@@ -572,7 +575,7 @@ export function BrowsePageClient() {
               </SelectContent>
             </Select>
 
-            <div className="flex h-10 rounded-md border border-white/10 bg-white/[0.035] p-1">
+            <div className="flex h-9 rounded-md border border-white/10 bg-[#111018] p-1">
               {(
                 [
                   { value: "gallery", label: "Gallery", icon: Grid3X3 },
@@ -586,7 +589,7 @@ export function BrowsePageClient() {
                   aria-pressed={viewMode === value}
                   onClick={() => setViewMode(value)}
                   className={cn(
-                    "inline-flex h-8 w-9 items-center justify-center rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/35",
+                    "inline-flex h-7 w-8 items-center justify-center rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/35",
                     viewMode === value
                       ? "bg-white/12 text-white"
                       : "text-[#8c879d] hover:bg-white/[0.06] hover:text-white",
