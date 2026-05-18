@@ -6,7 +6,6 @@ import {
   ChevronDown,
   ExternalLink,
   Play,
-  Share2,
   Sparkles,
 } from "lucide-react";
 import type { Film, AwardRecord, CastMember } from "@cineroll/types";
@@ -16,6 +15,7 @@ import { AppHeader } from "@/components/app-header";
 import { FilmTrailer } from "@/components/film-trailer";
 import { WhereToWatch } from "@/components/where-to-watch";
 import { SimilarFilmsSlider } from "@/components/similar-films-slider";
+import { ShareButton } from "@/components/share-button";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 const SITE_URL =
@@ -213,7 +213,6 @@ export default async function FilmPage({
   }[];
 
   const heroImageUrl = film.backdropUrl ?? film.posterUrl;
-  const shareCardPath = `/api/og/film/${encodeURIComponent(film.slug)}`;
 
   return (
     <main
@@ -389,15 +388,12 @@ export default async function FilmPage({
                     <Bookmark className="h-3.5 w-3.5" aria-hidden />
                     Watchlist
                   </button>
-                  <a
-                    href={shareCardPath}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="Share this film"
-                    className="flex h-11 w-11 items-center justify-center border border-white/10 bg-black/30 text-white/32 backdrop-blur-sm transition-colors hover:bg-black/50 hover:text-white/58 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
-                  >
-                    <Share2 className="h-4 w-4" aria-hidden />
-                  </a>
+                  <ShareButton
+                    url={`${SITE_URL}/film/${film.slug}`}
+                    title={`Watch ${film.title} tonight — CineRoll picked it`}
+                    {...(film.plot ? { text: film.plot } : {})}
+                    className="flex h-11 items-center gap-2 border border-white/10 bg-black/30 px-4 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.2em] text-white/40 backdrop-blur-sm transition-colors hover:bg-black/50 hover:text-white/65 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
+                  />
                 </div>
               </div>
 

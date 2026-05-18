@@ -1,11 +1,15 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Clapperboard, Share2, Trophy } from "lucide-react";
+import { Clapperboard, Trophy } from "lucide-react";
 import type { Film } from "@cineroll/types";
 import { AppHeader } from "@/components/app-header";
+import { ShareButton } from "@/components/share-button";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://cineroll.app");
 
 async function fetchFilm(slug: string): Promise<Film | null> {
   const res = await fetch(`${API_URL}/api/films/${encodeURIComponent(slug)}`, {
@@ -169,11 +173,16 @@ export default async function RollBattleResultPage({
           >
             Watch This Tonight
           </Link>
+          <ShareButton
+            url={`${SITE_URL}/film/${film.slug}`}
+            title={`Roll Battle picked ${film.title} — CineRoll`}
+            {...(film.plot ? { text: film.plot } : {})}
+            className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-[#1e1e2a] bg-[#0d0d1a] py-3.5 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.2em] text-[#F5F5F0] transition-colors hover:border-[#2a2a3e]"
+          />
           <Link
             href="/roll-battle"
             className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-[#1e1e2a] bg-[#0d0d1a] py-3.5 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.2em] text-[#F5F5F0] transition-colors hover:border-[#2a2a3e]"
           >
-            <Share2 className="h-3.5 w-3.5" />
             Play Roll Battle
           </Link>
         </div>
