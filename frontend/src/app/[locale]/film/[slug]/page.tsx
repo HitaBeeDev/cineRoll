@@ -433,7 +433,7 @@ export default async function FilmPage({
               {film.posterUrl && (
                 <div className="hidden shrink-0 lg:block">
                   <div
-                    className="relative h-[460px] w-[307px] rotate-[1.2deg] overflow-hidden"
+                    className="relative h-[460px] w-[307px] overflow-hidden"
                     style={{
                       boxShadow: `0 48px 100px rgba(0,0,0,0.92), 0 0 0 1px rgba(255,255,255,0.10), 0 20px 60px ${accent}40`,
                     }}
