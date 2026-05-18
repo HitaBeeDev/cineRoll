@@ -1,7 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { X } from "lucide-react";
+import Link from "next/link";
+import { ArrowUpRight, X } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -12,7 +13,7 @@ import {
 import { fetchPersonSuggestions, type PersonSuggestion } from "@/lib/api";
 import { MOOD_PRESETS, type MoodPreset } from "@/lib/mood-presets";
 import { DEFAULT_FILTERS } from "@/hooks/useFilters";
-import { cn } from "@/lib/utils";
+import { cn, nameToSlug } from "@/lib/utils";
 import type { FilterState, AwardBody } from "@cineroll/types";
 
 interface FilterBarProps {
@@ -217,26 +218,36 @@ export function FilterBar({
             {isPersonSuggestionsOpen && (
               <div className="absolute left-0 right-0 top-[calc(100%+6px)] z-50 overflow-hidden rounded-md border border-[#2a2a3e] bg-[#0b0b12] shadow-2xl shadow-black/60">
                 {personSuggestions.map((suggestion) => (
-                  <button
-                    key={suggestion.name}
-                    type="button"
-                    onMouseDown={(event) => event.preventDefault()}
-                    onClick={() => {
-                      onFiltersChange({ person: suggestion.name, page: 1 });
-                      setIsPersonSuggestionsOpen(false);
-                    }}
-                    className={cn(
-                      "flex w-full items-center justify-between gap-3 px-3 py-2 text-left",
-                      "transition-colors hover:bg-[#151520] focus-visible:bg-[#151520] focus-visible:outline-none",
-                    )}
-                  >
-                    <span className="truncate text-sm font-medium text-[#F5F5F0]">
-                      {suggestion.name}
-                    </span>
-                    <span className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#66667a]">
-                      {suggestion.roles.slice(0, 2).join(" / ")}
-                    </span>
-                  </button>
+                  <div key={suggestion.name} className="flex items-center">
+                    <button
+                      type="button"
+                      onMouseDown={(event) => event.preventDefault()}
+                      onClick={() => {
+                        onFiltersChange({ person: suggestion.name, page: 1 });
+                        setIsPersonSuggestionsOpen(false);
+                      }}
+                      className={cn(
+                        "flex min-w-0 flex-1 items-center justify-between gap-3 px-3 py-2 text-left",
+                        "transition-colors hover:bg-[#151520] focus-visible:bg-[#151520] focus-visible:outline-none",
+                      )}
+                    >
+                      <span className="truncate text-sm font-medium text-[#F5F5F0]">
+                        {suggestion.name}
+                      </span>
+                      <span className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#66667a]">
+                        {suggestion.roles.slice(0, 2).join(" / ")}
+                      </span>
+                    </button>
+                    <Link
+                      href={`/person/${nameToSlug(suggestion.name)}`}
+                      onMouseDown={(e) => e.preventDefault()}
+                      className="flex h-full shrink-0 items-center px-2.5 text-[#44445a] transition-colors hover:text-[#e8453c]"
+                      title={`View ${suggestion.name}'s profile`}
+                      tabIndex={-1}
+                    >
+                      <ArrowUpRight className="h-3.5 w-3.5" aria-hidden />
+                    </Link>
+                  </div>
                 ))}
               </div>
             )}
@@ -421,25 +432,37 @@ export function FilterBar({
         <div className="flex items-start gap-2 -mt-3 mb-2">
           <div className="flex flex-1 flex-wrap gap-1.5">
             {activeChips.map((chip) => (
-              <button
+              <div
                 key={chip.key}
-                type="button"
-                onClick={chip.onRemove}
                 className={cn(
-                  "inline-flex h-6 items-center gap-1 rounded-full",
-                  "border border-[#25253a] bg-[#0d0d1a] px-2.5",
+                  "inline-flex h-6 items-center gap-0 rounded-full",
+                  "border border-[#25253a] bg-[#0d0d1a]",
                   "font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-wide text-[#9898b8]",
-                  "transition-colors hover:border-[#e8453c]/40 hover:text-[#F5F5F0]",
-                  "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#e8453c]",
                 )}
-                aria-label={`Remove ${chip.label} filter`}
               >
-                {chip.label}
-                <X
-                  className="h-2.5 w-2.5 shrink-0 text-[#9090a8]"
-                  aria-hidden
-                />
-              </button>
+                {chip.href && (
+                  <Link
+                    href={chip.href}
+                    className="flex h-full items-center pl-2.5 pr-1 transition-colors hover:text-[#e8453c]"
+                    title="View profile"
+                  >
+                    <ArrowUpRight className="h-3 w-3" aria-hidden />
+                  </Link>
+                )}
+                <button
+                  type="button"
+                  onClick={chip.onRemove}
+                  className={cn(
+                    "flex h-full items-center gap-1 transition-colors hover:text-[#F5F5F0]",
+                    "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#e8453c] focus-visible:rounded-full",
+                    chip.href ? "pr-2.5" : "px-2.5",
+                  )}
+                  aria-label={`Remove ${chip.label} filter`}
+                >
+                  {chip.label}
+                  <X className="h-2.5 w-2.5 shrink-0 text-[#9090a8]" aria-hidden />
+                </button>
+              </div>
             ))}
           </div>
           <button
@@ -503,6 +526,7 @@ function PillToggle({
 type ActiveFilterChip = {
   key: string;
   label: string;
+  href?: string;
   onRemove: () => void;
 };
 
@@ -524,6 +548,7 @@ function getActiveFilterChips(
     chips.push({
       key: "person",
       label: `Person: ${filters.person.trim()}`,
+      href: `/person/${nameToSlug(filters.person.trim())}`,
       onRemove: () => onFiltersChange({ person: "", page: 1 }),
     });
   }

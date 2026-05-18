@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 import type { CSSProperties, ReactNode } from "react";
 import {
   Bookmark,
@@ -9,7 +10,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import type { Film, AwardRecord, CastMember } from "@cineroll/types";
-import { cn } from "@/lib/utils";
+import { cn, nameToSlug } from "@/lib/utils";
 import { formatRuntime } from "@/lib/format";
 import { AppHeader } from "@/components/app-header";
 import { FilmTrailer } from "@/components/film-trailer";
@@ -305,9 +306,12 @@ export default async function FilmPage({
                     style={{ background: `linear-gradient(to right, ${accent}, transparent)` }}
                   />
                   {film.director && (
-                    <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.36em] text-white/35">
+                    <Link
+                      href={`/person/${nameToSlug(film.director)}`}
+                      className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.36em] text-white/35 transition-colors hover:text-white/65"
+                    >
                       {film.director}
-                    </p>
+                    </Link>
                   )}
                 </div>
 
@@ -826,7 +830,10 @@ function CastCard({ member, accent }: { member: CastMember; accent: string }) {
   const initials = nameInitials(member.name);
   const hue = nameHue(member.name);
   return (
-    <div className="group relative flex flex-col overflow-hidden border border-[#1e1e30] bg-[#0d0d18] transition-colors hover:border-[#2e2e48]">
+    <Link
+      href={`/person/${nameToSlug(member.name)}`}
+      className="group relative flex flex-col overflow-hidden border border-[#1e1e30] bg-[#0d0d18] transition-colors hover:border-[#e8453c]/30"
+    >
       <div
         className="relative w-full overflow-hidden"
         style={{ aspectRatio: "2/3" }}
@@ -869,6 +876,6 @@ function CastCard({ member, accent }: { member: CastMember; accent: string }) {
           </p>
         )}
       </div>
-    </div>
+    </Link>
   );
 }

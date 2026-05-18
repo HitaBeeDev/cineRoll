@@ -852,7 +852,7 @@ A dedicated page for every director and actor in the dataset. High SEO value —
 - [x] Add SEO metadata: dynamic title ("Meryl Streep — Oscar & Golden Globe Award History | CineRoll"), description listing their win/nomination counts
 - [x] Add structured data (JSON-LD Person schema) for Google rich results
 - [x] Create 404 page if person slug not found
-- [ ] Link to person pages from: film detail cast/director section, autocomplete results, browse filter chips
+- [x] Link to person pages from: film detail cast/director section, autocomplete results, browse filter chips
 
 ---
 
