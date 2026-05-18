@@ -819,7 +819,7 @@ One button on any film detail page generates a beautiful branded image card read
 
 - [x] Create a `/api/og/film/:slug` endpoint that returns a dynamically generated Open Graph image using `@vercel/og` (Next.js built-in): film poster on the left, title + year + award badges on the right, CineRoll logo and URL at the bottom
 - [x] Add a **"Share Tonight's Pick"** button on the film detail page and after every roll result
-- [ ] Clicking it:
+- [x] Clicking it:
   - On mobile: opens the native share sheet (`navigator.share`) with the film URL and a pre-written caption: _"Watching [Film Title] tonight — [X Oscar wins, Y GG nominations] 🎬 via CineRoll"_
   - On desktop: copies the shareable URL to clipboard and shows "Link copied!" toast
 - [ ] The shared URL (`/film/:slug?from=share`) loads the film detail page with a subtle "Shared by a CineRoll user" banner at the top — drives curiosity and signups

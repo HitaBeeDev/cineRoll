@@ -16,6 +16,7 @@ import { FilmTrailer } from "@/components/film-trailer";
 import { WhereToWatch } from "@/components/where-to-watch";
 import { SimilarFilmsSlider } from "@/components/similar-films-slider";
 import { ShareButton } from "@/components/share-button";
+import { ShareBanner } from "@/components/share-banner";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 const SITE_URL =
@@ -150,10 +151,12 @@ export async function generateMetadata({
 
 export default async function FilmPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string; slug: string }>;
+  searchParams: Promise<{ from?: string }>;
 }) {
-  const { slug } = await params;
+  const [{ slug }, { from }] = await Promise.all([params, searchParams]);
   const [film, similarFilms] = await Promise.all([
     fetchFilm(slug),
     fetchSimilarFilms(slug),
@@ -235,6 +238,7 @@ export default async function FilmPage({
       className="min-h-screen bg-[#07070b] text-[#f4f4f5]"
       style={accentStyle}
     >
+      {from === "share" && <ShareBanner />}
       <AppHeader />
 
       {/* ── CINEMATIC HERO ─────────────────────────────────────────── */}

@@ -24,9 +24,10 @@ export function ShareButton({
   const [copied, setCopied] = useState(false);
 
   async function handleShare() {
+    const shareUrl = url.includes("?") ? `${url}&from=share` : `${url}?from=share`;
     if (typeof navigator !== "undefined" && "share" in navigator) {
       try {
-        const shareData: ShareData = { url, title };
+        const shareData: ShareData = { url: shareUrl, title };
         if (caption) shareData.text = caption;
         await navigator.share(shareData);
         return;
@@ -35,7 +36,7 @@ export function ShareButton({
       }
     }
     try {
-      await navigator.clipboard.writeText(url);
+      await navigator.clipboard.writeText(shareUrl);
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
     } catch {
