@@ -301,35 +301,104 @@ export default async function StatsPage() {
           <div className="mb-8 grid gap-6 lg:grid-cols-2">
             {/* Decade timeline */}
             {stats && stats.decadeBreakdown.length > 0 && (
-              <div className="rounded-2xl border border-[#1a1a28] bg-[#0e0e18] p-5 sm:p-6">
-                <div className="mb-5 flex items-center gap-2">
-                  <TrendingUp className="h-3.5 w-3.5 text-[#4a9eff]/60" />
-                  <h2 className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.3em] text-[#888899]">
-                    Avg. Nominations by Decade
-                  </h2>
+              <div className="rounded-2xl border border-[#1a1a28] bg-[#0e0e18] p-5 sm:p-7">
+                <div className="mb-6 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <TrendingUp className="h-3.5 w-3.5 text-[#4a9eff]/60" />
+                    <h2 className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.3em] text-[#888899]">
+                      Avg. Nominations by Decade
+                    </h2>
+                  </div>
+                  <span className="font-[family-name:var(--font-geist-mono)] text-[8px] text-[#666680]">
+                    Oscar · GG · Cannes
+                  </span>
                 </div>
-                <div className="flex h-40 items-end gap-1.5">
-                  {stats.decadeBreakdown.map((d) => {
-                    const heightPct = Math.max(4, (d.avgNominations / maxAvgNom) * 100);
-                    return (
-                      <Link
-                        key={d.decade}
-                        href={`/browse?decadeMin=${d.decade}&decadeMax=${d.decade + 9}`}
-                        className="group flex flex-1 flex-col items-center gap-1.5"
-                        title={`${d.decade}s — ${d.filmCount} films, avg ${d.avgNominations.toFixed(1)} noms`}
+
+                {/* Chart */}
+                <div className="relative">
+                  {/* Horizontal grid lines */}
+                  <div className="pointer-events-none absolute inset-x-0 top-0" style={{ height: "160px" }}>
+                    {[0.25, 0.5, 0.75, 1].map((f) => (
+                      <div
+                        key={f}
+                        className="absolute inset-x-0 flex items-center"
+                        style={{ bottom: `${f * 100}%` }}
                       >
-                        <div className="relative flex w-full flex-col justify-end" style={{ height: "140px" }}>
-                          <div
-                            className="w-full rounded-t-sm bg-[#4a9eff]/25 transition-colors group-hover:bg-[#4a9eff]/50"
-                            style={{ height: `${heightPct}%` }}
-                          />
-                        </div>
-                        <span className="font-[family-name:var(--font-geist-mono)] text-[7px] text-[#666680] group-hover:text-[#888899]">
+                        <span className="mr-2 w-5 shrink-0 text-right font-[family-name:var(--font-geist-mono)] text-[7px] text-[#333350]">
+                          {(maxAvgNom * f).toFixed(1)}
+                        </span>
+                        <div className="h-px flex-1 bg-white/[0.04]" />
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Bars */}
+                  <div className="flex items-end gap-1.5 pl-7" style={{ height: "160px" }}>
+                    {stats.decadeBreakdown.map((d) => {
+                      const heightPct = Math.max(3, (d.avgNominations / maxAvgNom) * 100);
+                      const isPeak = d.avgNominations >= maxAvgNom * 0.97;
+                      return (
+                        <Link
+                          key={d.decade}
+                          href={`/browse?decadeMin=${d.decade}&decadeMax=${d.decade + 9}`}
+                          className="group relative flex flex-1 flex-col items-center"
+                          title={`${d.decade}s — ${d.filmCount} films, avg ${d.avgNominations.toFixed(1)} noms`}
+                        >
+                          {/* Tooltip */}
+                          <div className="pointer-events-none absolute -top-8 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap opacity-0 transition-opacity duration-150 group-hover:opacity-100">
+                            <div className="rounded-lg border border-[#2a2a3e] bg-[#13131f] px-2 py-1">
+                              <span className="font-[family-name:var(--font-geist-mono)] text-[9px] text-[#F5F5F0]">
+                                {d.avgNominations.toFixed(1)}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Bar */}
+                          <div className="relative w-full" style={{ height: `${heightPct}%` }}>
+                            {/* Bright top cap */}
+                            <div
+                              className="absolute inset-x-0 top-0 h-[2px] rounded-t-sm transition-opacity duration-200 group-hover:opacity-100"
+                              style={{
+                                backgroundColor: "#4a9eff",
+                                opacity: isPeak ? 1 : 0.45,
+                              }}
+                            />
+                            {/* Gradient fill */}
+                            <div
+                              className="absolute inset-x-0 bottom-0 transition-all duration-200"
+                              style={{
+                                top: "2px",
+                                borderRadius: "0 0 2px 2px",
+                                background: isPeak
+                                  ? "linear-gradient(to bottom, rgba(74,158,255,0.55), rgba(74,158,255,0.07))"
+                                  : "linear-gradient(to bottom, rgba(74,158,255,0.22), rgba(74,158,255,0.03))",
+                                boxShadow: isPeak ? "0 0 28px rgba(74,158,255,0.18)" : "none",
+                              }}
+                            />
+                            {/* Hover brighten overlay */}
+                            <div
+                              className="absolute inset-x-0 bottom-0 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+                              style={{
+                                top: "2px",
+                                background: "linear-gradient(to bottom, rgba(74,158,255,0.2), transparent)",
+                              }}
+                            />
+                          </div>
+                        </Link>
+                      );
+                    })}
+                  </div>
+
+                  {/* Decade labels */}
+                  <div className="mt-2.5 flex gap-1.5 pl-7">
+                    {stats.decadeBreakdown.map((d) => (
+                      <div key={d.decade} className="flex flex-1 justify-center">
+                        <span className="font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-wider text-[#666680]">
                           {String(d.decade).slice(2)}s
                         </span>
-                      </Link>
-                    );
-                  })}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             )}
