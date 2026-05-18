@@ -26,7 +26,6 @@ import {
   filtersToParams,
   type PersonSuggestion,
 } from "@/lib/api";
-import { MOOD_PRESETS } from "@/lib/mood-presets";
 import {
   Select,
   SelectContent,
@@ -503,21 +502,6 @@ export function BrowsePageClient() {
                     >
                       IMDb Top 250 TV
                     </FilterChip>
-                  </div>
-                </PanelSection>
-
-                {/* Mood presets */}
-                <PanelSection label="Mood Presets">
-                  <div className="flex flex-wrap gap-1">
-                    {MOOD_PRESETS.map((preset) => (
-                      <FilterChip
-                        key={preset.label}
-                        active={false}
-                        onClick={() => { setFilters({ ...preset.filters, page: 1 }); setShowMore(false); }}
-                      >
-                        {preset.label}
-                      </FilterChip>
-                    ))}
                   </div>
                 </PanelSection>
               </div>
