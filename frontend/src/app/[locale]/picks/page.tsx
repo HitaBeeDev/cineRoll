@@ -17,30 +17,34 @@ const PICK_SLOTS: {
   mood: string;
   icon: React.ReactNode;
   accentColor: string;
+  borderColor: string;
   filters: Partial<FilterState>;
 }[] = [
   {
     num: "01",
     label: "Award Prestige",
     mood: "Moving & Acclaimed",
-    icon: <Trophy className="h-3 w-3" />,
+    icon: <Trophy className="h-3.5 w-3.5" />,
     accentColor: "#e8453c",
+    borderColor: "border-[#e8453c]/30",
     filters: { awardBody: "oscar", winnerOnly: true, imdbRatingMin: 7.5 },
   },
   {
     num: "02",
     label: "World Cinema",
     mood: "Daring & Original",
-    icon: <Clapperboard className="h-3 w-3" />,
+    icon: <Clapperboard className="h-3.5 w-3.5" />,
     accentColor: "#4a9eff",
+    borderColor: "border-[#4a9eff]/30",
     filters: { awardBody: "cannes", winnerOnly: true },
   },
   {
     num: "03",
     label: "Hidden Gem",
     mood: "Surprising & Rare",
-    icon: <Star className="h-3 w-3" />,
+    icon: <Star className="h-3.5 w-3.5" />,
     accentColor: "#a78bfa",
+    borderColor: "border-[#a78bfa]/30",
     filters: { imdbRatingMin: 7.5, decadeMin: 1960, decadeMax: 2005 },
   },
 ];
@@ -107,116 +111,95 @@ export default function PicksPage() {
   });
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-[#080810] text-[#F5F5F0]">
+    <div className="flex h-screen flex-col overflow-hidden bg-[#09090f] text-[#F5F5F0]">
       <AppHeader />
 
-      <main className="flex flex-1 flex-col overflow-hidden">
+      <main className="flex flex-1 flex-col overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:w-0">
         {/* Page header */}
-        <div className="flex items-center justify-between border-b border-white/[0.05] px-6 py-4 sm:px-10">
-          <div className="flex items-center gap-5">
-            {/* Decorative accent bars */}
-            <div className="flex flex-col gap-[3px] shrink-0">
-              <div className="h-[2px] w-7 bg-[#e8453c]" />
-              <div className="h-[2px] w-4 bg-[#e8453c]/35" />
-            </div>
-
-            <div>
-              <p className="mb-0.5 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.35em] text-[#e8453c]/60">
-                Three Films · One Evening
+        <div className="border-b border-[#1a1a28] px-6 py-5 sm:px-10">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="flex flex-col gap-[3px]">
+                <div className="h-[2px] w-6 bg-[#e8453c]" />
+                <div className="h-[2px] w-3.5 bg-[#e8453c]/35" />
+              </div>
+              <div>
+                <p className="mb-0.5 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.35em] text-[#e8453c]/60">
+                  Three Films · One Evening
+                </p>
+                <h1 className="font-[family-name:var(--font-display)] text-2xl font-bold leading-none text-[#F5F5F0] sm:text-3xl">
+                  Today&apos;s Picks
+                </h1>
+              </div>
+              <div className="hidden h-7 w-px bg-white/[0.07] sm:block" />
+              <p className="hidden font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#2e2e46] sm:block">
+                {dateLabel}
               </p>
-              <h1 className="font-[family-name:var(--font-display)] text-2xl font-bold leading-none text-[#F5F5F0]">
-                Today&apos;s Picks
-              </h1>
             </div>
 
-            <div className="hidden h-7 w-px bg-white/[0.07] sm:block" />
-            <p className="hidden font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#30304a] sm:block">
-              {dateLabel}
-            </p>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => void loadPicks(true)}
-            disabled={isRefreshing}
-            className={cn(
-              "group flex items-center gap-2 rounded-full border border-white/10 px-4 py-2",
-              "font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#3d3d58]",
-              "transition-all duration-200 hover:border-[#e8453c]/40 hover:text-[#F5F5F0]",
-              "disabled:pointer-events-none disabled:opacity-30",
-            )}
-          >
-            <RefreshCw
+            <button
+              type="button"
+              onClick={() => void loadPicks(true)}
+              disabled={isRefreshing}
               className={cn(
-                "h-3 w-3 transition-transform duration-500",
-                isRefreshing ? "animate-spin" : "group-hover:rotate-[180deg]",
+                "group flex items-center gap-2 rounded-full border border-[#1e1e2a] px-4 py-2",
+                "font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#444458]",
+                "transition-all duration-200 hover:border-[#e8453c]/40 hover:text-[#F5F5F0]",
+                "disabled:pointer-events-none disabled:opacity-30",
               )}
-            />
-            Reshuffle
-          </button>
+            >
+              <RefreshCw
+                className={cn(
+                  "h-3 w-3 transition-transform duration-500",
+                  isRefreshing ? "animate-spin" : "group-hover:rotate-180",
+                )}
+              />
+              Reshuffle
+            </button>
+          </div>
         </div>
 
-        {/* Cards */}
-        <div className="flex flex-1 overflow-hidden">
+        {/* Cards grid */}
+        <div className="flex flex-1 flex-col lg:flex-row">
           <AnimatePresence mode="wait">
             {isLoading ? (
               <motion.div
                 key="loading"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                exit={{ opacity: 0, transition: { duration: shouldReduceMotion ? 0 : 0.15 } }}
-                transition={{ duration: shouldReduceMotion ? 0 : 0.2 }}
-                className="flex flex-1 flex-col items-center justify-center gap-5"
+                exit={{ opacity: 0, transition: { duration: shouldReduceMotion ? 0 : 0.15, ease: "easeIn" } }}
+                transition={{ duration: shouldReduceMotion ? 0 : 0.2, ease: "easeOut" }}
+                className="flex flex-1 items-center justify-center"
               >
-                <div className="flex gap-2">
-                  {(["#e8453c", "#4a9eff", "#a78bfa"] as const).map((color, i) => (
-                    <motion.div
-                      key={color}
-                      className="h-[3px] w-10 rounded-full"
-                      style={{ backgroundColor: color }}
-                      animate={{ opacity: [0.2, 0.8, 0.2] }}
-                      transition={{
-                        duration: 1.4,
-                        repeat: Infinity,
-                        delay: i * 0.2,
-                        ease: "easeInOut",
-                      }}
-                    />
-                  ))}
+                <div className="flex flex-col items-center gap-4">
+                  <div className="flex gap-2">
+                    {(["#e8453c", "#4a9eff", "#a78bfa"] as const).map((color, i) => (
+                      <motion.div
+                        key={color}
+                        className="h-[3px] w-8 rounded-full"
+                        style={{ backgroundColor: color }}
+                        animate={shouldReduceMotion ? {} : { opacity: [0.2, 0.9, 0.2] }}
+                        transition={{ duration: 1.4, repeat: Infinity, delay: i * 0.18, ease: "easeInOut" }}
+                      />
+                    ))}
+                  </div>
+                  <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.3em] text-[#2e2e46]">
+                    Curating today&apos;s selection
+                  </p>
                 </div>
-                <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.3em] text-[#2e2e46]">
-                  Curating today&apos;s selection
-                </p>
               </motion.div>
             ) : (
               <motion.div
                 key="picks"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                exit={{ opacity: 0, transition: { duration: shouldReduceMotion ? 0 : 0.15 } }}
-                transition={{ duration: shouldReduceMotion ? 0 : 0.25 }}
-                className="flex flex-1 flex-col overflow-hidden lg:flex-row"
+                exit={{ opacity: 0, transition: { duration: shouldReduceMotion ? 0 : 0.15, ease: "easeIn" } }}
+                transition={{ duration: shouldReduceMotion ? 0 : 0.25, ease: "easeOut" }}
+                className="flex flex-1 flex-col lg:flex-row"
               >
-                {/* Featured pick — 62% on desktop */}
-                {picks[0] && (
-                  <div className="flex min-h-[45vh] flex-1 lg:min-h-0 lg:w-[62%] lg:flex-none">
-                    <PickCard pick={picks[0]} index={0} featured />
-                  </div>
-                )}
-
-                {/* Secondary picks — 38% on desktop, stacked */}
-                <div className="flex flex-1 flex-col border-t border-white/[0.05] lg:w-[38%] lg:flex-none lg:border-l lg:border-t-0">
-                  {picks[1] && (
-                    <div className="flex flex-1">
-                      <PickCard pick={picks[1]} index={1} />
-                    </div>
-                  )}
-                  {picks[2] && (
-                    <div className="flex flex-1 border-t border-white/[0.05]">
-                      <PickCard pick={picks[2]} index={2} />
-                    </div>
-                  )}
-                </div>
+                {picks.map((pick, i) => (
+                  <PickCard key={pick.film.id} pick={pick} index={i} />
+                ))}
               </motion.div>
             )}
           </AnimatePresence>
@@ -226,15 +209,7 @@ export default function PicksPage() {
   );
 }
 
-function PickCard({
-  pick,
-  index,
-  featured = false,
-}: {
-  pick: DailyPick;
-  index: number;
-  featured?: boolean;
-}) {
+function PickCard({ pick, index }: { pick: DailyPick; index: number }) {
   const shouldReduceMotion = useReducedMotion();
   const { film, slot } = pick;
   const imageUrl = film.backdropUrl ?? film.posterUrl;
@@ -244,14 +219,14 @@ function PickCard({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 14 }}
+      initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={
         shouldReduceMotion
           ? { duration: 0 }
-          : { delay: index * 0.07, type: "spring", stiffness: 300, damping: 28 }
+          : { delay: index * 0.1, type: "spring", stiffness: 300, damping: 28 }
       }
-      className="group relative flex flex-1 overflow-hidden"
+      className="group relative flex flex-1 flex-col overflow-hidden border-b border-[#1a1a28] lg:border-b-0 lg:border-r last:border-r-0"
     >
       {/* Top accent strip */}
       <div
@@ -259,80 +234,63 @@ function PickCard({
         style={{ backgroundColor: slot.accentColor }}
       />
 
-      {/* Image */}
-      {imageUrl ? (
-        <Image
-          src={imageUrl}
-          alt={film.title}
-          fill
-          sizes={
-            featured ? "(max-width: 1024px) 100vw, 62vw" : "(max-width: 1024px) 100vw, 38vw"
-          }
-          className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
-          priority={index === 0}
-        />
-      ) : (
-        <div className="absolute inset-0 bg-gradient-to-br from-[#16162a] to-[#080810]" />
-      )}
+      {/* Backdrop */}
+      <div className="relative flex-1">
+        {imageUrl ? (
+          <Image
+            src={imageUrl}
+            alt={film.title}
+            fill
+            sizes="(max-width: 1024px) 100vw, 33vw"
+            className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+            priority={index === 0}
+          />
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a2e] to-[#09090f]" />
+        )}
 
-      {/* Gradient overlay — softer, more image shows */}
-      <div className="absolute inset-0 bg-gradient-to-t from-[#080810] via-[#080810]/25 to-transparent" />
+        {/* Gradient — softer so the image breathes */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#09090f] via-[#09090f]/20 to-transparent" />
 
-      {/* Ghost slot number — decorative */}
-      <div className="pointer-events-none absolute right-3 top-2 select-none leading-none">
-        <span
-          className="font-[family-name:var(--font-display)] font-black leading-none"
-          style={{
-            fontSize: featured ? "9rem" : "6rem",
-            color: `${slot.accentColor}0f`,
-            lineHeight: 1,
-          }}
-        >
-          {slot.num}
-        </span>
-      </div>
+        {/* Ghost slot number */}
+        <div className="pointer-events-none absolute right-3 top-4 select-none">
+          <span
+            className="font-[family-name:var(--font-display)] font-black leading-none"
+            style={{ fontSize: "7rem", color: `${slot.accentColor}12`, lineHeight: 1 }}
+          >
+            {slot.num}
+          </span>
+        </div>
 
-      {/* Slot badge — top left */}
-      <div className="absolute left-4 top-5 z-10">
-        <span
-          className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-[5px] font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-widest backdrop-blur-sm"
-          style={{
-            color: slot.accentColor,
-            borderColor: `${slot.accentColor}35`,
-            backgroundColor: `${slot.accentColor}12`,
-          }}
-        >
-          {slot.icon}
-          {slot.label}
-        </span>
+        {/* Slot badge */}
+        <div className="absolute left-4 top-5 z-10">
+          <span
+            className={cn(
+              "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-[5px]",
+              "font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-widest backdrop-blur-sm",
+              slot.borderColor,
+            )}
+            style={{ color: slot.accentColor, backgroundColor: `${slot.accentColor}12` }}
+          >
+            {slot.icon}
+            {slot.label}
+          </span>
+        </div>
       </div>
 
       {/* Content */}
-      <div
-        className={cn(
-          "absolute bottom-0 left-0 right-0 z-10 flex flex-col",
-          featured ? "gap-2.5 p-6 lg:p-8" : "gap-2 p-5",
-        )}
-      >
-        {/* Mood */}
-        <p
+      <div className="absolute bottom-0 left-0 right-0 z-10 flex flex-col gap-2 p-5">
+        <span
           className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.3em]"
           style={{ color: `${slot.accentColor}b3` }}
         >
           {slot.mood}
-        </p>
+        </span>
 
-        {/* Title */}
-        <h2
-          className={cn(
-            "font-[family-name:var(--font-display)] font-bold leading-[1.1] text-[#F5F5F0]",
-            featured ? "text-3xl lg:text-[2.6rem]" : "text-xl lg:text-2xl",
-          )}
-        >
+        <h2 className="font-[family-name:var(--font-display)] text-2xl font-bold leading-[1.1] text-[#F5F5F0] sm:text-3xl">
           {film.title}
         </h2>
 
-        {/* Meta */}
         <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
           <span className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-wider text-[#555570]">
             {film.year}
@@ -361,7 +319,6 @@ function PickCard({
           </p>
         )}
 
-        {/* Scores */}
         <div className="flex items-center gap-3">
           {film.imdbRating != null && (
             <span className="font-[family-name:var(--font-geist-mono)] text-[10px] font-bold text-[#c8c8d8]">
@@ -383,11 +340,14 @@ function PickCard({
           )}
         </div>
 
-        {/* Actions */}
         <div className="flex items-center gap-2 pt-1">
           <Link
             href={`/film/${film.slug}`}
-            className="group/btn flex flex-1 items-center justify-between rounded-xl px-4 py-2.5 font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-widest text-[#F5F5F0] transition-all duration-150 hover:brightness-110"
+            className={cn(
+              "group/btn flex flex-1 items-center justify-between rounded-xl px-4 py-2.5",
+              "font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-widest text-[#F5F5F0]",
+              "transition-all duration-150 hover:brightness-110",
+            )}
             style={{ backgroundColor: slot.accentColor }}
           >
             <span>Watch Tonight</span>
@@ -396,14 +356,14 @@ function PickCard({
           <button
             type="button"
             aria-label="Add to watchlist"
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/10 text-[#3d3d58] transition-colors hover:border-white/20 hover:text-[#F5F5F0]"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#1e1e2a] text-[#3d3d58] transition-colors hover:border-[#2a2a3e] hover:text-[#F5F5F0]"
           >
             <Bookmark className="h-4 w-4" />
           </button>
           <button
             type="button"
             aria-label="Share"
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/10 text-[#3d3d58] transition-colors hover:border-white/20 hover:text-[#F5F5F0]"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#1e1e2a] text-[#3d3d58] transition-colors hover:border-[#2a2a3e] hover:text-[#F5F5F0]"
           >
             <Share2 className="h-4 w-4" />
           </button>
