@@ -834,9 +834,9 @@ A dedicated page for every director and actor in the dataset. High SEO value —
 
 ### Backend
 
-- [ ] Create GET /api/persons/:slug — return person data: name, all AwardRecord entries across Oscar + GG + Cannes where they appear as nominee, grouped by award body; list of films they're associated with (as nominee or director)
-- [ ] Create GET /api/persons/autocomplete?q= — used by the search bar to suggest person names
-- [ ] Generate person slugs at seed time (lowercase name with hyphens, e.g. `meryl-streep`) and store in a `Person` table or derive on the fly from AwardRecord data
+- [x] Create GET /api/persons/:slug — return person data: name, all AwardRecord entries across Oscar + GG + Cannes where they appear as nominee, grouped by award body; list of films they're associated with (as nominee or director)
+- [x] Create GET /api/persons/autocomplete?q= — used by the search bar to suggest person names
+- [x] Generate person slugs on the fly from AwardRecord data (nameToSlug utility in persons.ts)
 - [ ] Add `Person` model to Prisma: id, slug (unique), name, tmdbPersonId (nullable — for fetching photo from TMDB), role ("actor" | "director" | "both")
 - [ ] Enrich person records at seed time: fetch TMDB person photo and biography using TMDB Person API; store photoUrl and bio in the Person model
 

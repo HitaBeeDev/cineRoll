@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { filmsRouter } from "./films";
 import { naturalRollRouter } from "./naturalRoll";
+import { personsRouter } from "./persons";
 import { pickOfDayRouter } from "./pickOfDay";
 import { randomRouter } from "./random";
 import { rollRouter } from "./roll";
@@ -11,6 +12,7 @@ export const router = Router();
 
 router.use("/films", filmsRouter);
 router.use("/natural-roll", naturalRollRouter);
+router.use("/persons", personsRouter);
 router.use("/random", randomRouter);
 router.use("/roll", rollRouter);
 router.use("/pick-of-day", pickOfDayRouter);
