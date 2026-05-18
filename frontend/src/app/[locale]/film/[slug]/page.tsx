@@ -27,6 +27,18 @@ function displayTitle(title: string): string {
   return title.replace(/^(.*),\s+(The|A|An)$/i, "$2 $1");
 }
 
+function buildShareCaption(film: Film): string {
+  const parts: string[] = [];
+  if (film.oscarWins > 0)
+    parts.push(`${film.oscarWins} Oscar ${film.oscarWins === 1 ? "win" : "wins"}`);
+  if (film.ggNominations > 0)
+    parts.push(`${film.ggNominations} Golden Globe ${film.ggNominations === 1 ? "nomination" : "nominations"}`);
+  if (film.cannesWins > 0)
+    parts.push(`${film.cannesWins} Cannes ${film.cannesWins === 1 ? "win" : "wins"}`);
+  const awardPart = parts.length > 0 ? ` — ${parts.join(", ")}` : "";
+  return `Watching ${displayTitle(film.title)} tonight${awardPart} 🎬 via CineRoll`;
+}
+
 function extractYouTubeId(url: string): string | null {
   try {
     const u = new URL(url);
@@ -403,8 +415,8 @@ export default async function FilmPage({
                   </button>
                   <ShareButton
                     url={`${SITE_URL}/film/${film.slug}`}
-                    title={`Watch ${film.title} tonight — CineRoll picked it`}
-                    {...(film.plot ? { text: film.plot } : {})}
+                    title={`Watch ${displayTitle(film.title)} tonight — CineRoll picked it`}
+                    caption={buildShareCaption(film)}
                     className="flex h-12 items-center gap-2 border border-white/14 bg-white/6 px-5 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.2em] text-white/50 backdrop-blur-sm transition-colors hover:bg-white/10 hover:text-white/75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
                   />
                 </div>

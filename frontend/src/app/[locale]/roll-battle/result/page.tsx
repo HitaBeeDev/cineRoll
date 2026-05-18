@@ -27,6 +27,18 @@ function formatRuntime(runtime: number | null): string {
   return h > 0 ? `${h}h ${m}m` : `${m}m`;
 }
 
+function buildRollCaption(film: Film): string {
+  const parts: string[] = [];
+  if (film.oscarWins > 0)
+    parts.push(`${film.oscarWins} Oscar ${film.oscarWins === 1 ? "win" : "wins"}`);
+  if (film.ggNominations > 0)
+    parts.push(`${film.ggNominations} Golden Globe ${film.ggNominations === 1 ? "nomination" : "nominations"}`);
+  if (film.cannesWins > 0)
+    parts.push(`${film.cannesWins} Cannes ${film.cannesWins === 1 ? "win" : "wins"}`);
+  const awardPart = parts.length > 0 ? ` — ${parts.join(", ")}` : "";
+  return `Roll Battle picked ${film.title}${awardPart} 🎬 via CineRoll`;
+}
+
 function formatAwardSummary(film: Film): string {
   const nominations = film.oscarNominations + film.ggNominations + film.cannesNominations;
   const wins = film.oscarWins + film.ggWins + film.cannesWins;
@@ -176,7 +188,7 @@ export default async function RollBattleResultPage({
           <ShareButton
             url={`${SITE_URL}/film/${film.slug}`}
             title={`Roll Battle picked ${film.title} — CineRoll`}
-            {...(film.plot ? { text: film.plot } : {})}
+            caption={buildRollCaption(film)}
             className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-[#1e1e2a] bg-[#0d0d1a] py-3.5 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.2em] text-[#F5F5F0] transition-colors hover:border-[#2a2a3e]"
           />
           <Link
