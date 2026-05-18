@@ -90,13 +90,13 @@ export function FilmCard({ film, className }: FilmCardProps) {
 
       {/* Info below poster — always visible */}
       <div className="pt-2">
-        <h3 className="line-clamp-1 text-[13px] font-semibold leading-snug text-[#d8d8f0] transition-colors group-hover:text-white">
+        <h3 className="line-clamp-1 text-[13px] font-semibold leading-snug text-[#e8e8f8] transition-colors group-hover:text-white">
           {film.title}
         </h3>
-        <p className="mt-0.5 font-[family-name:var(--font-geist-mono)] text-[10px] text-[#454560]">
+        <p className="mt-0.5 font-[family-name:var(--font-geist-mono)] text-[10px] text-[#8080a0]">
           {film.year}
           {film.genres.length > 0 && (
-            <span> · {film.genres[0]}</span>
+            <span className="text-[#505068]"> · {film.genres[0]}</span>
           )}
         </p>
       </div>

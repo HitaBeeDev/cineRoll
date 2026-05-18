@@ -141,42 +141,68 @@ export function BrowsePageClient() {
       <AppHeader />
 
       {/* ── HERO ────────────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden border-b border-[#141420]">
+      <section className="relative overflow-hidden border-b border-[#1a1a28]">
+        {/* Grain */}
         <div
-          className="pointer-events-none absolute inset-0 opacity-[0.04]"
+          className="pointer-events-none absolute inset-0 opacity-[0.045]"
           style={{ backgroundImage: GRAIN_SVG, backgroundSize: "256px 256px" }}
         />
+        {/* Red ambient from bottom */}
         <div
           className="pointer-events-none absolute inset-0"
-          style={{ background: "radial-gradient(ellipse 100% 200% at 50% 150%, #e8453c08, transparent 60%)" }}
+          style={{ background: "radial-gradient(ellipse 80% 160% at 20% 50%, #e8453c12, transparent 55%)" }}
         />
 
         <div className="relative mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8 xl:px-12">
-          <div className="flex items-center justify-between gap-8 py-8 sm:py-10">
+          <div className="flex items-end justify-between gap-8 py-9">
             <div>
-              <div className="mb-3 flex items-center gap-3">
-                <div className="h-px w-6 bg-[#e8453c]" />
-                <span className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.6em] text-[#383850]">
+              {/* Eyebrow */}
+              <div className="mb-4 flex items-center gap-3">
+                <div className="h-px w-8 bg-[#e8453c]" />
+                <span className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.6em] text-[#e8453c]/60">
                   The Archive
                 </span>
               </div>
+
+              {/* Title — large, display font, gradient */}
               <h1
-                className="font-[family-name:var(--font-display)] font-bold leading-none tracking-tight text-[#F0F0F8]"
-                style={{ fontSize: "clamp(2.25rem, 5vw, 3.75rem)" }}
+                className="font-[family-name:var(--font-display)] font-bold leading-[0.92] tracking-tight"
+                style={{
+                  fontSize: "clamp(2.8rem, 6vw, 5rem)",
+                  background: "linear-gradient(135deg, #ffffff 0%, #a0a0c8 100%)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text",
+                }}
               >
-                Browse Films
+                Browse<br />Films
               </h1>
-              <p className="mt-3 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.45em] text-[#303048]">
+
+              {/* Tagline */}
+              <p className="mt-4 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.5em] text-[#505068]">
                 Oscar · Golden Globe · Cannes · 1929–Today
               </p>
             </div>
 
+            {/* Ghost stat — right side */}
+            <div className="hidden shrink-0 pb-1 text-right lg:block">
+              <div
+                className="font-[family-name:var(--font-display)] font-bold leading-none tabular-nums"
+                style={{ fontSize: "clamp(3rem, 5vw, 4.5rem)", color: "#18182a" }}
+              >
+                8,500+
+              </div>
+              <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.5em] text-[#1e1e30]">
+                Films
+              </p>
+            </div>
           </div>
         </div>
 
+        {/* Accent line */}
         <div
           className="h-px w-full"
-          style={{ background: "linear-gradient(to right, transparent 0%, #e8453c55 35%, #e8453c20 65%, transparent 100%)" }}
+          style={{ background: "linear-gradient(to right, #e8453c88 0%, #e8453c33 40%, transparent 70%)" }}
         />
       </section>
 
