@@ -67,8 +67,15 @@ export default function PicksPage() {
       try {
         const cached = localStorage.getItem(key);
         if (cached) {
-          const parsed = JSON.parse(cached) as DailyPick[];
-          setPicks(parsed);
+          const parsed = JSON.parse(cached) as Array<{ film: RollFilm; slot: { num: string } }>;
+          const picks = parsed
+            .map(({ film, slot }) => {
+              const fullSlot = PICK_SLOTS.find((s) => s.num === slot.num);
+              if (!fullSlot) return null;
+              return { film, slot: fullSlot };
+            })
+            .filter((p): p is DailyPick => p !== null);
+          setPicks(picks);
           setIsLoading(false);
           return;
         }
