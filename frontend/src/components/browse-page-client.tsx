@@ -503,12 +503,6 @@ export function BrowsePageClient() {
                     >
                       IMDb Top 250 TV
                     </FilterChip>
-                    <FilterChip
-                      active={filters.femaleDirectorOnly}
-                      onClick={() => setFilters({ femaleDirectorOnly: !filters.femaleDirectorOnly, page: 1 })}
-                    >
-                      Female Director
-                    </FilterChip>
                   </div>
                 </PanelSection>
 
