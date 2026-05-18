@@ -7,8 +7,6 @@ import {
   ArrowLeft,
   ArrowRight,
   Clapperboard,
-  Grid3X3,
-  Rows3,
   Search,
   SlidersHorizontal,
   X,
@@ -46,7 +44,7 @@ const AWARD_BODIES: { value: AwardBody; label: string }[] = [
 ];
 
 type LoadStatus = "loading" | "success" | "error";
-type ViewMode = "gallery" | "dense";
+type ColumnPreset = 3 | 5 | 9;
 
 const SORT_OPTIONS: { value: FilterState["sort"]; label: string }[] = [
   { value: "newest", label: "Newest" },
@@ -69,7 +67,7 @@ export function BrowsePageClient() {
   const [result,     setResult]     = useState<PaginatedFilms | null>(null);
   const [status,     setStatus]     = useState<LoadStatus>("loading");
   const [showMore, setShowMore] = useState(false);
-  const [viewMode, setViewMode] = useState<ViewMode>("gallery");
+  const [columns, setColumns] = useState<ColumnPreset>(5);
 
   const lastSyncedQuery = useRef<string | null>(null);
 
@@ -119,10 +117,12 @@ export function BrowsePageClient() {
 
   const activeChips = buildActiveChips(filters, setFilters);
   const resultContext = buildResultContext(filters);
-  const gridClassName =
-    viewMode === "dense"
-      ? "grid min-w-0 grid-cols-1 gap-x-3 gap-y-7 [&>*]:min-w-0 sm:grid-cols-4 sm:gap-x-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7"
-      : "grid min-w-0 grid-cols-1 gap-x-4 gap-y-8 [&>*]:min-w-0 sm:grid-cols-3 sm:gap-x-5 sm:gap-y-9 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6";
+  const gridClassName = cn(
+    "grid min-w-0 grid-cols-1 gap-y-8 [&>*]:min-w-0",
+    columns === 3 && "gap-x-5 sm:grid-cols-2 lg:grid-cols-3",
+    columns === 5 && "gap-x-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5",
+    columns === 9 && "gap-x-3 gap-y-7 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-9",
+  );
 
   return (
     <div className="flex min-h-screen flex-col overflow-x-hidden bg-[#08080d] text-[#F5F5F0]">
@@ -466,49 +466,47 @@ export function BrowsePageClient() {
             )}
           </div>
 
-          <div className="flex w-full flex-wrap items-center gap-2 rounded-lg border border-white/10 bg-white/[0.025] p-1.5 lg:w-auto">
-            <span className="hidden px-2 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.18em] text-[#7d788e] sm:inline">
-              View
-            </span>
-            <Select
-              value={filters.sort}
-              onValueChange={(value) =>
-                setFilters({ sort: value as FilterState["sort"], page: 1 })
-              }
-            >
-              <SelectTrigger className="h-9 flex-1 rounded-md border-white/10 bg-[#111018] font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.14em] text-[#d8d4e6] transition-colors hover:border-white/20 focus:ring-[#e8453c]/60 focus:ring-offset-0 sm:w-[142px] sm:flex-none">
-                <SelectValue placeholder="Sort" />
-              </SelectTrigger>
-              <SelectContent className="border-white/10 bg-[#101019]">
-                {SORT_OPTIONS.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <div className="flex h-9 rounded-md border border-white/10 bg-[#111018] p-1">
-              {(
-                [
-                  { value: "gallery", label: "Gallery", icon: Grid3X3 },
-                  { value: "dense", label: "Dense", icon: Rows3 },
-                ] as const
-              ).map(({ value, label, icon: Icon }) => (
+          <div className="flex w-full flex-col gap-2 rounded-xl border border-white/10 bg-white/[0.025] p-2 shadow-[0_18px_50px_rgba(0,0,0,0.22)] lg:w-auto">
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="px-2 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.18em] text-[#7d788e]">
+                Sort
+              </span>
+              {SORT_OPTIONS.map((option) => (
                 <button
-                  key={value}
+                  key={option.value}
                   type="button"
-                  aria-label={`${label} view`}
-                  aria-pressed={viewMode === value}
-                  onClick={() => setViewMode(value)}
+                  aria-pressed={filters.sort === option.value}
+                  onClick={() => setFilters({ sort: option.value, page: 1 })}
                   className={cn(
-                    "inline-flex h-7 w-8 items-center justify-center rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/35",
-                    viewMode === value
-                      ? "bg-white/12 text-white"
-                      : "text-[#8c879d] hover:bg-white/[0.06] hover:text-white",
+                    "h-9 rounded-lg px-3 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.13em] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/35",
+                    filters.sort === option.value
+                      ? "bg-[#e8453c] text-white shadow-[0_10px_24px_rgba(232,69,60,0.22)]"
+                      : "bg-[#111018] text-[#a9a5bc] hover:bg-white/[0.075] hover:text-white",
                   )}
                 >
-                  <Icon className="h-4 w-4" aria-hidden />
+                  {option.label}
+                </button>
+              ))}
+            </div>
+
+            <div className="flex flex-wrap items-center gap-1.5 border-t border-white/10 pt-2">
+              <span className="px-2 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.18em] text-[#7d788e]">
+                Per row
+              </span>
+              {([3, 5, 9] as const).map((count) => (
+                <button
+                  key={count}
+                  type="button"
+                  aria-pressed={columns === count}
+                  onClick={() => setColumns(count)}
+                  className={cn(
+                    "h-8 rounded-lg px-3 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.13em] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/35",
+                    columns === count
+                      ? "bg-white text-[#09090f]"
+                      : "bg-[#111018] text-[#a9a5bc] hover:bg-white/[0.075] hover:text-white",
+                  )}
+                >
+                  {count}
                 </button>
               ))}
             </div>
