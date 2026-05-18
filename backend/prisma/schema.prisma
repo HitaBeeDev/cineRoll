@@ -55,6 +55,21 @@ model Film {
   @@index([title(ops: raw("gin_trgm_ops"))], type: Gin, map: "Film_title_trgm_idx")
 }
 
+model Person {
+  id           String   @id @default(cuid())
+  slug         String   @unique
+  name         String
+  tmdbPersonId Int?     @unique
+  role         String   @default("nominee")
+  photoUrl     String?
+  bio          String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([name], map: "Person_name_idx")
+  @@index([name(ops: raw("gin_trgm_ops"))], type: Gin, map: "Person_name_trgm_idx")
+}
+
 model RollEvent {
   id        String   @id @default(cuid())
   filmId    String
