@@ -23,6 +23,10 @@ const SITE_URL =
   (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://cineroll.app");
 const FALLBACK_ACCENT = "#D4AF37";
 
+function displayTitle(title: string): string {
+  return title.replace(/^(.*),\s+(The|A|An)$/i, "$2 $1");
+}
+
 function extractYouTubeId(url: string): string | null {
   try {
     const u = new URL(url);
@@ -231,7 +235,7 @@ export default async function FilmPage({
             fill
             priority
             sizes="100vw"
-            className="object-cover object-center opacity-45 saturate-[1.15]"
+            className="object-cover object-center opacity-[0.65] saturate-[1.2]"
           />
         )}
 
@@ -240,9 +244,10 @@ export default async function FilmPage({
           className="pointer-events-none absolute inset-0"
           style={{
             background: `
-              linear-gradient(108deg, rgba(7,7,11,0.97) 0%, rgba(7,7,11,0.82) 46%, rgba(7,7,11,0.08) 100%),
-              linear-gradient(to top, rgba(7,7,11,1) 0%, rgba(7,7,11,0.94) 16%, rgba(7,7,11,0.0) 52%),
-              radial-gradient(ellipse 52% 58% at 80% 26%, ${accent}22, transparent 68%)
+              linear-gradient(105deg, rgba(7,7,11,0.93) 0%, rgba(7,7,11,0.75) 40%, rgba(7,7,11,0.05) 100%),
+              linear-gradient(to top, rgba(7,7,11,1) 0%, rgba(7,7,11,0.90) 12%, rgba(7,7,11,0.0) 46%),
+              radial-gradient(ellipse 60% 70% at 76% 20%, ${accent}38, transparent 65%),
+              radial-gradient(ellipse 35% 25% at 15% 95%, ${accent}12, transparent 70%)
             `,
           }}
         />
@@ -266,7 +271,7 @@ export default async function FilmPage({
 
                 {/* Pick of day */}
                 {film.isPickOfDay && (
-                  <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#e8453c]/35 bg-[#e8453c]/12 px-3 py-1.5 backdrop-blur-sm">
+                  <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#e8453c]/40 bg-[#e8453c]/14 px-3.5 py-2 backdrop-blur-sm">
                     <Sparkles className="h-3 w-3 text-[#e8453c]" aria-hidden />
                     <span className="font-[family-name:var(--font-geist-mono)] text-[8px] font-bold uppercase tracking-[0.28em] text-[#e8453c]">
                       Pick of the Day
@@ -274,8 +279,36 @@ export default async function FilmPage({
                   </div>
                 )}
 
+                {/* Accent rule + Director */}
+                <div className="mb-5 flex items-center gap-4">
+                  <div
+                    className="h-px w-12 shrink-0"
+                    style={{ background: `linear-gradient(to right, ${accent}, transparent)` }}
+                  />
+                  {film.director && (
+                    <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.36em] text-white/35">
+                      {film.director}
+                    </p>
+                  )}
+                </div>
+
+                {/* Title */}
+                <h1
+                  className="font-[family-name:var(--font-display)] font-bold leading-[0.87] tracking-tight text-[#F8F8F4]"
+                  style={{ fontSize: "clamp(3rem,7.5vw,7.5rem)", textShadow: "0 2px 40px rgba(0,0,0,0.6)" }}
+                >
+                  {displayTitle(film.title)}
+                </h1>
+
+                {/* Original title */}
+                {film.originalTitle && film.originalTitle !== film.title && (
+                  <p className="mt-4 font-[family-name:var(--font-display)] text-xl italic text-white/30">
+                    {film.originalTitle}
+                  </p>
+                )}
+
                 {/* Metadata pills */}
-                <div className="mb-6 flex flex-wrap items-center gap-2">
+                <div className="mt-6 flex flex-wrap items-center gap-2">
                   <HeroPill>{film.year}</HeroPill>
                   {formattedRuntime && <HeroPill>{formattedRuntime}</HeroPill>}
                   {film.language && <HeroPill>{film.language}</HeroPill>}
@@ -283,8 +316,8 @@ export default async function FilmPage({
                     <HeroPill
                       style={{
                         color: accent,
-                        borderColor: `${accent}44`,
-                        backgroundColor: `${accent}0e`,
+                        borderColor: `${accent}55`,
+                        backgroundColor: `${accent}12`,
                       }}
                     >
                       {film.certificate}
@@ -295,33 +328,13 @@ export default async function FilmPage({
                   ))}
                 </div>
 
-                {/* Title */}
-                <h1 className="font-[family-name:var(--font-display)] font-bold leading-[0.87] tracking-tight text-[#F5F5F0]" style={{ fontSize: "clamp(3rem,7.5vw,7.5rem)" }}>
-                  {film.title}
-                </h1>
-
-                {/* Original title */}
-                {film.originalTitle && film.originalTitle !== film.title && (
-                  <p className="mt-4 font-[family-name:var(--font-display)] text-xl italic text-white/32">
-                    {film.originalTitle}
-                  </p>
-                )}
-
-                {/* Director */}
-                {film.director && (
-                  <p className="mt-6 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.32em] text-white/30">
-                    A film by{" "}
-                    <span className="text-white/55">{film.director}</span>
-                  </p>
-                )}
-
                 {/* Award tags */}
                 {heroAwardTags.length > 0 && (
-                  <div className="mt-5 flex flex-wrap gap-1.5">
+                  <div className="mt-4 flex flex-wrap gap-1.5">
                     {heroAwardTags.slice(0, 4).map((tag) => (
                       <span
                         key={tag}
-                        className="border border-white/8 bg-black/25 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-widest text-white/28 backdrop-blur-sm"
+                        className="border border-white/14 bg-black/35 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-widest text-white/42 backdrop-blur-sm"
                       >
                         {tag}
                       </span>
@@ -333,34 +346,34 @@ export default async function FilmPage({
                 {(film.imdbRating != null ||
                   film.rtScore != null ||
                   totalAwardWins > 0) && (
-                  <div className="mt-7 flex items-end gap-7">
+                  <div className="mt-8 flex items-end gap-8">
                     {film.imdbRating != null && (
                       <div>
-                        <p className="mb-1.5 font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-[0.5em] text-white/22">
+                        <p className="mb-1.5 font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-[0.5em] text-white/32">
                           IMDb
                         </p>
-                        <p className="font-[family-name:var(--font-display)] text-[2.25rem] font-bold leading-none text-[#F5F5F0]">
+                        <p className="font-[family-name:var(--font-display)] text-[2.5rem] font-bold leading-none text-[#F8F8F4]">
                           {film.imdbRating.toFixed(1)}
                         </p>
                       </div>
                     )}
                     {film.rtScore != null && (
                       <div>
-                        <p className="mb-1.5 font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-[0.5em] text-white/22">
+                        <p className="mb-1.5 font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-[0.5em] text-white/32">
                           RT
                         </p>
-                        <p className="font-[family-name:var(--font-display)] text-[2.25rem] font-bold leading-none text-[#F5F5F0]">
+                        <p className="font-[family-name:var(--font-display)] text-[2.5rem] font-bold leading-none text-[#F8F8F4]">
                           {film.rtScore}%
                         </p>
                       </div>
                     )}
                     {totalAwardWins > 0 && (
                       <div>
-                        <p className="mb-1.5 font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-[0.5em] text-white/22">
+                        <p className="mb-1.5 font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-[0.5em] text-white/32">
                           Wins
                         </p>
                         <p
-                          className="font-[family-name:var(--font-display)] text-[2.25rem] font-bold leading-none"
+                          className="font-[family-name:var(--font-display)] text-[2.5rem] font-bold leading-none"
                           style={{ color: accent }}
                         >
                           {totalAwardWins}
@@ -375,7 +388,7 @@ export default async function FilmPage({
                   {film.trailerUrl && (
                     <a
                       href="#trailer"
-                      className="flex items-center gap-2.5 bg-[#e8453c] px-6 py-3 font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.22em] text-white transition-colors hover:bg-[#d5342b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
+                      className="flex items-center gap-2.5 bg-[#e8453c] px-7 py-3.5 font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.22em] text-white shadow-lg shadow-[#e8453c]/20 transition-all hover:bg-[#d5342b] hover:shadow-[#e8453c]/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
                     >
                       <Play className="h-3.5 w-3.5 fill-current" aria-hidden />
                       Watch Trailer
@@ -383,7 +396,7 @@ export default async function FilmPage({
                   )}
                   <button
                     type="button"
-                    className="flex h-11 items-center gap-2 border border-white/10 bg-black/30 px-4 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.2em] text-white/40 backdrop-blur-sm transition-colors hover:bg-black/50 hover:text-white/65 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
+                    className="flex h-12 items-center gap-2 border border-white/14 bg-white/6 px-5 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.2em] text-white/50 backdrop-blur-sm transition-colors hover:bg-white/10 hover:text-white/75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
                   >
                     <Bookmark className="h-3.5 w-3.5" aria-hidden />
                     Watchlist
@@ -392,7 +405,7 @@ export default async function FilmPage({
                     url={`${SITE_URL}/film/${film.slug}`}
                     title={`Watch ${film.title} tonight — CineRoll picked it`}
                     {...(film.plot ? { text: film.plot } : {})}
-                    className="flex h-11 items-center gap-2 border border-white/10 bg-black/30 px-4 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.2em] text-white/40 backdrop-blur-sm transition-colors hover:bg-black/50 hover:text-white/65 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
+                    className="flex h-12 items-center gap-2 border border-white/14 bg-white/6 px-5 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.2em] text-white/50 backdrop-blur-sm transition-colors hover:bg-white/10 hover:text-white/75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
                   />
                 </div>
               </div>
@@ -401,19 +414,21 @@ export default async function FilmPage({
               {film.posterUrl && (
                 <div className="hidden shrink-0 lg:block">
                   <div
-                    className="relative h-[400px] w-[267px] rotate-[1.5deg] overflow-hidden"
+                    className="relative h-[460px] w-[307px] rotate-[1.2deg] overflow-hidden"
                     style={{
-                      boxShadow: `0 32px 80px rgba(0,0,0,0.82), 0 0 0 1px rgba(255,255,255,0.07), 0 12px 40px ${accent}2a`,
+                      boxShadow: `0 48px 100px rgba(0,0,0,0.92), 0 0 0 1px rgba(255,255,255,0.10), 0 20px 60px ${accent}40`,
                     }}
                   >
                     <Image
                       src={film.posterUrl}
                       alt={`${film.title} poster`}
                       fill
-                      sizes="267px"
+                      sizes="307px"
                       className="object-cover"
                       priority
                     />
+                    {/* Poster edge shimmer */}
+                    <div className="absolute inset-0 ring-1 ring-inset ring-white/10" />
                   </div>
                 </div>
               )}
@@ -451,7 +466,7 @@ export default async function FilmPage({
                     background: `linear-gradient(to bottom, ${accent}aa, ${accent}18, transparent)`,
                   }}
                 />
-                <p className="text-[0.97rem] leading-[1.9] tracking-wide text-[#7a7a92]">
+                <p className="text-[0.97rem] leading-[1.95] tracking-wide text-[#8e8eaa]">
                   {film.plot}
                 </p>
               </div>
@@ -630,7 +645,7 @@ function HeroPill({
 }) {
   return (
     <span
-      className="rounded-full border border-white/10 bg-black/28 px-3 py-1.5 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-white/42 backdrop-blur-sm"
+      className="rounded-full border border-white/14 bg-black/35 px-3 py-1.5 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-white/52 backdrop-blur-sm"
       style={style}
     >
       {children}
@@ -643,13 +658,13 @@ function HeroPill({
 function SectionLabel({ children }: { children: ReactNode }) {
   return (
     <div className="flex items-center gap-4">
-      <span className="font-[family-name:var(--font-geist-mono)] text-[8px] text-[#e8453c]/50">
+      <span className="font-[family-name:var(--font-geist-mono)] text-[9px] text-[#e8453c]/70">
         ◆
       </span>
-      <h2 className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[9px] font-semibold uppercase tracking-[0.58em] text-[#525262]">
+      <h2 className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[9px] font-semibold uppercase tracking-[0.58em] text-[#6a6a82]">
         {children}
       </h2>
-      <div className="h-px flex-1 bg-gradient-to-r from-[#1a1a28] to-transparent" />
+      <div className="h-px flex-1 bg-gradient-to-r from-[#22223a] to-transparent" />
     </div>
   );
 }
@@ -720,14 +735,16 @@ function AwardSummaryCard({
             <div
               key={`${record.awardYear}-${record.category}-${record.nominee}`}
               className={cn(
-                "grid grid-cols-[auto_1fr_auto] items-center gap-4 px-5 py-3.5",
-                record.won ? "bg-[#0c0b0a]" : "bg-[#080810]",
+                "grid grid-cols-[auto_1fr_auto] items-center gap-4 border-l-2 px-5 py-3.5",
+                record.won
+                  ? "border-l-[#D4AF37]/50 bg-[#0e0d09]"
+                  : "border-l-transparent bg-[#080810]",
               )}
             >
               <span
                 className={cn(
                   "shrink-0 font-[family-name:var(--font-geist-mono)] text-[7px] font-bold uppercase tracking-[0.4em]",
-                  record.won ? "text-[#b8923c]" : "text-[#2a2a3a]",
+                  record.won ? "text-[#c8a048]" : "text-[#2a2a3a]",
                 )}
               >
                 {record.won ? "◆ Won" : "Nom"}
@@ -736,16 +753,16 @@ function AwardSummaryCard({
                 <p
                   className={cn(
                     "text-[0.8rem] font-medium leading-5",
-                    record.won ? "text-[#d8cfa8]" : "text-[#686878]",
+                    record.won ? "text-[#e2d8b2]" : "text-[#686878]",
                   )}
                 >
                   {record.category}
                 </p>
-                <p className="mt-0.5 truncate font-[family-name:var(--font-geist-mono)] text-[0.62rem] uppercase tracking-[0.14em] text-[#363646]">
+                <p className="mt-0.5 truncate font-[family-name:var(--font-geist-mono)] text-[0.62rem] uppercase tracking-[0.14em] text-[#3e3e50]">
                   {record.nominee}
                 </p>
               </div>
-              <span className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-[0.3em] text-[#222230]">
+              <span className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-[0.3em] text-[#2a2a38]">
                 {record.awardYear}
               </span>
             </div>
@@ -800,10 +817,17 @@ function CastCard({ member, accent }: { member: CastMember; accent: string }) {
           />
         ) : (
           <div
-            className="flex h-full w-full items-center justify-center text-3xl font-bold text-white/20"
-            style={{ background: `hsl(${hue},18%,12%)` }}
+            className="flex h-full w-full flex-col items-center justify-center gap-4"
+            style={{
+              background: `linear-gradient(160deg, hsl(${hue},10%,10%) 0%, hsl(${hue},6%,7%) 100%)`,
+            }}
           >
-            {initials}
+            <div
+              className="flex h-16 w-16 items-center justify-center rounded-full border border-white/8 font-[family-name:var(--font-display)] text-2xl font-bold text-white/22"
+              style={{ background: `hsl(${hue},14%,14%)` }}
+            >
+              {initials}
+            </div>
           </div>
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-[#08080d] via-[#08080d]/30 to-transparent" />
