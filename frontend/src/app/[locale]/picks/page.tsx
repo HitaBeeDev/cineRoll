@@ -84,8 +84,14 @@ export default function PicksPage() {
     setIsRefreshing(true);
     const results = await Promise.allSettled(
       PICK_SLOTS.map(async (slot) => {
-        const r = await fetchRandom(slot.filters);
-        return { film: r.film, slot };
+        try {
+          const r = await fetchRandom(slot.filters);
+          return { film: r.film, slot };
+        } catch {
+          const { winnerOnly: _w, nominatedOnly: _n, ...fallback } = slot.filters;
+          const r = await fetchRandom(fallback);
+          return { film: r.film, slot };
+        }
       }),
     );
     const newPicks: DailyPick[] = results
