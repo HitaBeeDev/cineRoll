@@ -444,12 +444,17 @@ export default async function FilmPage({
       </section>
 
       {/* ── MAIN CONTENT ────────────────────────────────────────────── */}
-      <div className="relative overflow-hidden">
+      <div className="relative overflow-hidden bg-[#0a0a10]">
+        {/* Thin accent separator */}
+        <div
+          className="h-px w-full"
+          style={{ background: `linear-gradient(to right, transparent, ${accent}50, transparent)` }}
+        />
         {/* Ambient glow at top of content */}
         <div
-          className="pointer-events-none absolute -top-32 left-1/2 h-64 w-[80vw] max-w-4xl -translate-x-1/2 blur-3xl"
+          className="pointer-events-none absolute -top-32 left-1/2 h-80 w-[90vw] max-w-5xl -translate-x-1/2 blur-3xl"
           style={{
-            background: `radial-gradient(ellipse, ${accent}14, transparent 70%)`,
+            background: `radial-gradient(ellipse, ${accent}18, transparent 68%)`,
           }}
         />
 
@@ -466,7 +471,7 @@ export default async function FilmPage({
                     background: `linear-gradient(to bottom, ${accent}aa, ${accent}18, transparent)`,
                   }}
                 />
-                <p className="text-[0.97rem] leading-[1.95] tracking-wide text-[#8e8eaa]">
+                <p className="text-[1rem] leading-[1.95] tracking-wide text-[#c0c0d8]">
                   {film.plot}
                 </p>
               </div>
@@ -479,23 +484,23 @@ export default async function FilmPage({
               <SectionLabel>Awards &amp; Recognition</SectionLabel>
 
               {/* Counter */}
-              <div className="mt-10 flex items-baseline gap-10 border-b border-[#111118] pb-10">
+              <div className="mt-10 flex items-baseline gap-12 border-b border-[#1e1e2e] pb-10">
                 <div>
                   <span
                     className="font-[family-name:var(--font-display)] text-[5.5rem] font-bold leading-none tabular-nums"
-                    style={{ color: totalAwardWins > 0 ? accent : "#1e1e2a" }}
+                    style={{ color: totalAwardWins > 0 ? accent : "#3a3a58" }}
                   >
                     {totalAwardWins}
                   </span>
-                  <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.5em] text-[#404052]">
+                  <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.5em] text-[#707090]">
                     Wins
                   </p>
                 </div>
                 <div>
-                  <span className="font-[family-name:var(--font-display)] text-[3.5rem] font-bold leading-none tabular-nums text-[#1e1e2a]">
+                  <span className="font-[family-name:var(--font-display)] text-[3.5rem] font-bold leading-none tabular-nums text-[#5a5a7a]">
                     {totalAwardNoms}
                   </span>
-                  <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.5em] text-[#303040]">
+                  <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.5em] text-[#606080]">
                     Nominations
                   </p>
                 </div>
@@ -581,7 +586,7 @@ export default async function FilmPage({
               <section id="trailer" className="scroll-mt-24">
                 <SectionLabel>Trailer</SectionLabel>
                 <div className="mt-8 flex aspect-video w-full items-center justify-center border border-[#111118] bg-[#07070c]">
-                  <p className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.5em] text-[#252530]">
+                  <p className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.5em] text-[#555570]">
                     No trailer available
                   </p>
                 </div>
@@ -596,7 +601,7 @@ export default async function FilmPage({
                     {film.genres.map((g) => (
                       <span
                         key={g}
-                        className="border border-[#181824] px-3.5 py-2 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.35em] text-[#484858] transition-colors hover:border-[#e8453c]/25 hover:text-[#b8b8cc]"
+                        className="border border-[#25253a] px-3.5 py-2 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.35em] text-[#8888a8] transition-colors hover:border-[#e8453c]/40 hover:text-[#d0d0e8]"
                       >
                         {g}
                       </span>
@@ -613,13 +618,13 @@ export default async function FilmPage({
                       href={`https://www.imdb.com/title/${film.imdbId}/`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="group flex items-center justify-between border border-[#161622] bg-[#08080e] px-5 py-4 transition-colors hover:border-[#e8453c]/30"
+                      className="group flex items-center justify-between border border-[#25253a] bg-[#0d0d18] px-5 py-4 transition-colors hover:border-[#e8453c]/40"
                     >
-                      <span className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.4em] text-[#888898] transition-colors group-hover:text-[#f4f4f5]">
+                      <span className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.4em] text-[#9898b8] transition-colors group-hover:text-[#f4f4f5]">
                         IMDb
                       </span>
                       <ExternalLink
-                        className="h-3.5 w-3.5 text-[#333342] transition-colors group-hover:text-[#e8453c]"
+                        className="h-3.5 w-3.5 text-[#555570] transition-colors group-hover:text-[#e8453c]"
                         aria-hidden
                       />
                     </a>
@@ -658,13 +663,13 @@ function HeroPill({
 function SectionLabel({ children }: { children: ReactNode }) {
   return (
     <div className="flex items-center gap-4">
-      <span className="font-[family-name:var(--font-geist-mono)] text-[9px] text-[#e8453c]/70">
+      <span className="font-[family-name:var(--font-geist-mono)] text-[9px] text-[#e8453c]">
         ◆
       </span>
-      <h2 className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[9px] font-semibold uppercase tracking-[0.58em] text-[#6a6a82]">
+      <h2 className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[10px] font-semibold uppercase tracking-[0.5em] text-[#a0a0c0]">
         {children}
       </h2>
-      <div className="h-px flex-1 bg-gradient-to-r from-[#22223a] to-transparent" />
+      <div className="h-px flex-1 bg-gradient-to-r from-[#2a2a42] to-transparent" />
     </div>
   );
 }
@@ -696,13 +701,13 @@ function AwardSummaryCard({
     icon === "oscar" ? "AMPAS" : icon === "globe" ? "HFPA" : "Cannes";
 
   return (
-    <article className="overflow-hidden border border-[#111118]">
-      <div className="flex items-center justify-between border-b border-[#111118] bg-[#090910] px-5 py-4">
+    <article className="overflow-hidden border border-[#1e1e30]">
+      <div className="flex items-center justify-between border-b border-[#1a1a28] bg-[#0d0d18] px-5 py-4">
         <div>
-          <p className="font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-[0.55em] text-[#363648]">
+          <p className="font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-[0.55em] text-[#6868888]">
             {ceremonyCode}
           </p>
-          <h3 className="mt-1.5 font-[family-name:var(--font-display)] text-lg font-bold leading-tight text-[#c8c8da]">
+          <h3 className="mt-1.5 font-[family-name:var(--font-display)] text-lg font-bold leading-tight text-[#e0e0f0]">
             {title}
           </h3>
         </div>
@@ -710,19 +715,19 @@ function AwardSummaryCard({
           <div className="text-right">
             <span
               className="block font-[family-name:var(--font-display)] text-2xl font-bold leading-none tabular-nums"
-              style={{ color: wins > 0 ? accent : "#232330" }}
+              style={{ color: wins > 0 ? accent : "#4a4a68" }}
             >
               {wins}
             </span>
-            <span className="font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-[0.4em] text-[#363648]">
+            <span className="font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-[0.4em] text-[#686888]">
               Wins
             </span>
           </div>
           <div className="text-right">
-            <span className="block font-[family-name:var(--font-display)] text-xl font-bold leading-none tabular-nums text-[#232330]">
+            <span className="block font-[family-name:var(--font-display)] text-xl font-bold leading-none tabular-nums text-[#6868888]">
               {nominations}
             </span>
-            <span className="font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-[0.4em] text-[#363648]">
+            <span className="font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-[0.4em] text-[#686888]">
               Noms
             </span>
           </div>
@@ -753,16 +758,16 @@ function AwardSummaryCard({
                 <p
                   className={cn(
                     "text-[0.8rem] font-medium leading-5",
-                    record.won ? "text-[#e2d8b2]" : "text-[#686878]",
+                    record.won ? "text-[#e8ddb8]" : "text-[#9090a8]",
                   )}
                 >
                   {record.category}
                 </p>
-                <p className="mt-0.5 truncate font-[family-name:var(--font-geist-mono)] text-[0.62rem] uppercase tracking-[0.14em] text-[#3e3e50]">
+                <p className="mt-0.5 truncate font-[family-name:var(--font-geist-mono)] text-[0.62rem] uppercase tracking-[0.14em] text-[#666680]">
                   {record.nominee}
                 </p>
               </div>
-              <span className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-[0.3em] text-[#2a2a38]">
+              <span className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-[0.3em] text-[#525268]">
                 {record.awardYear}
               </span>
             </div>
@@ -802,7 +807,7 @@ function CastCard({ member, accent }: { member: CastMember; accent: string }) {
   const initials = nameInitials(member.name);
   const hue = nameHue(member.name);
   return (
-    <div className="group relative flex flex-col overflow-hidden border border-[#111118] bg-[#08080d] transition-colors hover:border-[#1e1e2c]">
+    <div className="group relative flex flex-col overflow-hidden border border-[#1e1e30] bg-[#0d0d18] transition-colors hover:border-[#2e2e48]">
       <div
         className="relative w-full overflow-hidden"
         style={{ aspectRatio: "2/3" }}
@@ -833,13 +838,13 @@ function CastCard({ member, accent }: { member: CastMember; accent: string }) {
         <div className="absolute inset-0 bg-gradient-to-t from-[#08080d] via-[#08080d]/30 to-transparent" />
       </div>
       <div className="px-3 pb-4 pt-2.5">
-        <p className="truncate text-[0.75rem] font-semibold leading-5 text-[#b8b8c8]">
+        <p className="truncate text-[0.8rem] font-semibold leading-5 text-[#d4d4e8]">
           {member.name}
         </p>
         {member.character && (
           <p
             className="mt-0.5 truncate font-[family-name:var(--font-geist-mono)] text-[0.6rem] uppercase tracking-[0.2em]"
-            style={{ color: `${accent}88` }}
+            style={{ color: `${accent}cc` }}
           >
             {member.character}
           </p>
