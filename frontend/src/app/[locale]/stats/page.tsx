@@ -57,11 +57,11 @@ function initials(name: string) {
 function SectionLabel({ index, label }: { index: string; label: string }) {
   return (
     <div className="mb-8 flex items-center gap-4">
-      <span className="font-[family-name:var(--font-geist-mono)] text-[8px] font-bold uppercase tracking-[0.35em] text-[#e8453c]/50">
+      <span className="font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.3em] text-[#e8453c]">
         ◈ {index}
       </span>
-      <div className="h-px flex-1 bg-white/[0.05]" />
-      <span className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.35em] text-[#666680]">
+      <div className="h-px flex-1 bg-white/[0.07]" />
+      <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.3em] text-[#aaaabc]">
         {label}
       </span>
     </div>
