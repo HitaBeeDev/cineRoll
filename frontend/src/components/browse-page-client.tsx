@@ -387,6 +387,24 @@ export function BrowsePageClient() {
                   </div>
                 </PanelSection>
 
+                {/* Lists */}
+                <PanelSection label="Curated Lists">
+                  <div className="flex flex-wrap gap-1">
+                    <FilterChip
+                      active={filters.imdbTopMoviesOnly}
+                      onClick={() => setFilters({ imdbTopMoviesOnly: !filters.imdbTopMoviesOnly, imdbTopTvOnly: false, page: 1 })}
+                    >
+                      IMDb Top 250 Films
+                    </FilterChip>
+                    <FilterChip
+                      active={filters.imdbTopTvOnly}
+                      onClick={() => setFilters({ imdbTopTvOnly: !filters.imdbTopTvOnly, imdbTopMoviesOnly: false, page: 1 })}
+                    >
+                      IMDb Top 250 TV
+                    </FilterChip>
+                  </div>
+                </PanelSection>
+
                 {/* Category */}
                 <PanelSection label="Award Category">
                   <Select
@@ -419,24 +437,6 @@ export function BrowsePageClient() {
                       {awardYears.map((y) => <SelectItem key={y} value={String(y)}>{y}</SelectItem>)}
                     </SelectContent>
                   </Select>
-                </PanelSection>
-
-                {/* Lists */}
-                <PanelSection label="Curated Lists">
-                  <div className="flex flex-wrap gap-1">
-                    <FilterChip
-                      active={filters.imdbTopMoviesOnly}
-                      onClick={() => setFilters({ imdbTopMoviesOnly: !filters.imdbTopMoviesOnly, imdbTopTvOnly: false, page: 1 })}
-                    >
-                      IMDb Top 250 Films
-                    </FilterChip>
-                    <FilterChip
-                      active={filters.imdbTopTvOnly}
-                      onClick={() => setFilters({ imdbTopTvOnly: !filters.imdbTopTvOnly, imdbTopMoviesOnly: false, page: 1 })}
-                    >
-                      IMDb Top 250 TV
-                    </FilterChip>
-                  </div>
                 </PanelSection>
               </div>
             </div>
