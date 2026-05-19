@@ -880,7 +880,7 @@ The same award-first filter panel used on the home page is also the core of the 
 
 ### Search & Filter Behavior
 
-- [ ] All filters are combinable: "Cate Blanchett" + "Oscar" + "Won" + "2000s" is a valid compound query
+- [x] All filters are combinable: "Cate Blanchett" + "Oscar" + "Won" + "2000s" is a valid compound query
 - [ ] Sync all filter state to URL query parameters so filtered views are shareable and bookmarkable
 - [ ] Make text inputs debounced (300ms) — don't fire API on every keystroke
 - [ ] **Autocomplete on person / film search** — as the user types (min 2 chars), fetch matching suggestions from a new backend endpoint and display a dropdown:
