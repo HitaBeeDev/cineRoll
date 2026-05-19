@@ -130,6 +130,10 @@ export function FilterBar({
       aria-label="Filter films"
       className={cn("flex flex-col gap-3", className)}
     >
+      <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.3em] text-[#686880]">
+        Build Your Roll
+      </p>
+
       {/* BODY */}
       <FilterRow label="Body">
         {AWARD_BODIES.map(({ value, label }) => (
