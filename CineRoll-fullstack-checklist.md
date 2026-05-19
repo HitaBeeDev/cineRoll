@@ -903,7 +903,7 @@ The same award-first filter panel used on the home page is also the core of the 
 
 - [x] "Roll from these results" button visible when filters are active — picks one random film from the filtered set and navigates to its detail page or shows it inline
 - [x] Button is disabled and shows "No matches" when filter set is empty
-- [ ] Button label shows count: "Roll from 47 films"
+- [x] Button label shows count: "Roll from 47 films"
 
 ### API Integration
 
