@@ -18,6 +18,7 @@ const gameModeItems = [
   { href: "/snob-test", label: "Test Yourself" },
   { href: "/roll-battle", label: "Roll Battle" },
   { href: "/blind-roll", label: "Blind Roll" },
+  { href: "/marathon", label: "Marathon" },
 ];
 
 type SiteNavigationProps = {
