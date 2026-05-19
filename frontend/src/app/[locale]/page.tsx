@@ -438,9 +438,7 @@ export default function HomePage() {
               <span className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#555568]">
                 Reel Pool
               </span>
-              <span className="font-[family-name:var(--font-geist-mono)] text-[2rem] font-bold leading-none text-[#e8453c]">
-                {poolCountStr}
-              </span>
+              <AnimatedPoolCount value={poolCountStr} />
               <span className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#555568]">
                 Films
               </span>
@@ -1383,5 +1381,49 @@ function FilmCardSkeleton() {
         <Skeleton className="h-11 rounded-xl bg-[#111120]" />
       </div>
     </div>
+  );
+}
+
+function AnimatedPoolCount({ value }: { value: string }) {
+  const prefersReduced = useReducedMotion();
+
+  if (prefersReduced) {
+    return (
+      <span className="font-[family-name:var(--font-geist-mono)] text-[2rem] font-bold leading-none text-[#e8453c]">
+        {value}
+      </span>
+    );
+  }
+
+  return (
+    <span
+      aria-live="polite"
+      aria-atomic="true"
+      className="inline-flex font-[family-name:var(--font-geist-mono)] text-[2rem] font-bold leading-none text-[#e8453c]"
+    >
+      <span className="sr-only">{value}</span>
+      {[...value].map((char, idx) => (
+        <span
+          key={idx}
+          aria-hidden
+          className="relative inline-block overflow-hidden leading-none"
+        >
+          {/* invisible sizer holds slot width/height while digit animates */}
+          <span className="invisible select-none">{char}</span>
+          <AnimatePresence mode="sync" initial={false}>
+            <motion.span
+              key={char}
+              initial={{ y: "-110%" }}
+              animate={{ y: "0%" }}
+              exit={{ y: "110%" }}
+              transition={{ duration: 0.28, ease: [0.33, 1, 0.68, 1] }}
+              className="absolute inset-0 flex items-center justify-center"
+            >
+              {char}
+            </motion.span>
+          </AnimatePresence>
+        </span>
+      ))}
+    </span>
   );
 }
