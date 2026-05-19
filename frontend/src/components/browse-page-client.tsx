@@ -8,6 +8,7 @@ import {
   ArrowRight,
   Clapperboard,
   Search,
+  Shuffle,
   SlidersHorizontal,
   X,
 } from "lucide-react";
@@ -21,6 +22,7 @@ import {
   fetchCategories,
   fetchFilms,
   fetchGenres,
+  fetchRandom,
   filtersToParams,
   type AutocompleteResult,
 } from "@/lib/api";
@@ -69,6 +71,8 @@ export function BrowsePageClient() {
   const [result,     setResult]     = useState<PaginatedFilms | null>(null);
   const [status,     setStatus]     = useState<LoadStatus>("loading");
   const [showMore, setShowMore] = useState(false);
+
+  const [rolling, setRolling] = useState(false);
 
   const [acResults, setAcResults] = useState<AutocompleteResult | null>(null);
   const [acOpen, setAcOpen] = useState(false);
@@ -151,6 +155,17 @@ export function BrowsePageClient() {
     setAcOpen(false);
     setAcIdx(-1);
   }, [acResults, setFilters]);
+
+  async function handleRollFromResults() {
+    if (rolling) return;
+    setRolling(true);
+    try {
+      const { film } = await fetchRandom(filters);
+      router.push(`/film/${film.slug}`);
+    } finally {
+      setRolling(false);
+    }
+  }
 
   function handleSearchKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     if (!acOpen || !acResults) return;
@@ -633,6 +648,18 @@ export function BrowsePageClient() {
               </p>
             )}
           </div>
+
+          {hasActiveFilters && (
+            <button
+              type="button"
+              disabled={rolling || status === "loading" || total === 0}
+              onClick={() => { void handleRollFromResults(); }}
+              className="flex shrink-0 items-center gap-2 rounded-lg border border-[#e8453c]/40 bg-[#e8453c]/10 px-4 py-2.5 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.16em] text-[#ff766d] transition-all hover:border-[#e8453c]/70 hover:bg-[#e8453c]/20 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              <Shuffle className={cn("h-3.5 w-3.5", rolling && "animate-spin")} aria-hidden />
+              {rolling ? "Rolling…" : "Roll from these results"}
+            </button>
+          )}
 
           <div className="flex w-full flex-wrap items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.025] p-2 shadow-[0_18px_50px_rgba(0,0,0,0.22)] lg:w-auto">
             <span className="px-2 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.18em] text-[#7d788e]">

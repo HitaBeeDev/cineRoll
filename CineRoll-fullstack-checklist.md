@@ -893,15 +893,15 @@ The same award-first filter panel used on the home page is also the core of the 
 
 ### Results Grid
 
-- [ ] Display results in responsive grid: 2 columns mobile, 3 tablet, 4–6 desktop
-- [ ] Each film card shows: poster, title, release year, award summary (e.g. "3 Oscar wins · 1 Golden Globe nomination")
-- [ ] Add loading skeletons while fetching
-- [ ] Implement pagination: 12 films per page; Previous / Next buttons with page number
-- [ ] Make each film card clickable → navigate to /film/:slug detail page
+- [x] Display results in responsive grid: 2 columns mobile, 3 tablet, 4–6 desktop
+- [x] Each film card shows: poster, title, release year, award summary (e.g. "3 Oscar wins · 1 Golden Globe nomination")
+- [x] Add loading skeletons while fetching
+- [x] Implement pagination: 12 films per page; Previous / Next buttons with page number
+- [x] Make each film card clickable → navigate to /film/:slug detail page
 
 ### Filtered Roll from Browse
 
-- [ ] "Roll from these results" button visible when filters are active — picks one random film from the filtered set and navigates to its detail page or shows it inline
+- [x] "Roll from these results" button visible when filters are active — picks one random film from the filtered set and navigates to its detail page or shows it inline
 - [ ] Button is disabled and shows "No matches" when filter set is empty
 - [ ] Button label shows count: "Roll from 47 films"
 
