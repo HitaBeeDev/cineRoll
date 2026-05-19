@@ -17,10 +17,12 @@ import { AppHeader } from "@/components/app-header";
 import { DEFAULT_FILTERS, useFilters } from "@/hooks/useFilters";
 import {
   fetchAwardYears,
+  fetchAutocomplete,
   fetchCategories,
   fetchFilms,
   fetchGenres,
   filtersToParams,
+  type AutocompleteResult,
 } from "@/lib/api";
 import {
   Select,
@@ -68,6 +70,11 @@ export function BrowsePageClient() {
   const [status,     setStatus]     = useState<LoadStatus>("loading");
   const [showMore, setShowMore] = useState(false);
 
+  const [acResults, setAcResults] = useState<AutocompleteResult | null>(null);
+  const [acOpen, setAcOpen] = useState(false);
+  const [acIdx, setAcIdx] = useState(-1);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
+
   const lastSyncedQuery = useRef<string | null>(null);
 
   useEffect(() => {
@@ -103,10 +110,65 @@ export function BrowsePageClient() {
     return () => { cancelled = true; window.clearTimeout(timer); };
   }, [filters]);
 
+  useEffect(() => {
+    const q = filters.search.trim();
+    if (q.length < 2) { setAcResults(null); setAcOpen(false); return; }
+    const timer = window.setTimeout(() => {
+      void fetchAutocomplete(q).then((data) => {
+        setAcResults(data);
+        setAcOpen(data.films.length + data.people.length > 0);
+        setAcIdx(-1);
+      });
+    }, 200);
+    return () => window.clearTimeout(timer);
+  }, [filters.search]);
+
+  useEffect(() => {
+    if (!acOpen) return;
+    function handleClick(e: MouseEvent) {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target as Node)) {
+        setAcOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [acOpen]);
+
   const setFilters = useCallback(
     (updates: Partial<FilterState>) => setFilter(updates),
     [setFilter],
   );
+
+  const selectAcItem = useCallback((idx: number) => {
+    if (!acResults) return;
+    if (idx < acResults.films.length) {
+      const film = acResults.films[idx];
+      if (film) setFilters({ search: film.title, person: "", page: 1 });
+    } else {
+      const person = acResults.people[idx - acResults.films.length];
+      if (person) setFilters({ person: person.name, search: "", page: 1 });
+    }
+    setAcOpen(false);
+    setAcIdx(-1);
+  }, [acResults, setFilters]);
+
+  function handleSearchKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (!acOpen || !acResults) return;
+    const total = acResults.films.length + acResults.people.length;
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setAcIdx((prev) => (prev + 1) % total);
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setAcIdx((prev) => (prev <= 0 ? total - 1 : prev - 1));
+    } else if (e.key === "Enter" && acIdx >= 0) {
+      e.preventDefault();
+      selectAcItem(acIdx);
+    } else if (e.key === "Escape") {
+      setAcOpen(false);
+      setAcIdx(-1);
+    }
+  }
 
   const total       = result?.total    ?? 0;
   const page        = result?.page     ?? filters.page;
@@ -183,15 +245,91 @@ export function BrowsePageClient() {
           <div className="flex flex-wrap items-center gap-2 py-2.5">
 
             {/* Search */}
-            <div className="relative w-full min-w-0 sm:max-w-[340px] sm:flex-1 lg:flex-none">
+            <div ref={searchContainerRef} className="relative w-full min-w-0 sm:max-w-[340px] sm:flex-1 lg:flex-none">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#6f6b80]" />
               <input
                 type="text"
-                placeholder="Title, director…"
+                placeholder="Title, director, person…"
                 value={filters.search}
                 onChange={(e) => setFilters({ search: e.target.value, page: 1 })}
+                onKeyDown={handleSearchKeyDown}
+                onFocus={() => { if (acResults && acResults.films.length + acResults.people.length > 0) setAcOpen(true); }}
+                aria-autocomplete="list"
+                aria-expanded={acOpen}
                 className="h-10 w-full rounded-md border border-white/10 bg-white/[0.045] pl-9 pr-3 font-[family-name:var(--font-geist-mono)] text-[12px] text-[#f1eff8] outline-none transition-colors placeholder:text-[#6f6a80] hover:border-white/18 focus:border-[#e8453c]/70 focus:ring-2 focus:ring-[#e8453c]/15"
               />
+              {acOpen && acResults && (acResults.films.length + acResults.people.length) > 0 && (
+                <div
+                  role="listbox"
+                  className="absolute left-0 top-full z-50 mt-1 w-full overflow-hidden rounded-lg border border-white/12 bg-[#0e0d18] shadow-[0_16px_48px_rgba(0,0,0,0.6)]"
+                >
+                  {acResults.films.length > 0 && (
+                    <>
+                      <div className="px-3 pt-2.5 pb-1 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.28em] text-[#555064]">
+                        Films
+                      </div>
+                      {acResults.films.map((film, i) => (
+                        <button
+                          key={film.slug}
+                          role="option"
+                          aria-selected={acIdx === i}
+                          type="button"
+                          onMouseDown={(e) => { e.preventDefault(); selectAcItem(i); }}
+                          onMouseEnter={() => setAcIdx(i)}
+                          className={cn(
+                            "flex w-full items-center gap-3 px-3 py-2 text-left transition-colors",
+                            acIdx === i ? "bg-white/[0.08]" : "hover:bg-white/[0.05]",
+                          )}
+                        >
+                          <Clapperboard className="h-3 w-3 shrink-0 text-[#555064]" aria-hidden />
+                          <span className="min-w-0 flex-1 truncate font-[family-name:var(--font-geist-mono)] text-[11px] text-[#e8e5f4]">
+                            {film.title}
+                          </span>
+                          <span className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[10px] text-[#555064]">
+                            {film.year}
+                          </span>
+                        </button>
+                      ))}
+                    </>
+                  )}
+                  {acResults.people.length > 0 && (
+                    <>
+                      <div className={cn(
+                        "px-3 pb-1 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.28em] text-[#555064]",
+                        acResults.films.length > 0 ? "mt-2 border-t border-white/[0.06] pt-2.5" : "pt-2.5",
+                      )}>
+                        People
+                      </div>
+                      {acResults.people.map((person, j) => {
+                        const flatIdx = acResults.films.length + j;
+                        return (
+                          <button
+                            key={person.name}
+                            role="option"
+                            aria-selected={acIdx === flatIdx}
+                            type="button"
+                            onMouseDown={(e) => { e.preventDefault(); selectAcItem(flatIdx); }}
+                            onMouseEnter={() => setAcIdx(flatIdx)}
+                            className={cn(
+                              "flex w-full items-center gap-3 px-3 py-2 text-left transition-colors",
+                              acIdx === flatIdx ? "bg-white/[0.08]" : "hover:bg-white/[0.05]",
+                            )}
+                          >
+                            <Search className="h-3 w-3 shrink-0 text-[#555064]" aria-hidden />
+                            <span className="min-w-0 flex-1 truncate font-[family-name:var(--font-geist-mono)] text-[11px] text-[#e8e5f4]">
+                              {person.name}
+                            </span>
+                            <span className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[9px] capitalize text-[#555064]">
+                              {person.roles.join(" · ")}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </>
+                  )}
+                  <div className="h-1" />
+                </div>
+              )}
             </div>
 
             {/* Divider */}

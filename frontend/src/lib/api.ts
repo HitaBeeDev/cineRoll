@@ -257,6 +257,18 @@ export async function fetchAwardYears(): Promise<number[]> {
   return data.awardYears;
 }
 
+export type AutocompleteResult = {
+  films: { slug: string; title: string; year: number; posterUrl: string | null }[];
+  people: { name: string; roles: string[] }[];
+};
+
+export async function fetchAutocomplete(q: string): Promise<AutocompleteResult> {
+  const params = new URLSearchParams({ q });
+  const res = await fetch(`${API_URL}/api/autocomplete?${params}`);
+  if (!res.ok) return { films: [], people: [] };
+  return res.json() as Promise<AutocompleteResult>;
+}
+
 export async function fetchPersonSuggestions(query: string): Promise<PersonSuggestion[]> {
   const trimmed = query.trim();
   if (trimmed.length < 2) return [];

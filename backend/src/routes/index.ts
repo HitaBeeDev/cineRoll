@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { autocompleteRouter } from "./autocomplete";
 import { filmsRouter } from "./films";
 import { naturalRollRouter } from "./naturalRoll";
 import { personsRouter } from "./persons";
@@ -10,6 +11,7 @@ import { statsRouter } from "./stats";
 
 export const router = Router();
 
+router.use("/autocomplete", autocompleteRouter);
 router.use("/films", filmsRouter);
 router.use("/natural-roll", naturalRollRouter);
 router.use("/persons", personsRouter);
