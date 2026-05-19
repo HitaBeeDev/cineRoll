@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowUpRight, Globe, TreePalm, X } from "lucide-react";
+import { ArrowUpRight, Check, Globe, Link2, TreePalm, X } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { fetchPersonSuggestions, type PersonSuggestion } from "@/lib/api";
+import { fetchPersonSuggestions, filtersToParams, type PersonSuggestion } from "@/lib/api";
 import { MOOD_PRESETS, type MoodPreset } from "@/lib/mood-presets";
 import { DEFAULT_FILTERS } from "@/hooks/useFilters";
 import { cn, nameToSlug } from "@/lib/utils";
@@ -71,12 +71,33 @@ export function FilterBar({
   className,
 }: FilterBarProps) {
   const activeChips = getActiveFilterChips(filters, onFiltersChange);
+  const recipe = buildRollRecipe(filters);
   const [personSuggestions, setPersonSuggestions] = React.useState<
     PersonSuggestion[]
   >([]);
   const [isPersonSuggestionsOpen, setIsPersonSuggestionsOpen] =
     React.useState(false);
   const [activePreset, setActivePreset] = React.useState<string | null>(null);
+  const [isCopied, setIsCopied] = React.useState(false);
+
+  async function handleShareFilters() {
+    const params = filtersToParams(filters);
+    const url = `${window.location.origin}/browse?${params.toString()}`;
+    const captionText = recipe ? `Rolling from: ${recipe}` : "My CineRoll filters";
+
+    if (typeof navigator !== "undefined" && "share" in navigator) {
+      try {
+        await navigator.share({ title: "CineRoll — My Roll Recipe", text: captionText, url });
+        return;
+      } catch { /* user cancelled or API unavailable */ }
+    }
+
+    try {
+      await navigator.clipboard.writeText(`${captionText}\n${url}`);
+      setIsCopied(true);
+      window.setTimeout(() => setIsCopied(false), 2500);
+    } catch { /* ignore */ }
+  }
 
   function applyPreset(preset: MoodPreset) {
     if (activePreset === preset.label) {
@@ -597,15 +618,25 @@ export function FilterBar({
         )}
       </AnimatePresence>
 
-      {/* Roll Recipe */}
-      {(() => {
-        const recipe = buildRollRecipe(filters);
-        return recipe ? (
-          <p className="font-[family-name:var(--font-geist-mono)] text-[9px] tracking-wide text-[#686880]">
+      {/* Roll Recipe + share */}
+      {recipe && (
+        <p className="flex items-center gap-2 font-[family-name:var(--font-geist-mono)] text-[9px] tracking-wide text-[#686880]">
+          <span className="min-w-0">
             <span className="text-[#444458]">Rolling from:</span>{" "}{recipe}
-          </p>
-        ) : null;
-      })()}
+          </span>
+          <button
+            type="button"
+            onClick={() => void handleShareFilters()}
+            title="Share these filters"
+            aria-label="Share these filters"
+            className="shrink-0 text-[#444458] transition-colors hover:text-[#e8453c] focus-visible:outline-none focus-visible:text-[#e8453c]"
+          >
+            {isCopied
+              ? <Check className="h-3 w-3" aria-hidden />
+              : <Link2 className="h-3 w-3" aria-hidden />}
+          </button>
+        </p>
+      )}
     </div>
   );
 }
