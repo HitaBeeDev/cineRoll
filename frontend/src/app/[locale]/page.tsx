@@ -269,6 +269,8 @@ export default function HomePage() {
   const isRollDisabled =
     isRolling ||
     (hasActiveFilters && effectiveCount === 0 && !effectiveCountLoading);
+  const shouldPulse =
+    hasActiveFilters && effectiveCount !== 0 && !isRolling && !shouldReduceMotion;
 
   async function handleRoll() {
     setIsRolling(true);
@@ -413,7 +415,21 @@ export default function HomePage() {
           {/* ROLL button + pool count + natural language CTA */}
           <div className="mt-1 flex flex-wrap items-center gap-4">
             {/* Marquee-border ROLL box */}
-            <div className="w-[185px] shrink-0 rounded-2xl border-2 border-dashed border-[#e8453c]/30 p-1.5">
+            <motion.div
+              className="w-[185px] shrink-0 rounded-2xl border-2 border-dashed border-[#e8453c]/30 p-1.5"
+              animate={shouldPulse ? {
+                boxShadow: [
+                  "0 0 0px rgba(232,69,60,0)",
+                  "0 0 28px rgba(232,69,60,0.42)",
+                  "0 0 0px rgba(232,69,60,0)",
+                ],
+              } : { boxShadow: "0 0 0px rgba(232,69,60,0)" }}
+              transition={shouldPulse ? {
+                duration: 2.5,
+                repeat: Infinity,
+                ease: "easeInOut",
+              } : { duration: 0.5 }}
+            >
               <button
                 onClick={() => void handleRoll()}
                 disabled={isRollDisabled}
@@ -432,7 +448,7 @@ export default function HomePage() {
               >
                 {isRolling ? "Rolling…" : "Roll"}
               </button>
-            </div>
+            </motion.div>
 
             {/* Pool counter — to the right of the ROLL box */}
             <div className="flex shrink-0 flex-col items-start gap-0.5">
