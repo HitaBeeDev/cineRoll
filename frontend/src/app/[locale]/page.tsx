@@ -439,11 +439,17 @@ export default function HomePage() {
               <button
                 onClick={() => void handleRoll()}
                 disabled={isRollDisabled}
-                aria-label={isRolling ? "Rolling…" : "Roll for a random film"}
+                aria-label={
+                  isRolling ? "Rolling…"
+                  : hasActiveFilters && effectiveCount === 0 ? "No matches"
+                  : hasActiveFilters && effectiveCount !== null && !effectiveCountLoading
+                    ? `Roll from ${effectiveCount} films`
+                  : "Roll for a random film"
+                }
                 className={cn(
                   "w-full rounded-xl py-[18px]",
                   "bg-[#e8453c] text-[#F5F5F0]",
-                  "font-[family-name:var(--font-geist-mono)] text-xl font-bold uppercase tracking-[0.25em]",
+                  "font-[family-name:var(--font-geist-mono)] font-bold uppercase",
                   "select-none transition-all duration-150",
                   "hover:bg-[#d5342b] hover:shadow-[0_0_40px_rgba(232,69,60,0.28)]",
                   "active:scale-[0.98]",
@@ -452,7 +458,20 @@ export default function HomePage() {
                   "focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090f]",
                 )}
               >
-                {isRolling ? "Rolling…" : "Roll"}
+                {isRolling ? (
+                  <span className="text-xl tracking-[0.25em]">Rolling…</span>
+                ) : hasActiveFilters && effectiveCount === 0 ? (
+                  <span className="text-xl tracking-[0.25em]">No matches</span>
+                ) : hasActiveFilters && effectiveCount !== null && !effectiveCountLoading ? (
+                  <span className="flex flex-col items-center leading-tight gap-0.5">
+                    <span className="text-xl tracking-[0.25em]">Roll</span>
+                    <span className="text-[9px] tracking-[0.15em] font-normal normal-case opacity-80">
+                      from {effectiveCount} films
+                    </span>
+                  </span>
+                ) : (
+                  <span className="text-xl tracking-[0.25em]">Roll</span>
+                )}
               </button>
             </motion.div>
 
