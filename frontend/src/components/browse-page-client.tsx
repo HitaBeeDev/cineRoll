@@ -657,7 +657,7 @@ export function BrowsePageClient() {
               className="flex shrink-0 items-center gap-2 rounded-lg border border-[#e8453c]/40 bg-[#e8453c]/10 px-4 py-2.5 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.16em] text-[#ff766d] transition-all hover:border-[#e8453c]/70 hover:bg-[#e8453c]/20 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40 disabled:cursor-not-allowed disabled:opacity-40"
             >
               <Shuffle className={cn("h-3.5 w-3.5", rolling && "animate-spin")} aria-hidden />
-              {rolling ? "Rolling…" : "Roll from these results"}
+              {rolling ? "Rolling…" : total === 0 && status === "success" ? "No matches" : "Roll from these results"}
             </button>
           )}
 
