@@ -186,9 +186,9 @@ export function FilterBar({
         </PillToggle>
       </FilterRow>
 
-      {/* PERSON + GENRE selects */}
-      <div className="flex gap-3">
-        <div className="flex-1">
+      {/* Row 1: Person | Genre | Category */}
+      <div className="grid grid-cols-3 gap-3">
+        <div>
           <span className="mb-1 block font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#9090a8]">
             Person
           </span>
@@ -255,7 +255,7 @@ export function FilterBar({
           </div>
         </div>
 
-        <div className="flex-1">
+        <div>
           <span className="mb-1 block font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#9090a8]">
             Genre
           </span>
@@ -284,11 +284,8 @@ export function FilterBar({
             </SelectContent>
           </Select>
         </div>
-      </div>
 
-      {/* CATEGORY + YEAR selects */}
-      <div className="flex gap-3">
-        <div className="flex-1">
+        <div>
           <span className="mb-1 block font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#9090a8]">
             Category
           </span>
@@ -317,8 +314,11 @@ export function FilterBar({
             </SelectContent>
           </Select>
         </div>
+      </div>
 
-        <div className="flex-1">
+      {/* Row 2: Year | From | To */}
+      <div className="grid grid-cols-3 gap-3">
+        <div>
           <span className="mb-1 block font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#9090a8]">
             Year
           </span>
@@ -352,11 +352,8 @@ export function FilterBar({
             </SelectContent>
           </Select>
         </div>
-      </div>
 
-      {/* DECADE selects */}
-      <div className="flex gap-3">
-        <div className="flex-1">
+        <div>
           <span className="mb-1 block font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#9090a8]">
             From
           </span>
@@ -385,7 +382,7 @@ export function FilterBar({
           </Select>
         </div>
 
-        <div className="flex-1">
+        <div>
           <span className="mb-1 block font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#9090a8]">
             To
           </span>
