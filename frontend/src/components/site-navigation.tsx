@@ -18,7 +18,6 @@ const gameModeItems = [
   { href: "/snob-test", label: "Test Yourself" },
   { href: "/roll-battle", label: "Roll Battle" },
   { href: "/blind-roll", label: "Blind Roll" },
-  { href: "/marathon", label: "Marathon" },
 ];
 
 type SiteNavigationProps = {
@@ -53,20 +52,20 @@ export function SiteNavigation({
     <>
       {/* Desktop nav */}
       <nav className="hidden flex-1 items-center justify-end gap-4 md:flex" aria-label="Primary navigation">
-        <div className="flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.035] p-1 shadow-[0_14px_40px_rgba(0,0,0,0.24)]">
+        <div className="flex items-center gap-1">
           {primaryNavItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}
               className={cn(
-                "rounded-full px-3.5 py-2",
+                "px-3.5 py-2",
                 "font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.13em]",
                 "transition-colors duration-150",
                 "focus-visible:outline-none focus-visible:ring-2",
                 focusRingClassName,
                 isActive(item.href)
-                  ? "bg-[#e8453c] text-white shadow-[0_8px_22px_rgba(232,69,60,0.24)]"
-                  : "text-[#9b96aa] hover:bg-white/[0.06] hover:text-[#F5F5F0]",
+                  ? "text-[#ff554c]"
+                  : "text-[#9b96aa] hover:text-[#F5F5F0]",
               )}
             >
               {item.label}
@@ -74,13 +73,16 @@ export function SiteNavigation({
           ))}
         </div>
 
-        <div className="hidden items-center gap-4 xl:flex" aria-label="Game modes">
+        <span className="select-none text-[#2a2a3e]" aria-hidden>|</span>
+
+        <div className="hidden items-center gap-1 xl:flex" aria-label="Game modes">
           {gameModeItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}
               className={cn(
-                "font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.14em]",
+                "px-3.5 py-2",
+                "font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.13em]",
                 "transition-colors duration-150",
                 "focus-visible:outline-none focus-visible:ring-2",
                 focusRingClassName,
