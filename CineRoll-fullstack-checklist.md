@@ -888,7 +888,7 @@ The same award-first filter panel used on the home page is also the core of the 
   - Results are grouped: "Films" and "People" sections in the dropdown
   - Clicking a suggestion fills the input and triggers a search immediately
   - Keyboard navigable (up/down arrows, Enter to select, Escape to close)
-- [ ] Show result count: "47 films match your filters" (update as filters change)
+- [x] Show result count: "47 films match your filters" (update as filters change)
 - [ ] When result count is zero, show "No films match — try adjusting your filters" with a suggested reset
 
 ### Results Grid
