@@ -30,6 +30,29 @@ const DECADE_MIN = 1900;
 const DECADE_MAX = 2030;
 const DECADE_OPTIONS = Array.from({ length: (DECADE_MAX - DECADE_MIN) / 10 + 1 }, (_, i) => DECADE_MIN + i * 10);
 
+const RUNTIME_BUCKETS: { label: string; runtimeMax: number | null; activeClass: string }[] = [
+  {
+    label: "Quick Watch",
+    runtimeMax: 89,
+    activeClass: "border-[#1d4ed8] bg-gradient-to-br from-[#60a5fa] to-[#1d4ed8] text-[#0c1a3e]",
+  },
+  {
+    label: "Standard",
+    runtimeMax: 119,
+    activeClass: "border-[#64748b] bg-gradient-to-br from-[#e2e8f0] to-[#94a3b8] text-[#0f172a]",
+  },
+  {
+    label: "Long Haul",
+    runtimeMax: 149,
+    activeClass: "border-[#b45309] bg-gradient-to-br from-[#f59e0b] to-[#b45309] text-[#1c0900]",
+  },
+  {
+    label: "Epic",
+    runtimeMax: null,
+    activeClass: "border-[#5b21b6] bg-gradient-to-br from-[#a78bfa] to-[#5b21b6] text-[#0d061f]",
+  },
+];
+
 const AWARD_BODIES: { value: AwardBody; label: string }[] = [
   { value: "all", label: "All" },
   { value: "oscar", label: "Oscar" },
@@ -443,6 +466,20 @@ export function FilterBar({
         ))}
       </FilterRow>
 
+      {/* Runtime row */}
+      <FilterRow label="Time">
+        {RUNTIME_BUCKETS.map(({ label, runtimeMax, activeClass }) => (
+          <PillToggle
+            key={label}
+            active={filters.runtimeMax === runtimeMax}
+            activeClassName={activeClass}
+            onClick={() => onFiltersChange({ runtimeMax, page: 1 })}
+          >
+            {label}
+          </PillToggle>
+        ))}
+      </FilterRow>
+
       {/* Content type row */}
       <FilterRow label="Type">
         {(
@@ -582,10 +619,12 @@ function PillToggle({
   active,
   onClick,
   children,
+  activeClassName,
 }: {
   active: boolean;
   onClick: () => void;
   children: React.ReactNode;
+  activeClassName?: string;
 }) {
   return (
     <button
@@ -597,7 +636,7 @@ function PillToggle({
         "font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] focus-visible:ring-offset-1 focus-visible:ring-offset-[#09090f]",
         active
-          ? "border-[#c08818] bg-gradient-to-br from-[#deba4a] to-[#c08818] text-[#1a0d00]"
+          ? (activeClassName ?? "border-[#c08818] bg-gradient-to-br from-[#deba4a] to-[#c08818] text-[#1a0d00]")
           : "border-[#25253a] text-[#9898b8] hover:border-[#e8453c]/40 hover:text-[#F5F5F0]",
       )}
     >
