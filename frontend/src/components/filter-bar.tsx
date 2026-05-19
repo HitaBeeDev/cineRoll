@@ -596,8 +596,78 @@ export function FilterBar({
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Roll Recipe */}
+      {(() => {
+        const recipe = buildRollRecipe(filters);
+        return recipe ? (
+          <p className="font-[family-name:var(--font-geist-mono)] text-[9px] tracking-wide text-[#686880]">
+            <span className="text-[#444458]">Rolling from:</span>{" "}{recipe}
+          </p>
+        ) : null;
+      })()}
     </div>
   );
+}
+
+function buildRollRecipe(filters: FilterState): string {
+  const parts: string[] = [];
+
+  if (filters.imdbTopMoviesOnly) {
+    parts.push("IMDb Top 250 Movies");
+  } else if (filters.imdbTopTvOnly) {
+    parts.push("IMDb Top 250 Shows");
+  } else {
+    const bodyName =
+      filters.awardBody === "oscar" ? "Oscar" :
+      filters.awardBody === "goldenglobe" ? "Golden Globe" :
+      filters.awardBody === "cannes" ? "Cannes" : null;
+
+    if (bodyName !== null) {
+      if (filters.winnerOnly) parts.push(`${bodyName} winners`);
+      else if (filters.nominatedOnly) parts.push(`${bodyName} nominations`);
+      else parts.push(`${bodyName} films`);
+    } else {
+      if (filters.winnerOnly) parts.push("winners");
+      else if (filters.nominatedOnly) parts.push("nominated films");
+    }
+  }
+
+  const contentLabel =
+    filters.contentType === "movie" ? "movies" :
+    filters.contentType === "short" ? "short films" :
+    filters.contentType === "animation" ? "animations" :
+    filters.contentType === "documentary" ? "documentaries" :
+    filters.contentType === "tv-series" ? "TV shows" : null;
+  if (contentLabel !== null) parts.push(contentLabel);
+
+  if (filters.genre.trim()) parts.push(filters.genre.trim());
+  if (filters.category.trim()) parts.push(filters.category.trim());
+
+  const minSet = filters.decadeMin !== DECADE_MIN;
+  const maxSet = filters.decadeMax !== DECADE_MAX;
+  if (minSet && maxSet) parts.push(`${filters.decadeMin}s–${filters.decadeMax}s`);
+  else if (minSet) parts.push(`${filters.decadeMin}s onwards`);
+  else if (maxSet) parts.push(`up to ${filters.decadeMax}s`);
+
+  if (filters.awardYear != null) parts.push(`${filters.awardYear} ceremony`);
+  if (filters.nominationCount != null) parts.push(`${filters.nominationCount}+ nominations`);
+  if (filters.person.trim()) parts.push(filters.person.trim());
+  if (filters.femaleDirectorOnly) parts.push("female-directed");
+  if (filters.search.trim()) parts.push(`"${filters.search.trim()}"`);
+  if (filters.imdbRatingMin > 0) parts.push(`IMDb ${filters.imdbRatingMin}+`);
+  if (filters.rtScoreMin > 0) parts.push(`RT ${filters.rtScoreMin}%+`);
+
+  if (filters.runtimeMax != null) {
+    const runtimeLabel =
+      filters.runtimeMax === 89 ? "Quick Watch" :
+      filters.runtimeMax === 119 ? "Standard" :
+      filters.runtimeMax === 149 ? "Long Haul" :
+      `under ${filters.runtimeMax + 1} min`;
+    parts.push(runtimeLabel);
+  }
+
+  return parts.join(" · ");
 }
 
 function OscarIcon() {
