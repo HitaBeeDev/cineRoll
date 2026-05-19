@@ -265,6 +265,7 @@ export default function HomePage() {
 
   const effectiveCount = hasActiveFilters ? filteredCount : null;
   const effectiveCountLoading = hasActiveFilters && isCountLoading;
+  const displayCount: number | null = effectiveCountLoading ? null : (effectiveCount ?? totalCount);
   const isRollDisabled =
     isRolling ||
     (hasActiveFilters && effectiveCount === 0 && !effectiveCountLoading);
@@ -435,16 +436,26 @@ export default function HomePage() {
 
             {/* Pool counter — to the right of the ROLL box */}
             <div className="flex shrink-0 flex-col items-start gap-0.5">
-              <span className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#555568]">
-                Reel Pool
-              </span>
-              <AnimatedPoolCount value={poolCountStr} />
-              <span className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#555568]">
-                Films
-              </span>
-              <span className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-widest text-[#444458]">
-                Press [Space] to spin
-              </span>
+              {effectiveCount === 0 ? (
+                <p className="font-[family-name:var(--font-geist-mono)] text-[9px] leading-relaxed tracking-wide text-[#9090a8] max-w-[180px]">
+                  No films match —<br />
+                  even we couldn&apos;t find that.<br />
+                  Try relaxing a filter.
+                </p>
+              ) : (
+                <>
+                  <span className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#555568]">
+                    Reel Pool
+                  </span>
+                  <AnimatedPoolCount value={poolCountStr} />
+                  <span className="font-[family-name:var(--font-geist-mono)] text-[9px] tracking-wide text-[#9090a8]">
+                    {effectiveCountLoading ? "finding films…" : getCountTagline(displayCount)}
+                  </span>
+                  <span className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-widest text-[#444458]">
+                    Press [Space] to spin
+                  </span>
+                </>
+              )}
             </div>
 
             <Link
@@ -1382,6 +1393,15 @@ function FilmCardSkeleton() {
       </div>
     </div>
   );
+}
+
+function getCountTagline(count: number | null): string {
+  if (count === null) return "films in the reel";
+  if (count === 1) return "film. You know exactly what you want.";
+  if (count <= 5) return "films. Very specific taste.";
+  if (count <= 20) return "films. A good shortlist.";
+  if (count <= 100) return "films. Ready to roll?";
+  return "films. Feeling lucky?";
 }
 
 function AnimatedPoolCount({ value }: { value: string }) {
