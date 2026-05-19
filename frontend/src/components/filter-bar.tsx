@@ -481,7 +481,7 @@ export function FilterBar({
                 "transition-colors duration-150",
                 "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#e8453c]",
                 active
-                  ? "border-[#e8453c] bg-[#e8453c] text-[#F5F5F0]"
+                  ? "border-[#c08818] bg-gradient-to-br from-[#deba4a] to-[#c08818] text-[#1a0d00]"
                   : "border-[#25253a] text-[#9090a8] hover:border-[#e8453c]/40 hover:text-[#F5F5F0]",
               )}
             >
@@ -597,7 +597,7 @@ function PillToggle({
         "font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] focus-visible:ring-offset-1 focus-visible:ring-offset-[#09090f]",
         active
-          ? "border-[#e8453c] bg-[#e8453c] text-[#F5F5F0]"
+          ? "border-[#c08818] bg-gradient-to-br from-[#deba4a] to-[#c08818] text-[#1a0d00]"
           : "border-[#25253a] text-[#9898b8] hover:border-[#e8453c]/40 hover:text-[#F5F5F0]",
       )}
     >
