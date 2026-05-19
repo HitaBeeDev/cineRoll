@@ -466,41 +466,31 @@ export function FilterBar({
         </div>
       </div>
 
-      {/* IMDb + RT — single row, two columns */}
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <span className="mb-1 block font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#9090a8]">
-            IMDb
-          </span>
-          <div className="flex flex-wrap gap-1.5">
-            {[0, 6, 6.5, 7, 7.5, 8, 8.5, 9].map((rating) => (
-              <PillToggle
-                key={rating}
-                active={filters.imdbRatingMin === rating}
-                onClick={() => onFiltersChange({ imdbRatingMin: rating, page: 1 })}
-              >
-                {rating === 0 ? "Any" : `${rating}+`}
-              </PillToggle>
-            ))}
-          </div>
-        </div>
-        <div>
-          <span className="mb-1 block font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#9090a8]">
-            RT
-          </span>
-          <div className="flex flex-wrap gap-1.5">
-            {[0, 50, 60, 70, 80, 90, 95].map((score) => (
-              <PillToggle
-                key={score}
-                active={filters.rtScoreMin === score}
-                onClick={() => onFiltersChange({ rtScoreMin: score, page: 1 })}
-              >
-                {score === 0 ? "Any" : `${score}%+`}
-              </PillToggle>
-            ))}
-          </div>
-        </div>
-      </div>
+      {/* IMDB rating row */}
+      <FilterRow label="IMDb">
+        {[0, 6, 6.5, 7, 7.5, 8, 8.5, 9].map((rating) => (
+          <PillToggle
+            key={rating}
+            active={filters.imdbRatingMin === rating}
+            onClick={() => onFiltersChange({ imdbRatingMin: rating, page: 1 })}
+          >
+            {rating === 0 ? "Any" : `${rating}+`}
+          </PillToggle>
+        ))}
+      </FilterRow>
+
+      {/* RT score row */}
+      <FilterRow label="RT">
+        {[0, 50, 60, 70, 80, 90, 95].map((score) => (
+          <PillToggle
+            key={score}
+            active={filters.rtScoreMin === score}
+            onClick={() => onFiltersChange({ rtScoreMin: score, page: 1 })}
+          >
+            {score === 0 ? "Any" : `${score}%+`}
+          </PillToggle>
+        ))}
+      </FilterRow>
 
       {/* Runtime row */}
       <FilterRow label="Time">
