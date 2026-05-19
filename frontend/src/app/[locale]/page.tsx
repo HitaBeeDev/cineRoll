@@ -156,6 +156,7 @@ export default function HomePage() {
   const { filters, setFilter, resetFilters, hasActiveFilters } = useFilters();
   const [film, setFilm] = useState<RollFilm | null>(null);
   const [isRolling, setIsRolling] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
   const [filteredCount, setFilteredCount] = useState<number | null>(null);
   const [isCountLoading, setIsCountLoading] = useState(false);
   const [genres, setGenres] = useState<string[]>([]);
@@ -275,6 +276,10 @@ export default function HomePage() {
   async function handleRoll() {
     setIsRolling(true);
     setFilm(null);
+    if (hasActiveFilters && !shouldReduceMotion) {
+      setIsSearching(true);
+      window.setTimeout(() => setIsSearching(false), 150);
+    }
     try {
       const result = await fetchRandom(filters);
       setFilm(result.film);
@@ -413,7 +418,8 @@ export default function HomePage() {
           />
 
           {/* ROLL button + pool count + natural language CTA */}
-          <div className="mt-1 flex flex-wrap items-center gap-4">
+          <div className="mt-1 flex flex-col gap-1.5">
+          <div className="flex flex-wrap items-center gap-4">
             {/* Marquee-border ROLL box */}
             <motion.div
               className="w-[185px] shrink-0 rounded-2xl border-2 border-dashed border-[#e8453c]/30 p-1.5"
@@ -496,6 +502,23 @@ export default function HomePage() {
               Can&apos;t decide? Describe it
               <ArrowUpRight className="h-3 w-3" aria-hidden />
             </Link>
+          </div>
+
+          {/* Searching flicker */}
+          <AnimatePresence>
+            {isSearching && (
+              <motion.p
+                key="searching"
+                initial={{ opacity: 0, y: -3 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -3 }}
+                transition={{ duration: 0.08 }}
+                className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.25em] text-[#e8453c]/60"
+              >
+                Searching{effectiveCount !== null ? ` ${effectiveCount}` : ""} films…
+              </motion.p>
+            )}
+          </AnimatePresence>
           </div>
         </div>
 
