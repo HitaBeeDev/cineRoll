@@ -448,9 +448,18 @@ export default function HomePage() {
                     Reel Pool
                   </span>
                   <AnimatedPoolCount value={poolCountStr} />
-                  <span className="font-[family-name:var(--font-geist-mono)] text-[9px] tracking-wide text-[#9090a8]">
-                    {effectiveCountLoading ? "finding films…" : getCountTagline(displayCount)}
-                  </span>
+                  <AnimatePresence mode="wait" initial={false}>
+                    <motion.span
+                      key={effectiveCountLoading ? "loading" : getCountTagline(displayCount)}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.25 }}
+                      className="font-[family-name:var(--font-geist-mono)] text-[9px] tracking-wide text-[#9090a8]"
+                    >
+                      {effectiveCountLoading ? "finding films…" : getCountTagline(displayCount)}
+                    </motion.span>
+                  </AnimatePresence>
                   <span className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-widest text-[#444458]">
                     Press [Space] to spin
                   </span>
