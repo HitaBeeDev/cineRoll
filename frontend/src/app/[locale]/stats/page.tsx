@@ -21,6 +21,8 @@ export const metadata: Metadata = {
     "Discover the most nominated and award-winning films and people across the Oscars, Golden Globes, and Cannes. Explore CineRoll's full award film dataset by the numbers.",
 };
 
+export const dynamic = "force-dynamic";
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 
 type PersonStat = { name: string; count: number };
@@ -53,7 +55,7 @@ type StatsResponse = {
 
 async function fetchStats(): Promise<StatsResponse | null> {
   try {
-    const res = await fetch(`${API_URL}/api/stats`, { next: { revalidate: 86400 } });
+    const res = await fetch(`${API_URL}/api/stats`, { cache: "no-store" });
     if (!res.ok) return null;
     return res.json() as Promise<StatsResponse>;
   } catch {
