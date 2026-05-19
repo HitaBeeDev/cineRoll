@@ -907,7 +907,7 @@ The same award-first filter panel used on the home page is also the core of the 
 
 ### API Integration
 
-- [ ] Create `src/lib/api.ts` API client with typed functions for `/api/films` and `/api/random` accepting full FilterState
+- [x] Create `src/lib/api.ts` API client with typed functions for `/api/films` and `/api/random` accepting full FilterState
 - [ ] Create `src/hooks/useFilters.ts` to manage filter state
 - [ ] Add URL sync to `useFilters` — read/write all filter params to URL query string so browse views are shareable
 - [ ] FilterState covers: `search`, `person`, `director`, `awardBody`, `winnerOnly`, `nominatedOnly`, `category`, `awardYear`, `genre`, `decadeMin`, `decadeMax`, `page`
