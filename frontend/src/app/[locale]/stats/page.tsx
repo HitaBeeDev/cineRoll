@@ -50,24 +50,6 @@ async function fetchStats(): Promise<StatsResponse | null> {
   }
 }
 
-function initials(name: string) {
-  return name.split(" ").slice(0, 2).map((w) => w[0] ?? "").join("").toUpperCase();
-}
-
-function SectionLabel({ index, label }: { index: string; label: string }) {
-  return (
-    <div className="mb-8 flex items-center gap-4">
-      <span className="font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.3em] text-[#e8453c]">
-        ◈ {index}
-      </span>
-      <div className="h-px flex-1 bg-white/[0.07]" />
-      <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.3em] text-[#aaaabc]">
-        {label}
-      </span>
-    </div>
-  );
-}
-
 export default async function StatsPage() {
   const stats = await fetchStats();
 
@@ -95,82 +77,101 @@ export default async function StatsPage() {
       <div className="min-h-screen bg-[#07070d] text-[#F0F0EB]">
         <AppHeader />
 
-        {/* ── HERO ──────────────────────────────────────────────────── */}
-        <section className="relative border-b border-white/[0.05] px-6 pb-16 pt-14 sm:px-10 lg:px-16">
-          <p className="mb-6 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.4em] text-[#e8453c]/60">
+        {/* HERO */}
+        <section className="border-b border-white/[0.05] px-6 pb-14 pt-14 sm:px-10 lg:px-16">
+          <p className="mb-5 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.4em] text-[#e8453c]/60">
             ◈ CineRoll · Annual Record ◈
           </p>
-          <div className="flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-between">
-            <h1 className="font-[family-name:var(--font-display)] text-6xl font-black leading-[0.92] tracking-tight text-[#F0F0EB] sm:text-7xl lg:text-[7rem]">
-              Stats &amp;<br />Records
-            </h1>
-            <div className="lg:text-right">
-              <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.3em] text-[#666680]">
-                Oscar · Golden Globe · Cannes
-              </p>
-              <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.3em] text-[#666680]">
-                Across our full dataset
-              </p>
-            </div>
-          </div>
+          <h1 className="font-[family-name:var(--font-display)] text-6xl font-black leading-[0.92] tracking-tight text-[#F0F0EB] sm:text-7xl lg:text-[7rem]">
+            Stats &amp;<br />Records
+          </h1>
+          {stats && (
+            <p className="mt-6 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.25em] text-[#555566]">
+              {stats.summary.totalFilms.toLocaleString()} films
+              <span className="mx-3 text-[#333346]">·</span>
+              {stats.summary.totalNominations.toLocaleString()} nominations
+              <span className="mx-3 text-[#333346]">·</span>
+              {stats.summary.totalWins.toLocaleString()} wins
+            </p>
+          )}
         </section>
 
         <main className="px-6 pb-24 sm:px-10 lg:px-16">
 
-          {/* ── THE NUMBERS ───────────────────────────────────────────── */}
+          {/* THE NUMBERS — bento grid */}
           {stats && (
-            <section className="border-b border-white/[0.05] py-16">
-              <SectionLabel index="01" label="The Numbers" />
-              <div className="grid grid-cols-1 gap-0 divide-y divide-white/[0.05] sm:grid-cols-3 sm:divide-x sm:divide-y-0">
-                {[
-                  { value: stats.summary.totalFilms.toLocaleString(), label: "Films in the dataset", sub: "From 1927 to present" },
-                  { value: stats.summary.totalNominations.toLocaleString(), label: "Award nominations", sub: "Oscar + Golden Globe + Cannes" },
-                  { value: stats.summary.totalWins.toLocaleString(), label: "Total wins", sub: "Across all three bodies" },
-                ].map(({ value, label, sub }) => (
-                  <div key={label} className="py-8 sm:px-10 first:pl-0 last:pr-0">
-                    <p className="font-[family-name:var(--font-display)] text-6xl font-black leading-none tracking-tight text-[#F0F0EB] sm:text-7xl">
-                      {value}
+            <section className="border-b border-white/[0.05] py-14">
+              <p className="mb-6 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.35em] text-[#444458]">
+                The Numbers
+              </p>
+              <div className="grid grid-cols-3 gap-3">
+                {/* Hero cell */}
+                <div className="col-span-2 flex min-h-[200px] flex-col justify-between rounded-2xl border border-white/[0.06] bg-[#0c0c15] p-7 sm:p-9">
+                  <p className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.3em] text-[#555566]">
+                    Oscar · Golden Globe · Cannes
+                  </p>
+                  <div>
+                    <p className="font-[family-name:var(--font-display)] text-[4.5rem] font-black leading-none tracking-tight text-[#F0F0EB] sm:text-[6.5rem] lg:text-[8rem]">
+                      {stats.summary.totalNominations.toLocaleString()}
                     </p>
-                    <p className="mt-3 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.25em] text-[#888899]">
-                      {label}
-                    </p>
-                    <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[9px] text-[#666680]">
-                      {sub}
+                    <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.2em] text-[#888899]">
+                      Award nominations
                     </p>
                   </div>
-                ))}
+                </div>
+                {/* Right column */}
+                <div className="flex flex-col gap-3">
+                  <div className="flex flex-1 flex-col justify-between rounded-2xl border border-white/[0.06] bg-[#0c0c15] p-5 sm:p-6">
+                    <p className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.25em] text-[#555566]">Films</p>
+                    <div>
+                      <p className="font-[family-name:var(--font-display)] text-3xl font-black leading-none text-[#F0F0EB] sm:text-4xl">
+                        {stats.summary.totalFilms.toLocaleString()}
+                      </p>
+                      <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[8px] text-[#444458]">1927 – present</p>
+                    </div>
+                  </div>
+                  <div className="flex flex-1 flex-col justify-between rounded-2xl border border-white/[0.06] bg-[#0c0c15] p-5 sm:p-6">
+                    <p className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.25em] text-[#555566]">Wins</p>
+                    <div>
+                      <p className="font-[family-name:var(--font-display)] text-3xl font-black leading-none text-[#e8453c] sm:text-4xl">
+                        {stats.summary.totalWins.toLocaleString()}
+                      </p>
+                      <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[8px] text-[#444458]">across all bodies</p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </section>
           )}
 
-          {/* ── RECORD FILMS ──────────────────────────────────────────── */}
+          {/* RECORD FILMS — asymmetric 3/5 + 2/5 */}
           {stats && (stats.mostWinningFilm ?? stats.mostNominatedFilm) && (
-            <section className="border-b border-white/[0.05] py-16">
-              <SectionLabel index="02" label="Record-Holding Films" />
-              <div className="grid gap-4 lg:grid-cols-2">
-
-                {/* Most awarded film — hero card */}
+            <section className="border-b border-white/[0.05] py-14">
+              <p className="mb-6 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.35em] text-[#444458]">
+                Record-Holding Films
+              </p>
+              <div className="grid gap-3 sm:grid-cols-5">
                 {stats.mostWinningFilm && (
                   <Link
                     href={`/film/${stats.mostWinningFilm.slug}`}
-                    className="group relative overflow-hidden rounded-2xl"
-                    style={{ minHeight: "380px" }}
+                    className="group relative col-span-3 overflow-hidden rounded-2xl"
+                    style={{ minHeight: "420px" }}
                   >
                     {stats.mostWinningFilm.posterUrl && (
                       <Image
                         src={stats.mostWinningFilm.posterUrl}
                         alt={stats.mostWinningFilm.title}
                         fill
-                        sizes="(max-width: 1024px) 100vw, 50vw"
+                        sizes="(max-width: 640px) 100vw, 60vw"
                         className="object-cover object-center transition-transform duration-700 group-hover:scale-[1.04]"
                       />
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#07070d] via-[#07070d]/60 to-[#07070d]/20" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#07070d] via-[#07070d]/50 to-transparent" />
                     <div className="absolute inset-0 flex flex-col justify-end p-7">
                       <p className="mb-3 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.35em] text-[#e8453c]/80">
                         ◈ Most Awarded Film
                       </p>
-                      <h2 className="font-[family-name:var(--font-display)] text-4xl font-black leading-[1.05] text-[#F0F0EB] transition-colors group-hover:text-white sm:text-5xl">
+                      <h2 className="font-[family-name:var(--font-display)] text-4xl font-black leading-[1.05] text-[#F0F0EB] sm:text-5xl">
                         {stats.mostWinningFilm.title}
                       </h2>
                       <div className="mt-3 flex items-end justify-between">
@@ -189,20 +190,18 @@ export default async function StatsPage() {
                     </div>
                   </Link>
                 )}
-
-                {/* Most nominated film */}
                 {stats.mostNominatedFilm && (
                   <Link
                     href={`/film/${stats.mostNominatedFilm.slug}`}
-                    className="group relative overflow-hidden rounded-2xl"
-                    style={{ minHeight: "380px" }}
+                    className="group relative col-span-2 overflow-hidden rounded-2xl"
+                    style={{ minHeight: "420px" }}
                   >
                     {stats.mostNominatedFilm.posterUrl && (
                       <Image
                         src={stats.mostNominatedFilm.posterUrl}
                         alt={stats.mostNominatedFilm.title}
                         fill
-                        sizes="(max-width: 1024px) 100vw, 50vw"
+                        sizes="(max-width: 640px) 100vw, 40vw"
                         className="object-cover object-center transition-transform duration-700 group-hover:scale-[1.04]"
                       />
                     )}
@@ -211,7 +210,7 @@ export default async function StatsPage() {
                       <p className="mb-3 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.35em] text-[#a78bfa]/80">
                         ◈ Most Nominated Film
                       </p>
-                      <h2 className="font-[family-name:var(--font-display)] text-4xl font-black leading-[1.05] text-[#F0F0EB] transition-colors group-hover:text-white sm:text-5xl">
+                      <h2 className="font-[family-name:var(--font-display)] text-2xl font-black leading-[1.05] text-[#F0F0EB] sm:text-3xl">
                         {stats.mostNominatedFilm.title}
                       </h2>
                       <div className="mt-3 flex items-end justify-between">
@@ -219,7 +218,7 @@ export default async function StatsPage() {
                           <p className="font-[family-name:var(--font-geist-mono)] text-[10px] text-[#888899]">
                             {stats.mostNominatedFilm.releaseYear}
                           </p>
-                          <p className="mt-0.5 font-[family-name:var(--font-display)] text-2xl font-bold text-[#a78bfa]">
+                          <p className="mt-0.5 font-[family-name:var(--font-display)] text-xl font-bold text-[#a78bfa]">
                             {stats.mostNominatedFilm.count} nominations
                           </p>
                         </div>
@@ -234,92 +233,99 @@ export default async function StatsPage() {
             </section>
           )}
 
-          {/* ── RECORD PEOPLE ─────────────────────────────────────────── */}
+          {/* RECORD PEOPLE — editorial horizontal rows */}
           {stats && (stats.mostNominatedPerson ?? stats.mostWinningPerson) && (
-            <section className="border-b border-white/[0.05] py-16">
-              <SectionLabel index="03" label="Record-Holding People" />
-              <div className="grid gap-4 sm:grid-cols-2">
+            <section className="border-b border-white/[0.05] py-14">
+              <p className="mb-2 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.35em] text-[#444458]">
+                Record-Holding People
+              </p>
+              <div className="divide-y divide-white/[0.05]">
                 {stats.mostNominatedPerson && (
-                  <div className="rounded-2xl border border-white/[0.06] bg-[#0c0c15] p-8">
-                    <p className="mb-6 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.35em] text-[#4a9eff]/70">
-                      ◈ Most Nominated Person
+                  <Link
+                    href={`/person/${stats.mostNominatedPerson.name.toLowerCase().replace(/\s+/g, "-")}`}
+                    className="group flex items-center gap-6 py-10 sm:gap-12"
+                  >
+                    <p className="w-20 shrink-0 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase leading-relaxed tracking-[0.25em] text-[#4a9eff]/60 sm:w-32">
+                      Most<br />Nominated
                     </p>
-                    <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#4a9eff]/10 font-[family-name:var(--font-display)] text-2xl font-black text-[#4a9eff]">
-                      {initials(stats.mostNominatedPerson.name)}
-                    </div>
-                    <h2 className="font-[family-name:var(--font-display)] text-3xl font-black leading-tight text-[#F0F0EB] sm:text-4xl">
+                    <h2 className="min-w-0 flex-1 font-[family-name:var(--font-display)] text-2xl font-black text-[#c8c8d8] transition-colors group-hover:text-[#F0F0EB] sm:text-4xl lg:text-5xl">
                       {stats.mostNominatedPerson.name}
                     </h2>
-                    <p className="mt-3 font-[family-name:var(--font-display)] text-5xl font-black text-[#4a9eff]">
-                      {stats.mostNominatedPerson.count}
-                    </p>
-                    <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.3em] text-[#666680]">
-                      nominations across all award bodies
-                    </p>
-                  </div>
+                    <div className="shrink-0 text-right">
+                      <p className="font-[family-name:var(--font-display)] text-5xl font-black leading-none text-[#4a9eff] sm:text-6xl lg:text-7xl">
+                        {stats.mostNominatedPerson.count}
+                      </p>
+                      <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.2em] text-[#444458]">
+                        nominations
+                      </p>
+                    </div>
+                  </Link>
                 )}
                 {stats.mostWinningPerson && (
-                  <div className="rounded-2xl border border-white/[0.06] bg-[#0c0c15] p-8">
-                    <p className="mb-6 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.35em] text-[#e8453c]/70">
-                      ◈ Most Winning Person
+                  <Link
+                    href={`/person/${stats.mostWinningPerson.name.toLowerCase().replace(/\s+/g, "-")}`}
+                    className="group flex items-center gap-6 py-10 sm:gap-12"
+                  >
+                    <p className="w-20 shrink-0 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase leading-relaxed tracking-[0.25em] text-[#e8453c]/60 sm:w-32">
+                      Most<br />Winning
                     </p>
-                    <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#e8453c]/10 font-[family-name:var(--font-display)] text-2xl font-black text-[#e8453c]">
-                      {initials(stats.mostWinningPerson.name)}
-                    </div>
-                    <h2 className="font-[family-name:var(--font-display)] text-3xl font-black leading-tight text-[#F0F0EB] sm:text-4xl">
+                    <h2 className="min-w-0 flex-1 font-[family-name:var(--font-display)] text-2xl font-black text-[#c8c8d8] transition-colors group-hover:text-[#F0F0EB] sm:text-4xl lg:text-5xl">
                       {stats.mostWinningPerson.name}
                     </h2>
-                    <p className="mt-3 font-[family-name:var(--font-display)] text-5xl font-black text-[#e8453c]">
-                      {stats.mostWinningPerson.count}
-                    </p>
-                    <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.3em] text-[#666680]">
-                      wins across all award bodies
-                    </p>
-                  </div>
+                    <div className="shrink-0 text-right">
+                      <p className="font-[family-name:var(--font-display)] text-5xl font-black leading-none text-[#e8453c] sm:text-6xl lg:text-7xl">
+                        {stats.mostWinningPerson.count}
+                      </p>
+                      <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.2em] text-[#444458]">
+                        wins
+                      </p>
+                    </div>
+                  </Link>
                 )}
               </div>
             </section>
           )}
 
-          {/* ── THE YEAR ──────────────────────────────────────────────── */}
+          {/* MOST CONTESTED YEAR — bold red, no ghost text */}
           {stats?.mostCompetitiveYear && (
-            <section className="border-b border-white/[0.05] py-16">
-              <SectionLabel index="04" label="Most Contested Year" />
+            <section className="border-b border-white/[0.05] py-14">
+              <p className="mb-6 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.35em] text-[#444458]">
+                Most Contested Year
+              </p>
               <Link
                 href={`/browse?awardYear=${stats.mostCompetitiveYear.awardYear}`}
-                className="group relative block overflow-hidden rounded-2xl border border-white/[0.06] bg-[#0c0c15] px-8 py-14 text-center sm:px-16"
+                className="group block overflow-hidden rounded-2xl border border-[#e8453c]/15 bg-[#0c0c15] transition-colors hover:border-[#e8453c]/30"
               >
-                {/* Ghost year in background */}
-                <p
-                  className="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 select-none text-center font-[family-name:var(--font-display)] font-black text-white/[0.03]"
-                  style={{ fontSize: "clamp(8rem, 28vw, 22rem)", lineHeight: 1 }}
-                  aria-hidden
-                >
-                  {stats.mostCompetitiveYear.awardYear}
-                </p>
-                <p className="relative mb-4 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.4em] text-[#888899]">
-                  The most contested year in awards history
-                </p>
-                <p className="relative font-[family-name:var(--font-display)] text-7xl font-black leading-none tracking-tight text-[#F0F0EB] sm:text-8xl lg:text-[9rem]">
-                  {stats.mostCompetitiveYear.awardYear}
-                </p>
-                <p className="relative mt-5 font-[family-name:var(--font-display)] text-3xl font-bold text-[#e8453c] sm:text-4xl">
-                  {stats.mostCompetitiveYear.totalNominations.toLocaleString()} nominations
-                </p>
-                <div className="relative mt-6 inline-flex items-center gap-2 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.3em] text-[#666680] transition-colors group-hover:text-[#888899]">
-                  Browse this year
-                  <ArrowUpRight className="h-3 w-3" />
+                <div className="h-px bg-[#e8453c]/40" />
+                <div className="flex flex-col items-center px-10 py-20 text-center sm:py-28">
+                  <p className="mb-4 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.4em] text-[#666680]">
+                    The most contested year in awards history
+                  </p>
+                  <p
+                    className="font-[family-name:var(--font-display)] font-black leading-none text-[#e8453c] transition-opacity group-hover:opacity-90"
+                    style={{ fontSize: "clamp(5rem, 22vw, 17rem)" }}
+                  >
+                    {stats.mostCompetitiveYear.awardYear}
+                  </p>
+                  <p className="mt-5 font-[family-name:var(--font-display)] text-2xl font-bold text-[#F0F0EB] sm:text-3xl">
+                    {stats.mostCompetitiveYear.totalNominations.toLocaleString()} nominations
+                  </p>
+                  <div className="mt-6 inline-flex items-center gap-2 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.3em] text-[#555566] transition-colors group-hover:text-[#888899]">
+                    Browse this year
+                    <ArrowUpRight className="h-3 w-3" />
+                  </div>
                 </div>
               </Link>
             </section>
           )}
 
-          {/* ── AWARD BODIES ──────────────────────────────────────────── */}
+          {/* AWARD BODIES — bar + compact inline row */}
           {stats?.awardBodyBreakdown && (
-            <section className="border-b border-white/[0.05] py-16">
-              <SectionLabel index="05" label="Films by Award Body" />
-              {/* Tall segmented bar */}
-              <div className="mb-6 flex h-6 overflow-hidden rounded-lg">
+            <section className="border-b border-white/[0.05] py-14">
+              <p className="mb-6 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.35em] text-[#444458]">
+                Films by Award Body
+              </p>
+              <div className="mb-5 flex h-2 overflow-hidden rounded-full">
                 {[
                   { key: "oscarOnly", color: "#e8453c" },
                   { key: "ggOnly", color: "#f59e0b" },
@@ -330,13 +336,13 @@ export default async function StatsPage() {
                   return (
                     <div
                       key={key}
-                      className="h-full transition-opacity hover:opacity-75"
+                      className="h-full"
                       style={{ width: `${(count / awardTotal) * 100}%`, backgroundColor: color }}
                     />
                   );
                 })}
               </div>
-              <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+              <div className="grid grid-cols-2 divide-x divide-y divide-white/[0.05] overflow-hidden rounded-2xl border border-white/[0.05] lg:grid-cols-4 lg:divide-y-0">
                 {[
                   { label: "Oscar Only", count: stats.awardBodyBreakdown.oscarOnly, color: "#e8453c", href: "/browse?awardBody=oscar" },
                   { label: "Golden Globe Only", count: stats.awardBodyBreakdown.ggOnly, color: "#f59e0b", href: "/browse?awardBody=goldenglobe" },
@@ -346,18 +352,18 @@ export default async function StatsPage() {
                   <Link
                     key={label}
                     href={href}
-                    className="group rounded-2xl border border-white/[0.06] bg-[#0c0c15] p-5 transition-colors hover:border-white/10"
+                    className="group bg-[#0c0c15] p-5 transition-colors hover:bg-[#10101c] sm:p-6"
                   >
-                    <div className="mb-3 flex items-center gap-2">
-                      <div className="h-2 w-2 rounded-full" style={{ backgroundColor: color }} />
-                      <span className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.3em] text-[#888899]">
+                    <div className="mb-4 flex items-center gap-2">
+                      <div className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: color }} />
+                      <span className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.25em] text-[#666680]">
                         {label}
                       </span>
                     </div>
                     <p className="font-[family-name:var(--font-display)] text-3xl font-black text-[#F0F0EB]">
                       {count.toLocaleString()}
                     </p>
-                    <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[8px] text-[#666680]">
+                    <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[8px] text-[#444458]">
                       {((count / awardTotal) * 100).toFixed(1)}% of total
                     </p>
                   </Link>
@@ -366,14 +372,15 @@ export default async function StatsPage() {
             </section>
           )}
 
-          {/* ── TRENDING ──────────────────────────────────────────────── */}
+          {/* TRENDING */}
           {stats && stats.topRolledFilms.length > 0 && (
-            <section className="py-16">
-              <SectionLabel index="06" label="Trending on CineRoll" />
-              <div className="grid gap-6 lg:grid-cols-2">
-                {/* Most rolled */}
+            <section className="py-14">
+              <p className="mb-8 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.35em] text-[#444458]">
+                Trending on CineRoll
+              </p>
+              <div className="grid gap-10 lg:grid-cols-2">
                 <div>
-                  <p className="mb-5 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.35em] text-[#888899]">
+                  <p className="mb-4 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.3em] text-[#e8453c]/60">
                     Most Rolled This Week
                   </p>
                   <ol className="flex flex-col">
@@ -381,29 +388,29 @@ export default async function StatsPage() {
                       <li key={film.id} className="border-t border-white/[0.05] first:border-t-0">
                         <Link
                           href={`/film/${film.slug}`}
-                          className="group flex items-center gap-4 py-4 transition-colors hover:bg-white/[0.02]"
+                          className="group flex items-center gap-4 py-3.5 transition-colors hover:bg-white/[0.02]"
                         >
-                          <span className="w-6 shrink-0 font-[family-name:var(--font-display)] text-xl font-black text-[#666680]">
+                          <span className="w-5 shrink-0 font-[family-name:var(--font-display)] text-lg font-black text-[#333346]">
                             {i + 1}
                           </span>
                           {film.posterUrl && (
                             <Image
                               src={film.posterUrl}
                               alt={film.title}
-                              width={36}
-                              height={54}
-                              className="shrink-0 rounded-lg object-cover"
+                              width={32}
+                              height={48}
+                              className="shrink-0 rounded object-cover"
                             />
                           )}
                           <div className="min-w-0 flex-1">
-                            <p className="truncate font-[family-name:var(--font-display)] text-base font-bold text-[#c8c8d8] transition-colors group-hover:text-[#F0F0EB]">
+                            <p className="truncate font-[family-name:var(--font-display)] text-sm font-bold text-[#c8c8d8] transition-colors group-hover:text-[#F0F0EB]">
                               {film.title}
                             </p>
-                            <p className="font-[family-name:var(--font-geist-mono)] text-[9px] text-[#666680]">
+                            <p className="font-[family-name:var(--font-geist-mono)] text-[9px] text-[#444458]">
                               {film.releaseYear}
                             </p>
                           </div>
-                          <span className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[10px] text-[#e8453c]/70">
+                          <span className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[9px] text-[#e8453c]/60">
                             {film.count.toLocaleString()} rolls
                           </span>
                         </Link>
@@ -412,10 +419,9 @@ export default async function StatsPage() {
                   </ol>
                 </div>
 
-                {/* Most watchlisted */}
                 {stats.topWatchlistedFilms.length > 0 && (
                   <div>
-                    <p className="mb-5 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.35em] text-[#888899]">
+                    <p className="mb-4 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.3em] text-[#4a9eff]/60">
                       Most Watchlisted
                     </p>
                     <ol className="flex flex-col">
@@ -423,29 +429,29 @@ export default async function StatsPage() {
                         <li key={film.id} className="border-t border-white/[0.05] first:border-t-0">
                           <Link
                             href={`/film/${film.slug}`}
-                            className="group flex items-center gap-4 py-4 transition-colors hover:bg-white/[0.02]"
+                            className="group flex items-center gap-4 py-3.5 transition-colors hover:bg-white/[0.02]"
                           >
-                            <span className="w-6 shrink-0 font-[family-name:var(--font-display)] text-xl font-black text-[#666680]">
+                            <span className="w-5 shrink-0 font-[family-name:var(--font-display)] text-lg font-black text-[#333346]">
                               {i + 1}
                             </span>
                             {film.posterUrl && (
                               <Image
                                 src={film.posterUrl}
                                 alt={film.title}
-                                width={36}
-                                height={54}
-                                className="shrink-0 rounded-lg object-cover"
+                                width={32}
+                                height={48}
+                                className="shrink-0 rounded object-cover"
                               />
                             )}
                             <div className="min-w-0 flex-1">
-                              <p className="truncate font-[family-name:var(--font-display)] text-base font-bold text-[#c8c8d8] transition-colors group-hover:text-[#F0F0EB]">
+                              <p className="truncate font-[family-name:var(--font-display)] text-sm font-bold text-[#c8c8d8] transition-colors group-hover:text-[#F0F0EB]">
                                 {film.title}
                               </p>
-                              <p className="font-[family-name:var(--font-geist-mono)] text-[9px] text-[#666680]">
+                              <p className="font-[family-name:var(--font-geist-mono)] text-[9px] text-[#444458]">
                                 {film.releaseYear}
                               </p>
                             </div>
-                            <span className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[10px] text-[#4a9eff]/70">
+                            <span className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[9px] text-[#4a9eff]/60">
                               {film.count.toLocaleString()} saves
                             </span>
                           </Link>
