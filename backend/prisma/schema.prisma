@@ -127,3 +127,11 @@ model Session {
 
   @@index([userId], map: "Session_userId_idx")
 }
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
