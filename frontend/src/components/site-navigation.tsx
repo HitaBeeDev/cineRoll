@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { AuthButton } from "@/components/AuthButton";
 
 const primaryNavItems = [
   { href: "/", label: "Home" },
@@ -96,34 +97,7 @@ export function SiteNavigation({
           ))}
         </div>
 
-        <div className="flex items-center gap-2">
-          <Link
-            href="/sign-in"
-            className={cn(
-              "rounded-full border border-white/10 px-4 py-2",
-              "font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.13em]",
-              "text-[#d8d4e6] transition-colors duration-150",
-              "hover:border-white/20 hover:text-white",
-              "focus-visible:outline-none focus-visible:ring-2",
-              focusRingClassName,
-            )}
-          >
-            Sign In
-          </Link>
-          <Link
-            href="/sign-up"
-            className={cn(
-              "rounded-full px-4 py-2",
-              "font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.13em]",
-              "bg-[#e8453c] text-[#F5F5F0] transition-colors duration-150",
-              "hover:bg-[#d5342b]",
-              "focus-visible:outline-none focus-visible:ring-2",
-              focusRingClassName,
-            )}
-          >
-            Sign Up
-          </Link>
-        </div>
+        <AuthButton focusRingClassName={focusRingClassName} />
       </nav>
 
       {/* Mobile hamburger */}
@@ -214,21 +188,8 @@ export function SiteNavigation({
                   </Link>
                 ))}
               </div>
-              <div className="mt-4 flex gap-3">
-                <Link
-                  href="/sign-in"
-                  className="rounded-full border border-[#2e2e42] px-5 py-2.5 font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-widest text-[#F5F5F0]"
-                  onClick={() => setIsOpen(false)}
-                >
-                  Sign In
-                </Link>
-                <Link
-                  href="/sign-up"
-                  className="rounded-full bg-[#e8453c] px-5 py-2.5 font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-widest text-[#F5F5F0]"
-                  onClick={() => setIsOpen(false)}
-                >
-                  Sign Up
-                </Link>
+              <div className="mt-4" onClick={() => setIsOpen(false)}>
+                <AuthButton focusRingClassName={focusRingClassName} />
               </div>
             </nav>
           </div>
