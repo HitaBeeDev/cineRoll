@@ -23,6 +23,11 @@ type AwardBodyBreakdown = {
   total: number;
 };
 
+const NON_PERSON_NOMINEE_PATTERN =
+  "(award|prize|honou?rary|special|achievement|jury|committee|ensemble|cast|crew|film|picture|series|program|episode|song|score|screenplay|production|cinematography|editing|effects|sound|makeup|costume)";
+const PERSON_ROLE_SUFFIX_PATTERN =
+  ",\\s*(producer|director|composer|writer|screenwriter|lyricist|performer|actor|actress)$";
+
 let watchlistTableExists: boolean | null = null;
 async function hasWatchlist(): Promise<boolean> {
   if (watchlistTableExists !== null) return watchlistTableExists;
@@ -54,24 +59,25 @@ statsRouter.get("/", async (_req, res) => {
     prisma.$queryRaw<{ name: string; count: bigint }[]>`
       SELECT nominee AS name, COUNT(*)::BIGINT AS count
       FROM (
-        SELECT award->>'nominee' AS nominee
+        SELECT regexp_replace(award->>'nominee', ${PERSON_ROLE_SUFFIX_PATTERN}, '', 'i') AS nominee
         FROM "Film", jsonb_array_elements("oscarCategories") AS award
         WHERE award->>'nominee' IS NOT NULL
           AND award->>'nominee' <> ''
           AND award->>'nominee' <> 'NaN'
         UNION ALL
-        SELECT award->>'nominee'
+        SELECT regexp_replace(award->>'nominee', ${PERSON_ROLE_SUFFIX_PATTERN}, '', 'i')
         FROM "Film", jsonb_array_elements("ggCategories") AS award
         WHERE award->>'nominee' IS NOT NULL
           AND award->>'nominee' <> ''
           AND award->>'nominee' <> 'NaN'
         UNION ALL
-        SELECT award->>'nominee'
+        SELECT regexp_replace(award->>'nominee', ${PERSON_ROLE_SUFFIX_PATTERN}, '', 'i')
         FROM "Film", jsonb_array_elements("cannesCategories") AS award
         WHERE award->>'nominee' IS NOT NULL
           AND award->>'nominee' <> ''
           AND award->>'nominee' <> 'NaN'
       ) all_nominees
+      WHERE nominee !~* ${NON_PERSON_NOMINEE_PATTERN}
       GROUP BY nominee
       ORDER BY count DESC
       LIMIT 1
@@ -81,27 +87,28 @@ statsRouter.get("/", async (_req, res) => {
     prisma.$queryRaw<{ name: string; count: bigint }[]>`
       SELECT nominee AS name, COUNT(*)::BIGINT AS count
       FROM (
-        SELECT award->>'nominee' AS nominee
+        SELECT regexp_replace(award->>'nominee', ${PERSON_ROLE_SUFFIX_PATTERN}, '', 'i') AS nominee
         FROM "Film", jsonb_array_elements("oscarCategories") AS award
         WHERE award->>'nominee' IS NOT NULL
           AND award->>'nominee' <> ''
           AND award->>'nominee' <> 'NaN'
           AND (award->>'won')::BOOLEAN = true
         UNION ALL
-        SELECT award->>'nominee'
+        SELECT regexp_replace(award->>'nominee', ${PERSON_ROLE_SUFFIX_PATTERN}, '', 'i')
         FROM "Film", jsonb_array_elements("ggCategories") AS award
         WHERE award->>'nominee' IS NOT NULL
           AND award->>'nominee' <> ''
           AND award->>'nominee' <> 'NaN'
           AND (award->>'won')::BOOLEAN = true
         UNION ALL
-        SELECT award->>'nominee'
+        SELECT regexp_replace(award->>'nominee', ${PERSON_ROLE_SUFFIX_PATTERN}, '', 'i')
         FROM "Film", jsonb_array_elements("cannesCategories") AS award
         WHERE award->>'nominee' IS NOT NULL
           AND award->>'nominee' <> ''
           AND award->>'nominee' <> 'NaN'
           AND (award->>'won')::BOOLEAN = true
       ) all_winners
+      WHERE nominee !~* ${NON_PERSON_NOMINEE_PATTERN}
       GROUP BY nominee
       ORDER BY count DESC
       LIMIT 1
