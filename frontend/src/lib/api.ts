@@ -40,6 +40,8 @@ export type RollFilm = Pick<
 
 export type RandomResult = { film: RollFilm; total: number };
 
+export type MarathonResult = { films: RollFilm[]; totalRuntime: number; total: number };
+
 export type NaturalRollFilters = Partial<Record<keyof FilterState, string | number | boolean>>;
 
 export type NaturalRollResult = {
@@ -148,6 +150,22 @@ export function filtersToParams(filters: Partial<FilterState>): URLSearchParams 
   }
   if (filters.sort && filters.sort !== "newest") params.set("sort", filters.sort);
   return params;
+}
+
+export async function fetchMarathon(
+  filters?: Partial<FilterState>,
+  count = 3,
+): Promise<MarathonResult> {
+  const params = filtersToParams(filters ?? {});
+  if (count !== 3) params.set("count", String(count));
+  const qs = params.toString();
+  const res = await fetch(`${API_URL}/api/marathon${qs ? `?${qs}` : ""}`, { cache: "no-store" });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({})) as { code?: string };
+    const err = Object.assign(new Error("fetch failed"), { code: body.code ?? "UNKNOWN" });
+    throw err;
+  }
+  return res.json() as Promise<MarathonResult>;
 }
 
 export async function fetchRandom(filters?: Partial<FilterState>): Promise<RandomResult> {
