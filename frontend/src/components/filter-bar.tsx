@@ -476,7 +476,7 @@ export function FilterBar({
         {RUNTIME_BUCKETS.map(({ label, runtimeMax, activeClass }) => (
           <PillToggle
             key={label}
-            active={filters.runtimeMax === runtimeMax}
+            active={runtimeMax !== null && filters.runtimeMax === runtimeMax}
             activeClassName={activeClass}
             onClick={() => onFiltersChange({ runtimeMax, page: 1 })}
           >
