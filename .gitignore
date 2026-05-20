@@ -62,8 +62,5 @@ backend/film-data/
 backend/prisma/
 backend/prisma.config.ts
 
-# Docs
-OLD-ORIGINAL-CHECKLIST.md
-UPDATED-NEW-CHECKLIST.md
-CLAUDE.md
-SEO-strategy.md
+# Private project docs
+docs/

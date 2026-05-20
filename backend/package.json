@@ -15,7 +15,9 @@
     "db:perf": "npx tsx film-data/scripts/perf.ts",
     "enrich": "npx tsx film-data/scripts/enrich.ts",
     "omdb-enrich": "npx tsx film-data/scripts/omdb-enrich.ts",
-    "enrich-persons": "npx tsx film-data/scripts/enrich-persons.ts"
+    "enrich-persons": "npx tsx film-data/scripts/enrich-persons.ts",
+    "build-master": "npx tsx film-data/scripts/build-master.ts",
+    "db:seed-master": "npx tsx film-data/scripts/seed-master.ts"
   },
   "keywords": [],
   "author": "",
