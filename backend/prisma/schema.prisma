@@ -46,6 +46,8 @@ model Film {
   isPickOfDay       Boolean     @default(false)
   pickOfDayDate     DateTime?
   rollEvents        RollEvent[]
+  watchlistEntries  Watchlist[]
+  watchedFilms      WatchedFilm[]
   createdAt         DateTime    @default(now())
   updatedAt         DateTime    @updatedAt
 
@@ -88,8 +90,10 @@ model User {
   providerId String
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
-  accounts   Account[]
-  sessions   Session[]
+  accounts         Account[]
+  sessions         Session[]
+  watchlistEntries Watchlist[]
+  watchedFilms     WatchedFilm[]
 
   @@unique([provider, providerId])
   @@index([email], map: "User_email_idx")
@@ -134,4 +138,29 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model Watchlist {
+  id      String   @id @default(cuid())
+  userId  String
+  filmId  String
+  addedAt DateTime @default(now())
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  film    Film     @relation(fields: [filmId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, filmId])
+  @@index([userId], map: "Watchlist_userId_idx")
+}
+
+model WatchedFilm {
+  id            String   @id @default(cuid())
+  userId        String
+  filmId        String
+  watchedAt     DateTime @default(now())
+  doNotSuggest  Boolean  @default(false)
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  film          Film     @relation(fields: [filmId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, filmId])
+  @@index([userId], map: "WatchedFilm_userId_idx")
 }
