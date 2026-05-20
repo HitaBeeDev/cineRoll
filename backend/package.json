@@ -11,11 +11,11 @@
     "type-check": "tsc --noEmit",
     "db:migrate": "prisma migrate dev",
     "db:generate": "prisma generate",
-    "db:seed": "npx tsx src/scripts/seed.ts",
-    "db:perf": "npx tsx src/scripts/perf.ts",
-    "enrich": "npx tsx src/scripts/enrich.ts",
-    "omdb-enrich": "npx tsx src/scripts/omdb-enrich.ts",
-    "enrich-persons": "npx tsx src/scripts/enrich-persons.ts"
+    "db:seed": "npx tsx film-data/scripts/seed.ts",
+    "db:perf": "npx tsx film-data/scripts/perf.ts",
+    "enrich": "npx tsx film-data/scripts/enrich.ts",
+    "omdb-enrich": "npx tsx film-data/scripts/omdb-enrich.ts",
+    "enrich-persons": "npx tsx film-data/scripts/enrich-persons.ts"
   },
   "keywords": [],
   "author": "",

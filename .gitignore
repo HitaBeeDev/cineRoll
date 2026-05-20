@@ -55,17 +55,12 @@ gemini.md
 gemini-instructions.*
 Gemini-instructions.*
 
-# Data — entire folder is private, never commit anything inside it
-backend/data/
-films-enriched.json
-films-final.json
-enrichment-errors.csv
-**/films-enriched.json
-**/films-final.json
-**/enrichment-errors.csv
+# Film data pipeline — entire folder is private, never commit anything inside it
+backend/film-data/
 
-# Scripts — private
-backend/src/scripts/
+# Prisma schema, migrations, and config
+backend/prisma/
+backend/prisma.config.ts
 
 # Docs
 OLD-ORIGINAL-CHECKLIST.md
