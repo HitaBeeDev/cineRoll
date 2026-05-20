@@ -68,7 +68,7 @@ enrichment-errors.csv
 backend/src/scripts/
 
 # Docs
-CineRoll-fullstack-checklist.md
-REMAINING-CHECKLIST.md
+OLD-ORIGINAL-CHECKLIST.md
+UPDATED-NEW-CHECKLIST.md
 CLAUDE.md
 SEO-strategy.md
