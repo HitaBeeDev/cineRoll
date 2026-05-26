@@ -18,7 +18,8 @@
     "enrich-persons": "npx tsx film-data/scripts/enrich-persons.ts",
     "build-master": "npx tsx film-data/scripts/build-master.ts",
     "db:seed-master": "npx tsx film-data/scripts/seed-master.ts",
-    "export-excel": "npx tsx film-data/scripts/export-excel.ts"
+    "export-excel": "npx tsx film-data/scripts/export-excel.ts",
+    "apply-overrides": "npx tsx film-data/scripts/apply-overrides.ts"
   },
   "keywords": [],
   "author": "",
