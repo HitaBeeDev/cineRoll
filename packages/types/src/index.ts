@@ -1,7 +1,7 @@
 export interface CastMember {
   name: string;
   character: string;
-  profileUrl: string | null;
+  photoUrl: string | null;
 }
 
 export interface AwardRecord {

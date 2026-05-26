@@ -812,11 +812,16 @@ function AwardSummaryCard({
 // ── Cast ──────────────────────────────────────────────────────────────────────
 
 function normalizeCast(raw: unknown[]): CastMember[] {
-  return raw.map((item) =>
-    typeof item === "string"
-      ? { name: item, character: "", profileUrl: null }
-      : (item as CastMember),
-  );
+  return raw.map((item) => {
+    if (typeof item === "string") return { name: item, character: "", photoUrl: null };
+    const obj = item as Record<string, unknown>;
+    return {
+      name: (obj.name as string) ?? "",
+      character: (obj.character as string) ?? "",
+      // API may return either key name — normalise to photoUrl
+      photoUrl: (obj.photoUrl ?? obj.profileUrl ?? null) as string | null,
+    };
+  });
 }
 
 function nameInitials(name: string): string {
@@ -846,9 +851,9 @@ function CastCard({ member, accent }: { member: CastMember; accent: string }) {
         className="relative w-full overflow-hidden"
         style={{ aspectRatio: "2/3" }}
       >
-        {member.profileUrl ? (
+        {member.photoUrl ? (
           <Image
-            src={member.profileUrl}
+            src={member.photoUrl}
             alt={member.name}
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 200px"
