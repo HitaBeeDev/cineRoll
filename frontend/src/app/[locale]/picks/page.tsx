@@ -320,9 +320,13 @@ function PickCard({ pick, index }: { pick: DailyPick; index: number }) {
         )}
 
         <div className="flex items-center gap-3">
-          {film.imdbRating != null && (
+          {film.imdbRating != null ? (
             <span className="font-[family-name:var(--font-geist-mono)] text-[10px] font-bold text-[#c8c8d8]">
               ★ {film.imdbRating.toFixed(1)}
+            </span>
+          ) : (
+            <span className="font-[family-name:var(--font-geist-mono)] text-[10px] font-bold text-[#c8c8d8]/40">
+              No IMDb Score
             </span>
           )}
           {film.rtScore != null ? (

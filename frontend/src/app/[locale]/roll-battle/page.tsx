@@ -134,11 +134,13 @@ function FilmBattleCard({
         )}
 
         {/* IMDb rating */}
-        {film.imdbRating != null && (
-          <div className="absolute bottom-2 right-2 rounded-md border border-[#F5F5F0]/10 bg-[#09090f]/80 px-1.5 py-0.5 font-[family-name:var(--font-geist-mono)] text-[8px] text-[#F5F5F0]/70 backdrop-blur-sm">
-            ★ {film.imdbRating.toFixed(1)}
-          </div>
-        )}
+        <div className="absolute bottom-2 right-2 rounded-md border border-[#F5F5F0]/10 bg-[#09090f]/80 px-1.5 py-0.5 font-[family-name:var(--font-geist-mono)] text-[8px] backdrop-blur-sm">
+          {film.imdbRating != null ? (
+            <span className="text-[#F5F5F0]/70">★ {film.imdbRating.toFixed(1)}</span>
+          ) : (
+            <span className="text-[#F5F5F0]/30">No IMDb</span>
+          )}
+        </div>
       </div>
 
       {/* Info */}
@@ -410,9 +412,13 @@ export default function RollBattlePage() {
                       {formatRuntime(champion.runtime)}
                     </span>
                   )}
-                  {champion.imdbRating != null && (
+                  {champion.imdbRating != null ? (
                     <span className="rounded-md border border-[#1e1e2a] bg-[#0d0d1a] px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.14em] text-[#F5F5F0]/70">
                       IMDb {champion.imdbRating.toFixed(1)}
+                    </span>
+                  ) : (
+                    <span className="rounded-md border border-[#1e1e2a] bg-[#0d0d1a] px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.14em] text-[#F5F5F0]/30">
+                      No IMDb Score
                     </span>
                   )}
                   {champion.rtScore != null ? (

@@ -192,10 +192,15 @@ function PickOfDayCard({ film }: { film: PickOfDayFilm }) {
 
           {/* Ratings + genres */}
           <div className="flex flex-wrap items-center gap-2">
-            {film.imdbRating != null && (
+            {film.imdbRating != null ? (
               <span className="flex items-center gap-1 text-sm font-semibold text-amber-400">
                 <Star className="h-4 w-4 fill-amber-400" aria-hidden />
                 {film.imdbRating.toFixed(1)}
+              </span>
+            ) : (
+              <span className="flex items-center gap-1 text-sm font-semibold text-amber-400/40">
+                <Star className="h-4 w-4 fill-amber-400/40" aria-hidden />
+                No IMDb
               </span>
             )}
             {film.rtScore != null ? (
