@@ -198,9 +198,13 @@ function PickOfDayCard({ film }: { film: PickOfDayFilm }) {
                 {film.imdbRating.toFixed(1)}
               </span>
             )}
-            {film.rtScore != null && (
+            {film.rtScore != null ? (
               <span className="text-xs font-medium text-zinc-300 tabular-nums">
                 🍅 {film.rtScore}%
+              </span>
+            ) : (
+              <span className="text-xs font-medium text-zinc-500/60 tabular-nums">
+                🍅 No RT Score
               </span>
             )}
             {film.genres.slice(0, 3).map((g) => (

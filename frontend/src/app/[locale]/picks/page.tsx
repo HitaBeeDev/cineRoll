@@ -325,9 +325,13 @@ function PickCard({ pick, index }: { pick: DailyPick; index: number }) {
               ★ {film.imdbRating.toFixed(1)}
             </span>
           )}
-          {film.rtScore != null && (
+          {film.rtScore != null ? (
             <span className="font-[family-name:var(--font-geist-mono)] text-[10px] font-bold text-[#c8c8d8]">
               RT {film.rtScore}%
+            </span>
+          ) : (
+            <span className="font-[family-name:var(--font-geist-mono)] text-[10px] font-bold text-[#c8c8d8]/40">
+              No RT Score
             </span>
           )}
           {totalWins > 0 && (

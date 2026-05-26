@@ -367,8 +367,8 @@ export default async function FilmPage({
 
                 {/* Ratings */}
                 {(film.imdbRating != null ||
-                  film.rtScore != null ||
-                  totalAwardWins > 0) && (
+                  totalAwardWins > 0 ||
+                  true) && (
                   <div className="mt-8 flex items-end gap-8">
                     {film.imdbRating != null && (
                       <div>
@@ -380,16 +380,20 @@ export default async function FilmPage({
                         </p>
                       </div>
                     )}
-                    {film.rtScore != null && (
-                      <div>
-                        <p className="mb-1.5 font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-[0.5em] text-white/32">
-                          RT
-                        </p>
+                    <div>
+                      <p className="mb-1.5 font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-[0.5em] text-white/32">
+                        RT
+                      </p>
+                      {film.rtScore != null ? (
                         <p className="font-[family-name:var(--font-display)] text-[2.5rem] font-bold leading-none text-[#F8F8F4]">
                           {film.rtScore}%
                         </p>
-                      </div>
-                    )}
+                      ) : (
+                        <p className="font-[family-name:var(--font-geist-mono)] text-sm leading-none text-white/30">
+                          No score
+                        </p>
+                      )}
+                    </div>
                     {totalAwardWins > 0 && (
                       <div>
                         <p className="mb-1.5 font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-[0.5em] text-white/32">

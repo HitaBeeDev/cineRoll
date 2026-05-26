@@ -139,9 +139,13 @@ export default async function RollBattleResultPage({
                   IMDb {film.imdbRating.toFixed(1)}
                 </span>
               )}
-              {film.rtScore != null && (
+              {film.rtScore != null ? (
                 <span className="rounded-md border border-[#1e1e2a] bg-[#0d0d1a] px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.14em] text-[#F5F5F0]/70">
                   RT {film.rtScore}%
+                </span>
+              ) : (
+                <span className="rounded-md border border-[#1e1e2a] bg-[#0d0d1a] px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.14em] text-[#F5F5F0]/30">
+                  No RT Score
                 </span>
               )}
             </div>
