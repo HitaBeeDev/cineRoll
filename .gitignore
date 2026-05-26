@@ -54,6 +54,8 @@ GEMINI.md
 gemini.md
 gemini-instructions.*
 Gemini-instructions.*
+AGENTS.md
+agents.md
 
 # Film data pipeline — entire folder is private, never commit anything inside it
 backend/film-data/
