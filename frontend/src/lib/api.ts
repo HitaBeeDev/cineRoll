@@ -211,7 +211,7 @@ export async function fetchFilms(filters: Partial<FilterState>, limit = 12): Pro
   const params = filtersToParams(filters);
   params.set("limit", String(limit));
   if (filters.page && filters.page > 1) params.set("page", String(filters.page));
-  const res = await fetch(`${API_URL}/api/films?${params}`);
+  const res = await fetch(`${API_URL}/api/films?${params}`, { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to fetch films");
   return res.json() as Promise<PaginatedFilms>;
 }
