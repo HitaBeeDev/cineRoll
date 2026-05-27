@@ -855,8 +855,8 @@ function buildActiveChips(
     chips.push({ key: "imdbMovies", label: "IMDb Top 250 Films", onRemove: () => setFilters({ imdbTopMoviesOnly: false, page: 1 }) });
   if (filters.imdbTopTvOnly)
     chips.push({ key: "imdbTv", label: "IMDb Top 250 TV", onRemove: () => setFilters({ imdbTopTvOnly: false, page: 1 }) });
-  if (filters.sort !== "title")
-    chips.push({ key: "sort", label: `Sort: ${sortLabel(filters.sort)}`, onRemove: () => setFilters({ sort: "title", page: 1 }) });
+  if (filters.sort !== "awards")
+    chips.push({ key: "sort", label: `Sort: ${sortLabel(filters.sort)}`, onRemove: () => setFilters({ sort: "awards", page: 1 }) });
   if (filters.imdbRatingMin > 0)
     chips.push({ key: "imdb", label: `IMDb ${filters.imdbRatingMin}+`, onRemove: () => setFilters({ imdbRatingMin: 0, page: 1 }) });
   if (filters.rtScoreMin > 0)
