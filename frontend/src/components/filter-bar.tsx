@@ -31,28 +31,6 @@ const DECADE_MIN = 1900;
 const DECADE_MAX = 2030;
 const DECADE_OPTIONS = Array.from({ length: (DECADE_MAX - DECADE_MIN) / 10 + 1 }, (_, i) => DECADE_MIN + i * 10);
 
-const RUNTIME_BUCKETS: { label: string; runtimeMax: number | null; activeClass: string }[] = [
-  {
-    label: "Quick Watch",
-    runtimeMax: 89,
-    activeClass: "border-[#1d4ed8] bg-gradient-to-br from-[#60a5fa] to-[#1d4ed8] text-[#0c1a3e]",
-  },
-  {
-    label: "Standard",
-    runtimeMax: 119,
-    activeClass: "border-[#64748b] bg-gradient-to-br from-[#e2e8f0] to-[#94a3b8] text-[#0f172a]",
-  },
-  {
-    label: "Long Haul",
-    runtimeMax: 149,
-    activeClass: "border-[#b45309] bg-gradient-to-br from-[#f59e0b] to-[#b45309] text-[#1c0900]",
-  },
-  {
-    label: "Epic",
-    runtimeMax: null,
-    activeClass: "border-[#5b21b6] bg-gradient-to-br from-[#a78bfa] to-[#5b21b6] text-[#0d061f]",
-  },
-];
 
 const AWARD_BODIES: { value: AwardBody; label: string }[] = [
   { value: "all", label: "All" },
@@ -240,9 +218,9 @@ export function FilterBar({
         </PillToggle>
       </FilterRow>
 
-      {/* Row 1: Person | Genre | Category */}
-      <div className="grid grid-cols-3 gap-3">
-        <div>
+      {/* Row 1: Person (span-3) | Genre */}
+      <div className="grid grid-cols-4 gap-3">
+        <div className="col-span-3">
           <span className="mb-1 block font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#9090a8]">
             Person
           </span>
@@ -338,7 +316,10 @@ export function FilterBar({
             </SelectContent>
           </Select>
         </div>
+      </div>
 
+      {/* Row 2: Category | Year | From | To */}
+      <div className="grid grid-cols-4 gap-3">
         <div>
           <span className="mb-1 block font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#9090a8]">
             Category
@@ -368,23 +349,15 @@ export function FilterBar({
             </SelectContent>
           </Select>
         </div>
-      </div>
 
-      {/* Row 2: Year | From | To */}
-      <div className="grid grid-cols-3 gap-3">
         <div>
           <span className="mb-1 block font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#9090a8]">
             Year
           </span>
           <Select
-            value={
-              filters.awardYear != null ? String(filters.awardYear) : "_any"
-            }
+            value={filters.awardYear != null ? String(filters.awardYear) : "_any"}
             onValueChange={(val) =>
-              onFiltersChange({
-                awardYear: val === "_any" ? null : Number(val),
-                page: 1,
-              })
+              onFiltersChange({ awardYear: val === "_any" ? null : Number(val), page: 1 })
             }
           >
             <SelectTrigger
@@ -466,8 +439,8 @@ export function FilterBar({
         </div>
       </div>
 
-      {/* IMDB + RT dropdowns */}
-      <div className="grid grid-cols-2 gap-3">
+      {/* Row 3: IMDb | RT | Time | Type */}
+      <div className="grid grid-cols-4 gap-3">
         <div>
           <span className="mb-1 block font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#9090a8]">
             IMDb
@@ -527,43 +500,65 @@ export function FilterBar({
             </SelectContent>
           </Select>
         </div>
+
+        <div>
+          <span className="mb-1 block font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#9090a8]">
+            Time
+          </span>
+          <Select
+            value={filters.runtimeMax == null ? "_any" : String(filters.runtimeMax)}
+            onValueChange={(val) =>
+              onFiltersChange({ runtimeMax: val === "_any" ? null : Number(val), page: 1 })
+            }
+          >
+            <SelectTrigger
+              className={cn(
+                "h-9 border-[#25253a] bg-[#0d0d1a]",
+                "font-[family-name:var(--font-geist-mono)] text-[11px] text-[#F5F5F0]",
+                "hover:border-[#2a2a3e] focus:ring-[#e8453c] focus:ring-offset-[#09090f]",
+              )}
+            >
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="_any">Any</SelectItem>
+              <SelectItem value="89">Quick Watch</SelectItem>
+              <SelectItem value="119">Standard</SelectItem>
+              <SelectItem value="149">Long Haul</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div>
+          <span className="mb-1 block font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#9090a8]">
+            Type
+          </span>
+          <Select
+            value={filters.contentType || "_all"}
+            onValueChange={(val) =>
+              onFiltersChange({ contentType: val === "_all" ? "" : val, page: 1 })
+            }
+          >
+            <SelectTrigger
+              className={cn(
+                "h-9 border-[#25253a] bg-[#0d0d1a]",
+                "font-[family-name:var(--font-geist-mono)] text-[11px] text-[#F5F5F0]",
+                "hover:border-[#2a2a3e] focus:ring-[#e8453c] focus:ring-offset-[#09090f]",
+              )}
+            >
+              <SelectValue placeholder="All" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="_all">All</SelectItem>
+              <SelectItem value="movie">Movie</SelectItem>
+              <SelectItem value="short">Short</SelectItem>
+              <SelectItem value="animation">Animation</SelectItem>
+              <SelectItem value="documentary">Doc</SelectItem>
+              <SelectItem value="tv-series">TV Series</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
-
-      {/* Runtime row */}
-      <FilterRow label="Time">
-        {RUNTIME_BUCKETS.map(({ label, runtimeMax, activeClass }) => (
-          <PillToggle
-            key={label}
-            active={runtimeMax !== null && filters.runtimeMax === runtimeMax}
-            activeClassName={activeClass}
-            onClick={() => onFiltersChange({ runtimeMax, page: 1 })}
-          >
-            {label}
-          </PillToggle>
-        ))}
-      </FilterRow>
-
-      {/* Content type row */}
-      <FilterRow label="Type">
-        {(
-          [
-            { value: "", label: "All" },
-            { value: "movie", label: "Movie" },
-            { value: "short", label: "Short" },
-            { value: "animation", label: "Animation" },
-            { value: "documentary", label: "Doc" },
-            { value: "tv-series", label: "TV Series" },
-          ] as { value: string; label: string }[]
-        ).map(({ value, label }) => (
-          <PillToggle
-            key={value}
-            active={filters.contentType === value}
-            onClick={() => onFiltersChange({ contentType: value, page: 1 })}
-          >
-            {label}
-          </PillToggle>
-        ))}
-      </FilterRow>
 
       {/* PRESET tags */}
       <div className="flex flex-wrap gap-2">
