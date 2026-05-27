@@ -466,31 +466,68 @@ export function FilterBar({
         </div>
       </div>
 
-      {/* IMDB rating row */}
-      <FilterRow label="IMDb">
-        {[0, 6, 6.5, 7, 7.5, 8, 8.5, 9].map((rating) => (
-          <PillToggle
-            key={rating}
-            active={filters.imdbRatingMin === rating}
-            onClick={() => onFiltersChange({ imdbRatingMin: rating, page: 1 })}
+      {/* IMDB + RT dropdowns */}
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <span className="mb-1 block font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#9090a8]">
+            IMDb
+          </span>
+          <Select
+            value={String(filters.imdbRatingMin)}
+            onValueChange={(val) =>
+              onFiltersChange({ imdbRatingMin: Number(val), page: 1 })
+            }
           >
-            {rating === 0 ? "Any" : `${rating}+`}
-          </PillToggle>
-        ))}
-      </FilterRow>
+            <SelectTrigger
+              className={cn(
+                "h-9 border-[#25253a] bg-[#0d0d1a]",
+                "font-[family-name:var(--font-geist-mono)] text-[11px] text-[#F5F5F0]",
+                "hover:border-[#2a2a3e] focus:ring-[#e8453c] focus:ring-offset-[#09090f]",
+                filters.imdbRatingMin > 0 && "border-[#c08818] text-[#deba4a]",
+              )}
+            >
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {[0, 6, 6.5, 7, 7.5, 8, 8.5, 9].map((rating) => (
+                <SelectItem key={rating} value={String(rating)}>
+                  {rating === 0 ? "Any" : `${rating}+`}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
-      {/* RT score row */}
-      <FilterRow label="RT">
-        {[0, 50, 60, 70, 80, 90, 95].map((score) => (
-          <PillToggle
-            key={score}
-            active={filters.rtScoreMin === score}
-            onClick={() => onFiltersChange({ rtScoreMin: score, page: 1 })}
+        <div>
+          <span className="mb-1 block font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#9090a8]">
+            RT
+          </span>
+          <Select
+            value={String(filters.rtScoreMin)}
+            onValueChange={(val) =>
+              onFiltersChange({ rtScoreMin: Number(val), page: 1 })
+            }
           >
-            {score === 0 ? "Any" : `${score}%+`}
-          </PillToggle>
-        ))}
-      </FilterRow>
+            <SelectTrigger
+              className={cn(
+                "h-9 border-[#25253a] bg-[#0d0d1a]",
+                "font-[family-name:var(--font-geist-mono)] text-[11px] text-[#F5F5F0]",
+                "hover:border-[#2a2a3e] focus:ring-[#e8453c] focus:ring-offset-[#09090f]",
+                filters.rtScoreMin > 0 && "border-[#c08818] text-[#deba4a]",
+              )}
+            >
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {[0, 50, 60, 70, 80, 90, 95].map((score) => (
+                <SelectItem key={score} value={String(score)}>
+                  {score === 0 ? "Any" : `${score}%+`}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
 
       {/* Runtime row */}
       <FilterRow label="Time">
