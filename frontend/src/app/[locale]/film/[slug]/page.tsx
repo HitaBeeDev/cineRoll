@@ -417,6 +417,18 @@ export default async function FilmPage({
                         </div>
                       </div>
                     )}
+                    {totalAwardNoms > 0 && (
+                      <div>
+                        <p className="mb-1.5 font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-[0.5em] text-white/32">
+                          Noms
+                        </p>
+                        <div className="flex min-h-10 items-end">
+                          <p className="font-[family-name:var(--font-display)] text-[2.5rem] font-bold leading-none text-white/40">
+                            {totalAwardNoms}
+                          </p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
 
