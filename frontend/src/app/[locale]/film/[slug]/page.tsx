@@ -369,46 +369,52 @@ export default async function FilmPage({
                 {(film.imdbRating != null ||
                   totalAwardWins > 0 ||
                   true) && (
-                  <div className="mt-8 flex items-end gap-8">
+                  <div className="mt-8 flex items-start gap-8">
                     <div>
                       <p className="mb-1.5 font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-[0.5em] text-white/32">
                         IMDb
                       </p>
-                      {film.imdbRating != null ? (
-                        <p className="font-[family-name:var(--font-display)] text-[2.5rem] font-bold leading-none text-[#F8F8F4]">
-                          {film.imdbRating.toFixed(1)}
-                        </p>
-                      ) : (
-                        <p className="font-[family-name:var(--font-geist-mono)] text-sm leading-none text-white/30">
-                          No score
-                        </p>
-                      )}
+                      <div className="flex min-h-10 items-end">
+                        {film.imdbRating != null ? (
+                          <p className="font-[family-name:var(--font-display)] text-[2.5rem] font-bold leading-none text-[#F8F8F4]">
+                            {film.imdbRating.toFixed(1)}
+                          </p>
+                        ) : (
+                          <p className="font-[family-name:var(--font-geist-mono)] text-sm leading-none text-white/30">
+                            No score
+                          </p>
+                        )}
+                      </div>
                     </div>
                     <div>
                       <p className="mb-1.5 font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-[0.5em] text-white/32">
                         RT
                       </p>
-                      {film.rtScore != null ? (
-                        <p className="font-[family-name:var(--font-display)] text-[2.5rem] font-bold leading-none text-[#F8F8F4]">
-                          {film.rtScore}%
-                        </p>
-                      ) : (
-                        <p className="font-[family-name:var(--font-geist-mono)] text-sm leading-none text-white/30">
-                          No score
-                        </p>
-                      )}
+                      <div className="flex min-h-10 items-end">
+                        {film.rtScore != null ? (
+                          <p className="font-[family-name:var(--font-display)] text-[2.5rem] font-bold leading-none text-[#F8F8F4]">
+                            {film.rtScore}%
+                          </p>
+                        ) : (
+                          <p className="font-[family-name:var(--font-geist-mono)] text-sm leading-none text-white/30">
+                            No score
+                          </p>
+                        )}
+                      </div>
                     </div>
                     {totalAwardWins > 0 && (
                       <div>
                         <p className="mb-1.5 font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-[0.5em] text-white/32">
                           Wins
                         </p>
-                        <p
-                          className="font-[family-name:var(--font-display)] text-[2.5rem] font-bold leading-none"
-                          style={{ color: accent }}
-                        >
-                          {totalAwardWins}
-                        </p>
+                        <div className="flex min-h-10 items-end">
+                          <p
+                            className="font-[family-name:var(--font-display)] text-[2.5rem] font-bold leading-none"
+                            style={{ color: accent }}
+                          >
+                            {totalAwardWins}
+                          </p>
+                        </div>
                       </div>
                     )}
                   </div>
