@@ -4,10 +4,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { motion, useReducedMotion } from "framer-motion";
 import {
-  ArrowDown,
+  ArrowDownWideNarrow,
   ArrowLeft,
   ArrowRight,
-  ArrowUp,
+  ArrowUpNarrowWide,
   Clapperboard,
   Search,
   Shuffle,
@@ -696,9 +696,8 @@ export function BrowsePageClient() {
               )}
             >
               {filters.sortOrder === "asc"
-                ? <ArrowUp className="h-3.5 w-3.5" aria-hidden />
-                : <ArrowDown className="h-3.5 w-3.5" aria-hidden />}
-              {filters.sortOrder === "asc" ? "Asc" : "Desc"}
+                ? <ArrowUpNarrowWide className="h-4 w-4" aria-hidden />
+                : <ArrowDownWideNarrow className="h-4 w-4" aria-hidden />}
             </button>
           </div>
         </div>
