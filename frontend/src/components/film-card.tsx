@@ -116,9 +116,18 @@ export function FilmCard({ film, className }: FilmCardProps) {
           <span className="rounded-full border border-white/15 bg-black/55 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.14em] text-white backdrop-blur-md">
             Open
           </span>
-          <span className="rounded-full border border-white/15 bg-black/55 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.14em] text-white backdrop-blur-md">
-            {film.contentType.replace("-", " ")}
-          </span>
+          <div className="flex items-center gap-1.5">
+            {film.imdbRating != null && (
+              <span className="rounded-full border border-[#f5c518]/30 bg-black/60 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[9px] font-semibold tracking-[0.08em] text-[#f5c518] backdrop-blur-md">
+                ★ {film.imdbRating}
+              </span>
+            )}
+            {film.rtScore != null && (
+              <span className="rounded-full border border-[#fa320a]/30 bg-black/60 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[9px] font-semibold tracking-[0.08em] text-[#ff6b47] backdrop-blur-md">
+                🍅 {film.rtScore}%
+              </span>
+            )}
+          </div>
         </div>
       </div>
 
