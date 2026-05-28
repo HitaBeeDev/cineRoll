@@ -117,16 +117,14 @@ export function FilmCard({ film, className }: FilmCardProps) {
             Open
           </span>
           <div className="flex items-center gap-1.5">
-            {film.imdbRating != null && (
-              <span className="rounded-full border border-[#f5c518]/30 bg-black/60 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[9px] font-semibold tracking-[0.08em] text-[#f5c518] backdrop-blur-md">
-                ★ {film.imdbRating}
-              </span>
-            )}
-            {film.rtScore != null && (
-              <span className="rounded-full border border-[#fa320a]/30 bg-black/60 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[9px] font-semibold tracking-[0.08em] text-[#ff6b47] backdrop-blur-md">
-                🍅 {film.rtScore}%
-              </span>
-            )}
+            <span className="inline-flex items-center gap-1 rounded-full border border-[#f5c518]/30 bg-black/60 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[9px] font-semibold tracking-[0.08em] text-[#f5c518] backdrop-blur-md">
+              <ImdbIcon />
+              {film.imdbRating != null ? film.imdbRating : "—"}
+            </span>
+            <span className="inline-flex items-center gap-1 rounded-full border border-[#fa320a]/30 bg-black/60 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[9px] font-semibold tracking-[0.08em] text-[#ff6b47] backdrop-blur-md">
+              <TomatoIcon />
+              {film.rtScore != null ? `${film.rtScore}%` : "—"}
+            </span>
           </div>
         </div>
       </div>
@@ -142,6 +140,24 @@ export function FilmCard({ film, className }: FilmCardProps) {
         </p>
       </div>
     </Link>
+  );
+}
+
+function ImdbIcon() {
+  return (
+    <svg viewBox="0 0 12 12" width="11" height="11" fill="currentColor" aria-hidden>
+      <polygon points="6,1 7.5,4.5 11,4.8 8.5,7 9.3,10.5 6,8.5 2.7,10.5 3.5,7 1,4.8 4.5,4.5" />
+    </svg>
+  );
+}
+
+function TomatoIcon() {
+  return (
+    <svg viewBox="0 0 12 12" width="11" height="11" fill="currentColor" aria-hidden>
+      <ellipse cx="6" cy="7" rx="4.5" ry="4" />
+      <path d="M6 3 Q7.5 1 9 1.5 Q8 3 6 3Z" opacity="0.85" />
+      <path d="M6 3 Q4.5 1 3 1.5 Q4 3 6 3Z" opacity="0.7" />
+    </svg>
   );
 }
 
