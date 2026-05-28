@@ -97,6 +97,10 @@ function filmListOrderBy(sort: ListQuery["sort"], sortOrder: ListQuery["sortOrde
     return Prisma.sql`"Film"."imdbRating" ${dir} NULLS LAST, "Film"."year" ${dirOpp}, "Film"."title" ASC`;
   }
 
+  if (sort === "rt") {
+    return Prisma.sql`"Film"."rtScore" ${dir} NULLS LAST, "Film"."year" ${dirOpp}, "Film"."title" ASC`;
+  }
+
   if (sort === "awards") {
     return Prisma.sql`
       (

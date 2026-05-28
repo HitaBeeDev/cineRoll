@@ -66,7 +66,7 @@ export interface RollEvent {
 }
 
 export type AwardBody = "oscar" | "goldenglobe" | "cannes" | "all";
-export type FilmSort = "newest" | "title" | "rating" | "awards";
+export type FilmSort = "newest" | "title" | "rating" | "rt" | "awards";
 export type SortOrder = "asc" | "desc";
 
 export interface FilterState {

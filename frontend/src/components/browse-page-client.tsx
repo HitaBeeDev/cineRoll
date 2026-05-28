@@ -54,9 +54,10 @@ type LoadStatus = "loading" | "success" | "error";
 
 const SORT_OPTIONS: { value: FilterState["sort"]; label: string }[] = [
   { value: "newest", label: "Newest" },
-  { value: "rating", label: "Rating" },
+  { value: "rating", label: "IMDb" },
+  { value: "rt",     label: "RT" },
   { value: "awards", label: "Awards" },
-  { value: "title", label: "A-Z" },
+  { value: "title",  label: "A-Z" },
 ];
 
 export function BrowsePageClient() {
@@ -945,7 +946,7 @@ function filtersFromSearchParams(params: URLSearchParams): FilterState {
     imdbTopTvOnly:     params.get("imdbTopTvOnly")     === "true",
     tvType:        params.get("tvType") ?? "",
     sort:
-      sort === "title" || sort === "rating" || sort === "awards" || sort === "newest"
+      sort === "title" || sort === "rating" || sort === "rt" || sort === "awards" || sort === "newest"
         ? sort
         : DEFAULT_FILTERS.sort,
     sortOrder: sortOrder === "asc" || sortOrder === "desc" ? sortOrder : DEFAULT_FILTERS.sortOrder,
