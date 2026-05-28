@@ -21,6 +21,7 @@ const filmListSelect = Prisma.sql`
   "Film"."posterUrl",
   "Film"."posterColor",
   "Film"."imdbRating",
+  "Film"."rtScore",
   "Film"."imdbTopMovieRank",
   "Film"."imdbTopTvRank",
   "Film"."certificate",
