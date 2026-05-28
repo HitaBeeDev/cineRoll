@@ -149,6 +149,7 @@ export function filtersToParams(filters: Partial<FilterState>): URLSearchParams 
     params.set("rtScoreMin", String(filters.rtScoreMin));
   }
   if (filters.sort && filters.sort !== "newest") params.set("sort", filters.sort);
+  if (filters.sortOrder && filters.sortOrder !== "desc") params.set("sortOrder", filters.sortOrder);
   return params;
 }
 

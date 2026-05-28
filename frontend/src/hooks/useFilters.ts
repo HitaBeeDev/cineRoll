@@ -30,6 +30,7 @@ export const DEFAULT_FILTERS: FilterState = {
   imdbTopTvOnly: false,
   tvType: "",
   sort: "awards",
+  sortOrder: "desc",
   page: 1,
 };
 

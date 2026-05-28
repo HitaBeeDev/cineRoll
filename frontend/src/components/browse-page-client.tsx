@@ -4,8 +4,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { motion, useReducedMotion } from "framer-motion";
 import {
+  ArrowDown,
   ArrowLeft,
   ArrowRight,
+  ArrowUp,
   Clapperboard,
   Search,
   Shuffle,
@@ -681,6 +683,23 @@ export function BrowsePageClient() {
                 {option.label}
               </button>
             ))}
+            <div className="mx-1 h-5 w-px bg-white/10" aria-hidden />
+            <button
+              type="button"
+              aria-label={filters.sortOrder === "asc" ? "Sort ascending" : "Sort descending"}
+              onClick={() => setFilters({ sortOrder: filters.sortOrder === "asc" ? "desc" : "asc", page: 1 })}
+              className={cn(
+                "flex h-9 items-center gap-1.5 rounded-lg px-3 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.13em] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/35",
+                filters.sortOrder === "asc"
+                  ? "bg-[#e8453c] text-white shadow-[0_10px_24px_rgba(232,69,60,0.22)]"
+                  : "bg-[#111018] text-[#a9a5bc] hover:bg-white/[0.075] hover:text-white",
+              )}
+            >
+              {filters.sortOrder === "asc"
+                ? <ArrowUp className="h-3.5 w-3.5" aria-hidden />
+                : <ArrowDown className="h-3.5 w-3.5" aria-hidden />}
+              {filters.sortOrder === "asc" ? "Asc" : "Desc"}
+            </button>
           </div>
         </div>
 
@@ -897,6 +916,7 @@ function filtersFromSearchParams(params: URLSearchParams): FilterState {
   const rtScoreMin     = numberParam(params.get("rtScoreMin"));
   const page           = numberParam(params.get("page"));
   const sort           = params.get("sort");
+  const sortOrder      = params.get("sortOrder");
 
   return {
     ...DEFAULT_FILTERS,
@@ -929,6 +949,7 @@ function filtersFromSearchParams(params: URLSearchParams): FilterState {
       sort === "title" || sort === "rating" || sort === "awards" || sort === "newest"
         ? sort
         : DEFAULT_FILTERS.sort,
+    sortOrder: sortOrder === "asc" || sortOrder === "desc" ? sortOrder : DEFAULT_FILTERS.sortOrder,
     page:          page && page > 0 ? page : DEFAULT_FILTERS.page,
   };
 }

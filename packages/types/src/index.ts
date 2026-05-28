@@ -67,6 +67,7 @@ export interface RollEvent {
 
 export type AwardBody = "oscar" | "goldenglobe" | "cannes" | "all";
 export type FilmSort = "newest" | "title" | "rating" | "awards";
+export type SortOrder = "asc" | "desc";
 
 export interface FilterState {
   search: string;
@@ -93,6 +94,7 @@ export interface FilterState {
   imdbTopTvOnly: boolean;
   tvType: string;
   sort: FilmSort;
+  sortOrder: SortOrder;
   page: number;
 }
 
