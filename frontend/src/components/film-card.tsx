@@ -94,7 +94,7 @@ export function FilmCard({ film, className }: FilmCardProps) {
                 className="inline-flex max-w-full items-center gap-1.5 rounded-full px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[8px] font-semibold uppercase tracking-[0.14em] shadow-lg shadow-black/25"
                 style={{ backgroundColor: badge.color, color: badge.text }}
               >
-                <span className="truncate">{badge.body}</span>
+                {badge.body && <span className="truncate">{badge.body}</span>}
                 <span className="shrink-0">{badge.detail}</span>
               </span>
             ) : (
@@ -107,7 +107,7 @@ export function FilmCard({ film, className }: FilmCardProps) {
                   backgroundColor: "rgba(0,0,0,0.65)",
                 }}
               >
-                <span className="truncate">{badge.body}</span>
+                {badge.body && <span className="truncate">{badge.body}</span>}
                 <span className="shrink-0">{badge.detail}</span>
               </span>
             ))}
