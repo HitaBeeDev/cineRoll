@@ -13,8 +13,10 @@ type AwardBadge = {
 } | null;
 
 function getAwardBadge(film: Film): AwardBadge {
-  if (film.oscarWins > 0)
-    return { body: "Oscar", detail: `${film.oscarWins} win${film.oscarWins === 1 ? "" : "s"}`, won: true,  color: "#e8453c", text: "#ffffff" };
+  if (film.oscarWins > 0) {
+    const totalWins = film.oscarWins + film.ggWins + film.cannesWins;
+    return { body: "", detail: `${totalWins} win`, won: true,  color: "#e8453c", text: "#ffffff" };
+  }
   if (film.ggWins > 0)
     return { body: "Golden Globe", detail: `${film.ggWins} win${film.ggWins === 1 ? "" : "s"}`, won: true,  color: "#D4AF37", text: "#09090f" };
   if (film.cannesWins > 0)
