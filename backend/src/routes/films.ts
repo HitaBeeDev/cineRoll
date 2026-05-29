@@ -109,6 +109,11 @@ function filmListOrderBy(sort: ListQuery["sort"], sortOrder: ListQuery["sortOrde
         + "Film"."ggWins"
         + "Film"."cannesWins"
       ) ${dir},
+      (
+        "Film"."oscarNominations"
+        + "Film"."ggNominations"
+        + "Film"."cannesNominations"
+      ) ${dir},
       "Film"."title" ASC
     `;
   }
