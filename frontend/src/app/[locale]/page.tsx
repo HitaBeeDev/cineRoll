@@ -396,12 +396,16 @@ export default function HomePage() {
             </button>
           </div>
 
-          {/* Hero headline */}
-          <div className="mb-10 mt-2">
+          {/* Hero headline — shrinks when filters are active so the filter
+              stack moves up and stays fully visible without scrolling. */}
+          <div className={cn("mt-2 transition-all duration-300", hasActiveFilters ? "mb-4" : "mb-10")}>
             <h1
               className={cn(
-                "font-[family-name:var(--font-display)] font-bold leading-[0.95] tracking-tight",
-                "text-[clamp(4.5rem,6.5vw,7rem)] text-[#F5F5F0]",
+                "font-[family-name:var(--font-display)] font-bold leading-[0.95] tracking-tight text-[#F5F5F0]",
+                "transition-all duration-300",
+                hasActiveFilters
+                  ? "text-[clamp(3rem,4.5vw,4.75rem)]"
+                  : "text-[clamp(4.5rem,6.5vw,7rem)]",
               )}
             >
               One spin.
