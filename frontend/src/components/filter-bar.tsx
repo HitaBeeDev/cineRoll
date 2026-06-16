@@ -181,10 +181,7 @@ export function FilterBar({
       </FilterRow>
 
       {/* GENRE */}
-      <div className="flex items-center gap-3">
-        <span className="w-[42px] shrink-0 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#9090a8]">
-          Genre
-        </span>
+      <FilterRow label="Genre">
         <Select
           value={filters.genre || "_all"}
           onValueChange={(val) =>
@@ -193,9 +190,13 @@ export function FilterBar({
         >
           <SelectTrigger
             className={cn(
-              "h-9 w-[180px] border-[#25253a] bg-[#0d0d1a]",
-              "font-[family-name:var(--font-geist-mono)] text-[11px] text-[#F5F5F0]",
-              "hover:border-[#2a2a3e] focus:ring-[#e8453c] focus:ring-offset-[#09090f]",
+              "h-auto! w-auto! gap-1.5 rounded-full! border px-3 py-1.5!",
+              "font-[family-name:var(--font-geist-mono)] text-[10px]! uppercase tracking-widest",
+              "transition-colors duration-150",
+              "[&>svg]:h-3.5 [&>svg]:w-3.5 [&>svg]:text-current! [&>svg]:opacity-70",
+              filters.genre
+                ? "border-[#c08818]! bg-gradient-to-br from-[#deba4a] to-[#c08818] text-[#1a0d00]!"
+                : "border-[#25253a]! bg-transparent! text-[#9898b8]! hover:border-[#e8453c]/40 hover:text-[#F5F5F0]",
             )}
           >
             <SelectValue placeholder="All" />
@@ -209,7 +210,7 @@ export function FilterBar({
             ))}
           </SelectContent>
         </Select>
-      </div>
+      </FilterRow>
 
       {/* Active filter chips */}
       <AnimatePresence>

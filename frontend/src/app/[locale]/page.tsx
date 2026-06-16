@@ -372,7 +372,10 @@ export default function HomePage() {
       {/* ── Two-column body ─────────────────────────────────────────── */}
       <div className="flex flex-1 flex-col lg:grid lg:grid-cols-12 lg:h-[calc(100vh-4rem)] lg:overflow-hidden">
         {/* LEFT: hero + filters + roll ──────────────────────────────── */}
-        <div className="flex flex-col overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:w-0 px-5 py-4 sm:px-8 lg:px-10 lg:py-5 lg:col-span-7">
+        <div className="flex flex-col overflow-y-auto lg:overflow-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:w-0 px-5 py-4 sm:px-8 lg:px-10 lg:py-5 lg:col-span-7">
+          {/* Scroll region: hero + filters. Filters sit just above ROLL via mt-auto;
+              when filters grow, the gap above them collapses first so ROLL never moves. */}
+          <div className="flex flex-col lg:flex-1 lg:min-h-0 lg:overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:w-0">
           {/* Channel label */}
           <div className="flex items-center justify-between gap-3">
             <p className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.25em] text-[#888899]">
@@ -417,9 +420,10 @@ export default function HomePage() {
             onFiltersChange={setFilter}
             onClearFilters={resetFilters}
           />
+          </div>
 
           {/* ROLL button + pool count + natural language CTA */}
-          <div className="mt-6 flex flex-col gap-1.5">
+          <div className="mt-6 shrink-0 flex flex-col gap-1.5">
           <div className="flex flex-wrap items-center gap-4">
             {/* Marquee-border ROLL box */}
             <motion.div
