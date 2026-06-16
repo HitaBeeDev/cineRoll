@@ -379,6 +379,13 @@ export function BrowsePageClient() {
                   </button>
                 );
               })}
+            </div>
+
+            {/* Divider */}
+            <div className="hidden h-6 w-px bg-white/10 lg:block" />
+
+            {/* Curated lists */}
+            <div className="flex w-full max-w-full items-center gap-1 overflow-x-auto rounded-md border border-white/10 bg-white/[0.025] p-1 sm:w-auto sm:overflow-visible">
               {(
                 [
                   { label: "IMDb Top 250 Films", active: filters.imdbTopMoviesOnly, fn: () => setFilters({ imdbTopMoviesOnly: !filters.imdbTopMoviesOnly, imdbTopTvOnly: false, page: 1 }) },
