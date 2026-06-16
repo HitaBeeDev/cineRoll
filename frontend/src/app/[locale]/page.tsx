@@ -452,7 +452,7 @@ export default function HomePage() {
                   : "Roll for a random film"
                 }
                 className={cn(
-                  "w-full rounded-xl py-[18px]",
+                  "flex h-[64px] w-full items-center justify-center rounded-xl",
                   "bg-[#e8453c] text-[#F5F5F0]",
                   "font-[family-name:var(--font-geist-mono)] font-bold uppercase",
                   "select-none transition-all duration-150",
