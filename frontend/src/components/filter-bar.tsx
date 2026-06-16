@@ -30,7 +30,7 @@ const DECADE_MAX = 2030;
 const AWARD_BODIES: { value: AwardBody; label: string }[] = [
   { value: "all", label: "All" },
   { value: "oscar", label: "Oscar" },
-  { value: "goldenglobe", label: "GG" },
+  { value: "goldenglobe", label: "Golden Globe" },
   { value: "cannes", label: "Cannes" },
   { value: "berlin", label: "Berlinale" },
 ];
