@@ -394,11 +394,11 @@ export default function HomePage() {
           </div>
 
           {/* Hero headline */}
-          <div className="mb-6 -mt-1">
+          <div className="mb-10 mt-2">
             <h1
               className={cn(
-                "font-[family-name:var(--font-display)] font-bold leading-[1.0] tracking-tight",
-                "text-[clamp(3.8rem,4.2vw,3.8rem)] text-[#F5F5F0]",
+                "font-[family-name:var(--font-display)] font-bold leading-[0.95] tracking-tight",
+                "text-[clamp(4.5rem,6.5vw,7rem)] text-[#F5F5F0]",
               )}
             >
               One spin.
@@ -411,6 +411,7 @@ export default function HomePage() {
 
           {/* Filters */}
           <FilterBar
+            className="mt-auto"
             filters={filters}
             genres={genres}
             onFiltersChange={setFilter}
@@ -418,7 +419,7 @@ export default function HomePage() {
           />
 
           {/* ROLL button + pool count + natural language CTA */}
-          <div className="mt-1 flex flex-col gap-1.5">
+          <div className="mt-6 flex flex-col gap-1.5">
           <div className="flex flex-wrap items-center gap-4">
             {/* Marquee-border ROLL box */}
             <motion.div
