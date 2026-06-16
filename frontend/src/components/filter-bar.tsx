@@ -389,8 +389,8 @@ function FilterRow({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex items-center gap-3">
-      <span className="w-[42px] shrink-0 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#9090a8]">
+    <div className="flex items-start gap-3">
+      <span className="w-[42px] shrink-0 pt-[7px] font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#9090a8]">
         {label}
       </span>
       <div className="flex flex-wrap gap-1.5">{children}</div>
