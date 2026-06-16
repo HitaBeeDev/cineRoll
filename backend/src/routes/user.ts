@@ -1,6 +1,182 @@
 import { Router } from "express";
-import { requireAuth } from "../middleware/auth";
+import { Prisma } from "@prisma/client";
+import { z } from "zod";
+import { prisma } from "../lib/prisma";
+import { AuthedRequest, requireAuth } from "../middleware/auth";
+import { HttpError } from "../middleware/errorHandler";
+import { getValidated, validate } from "../middleware/validate";
 
 export const userRouter = Router();
 
 userRouter.use(requireAuth);
+
+const filmIdBodySchema = z.object({
+  filmId: z.string().trim().min(1),
+});
+
+const watchedBodySchema = filmIdBodySchema.extend({
+  doNotSuggest: z.boolean().default(false),
+});
+
+const filmIdParamsSchema = z.object({
+  filmId: z.string().trim().min(1),
+});
+
+const filmSummarySelect = {
+  id: true,
+  slug: true,
+  title: true,
+  originalTitle: true,
+  releaseYear: true,
+  genres: true,
+  contentType: true,
+  posterUrl: true,
+  posterColor: true,
+  imdbRating: true,
+  rtScore: true,
+  imdbTopMovieRank: true,
+  imdbTopTvRank: true,
+  certificate: true,
+  tvType: true,
+  tvStartYear: true,
+  tvEndYear: true,
+  oscarNominations: true,
+  oscarWins: true,
+  ggNominations: true,
+  ggWins: true,
+  cannesNominations: true,
+  cannesWins: true,
+  berlinNominations: true,
+  berlinWins: true,
+} satisfies Prisma.FilmSelect;
+
+type FilmSummary = Prisma.FilmGetPayload<{ select: typeof filmSummarySelect }>;
+
+function getUserId(req: Parameters<typeof getValidated>[0]): string {
+  return (req as AuthedRequest).userId;
+}
+
+function withYear(film: FilmSummary) {
+  return { ...film, year: film.releaseYear };
+}
+
+function isUniqueConstraintError(error: unknown): boolean {
+  return (
+    error instanceof Prisma.PrismaClientKnownRequestError &&
+    error.code === "P2002"
+  );
+}
+
+async function assertFilmExists(filmId: string) {
+  const film = await prisma.film.findUnique({
+    where: { id: filmId },
+    select: { id: true },
+  });
+
+  if (!film) {
+    throw new HttpError(404, "Film not found", "FILM_NOT_FOUND");
+  }
+}
+
+userRouter.get("/watchlist", async (req, res) => {
+  const userId = getUserId(req);
+
+  const entries = await prisma.watchlist.findMany({
+    where: { userId },
+    orderBy: { addedAt: "desc" },
+    include: { film: { select: filmSummarySelect } },
+  });
+
+  res.json({
+    watchlist: entries.map(({ film, ...entry }) => ({
+      ...entry,
+      film: withYear(film),
+    })),
+  });
+});
+
+userRouter.post("/watchlist", validate(filmIdBodySchema, "body"), async (req, res) => {
+  const userId = getUserId(req);
+  const { filmId } = getValidated<z.infer<typeof filmIdBodySchema>>(req, "body");
+
+  await assertFilmExists(filmId);
+
+  try {
+    const entry = await prisma.watchlist.create({
+      data: { userId, filmId },
+      include: { film: { select: filmSummarySelect } },
+    });
+
+    const { film, ...watchlistEntry } = entry;
+    res.status(201).json({ ...watchlistEntry, film: withYear(film) });
+  } catch (error) {
+    if (isUniqueConstraintError(error)) {
+      throw new HttpError(409, "Film is already in watchlist", "WATCHLIST_ALREADY_EXISTS");
+    }
+    throw error;
+  }
+});
+
+userRouter.delete("/watchlist/:filmId", validate(filmIdParamsSchema, "params"), async (req, res) => {
+  const userId = getUserId(req);
+  const { filmId } = getValidated<z.infer<typeof filmIdParamsSchema>>(req, "params");
+
+  const result = await prisma.watchlist.deleteMany({
+    where: { userId, filmId },
+  });
+
+  if (result.count === 0) {
+    throw new HttpError(404, "Watchlist entry not found", "WATCHLIST_ENTRY_NOT_FOUND");
+  }
+
+  res.status(204).send();
+});
+
+userRouter.get("/watched", async (req, res) => {
+  const userId = getUserId(req);
+
+  const entries = await prisma.watchedFilm.findMany({
+    where: { userId },
+    orderBy: { watchedAt: "desc" },
+    include: { film: { select: filmSummarySelect } },
+  });
+
+  res.json({
+    watched: entries.map(({ film, ...entry }) => ({
+      ...entry,
+      film: withYear(film),
+    })),
+  });
+});
+
+userRouter.post("/watched", validate(watchedBodySchema, "body"), async (req, res) => {
+  const userId = getUserId(req);
+  const { filmId, doNotSuggest } = getValidated<z.infer<typeof watchedBodySchema>>(req, "body");
+
+  await assertFilmExists(filmId);
+
+  const entry = await prisma.watchedFilm.upsert({
+    where: { userId_filmId: { userId, filmId } },
+    create: { userId, filmId, doNotSuggest },
+    update: { doNotSuggest, watchedAt: new Date() },
+    include: { film: { select: filmSummarySelect } },
+  });
+
+  const { film, ...watchedEntry } = entry;
+  res.json({ ...watchedEntry, film: withYear(film) });
+});
+
+userRouter.delete("/watched/:filmId", validate(filmIdParamsSchema, "params"), async (req, res) => {
+  const userId = getUserId(req);
+  const { filmId } = getValidated<z.infer<typeof filmIdParamsSchema>>(req, "params");
+
+  const result = await prisma.watchedFilm.deleteMany({
+    where: { userId, filmId },
+  });
+
+  if (result.count === 0) {
+    throw new HttpError(404, "Watched entry not found", "WATCHED_ENTRY_NOT_FOUND");
+  }
+
+  res.status(204).send();
+});
