@@ -34,6 +34,15 @@ const AWARD_BODIES: { value: AwardBody; label: string }[] = [
   { value: "cannes", label: "Cannes" },
 ];
 
+const CONTENT_TYPES: { value: string; label: string }[] = [
+  { value: "", label: "All" },
+  { value: "movie", label: "Movie" },
+  { value: "short", label: "Short" },
+  { value: "animation", label: "Animation" },
+  { value: "documentary", label: "Documentary" },
+  { value: "tv-series", label: "TV Series" },
+];
+
 export function FilterBar({
   filters,
   genres,
@@ -158,67 +167,48 @@ export function FilterBar({
         </PillToggle>
       </FilterRow>
 
-      {/* Genre | Type */}
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <span className="mb-1 block font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#9090a8]">
-            Genre
-          </span>
-          <Select
-            value={filters.genre || "_all"}
-            onValueChange={(val) =>
-              onFiltersChange({ genre: val === "_all" ? "" : val, page: 1 })
-            }
+      {/* TYPE */}
+      <FilterRow label="Type">
+        {CONTENT_TYPES.map(({ value, label }) => (
+          <PillToggle
+            key={value || "all"}
+            active={filters.contentType === value}
+            onClick={() => onFiltersChange({ contentType: value, page: 1 })}
           >
-            <SelectTrigger
-              className={cn(
-                "h-9 border-[#25253a] bg-[#0d0d1a]",
-                "font-[family-name:var(--font-geist-mono)] text-[11px] text-[#F5F5F0]",
-                "hover:border-[#2a2a3e] focus:ring-[#e8453c] focus:ring-offset-[#09090f]",
-              )}
-            >
-              <SelectValue placeholder="All" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="_all">All</SelectItem>
-              {genres.map((genre) => (
-                <SelectItem key={genre} value={genre}>
-                  {genre}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+            {label}
+          </PillToggle>
+        ))}
+      </FilterRow>
 
-        <div>
-          <span className="mb-1 block font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#9090a8]">
-            Type
-          </span>
-          <Select
-            value={filters.contentType || "_all"}
-            onValueChange={(val) =>
-              onFiltersChange({ contentType: val === "_all" ? "" : val, page: 1 })
-            }
+      {/* GENRE */}
+      <div className="flex items-center gap-3">
+        <span className="w-[42px] shrink-0 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#9090a8]">
+          Genre
+        </span>
+        <Select
+          value={filters.genre || "_all"}
+          onValueChange={(val) =>
+            onFiltersChange({ genre: val === "_all" ? "" : val, page: 1 })
+          }
+        >
+          <SelectTrigger
+            className={cn(
+              "h-9 w-[180px] border-[#25253a] bg-[#0d0d1a]",
+              "font-[family-name:var(--font-geist-mono)] text-[11px] text-[#F5F5F0]",
+              "hover:border-[#2a2a3e] focus:ring-[#e8453c] focus:ring-offset-[#09090f]",
+            )}
           >
-            <SelectTrigger
-              className={cn(
-                "h-9 border-[#25253a] bg-[#0d0d1a]",
-                "font-[family-name:var(--font-geist-mono)] text-[11px] text-[#F5F5F0]",
-                "hover:border-[#2a2a3e] focus:ring-[#e8453c] focus:ring-offset-[#09090f]",
-              )}
-            >
-              <SelectValue placeholder="All" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="_all">All</SelectItem>
-              <SelectItem value="movie">Movie</SelectItem>
-              <SelectItem value="short">Short</SelectItem>
-              <SelectItem value="animation">Animation</SelectItem>
-              <SelectItem value="documentary">Doc</SelectItem>
-              <SelectItem value="tv-series">TV Series</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+            <SelectValue placeholder="All" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="_all">All</SelectItem>
+            {genres.map((genre) => (
+              <SelectItem key={genre} value={genre}>
+                {genre}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Active filter chips */}
