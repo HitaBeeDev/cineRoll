@@ -32,7 +32,7 @@ const AWARD_BODIES: { value: AwardBody; label: string }[] = [
   { value: "oscar", label: "Oscar" },
   { value: "goldenglobe", label: "GG" },
   { value: "cannes", label: "Cannes" },
-  { value: "berlin", label: "Berlin" },
+  { value: "berlin", label: "Berlinale" },
 ];
 
 const CONTENT_TYPES: { value: string; label: string }[] = [
@@ -313,7 +313,7 @@ function buildRollRecipe(filters: FilterState): string {
       filters.awardBody === "oscar" ? "Oscar" :
       filters.awardBody === "goldenglobe" ? "Golden Globe" :
       filters.awardBody === "cannes" ? "Cannes" :
-      filters.awardBody === "berlin" ? "Berlin" : null;
+      filters.awardBody === "berlin" ? "Berlinale" : null;
 
     if (bodyName !== null) {
       if (filters.winnerOnly) parts.push(`${bodyName} winners`);
@@ -472,7 +472,7 @@ function getActiveFilterChips(
       oscar: "Oscar",
       goldenglobe: "Golden Globe",
       cannes: "Cannes",
-      berlin: "Berlin",
+      berlin: "Berlinale",
     };
     chips.push({
       key: "awardBody",
