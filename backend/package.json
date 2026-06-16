@@ -27,7 +27,9 @@
     "check-merge": "npx tsx data/scripts/check-merge.ts",
     "merge-awards": "npx tsx data/scripts/merge-awards.ts",
     "dedup-master": "npx tsx data/scripts/dedup-master.ts",
-    "oscar-cross-check": "npx tsx data/scripts/oscar-cross-check.ts"
+    "oscar-cross-check": "npx tsx data/scripts/oscar-cross-check.ts",
+    "move-to-recall": "npx tsx data/scripts/move-to-recall.ts",
+    "recall-find": "npx tsx data/scripts/recall-find.ts"
   },
   "keywords": [],
   "author": "",
