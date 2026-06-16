@@ -19,11 +19,9 @@ import { useToast } from "@/components/ui/toast";
 import { FilterBar } from "@/components/filter-bar";
 import { AppHeader } from "@/components/app-header";
 import {
-  fetchAwardYears,
   fetchRandom,
   fetchFilms,
   fetchGenres,
-  fetchCategories,
   fetchOnboardingTasteCards,
   type RollFilm,
   type TasteCardFilm,
@@ -160,8 +158,6 @@ export default function HomePage() {
   const [filteredCount, setFilteredCount] = useState<number | null>(null);
   const [isCountLoading, setIsCountLoading] = useState(false);
   const [genres, setGenres] = useState<string[]>([]);
-  const [categories, setCategories] = useState<string[]>([]);
-  const [awardYears, setAwardYears] = useState<number[]>([]);
   const [totalCount, setTotalCount] = useState<number | null>(null);
   const [onboardingState, setOnboardingState] = useState<
     "checking" | "show" | "done"
@@ -217,8 +213,6 @@ export default function HomePage() {
   // Fetch filter metadata + total film count
   useEffect(() => {
     void fetchGenres().then(setGenres);
-    void fetchCategories().then(setCategories);
-    void fetchAwardYears().then(setAwardYears);
     void fetchRandom()
       .then((r) => setTotalCount(r.total))
       .catch(() => {});
@@ -419,8 +413,6 @@ export default function HomePage() {
           <FilterBar
             filters={filters}
             genres={genres}
-            categories={categories}
-            awardYears={awardYears}
             onFiltersChange={setFilter}
             onClearFilters={resetFilters}
           />

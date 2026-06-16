@@ -11,17 +11,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { fetchPersonSuggestions, filtersToParams, type PersonSuggestion } from "@/lib/api";
-import { MOOD_PRESETS, type MoodPreset } from "@/lib/mood-presets";
-import { DEFAULT_FILTERS } from "@/hooks/useFilters";
+import { filtersToParams } from "@/lib/api";
 import { cn, nameToSlug } from "@/lib/utils";
 import type { FilterState, AwardBody } from "@cineroll/types";
 
 interface FilterBarProps {
   filters: FilterState;
   genres: string[];
-  categories: string[];
-  awardYears?: number[];
   onFiltersChange: (updates: Partial<FilterState>) => void;
   onClearFilters: () => void;
   className?: string;
@@ -29,7 +25,6 @@ interface FilterBarProps {
 
 const DECADE_MIN = 1900;
 const DECADE_MAX = 2030;
-const DECADE_OPTIONS = Array.from({ length: (DECADE_MAX - DECADE_MIN) / 10 + 1 }, (_, i) => DECADE_MIN + i * 10);
 
 
 const AWARD_BODIES: { value: AwardBody; label: string }[] = [
@@ -42,20 +37,12 @@ const AWARD_BODIES: { value: AwardBody; label: string }[] = [
 export function FilterBar({
   filters,
   genres,
-  categories,
-  awardYears = [],
   onFiltersChange,
   onClearFilters,
   className,
 }: FilterBarProps) {
   const activeChips = getActiveFilterChips(filters, onFiltersChange);
   const recipe = buildRollRecipe(filters);
-  const [personSuggestions, setPersonSuggestions] = React.useState<
-    PersonSuggestion[]
-  >([]);
-  const [isPersonSuggestionsOpen, setIsPersonSuggestionsOpen] =
-    React.useState(false);
-  const [activePreset, setActivePreset] = React.useState<string | null>(null);
   const [isCopied, setIsCopied] = React.useState(false);
 
   async function handleShareFilters() {
@@ -76,53 +63,6 @@ export function FilterBar({
       window.setTimeout(() => setIsCopied(false), 2500);
     } catch { /* ignore */ }
   }
-
-  function applyPreset(preset: MoodPreset) {
-    if (activePreset === preset.label) {
-      const resetValues: Partial<FilterState> = { page: 1 };
-      for (const key of Object.keys(preset.filters) as Array<
-        keyof FilterState
-      >) {
-        Object.assign(resetValues, { [key]: DEFAULT_FILTERS[key] });
-      }
-      onFiltersChange(resetValues);
-      setActivePreset(null);
-      return;
-    }
-
-    onFiltersChange({ ...preset.filters, page: 1 });
-    setActivePreset(preset.label);
-  }
-
-  function clearAllFilters() {
-    setActivePreset(null);
-    onClearFilters();
-  }
-
-  React.useEffect(() => {
-    const query = filters.person.trim();
-    if (query.length < 2) {
-      const timer = window.setTimeout(() => {
-        setPersonSuggestions([]);
-        setIsPersonSuggestionsOpen(false);
-      }, 0);
-      return () => window.clearTimeout(timer);
-    }
-
-    let cancelled = false;
-    const timer = window.setTimeout(() => {
-      void fetchPersonSuggestions(query).then((suggestions) => {
-        if (cancelled) return;
-        setPersonSuggestions(suggestions);
-        setIsPersonSuggestionsOpen(suggestions.length > 0);
-      });
-    }, 180);
-
-    return () => {
-      cancelled = true;
-      window.clearTimeout(timer);
-    };
-  }, [filters.person]);
 
   return (
     <div
@@ -218,75 +158,8 @@ export function FilterBar({
         </PillToggle>
       </FilterRow>
 
-      {/* Row 1: Person (span-3) | Genre */}
-      <div className="grid grid-cols-4 gap-3">
-        <div className="col-span-3">
-          <span className="mb-1 block font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#9090a8]">
-            Person
-          </span>
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Director, actor…"
-              value={filters.person}
-              autoComplete="off"
-              onChange={(e) =>
-                onFiltersChange({ person: e.target.value, page: 1 })
-              }
-              onFocus={() => {
-                if (personSuggestions.length > 0)
-                  setIsPersonSuggestionsOpen(true);
-              }}
-              onBlur={() =>
-                window.setTimeout(() => setIsPersonSuggestionsOpen(false), 120)
-              }
-              className={cn(
-                "h-9 w-full rounded-md border border-[#25253a] bg-[#0d0d1a] px-3",
-                "font-[family-name:var(--font-geist-mono)] text-[11px] text-[#F5F5F0]",
-                "placeholder:text-[#444458] outline-none",
-                "focus:border-[#e8453c]/50 focus:ring-1 focus:ring-[#e8453c]/30",
-                "transition-colors duration-150",
-              )}
-            />
-            {isPersonSuggestionsOpen && (
-              <div className="absolute left-0 right-0 top-[calc(100%+6px)] z-50 overflow-hidden rounded-md border border-[#2a2a3e] bg-[#0b0b12] shadow-2xl shadow-black/60">
-                {personSuggestions.map((suggestion) => (
-                  <div key={suggestion.name} className="flex items-center">
-                    <button
-                      type="button"
-                      onMouseDown={(event) => event.preventDefault()}
-                      onClick={() => {
-                        onFiltersChange({ person: suggestion.name, page: 1 });
-                        setIsPersonSuggestionsOpen(false);
-                      }}
-                      className={cn(
-                        "flex min-w-0 flex-1 items-center justify-between gap-3 px-3 py-2 text-left",
-                        "transition-colors hover:bg-[#151520] focus-visible:bg-[#151520] focus-visible:outline-none",
-                      )}
-                    >
-                      <span className="truncate text-sm font-medium text-[#F5F5F0]">
-                        {suggestion.name}
-                      </span>
-                      <span className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#66667a]">
-                        {suggestion.roles.slice(0, 2).join(" / ")}
-                      </span>
-                    </button>
-                    <Link
-                      href={`/person/${nameToSlug(suggestion.name)}`}
-                      onMouseDown={(e) => e.preventDefault()}
-                      className="flex h-full shrink-0 items-center px-2.5 text-[#44445a] transition-colors hover:text-[#e8453c]"
-                      title={`View ${suggestion.name}'s profile`}
-                      tabIndex={-1}
-                    >
-                      <ArrowUpRight className="h-3.5 w-3.5" aria-hidden />
-                    </Link>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
+      {/* Genre | Type */}
+      <div className="grid grid-cols-2 gap-3">
         <div>
           <span className="mb-1 block font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#9090a8]">
             Genre
@@ -313,218 +186,6 @@ export function FilterBar({
                   {genre}
                 </SelectItem>
               ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      {/* Row 2: Category | Year | From | To */}
-      <div className="grid grid-cols-4 gap-3">
-        <div>
-          <span className="mb-1 block font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#9090a8]">
-            Category
-          </span>
-          <Select
-            value={filters.category || "_all"}
-            onValueChange={(val) =>
-              onFiltersChange({ category: val === "_all" ? "" : val, page: 1 })
-            }
-          >
-            <SelectTrigger
-              className={cn(
-                "h-9 border-[#25253a] bg-[#0d0d1a]",
-                "font-[family-name:var(--font-geist-mono)] text-[11px] text-[#F5F5F0]",
-                "hover:border-[#2a2a3e] focus:ring-[#e8453c] focus:ring-offset-[#09090f]",
-              )}
-            >
-              <SelectValue placeholder="All" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="_all">All</SelectItem>
-              {categories.map((cat) => (
-                <SelectItem key={cat} value={cat}>
-                  {cat}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div>
-          <span className="mb-1 block font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#9090a8]">
-            Year
-          </span>
-          <Select
-            value={filters.awardYear != null ? String(filters.awardYear) : "_any"}
-            onValueChange={(val) =>
-              onFiltersChange({ awardYear: val === "_any" ? null : Number(val), page: 1 })
-            }
-          >
-            <SelectTrigger
-              className={cn(
-                "h-9 border-[#25253a] bg-[#0d0d1a]",
-                "font-[family-name:var(--font-geist-mono)] text-[11px] text-[#F5F5F0]",
-                "hover:border-[#2a2a3e] focus:ring-[#e8453c] focus:ring-offset-[#09090f]",
-              )}
-            >
-              <SelectValue placeholder="Any" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="_any">Any</SelectItem>
-              {awardYears.map((year) => (
-                <SelectItem key={year} value={String(year)}>
-                  {year}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div>
-          <span className="mb-1 block font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#9090a8]">
-            From
-          </span>
-          <Select
-            value={String(filters.decadeMin)}
-            onValueChange={(val) =>
-              onFiltersChange({ decadeMin: Number(val), page: 1 })
-            }
-          >
-            <SelectTrigger
-              className={cn(
-                "h-9 border-[#25253a] bg-[#0d0d1a]",
-                "font-[family-name:var(--font-geist-mono)] text-[11px] text-[#F5F5F0]",
-                "hover:border-[#2a2a3e] focus:ring-[#e8453c] focus:ring-offset-[#09090f]",
-              )}
-            >
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {DECADE_OPTIONS.map((d) => (
-                <SelectItem key={d} value={String(d)}>
-                  {d === DECADE_MIN ? "Any" : `${d}s`}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div>
-          <span className="mb-1 block font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#9090a8]">
-            To
-          </span>
-          <Select
-            value={String(filters.decadeMax)}
-            onValueChange={(val) =>
-              onFiltersChange({ decadeMax: Number(val), page: 1 })
-            }
-          >
-            <SelectTrigger
-              className={cn(
-                "h-9 border-[#25253a] bg-[#0d0d1a]",
-                "font-[family-name:var(--font-geist-mono)] text-[11px] text-[#F5F5F0]",
-                "hover:border-[#2a2a3e] focus:ring-[#e8453c] focus:ring-offset-[#09090f]",
-              )}
-            >
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {DECADE_OPTIONS.map((d) => (
-                <SelectItem key={d} value={String(d)}>
-                  {d === DECADE_MAX ? "Any" : `${d}s`}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      {/* Row 3: IMDb | RT | Time | Type */}
-      <div className="grid grid-cols-4 gap-3">
-        <div>
-          <span className="mb-1 block font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#9090a8]">
-            IMDb
-          </span>
-          <Select
-            value={String(filters.imdbRatingMin)}
-            onValueChange={(val) =>
-              onFiltersChange({ imdbRatingMin: Number(val), page: 1 })
-            }
-          >
-            <SelectTrigger
-              className={cn(
-                "h-9 border-[#25253a] bg-[#0d0d1a]",
-                "font-[family-name:var(--font-geist-mono)] text-[11px] text-[#F5F5F0]",
-                "hover:border-[#2a2a3e] focus:ring-[#e8453c] focus:ring-offset-[#09090f]",
-                filters.imdbRatingMin > 0 && "border-[#c08818] text-[#deba4a]",
-              )}
-            >
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {[0, 6, 6.5, 7, 7.5, 8, 8.5, 9].map((rating) => (
-                <SelectItem key={rating} value={String(rating)}>
-                  {rating === 0 ? "Any" : `${rating}+`}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div>
-          <span className="mb-1 block font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#9090a8]">
-            RT
-          </span>
-          <Select
-            value={String(filters.rtScoreMin)}
-            onValueChange={(val) =>
-              onFiltersChange({ rtScoreMin: Number(val), page: 1 })
-            }
-          >
-            <SelectTrigger
-              className={cn(
-                "h-9 border-[#25253a] bg-[#0d0d1a]",
-                "font-[family-name:var(--font-geist-mono)] text-[11px] text-[#F5F5F0]",
-                "hover:border-[#2a2a3e] focus:ring-[#e8453c] focus:ring-offset-[#09090f]",
-                filters.rtScoreMin > 0 && "border-[#c08818] text-[#deba4a]",
-              )}
-            >
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {[0, 50, 60, 70, 80, 90, 95].map((score) => (
-                <SelectItem key={score} value={String(score)}>
-                  {score === 0 ? "Any" : `${score}%+`}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div>
-          <span className="mb-1 block font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#9090a8]">
-            Time
-          </span>
-          <Select
-            value={filters.runtimeMax == null ? "_any" : String(filters.runtimeMax)}
-            onValueChange={(val) =>
-              onFiltersChange({ runtimeMax: val === "_any" ? null : Number(val), page: 1 })
-            }
-          >
-            <SelectTrigger
-              className={cn(
-                "h-9 border-[#25253a] bg-[#0d0d1a]",
-                "font-[family-name:var(--font-geist-mono)] text-[11px] text-[#F5F5F0]",
-                "hover:border-[#2a2a3e] focus:ring-[#e8453c] focus:ring-offset-[#09090f]",
-              )}
-            >
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="_any">Any</SelectItem>
-              <SelectItem value="89">Quick Watch</SelectItem>
-              <SelectItem value="119">Standard</SelectItem>
-              <SelectItem value="149">Long Haul</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -560,32 +221,6 @@ export function FilterBar({
         </div>
       </div>
 
-      {/* PRESET tags */}
-      <div className="flex flex-wrap gap-2">
-        {MOOD_PRESETS.map((preset) => {
-          const active = activePreset === preset.label;
-          return (
-            <button
-              key={preset.label}
-              type="button"
-              aria-pressed={active}
-              onClick={() => applyPreset(preset)}
-              className={cn(
-                "rounded-full border px-3 py-1.5",
-                "font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest",
-                "transition-colors duration-150",
-                "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#e8453c]",
-                active
-                  ? "border-[#c08818] bg-gradient-to-br from-[#deba4a] to-[#c08818] text-[#1a0d00]"
-                  : "border-[#25253a] text-[#9090a8] hover:border-[#e8453c]/40 hover:text-[#F5F5F0]",
-              )}
-            >
-              {preset.label}
-            </button>
-          );
-        })}
-      </div>
-
       {/* Active filter chips */}
       <AnimatePresence>
         {activeChips.length > 0 && (
@@ -595,7 +230,7 @@ export function FilterBar({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="flex items-start gap-2 -mt-3 mb-2"
+            className="flex items-start gap-2 -mt-1 mb-1"
           >
             <div className="relative flex flex-1 flex-wrap gap-1.5">
               <AnimatePresence mode="popLayout">
@@ -641,7 +276,7 @@ export function FilterBar({
             </div>
             <button
               type="button"
-              onClick={clearAllFilters}
+              onClick={onClearFilters}
               className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#9090a8] transition-colors hover:text-[#e8453c] focus-visible:outline-none"
             >
               Clear all
@@ -843,6 +478,7 @@ function getActiveFilterChips(
       oscar: "Oscar",
       goldenglobe: "Golden Globe",
       cannes: "Cannes",
+      berlin: "Berlin",
     };
     chips.push({
       key: "awardBody",
