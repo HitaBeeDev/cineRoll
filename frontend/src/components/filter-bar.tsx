@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowUpRight, Check, Globe, Link2, TreePalm, X } from "lucide-react";
+import { ArrowUpRight, Check, Globe, Link2, PawPrint, TreePalm, X } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -32,6 +32,7 @@ const AWARD_BODIES: { value: AwardBody; label: string }[] = [
   { value: "oscar", label: "Oscar" },
   { value: "goldenglobe", label: "GG" },
   { value: "cannes", label: "Cannes" },
+  { value: "berlin", label: "Berlin" },
 ];
 
 const CONTENT_TYPES: { value: string; label: string }[] = [
@@ -82,8 +83,8 @@ export function FilterBar({
         Build Your Roll
       </p>
 
-      {/* BODY */}
-      <FilterRow label="Body">
+      {/* AWARDS */}
+      <FilterRow label="Awards">
         {AWARD_BODIES.map(({ value, label }) => (
           <PillToggle
             key={value}
@@ -105,6 +106,7 @@ export function FilterBar({
               {value === "oscar" && <OscarIcon />}
               {value === "goldenglobe" && <Globe className="h-[14px] w-[14px] shrink-0" aria-hidden />}
               {value === "cannes" && <TreePalm className="h-[14px] w-[14px] shrink-0" aria-hidden />}
+              {value === "berlin" && <PawPrint className="h-[14px] w-[14px] shrink-0" aria-hidden />}
               {label}
             </span>
           </PillToggle>
@@ -310,7 +312,8 @@ function buildRollRecipe(filters: FilterState): string {
     const bodyName =
       filters.awardBody === "oscar" ? "Oscar" :
       filters.awardBody === "goldenglobe" ? "Golden Globe" :
-      filters.awardBody === "cannes" ? "Cannes" : null;
+      filters.awardBody === "cannes" ? "Cannes" :
+      filters.awardBody === "berlin" ? "Berlin" : null;
 
     if (bodyName !== null) {
       if (filters.winnerOnly) parts.push(`${bodyName} winners`);

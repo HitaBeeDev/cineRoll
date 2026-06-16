@@ -42,7 +42,7 @@ const listQueryBaseSchema = z.object({
   person: z.string().trim().min(1).max(120).optional(),
   director: z.string().trim().min(1).max(120).optional(),
   femaleDirectorOnly: queryBooleanSchema.optional(),
-  awardBody: z.enum(["oscar", "goldenglobe", "cannes", "all"]).default("all"),
+  awardBody: z.enum(["oscar", "goldenglobe", "cannes", "berlin", "all"]).default("all"),
   contentType: z.string().trim().min(1).max(60).optional(),
   language: z.string().trim().min(1).max(10).optional(),
   genre: z.string().trim().min(1).max(80).optional(),
@@ -105,10 +105,14 @@ export function awardJsonSources(awardBody: ListQuery["awardBody"]) {
   if (awardBody === "cannes") {
     return [Prisma.sql`"Film"."cannesCategories"`];
   }
+  if (awardBody === "berlin") {
+    return [Prisma.sql`"Film"."berlinCategories"`];
+  }
   return [
     Prisma.sql`"Film"."oscarCategories"`,
     Prisma.sql`"Film"."ggCategories"`,
     Prisma.sql`"Film"."cannesCategories"`,
+    Prisma.sql`"Film"."berlinCategories"`,
   ];
 }
 
