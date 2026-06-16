@@ -45,9 +45,10 @@ const GRAIN_SVG = `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='h
 
 const AWARD_BODIES: { value: AwardBody; label: string }[] = [
   { value: "all",         label: "All"    },
-  { value: "oscar",       label: "Oscar"  },
-  { value: "goldenglobe", label: "GG"     },
-  { value: "cannes",      label: "Cannes" },
+  { value: "oscar",       label: "Oscar"        },
+  { value: "goldenglobe", label: "Golden Globe" },
+  { value: "cannes",      label: "Cannes"       },
+  { value: "berlin",      label: "Berlinale"    },
 ];
 
 type LoadStatus = "loading" | "success" | "error";
@@ -236,7 +237,7 @@ export function BrowsePageClient() {
               </p>
             </div>
             <div className="hidden flex-wrap items-center gap-2 sm:flex sm:justify-end">
-              {["Oscar", "Golden Globe", "Cannes", "1929-Today"].map((label) => (
+              {["Oscar", "Golden Globe", "Cannes", "Berlinale", "1929-Today"].map((label) => (
                 <span
                   key={label}
                   className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.035] px-3.5 py-1.5 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.18em] text-[#b8b5c8]"
@@ -378,6 +379,26 @@ export function BrowsePageClient() {
                   </button>
                 );
               })}
+              {(
+                [
+                  { label: "IMDb Top 250 Films", active: filters.imdbTopMoviesOnly, fn: () => setFilters({ imdbTopMoviesOnly: !filters.imdbTopMoviesOnly, imdbTopTvOnly: false, page: 1 }) },
+                  { label: "IMDb Top 250 TV",    active: filters.imdbTopTvOnly,     fn: () => setFilters({ imdbTopTvOnly: !filters.imdbTopTvOnly, imdbTopMoviesOnly: false, page: 1 }) },
+                ] as { label: string; active: boolean; fn: () => void }[]
+              ).map(({ label, active, fn }) => (
+                <button
+                  key={label}
+                  type="button"
+                  onClick={fn}
+                  className={cn(
+                    "h-8 shrink-0 rounded px-3.5 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.14em] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40",
+                    active
+                      ? "bg-[#e8453c] text-white shadow-[0_0_24px_rgba(232,69,60,0.24)]"
+                      : "text-[#7f7a91] hover:bg-white/[0.055] hover:text-[#f1eff8]",
+                  )}
+                >
+                  {label}
+                </button>
+              ))}
             </div>
 
             {/* Divider */}
@@ -535,24 +556,6 @@ export function BrowsePageClient() {
                         {label}
                       </FilterChip>
                     ))}
-                  </div>
-                </PanelSection>
-
-                {/* Lists */}
-                <PanelSection label="Curated Lists">
-                  <div className="flex flex-wrap gap-1">
-                    <FilterChip
-                      active={filters.imdbTopMoviesOnly}
-                      onClick={() => setFilters({ imdbTopMoviesOnly: !filters.imdbTopMoviesOnly, imdbTopTvOnly: false, page: 1 })}
-                    >
-                      IMDb Top 250 Films
-                    </FilterChip>
-                    <FilterChip
-                      active={filters.imdbTopTvOnly}
-                      onClick={() => setFilters({ imdbTopTvOnly: !filters.imdbTopTvOnly, imdbTopMoviesOnly: false, page: 1 })}
-                    >
-                      IMDb Top 250 TV
-                    </FilterChip>
                   </div>
                 </PanelSection>
 
@@ -857,7 +860,7 @@ function buildActiveChips(
   if (filters.femaleDirectorOnly)
     chips.push({ key: "femaleDir", label: "Female director", onRemove: () => setFilters({ femaleDirectorOnly: false, page: 1 }) });
   if (filters.awardBody !== "all")
-    chips.push({ key: "body", label: filters.awardBody, onRemove: () => setFilters({ awardBody: "all", page: 1 }) });
+    chips.push({ key: "body", label: awardBodyLabel(filters.awardBody), onRemove: () => setFilters({ awardBody: "all", page: 1 }) });
   if (filters.winnerOnly)
     chips.push({ key: "won", label: "Won", onRemove: () => setFilters({ winnerOnly: false, page: 1 }) });
   else if (filters.nominatedOnly)
@@ -892,13 +895,22 @@ function buildResultContext(filters: FilterState): string {
       ? "IMDb Top 250 films"
       : filters.imdbTopTvOnly
         ? "IMDb Top 250 TV"
-        : filters.awardBody === "goldenglobe"
-          ? "Golden Globe"
-          : filters.awardBody === "all"
-            ? "All award bodies"
-            : filters.awardBody;
+        : filters.awardBody === "all"
+          ? "All award bodies"
+          : awardBodyLabel(filters.awardBody);
   const status = filters.winnerOnly ? "winners" : filters.nominatedOnly ? "nominees" : "all results";
   return `${body} / ${status} / ${sortLabel(filters.sort)}`;
+}
+
+function awardBodyLabel(awardBody: AwardBody): string {
+  const labels: Record<AwardBody, string> = {
+    all: "All",
+    oscar: "Oscar",
+    goldenglobe: "Golden Globe",
+    cannes: "Cannes",
+    berlin: "Berlinale",
+  };
+  return labels[awardBody];
 }
 
 function sortLabel(sort: FilterState["sort"]): string {
@@ -925,7 +937,7 @@ function filtersFromSearchParams(params: URLSearchParams): FilterState {
     director:         params.get("director") ?? "",
     femaleDirectorOnly: params.get("femaleDirectorOnly") === "true",
     awardBody:
-      awardBody === "oscar" || awardBody === "goldenglobe" || awardBody === "cannes" || awardBody === "all"
+      awardBody === "oscar" || awardBody === "goldenglobe" || awardBody === "cannes" || awardBody === "berlin" || awardBody === "all"
         ? awardBody
         : DEFAULT_FILTERS.awardBody,
     winnerOnly:    params.get("winnerOnly")    === "true",
