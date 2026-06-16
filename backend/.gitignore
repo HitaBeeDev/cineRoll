@@ -3,3 +3,6 @@ node_modules
 .env
 
 /src/generated/prisma
+
+# Data pipeline working files (excels, master.json, exports, recalls)
+/data/

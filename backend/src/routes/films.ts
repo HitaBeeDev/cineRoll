@@ -33,7 +33,9 @@ const filmListSelect = Prisma.sql`
   "Film"."ggNominations",
   "Film"."ggWins",
   "Film"."cannesNominations",
-  "Film"."cannesWins"
+  "Film"."cannesWins",
+  "Film"."berlinNominations",
+  "Film"."berlinWins"
 `;
 
 const filmDetailSelect = {
@@ -72,6 +74,9 @@ const filmDetailSelect = {
   cannesNominations: true,
   cannesWins: true,
   cannesCategories: true,
+  berlinNominations: true,
+  berlinWins: true,
+  berlinCategories: true,
   watchProviders: true,
   isPickOfDay: true,
   pickOfDayDate: true,
@@ -108,11 +113,13 @@ function filmListOrderBy(sort: ListQuery["sort"], sortOrder: ListQuery["sortOrde
         "Film"."oscarWins"
         + "Film"."ggWins"
         + "Film"."cannesWins"
+        + "Film"."berlinWins"
       ) ${dir},
       (
         "Film"."oscarNominations"
         + "Film"."ggNominations"
         + "Film"."cannesNominations"
+        + "Film"."berlinNominations"
       ) ${dir},
       "Film"."title" ASC
     `;
@@ -320,7 +327,9 @@ filmsRouter.get("/", validate(listQuerySchema), async (req, res) => {
           "ggNominations",
           "ggWins",
           "cannesNominations",
-          "cannesWins"
+          "cannesWins",
+          "berlinNominations",
+          "berlinWins"
         FROM sampled
         ORDER BY RANDOM()
       `,
@@ -436,6 +445,7 @@ filmsRouter.get("/:slug/similar", validate(slugParamsSchema, "params"), async (r
     oscarNominations: number; oscarWins: number;
     ggNominations: number; ggWins: number;
     cannesNominations: number; cannesWins: number;
+    berlinNominations: number; berlinWins: number;
   };
 
   const rows = await prisma.$queryRaw<SimilarRow[]>(Prisma.sql`
@@ -463,7 +473,9 @@ filmsRouter.get("/:slug/similar", validate(slugParamsSchema, "params"), async (r
       "Film"."ggNominations",
       "Film"."ggWins",
       "Film"."cannesNominations",
-      "Film"."cannesWins"
+      "Film"."cannesWins",
+      "Film"."berlinNominations",
+      "Film"."berlinWins"
     FROM "Film"
     WHERE "Film"."id" != ${film.id}
       AND (${Prisma.join(orParts, " OR ")})

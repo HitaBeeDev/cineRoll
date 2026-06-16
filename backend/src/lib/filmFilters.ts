@@ -252,6 +252,7 @@ export function buildWhereClause(
         "Film"."oscarNominations"
         + "Film"."ggNominations"
         + "Film"."cannesNominations"
+        + "Film"."berlinNominations"
       ) = ${query.nominationCount}
     `);
   }

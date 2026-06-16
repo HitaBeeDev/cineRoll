@@ -36,6 +36,9 @@ export type RandomFilmRow = {
   cannesCategories: Prisma.JsonValue;
   cannesNominations: number;
   cannesWins: number;
+  berlinCategories: Prisma.JsonValue;
+  berlinNominations: number;
+  berlinWins: number;
 };
 
 const randomSelect = Prisma.sql`
@@ -65,7 +68,10 @@ const randomSelect = Prisma.sql`
   "Film"."ggWins",
   "Film"."cannesCategories",
   "Film"."cannesNominations",
-  "Film"."cannesWins"
+  "Film"."cannesWins",
+  "Film"."berlinCategories",
+  "Film"."berlinNominations",
+  "Film"."berlinWins"
 `;
 
 async function getDoNotSuggestFilmIds(userId: string): Promise<string[]> {

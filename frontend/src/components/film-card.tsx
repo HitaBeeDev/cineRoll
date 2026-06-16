@@ -13,20 +13,25 @@ type AwardBadge = {
 } | null;
 
 function getAwardBadge(film: Film): AwardBadge {
-  if (film.oscarWins > 0) {
-    const totalWins = film.oscarWins + film.ggWins + film.cannesWins;
-    return { body: "", detail: `${totalWins} win`, won: true,  color: "#e8453c", text: "#ffffff" };
-  }
+  const totalWins = film.oscarWins + film.ggWins + film.cannesWins + film.berlinWins;
+  const totalNoms = film.oscarNominations + film.ggNominations + film.cannesNominations + film.berlinNominations;
+  if (film.oscarWins > 0)
+    return { body: "", detail: `${totalWins} win`, won: true, color: "#e8453c", text: "#ffffff" };
   if (film.ggWins > 0)
-    return { body: "Golden Globe", detail: `${film.ggWins} win${film.ggWins === 1 ? "" : "s"}`, won: true,  color: "#D4AF37", text: "#09090f" };
+    return { body: "Golden Globe", detail: `${totalWins} win${totalWins === 1 ? "" : "s"}`, won: true, color: "#D4AF37", text: "#09090f" };
   if (film.cannesWins > 0)
-    return { body: "Cannes", detail: `${film.cannesWins} win${film.cannesWins === 1 ? "" : "s"}`, won: true,  color: "#c0a030", text: "#09090f" };
-  if (film.oscarNominations > 0)
-    return { body: "", detail: `${film.oscarNominations} nom`, won: false, color: "#e8453c", text: "#ffffff" };
-  if (film.ggNominations > 0)
-    return { body: "", detail: `${film.ggNominations} nom`, won: false, color: "#D4AF37", text: "#09090f" };
-  if (film.cannesNominations > 0)
-    return { body: "", detail: `${film.cannesNominations} nom`, won: false, color: "#c0a030", text: "#09090f" };
+    return { body: "Cannes", detail: `${totalWins} win${totalWins === 1 ? "" : "s"}`, won: true, color: "#c0a030", text: "#09090f" };
+  if (film.berlinWins > 0)
+    return { body: "Berlin", detail: `${totalWins} win${totalWins === 1 ? "" : "s"}`, won: true, color: "#c0a030", text: "#09090f" };
+  if (totalNoms > 0) {
+    if (film.oscarNominations > 0)
+      return { body: "", detail: `${totalNoms} nom`, won: false, color: "#e8453c", text: "#ffffff" };
+    if (film.ggNominations > 0)
+      return { body: "", detail: `${totalNoms} nom`, won: false, color: "#D4AF37", text: "#09090f" };
+    if (film.cannesNominations > 0)
+      return { body: "", detail: `${totalNoms} nom`, won: false, color: "#c0a030", text: "#09090f" };
+    return { body: "", detail: `${totalNoms} nom`, won: false, color: "#c0a030", text: "#09090f" };
+  }
   return null;
 }
 

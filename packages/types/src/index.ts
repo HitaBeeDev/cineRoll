@@ -5,7 +5,7 @@ export interface CastMember {
 }
 
 export interface AwardRecord {
-  awardBody: "oscar" | "goldenglobe" | "cannes";
+  awardBody: "oscar" | "goldenglobe" | "cannes" | "berlin";
   awardYear: number;
   category: string;
   nominee: string;
@@ -52,6 +52,9 @@ export interface Film {
   cannesNominations: number;
   cannesWins: number;
   cannesCategories: AwardRecord[];
+  berlinNominations: number;
+  berlinWins: number;
+  berlinCategories: AwardRecord[];
   watchProviders: Record<string, unknown> | null;
   isPickOfDay: boolean;
   pickOfDayDate: string | null;
@@ -65,7 +68,7 @@ export interface RollEvent {
   rolledAt: string;
 }
 
-export type AwardBody = "oscar" | "goldenglobe" | "cannes" | "all";
+export type AwardBody = "oscar" | "goldenglobe" | "cannes" | "berlin" | "all";
 export type FilmSort = "newest" | "title" | "rating" | "rt" | "awards";
 export type SortOrder = "asc" | "desc";
 
