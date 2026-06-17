@@ -27,6 +27,7 @@ export type TrackEventInput = {
 
 const ANON_ID_KEY = "cineroll_anon_id";
 const SESSION_ID_KEY = "cineroll_session_id";
+const IMPRESSED_FILM_IDS_KEY = "cineroll_impressed_film_ids";
 export const COOKIE_CONSENT_KEY = "cineroll_cookie_consent";
 const CONSENT_GRANTED_VALUES = new Set(["accepted", "granted", "analytics"]);
 const FLUSH_INTERVAL_MS = 5_000;
@@ -44,6 +45,7 @@ type QueuedEvent = Required<Pick<TrackEventInput, "type">> & {
 let queue: QueuedEvent[] = [];
 let flushTimer: number | null = null;
 let listenersBound = false;
+let impressedFilmIds: Set<string> | null = null;
 
 function createId(): string {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
@@ -152,6 +154,47 @@ export function trackEvent(input: TrackEventInput): void {
 
     if (queue.length >= MAX_BATCH_SIZE) void flushEvents();
     else scheduleFlush();
+  } catch {
+    // Analytics must never block the product experience.
+  }
+}
+
+function getImpressedFilmIds(): Set<string> {
+  if (impressedFilmIds) return impressedFilmIds;
+  if (typeof window === "undefined") return new Set();
+
+  const raw = window.sessionStorage.getItem(IMPRESSED_FILM_IDS_KEY);
+  const ids = raw ? JSON.parse(raw) as unknown : [];
+  impressedFilmIds = new Set(Array.isArray(ids) ? ids.filter(id => typeof id === "string") : []);
+  return impressedFilmIds;
+}
+
+function saveImpressedFilmIds(ids: Set<string>) {
+  if (typeof window === "undefined") return;
+  window.sessionStorage.setItem(IMPRESSED_FILM_IDS_KEY, JSON.stringify([...ids]));
+}
+
+export function trackFilmImpression(
+  filmId: string,
+  context?: Record<string, unknown>,
+): void {
+  if (typeof window === "undefined") return;
+  if (!hasAnalyticsConsent()) return;
+
+  try {
+    const ids = getImpressedFilmIds();
+    if (ids.has(filmId)) return;
+
+    ids.add(filmId);
+    saveImpressedFilmIds(ids);
+    trackEvent({
+      type: "impression",
+      filmId,
+      context: {
+        source: "film_card",
+        ...context,
+      },
+    });
   } catch {
     // Analytics must never block the product experience.
   }

@@ -1,8 +1,12 @@
+"use client";
+
+import { useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import type { Film } from "@cineroll/types";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
+import { trackFilmImpression } from "@/lib/analytics";
 
 type AwardBadge = {
   body: string;
@@ -51,12 +55,35 @@ interface FilmCardProps {
 }
 
 export function FilmCard({ film, className }: FilmCardProps) {
+  const cardRef = useRef<HTMLAnchorElement | null>(null);
   const badge = getAwardBadge(film);
   const listBadge = getListBadge(film);
   const primaryGenre = film.genres[0] ?? film.contentType;
 
+  useEffect(() => {
+    const node = cardRef.current;
+    if (!node || typeof IntersectionObserver === "undefined") return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry?.isIntersecting) return;
+        trackFilmImpression(film.id, {
+          title: film.title,
+          slug: film.slug,
+          surface: "shared_film_card",
+        });
+        observer.disconnect();
+      },
+      { threshold: 0.5 },
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [film.id, film.slug, film.title]);
+
   return (
     <Link
+      ref={cardRef}
       href={`/film/${film.slug}`}
       aria-label={`${film.title} (${film.year})`}
       className={cn("group block w-full min-w-0 rounded-md outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/50 focus-visible:ring-offset-4 focus-visible:ring-offset-[#08080d]", className)}
