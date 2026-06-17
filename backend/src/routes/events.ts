@@ -9,23 +9,21 @@ import { getValidated, validate } from "../middleware/validate";
 export const eventsRouter = Router();
 
 const eventTypes = [
-  "PAGE_VIEW",
-  "FILM_VIEW",
-  "ROLL_REQUESTED",
-  "ROLL_RESULT_VIEWED",
-  "NATURAL_ROLL_REQUESTED",
-  "SEARCH",
-  "FILTER_APPLIED",
-  "WATCHLIST_ADD",
-  "WATCHLIST_REMOVE",
-  "WATCHED_ADD",
-  "WATCHED_REMOVE",
-  "NOT_INTERESTED",
-  "SHARE",
-  "TRAILER_PLAY",
-  "PROVIDER_CLICK",
-  "SNOB_TEST_COMPLETED",
-  "ROLL_BATTLE_COMPLETED",
+  "roll",
+  "roll_personalized",
+  "impression",
+  "film_click",
+  "watchlist_add",
+  "watchlist_remove",
+  "watched",
+  "not_interested",
+  "rating_set",
+  "sentiment_set",
+  "recommendation_served",
+  "recommendation_click",
+  "search",
+  "filter_apply",
+  "pick_of_day_click",
 ] as const;
 
 const eventBodySchema = z.object({

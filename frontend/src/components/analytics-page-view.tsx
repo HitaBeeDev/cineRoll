@@ -11,8 +11,9 @@ export function AnalyticsPageView() {
   useEffect(() => {
     const query = searchParams.toString();
     void trackEvent({
-      type: "PAGE_VIEW",
+      type: "impression",
       context: {
+        target: "page",
         path: pathname,
         query: query || null,
         referrer: document.referrer || null,

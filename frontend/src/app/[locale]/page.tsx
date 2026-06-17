@@ -279,7 +279,7 @@ export default function HomePage() {
     setIsRolling(true);
     setFilm(null);
     void trackEvent({
-      type: "ROLL_REQUESTED",
+      type: "roll",
       context: {
         filters,
         hasActiveFilters,
@@ -296,9 +296,10 @@ export default function HomePage() {
       setFilteredCount(result.total);
       pushRollHistory(result.film);
       void trackEvent({
-        type: "ROLL_RESULT_VIEWED",
+        type: "impression",
         filmId: result.film.id,
         context: {
+          source: "roll_result",
           filters,
           total: result.total,
         },
@@ -1188,7 +1189,7 @@ function FilmCard({
 
     if (next === "watched") {
       void trackEvent({
-        type: "WATCHED_ADD",
+        type: "watched",
         filmId: film.id,
         context: { source: "roll_card" },
       });
@@ -1199,7 +1200,7 @@ function FilmCard({
       });
     } else {
       void trackEvent({
-        type: "NOT_INTERESTED",
+        type: "not_interested",
         filmId: film.id,
         context: { source: "roll_card" },
       });
@@ -1228,14 +1229,6 @@ function FilmCard({
 
     try {
       await navigator.clipboard.writeText(url);
-      void trackEvent({
-        type: "SHARE",
-        filmId: film.id,
-        context: {
-          source: "roll_card",
-          method: "clipboard",
-        },
-      });
       toast({
         variant: "success",
         title: "Link copied!",
