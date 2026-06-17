@@ -1300,6 +1300,16 @@ function FilmCard({
       // Re-upserts the watched record with the sentiment; the API helper also
       // fires the `sentiment_set` analytics event.
       await markFilmWatched(film.id, false, next);
+      toast({
+        variant: next === null ? "default" : "success",
+        title:
+          next === "like"
+            ? "Glad you liked it"
+            : next === "dislike"
+              ? "Noted — not for you"
+              : "Rating cleared",
+        description: film.title,
+      });
     } catch {
       setSentiment(previous);
       toast({
