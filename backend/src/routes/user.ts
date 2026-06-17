@@ -3,6 +3,7 @@ import { Prisma } from "@prisma/client";
 import { z } from "zod";
 import { logEvent } from "../lib/events";
 import { prisma } from "../lib/prisma";
+import { markTasteProfileStale } from "../lib/tasteProfile";
 import { AuthedRequest, requireAuth } from "../middleware/auth";
 import { HttpError } from "../middleware/errorHandler";
 import { getValidated, validate } from "../middleware/validate";
@@ -189,6 +190,16 @@ userRouter.post("/watched", validate(watchedBodySchema, "body"), async (req, res
       sentiment: sentiment ?? null,
     },
   });
+
+  if (sentiment !== undefined) {
+    await logEvent({
+      type: "sentiment_set",
+      userId,
+      filmId,
+      context: { sentiment },
+    });
+    await markTasteProfileStale(userId);
+  }
 
   const { film, ...watchedEntry } = entry;
   res.json({ ...watchedEntry, film: withYear(film) });
