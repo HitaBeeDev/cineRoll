@@ -274,5 +274,47 @@ export async function refreshTasteProfileIfStale(userId: string): Promise<void> 
   if (needsBuild) await buildTasteProfile(userId);
 }
 
+const asVector = (value: Prisma.JsonValue | null | undefined): Vector =>
+  value && typeof value === "object" && !Array.isArray(value)
+    ? (value as Vector)
+    : {};
+
+/**
+ * Consumer-facing read used by the recommender and the personalized roll.
+ * Ensures the profile is fresh (lazy rebuild on stale), then returns the typed
+ * preference vectors. Always returns a profile — empty vectors for a brand-new
+ * user with no signals.
+ */
+export async function getTasteProfile(
+  userId: string,
+): Promise<TasteProfileVectors> {
+  await refreshTasteProfileIfStale(userId);
+
+  const row = await prisma.userTasteProfile.findUnique({ where: { userId } });
+  if (row === null) {
+    return {
+      genreWeights: {},
+      directorWeights: {},
+      decadeWeights: {},
+      runtimeBandWeights: {},
+      awardAffinity: {},
+      ratingTier: {},
+      positiveCount: 0,
+      negativeCount: 0,
+    };
+  }
+
+  return {
+    genreWeights: asVector(row.genreWeights),
+    directorWeights: asVector(row.directorWeights),
+    decadeWeights: asVector(row.decadeWeights),
+    runtimeBandWeights: asVector(row.runtimeBandWeights),
+    awardAffinity: asVector(row.awardAffinity),
+    ratingTier: asVector(row.ratingTier),
+    positiveCount: row.positiveCount,
+    negativeCount: row.negativeCount,
+  };
+}
+
 // Keep SENTIMENT_WEIGHT re-exported for callers that report the scale.
 export { SENTIMENT_WEIGHT };
