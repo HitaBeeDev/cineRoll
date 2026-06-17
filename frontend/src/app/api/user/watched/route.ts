@@ -14,3 +14,19 @@ export async function POST(req: Request): Promise<Response> {
   const data = (await res.json().catch(() => ({}))) as unknown;
   return NextResponse.json(data, { status: res.status });
 }
+
+export async function DELETE(req: Request): Promise<Response> {
+  const body = (await req.json().catch(() => null)) as { filmId?: unknown } | null;
+  const filmId = typeof body?.filmId === "string" ? body.filmId : "";
+
+  const res = await apiFetch(`/api/user/watched/${encodeURIComponent(filmId)}`, {
+    method: "DELETE",
+  });
+
+  if (res.status === 204) {
+    return new Response(null, { status: 204 });
+  }
+
+  const data = (await res.json().catch(() => ({}))) as unknown;
+  return NextResponse.json(data, { status: res.status });
+}

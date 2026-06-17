@@ -241,6 +241,21 @@ export async function markFilmWatched(
   }
 }
 
+export async function removeFilmWatched(filmId: string): Promise<void> {
+  const res = await fetch(`/api/user/watched`, {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ filmId }),
+  });
+  if (!res.ok && res.status !== 204) {
+    const body = (await res.json().catch(() => ({}))) as { code?: string };
+    throw Object.assign(new Error("Failed to remove"), {
+      code: body.code ?? "UNKNOWN",
+      status: res.status,
+    });
+  }
+}
+
 export type FilmStatus = {
   watched: boolean;
   sentiment: "like" | "dislike" | null;
