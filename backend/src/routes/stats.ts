@@ -19,7 +19,7 @@ type AwardBodyBreakdown = {
   oscarOnly: number;
   ggOnly: number;
   cannesOnly: number;
-  multiAward: number;
+  berlin: number;
   total: number;
 };
 
@@ -173,7 +173,7 @@ statsRouter.get("/", async (_req, res) => {
       oscarOnly: bigint;
       ggOnly: bigint;
       cannesOnly: bigint;
-      multiAward: bigint;
+      berlin: bigint;
       total: bigint;
     }[]>`
       SELECT
@@ -187,15 +187,11 @@ statsRouter.get("/", async (_req, res) => {
           WHERE "cannesNominations" > 0 AND "oscarNominations" = 0 AND "ggNominations" = 0
         )::BIGINT AS "cannesOnly",
         COUNT(*) FILTER (
-          WHERE (
-            (CASE WHEN "oscarNominations" > 0 THEN 1 ELSE 0 END)
-            + (CASE WHEN "ggNominations" > 0 THEN 1 ELSE 0 END)
-            + (CASE WHEN "cannesNominations" > 0 THEN 1 ELSE 0 END)
-          ) > 1
-        )::BIGINT AS "multiAward",
+          WHERE "berlinNominations" > 0 AND "oscarNominations" = 0 AND "ggNominations" = 0 AND "cannesNominations" = 0
+        )::BIGINT AS "berlin",
         COUNT(*)::BIGINT AS total
       FROM "Film"
-      WHERE "oscarNominations" > 0 OR "ggNominations" > 0 OR "cannesNominations" > 0
+      WHERE "oscarNominations" > 0 OR "ggNominations" > 0 OR "cannesNominations" > 0 OR "berlinNominations" > 0
     `,
 
     // Top 5 most-rolled films
@@ -265,7 +261,7 @@ statsRouter.get("/", async (_req, res) => {
         oscarOnly: toBigIntNumber(awardBodyRows[0].oscarOnly),
         ggOnly: toBigIntNumber(awardBodyRows[0].ggOnly),
         cannesOnly: toBigIntNumber(awardBodyRows[0].cannesOnly),
-        multiAward: toBigIntNumber(awardBodyRows[0].multiAward),
+        berlin: toBigIntNumber(awardBodyRows[0].berlin),
         total: toBigIntNumber(awardBodyRows[0].total),
       }
     : null;

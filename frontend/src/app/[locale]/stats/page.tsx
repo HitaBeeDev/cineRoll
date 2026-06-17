@@ -46,7 +46,7 @@ type StatsResponse = {
     oscarOnly: number;
     ggOnly: number;
     cannesOnly: number;
-    multiAward: number;
+    berlin: number;
     total: number;
   } | null;
   topRolledFilms: FilmStat[];
@@ -272,7 +272,7 @@ export default async function StatsPage() {
                       { key: "oscarOnly", color: "#e8453c" },
                       { key: "ggOnly", color: "#D4AF37" },
                       { key: "cannesOnly", color: "#4a9eff" },
-                      { key: "multiAward", color: "#a78bfa" },
+                      { key: "berlin", color: "#a78bfa" },
                     ].map(({ key, color }) => {
                       const count = stats.awardBodyBreakdown![key as keyof typeof stats.awardBodyBreakdown] as number;
                       return (
@@ -289,7 +289,7 @@ export default async function StatsPage() {
                       { label: "Oscar only", count: stats.awardBodyBreakdown.oscarOnly, color: "#e8453c", href: "/browse?awardBody=oscar" },
                       { label: "Golden Globe only", count: stats.awardBodyBreakdown.ggOnly, color: "#D4AF37", href: "/browse?awardBody=goldenglobe" },
                       { label: "Cannes only", count: stats.awardBodyBreakdown.cannesOnly, color: "#4a9eff", href: "/browse?awardBody=cannes" },
-                      { label: "Multi-award", count: stats.awardBodyBreakdown.multiAward, color: "#a78bfa", href: "/browse" },
+                      { label: "Berlin only", count: stats.awardBodyBreakdown.berlin, color: "#a78bfa", href: "/browse?awardBody=berlin" },
                     ].map((item) => (
                       <BreakdownLink
                         key={item.label}
