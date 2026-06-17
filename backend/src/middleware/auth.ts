@@ -4,17 +4,22 @@ import { hkdfSync } from "crypto";
 
 export type AuthedRequest = Request & { userId: string };
 
-// Salt matches the Auth.js default session cookie name
+// Salt must match the one used when the frontend mints the token
+// (src/lib/apiWithAuth.ts) and the Auth.js session cookie name.
 const SALT = "authjs.session-token";
 
-function deriveEncryptionKey(secret: string): Uint8Array {
+// Auth.js derives the key length from the content-encryption algorithm:
+// A256CBC-HS512 needs 64 bytes, A256GCM needs 32. `encode()` defaults to
+// A256CBC-HS512, while the session cookie uses A256GCM — support both.
+function deriveEncryptionKey(secret: string, enc: string): Uint8Array {
+  const length = enc === "A256CBC-HS512" ? 64 : 32;
   return new Uint8Array(
     hkdfSync(
       "sha256",
       secret,
       SALT,
       `Auth.js Generated Encryption Key (${SALT})`,
-      32,
+      length,
     ),
   );
 }
@@ -40,12 +45,15 @@ export async function requireAuth(
   }
 
   try {
-    const key = deriveEncryptionKey(secret);
-    const { payload } = await jwtDecrypt(token, key, {
-      clockTolerance: 15,
-      contentEncryptionAlgorithms: ["A256GCM", "A256CBC-HS512"],
-      keyManagementAlgorithms: ["dir"],
-    });
+    const { payload } = await jwtDecrypt(
+      token,
+      (header) => deriveEncryptionKey(secret, header.enc ?? "A256CBC-HS512"),
+      {
+        clockTolerance: 15,
+        contentEncryptionAlgorithms: ["A256GCM", "A256CBC-HS512"],
+        keyManagementAlgorithms: ["dir"],
+      },
+    );
 
     const userId = (payload["sub"] ?? payload["userId"]) as string | undefined;
     if (!userId) {
