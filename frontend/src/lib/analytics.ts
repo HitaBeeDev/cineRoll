@@ -29,6 +29,21 @@ const ANON_ID_KEY = "cineroll_anon_id";
 const SESSION_ID_KEY = "cineroll_session_id";
 export const COOKIE_CONSENT_KEY = "cineroll_cookie_consent";
 const CONSENT_GRANTED_VALUES = new Set(["accepted", "granted", "analytics"]);
+const FLUSH_INTERVAL_MS = 5_000;
+const MAX_BATCH_SIZE = 25;
+
+type QueuedEvent = Required<Pick<TrackEventInput, "type">> & {
+  anonId: string;
+  sessionId: string;
+  filmId: string | null;
+  context: Record<string, unknown>;
+  variant: string | null;
+  consent: "granted";
+};
+
+let queue: QueuedEvent[] = [];
+let flushTimer: number | null = null;
+let listenersBound = false;
 
 function createId(): string {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
@@ -54,28 +69,89 @@ export function hasAnalyticsConsent(): boolean {
   );
 }
 
-export async function trackEvent(input: TrackEventInput): Promise<void> {
+function takeBatch(): QueuedEvent[] {
+  return queue.splice(0, MAX_BATCH_SIZE);
+}
+
+function sendBeaconBatch(events: QueuedEvent[]): boolean {
+  if (!("sendBeacon" in navigator)) return false;
+
+  const body = JSON.stringify(events);
+  const payload = new Blob([body], { type: "application/json" });
+  return navigator.sendBeacon("/api/events", payload);
+}
+
+async function sendFetchBatch(events: QueuedEvent[]): Promise<void> {
+  await fetch("/api/events", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(events),
+    keepalive: true,
+  });
+}
+
+function scheduleFlush() {
+  if (flushTimer !== null) return;
+  flushTimer = window.setTimeout(() => {
+    flushTimer = null;
+    void flushEvents();
+  }, FLUSH_INTERVAL_MS);
+}
+
+export async function flushEvents(useBeacon = false): Promise<void> {
+  if (typeof window === "undefined") return;
+  if (queue.length === 0) return;
+
+  while (queue.length > 0) {
+    const batch = takeBatch();
+
+    try {
+      if (useBeacon && sendBeaconBatch(batch)) continue;
+      await sendFetchBatch(batch);
+    } catch {
+      queue = [...batch, ...queue].slice(0, MAX_BATCH_SIZE);
+      scheduleFlush();
+      return;
+    }
+  }
+}
+
+function bindLifecycleFlush() {
+  if (listenersBound || typeof window === "undefined") return;
+  listenersBound = true;
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") {
+      void flushEvents(true);
+    }
+  });
+
+  window.addEventListener("pagehide", () => {
+    void flushEvents(true);
+  });
+}
+
+export function trackEvent(input: TrackEventInput): void {
   if (typeof window === "undefined") return;
   if (!hasAnalyticsConsent()) return;
 
   try {
+    bindLifecycleFlush();
     const anonId = getStoredId(window.localStorage, ANON_ID_KEY);
     const sessionId = getStoredId(window.sessionStorage, SESSION_ID_KEY);
 
-    await fetch("/api/events", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify([{
-        anonId,
-        sessionId,
-        type: input.type,
-        filmId: input.filmId ?? null,
-        context: input.context ?? {},
-        variant: input.variant ?? null,
-        consent: "granted",
-      }]),
-      keepalive: true,
+    queue.push({
+      anonId,
+      sessionId,
+      type: input.type,
+      filmId: input.filmId ?? null,
+      context: input.context ?? {},
+      variant: input.variant ?? null,
+      consent: "granted",
     });
+
+    if (queue.length >= MAX_BATCH_SIZE) void flushEvents();
+    else scheduleFlush();
   } catch {
     // Analytics must never block the product experience.
   }
