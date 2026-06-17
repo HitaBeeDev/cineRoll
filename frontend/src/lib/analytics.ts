@@ -27,6 +27,8 @@ export type TrackEventInput = {
 
 const ANON_ID_KEY = "cineroll_anon_id";
 const SESSION_ID_KEY = "cineroll_session_id";
+export const COOKIE_CONSENT_KEY = "cineroll_cookie_consent";
+const CONSENT_GRANTED_VALUES = new Set(["accepted", "granted", "analytics"]);
 
 function createId(): string {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
@@ -45,8 +47,16 @@ function getStoredId(storage: Storage, key: string): string {
   return id;
 }
 
+export function hasAnalyticsConsent(): boolean {
+  if (typeof window === "undefined") return false;
+  return CONSENT_GRANTED_VALUES.has(
+    window.localStorage.getItem(COOKIE_CONSENT_KEY) ?? "",
+  );
+}
+
 export async function trackEvent(input: TrackEventInput): Promise<void> {
   if (typeof window === "undefined") return;
+  if (!hasAnalyticsConsent()) return;
 
   try {
     const anonId = getStoredId(window.localStorage, ANON_ID_KEY);
@@ -62,6 +72,7 @@ export async function trackEvent(input: TrackEventInput): Promise<void> {
         filmId: input.filmId ?? null,
         context: input.context ?? {},
         variant: input.variant ?? null,
+        consent: "granted",
       }]),
       keepalive: true,
     });

@@ -38,6 +38,7 @@ const eventBodySchema = z.object({
   filmId: z.string().trim().min(1).nullable().optional(),
   context: z.record(z.string(), z.unknown()).default({}),
   variant: z.string().trim().min(1).max(128).nullable().optional(),
+  consent: z.enum(["granted", "denied"]).default("denied"),
 }).strict();
 
 const eventBatchBodySchema = z.array(eventBodySchema).min(1).max(MAX_BATCH_SIZE);
@@ -86,8 +87,14 @@ eventsRouter.post(
     const userId = (req as OptionallyAuthedRequest).userId;
     const events = getValidated<EventBody[]>(req, "body");
     assertRateLimit(getClientIp(req), events.length);
+    const consentedEvents = events.filter(event => event.consent === "granted");
 
-    const filmIds = [...new Set(events.flatMap(event => event.filmId ? [event.filmId] : []))];
+    if (consentedEvents.length === 0) {
+      res.status(202).json({ count: 0, dropped: events.length });
+      return;
+    }
+
+    const filmIds = [...new Set(consentedEvents.flatMap(event => event.filmId ? [event.filmId] : []))];
 
     if (filmIds.length > 0) {
       const films = await prisma.film.findMany({
@@ -100,7 +107,7 @@ eventsRouter.post(
     }
 
     const result = await prisma.event.createMany({
-      data: events.map(event => ({
+      data: consentedEvents.map(event => ({
         userId: userId ?? null,
         anonId: event.anonId ?? null,
         sessionId: event.sessionId,
@@ -111,6 +118,6 @@ eventsRouter.post(
       })),
     });
 
-    res.status(201).json({ count: result.count });
+    res.status(201).json({ count: result.count, dropped: events.length - result.count });
   },
 );
