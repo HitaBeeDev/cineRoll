@@ -1284,11 +1284,6 @@ function FilmCard({
 
     try {
       await addFilmToWatchlist(film.id);
-      trackEvent({
-        type: "watchlist_add",
-        filmId: film.id,
-        context: { source: "roll_card" },
-      });
       toast({
         variant: "success",
         title: "Added to watchlist",

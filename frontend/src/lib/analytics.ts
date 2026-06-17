@@ -199,3 +199,33 @@ export function trackFilmImpression(
     // Analytics must never block the product experience.
   }
 }
+
+export function trackRatingSet(
+  filmId: string,
+  rating: number,
+  context?: Record<string, unknown>,
+): void {
+  trackEvent({
+    type: "rating_set",
+    filmId,
+    context: {
+      rating,
+      ...context,
+    },
+  });
+}
+
+export function trackSentimentSet(
+  filmId: string,
+  sentiment: string,
+  context?: Record<string, unknown>,
+): void {
+  trackEvent({
+    type: "sentiment_set",
+    filmId,
+    context: {
+      sentiment,
+      ...context,
+    },
+  });
+}

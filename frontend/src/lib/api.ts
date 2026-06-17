@@ -1,4 +1,5 @@
 import type { AwardRecord, Film, FilterState, PaginatedFilms } from "@cineroll/types";
+import { trackEvent } from "@/lib/analytics";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 
@@ -225,6 +226,12 @@ export async function markFilmWatched(
       status: res.status,
     });
   }
+
+  trackEvent({
+    type: "watchlist_add",
+    filmId,
+    context: { source: "watchlist_api" },
+  });
 }
 
 export async function addFilmToWatchlist(filmId: string): Promise<void> {
@@ -236,6 +243,27 @@ export async function addFilmToWatchlist(filmId: string): Promise<void> {
   if (!res.ok) {
     const body = (await res.json().catch(() => ({}))) as { code?: string };
     throw Object.assign(new Error("Failed to save"), {
+      code: body.code ?? "UNKNOWN",
+      status: res.status,
+    });
+  }
+
+  trackEvent({
+    type: "watchlist_remove",
+    filmId,
+    context: { source: "watchlist_api" },
+  });
+}
+
+export async function removeFilmFromWatchlist(filmId: string): Promise<void> {
+  const res = await fetch(`/api/user/watchlist`, {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ filmId }),
+  });
+  if (!res.ok) {
+    const body = (await res.json().catch(() => ({}))) as { code?: string };
+    throw Object.assign(new Error("Failed to remove"), {
       code: body.code ?? "UNKNOWN",
       status: res.status,
     });
