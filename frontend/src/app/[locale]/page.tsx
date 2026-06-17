@@ -40,6 +40,7 @@ const ONBOARDED_STORAGE_KEY = "cineroll_onboarded";
 const PENDING_WATCHED_STORAGE_KEY = "cineroll_pending_watched_films";
 const TASTE_SEED_STORAGE_KEY = "cineroll_taste_seed";
 const TASTE_SEED_SYNCED_KEY = "cineroll_taste_seed_synced";
+const PERSONALIZED_ROLL_KEY = "cineroll_personalized_roll";
 const ROLL_HISTORY_STORAGE_KEY = "roll_history";
 const MAX_ROLL_HISTORY_ITEMS = 10;
 
@@ -186,6 +187,29 @@ export default function HomePage() {
       // localStorage unavailable — skip.
     }
   }, [userId]);
+
+  // "Roll from my taste" opt-in (signed-in only), persisted to localStorage.
+  // Lazy init is safe: the toggle only renders under the client-only `userId`
+  // gate, so there's no SSR markup to mismatch on hydration.
+  const [personalizedRoll, setPersonalizedRoll] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    try {
+      return window.localStorage.getItem(PERSONALIZED_ROLL_KEY) === "1";
+    } catch {
+      return false;
+    }
+  });
+  function togglePersonalizedRoll() {
+    setPersonalizedRoll((prev) => {
+      const next = !prev;
+      try {
+        window.localStorage.setItem(PERSONALIZED_ROLL_KEY, next ? "1" : "0");
+      } catch {
+        // localStorage unavailable — keep the in-memory preference.
+      }
+      return next;
+    });
+  }
 
   const { filters, setFilter, resetFilters, hasActiveFilters } = useFilters();
   const [film, setFilm] = useState<RollFilm | null>(null);
@@ -606,6 +630,39 @@ export default function HomePage() {
               <ArrowUpRight className="h-3 w-3" aria-hidden />
             </Link>
           </div>
+
+          {/* "Roll from my taste" toggle — signed-in only, opt-in */}
+          {userId && (
+            <button
+              type="button"
+              role="switch"
+              aria-checked={personalizedRoll}
+              onClick={togglePersonalizedRoll}
+              className={cn(
+                "mt-1 inline-flex w-fit items-center gap-2 rounded-full border px-3 py-1.5",
+                "font-[family-name:var(--font-geist-mono)] text-[9px] font-bold uppercase tracking-widest",
+                "transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
+                personalizedRoll
+                  ? "border-[#e8453c]/45 bg-[#e8453c]/10 text-[#e8453c]"
+                  : "border-[#2a2a3e] text-[#888899] hover:border-[#e8453c]/45 hover:text-[#e8453c]",
+              )}
+            >
+              <span
+                className={cn(
+                  "relative h-3 w-5 rounded-full transition-colors",
+                  personalizedRoll ? "bg-[#e8453c]" : "bg-[#2a2a3e]",
+                )}
+              >
+                <span
+                  className={cn(
+                    "absolute top-0.5 h-2 w-2 rounded-full bg-white transition-all",
+                    personalizedRoll ? "left-2.5" : "left-0.5",
+                  )}
+                />
+              </span>
+              Roll from my taste
+            </button>
+          )}
 
           {/* Searching flicker */}
           <AnimatePresence>
