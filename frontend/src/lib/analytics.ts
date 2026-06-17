@@ -55,14 +55,14 @@ export async function trackEvent(input: TrackEventInput): Promise<void> {
     await fetch("/api/events", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+      body: JSON.stringify([{
         anonId,
         sessionId,
         type: input.type,
         filmId: input.filmId ?? null,
         context: input.context ?? {},
         variant: input.variant ?? null,
-      }),
+      }]),
       keepalive: true,
     });
   } catch {

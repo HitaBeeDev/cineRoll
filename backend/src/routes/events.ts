@@ -8,6 +8,10 @@ import { getValidated, validate } from "../middleware/validate";
 
 export const eventsRouter = Router();
 
+const MAX_BATCH_SIZE = 25;
+const RATE_LIMIT_WINDOW_MS = 60_000;
+const RATE_LIMIT_MAX_EVENTS = 120;
+
 const eventTypes = [
   "roll",
   "roll_personalized",
@@ -35,41 +39,77 @@ const eventBodySchema = z.object({
   variant: z.string().trim().min(1).max(128).nullable().optional(),
 }).strict();
 
+const eventBatchBodySchema = z.array(eventBodySchema).min(1).max(MAX_BATCH_SIZE);
+
+type EventBody = z.infer<typeof eventBodySchema>;
+type RateLimitBucket = {
+  count: number;
+  resetAt: number;
+};
+
+const rateLimitBuckets = new Map<string, RateLimitBucket>();
+
+function getClientIp(req: Parameters<typeof getValidated>[0]): string {
+  const forwardedFor = req.headers["x-forwarded-for"];
+  if (typeof forwardedFor === "string") {
+    return forwardedFor.split(",")[0]?.trim() || req.ip || "unknown";
+  }
+
+  return req.ip || "unknown";
+}
+
+function assertRateLimit(ip: string, eventCount: number) {
+  const now = Date.now();
+  const bucket = rateLimitBuckets.get(ip);
+
+  if (!bucket || bucket.resetAt <= now) {
+    rateLimitBuckets.set(ip, {
+      count: eventCount,
+      resetAt: now + RATE_LIMIT_WINDOW_MS,
+    });
+    return;
+  }
+
+  if (bucket.count + eventCount > RATE_LIMIT_MAX_EVENTS) {
+    throw new HttpError(429, "Too many events", "RATE_LIMITED");
+  }
+
+  bucket.count += eventCount;
+}
+
 eventsRouter.post(
   "/",
   optionalAuth,
-  validate(eventBodySchema, "body"),
+  validate(eventBatchBodySchema, "body"),
   async (req, res) => {
     const userId = (req as OptionallyAuthedRequest).userId;
-    const body = getValidated<z.infer<typeof eventBodySchema>>(req, "body");
+    const events = getValidated<EventBody[]>(req, "body");
+    assertRateLimit(getClientIp(req), events.length);
 
-    if (body.filmId) {
-      const film = await prisma.film.findUnique({
-        where: { id: body.filmId },
+    const filmIds = [...new Set(events.flatMap(event => event.filmId ? [event.filmId] : []))];
+
+    if (filmIds.length > 0) {
+      const films = await prisma.film.findMany({
+        where: { id: { in: filmIds } },
         select: { id: true },
       });
-
-      if (!film) {
-        throw new HttpError(404, "Film not found", "FILM_NOT_FOUND");
-      }
+      const foundFilmIds = new Set(films.map(film => film.id));
+      const missingFilmId = filmIds.find(filmId => !foundFilmIds.has(filmId));
+      if (missingFilmId) throw new HttpError(404, "Film not found", "FILM_NOT_FOUND");
     }
 
-    const event = await prisma.event.create({
-      data: {
+    const result = await prisma.event.createMany({
+      data: events.map(event => ({
         userId: userId ?? null,
-        anonId: body.anonId ?? null,
-        sessionId: body.sessionId,
-        type: body.type,
-        filmId: body.filmId ?? null,
-        context: body.context as Prisma.InputJsonValue,
-        variant: body.variant ?? null,
-      },
-      select: {
-        id: true,
-        createdAt: true,
-      },
+        anonId: event.anonId ?? null,
+        sessionId: event.sessionId,
+        type: event.type,
+        filmId: event.filmId ?? null,
+        context: event.context as Prisma.InputJsonValue,
+        variant: event.variant ?? null,
+      })),
     });
 
-    res.status(201).json({ event });
+    res.status(201).json({ count: result.count });
   },
 );
