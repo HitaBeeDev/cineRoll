@@ -241,20 +241,21 @@ export async function markFilmWatched(
   }
 }
 
-export type WatchedStatus = {
+export type FilmStatus = {
   watched: boolean;
   sentiment: "like" | "dislike" | null;
   doNotSuggest: boolean;
+  inWatchlist: boolean;
 };
 
-export async function fetchWatchedStatus(filmId: string): Promise<WatchedStatus> {
-  const res = await fetch(`/api/user/watched/${encodeURIComponent(filmId)}`);
+export async function fetchFilmStatus(filmId: string): Promise<FilmStatus> {
+  const res = await fetch(`/api/user/film-status/${encodeURIComponent(filmId)}`);
   if (!res.ok) {
-    throw Object.assign(new Error("Failed to load watched status"), {
+    throw Object.assign(new Error("Failed to load film status"), {
       status: res.status,
     });
   }
-  return res.json() as Promise<WatchedStatus>;
+  return res.json() as Promise<FilmStatus>;
 }
 
 export async function addFilmToWatchlist(filmId: string): Promise<void> {

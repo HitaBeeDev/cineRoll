@@ -166,19 +166,28 @@ userRouter.get("/watched", async (req, res) => {
   });
 });
 
-userRouter.get("/watched/:filmId", validate(filmIdParamsSchema, "params"), async (req, res) => {
+// Combined per-film status for the signed-in user — lets the post-roll card
+// reflect existing watchlist / watched / sentiment state on mount in one trip.
+userRouter.get("/film-status/:filmId", validate(filmIdParamsSchema, "params"), async (req, res) => {
   const userId = getUserId(req);
   const { filmId } = getValidated<z.infer<typeof filmIdParamsSchema>>(req, "params");
 
-  const entry = await prisma.watchedFilm.findUnique({
-    where: { userId_filmId: { userId, filmId } },
-    select: { sentiment: true, doNotSuggest: true, watchedAt: true },
-  });
+  const [watchedEntry, watchlistEntry] = await Promise.all([
+    prisma.watchedFilm.findUnique({
+      where: { userId_filmId: { userId, filmId } },
+      select: { sentiment: true, doNotSuggest: true },
+    }),
+    prisma.watchlist.findUnique({
+      where: { userId_filmId: { userId, filmId } },
+      select: { id: true },
+    }),
+  ]);
 
   res.json({
-    watched: entry !== null,
-    sentiment: entry?.sentiment ?? null,
-    doNotSuggest: entry?.doNotSuggest ?? false,
+    watched: watchedEntry !== null,
+    sentiment: watchedEntry?.sentiment ?? null,
+    doNotSuggest: watchedEntry?.doNotSuggest ?? false,
+    inWatchlist: watchlistEntry !== null,
   });
 });
 

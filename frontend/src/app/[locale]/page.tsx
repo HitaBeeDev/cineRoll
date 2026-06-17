@@ -29,7 +29,7 @@ import {
   addFilmToWatchlist,
   removeFilmFromWatchlist,
   markFilmWatched,
-  fetchWatchedStatus,
+  fetchFilmStatus,
   type RollFilm,
   type TasteCardFilm,
 } from "@/lib/api";
@@ -1201,21 +1201,24 @@ function FilmCard({
   const [inWatchlist, setInWatchlist] = useState(false);
   const [watchlistPending, setWatchlistPending] = useState(false);
 
-  // Revisiting a film the user already watched: pre-fill its watched state and
-  // any sentiment they previously gave, so the prompt reflects their choice.
+  // Revisiting a film the user already acted on: reflect its existing
+  // watchlist / watched / sentiment state in the icons so the card matches the
+  // account. Non-blocking; a failed read just leaves the default state.
   useEffect(() => {
     if (!isAuthenticated) return;
     let cancelled = false;
 
-    void fetchWatchedStatus(film.id)
+    void fetchFilmStatus(film.id)
       .then((status) => {
-        if (cancelled || !status.watched) return;
-        setAction(status.doNotSuggest ? "not-interested" : "watched");
-        setSentiment(status.sentiment);
+        if (cancelled) return;
+        if (status.watched) {
+          setAction(status.doNotSuggest ? "not-interested" : "watched");
+          setSentiment(status.sentiment);
+        }
+        setInWatchlist(status.inWatchlist);
       })
       .catch(() => {
-        // Non-blocking: a failed status read just leaves the card in its
-        // default "none" state.
+        // Non-blocking: leave the card in its default state on failure.
       });
 
     return () => {
