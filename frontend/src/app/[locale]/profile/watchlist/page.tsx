@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { apiFetch } from "@/lib/apiWithAuth";
@@ -41,9 +42,22 @@ export default async function WatchlistPage({
           {watchlist.length} {watchlist.length === 1 ? "film" : "films"} saved
         </p>
 
-        {/* Empty state lands in the next checklist item. */}
         <div className="mt-10">
-          <WatchlistGrid entries={watchlist} locale={locale} />
+          {watchlist.length === 0 ? (
+            <div className="flex flex-col items-center gap-5 rounded-xl border border-[#1e1e2a] bg-[#0d0d1a] px-6 py-20 text-center">
+              <p className="font-[family-name:var(--font-geist-mono)] text-sm text-[#888899]">
+                Your watchlist is empty — roll some films to get started
+              </p>
+              <Link
+                href={`/${locale}`}
+                className="inline-flex items-center rounded-xl bg-[#e8453c] px-6 py-3 font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.2em] text-[#F5F5F0] transition-colors hover:bg-[#d5342b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
+              >
+                Roll a film
+              </Link>
+            </div>
+          ) : (
+            <WatchlistGrid entries={watchlist} locale={locale} />
+          )}
         </div>
       </div>
     </main>
