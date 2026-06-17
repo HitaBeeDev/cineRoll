@@ -28,6 +28,7 @@ import {
   fetchOnboardingTasteCards,
   addFilmToWatchlist,
   markFilmWatched,
+  fetchWatchedStatus,
   type RollFilm,
   type TasteCardFilm,
 } from "@/lib/api";
@@ -1195,6 +1196,28 @@ function FilmCard({
   const [sentiment, setSentiment] = useState<"like" | "dislike" | null>(null);
   const [sentimentDismissed, setSentimentDismissed] = useState(false);
   const [sentimentPending, setSentimentPending] = useState(false);
+
+  // Revisiting a film the user already watched: pre-fill its watched state and
+  // any sentiment they previously gave, so the prompt reflects their choice.
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    let cancelled = false;
+
+    void fetchWatchedStatus(film.id)
+      .then((status) => {
+        if (cancelled || !status.watched) return;
+        setAction(status.doNotSuggest ? "not-interested" : "watched");
+        setSentiment(status.sentiment);
+      })
+      .catch(() => {
+        // Non-blocking: a failed status read just leaves the card in its
+        // default "none" state.
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [film.id, isAuthenticated]);
 
   async function saveDecision(
     next: "watched" | "not-interested",

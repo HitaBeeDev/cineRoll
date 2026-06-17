@@ -166,6 +166,22 @@ userRouter.get("/watched", async (req, res) => {
   });
 });
 
+userRouter.get("/watched/:filmId", validate(filmIdParamsSchema, "params"), async (req, res) => {
+  const userId = getUserId(req);
+  const { filmId } = getValidated<z.infer<typeof filmIdParamsSchema>>(req, "params");
+
+  const entry = await prisma.watchedFilm.findUnique({
+    where: { userId_filmId: { userId, filmId } },
+    select: { sentiment: true, doNotSuggest: true, watchedAt: true },
+  });
+
+  res.json({
+    watched: entry !== null,
+    sentiment: entry?.sentiment ?? null,
+    doNotSuggest: entry?.doNotSuggest ?? false,
+  });
+});
+
 userRouter.post("/watched", validate(watchedBodySchema, "body"), async (req, res) => {
   const userId = getUserId(req);
   const { filmId, doNotSuggest, sentiment } = getValidated<z.infer<typeof watchedBodySchema>>(req, "body");

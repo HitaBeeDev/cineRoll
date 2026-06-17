@@ -241,6 +241,22 @@ export async function markFilmWatched(
   }
 }
 
+export type WatchedStatus = {
+  watched: boolean;
+  sentiment: "like" | "dislike" | null;
+  doNotSuggest: boolean;
+};
+
+export async function fetchWatchedStatus(filmId: string): Promise<WatchedStatus> {
+  const res = await fetch(`/api/user/watched/${encodeURIComponent(filmId)}`);
+  if (!res.ok) {
+    throw Object.assign(new Error("Failed to load watched status"), {
+      status: res.status,
+    });
+  }
+  return res.json() as Promise<WatchedStatus>;
+}
+
 export async function addFilmToWatchlist(filmId: string): Promise<void> {
   const res = await fetch(`/api/user/watchlist`, {
     method: "POST",
