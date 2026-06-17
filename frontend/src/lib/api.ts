@@ -169,8 +169,13 @@ export async function fetchMarathon(
   return res.json() as Promise<MarathonResult>;
 }
 
-export async function fetchRandom(filters?: Partial<FilterState>): Promise<RandomResult> {
+export async function fetchRandom(
+  filters?: Partial<FilterState>,
+  userId?: string,
+): Promise<RandomResult> {
   const params = filtersToParams(filters ?? {});
+  // When signed in, the backend excludes films the user marked "Not Interested".
+  if (userId) params.set("userId", userId);
   const qs = params.toString();
   const res = await fetch(`${API_URL}/api/random${qs ? `?${qs}` : ""}`, { cache: "no-store" });
   if (!res.ok) {
@@ -200,6 +205,26 @@ export async function fetchNaturalRoll(prompt: string, count = 2): Promise<Natur
     throw err;
   }
   return res.json() as Promise<NaturalRollResult>;
+}
+
+// Records a roll decision against the signed-in user's account.
+//   doNotSuggest: false → "Watched"; true → "Not Interested" (hidden from future rolls).
+export async function markFilmWatched(
+  filmId: string,
+  doNotSuggest: boolean,
+): Promise<void> {
+  const res = await fetch(`/api/user/watched`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ filmId, doNotSuggest }),
+  });
+  if (!res.ok) {
+    const body = (await res.json().catch(() => ({}))) as { code?: string };
+    throw Object.assign(new Error("Failed to save"), {
+      code: body.code ?? "UNKNOWN",
+      status: res.status,
+    });
+  }
 }
 
 export async function fetchFilmBySlug(slug: string): Promise<RollFilm> {

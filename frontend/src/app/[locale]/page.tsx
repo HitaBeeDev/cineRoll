@@ -12,17 +12,20 @@ import {
   Dices,
   Film,
   Share2,
+  ThumbsDown,
   X,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/toast";
 import { FilterBar } from "@/components/filter-bar";
 import { AppHeader } from "@/components/app-header";
+import { useSession } from "next-auth/react";
 import {
   fetchRandom,
   fetchFilms,
   fetchGenres,
   fetchOnboardingTasteCards,
+  markFilmWatched,
   type RollFilm,
   type TasteCardFilm,
 } from "@/lib/api";
@@ -151,6 +154,8 @@ function pushRollHistory(film: RollFilm) {
 export default function HomePage() {
   const shouldReduceMotion = useReducedMotion();
   const { toast } = useToast();
+  const { data: session } = useSession();
+  const userId = session?.user?.id;
   const { filters, setFilter, resetFilters, hasActiveFilters } = useFilters();
   const [film, setFilm] = useState<RollFilm | null>(null);
   const [isRolling, setIsRolling] = useState(false);
@@ -277,7 +282,8 @@ export default function HomePage() {
       window.setTimeout(() => setIsSearching(false), 150);
     }
     try {
-      const result = await fetchRandom(filters);
+      // Signed-in users: the backend filters out films they marked "Not Interested".
+      const result = await fetchRandom(filters, userId);
       setFilm(result.film);
       setFilteredCount(result.total);
       pushRollHistory(result.film);
@@ -601,7 +607,11 @@ export default function HomePage() {
                     : { type: "spring", stiffness: 300, damping: 28 }
                 }
               >
-                <FilmCard film={film} />
+                <FilmCard
+                  film={film}
+                  isAuthenticated={Boolean(userId)}
+                  onNotInterested={() => void handleRoll()}
+                />
               </motion.div>
             ) : effectiveCount === 0 ? (
               <motion.div
@@ -1115,8 +1125,65 @@ function FirstVisitOnboarding({
 
 // ── Film card ────────────────────────────────────────────────────────────────
 
-function FilmCard({ film }: { film: RollFilm }) {
+function FilmCard({
+  film,
+  isAuthenticated,
+  onNotInterested,
+}: {
+  film: RollFilm;
+  isAuthenticated: boolean;
+  onNotInterested?: () => void;
+}) {
   const { toast } = useToast();
+  // The parent keys this card by film.id, so state resets for each new roll.
+  const [action, setAction] = useState<"none" | "watched" | "not-interested">(
+    "none",
+  );
+  const [pending, setPending] = useState(false);
+
+  async function saveDecision(
+    next: "watched" | "not-interested",
+    doNotSuggest: boolean,
+  ) {
+    if (pending) return;
+    const previous = action;
+    setAction(next);
+
+    // Signed-in users persist to their account; guests get a session-only effect.
+    if (isAuthenticated) {
+      setPending(true);
+      try {
+        await markFilmWatched(film.id, doNotSuggest);
+      } catch {
+        setAction(previous);
+        toast({
+          variant: "error",
+          title: "Couldn't save",
+          description: "Check your connection and try again.",
+        });
+        return;
+      } finally {
+        setPending(false);
+      }
+    }
+
+    if (next === "watched") {
+      toast({
+        variant: "success",
+        title: "Marked as watched",
+        description: film.title,
+      });
+    } else {
+      toast({
+        title: isAuthenticated ? "Hidden from future rolls" : "Skipped",
+        description: isAuthenticated
+          ? "We won't roll this one again."
+          : "Sign in to hide it for next time.",
+      });
+      onNotInterested?.();
+    }
+  }
+
   const channelLabel = `REEL // ${film.title.toUpperCase().slice(0, 11)}`;
   const genre = film.genres[0] ?? "";
   const runtime = formatRuntime(film.runtime);
@@ -1295,7 +1362,44 @@ function FilmCard({ film }: { film: RollFilm }) {
           </div>
         ) : null}
 
-        {/* Action buttons */}
+        {/* Primary quick actions — visible immediately after every roll, for
+            everyone. Signed-out users can use them too; their picks just aren't
+            saved across sessions (see hint below). */}
+        <div className="grid grid-cols-2 gap-2 mt-2">
+          <QuickActionButton
+            tone="dismiss"
+            active={action === "not-interested"}
+            disabled={pending}
+            onClick={() => void saveDecision("not-interested", true)}
+            icon={<ThumbsDown className="h-4 w-4" aria-hidden />}
+            label="Not Interested"
+            activeLabel="Hidden"
+          />
+          <QuickActionButton
+            tone="confirm"
+            active={action === "watched"}
+            disabled={pending}
+            onClick={() => void saveDecision("watched", false)}
+            icon={<Check className="h-4 w-4" aria-hidden />}
+            label="Watched"
+            activeLabel="Watched ✓"
+          />
+        </div>
+
+        {!isAuthenticated && (
+          <p className="font-[family-name:var(--font-geist-mono)] text-[9px] leading-relaxed tracking-wide text-[#888899]">
+            Using as guest —{" "}
+            <Link
+              href="/auth/signin"
+              className="text-[#e8453c] underline underline-offset-2 transition-colors hover:text-[#F5F5F0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
+            >
+              sign in
+            </Link>{" "}
+            to save your picks for next time.
+          </p>
+        )}
+
+        {/* Secondary actions */}
         <div className="flex items-center gap-2 mt-1">
           <Link
             href={`/film/${film.slug}`}
@@ -1309,16 +1413,6 @@ function FilmCard({ film }: { film: RollFilm }) {
           >
             View Full Details
           </Link>
-          <ActionBtn aria-label="Mark as watched">
-            <span className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest">
-              Watched
-            </span>
-          </ActionBtn>
-          <ActionBtn aria-label="Pass on this film">
-            <span className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest">
-              Pass
-            </span>
-          </ActionBtn>
           <ActionBtn
             aria-label="Share this film"
             title="Share this film"
@@ -1364,6 +1458,53 @@ function ListBadge({ children }: { children: React.ReactNode }) {
     <span className="inline-flex items-center rounded-full border border-[#D4AF37]/25 bg-[#D4AF37]/10 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[8px] font-bold uppercase tracking-widest text-[#D4AF37]">
       {children}
     </span>
+  );
+}
+
+function QuickActionButton({
+  tone,
+  active,
+  disabled,
+  onClick,
+  icon,
+  label,
+  activeLabel,
+}: {
+  tone: "confirm" | "dismiss";
+  active: boolean;
+  disabled?: boolean;
+  onClick: () => void;
+  icon: React.ReactNode;
+  label: string;
+  activeLabel: string;
+}) {
+  const toneClasses =
+    tone === "confirm"
+      ? active
+        ? "border-[#3fb950]/45 bg-[#3fb950]/12 text-[#7ee787]"
+        : "border-[#1e1e2a] text-[#888899] hover:border-[#3fb950]/45 hover:text-[#7ee787]"
+      : active
+        ? "border-[#e8453c]/45 bg-[#e8453c]/10 text-[#e8453c]"
+        : "border-[#1e1e2a] text-[#888899] hover:border-[#e8453c]/45 hover:text-[#e8453c]";
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      aria-pressed={active}
+      className={cn(
+        "flex h-11 items-center justify-center gap-2 rounded-xl border",
+        "font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.18em]",
+        "transition-colors",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
+        "disabled:cursor-not-allowed disabled:opacity-60",
+        toneClasses,
+      )}
+    >
+      {icon}
+      <span>{active ? activeLabel : label}</span>
+    </button>
   );
 }
 
