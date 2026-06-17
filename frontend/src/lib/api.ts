@@ -241,6 +241,19 @@ export async function markFilmWatched(
   }
 }
 
+export async function saveOnboardingGenres(genres: string[]): Promise<void> {
+  const res = await fetch(`/api/user/onboarding`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ genres }),
+  });
+  if (!res.ok && res.status !== 204) {
+    throw Object.assign(new Error("Failed to save onboarding genres"), {
+      status: res.status,
+    });
+  }
+}
+
 export async function removeFilmWatched(filmId: string): Promise<void> {
   const res = await fetch(`/api/user/watched`, {
     method: "DELETE",

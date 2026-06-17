@@ -25,6 +25,10 @@ const filmIdParamsSchema = z.object({
   filmId: z.string().trim().min(1),
 });
 
+const onboardingBodySchema = z.object({
+  genres: z.array(z.string().trim().min(1)).max(30),
+});
+
 const filmSummarySelect = {
   id: true,
   slug: true,
@@ -80,6 +84,22 @@ async function assertFilmExists(filmId: string) {
     throw new HttpError(404, "Film not found", "FILM_NOT_FOUND");
   }
 }
+
+// Persist the first-visit onboarding genre preferences to the account so the
+// taste profile can seed from them on cold-start. Flushed from the client once
+// the user signs in (onboarding happens before auth).
+userRouter.post("/onboarding", validate(onboardingBodySchema, "body"), async (req, res) => {
+  const userId = getUserId(req);
+  const { genres } = getValidated<z.infer<typeof onboardingBodySchema>>(req, "body");
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: { onboardingGenres: genres },
+  });
+
+  await markTasteProfileStale(userId);
+  res.status(204).send();
+});
 
 userRouter.get("/watchlist", async (req, res) => {
   const userId = getUserId(req);

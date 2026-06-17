@@ -26,6 +26,7 @@ import {
   fetchFilms,
   fetchGenres,
   fetchOnboardingTasteCards,
+  saveOnboardingGenres,
   type RollFilm,
   type TasteCardFilm,
 } from "@/lib/api";
@@ -38,6 +39,7 @@ import { cn } from "@/lib/utils";
 const ONBOARDED_STORAGE_KEY = "cineroll_onboarded";
 const PENDING_WATCHED_STORAGE_KEY = "cineroll_pending_watched_films";
 const TASTE_SEED_STORAGE_KEY = "cineroll_taste_seed";
+const TASTE_SEED_SYNCED_KEY = "cineroll_taste_seed_synced";
 const ROLL_HISTORY_STORAGE_KEY = "roll_history";
 const MAX_ROLL_HISTORY_ITEMS = 10;
 
@@ -158,6 +160,33 @@ export default function HomePage() {
   const { toast } = useToast();
   const { data: session } = useSession();
   const userId = session?.user?.id;
+
+  // Onboarding runs before sign-in, so the taste seed lands in localStorage.
+  // Once signed in, flush its genres to the account (once per user) to seed the
+  // cold-start taste profile.
+  useEffect(() => {
+    if (!userId) return;
+    try {
+      if (window.localStorage.getItem(TASTE_SEED_SYNCED_KEY) === userId) return;
+      const raw = window.localStorage.getItem(TASTE_SEED_STORAGE_KEY);
+      if (!raw) return;
+      const seed = JSON.parse(raw) as { genres?: unknown };
+      const genres = Array.isArray(seed.genres)
+        ? seed.genres.filter((g): g is string => typeof g === "string")
+        : [];
+      if (genres.length === 0) return;
+      void saveOnboardingGenres(genres)
+        .then(() => {
+          window.localStorage.setItem(TASTE_SEED_SYNCED_KEY, userId);
+        })
+        .catch(() => {
+          // Non-blocking: a failed flush retries on the next mount.
+        });
+    } catch {
+      // localStorage unavailable — skip.
+    }
+  }, [userId]);
+
   const { filters, setFilter, resetFilters, hasActiveFilters } = useFilters();
   const [film, setFilm] = useState<RollFilm | null>(null);
   const [isRolling, setIsRolling] = useState(false);

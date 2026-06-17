@@ -57,6 +57,11 @@ type Vector = Record<string, number>;
 
 const DAY_MS = 1000 * 60 * 60 * 24;
 
+/** Below this many positive signals, blend in onboarding genre preferences. */
+const COLD_START_THRESHOLD = 3;
+/** Base weight for the top onboarding genre seed (descending by rank). */
+const COLD_START_SEED = 0.5;
+
 function decadeKey(year: number | null): string | null {
   if (year == null) return null;
   return `${Math.floor(year / 10) * 10}s`;
@@ -141,7 +146,7 @@ type Signal = { film: FilmFeatures; weight: number; at: Date };
 export async function buildTasteProfile(
   userId: string,
 ): Promise<TasteProfileVectors> {
-  const [watched, watchlist] = await Promise.all([
+  const [watched, watchlist, user] = await Promise.all([
     prisma.watchedFilm.findMany({
       where: { userId },
       select: {
@@ -154,6 +159,10 @@ export async function buildTasteProfile(
     prisma.watchlist.findMany({
       where: { userId },
       select: { addedAt: true, film: { select: filmFeatureSelect } },
+    }),
+    prisma.user.findUnique({
+      where: { id: userId },
+      select: { onboardingGenres: true },
     }),
   ]);
 
@@ -204,6 +213,17 @@ export async function buildTasteProfile(
     add(runtimeBandWeights, runtimeBand(film.runtime), w);
     for (const key of awardKeys(film)) add(awardAffinity, key, w);
     for (const key of ratingTierKeys(film)) add(ratingTier, key, w);
+  }
+
+  // Cold-start: a user with too few real signals gets their onboarding taste
+  // cards' genres blended into the genre vector (ranked most-preferred first),
+  // so recommendations have something to stand on from day one.
+  const onboardingGenres = user?.onboardingGenres ?? [];
+  if (positiveCount < COLD_START_THRESHOLD && onboardingGenres.length > 0) {
+    const n = onboardingGenres.length;
+    onboardingGenres.forEach((genre, i) => {
+      add(genreWeights, genre, COLD_START_SEED * (1 - i / n));
+    });
   }
 
   const result: TasteProfileVectors = {
