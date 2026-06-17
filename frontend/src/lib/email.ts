@@ -3,7 +3,13 @@ import { Resend } from "resend";
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function sendVerificationCode(to: string, code: string) {
-  await resend.emails.send({
+  if (process.env.NODE_ENV !== "production") {
+    // Dev aid: surface the recipient + code so the email flow can be tested
+    // even when Resend can't deliver (e.g. test mode / unverified domain).
+    console.log(`[dev] verification code for ${to}: ${code}`);
+  }
+
+  const { error } = await resend.emails.send({
     from: process.env.EMAIL_FROM ?? "onboarding@resend.dev",
     to,
     subject: "Your CineRoll sign-in code",
@@ -18,4 +24,8 @@ export async function sendVerificationCode(to: string, code: string) {
       </div>
     `,
   });
+
+  if (error) {
+    throw new Error(`Resend failed to send verification email: ${error.message}`);
+  }
 }
