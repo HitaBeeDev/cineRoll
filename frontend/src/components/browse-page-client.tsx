@@ -120,7 +120,13 @@ export function BrowsePageClient() {
 
   useEffect(() => {
     const q = filters.search.trim();
-    if (q.length < 2) { setAcResults(null); setAcOpen(false); return; }
+    if (q.length < 2) {
+      const timer = window.setTimeout(() => {
+        setAcResults(null);
+        setAcOpen(false);
+      }, 0);
+      return () => window.clearTimeout(timer);
+    }
     const timer = window.setTimeout(() => {
       void fetchAutocomplete(q).then((data) => {
         setAcResults(data);

@@ -30,6 +30,7 @@ import {
   type TasteCardFilm,
 } from "@/lib/api";
 import { formatRuntime } from "@/lib/format";
+import { trackEvent } from "@/lib/analytics";
 import { useFilters } from "@/hooks/useFilters";
 import { cn } from "@/lib/utils";
 
@@ -277,6 +278,13 @@ export default function HomePage() {
   async function handleRoll() {
     setIsRolling(true);
     setFilm(null);
+    void trackEvent({
+      type: "ROLL_REQUESTED",
+      context: {
+        filters,
+        hasActiveFilters,
+      },
+    });
     if (hasActiveFilters && !shouldReduceMotion) {
       setIsSearching(true);
       window.setTimeout(() => setIsSearching(false), 150);
@@ -287,6 +295,14 @@ export default function HomePage() {
       setFilm(result.film);
       setFilteredCount(result.total);
       pushRollHistory(result.film);
+      void trackEvent({
+        type: "ROLL_RESULT_VIEWED",
+        filmId: result.film.id,
+        context: {
+          filters,
+          total: result.total,
+        },
+      });
       // Scroll to film card on mobile
       setTimeout(
         () =>
@@ -327,8 +343,11 @@ export default function HomePage() {
 
   useEffect(() => {
     if (!shouldAutoRoll) return;
-    setShouldAutoRoll(false);
-    void handleRollRef.current();
+    const timer = window.setTimeout(() => {
+      setShouldAutoRoll(false);
+      void handleRollRef.current();
+    }, 0);
+    return () => window.clearTimeout(timer);
   }, [shouldAutoRoll]);
 
   // Pool count display
@@ -1168,12 +1187,22 @@ function FilmCard({
     }
 
     if (next === "watched") {
+      void trackEvent({
+        type: "WATCHED_ADD",
+        filmId: film.id,
+        context: { source: "roll_card" },
+      });
       toast({
         variant: "success",
         title: "Marked as watched",
         description: film.title,
       });
     } else {
+      void trackEvent({
+        type: "NOT_INTERESTED",
+        filmId: film.id,
+        context: { source: "roll_card" },
+      });
       toast({
         title: isAuthenticated ? "Hidden from future rolls" : "Skipped",
         description: isAuthenticated
@@ -1199,6 +1228,14 @@ function FilmCard({
 
     try {
       await navigator.clipboard.writeText(url);
+      void trackEvent({
+        type: "SHARE",
+        filmId: film.id,
+        context: {
+          source: "roll_card",
+          method: "clipboard",
+        },
+      });
       toast({
         variant: "success",
         title: "Link copied!",

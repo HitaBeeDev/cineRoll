@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, setRequestLocale } from "next-intl/server";
+import { AnalyticsPageView } from "@/components/analytics-page-view";
 import { PageTransition } from "@/components/page-transition";
 import { Providers } from "@/components/providers";
 import { isSupportedLocale, type Locale } from "@/i18n/request";
@@ -71,6 +73,9 @@ export default async function RootLayout({
       <body className="min-h-full flex flex-col bg-[#09090f] text-[#F5F5F0]">
         <NextIntlClientProvider messages={messages}>
           <Providers>
+            <Suspense fallback={null}>
+              <AnalyticsPageView />
+            </Suspense>
             <PageTransition>{children}</PageTransition>
           </Providers>
         </NextIntlClientProvider>
