@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { apiFetch } from "@/lib/apiWithAuth";
 import { AppHeader } from "@/components/app-header";
+import { WatchlistGrid, type WatchlistEntry } from "@/components/watchlist-grid";
 
 export const metadata: Metadata = {
   title: "Your Watchlist | CineRoll",
@@ -11,15 +11,6 @@ export const metadata: Metadata = {
 };
 
 export const dynamic = "force-dynamic";
-
-type WatchlistFilm = {
-  id: string;
-  slug: string;
-  title: string;
-  year: number | null;
-};
-
-type WatchlistEntry = { id: string; film: WatchlistFilm };
 
 async function fetchWatchlist(): Promise<WatchlistEntry[]> {
   const res = await apiFetch("/api/user/watchlist");
@@ -50,20 +41,10 @@ export default async function WatchlistPage({
           {watchlist.length} {watchlist.length === 1 ? "film" : "films"} saved
         </p>
 
-        {/* Film grid + empty state land in the next checklist items. */}
-        <ul className="mt-10 space-y-2">
-          {watchlist.map(({ id, film }) => (
-            <li key={id}>
-              <Link
-                href={`/${locale}/film/${film.slug}`}
-                className="text-[#F5F5F0] underline-offset-2 hover:text-[#e8453c] hover:underline"
-              >
-                {film.title}
-                {film.year ? ` (${film.year})` : ""}
-              </Link>
-            </li>
-          ))}
-        </ul>
+        {/* Empty state lands in the next checklist item. */}
+        <div className="mt-10">
+          <WatchlistGrid entries={watchlist} locale={locale} />
+        </div>
       </div>
     </main>
   );
