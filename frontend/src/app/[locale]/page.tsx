@@ -26,16 +26,13 @@ import {
   fetchFilms,
   fetchGenres,
   fetchOnboardingTasteCards,
-  addFilmToWatchlist,
-  removeFilmFromWatchlist,
-  markFilmWatched,
-  fetchFilmStatus,
   type RollFilm,
   type TasteCardFilm,
 } from "@/lib/api";
 import { formatRuntime } from "@/lib/format";
 import { trackEvent } from "@/lib/analytics";
 import { useFilters } from "@/hooks/useFilters";
+import { useFilmActions } from "@/hooks/useFilmActions";
 import { cn } from "@/lib/utils";
 
 const ONBOARDED_STORAGE_KEY = "cineroll_onboarded";
@@ -1189,138 +1186,25 @@ function FilmCard({
 }) {
   const { toast } = useToast();
   // The parent keys this card by film.id, so state resets for each new roll.
-  const [action, setAction] = useState<"none" | "watched" | "not-interested">(
-    "none",
-  );
-  const [pending, setPending] = useState(false);
-  // Sentiment prompt revealed once a film is marked watched (never blocking).
-  const [sentiment, setSentiment] = useState<"like" | "dislike" | null>(null);
-  const [sentimentDismissed, setSentimentDismissed] = useState(false);
-  const [sentimentPending, setSentimentPending] = useState(false);
-  // Watchlist bookmark: filled/active when the film is saved.
-  const [inWatchlist, setInWatchlist] = useState(false);
-  const [watchlistPending, setWatchlistPending] = useState(false);
-
-  // Revisiting a film the user already acted on: reflect its existing
-  // watchlist / watched / sentiment state in the icons so the card matches the
-  // account. Non-blocking; a failed read just leaves the default state.
-  useEffect(() => {
-    if (!isAuthenticated) return;
-    let cancelled = false;
-
-    void fetchFilmStatus(film.id)
-      .then((status) => {
-        if (cancelled) return;
-        if (status.watched) {
-          setAction(status.doNotSuggest ? "not-interested" : "watched");
-          setSentiment(status.sentiment);
-        }
-        setInWatchlist(status.inWatchlist);
-      })
-      .catch(() => {
-        // Non-blocking: leave the card in its default state on failure.
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [film.id, isAuthenticated]);
-
-  async function saveDecision(
-    next: "watched" | "not-interested",
-    doNotSuggest: boolean,
-  ) {
-    if (pending) return;
-    const previous = action;
-    setAction(next);
-
-    // Signed-in users persist to their account; guests get a session-only effect.
-    if (isAuthenticated) {
-      setPending(true);
-      try {
-        await markFilmWatched(film.id, doNotSuggest);
-      } catch {
-        setAction(previous);
-        toast({
-          variant: "error",
-          title: "Couldn't save",
-          description: "Check your connection and try again.",
-        });
-        return;
-      } finally {
-        setPending(false);
-      }
-    }
-
-    if (next === "watched") {
-      void trackEvent({
-        type: "watched",
-        filmId: film.id,
-        context: { source: "roll_card" },
-      });
-      toast({
-        variant: "success",
-        title: "Marked as watched",
-        description: film.title,
-      });
-    } else {
-      void trackEvent({
-        type: "not_interested",
-        filmId: film.id,
-        context: { source: "roll_card" },
-      });
-      toast({
-        title: isAuthenticated ? "Hidden from future rolls" : "Skipped",
-        description: isAuthenticated
-          ? "We won't roll this one again."
-          : "Sign in to hide it for next time.",
-      });
-      onNotInterested?.();
-    }
-  }
-
-  async function saveSentiment(value: "like" | "dislike") {
-    if (sentimentPending) return;
-
-    // Guests can tap, but their taste isn't saved — nudge them to sign in.
-    if (!isAuthenticated) {
-      toast({
-        title: "Sign in to save your taste",
-        description: "Create a profile to tune your recommendations.",
-      });
-      return;
-    }
-
-    const previous = sentiment;
-    // Tapping the active choice again clears it (toggle off).
-    const next = previous === value ? null : value;
-    setSentiment(next);
-    setSentimentPending(true);
-    try {
-      // Re-upserts the watched record with the sentiment; the API helper also
-      // fires the `sentiment_set` analytics event.
-      await markFilmWatched(film.id, false, next);
-      toast({
-        variant: next === null ? "default" : "success",
-        title:
-          next === "like"
-            ? "Glad you liked it"
-            : next === "dislike"
-              ? "Noted — not for you"
-              : "Rating cleared",
-        description: film.title,
-      });
-    } catch {
-      setSentiment(previous);
-      toast({
-        variant: "error",
-        title: "Couldn't save",
-        description: "Check your connection and try again.",
-      });
-    } finally {
-      setSentimentPending(false);
-    }
-  }
+  const {
+    action,
+    pending,
+    sentiment,
+    sentimentDismissed,
+    sentimentPending,
+    dismissSentiment,
+    inWatchlist,
+    watchlistPending,
+    saveDecision,
+    saveSentiment,
+    toggleWatchlist,
+  } = useFilmActions({
+    filmId: film.id,
+    filmTitle: film.title,
+    isAuthenticated,
+    source: "roll_card",
+    onNotInterested,
+  });
 
   const channelLabel = `REEL // ${film.title.toUpperCase().slice(0, 11)}`;
   const genre = film.genres[0] ?? "";
@@ -1348,55 +1232,6 @@ function FilmCard({
         title: "Could not copy link",
         description: "Copying is not available in this browser.",
       });
-    }
-  }
-
-  async function toggleWatchlist() {
-    if (!isAuthenticated) {
-      toast({
-        title: "Sign in to save",
-        description: "Create a profile to keep a watchlist.",
-      });
-      return;
-    }
-    if (watchlistPending) return;
-
-    // Optimistic flip; revert on failure.
-    const next = !inWatchlist;
-    setInWatchlist(next);
-    setWatchlistPending(true);
-    try {
-      if (next) {
-        await addFilmToWatchlist(film.id);
-        toast({
-          variant: "success",
-          title: "Added to watchlist",
-          description: film.title,
-        });
-      } else {
-        await removeFilmFromWatchlist(film.id);
-        toast({
-          title: "Removed from watchlist",
-          description: film.title,
-        });
-      }
-    } catch (error) {
-      const code = error instanceof Error
-        ? (error as Error & { code?: string }).code
-        : undefined;
-      // Adding something already saved is a success, not an error: keep it active.
-      if (code === "WATCHLIST_ALREADY_EXISTS") {
-        toast({ title: "Already saved", description: film.title });
-      } else {
-        setInWatchlist(!next);
-        toast({
-          variant: "error",
-          title: "Couldn't save",
-          description: film.title,
-        });
-      }
-    } finally {
-      setWatchlistPending(false);
     }
   }
 
@@ -1594,7 +1429,7 @@ function FilmCard({
               value={sentiment}
               pending={sentimentPending}
               onSelect={(value) => void saveSentiment(value)}
-              onDismiss={() => setSentimentDismissed(true)}
+              onDismiss={dismissSentiment}
             />
           )}
         </AnimatePresence>

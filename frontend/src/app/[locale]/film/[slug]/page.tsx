@@ -3,7 +3,6 @@ import Image from "next/image";
 import Link from "next/link";
 import type { CSSProperties, ReactNode } from "react";
 import {
-  Bookmark,
   ChevronDown,
   ExternalLink,
   Play,
@@ -18,6 +17,7 @@ import { WhereToWatch } from "@/components/where-to-watch";
 import { SimilarFilmsSlider } from "@/components/similar-films-slider";
 import { ShareButton } from "@/components/share-button";
 import { ShareBanner } from "@/components/share-banner";
+import { FilmDetailActions } from "@/components/film-detail-actions";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 const SITE_URL =
@@ -443,13 +443,10 @@ export default async function FilmPage({
                       Watch Trailer
                     </a>
                   )}
-                  <button
-                    type="button"
-                    className="flex h-12 items-center gap-2 border border-white/14 bg-white/6 px-5 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.2em] text-white/50 backdrop-blur-sm transition-colors hover:bg-white/10 hover:text-white/75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
-                  >
-                    <Bookmark className="h-3.5 w-3.5" aria-hidden />
-                    Watchlist
-                  </button>
+                  <FilmDetailActions
+                    filmId={film.id}
+                    filmTitle={displayTitle(film.title)}
+                  />
                   <ShareButton
                     url={`${SITE_URL}/film/${film.slug}`}
                     title={`Watch ${displayTitle(film.title)} tonight — CineRoll picked it`}
