@@ -13,6 +13,7 @@ import {
   Film,
   Share2,
   ThumbsDown,
+  ThumbsUp,
   X,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -1190,6 +1191,10 @@ function FilmCard({
     "none",
   );
   const [pending, setPending] = useState(false);
+  // Sentiment prompt revealed once a film is marked watched (never blocking).
+  const [sentiment, setSentiment] = useState<"like" | "dislike" | null>(null);
+  const [sentimentDismissed, setSentimentDismissed] = useState(false);
+  const [sentimentPending, setSentimentPending] = useState(false);
 
   async function saveDecision(
     next: "watched" | "not-interested",
@@ -1241,6 +1246,39 @@ function FilmCard({
           : "Sign in to hide it for next time.",
       });
       onNotInterested?.();
+    }
+  }
+
+  async function saveSentiment(value: "like" | "dislike") {
+    if (sentimentPending) return;
+
+    // Guests can tap, but their taste isn't saved — nudge them to sign in.
+    if (!isAuthenticated) {
+      toast({
+        title: "Sign in to save your taste",
+        description: "Create a profile to tune your recommendations.",
+      });
+      return;
+    }
+
+    const previous = sentiment;
+    // Tapping the active choice again clears it (toggle off).
+    const next = previous === value ? null : value;
+    setSentiment(next);
+    setSentimentPending(true);
+    try {
+      // Re-upserts the watched record with the sentiment; the API helper also
+      // fires the `sentiment_set` analytics event.
+      await markFilmWatched(film.id, false, next);
+    } catch {
+      setSentiment(previous);
+      toast({
+        variant: "error",
+        title: "Couldn't save",
+        description: "Check your connection and try again.",
+      });
+    } finally {
+      setSentimentPending(false);
     }
   }
 
@@ -1475,6 +1513,19 @@ function FilmCard({
           />
         </div>
 
+        {/* One-tap 👍 / 👎 prompt, revealed after a film is marked watched.
+            Dismissible and never blocks the rest of the card. */}
+        <AnimatePresence initial={false}>
+          {action === "watched" && !sentimentDismissed && (
+            <SentimentPrompt
+              value={sentiment}
+              pending={sentimentPending}
+              onSelect={(value) => void saveSentiment(value)}
+              onDismiss={() => setSentimentDismissed(true)}
+            />
+          )}
+        </AnimatePresence>
+
         {!isAuthenticated && (
           <p className="font-[family-name:var(--font-geist-mono)] text-[9px] leading-relaxed tracking-wide text-[#888899]">
             Using as guest —{" "}
@@ -1603,6 +1654,104 @@ function QuickActionButton({
     >
       {icon}
       <span>{active ? activeLabel : label}</span>
+    </button>
+  );
+}
+
+function SentimentPrompt({
+  value,
+  pending,
+  onSelect,
+  onDismiss,
+}: {
+  value: "like" | "dislike" | null;
+  pending?: boolean;
+  onSelect: (value: "like" | "dislike") => void;
+  onDismiss: () => void;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, height: 0 }}
+      animate={{ opacity: 1, height: "auto" }}
+      exit={{ opacity: 0, height: 0 }}
+      transition={{ duration: 0.2 }}
+      className="overflow-hidden"
+    >
+      <div className="mt-2 flex items-center justify-between gap-3 rounded-xl border border-[#1e1e2a] bg-[#0d0d1a] px-3 py-2.5">
+        <span className="font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.18em] text-[#888899]">
+          How was it?
+        </span>
+        <div className="flex items-center gap-2">
+          <SentimentButton
+            tone="like"
+            active={value === "like"}
+            disabled={pending}
+            onClick={() => onSelect("like")}
+            icon={<ThumbsUp className="h-4 w-4" aria-hidden />}
+            label="Liked it"
+          />
+          <SentimentButton
+            tone="dislike"
+            active={value === "dislike"}
+            disabled={pending}
+            onClick={() => onSelect("dislike")}
+            icon={<ThumbsDown className="h-4 w-4" aria-hidden />}
+            label="Disliked it"
+          />
+          <button
+            type="button"
+            aria-label="Dismiss"
+            onClick={onDismiss}
+            className="ml-1 shrink-0 text-[#444458] transition-colors hover:text-[#F5F5F0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
+          >
+            <X className="h-4 w-4" aria-hidden />
+          </button>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+function SentimentButton({
+  tone,
+  active,
+  disabled,
+  onClick,
+  icon,
+  label,
+}: {
+  tone: "like" | "dislike";
+  active: boolean;
+  disabled?: boolean | undefined;
+  onClick: () => void;
+  icon: React.ReactNode;
+  label: string;
+}) {
+  const toneClasses =
+    tone === "like"
+      ? active
+        ? "border-[#3fb950]/45 bg-[#3fb950]/12 text-[#7ee787]"
+        : "border-[#1e1e2a] text-[#888899] hover:border-[#3fb950]/45 hover:text-[#7ee787]"
+      : active
+        ? "border-[#e8453c]/45 bg-[#e8453c]/10 text-[#e8453c]"
+        : "border-[#1e1e2a] text-[#888899] hover:border-[#e8453c]/45 hover:text-[#e8453c]";
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      aria-pressed={active}
+      aria-label={label}
+      title={label}
+      className={cn(
+        "flex h-9 w-9 items-center justify-center rounded-lg border transition-colors",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
+        "disabled:cursor-not-allowed disabled:opacity-60",
+        toneClasses,
+      )}
+    >
+      {icon}
     </button>
   );
 }
