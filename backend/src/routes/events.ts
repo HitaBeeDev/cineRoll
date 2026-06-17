@@ -1,6 +1,7 @@
 import { Prisma } from "@prisma/client";
 import { Router } from "express";
 import { z } from "zod";
+import { sanitizeContext } from "../lib/events";
 import { prisma } from "../lib/prisma";
 import { optionalAuth, OptionallyAuthedRequest } from "../middleware/auth";
 import { HttpError } from "../middleware/errorHandler";
@@ -105,7 +106,7 @@ eventsRouter.post(
         sessionId: event.sessionId,
         type: event.type,
         filmId: event.filmId ?? null,
-        context: event.context as Prisma.InputJsonValue,
+        context: sanitizeContext(event.context) as Prisma.InputJsonValue,
         variant: event.variant ?? null,
       })),
     });

@@ -1,6 +1,21 @@
 import type { EventType, Prisma } from "@prisma/client";
 import { prisma } from "./prisma";
 
+const PII_KEY_PATTERNS = [
+  /email/i,
+  /e-mail/i,
+  /mailAddress/i,
+  /name/i,
+  /firstName/i,
+  /lastName/i,
+  /fullName/i,
+  /displayName/i,
+  /username/i,
+  /userName/i,
+  /phone/i,
+  /address/i,
+] as const;
+
 export type LogEventInput = {
   type: EventType;
   userId?: string | null;
@@ -10,6 +25,50 @@ export type LogEventInput = {
   context?: Prisma.InputJsonValue;
   variant?: string | null;
 };
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isPiiKey(key: string): boolean {
+  return PII_KEY_PATTERNS.some(pattern => pattern.test(key));
+}
+
+function sanitizeValue(value: unknown): Prisma.InputJsonValue | undefined {
+  if (Array.isArray(value)) {
+    return value.flatMap(item => {
+      const sanitized = sanitizeValue(item);
+      return sanitized === undefined ? [] : [sanitized];
+    });
+  }
+
+  if (isRecord(value)) {
+    return sanitizeContext(value);
+  }
+
+  if (
+    typeof value === "string" ||
+    typeof value === "number" ||
+    typeof value === "boolean"
+  ) {
+    return value;
+  }
+
+  return undefined;
+}
+
+export function sanitizeContext(context: unknown): Prisma.InputJsonObject {
+  if (!isRecord(context)) return {};
+
+  return Object.fromEntries(
+    Object.entries(context)
+      .filter(([key]) => !isPiiKey(key))
+      .flatMap(([key, value]) => {
+        const sanitized = sanitizeValue(value);
+        return sanitized === undefined ? [] : [[key, sanitized]];
+      }),
+  );
+}
 
 export async function logEvent({
   type,
@@ -28,7 +87,7 @@ export async function logEvent({
         sessionId,
         type,
         filmId,
-        context,
+        context: sanitizeContext(context),
         variant,
       },
       select: { id: true },
