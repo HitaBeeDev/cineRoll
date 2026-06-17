@@ -50,7 +50,7 @@ const filmFeatureSelect = {
   berlinNominations: true,
 } satisfies Prisma.FilmSelect;
 
-type FilmFeatures = Prisma.FilmGetPayload<{ select: typeof filmFeatureSelect }>;
+export type FilmFeatures = Prisma.FilmGetPayload<{ select: typeof filmFeatureSelect }>;
 
 /** A weighted feature vector keyed by feature label. */
 type Vector = Record<string, number>;
@@ -96,6 +96,26 @@ function ratingTierKeys(film: FilmFeatures): string[] {
   if (film.imdbRating != null) keys.push(`imdb_${Math.floor(film.imdbRating)}`);
   if (film.rtScore != null) keys.push(`rt_${Math.floor(film.rtScore / 10) * 10}`);
   return keys;
+}
+
+/** The feature keys a film contributes to each taste dimension. Shared by the
+ *  profile builder and the recommender so scoring matches how taste is learned. */
+export function filmFeatureKeys(film: FilmFeatures): {
+  genres: string[];
+  director: string | null;
+  decade: string | null;
+  runtimeBand: string | null;
+  awards: string[];
+  ratingTiers: string[];
+} {
+  return {
+    genres: film.genres,
+    director: film.director,
+    decade: decadeKey(film.releaseYear),
+    runtimeBand: runtimeBand(film.runtime),
+    awards: awardKeys(film),
+    ratingTiers: ratingTierKeys(film),
+  };
 }
 
 /** Max-abs normalize so the strongest feature is ±1 — makes users with 5 vs
