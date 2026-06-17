@@ -84,6 +84,20 @@ export function AuthButton({
               </p>
             </div>
           )}
+          <Link
+            href="/profile/watchlist"
+            onClick={() => setMenuOpen(false)}
+            className="flex w-full items-center px-4 py-3 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest text-[#888899] transition hover:bg-[#111120] hover:text-[#F5F5F0]"
+          >
+            Watchlist
+          </Link>
+          <Link
+            href="/profile/history"
+            onClick={() => setMenuOpen(false)}
+            className="flex w-full items-center border-b border-[#1e1e2a] px-4 py-3 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest text-[#888899] transition hover:bg-[#111120] hover:text-[#F5F5F0]"
+          >
+            Watch History
+          </Link>
           <button
             type="button"
             onClick={() => void signOut({ callbackUrl: "/" })}
