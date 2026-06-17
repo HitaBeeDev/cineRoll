@@ -2,6 +2,7 @@ import { Prisma } from "@prisma/client";
 import { Router } from "express";
 import { buildWhereClause, RandomQuery, randomQuerySchema } from "../lib/filmFilters";
 import { setPublicCache } from "../lib/cache";
+import { logEvent } from "../lib/events";
 import { prisma } from "../lib/prisma";
 import { HttpError } from "../middleware/errorHandler";
 import { getValidated, validate } from "../middleware/validate";
@@ -173,10 +174,22 @@ export async function getQualityCandidates(
 randomRouter.get("/", validate(randomQuerySchema), async (req, res) => {
   const query = getValidated<RandomQuery>(req, "query");
   const { film, total } = await getRandomFilm(query);
+  const { userId, ...loggedFilters } = query;
 
   if (!film) {
     throw new HttpError(404, "No films match the given filters", "NO_FILMS_FOUND");
   }
+
+  await logEvent({
+    type: userId ? "roll_personalized" : "roll",
+    userId: userId ?? null,
+    filmId: film.id,
+    context: {
+      source: "random_endpoint",
+      total,
+      filters: loggedFilters,
+    },
+  });
 
   setPublicCache(res, 60);
   res.json({ film, total });

@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { z } from "zod";
+import { logEvent } from "../lib/events";
 import { prisma } from "../lib/prisma";
 import { HttpError } from "../middleware/errorHandler";
 import { getValidated, validate } from "../middleware/validate";
@@ -24,6 +25,11 @@ rollRouter.post("/", validate(rollBodySchema, "body"), async (req, res) => {
 
   const event = await prisma.rollEvent.create({
     data: { filmId },
+  });
+  await logEvent({
+    type: "roll",
+    filmId,
+    context: { source: "roll_endpoint" },
   });
 
   res.status(201).json({ ...event, rolledAt: event.timestamp });

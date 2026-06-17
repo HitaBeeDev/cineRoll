@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { setPublicCache } from "../lib/cache";
+import { logEvent } from "../lib/events";
 import { prisma } from "../lib/prisma";
 import { HttpError } from "../middleware/errorHandler";
 
@@ -108,6 +109,14 @@ pickOfDayRouter.get("/", async (_req, res) => {
   const film = activityRows[0] ?? handPick;
 
   if (film) {
+    await logEvent({
+      type: "recommendation_served",
+      filmId: film.id,
+      context: {
+        source: "pick_of_day",
+        strategy: activityRows[0] ? "recent_activity" : "curated",
+      },
+    });
     setPublicCache(res, 3_600);
     res.json({ ...film, year: film.releaseYear });
     return;
@@ -130,5 +139,13 @@ pickOfDayRouter.get("/", async (_req, res) => {
   }
 
   setPublicCache(res, 3_600);
+  await logEvent({
+    type: "recommendation_served",
+    filmId: mostAwarded.id,
+    context: {
+      source: "pick_of_day",
+      strategy: "most_awarded_fallback",
+    },
+  });
   res.json({ ...mostAwarded, year: mostAwarded.releaseYear });
 });
