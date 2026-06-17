@@ -24,6 +24,28 @@ export const SENTIMENT_WEIGHT = {
 } as const;
 
 /**
+ * Weights for the non-sentiment signals the taste-profile builder consumes.
+ * Kept here alongside SENTIMENT_WEIGHT so the whole signal scale is one knob.
+ */
+export const SIGNAL_WEIGHT = {
+  /** Saving to the watchlist is intent, not a verdict — weak positive. */
+  watchlistAdd: 0.4,
+  /** "Not Interested" (hidden from rolls) — a clear negative. */
+  notInterested: -0.6,
+} as const;
+
+/**
+ * Recency half-life in days: a signal's weight halves every 90 days, so current
+ * taste outweighs old signals. weight *= 0.5 ** (ageDays / HALF_LIFE_DAYS).
+ */
+export const HALF_LIFE_DAYS = 90;
+
+/** Decay multiplier for a signal of the given age. */
+export function recencyDecay(ageDays: number): number {
+  return Math.pow(0.5, Math.max(0, ageDays) / HALF_LIFE_DAYS);
+}
+
+/**
  * Resolve the recommender weight for a watched film given its sentiment.
  * `null`/`undefined` means watched without a thumbs rating (mild positive).
  */
