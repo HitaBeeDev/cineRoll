@@ -17,6 +17,7 @@ const filmIdBodySchema = z.object({
 
 const watchedBodySchema = filmIdBodySchema.extend({
   doNotSuggest: z.boolean().default(false),
+  sentiment: z.enum(["like", "dislike"]).nullable().optional(),
 });
 
 const filmIdParamsSchema = z.object({
@@ -166,14 +167,15 @@ userRouter.get("/watched", async (req, res) => {
 
 userRouter.post("/watched", validate(watchedBodySchema, "body"), async (req, res) => {
   const userId = getUserId(req);
-  const { filmId, doNotSuggest } = getValidated<z.infer<typeof watchedBodySchema>>(req, "body");
+  const { filmId, doNotSuggest, sentiment } = getValidated<z.infer<typeof watchedBodySchema>>(req, "body");
 
   await assertFilmExists(filmId);
 
+  const sentimentData = sentiment === undefined ? {} : { sentiment };
   const entry = await prisma.watchedFilm.upsert({
     where: { userId_filmId: { userId, filmId } },
-    create: { userId, filmId, doNotSuggest },
-    update: { doNotSuggest, watchedAt: new Date() },
+    create: { userId, filmId, doNotSuggest, sentiment: sentiment ?? null },
+    update: { doNotSuggest, watchedAt: new Date(), ...sentimentData },
     include: { film: { select: filmSummarySelect } },
   });
 
@@ -184,6 +186,7 @@ userRouter.post("/watched", validate(watchedBodySchema, "body"), async (req, res
     context: {
       source: "user_route",
       doNotSuggest,
+      sentiment: sentiment ?? null,
     },
   });
 

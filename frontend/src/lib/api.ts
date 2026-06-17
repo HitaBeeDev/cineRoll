@@ -213,11 +213,16 @@ export async function fetchNaturalRoll(prompt: string, count = 2): Promise<Natur
 export async function markFilmWatched(
   filmId: string,
   doNotSuggest: boolean,
+  sentiment?: "like" | "dislike" | null,
 ): Promise<void> {
+  const body = sentiment === undefined
+    ? { filmId, doNotSuggest }
+    : { filmId, doNotSuggest, sentiment };
+
   const res = await fetch(`/api/user/watched`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ filmId, doNotSuggest }),
+    body: JSON.stringify(body),
   });
   if (!res.ok) {
     const body = (await res.json().catch(() => ({}))) as { code?: string };
@@ -227,11 +232,13 @@ export async function markFilmWatched(
     });
   }
 
-  trackEvent({
-    type: "watchlist_add",
-    filmId,
-    context: { source: "watchlist_api" },
-  });
+  if (sentiment) {
+    trackEvent({
+      type: "sentiment_set",
+      filmId,
+      context: { source: "watched_api", sentiment },
+    });
+  }
 }
 
 export async function addFilmToWatchlist(filmId: string): Promise<void> {
@@ -249,7 +256,7 @@ export async function addFilmToWatchlist(filmId: string): Promise<void> {
   }
 
   trackEvent({
-    type: "watchlist_remove",
+    type: "watchlist_add",
     filmId,
     context: { source: "watchlist_api" },
   });
@@ -268,6 +275,12 @@ export async function removeFilmFromWatchlist(filmId: string): Promise<void> {
       status: res.status,
     });
   }
+
+  trackEvent({
+    type: "watchlist_remove",
+    filmId,
+    context: { source: "watchlist_api" },
+  });
 }
 
 export async function fetchFilmBySlug(slug: string): Promise<RollFilm> {
