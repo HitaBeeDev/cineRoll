@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { Prisma } from "@prisma/client";
 import { z } from "zod";
+import { logEvent } from "../lib/events";
 import { prisma } from "../lib/prisma";
 import { AuthedRequest, requireAuth } from "../middleware/auth";
 import { HttpError } from "../middleware/errorHandler";
@@ -107,6 +108,13 @@ userRouter.post("/watchlist", validate(filmIdBodySchema, "body"), async (req, re
       include: { film: { select: filmSummarySelect } },
     });
 
+    await logEvent({
+      type: "watchlist_add",
+      userId,
+      filmId,
+      context: { source: "user_route" },
+    });
+
     const { film, ...watchlistEntry } = entry;
     res.status(201).json({ ...watchlistEntry, film: withYear(film) });
   } catch (error) {
@@ -128,6 +136,13 @@ userRouter.delete("/watchlist/:filmId", validate(filmIdParamsSchema, "params"), 
   if (result.count === 0) {
     throw new HttpError(404, "Watchlist entry not found", "WATCHLIST_ENTRY_NOT_FOUND");
   }
+
+  await logEvent({
+    type: "watchlist_remove",
+    userId,
+    filmId,
+    context: { source: "user_route" },
+  });
 
   res.status(204).send();
 });
@@ -162,6 +177,16 @@ userRouter.post("/watched", validate(watchedBodySchema, "body"), async (req, res
     include: { film: { select: filmSummarySelect } },
   });
 
+  await logEvent({
+    type: doNotSuggest ? "not_interested" : "watched",
+    userId,
+    filmId,
+    context: {
+      source: "user_route",
+      doNotSuggest,
+    },
+  });
+
   const { film, ...watchedEntry } = entry;
   res.json({ ...watchedEntry, film: withYear(film) });
 });
@@ -177,6 +202,16 @@ userRouter.delete("/watched/:filmId", validate(filmIdParamsSchema, "params"), as
   if (result.count === 0) {
     throw new HttpError(404, "Watched entry not found", "WATCHED_ENTRY_NOT_FOUND");
   }
+
+  await logEvent({
+    type: "watched",
+    userId,
+    filmId,
+    context: {
+      source: "user_route",
+      action: "remove",
+    },
+  });
 
   res.status(204).send();
 });
