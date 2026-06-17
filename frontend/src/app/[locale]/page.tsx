@@ -27,6 +27,7 @@ import {
   fetchGenres,
   fetchOnboardingTasteCards,
   addFilmToWatchlist,
+  removeFilmFromWatchlist,
   markFilmWatched,
   fetchWatchedStatus,
   type RollFilm,
@@ -1196,6 +1197,9 @@ function FilmCard({
   const [sentiment, setSentiment] = useState<"like" | "dislike" | null>(null);
   const [sentimentDismissed, setSentimentDismissed] = useState(false);
   const [sentimentPending, setSentimentPending] = useState(false);
+  // Watchlist bookmark: filled/active when the film is saved.
+  const [inWatchlist, setInWatchlist] = useState(false);
+  const [watchlistPending, setWatchlistPending] = useState(false);
 
   // Revisiting a film the user already watched: pre-fill its watched state and
   // any sentiment they previously gave, so the prompt reflects their choice.
@@ -1334,7 +1338,7 @@ function FilmCard({
     }
   }
 
-  async function saveToWatchlist() {
+  async function toggleWatchlist() {
     if (!isAuthenticated) {
       toast({
         title: "Sign in to save",
@@ -1342,23 +1346,44 @@ function FilmCard({
       });
       return;
     }
+    if (watchlistPending) return;
 
+    // Optimistic flip; revert on failure.
+    const next = !inWatchlist;
+    setInWatchlist(next);
+    setWatchlistPending(true);
     try {
-      await addFilmToWatchlist(film.id);
-      toast({
-        variant: "success",
-        title: "Added to watchlist",
-        description: film.title,
-      });
+      if (next) {
+        await addFilmToWatchlist(film.id);
+        toast({
+          variant: "success",
+          title: "Added to watchlist",
+          description: film.title,
+        });
+      } else {
+        await removeFilmFromWatchlist(film.id);
+        toast({
+          title: "Removed from watchlist",
+          description: film.title,
+        });
+      }
     } catch (error) {
       const code = error instanceof Error
         ? (error as Error & { code?: string }).code
         : undefined;
-      toast({
-        variant: code === "WATCHLIST_ALREADY_EXISTS" ? "default" : "error",
-        title: code === "WATCHLIST_ALREADY_EXISTS" ? "Already saved" : "Couldn't save",
-        description: film.title,
-      });
+      // Adding something already saved is a success, not an error: keep it active.
+      if (code === "WATCHLIST_ALREADY_EXISTS") {
+        toast({ title: "Already saved", description: film.title });
+      } else {
+        setInWatchlist(!next);
+        toast({
+          variant: "error",
+          title: "Couldn't save",
+          description: film.title,
+        });
+      }
+    } finally {
+      setWatchlistPending(false);
     }
   }
 
@@ -1411,11 +1436,23 @@ function FilmCard({
           </h2>
           <button
             type="button"
-            aria-label="Add to watchlist"
-            onClick={() => void saveToWatchlist()}
-            className="mt-0.5 shrink-0 text-[#444458] transition-colors hover:text-[#e8453c] focus-visible:outline-none"
+            aria-label={inWatchlist ? "Remove from watchlist" : "Add to watchlist"}
+            aria-pressed={inWatchlist}
+            disabled={watchlistPending}
+            onClick={() => void toggleWatchlist()}
+            className={cn(
+              "mt-0.5 shrink-0 transition-colors focus-visible:outline-none",
+              "disabled:cursor-not-allowed",
+              inWatchlist
+                ? "text-[#e8453c]"
+                : "text-[#444458] hover:text-[#e8453c]",
+            )}
           >
-            <Bookmark className="h-5 w-5" aria-hidden />
+            <Bookmark
+              className="h-5 w-5"
+              fill={inWatchlist ? "currentColor" : "none"}
+              aria-hidden
+            />
           </button>
         </div>
 
