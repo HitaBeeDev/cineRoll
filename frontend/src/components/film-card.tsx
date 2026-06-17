@@ -6,7 +6,7 @@ import Image from "next/image";
 import type { Film } from "@cineroll/types";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
-import { trackFilmImpression } from "@/lib/analytics";
+import { trackEvent, trackFilmImpression } from "@/lib/analytics";
 
 type AwardBadge = {
   body: string;
@@ -85,6 +85,16 @@ export function FilmCard({ film, className }: FilmCardProps) {
     <Link
       ref={cardRef}
       href={`/film/${film.slug}`}
+      onClick={() => {
+        trackEvent({
+          type: "film_click",
+          filmId: film.id,
+          context: {
+            source: "film_card",
+            slug: film.slug,
+          },
+        });
+      }}
       aria-label={`${film.title} (${film.year})`}
       className={cn("group block w-full min-w-0 rounded-md outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/50 focus-visible:ring-offset-4 focus-visible:ring-offset-[#08080d]", className)}
     >

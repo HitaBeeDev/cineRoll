@@ -12,6 +12,7 @@ import {
   type NaturalRollResult,
   type RollFilm,
 } from "@/lib/api";
+import { trackEvent } from "@/lib/analytics";
 import { cn } from "@/lib/utils";
 
 const EXAMPLE_PROMPTS = [
@@ -149,6 +150,16 @@ function FilmCard({ film }: { film: RollFilm }) {
   return (
     <Link
       href={`/film/${film.slug}`}
+      onClick={() => {
+        trackEvent({
+          type: "recommendation_click",
+          filmId: film.id,
+          context: {
+            source: "natural_roll",
+            slug: film.slug,
+          },
+        });
+      }}
       className="group relative flex min-h-0 overflow-hidden rounded-lg border border-[#1e1e2a] bg-[#09090f]/70 transition-colors hover:border-[#e8453c]/40"
     >
       {imageUrl ? (
@@ -226,7 +237,21 @@ export default function DescribePage() {
     setResult(null);
     setNoMatchFilters(null);
     try {
-      setResult(await fetchNaturalRoll(prompt));
+      const nextResult = await fetchNaturalRoll(prompt);
+      setResult(nextResult);
+      nextResult.films.forEach((film, index) => {
+        trackEvent({
+          type: "recommendation_served",
+          filmId: film.id,
+          context: {
+            source: "natural_roll",
+            rank: index + 1,
+            promptLength: prompt.length,
+            interpretedFilters: nextResult.interpretedFilters,
+            relaxed: nextResult.relaxed,
+          },
+        });
+      });
     } catch (err) {
       const naturalRollError = err as Partial<NaturalRollError>;
       if (

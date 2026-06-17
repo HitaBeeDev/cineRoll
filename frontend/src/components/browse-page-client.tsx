@@ -28,6 +28,7 @@ import {
   filtersToParams,
   type AutocompleteResult,
 } from "@/lib/api";
+import { trackEvent } from "@/lib/analytics";
 import {
   Select,
   SelectContent,
@@ -149,7 +150,31 @@ export function BrowsePageClient() {
   }, [acOpen]);
 
   const setFilters = useCallback(
-    (updates: Partial<FilterState>) => setFilter(updates),
+    (updates: Partial<FilterState>) => {
+      setFilter(updates);
+
+      const changedKeys = Object.keys(updates).filter(key => key !== "page");
+      if (changedKeys.length === 0) return;
+
+      if (Object.prototype.hasOwnProperty.call(updates, "search")) {
+        trackEvent({
+          type: "search",
+          context: {
+            source: "browse",
+            query: updates.search ?? "",
+          },
+        });
+        return;
+      }
+
+      trackEvent({
+        type: "filter_apply",
+        context: {
+          source: "browse",
+          updates,
+        },
+      });
+    },
     [setFilter],
   );
 
@@ -171,6 +196,14 @@ export function BrowsePageClient() {
     setRolling(true);
     try {
       const { film } = await fetchRandom(filters);
+      trackEvent({
+        type: "roll",
+        filmId: film.id,
+        context: {
+          source: "browse_results",
+          filters,
+        },
+      });
       router.push(`/film/${film.slug}`);
     } finally {
       setRolling(false);

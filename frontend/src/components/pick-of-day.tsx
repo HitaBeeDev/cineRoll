@@ -17,6 +17,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { fetchPickOfDay, type PickOfDayFilm } from "@/lib/api";
+import { trackEvent } from "@/lib/analytics";
 import { formatRuntime } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -260,6 +261,16 @@ function PickOfDayCard({ film }: { film: PickOfDayFilm }) {
 
           <Link
             href={`/film/${film.slug}`}
+            onClick={() => {
+              trackEvent({
+                type: "pick_of_day_click",
+                filmId: film.id,
+                context: {
+                  source: "pick_of_day_card",
+                  slug: film.slug,
+                },
+              });
+            }}
             className={cn(
               "inline-flex items-center gap-1.5 self-start mt-auto pt-1",
               "text-xs font-medium text-amber-400 hover:text-amber-300 transition-colors",

@@ -227,6 +227,21 @@ export async function markFilmWatched(
   }
 }
 
+export async function addFilmToWatchlist(filmId: string): Promise<void> {
+  const res = await fetch(`/api/user/watchlist`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ filmId }),
+  });
+  if (!res.ok) {
+    const body = (await res.json().catch(() => ({}))) as { code?: string };
+    throw Object.assign(new Error("Failed to save"), {
+      code: body.code ?? "UNKNOWN",
+      status: res.status,
+    });
+  }
+}
+
 export async function fetchFilmBySlug(slug: string): Promise<RollFilm> {
   const res = await fetch(`${API_URL}/api/films/${encodeURIComponent(slug)}`, { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to fetch film");

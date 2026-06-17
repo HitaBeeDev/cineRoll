@@ -25,6 +25,7 @@ import {
   fetchFilms,
   fetchGenres,
   fetchOnboardingTasteCards,
+  addFilmToWatchlist,
   markFilmWatched,
   type RollFilm,
   type TasteCardFilm,
@@ -279,8 +280,9 @@ export default function HomePage() {
     setIsRolling(true);
     setFilm(null);
     void trackEvent({
-      type: "roll",
+      type: userId ? "roll_personalized" : "roll",
       context: {
+        source: "home_roll",
         filters,
         hasActiveFilters,
       },
@@ -447,8 +449,26 @@ export default function HomePage() {
             className="mt-auto"
             filters={filters}
             genres={genres}
-            onFiltersChange={setFilter}
-            onClearFilters={resetFilters}
+            onFiltersChange={(updates) => {
+              setFilter(updates);
+              trackEvent({
+                type: "filter_apply",
+                context: {
+                  source: "home",
+                  updates,
+                },
+              });
+            }}
+            onClearFilters={() => {
+              resetFilters();
+              trackEvent({
+                type: "filter_apply",
+                context: {
+                  source: "home",
+                  action: "clear",
+                },
+              });
+            }}
           />
           </div>
 
@@ -862,7 +882,17 @@ function RollHistoryDrawer({
                     <Link
                       key={film.id}
                       href={`/film/${film.slug}`}
-                      onClick={onClose}
+                      onClick={() => {
+                        trackEvent({
+                          type: "film_click",
+                          filmId: film.id,
+                          context: {
+                            source: "roll_history",
+                            slug: film.slug,
+                          },
+                        });
+                        onClose();
+                      }}
                       className={cn(
                         "group relative flex h-[90px] overflow-hidden",
                         "border border-[#0f0f1a] bg-[#080812]",
@@ -1243,6 +1273,39 @@ function FilmCard({
     }
   }
 
+  async function saveToWatchlist() {
+    if (!isAuthenticated) {
+      toast({
+        title: "Sign in to save",
+        description: "Create a profile to keep a watchlist.",
+      });
+      return;
+    }
+
+    try {
+      await addFilmToWatchlist(film.id);
+      trackEvent({
+        type: "watchlist_add",
+        filmId: film.id,
+        context: { source: "roll_card" },
+      });
+      toast({
+        variant: "success",
+        title: "Added to watchlist",
+        description: film.title,
+      });
+    } catch (error) {
+      const code = error instanceof Error
+        ? (error as Error & { code?: string }).code
+        : undefined;
+      toast({
+        variant: code === "WATCHLIST_ALREADY_EXISTS" ? "default" : "error",
+        title: code === "WATCHLIST_ALREADY_EXISTS" ? "Already saved" : "Couldn't save",
+        description: film.title,
+      });
+    }
+  }
+
   return (
     <div className="flex flex-col">
       {/* Channel pill */}
@@ -1293,6 +1356,7 @@ function FilmCard({
           <button
             type="button"
             aria-label="Add to watchlist"
+            onClick={() => void saveToWatchlist()}
             className="mt-0.5 shrink-0 text-[#444458] transition-colors hover:text-[#e8453c] focus-visible:outline-none"
           >
             <Bookmark className="h-5 w-5" aria-hidden />
@@ -1433,6 +1497,16 @@ function FilmCard({
         <div className="flex items-center gap-2 mt-1">
           <Link
             href={`/film/${film.slug}`}
+            onClick={() => {
+              trackEvent({
+                type: "film_click",
+                filmId: film.id,
+                context: {
+                  source: "roll_card",
+                  slug: film.slug,
+                },
+              });
+            }}
             className={cn(
               "flex flex-1 items-center justify-center rounded-xl py-3",
               "bg-[#e8453c] text-[#F5F5F0]",
