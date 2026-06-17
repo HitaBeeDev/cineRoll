@@ -227,5 +227,32 @@ export async function buildTasteProfile(
   return result;
 }
 
+/**
+ * Defensive recompute ceiling: even if nothing flagged the profile stale,
+ * rebuild it on read once it is older than this, so it never drifts far from
+ * the underlying signals.
+ */
+const STALE_MAX_AGE_MS = 7 * DAY_MS;
+
+/**
+ * Lazy, debounced recompute. Signal mutations only flag the profile stale
+ * (cheap); the actual rebuild happens here on the next read — so a burst of
+ * signal changes coalesces into a single recompute. Rebuilds when the row is
+ * missing, explicitly stale (`staleAt` set), or past the max-age ceiling.
+ */
+export async function refreshTasteProfileIfStale(userId: string): Promise<void> {
+  const row = await prisma.userTasteProfile.findUnique({
+    where: { userId },
+    select: { staleAt: true, updatedAt: true },
+  });
+
+  const needsBuild =
+    row === null ||
+    row.staleAt !== null ||
+    Date.now() - row.updatedAt.getTime() > STALE_MAX_AGE_MS;
+
+  if (needsBuild) await buildTasteProfile(userId);
+}
+
 // Keep SENTIMENT_WEIGHT re-exported for callers that report the scale.
 export { SENTIMENT_WEIGHT };

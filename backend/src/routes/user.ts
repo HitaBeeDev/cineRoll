@@ -117,6 +117,8 @@ userRouter.post("/watchlist", validate(filmIdBodySchema, "body"), async (req, re
       context: { source: "user_route" },
     });
 
+    await markTasteProfileStale(userId);
+
     const { film, ...watchlistEntry } = entry;
     res.status(201).json({ ...watchlistEntry, film: withYear(film) });
   } catch (error) {
@@ -145,6 +147,8 @@ userRouter.delete("/watchlist/:filmId", validate(filmIdParamsSchema, "params"), 
     filmId,
     context: { source: "user_route" },
   });
+
+  await markTasteProfileStale(userId);
 
   res.status(204).send();
 });
@@ -223,8 +227,10 @@ userRouter.post("/watched", validate(watchedBodySchema, "body"), async (req, res
       filmId,
       context: { sentiment },
     });
-    await markTasteProfileStale(userId);
   }
+
+  // Any watched / not-interested / sentiment change shifts the taste profile.
+  await markTasteProfileStale(userId);
 
   const { film, ...watchedEntry } = entry;
   res.json({ ...watchedEntry, film: withYear(film) });
@@ -251,6 +257,8 @@ userRouter.delete("/watched/:filmId", validate(filmIdParamsSchema, "params"), as
       action: "remove",
     },
   });
+
+  await markTasteProfileStale(userId);
 
   res.status(204).send();
 });
