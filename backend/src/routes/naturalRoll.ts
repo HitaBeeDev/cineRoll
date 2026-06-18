@@ -388,6 +388,11 @@ naturalRollRouter.post("/", validate(naturalRollBodySchema, "body"), async (req,
   if (dropped.length > 0) {
     console.warn("Natural roll dropped invalid filter values:", dropped);
   }
+  // What we actually queried with — remaps (canonical values) and drops are
+  // already baked into `cleaned`; `appliedFilters`/`droppedFilters` get updated
+  // again if we relax below, so the client always sees what really happened.
+  let appliedFilters = cleaned;
+  let droppedFilters = dropped;
   const query = randomQuerySchema.parse({ ...cleaned, userId: body.userId, limit: 1, page: 1 });
 
   // Stage 2: candidate pool — top 100 by IMDb rating, randomly sampled to 50
@@ -405,13 +410,16 @@ naturalRollRouter.post("/", validate(naturalRollBodySchema, "body"), async (req,
     candidates = relaxedResult.films;
     total = relaxedResult.total;
     relaxed = true;
+    appliedFilters = relaxedCleaned;
+    droppedFilters = [...dropped, "genre"];
   }
 
   if (candidates.length === 0) {
     res.status(404).json({
       error: "No films match the interpreted filters",
       code: "NO_FILMS_FOUND",
-      interpretedFilters: cleaned,
+      interpretedFilters: appliedFilters,
+      droppedFilters,
     });
     return;
   }
@@ -436,7 +444,8 @@ naturalRollRouter.post("/", validate(naturalRollBodySchema, "body"), async (req,
   res.json({
     films: finalFilms,
     total,
-    interpretedFilters: cleaned,
+    interpretedFilters: appliedFilters,
+    droppedFilters,
     relaxed,
   });
 });
