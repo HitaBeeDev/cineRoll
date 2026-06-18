@@ -33,7 +33,7 @@ export async function markTasteProfileStale(userId: string): Promise<void> {
 
 // ── Feature extraction ───────────────────────────────────────────────────────
 
-const filmFeatureSelect = {
+export const filmFeatureSelect = {
   genres: true,
   director: true,
   releaseYear: true,
@@ -146,7 +146,70 @@ export type TasteProfileVectors = {
   negativeCount: number;
 };
 
-type Signal = { film: FilmFeatures; weight: number; at: Date };
+export type Signal = { film: FilmFeatures; weight: number; at: Date };
+
+/**
+ * Pure core of the taste-profile builder: fold a set of weighted, dated signals
+ * (plus onboarding-genre seeds for cold-start) into normalized preference
+ * vectors. Extracted so the evaluation harness (section 12) can rebuild a
+ * profile from a *subset* of a user's signals (with held-out films removed)
+ * using exactly the same math the live builder uses — no drift.
+ */
+export function aggregateTasteVectors(
+  signals: Signal[],
+  onboardingGenres: string[],
+): TasteProfileVectors {
+  const now = Date.now();
+  const genreWeights: Vector = {};
+  const directorWeights: Vector = {};
+  const decadeWeights: Vector = {};
+  const runtimeBandWeights: Vector = {};
+  const awardAffinity: Vector = {};
+  const ratingTier: Vector = {};
+  let positiveCount = 0;
+  let negativeCount = 0;
+
+  const add = (vec: Vector, key: string | null, value: number) => {
+    if (key == null) return;
+    vec[key] = (vec[key] ?? 0) + value;
+  };
+
+  for (const { film, weight, at } of signals) {
+    if (weight > 0) positiveCount++;
+    else if (weight < 0) negativeCount++;
+
+    const ageDays = (now - at.getTime()) / DAY_MS;
+    const w = weight * recencyDecay(ageDays);
+
+    for (const genre of film.genres) add(genreWeights, genre, w);
+    add(directorWeights, film.director, w);
+    add(decadeWeights, decadeKey(film.releaseYear), w);
+    add(runtimeBandWeights, runtimeBand(film.runtime), w);
+    for (const key of awardKeys(film)) add(awardAffinity, key, w);
+    for (const key of ratingTierKeys(film)) add(ratingTier, key, w);
+  }
+
+  // Cold-start: a user with too few real signals gets their onboarding taste
+  // cards' genres blended into the genre vector (ranked most-preferred first),
+  // so recommendations have something to stand on from day one.
+  if (positiveCount < COLD_START_THRESHOLD && onboardingGenres.length > 0) {
+    const n = onboardingGenres.length;
+    onboardingGenres.forEach((genre, i) => {
+      add(genreWeights, genre, COLD_START_SEED * (1 - i / n));
+    });
+  }
+
+  return {
+    genreWeights: normalize(genreWeights),
+    directorWeights: normalize(directorWeights),
+    decadeWeights: normalize(decadeWeights),
+    runtimeBandWeights: normalize(runtimeBandWeights),
+    awardAffinity: normalize(awardAffinity),
+    ratingTier: normalize(ratingTier),
+    positiveCount,
+    negativeCount,
+  };
+}
 
 /**
  * Aggregate all of a user's raw signals into compact, recency-decayed,
@@ -205,57 +268,7 @@ export async function buildTasteProfile(
     });
   }
 
-  const now = Date.now();
-  const genreWeights: Vector = {};
-  const directorWeights: Vector = {};
-  const decadeWeights: Vector = {};
-  const runtimeBandWeights: Vector = {};
-  const awardAffinity: Vector = {};
-  const ratingTier: Vector = {};
-  let positiveCount = 0;
-  let negativeCount = 0;
-
-  const add = (vec: Vector, key: string | null, value: number) => {
-    if (key == null) return;
-    vec[key] = (vec[key] ?? 0) + value;
-  };
-
-  for (const { film, weight, at } of signals) {
-    if (weight > 0) positiveCount++;
-    else if (weight < 0) negativeCount++;
-
-    const ageDays = (now - at.getTime()) / DAY_MS;
-    const w = weight * recencyDecay(ageDays);
-
-    for (const genre of film.genres) add(genreWeights, genre, w);
-    add(directorWeights, film.director, w);
-    add(decadeWeights, decadeKey(film.releaseYear), w);
-    add(runtimeBandWeights, runtimeBand(film.runtime), w);
-    for (const key of awardKeys(film)) add(awardAffinity, key, w);
-    for (const key of ratingTierKeys(film)) add(ratingTier, key, w);
-  }
-
-  // Cold-start: a user with too few real signals gets their onboarding taste
-  // cards' genres blended into the genre vector (ranked most-preferred first),
-  // so recommendations have something to stand on from day one.
-  const onboardingGenres = user?.onboardingGenres ?? [];
-  if (positiveCount < COLD_START_THRESHOLD && onboardingGenres.length > 0) {
-    const n = onboardingGenres.length;
-    onboardingGenres.forEach((genre, i) => {
-      add(genreWeights, genre, COLD_START_SEED * (1 - i / n));
-    });
-  }
-
-  const result: TasteProfileVectors = {
-    genreWeights: normalize(genreWeights),
-    directorWeights: normalize(directorWeights),
-    decadeWeights: normalize(decadeWeights),
-    runtimeBandWeights: normalize(runtimeBandWeights),
-    awardAffinity: normalize(awardAffinity),
-    ratingTier: normalize(ratingTier),
-    positiveCount,
-    negativeCount,
-  };
+  const result = aggregateTasteVectors(signals, user?.onboardingGenres ?? []);
 
   const updatedAt = new Date();
   await prisma.userTasteProfile.upsert({

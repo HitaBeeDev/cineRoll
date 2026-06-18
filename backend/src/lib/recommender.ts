@@ -94,7 +94,20 @@ export async function generateCandidates(
   userId: string,
   taste: TasteProfileVectors,
 ): Promise<CandidateFilm[]> {
-  const [excludedIds, genres] = [await getExcludedFilmIds(userId), topGenres(taste)];
+  return generateCandidatePool(await getExcludedFilmIds(userId), taste);
+}
+
+/**
+ * The pool builder with an explicit exclusion list — pre-filters to the user's
+ * top taste genres and a quality-ordered cap. Separated from `generateCandidates`
+ * so the evaluation harness (section 12) can include held-out films in the pool
+ * (by leaving them out of `excludedIds`) and check whether they get surfaced.
+ */
+export async function generateCandidatePool(
+  excludedIds: string[],
+  taste: TasteProfileVectors,
+): Promise<CandidateFilm[]> {
+  const genres = topGenres(taste);
 
   const where: Prisma.FilmWhereInput = {
     ...(excludedIds.length > 0 ? { id: { notIn: excludedIds } } : {}),
@@ -182,7 +195,26 @@ function filmSimilarity(a: CandidateFilm, b: CandidateFilm): number {
   return 0.7 * genreJaccard + 0.3 * sameDirector;
 }
 
-type Scored = { film: CandidateFilm; score: number };
+export type Scored = { film: CandidateFilm; score: number };
+
+/**
+ * Score a candidate pool against a taste profile and return the top `limit`
+ * after MMR diversity re-rank — the exact ranking `recommend` serves. Shared
+ * with the evaluation harness so offline metrics measure the real ordering.
+ */
+export function rankCandidates(
+  candidates: CandidateFilm[],
+  taste: TasteProfileVectors,
+  limit: number,
+  currentYear: number = new Date().getFullYear(),
+): Scored[] {
+  const scored: Scored[] = candidates.map((film) => ({
+    film,
+    score: scoreFilm(film, taste, currentYear),
+  }));
+  scored.sort((a, b) => b.score - a.score);
+  return mmrRerank(scored, limit);
+}
 
 /** Maximal Marginal Relevance: greedily pick high-scoring films while penalizing
  *  similarity to those already chosen, so the top N isn't all one director/genre. */
@@ -352,14 +384,7 @@ export async function recommend(
     coldStart ? Promise.resolve(new Map<string, string>()) : likedFilmsByGenre(userId),
   ]);
 
-  const currentYear = new Date().getFullYear();
-  const scored: Scored[] = candidates.map((film) => ({
-    film,
-    score: scoreFilm(film, taste, currentYear),
-  }));
-  scored.sort((a, b) => b.score - a.score);
-
-  const top = mmrRerank(scored, limit);
+  const top = rankCandidates(candidates, taste, limit);
 
   const recommendations: Recommendation[] = top.map(({ film, score }) => ({
     id: film.id,

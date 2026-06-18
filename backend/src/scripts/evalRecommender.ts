@@ -1,0 +1,184 @@
+/**
+ * Offline evaluation harness for the content-based recommender (section 12).
+ *
+ * Leave-most-recent-out protocol, per test user:
+ *   1. Take their liked films, ordered by recency.
+ *   2. Hold out the most-recent few as ground truth.
+ *   3. Rebuild the taste profile from the *remaining* signals only (using the
+ *      live builder's own math via `aggregateTasteVectors`).
+ *   4. Generate the candidate pool with the held-out films left eligible, then
+ *      rank it with the production scorer (`rankCandidates`).
+ *   5. Measure recall@k / precision@k / MRR for whether the held-out films are
+ *      surfaced.
+ *
+ * It reuses the real pipeline pieces (no reimplementation) so the numbers
+ * reflect what ships. Read-only: it never mutates the database.
+ *
+ * Run: `npx tsx src/scripts/evalRecommender.ts [--max-users=N] [--k=5,10,20]`
+ */
+import { prisma } from "../lib/prisma";
+import { generateCandidatePool, rankCandidates, MODEL_VERSION } from "../lib/recommender";
+import { aggregateTasteVectors, filmFeatureSelect, type Signal } from "../lib/tasteProfile";
+import { SIGNAL_WEIGHT, sentimentWeight } from "../lib/tasteWeights";
+
+// ── Protocol knobs ───────────────────────────────────────────────────────────
+/** A user needs at least this many liked films to be a valid test case. */
+const MIN_LIKED = 5;
+/** Fraction of a user's liked films to hold out (capped by HOLDOUT_MAX). */
+const HOLDOUT_FRACTION = 0.3;
+const HOLDOUT_MAX = 5;
+/** Mirror the recommender's cold-start gate: below this, it serves nothing. */
+const COLD_START_MIN = 3;
+const DEFAULT_K_VALUES = [5, 10, 20];
+
+type Args = { maxUsers: number | null; kValues: number[] };
+
+function parseArgs(argv: string[]): Args {
+  let maxUsers: number | null = null;
+  let kValues = DEFAULT_K_VALUES;
+  for (const arg of argv) {
+    const users = arg.match(/^--max-users=(\d+)$/);
+    if (users) maxUsers = Number(users[1]);
+    const k = arg.match(/^--k=([\d,]+)$/);
+    if (k) kValues = k[1]!.split(",").map(Number).filter(n => n > 0);
+  }
+  return { maxUsers, kValues };
+}
+
+type WatchedRow = {
+  filmId: string;
+  sentiment: "like" | "dislike" | null;
+  doNotSuggest: boolean;
+  watchedAt: Date;
+  film: Signal["film"];
+};
+
+type UserMetrics = {
+  recall: Record<number, number>;
+  precision: Record<number, number>;
+  reciprocalRank: number;
+};
+
+/** Evaluate one user; returns null when they're not a valid test case. */
+async function evaluateUser(
+  userId: string,
+  kValues: number[],
+  maxK: number,
+): Promise<UserMetrics | null> {
+  const [watched, watchlist, user] = await Promise.all([
+    prisma.watchedFilm.findMany({
+      where: { userId },
+      select: {
+        filmId: true,
+        sentiment: true,
+        doNotSuggest: true,
+        watchedAt: true,
+        film: { select: filmFeatureSelect },
+      },
+    }),
+    prisma.watchlist.findMany({
+      where: { userId },
+      select: { filmId: true, addedAt: true, film: { select: filmFeatureSelect } },
+    }),
+    prisma.user.findUnique({ where: { id: userId }, select: { onboardingGenres: true } }),
+  ]);
+
+  const liked = (watched as WatchedRow[])
+    .filter(w => w.sentiment === "like" && !w.doNotSuggest)
+    .sort((a, b) => b.watchedAt.getTime() - a.watchedAt.getTime());
+
+  if (liked.length < MIN_LIKED) return null;
+
+  const holdoutCount = Math.max(
+    1,
+    Math.min(HOLDOUT_MAX, Math.floor(liked.length * HOLDOUT_FRACTION)),
+  );
+  const heldOutIds = new Set(liked.slice(0, holdoutCount).map(w => w.filmId));
+
+  // Rebuild taste from everything EXCEPT the held-out liked films.
+  const signals: Signal[] = [];
+  for (const w of watched as WatchedRow[]) {
+    if (heldOutIds.has(w.filmId)) continue;
+    const weight = w.doNotSuggest ? SIGNAL_WEIGHT.notInterested : sentimentWeight(w.sentiment);
+    signals.push({ film: w.film, weight, at: w.watchedAt });
+  }
+  for (const entry of watchlist) {
+    signals.push({ film: entry.film, weight: SIGNAL_WEIGHT.watchlistAdd, at: entry.addedAt });
+  }
+
+  const onboardingGenres = user?.onboardingGenres ?? [];
+  const taste = aggregateTasteVectors(signals, onboardingGenres);
+
+  // Skip cold-start users the recommender wouldn't serve anyway.
+  if (taste.positiveCount < COLD_START_MIN && onboardingGenres.length === 0) return null;
+
+  // Exclude everything the user has touched EXCEPT the held-out films, so the
+  // held-out films are eligible to be surfaced (the thing we're measuring).
+  const excludedIds = [
+    ...new Set([
+      ...watched.map(w => w.filmId),
+      ...watchlist.map(w => w.filmId),
+    ]),
+  ].filter(id => !heldOutIds.has(id));
+
+  const candidates = await generateCandidatePool(excludedIds, taste);
+  const rankedIds = rankCandidates(candidates, taste, maxK).map(r => r.film.id);
+
+  const recall: Record<number, number> = {};
+  const precision: Record<number, number> = {};
+  for (const k of kValues) {
+    const topK = rankedIds.slice(0, k);
+    const hits = topK.filter(id => heldOutIds.has(id)).length;
+    recall[k] = hits / heldOutIds.size;
+    precision[k] = hits / k;
+  }
+
+  const firstHit = rankedIds.findIndex(id => heldOutIds.has(id));
+  const reciprocalRank = firstHit >= 0 ? 1 / (firstHit + 1) : 0;
+
+  return { recall, precision, reciprocalRank };
+}
+
+function mean(values: number[]): number {
+  return values.length === 0 ? 0 : values.reduce((a, b) => a + b, 0) / values.length;
+}
+
+async function main(): Promise<void> {
+  const { maxUsers, kValues } = parseArgs(process.argv.slice(2));
+  const maxK = Math.max(...kValues);
+
+  const users = await prisma.user.findMany({ select: { id: true } });
+  const results: UserMetrics[] = [];
+  let skipped = 0;
+
+  for (const { id } of users) {
+    if (maxUsers !== null && results.length >= maxUsers) break;
+    const metrics = await evaluateUser(id, kValues, maxK);
+    if (metrics) results.push(metrics);
+    else skipped++;
+  }
+
+  console.log(`\nRecommender offline evaluation — model ${MODEL_VERSION}`);
+  console.log(`Protocol: leave-most-recent-${HOLDOUT_MAX}-out · cold-start gate ${COLD_START_MIN}`);
+  console.log(`Users: ${results.length} evaluated, ${skipped} skipped (too few signals)\n`);
+
+  if (results.length === 0) {
+    console.log("No eligible test users — need users with rated likes to evaluate.");
+    return;
+  }
+
+  console.log("  k    recall@k   precision@k");
+  for (const k of kValues) {
+    const r = mean(results.map(m => m.recall[k] ?? 0));
+    const p = mean(results.map(m => m.precision[k] ?? 0));
+    console.log(`  ${String(k).padEnd(4)} ${r.toFixed(4).padEnd(10)} ${p.toFixed(4)}`);
+  }
+  console.log(`\n  MRR: ${mean(results.map(m => m.reciprocalRank)).toFixed(4)}\n`);
+}
+
+main()
+  .catch(err => {
+    console.error(err);
+    process.exitCode = 1;
+  })
+  .finally(() => void prisma.$disconnect());
