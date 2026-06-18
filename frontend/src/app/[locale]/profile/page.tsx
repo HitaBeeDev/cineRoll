@@ -58,13 +58,18 @@ function initialsFrom(name?: string | null, email?: string | null): string {
 const SECTIONS = [
   {
     href: "watchlist",
-    title: "Watchlist",
+    title: "View Watchlist",
     blurb: "Films you’ve saved to watch later.",
   },
   {
     href: "history",
-    title: "Watch History",
+    title: "Watched History",
     blurb: "Everything you’ve marked watched, with your ratings.",
+  },
+  {
+    href: "settings",
+    title: "Settings",
+    blurb: "Your account and preferences.",
   },
 ] as const;
 
@@ -115,7 +120,7 @@ export default async function ProfilePage({
           ))}
         </p>
 
-        <div className="mt-12 grid gap-4 sm:grid-cols-2">
+        <div className="mt-12 grid gap-4 sm:grid-cols-3">
           {SECTIONS.map((section) => (
             <Link
               key={section.href}
