@@ -18,6 +18,11 @@ const GEMINI_MODEL = "gemini-2.5-flash-lite";
 const CANDIDATE_TOP_N = 100;
 const CANDIDATE_SAMPLE_N = 50;
 
+// Order in which soft constraints are loosened when a query returns zero films
+// (cumulative — least essential to most). Hard intent like director/person and
+// award winner/nominee flags are never auto-relaxed.
+const RELAX_PRIORITY = ["genre", "category", "language", "awardYear", "decadeMin", "decadeMax"] as const;
+
 const LOCAL_GENRE_PATTERNS: Array<[RegExp, string]> = [
   [/\b(sci[-\s]?fi|science fiction|space)\b/i, "Science Fiction"],
   [/\b(horror|scary|frightening)\b/i, "Horror"],
@@ -398,20 +403,32 @@ naturalRollRouter.post("/", validate(naturalRollBodySchema, "body"), async (req,
   // Stage 2: candidate pool — top 100 by IMDb rating, randomly sampled to 50
   let { films: candidates, total } = await getQualityCandidates(query, CANDIDATE_TOP_N, CANDIDATE_SAMPLE_N);
 
-  // If no candidates, relax by dropping genre
+  // If no candidates, progressively loosen the soft constraints — genre first,
+  // then category, language, and finally year — cumulatively dropping each
+  // (only those actually applied) until something matches.
   let relaxed = false;
-  if (candidates.length === 0 && cleaned.genre) {
-    const { filters: relaxedCleaned } = validateStructuralFilters(
-      { ...structuralFilters, genre: null },
-      allowed,
-    );
-    const relaxedQuery = randomQuerySchema.parse({ ...relaxedCleaned, userId: body.userId, limit: 1, page: 1 });
-    const relaxedResult = await getQualityCandidates(relaxedQuery, CANDIDATE_TOP_N, CANDIDATE_SAMPLE_N);
-    candidates = relaxedResult.films;
-    total = relaxedResult.total;
-    relaxed = true;
-    appliedFilters = relaxedCleaned;
-    droppedFilters = [...dropped, "genre"];
+  if (candidates.length === 0) {
+    const relaxable = RELAX_PRIORITY.filter(key => key in cleaned);
+    const removed: string[] = [];
+
+    for (const key of relaxable) {
+      if (candidates.length > 0) break;
+      removed.push(key);
+
+      const overrides = Object.fromEntries(removed.map(k => [k, null]));
+      const { filters: relaxedCleaned } = validateStructuralFilters(
+        { ...structuralFilters, ...overrides },
+        allowed,
+      );
+      const relaxedQuery = randomQuerySchema.parse({ ...relaxedCleaned, userId: body.userId, limit: 1, page: 1 });
+      const relaxedResult = await getQualityCandidates(relaxedQuery, CANDIDATE_TOP_N, CANDIDATE_SAMPLE_N);
+
+      candidates = relaxedResult.films;
+      total = relaxedResult.total;
+      appliedFilters = relaxedCleaned;
+      droppedFilters = [...dropped, ...removed];
+      relaxed = true;
+    }
   }
 
   if (candidates.length === 0) {
