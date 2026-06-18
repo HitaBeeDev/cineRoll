@@ -15,8 +15,10 @@ import { prisma } from "./prisma";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-/** Don't feature the same film again within this many days. */
-const NO_REPEAT_DAYS = 30;
+/** Don't feature the same film again within this many days (a full year). If
+ *  the prestige pool is smaller than this, the exclusion relaxes automatically
+ *  (see getPickOfDay) so a pick is always produced. */
+const NO_REPEAT_DAYS = 365;
 /** Window over which recent roll volume counts as "exposure". */
 const ROLL_WINDOW_DAYS = 14;
 /** Cap on the scored pool (ordered by prestige) — keeps scoring cheap. */
