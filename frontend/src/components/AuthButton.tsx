@@ -85,6 +85,13 @@ export function AuthButton({
             </div>
           )}
           <Link
+            href="/profile"
+            onClick={() => setMenuOpen(false)}
+            className="flex w-full items-center px-4 py-3 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest text-[#888899] transition hover:bg-[#111120] hover:text-[#F5F5F0]"
+          >
+            Profile
+          </Link>
+          <Link
             href="/profile/watchlist"
             onClick={() => setMenuOpen(false)}
             className="flex w-full items-center px-4 py-3 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest text-[#888899] transition hover:bg-[#111120] hover:text-[#F5F5F0]"
