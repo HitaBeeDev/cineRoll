@@ -4,6 +4,10 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { apiFetch } from "@/lib/apiWithAuth";
 import { AppHeader } from "@/components/app-header";
+import {
+  RecommendationsSection,
+  type Recommendation,
+} from "@/components/recommendations-section";
 
 type ProfileSummary = { watchlist: number; watched: number; hidden: number };
 
@@ -16,6 +20,21 @@ async function fetchSummary(): Promise<ProfileSummary> {
     watched: data.watched ?? 0,
     hidden: data.hidden ?? 0,
   };
+}
+
+type RecommendationsResponse =
+  | { code: "NOT_ENOUGH_DATA" }
+  | { coldStart: boolean; recommendations: Recommendation[] };
+
+async function fetchRecommendations(): Promise<{
+  recommendations: Recommendation[];
+  coldStart: boolean;
+}> {
+  const res = await apiFetch("/api/recommendations?limit=8");
+  if (!res.ok) return { recommendations: [], coldStart: false };
+  const data = (await res.json().catch(() => ({}))) as RecommendationsResponse;
+  if ("code" in data) return { recommendations: [], coldStart: false };
+  return { recommendations: data.recommendations, coldStart: data.coldStart };
 }
 
 export const metadata: Metadata = {
@@ -56,7 +75,7 @@ export default async function ProfilePage({
   if (!session?.user) redirect(`/${locale}/auth/signin`);
 
   const { name, email } = session.user;
-  const summary = await fetchSummary();
+  const [summary, recs] = await Promise.all([fetchSummary(), fetchRecommendations()]);
 
   const stats = [
     { label: "in watchlist", value: summary.watchlist },
@@ -109,6 +128,14 @@ export default async function ProfilePage({
             </Link>
           ))}
         </div>
+
+        {recs.recommendations.length > 0 && (
+          <RecommendationsSection
+            recommendations={recs.recommendations}
+            locale={locale}
+            coldStart={recs.coldStart}
+          />
+        )}
       </div>
     </main>
   );
