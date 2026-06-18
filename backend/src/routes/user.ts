@@ -190,6 +190,21 @@ userRouter.get("/watched", async (req, res) => {
   });
 });
 
+// Counts for the profile greeting row: saved / watched / hidden-from-rolls.
+// "Hidden" is a watched row flagged doNotSuggest (Not Interested); "watched" is
+// everything else, so the two partition the WatchedFilm rows.
+userRouter.get("/summary", async (req, res) => {
+  const userId = getUserId(req);
+
+  const [watchlist, watched, hidden] = await Promise.all([
+    prisma.watchlist.count({ where: { userId } }),
+    prisma.watchedFilm.count({ where: { userId, doNotSuggest: false } }),
+    prisma.watchedFilm.count({ where: { userId, doNotSuggest: true } }),
+  ]);
+
+  res.json({ watchlist, watched, hidden });
+});
+
 // Combined per-film status for the signed-in user — lets the post-roll card
 // reflect existing watchlist / watched / sentiment state on mount in one trip.
 userRouter.get("/film-status/:filmId", validate(filmIdParamsSchema, "params"), async (req, res) => {
