@@ -6,3 +6,6 @@ node_modules
 
 # Data pipeline working files (excels, master.json, exports, recalls)
 /data/
+
+# Recommender offline-eval results (generated per run)
+/eval-results/

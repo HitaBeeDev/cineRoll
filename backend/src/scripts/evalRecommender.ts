@@ -16,10 +16,15 @@
  *
  * Run: `npx tsx src/scripts/evalRecommender.ts [--max-users=N] [--k=5,10,20]`
  */
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
 import { prisma } from "../lib/prisma";
 import { generateCandidatePool, rankCandidates, MODEL_VERSION } from "../lib/recommender";
 import { aggregateTasteVectors, filmFeatureSelect, type Signal } from "../lib/tasteProfile";
 import { SIGNAL_WEIGHT, sentimentWeight } from "../lib/tasteWeights";
+
+/** Where per-modelVersion results are recorded for cross-version comparison. */
+const RESULTS_PATH = resolve(process.cwd(), "eval-results/recommender.json");
 
 // ── Protocol knobs ───────────────────────────────────────────────────────────
 /** A user needs at least this many liked films to be a valid test case. */
@@ -143,6 +148,55 @@ function mean(values: number[]): number {
   return values.length === 0 ? 0 : values.reduce((a, b) => a + b, 0) / values.length;
 }
 
+// ── Per-modelVersion result store ────────────────────────────────────────────
+
+type EvalRecord = {
+  modelVersion: string;
+  ranAt: string;
+  usersEvaluated: number;
+  usersSkipped: number;
+  recall: Record<string, number>;
+  precision: Record<string, number>;
+  mrr: number;
+};
+
+function loadRecords(): EvalRecord[] {
+  try {
+    const parsed = JSON.parse(readFileSync(RESULTS_PATH, "utf8"));
+    return Array.isArray(parsed) ? (parsed as EvalRecord[]) : [];
+  } catch {
+    return []; // first run, or unreadable — start fresh
+  }
+}
+
+/** Upsert this run's record by modelVersion (latest run per version wins). */
+function saveRecord(record: EvalRecord): EvalRecord[] {
+  const records = loadRecords().filter(r => r.modelVersion !== record.modelVersion);
+  records.push(record);
+  records.sort((a, b) => a.modelVersion.localeCompare(b.modelVersion));
+  mkdirSync(dirname(RESULTS_PATH), { recursive: true });
+  writeFileSync(RESULTS_PATH, JSON.stringify(records, null, 2) + "\n");
+  return records;
+}
+
+/** Side-by-side comparison of every recorded modelVersion, so a change can be
+ *  judged apples-to-apples against the versions before it. */
+function printComparison(records: EvalRecord[], kValues: number[]): void {
+  const primaryK = Math.max(...kValues);
+  console.log("Comparison across model versions:");
+  console.log(`  version        users   MRR      recall@${primaryK}   precision@${primaryK}`);
+  for (const r of records) {
+    const recall = (r.recall[String(primaryK)] ?? 0).toFixed(4);
+    const precision = (r.precision[String(primaryK)] ?? 0).toFixed(4);
+    const marker = r.modelVersion === MODEL_VERSION ? "→" : " ";
+    console.log(
+      `${marker} ${r.modelVersion.padEnd(14)} ${String(r.usersEvaluated).padEnd(7)} ` +
+        `${r.mrr.toFixed(4)}   ${recall.padEnd(9)} ${precision}`,
+    );
+  }
+  console.log("");
+}
+
 async function main(): Promise<void> {
   const { maxUsers, kValues } = parseArgs(process.argv.slice(2));
   const maxK = Math.max(...kValues);
@@ -167,13 +221,31 @@ async function main(): Promise<void> {
     return;
   }
 
+  const recall: Record<string, number> = {};
+  const precision: Record<string, number> = {};
   console.log("  k    recall@k   precision@k");
   for (const k of kValues) {
     const r = mean(results.map(m => m.recall[k] ?? 0));
     const p = mean(results.map(m => m.precision[k] ?? 0));
+    recall[String(k)] = r;
+    precision[String(k)] = p;
     console.log(`  ${String(k).padEnd(4)} ${r.toFixed(4).padEnd(10)} ${p.toFixed(4)}`);
   }
-  console.log(`\n  MRR: ${mean(results.map(m => m.reciprocalRank)).toFixed(4)}\n`);
+  const mrr = mean(results.map(m => m.reciprocalRank));
+  console.log(`\n  MRR: ${mrr.toFixed(4)}\n`);
+
+  // Record this run under its modelVersion and show it next to prior versions.
+  const records = saveRecord({
+    modelVersion: MODEL_VERSION,
+    ranAt: new Date().toISOString(),
+    usersEvaluated: results.length,
+    usersSkipped: skipped,
+    recall,
+    precision,
+    mrr,
+  });
+  console.log(`Saved results for ${MODEL_VERSION} → ${RESULTS_PATH}\n`);
+  printComparison(records, kValues);
 }
 
 main()
