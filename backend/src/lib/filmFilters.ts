@@ -9,6 +9,14 @@ const queryBooleanSchema = z.preprocess(value => {
   return value;
 }, z.boolean());
 
+// Like queryBooleanSchema but also accepts the "1"/"0" form used by the
+// `?personalized=1` flag on the roll endpoint.
+const queryFlagSchema = z.preprocess(value => {
+  if (value === "1" || value === "true") return true;
+  if (value === "0" || value === "false") return false;
+  return value;
+}, z.boolean());
+
 const FEMALE_DIRECTORS = [
   "Agnès Varda",
   "Alice Rohrwacher",
@@ -81,6 +89,8 @@ export const listQuerySchema = listQueryBaseSchema.refine(
 
 export const randomQuerySchema = listQueryBaseSchema.extend({
   userId: z.string().trim().min(1).max(180).optional(),
+  // Opt-in taste-weighted roll (signed-in only). Ignored without a userId.
+  personalized: queryFlagSchema.optional(),
 }).refine(
   query =>
     query.decadeMin === undefined ||

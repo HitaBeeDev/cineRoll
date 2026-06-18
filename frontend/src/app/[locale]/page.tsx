@@ -332,8 +332,9 @@ export default function HomePage() {
   async function handleRoll() {
     setIsRolling(true);
     setFilm(null);
+    const isPersonalized = personalizedRoll && !!userId;
     void trackEvent({
-      type: userId ? "roll_personalized" : "roll",
+      type: isPersonalized ? "roll_personalized" : "roll",
       context: {
         source: "home_roll",
         filters,
@@ -346,7 +347,8 @@ export default function HomePage() {
     }
     try {
       // Signed-in users: the backend filters out films they marked "Not Interested".
-      const result = await fetchRandom(filters, userId);
+      // With the taste toggle on, it returns a taste-weighted (ε-greedy) pick.
+      const result = await fetchRandom(filters, userId, isPersonalized);
       setFilm(result.film);
       setFilteredCount(result.total);
       pushRollHistory(result.film);

@@ -3,6 +3,7 @@ import { prisma } from "./prisma";
 import {
   filmFeatureKeys,
   getTasteProfile,
+  type FilmFeatures,
   type TasteProfileVectors,
 } from "./tasteProfile";
 
@@ -113,7 +114,7 @@ export async function generateCandidates(
 
 /** Weighted similarity between a candidate's features and the taste profile.
  *  Positive where the user likes those features, negative where they dislike. */
-function tasteScore(film: CandidateFilm, taste: TasteProfileVectors): number {
+function tasteScore(film: FilmFeatures, taste: TasteProfileVectors): number {
   const f = filmFeatureKeys(film);
   let s = 0;
   for (const g of f.genres) s += DIM.genre * (taste.genreWeights[g] ?? 0);
@@ -126,7 +127,7 @@ function tasteScore(film: CandidateFilm, taste: TasteProfileVectors): number {
 }
 
 /** Quality prior in [0,1] from IMDb / RT and award weight. */
-function qualityPrior(film: CandidateFilm): number {
+function qualityPrior(film: FilmFeatures): number {
   const parts: number[] = [];
   if (film.imdbRating != null) parts.push(film.imdbRating / 10);
   if (film.rtScore != null) parts.push(film.rtScore / 100);
@@ -145,14 +146,20 @@ function qualityPrior(film: CandidateFilm): number {
 }
 
 /** Mild recency term in [0,1] — a tiebreaker, not a driver. */
-function recencyPrior(film: CandidateFilm, currentYear: number): number {
+function recencyPrior(film: FilmFeatures, currentYear: number): number {
   const span = currentYear - RECENCY_BASE_YEAR;
   if (span <= 0) return 0.5;
   return Math.min(1, Math.max(0, (film.releaseYear - RECENCY_BASE_YEAR) / span));
 }
 
-function totalScore(
-  film: CandidateFilm,
+/**
+ * The full ranking score: taste similarity + quality prior + recency. Shared by
+ * the recommendation pipeline and the taste-weighted roll (`getPersonalizedRandomFilm`)
+ * so both rank films by the same notion of "fit". Operates on bare `FilmFeatures`,
+ * so any row carrying those columns can be scored.
+ */
+export function scoreFilm(
+  film: FilmFeatures,
   taste: TasteProfileVectors,
   currentYear: number,
 ): number {
@@ -348,7 +355,7 @@ export async function recommend(
   const currentYear = new Date().getFullYear();
   const scored: Scored[] = candidates.map((film) => ({
     film,
-    score: totalScore(film, taste, currentYear),
+    score: scoreFilm(film, taste, currentYear),
   }));
   scored.sort((a, b) => b.score - a.score);
 

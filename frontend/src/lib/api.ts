@@ -39,7 +39,13 @@ export type RollFilm = Pick<
   cannesCategories: AwardRecord[];
 };
 
-export type RandomResult = { film: RollFilm; total: number };
+export type RandomResult = {
+  film: RollFilm;
+  total: number;
+  // Present only on personalized rolls; `exploration` flags an ε-greedy explore draw.
+  personalized?: boolean;
+  exploration?: boolean;
+};
 
 export type MarathonResult = { films: RollFilm[]; totalRuntime: number; total: number };
 
@@ -173,10 +179,13 @@ export async function fetchMarathon(
 export async function fetchRandom(
   filters?: Partial<FilterState>,
   userId?: string,
+  personalized?: boolean,
 ): Promise<RandomResult> {
   const params = filtersToParams(filters ?? {});
   // When signed in, the backend excludes films the user marked "Not Interested".
   if (userId) params.set("userId", userId);
+  // Opt-in taste-weighted roll (signed-in only); the backend ignores it without a userId.
+  if (personalized && userId) params.set("personalized", "1");
   const qs = params.toString();
   const res = await fetch(`${API_URL}/api/random${qs ? `?${qs}` : ""}`, { cache: "no-store" });
   if (!res.ok) {
