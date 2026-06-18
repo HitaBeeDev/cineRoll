@@ -4,6 +4,8 @@ import { Router } from "express";
 import { z } from "zod";
 import { config } from "../config";
 import { randomQuerySchema } from "../lib/filmFilters";
+import { getAllowedFilterValues } from "../lib/allowedFilterValues";
+import { validateStructuralFilters } from "../lib/validateFilters";
 import { HttpError } from "../middleware/errorHandler";
 import { getValidated, validate } from "../middleware/validate";
 import { getQualityCandidates, type RandomFilmRow } from "./random";
@@ -187,12 +189,6 @@ function parseGeminiJson(text: string): unknown {
   const trimmed = text.trim();
   const fenced = trimmed.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i);
   return JSON.parse(fenced?.[1] ?? trimmed);
-}
-
-function cleanStage1Filters(filters: Stage1Filters): Record<string, unknown> {
-  return Object.fromEntries(
-    Object.entries(filters).filter(([, v]) => v !== null && v !== undefined && v !== ""),
-  );
 }
 
 function firstMatch<T>(prompt: string, patterns: Array<[RegExp, T]>): T | undefined {
@@ -383,7 +379,15 @@ naturalRollRouter.post("/", validate(naturalRollBodySchema, "body"), async (req,
 
   // Stage 1: extract structural constraints
   const structuralFilters = await extractStructuralFilters(body.prompt);
-  const cleaned = cleanStage1Filters(structuralFilters);
+
+  // Validate every emitted value against the DB-derived allowed lists: map
+  // near-misses to canonical values, drop anything the catalog doesn't have —
+  // so we never query with a value the model invented.
+  const allowed = await getAllowedFilterValues();
+  const { filters: cleaned, dropped } = validateStructuralFilters(structuralFilters, allowed);
+  if (dropped.length > 0) {
+    console.warn("Natural roll dropped invalid filter values:", dropped);
+  }
   const query = randomQuerySchema.parse({ ...cleaned, userId: body.userId, limit: 1, page: 1 });
 
   // Stage 2: candidate pool — top 100 by IMDb rating, randomly sampled to 50
@@ -391,8 +395,11 @@ naturalRollRouter.post("/", validate(naturalRollBodySchema, "body"), async (req,
 
   // If no candidates, relax by dropping genre
   let relaxed = false;
-  if (candidates.length === 0 && structuralFilters.genre) {
-    const relaxedCleaned = cleanStage1Filters({ ...structuralFilters, genre: null });
+  if (candidates.length === 0 && cleaned.genre) {
+    const { filters: relaxedCleaned } = validateStructuralFilters(
+      { ...structuralFilters, genre: null },
+      allowed,
+    );
     const relaxedQuery = randomQuerySchema.parse({ ...relaxedCleaned, userId: body.userId, limit: 1, page: 1 });
     const relaxedResult = await getQualityCandidates(relaxedQuery, CANDIDATE_TOP_N, CANDIDATE_SAMPLE_N);
     candidates = relaxedResult.films;
