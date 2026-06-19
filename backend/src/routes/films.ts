@@ -38,7 +38,17 @@ const filmListSelect = Prisma.sql`
   "Film"."cannesNominations",
   "Film"."cannesWins",
   "Film"."berlinNominations",
-  "Film"."berlinWins"
+  "Film"."berlinWins",
+  (
+    SELECT ROUND(AVG("UserRating"."rating")::numeric, 1)::double precision
+    FROM "UserRating"
+    WHERE "UserRating"."filmId" = "Film"."id"
+  ) AS "averageRating",
+  (
+    SELECT COUNT(*)::int
+    FROM "UserRating"
+    WHERE "UserRating"."filmId" = "Film"."id"
+  ) AS "ratingCount"
 `;
 
 const filmDetailSelect = {
@@ -319,6 +329,7 @@ filmsRouter.get("/", validate(listQuerySchema), async (req, res) => {
           "posterUrl",
           "posterColor",
           "imdbRating",
+          "rtScore",
           "imdbTopMovieRank",
           "imdbTopTvRank",
           "certificate",
@@ -332,7 +343,9 @@ filmsRouter.get("/", validate(listQuerySchema), async (req, res) => {
           "cannesNominations",
           "cannesWins",
           "berlinNominations",
-          "berlinWins"
+          "berlinWins",
+          "averageRating",
+          "ratingCount"
         FROM sampled
         ORDER BY RANDOM()
       `,

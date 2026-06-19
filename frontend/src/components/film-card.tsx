@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { Star } from "lucide-react";
 import type { Film } from "@cineroll/types";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -50,7 +51,10 @@ function getListBadge(film: Film) {
 }
 
 interface FilmCardProps {
-  film: Film;
+  film: Film & {
+    averageRating?: number | null;
+    ratingCount?: number;
+  };
   className?: string | undefined;
 }
 
@@ -59,6 +63,9 @@ export function FilmCard({ film, className }: FilmCardProps) {
   const badge = getAwardBadge(film);
   const listBadge = getListBadge(film);
   const primaryGenre = film.genres[0] ?? film.contentType;
+  const averageRating = film.averageRating ?? null;
+  const ratingCount = film.ratingCount ?? 0;
+  const showAverageRating = averageRating !== null && ratingCount > 0;
 
   useEffect(() => {
     const node = cardRef.current;
@@ -154,6 +161,17 @@ export function FilmCard({ film, className }: FilmCardProps) {
               </span>
             ))}
           </div>
+        )}
+
+        {showAverageRating && (
+          <span
+            aria-label={`CineRoll average rating ${averageRating.toFixed(1)} from ${ratingCount} ${ratingCount === 1 ? "rating" : "ratings"}`}
+            title={`CineRoll average ${averageRating.toFixed(1)}/10`}
+            className="absolute right-2.5 top-2.5 inline-flex items-center gap-1 rounded-full border border-[#e8453c]/35 bg-black/70 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[8px] font-semibold tracking-[0.1em] text-[#ff8a82] shadow-lg shadow-black/25 backdrop-blur-sm"
+          >
+            <Star className="h-3 w-3 fill-current" aria-hidden />
+            {averageRating.toFixed(1)}
+          </span>
         )}
 
         <div className="absolute inset-x-2.5 bottom-2.5 flex translate-y-2 items-center justify-between gap-2 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
