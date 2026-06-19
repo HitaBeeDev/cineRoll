@@ -34,6 +34,14 @@ export const SIGNAL_WEIGHT = {
   notInterested: -0.6,
 } as const;
 
+export const RATING_WEIGHT = {
+  /** Maximum explicit rating signal. Numeric ratings should outweigh thumbs. */
+  maxPositive: 1.5,
+  maxNegative: -1.5,
+  /** The neutral midpoint of the 1.0–10.0 rating scale. */
+  midpoint: 5.5,
+} as const;
+
 /**
  * Recency half-life in days: a signal's weight halves every 90 days, so current
  * taste outweighs old signals. weight *= 0.5 ** (ageDays / HALF_LIFE_DAYS).
@@ -58,4 +66,22 @@ export function sentimentWeight(sentiment: WatchedSentiment | null | undefined):
     default:
       return SENTIMENT_WEIGHT.watchedNeutral;
   }
+}
+
+/**
+ * Resolve a numeric 1.0–10.0 rating into the same signed signal scale.
+ * Extremes intentionally outweigh thumbs-up/down; middle scores remain mild.
+ */
+export function ratingWeight(rating: number): number {
+  if (rating >= 7) {
+    return SENTIMENT_WEIGHT.like +
+      ((rating - 7) / 3) * (RATING_WEIGHT.maxPositive - SENTIMENT_WEIGHT.like);
+  }
+
+  if (rating <= 4) {
+    return SENTIMENT_WEIGHT.dislike +
+      ((4 - rating) / 3) * (RATING_WEIGHT.maxNegative - SENTIMENT_WEIGHT.dislike);
+  }
+
+  return ((rating - RATING_WEIGHT.midpoint) / 1.5) * SENTIMENT_WEIGHT.watchedNeutral;
 }

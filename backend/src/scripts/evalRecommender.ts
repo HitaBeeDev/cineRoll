@@ -22,7 +22,7 @@ import { prisma } from "../lib/prisma";
 import { BASELINE_PARAMS, type RecommenderParams } from "../lib/experiments";
 import { generateCandidatePool, rankCandidates, MODEL_VERSION } from "../lib/recommender";
 import { aggregateTasteVectors, filmFeatureSelect, type Signal } from "../lib/tasteProfile";
-import { SIGNAL_WEIGHT, sentimentWeight } from "../lib/tasteWeights";
+import { SIGNAL_WEIGHT, ratingWeight, sentimentWeight } from "../lib/tasteWeights";
 
 /** Where per-modelVersion results are recorded for cross-version comparison. */
 const RESULTS_PATH = resolve(process.cwd(), "eval-results/recommender.json");
@@ -63,6 +63,13 @@ type WatchedRow = {
   film: Signal["film"];
 };
 
+type RatingRow = {
+  filmId: string;
+  rating: number;
+  updatedAt: Date;
+  film: Signal["film"];
+};
+
 type UserMetrics = {
   recall: Record<number, number>;
   precision: Record<number, number>;
@@ -76,7 +83,7 @@ async function evaluateUser(
   maxK: number,
   params: RecommenderParams = BASELINE_PARAMS,
 ): Promise<UserMetrics | null> {
-  const [watched, watchlist, user] = await Promise.all([
+  const [watched, watchlist, ratings, user] = await Promise.all([
     prisma.watchedFilm.findMany({
       where: { userId },
       select: {
@@ -91,12 +98,30 @@ async function evaluateUser(
       where: { userId },
       select: { filmId: true, addedAt: true, film: { select: filmFeatureSelect } },
     }),
+    prisma.userRating.findMany({
+      where: { userId },
+      select: {
+        filmId: true,
+        rating: true,
+        updatedAt: true,
+        film: { select: filmFeatureSelect },
+      },
+    }),
     prisma.user.findUnique({ where: { id: userId }, select: { onboardingGenres: true } }),
   ]);
 
-  const liked = (watched as WatchedRow[])
-    .filter(w => w.sentiment === "like" && !w.doNotSuggest)
-    .sort((a, b) => b.watchedAt.getTime() - a.watchedAt.getTime());
+  const positiveRows = [
+    ...(watched as WatchedRow[])
+      .filter(w => w.sentiment === "like" && !w.doNotSuggest)
+      .map(w => ({ filmId: w.filmId, at: w.watchedAt })),
+    ...(ratings as RatingRow[])
+      .filter(r => ratingWeight(r.rating) > 0)
+      .map(r => ({ filmId: r.filmId, at: r.updatedAt })),
+  ].sort((a, b) => b.at.getTime() - a.at.getTime());
+
+  const liked = Array.from(
+    new Map(positiveRows.map(row => [row.filmId, row])).values(),
+  );
 
   if (liked.length < MIN_LIKED) return null;
 
@@ -108,10 +133,24 @@ async function evaluateUser(
 
   // Rebuild taste from everything EXCEPT the held-out liked films.
   const signals: Signal[] = [];
+  const ratingsByFilmId = new Map((ratings as RatingRow[]).map(rating => [rating.filmId, rating]));
+  const consumedRatingFilmIds = new Set<string>();
+
   for (const w of watched as WatchedRow[]) {
     if (heldOutIds.has(w.filmId)) continue;
-    const weight = w.doNotSuggest ? SIGNAL_WEIGHT.notInterested : sentimentWeight(w.sentiment);
-    signals.push({ film: w.film, weight, at: w.watchedAt });
+    const rating = ratingsByFilmId.get(w.filmId);
+    if (rating) consumedRatingFilmIds.add(w.filmId);
+    const weight = w.doNotSuggest
+      ? SIGNAL_WEIGHT.notInterested
+      : rating
+        ? ratingWeight(rating.rating)
+        : sentimentWeight(w.sentiment);
+    signals.push({ film: w.film, weight, at: rating?.updatedAt ?? w.watchedAt });
+  }
+  for (const rating of ratings as RatingRow[]) {
+    if (heldOutIds.has(rating.filmId)) continue;
+    if (consumedRatingFilmIds.has(rating.filmId)) continue;
+    signals.push({ film: rating.film, weight: ratingWeight(rating.rating), at: rating.updatedAt });
   }
   for (const entry of watchlist) {
     signals.push({ film: entry.film, weight: SIGNAL_WEIGHT.watchlistAdd, at: entry.addedAt });

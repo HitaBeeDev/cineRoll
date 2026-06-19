@@ -4,6 +4,7 @@ import { prisma } from "./prisma";
 import {
   SENTIMENT_WEIGHT,
   SIGNAL_WEIGHT,
+  ratingWeight,
   recencyDecay,
   sentimentWeight,
 } from "./tasteWeights";
@@ -222,9 +223,9 @@ export function aggregateTasteVectors(
  *
  * Signal → base weight (see tasteWeights.ts):
  *   👍 liked watched → strong positive · watched/no-sentiment → mild positive
+ *   numeric rating ≥7 → stronger positive, rating ≤4 → stronger negative
  *   👎 disliked → strong negative · not-interested → negative
  *   watchlist add → weak positive
- * (numeric ratings feed in once section 14's UserRating model exists.)
  *
  * Each signal is decayed by age (90-day half-life) before it accumulates into
  * the genre / director / decade / runtime-band / award / rating-tier vectors;
@@ -233,10 +234,11 @@ export function aggregateTasteVectors(
 export async function buildTasteProfile(
   userId: string,
 ): Promise<TasteProfileVectors> {
-  const [watched, watchlist, user] = await Promise.all([
+  const [watched, watchlist, ratings, user] = await Promise.all([
     prisma.watchedFilm.findMany({
       where: { userId },
       select: {
+        filmId: true,
         sentiment: true,
         doNotSuggest: true,
         watchedAt: true,
@@ -247,6 +249,15 @@ export async function buildTasteProfile(
       where: { userId },
       select: { addedAt: true, film: { select: filmFeatureSelect } },
     }),
+    prisma.userRating.findMany({
+      where: { userId },
+      select: {
+        filmId: true,
+        rating: true,
+        updatedAt: true,
+        film: { select: filmFeatureSelect },
+      },
+    }),
     prisma.user.findUnique({
       where: { id: userId },
       select: { onboardingGenres: true },
@@ -254,14 +265,30 @@ export async function buildTasteProfile(
   ]);
 
   const signals: Signal[] = [];
+  const ratingsByFilmId = new Map(ratings.map(rating => [rating.filmId, rating]));
+  const consumedRatingFilmIds = new Set<string>();
 
   for (const w of watched) {
-    // Not Interested is a hidden/negative signal; otherwise use sentiment
-    // (which maps null → mild positive for "they chose to watch it").
+    const rating = ratingsByFilmId.get(w.filmId);
+    if (rating) consumedRatingFilmIds.add(w.filmId);
+
+    // Not Interested is a hidden/negative signal; otherwise a numeric rating,
+    // when present, outweighs the coarser thumbs sentiment.
     const weight = w.doNotSuggest
       ? SIGNAL_WEIGHT.notInterested
+      : rating
+        ? ratingWeight(rating.rating)
       : sentimentWeight(w.sentiment);
-    signals.push({ film: w.film, weight, at: w.watchedAt });
+    signals.push({ film: w.film, weight, at: rating?.updatedAt ?? w.watchedAt });
+  }
+
+  for (const rating of ratings) {
+    if (consumedRatingFilmIds.has(rating.filmId)) continue;
+    signals.push({
+      film: rating.film,
+      weight: ratingWeight(rating.rating),
+      at: rating.updatedAt,
+    });
   }
 
   for (const entry of watchlist) {
