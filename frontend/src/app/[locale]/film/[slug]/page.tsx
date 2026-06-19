@@ -18,6 +18,7 @@ import { SimilarFilmsSlider } from "@/components/similar-films-slider";
 import { ShareButton } from "@/components/share-button";
 import { ShareBanner } from "@/components/share-banner";
 import { FilmDetailActions } from "@/components/film-detail-actions";
+import { FilmRatingPanel } from "@/components/film-rating-panel";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 const SITE_URL =
@@ -54,7 +55,7 @@ function extractYouTubeId(url: string): string | null {
 
 async function fetchFilm(slug: string): Promise<Film | null> {
   const res = await fetch(`${API_URL}/api/films/${encodeURIComponent(slug)}`, {
-    next: { revalidate: 86400 },
+    next: { revalidate: 300 },
   });
   if (res.status === 404) return null;
   if (!res.ok) throw new Error(`Failed to fetch film: ${res.status}`);
@@ -369,67 +370,75 @@ export default async function FilmPage({
                 {(film.imdbRating != null ||
                   totalAwardWins > 0 ||
                   true) && (
-                  <div className="mt-8 flex items-start gap-8">
-                    <div>
-                      <p className="mb-1.5 font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-[0.5em] text-white/32">
-                        IMDb
-                      </p>
-                      <div className="flex min-h-10 items-end">
-                        {film.imdbRating != null ? (
-                          <p className="font-[family-name:var(--font-display)] text-[2.5rem] font-bold leading-none text-[#F8F8F4]">
-                            {film.imdbRating.toFixed(1)}
-                          </p>
-                        ) : (
-                          <p className="font-[family-name:var(--font-geist-mono)] text-sm leading-none text-white/30">
-                            No score
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                    <div>
-                      <p className="mb-1.5 font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-[0.5em] text-white/32">
-                        RT
-                      </p>
-                      <div className="flex min-h-10 items-end">
-                        {film.rtScore != null ? (
-                          <p className="font-[family-name:var(--font-display)] text-[2.5rem] font-bold leading-none text-[#F8F8F4]">
-                            {film.rtScore}%
-                          </p>
-                        ) : (
-                          <p className="font-[family-name:var(--font-geist-mono)] text-sm leading-none text-white/30">
-                            No score
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                    {totalAwardWins > 0 && (
+                  <>
+                    <div className="mt-8 flex flex-wrap items-start gap-8">
                       <div>
                         <p className="mb-1.5 font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-[0.5em] text-white/32">
-                          Wins
+                          IMDb
                         </p>
                         <div className="flex min-h-10 items-end">
-                          <p
-                            className="font-[family-name:var(--font-display)] text-[2.5rem] font-bold leading-none"
-                            style={{ color: accent }}
-                          >
-                            {totalAwardWins}
-                          </p>
+                          {film.imdbRating != null ? (
+                            <p className="font-[family-name:var(--font-display)] text-[2.5rem] font-bold leading-none text-[#F8F8F4]">
+                              {film.imdbRating.toFixed(1)}
+                            </p>
+                          ) : (
+                            <p className="font-[family-name:var(--font-geist-mono)] text-sm leading-none text-white/30">
+                              No score
+                            </p>
+                          )}
                         </div>
                       </div>
-                    )}
-                    {totalAwardNoms > 0 && (
                       <div>
                         <p className="mb-1.5 font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-[0.5em] text-white/32">
-                          Noms
+                          RT
                         </p>
                         <div className="flex min-h-10 items-end">
-                          <p className="font-[family-name:var(--font-display)] text-[2.5rem] font-bold leading-none text-[#F8F8F4]">
-                            {totalAwardNoms}
-                          </p>
+                          {film.rtScore != null ? (
+                            <p className="font-[family-name:var(--font-display)] text-[2.5rem] font-bold leading-none text-[#F8F8F4]">
+                              {film.rtScore}%
+                            </p>
+                          ) : (
+                            <p className="font-[family-name:var(--font-geist-mono)] text-sm leading-none text-white/30">
+                              No score
+                            </p>
+                          )}
                         </div>
                       </div>
-                    )}
-                  </div>
+                      {totalAwardWins > 0 && (
+                        <div>
+                          <p className="mb-1.5 font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-[0.5em] text-white/32">
+                            Wins
+                          </p>
+                          <div className="flex min-h-10 items-end">
+                            <p
+                              className="font-[family-name:var(--font-display)] text-[2.5rem] font-bold leading-none"
+                              style={{ color: accent }}
+                            >
+                              {totalAwardWins}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                      {totalAwardNoms > 0 && (
+                        <div>
+                          <p className="mb-1.5 font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-[0.5em] text-white/32">
+                            Noms
+                          </p>
+                          <div className="flex min-h-10 items-end">
+                            <p className="font-[family-name:var(--font-display)] text-[2.5rem] font-bold leading-none text-[#F8F8F4]">
+                              {totalAwardNoms}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    <FilmRatingPanel
+                      filmId={film.id}
+                      filmTitle={displayTitle(film.title)}
+                      averageRating={film.averageRating}
+                      ratingCount={film.ratingCount}
+                    />
+                  </>
                 )}
 
                 {/* CTAs */}

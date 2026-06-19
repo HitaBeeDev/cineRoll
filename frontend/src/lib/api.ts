@@ -283,6 +283,7 @@ export type FilmStatus = {
   sentiment: "like" | "dislike" | null;
   doNotSuggest: boolean;
   inWatchlist: boolean;
+  rating: number | null;
 };
 
 export async function fetchFilmStatus(filmId: string): Promise<FilmStatus> {
@@ -293,6 +294,27 @@ export async function fetchFilmStatus(filmId: string): Promise<FilmStatus> {
     });
   }
   return res.json() as Promise<FilmStatus>;
+}
+
+export async function saveFilmRating(filmId: string, rating: number): Promise<void> {
+  const res = await fetch("/api/user/ratings", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ filmId, rating }),
+  });
+  if (!res.ok) {
+    const body = (await res.json().catch(() => ({}))) as { code?: string };
+    throw Object.assign(new Error("Failed to save rating"), {
+      code: body.code ?? "UNKNOWN",
+      status: res.status,
+    });
+  }
+
+  trackEvent({
+    type: "rating_set",
+    filmId,
+    context: { source: "rating_widget", rating },
+  });
 }
 
 export async function addFilmToWatchlist(filmId: string): Promise<void> {
