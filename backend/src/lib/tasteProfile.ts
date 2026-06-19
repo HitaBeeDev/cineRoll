@@ -1,4 +1,5 @@
 import { Prisma } from "@prisma/client";
+import { cache, cacheKeys } from "./cache";
 import { prisma } from "./prisma";
 import {
   SENTIMENT_WEIGHT,
@@ -11,6 +12,9 @@ const emptyWeights = {};
 
 export async function markTasteProfileStale(userId: string): Promise<void> {
   const staleAt = new Date();
+
+  // Drop the user's cached recommendations (any limit) — their taste changed.
+  await cache.deleteByPrefix(cacheKeys.recommendationsPrefix(userId));
 
   await prisma.userTasteProfile.upsert({
     where: { userId },

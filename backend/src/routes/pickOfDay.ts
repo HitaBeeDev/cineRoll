@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { setPublicCache } from "../lib/cache";
+import { cache, cacheKeys, setPublicCache } from "../lib/cache";
 import { logEvent } from "../lib/events";
 import { getPickOfDay, pickOfDaySelect } from "../lib/pickOfDay";
 import { prisma } from "../lib/prisma";
@@ -7,8 +7,15 @@ import { HttpError } from "../middleware/errorHandler";
 
 export const pickOfDayRouter = Router();
 
+/** Today's pick is deterministic; cache it for the day (the key rolls over at
+ *  UTC midnight, so the TTL is just a safety ceiling). */
+const PICK_OF_DAY_TTL_MS = 60 * 60 * 1000;
+
 pickOfDayRouter.get("/", async (_req, res) => {
-  const pick = await getPickOfDay();
+  const day = new Date().toISOString().slice(0, 10);
+  const pick = await cache.getOrSet(cacheKeys.pickOfDay(day), PICK_OF_DAY_TTL_MS, () =>
+    getPickOfDay(),
+  );
 
   if (pick) {
     await logEvent({

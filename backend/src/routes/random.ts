@@ -1,7 +1,7 @@
 import { Prisma } from "@prisma/client";
 import { Router } from "express";
 import { buildWhereClause, RandomQuery, randomQuerySchema } from "../lib/filmFilters";
-import { setPublicCache } from "../lib/cache";
+import { cache, cacheKeys, setPublicCache } from "../lib/cache";
 import { logEvent } from "../lib/events";
 import { prisma } from "../lib/prisma";
 import { scoreFilm } from "../lib/recommender";
@@ -102,6 +102,35 @@ export async function getRandomFilm(query: RandomQuery): Promise<{
   return { film: films[0] ?? null, total };
 }
 
+/** Pool counts move slowly (only on reseed) and the same filter combos repeat
+ *  across users, so a short TTL on the public filter signature pays off. */
+const RANDOM_COUNT_TTL_MS = 60 * 1000;
+
+/** Stable cache key from the public filter fields only — `userId`/`personalized`
+ *  don't change the catalog-wide count and must not leak across users. */
+function filterSignature(query: RandomQuery): string {
+  const { userId: _userId, personalized: _personalized, ...filters } = query;
+  return JSON.stringify(filters, Object.keys(filters).sort());
+}
+
+/** COUNT(*) for the query's where-clause. Cached only when there are no
+ *  per-user conditions (e.g. doNotSuggest exclusions), which would make the
+ *  count user-specific. */
+async function countFilms(
+  query: RandomQuery,
+  whereSql: Prisma.Sql,
+  cacheable: boolean,
+): Promise<number> {
+  const run = async () => {
+    const rows = await prisma.$queryRaw<{ count: bigint }[]>`
+      SELECT COUNT(*)::BIGINT AS count FROM "Film" ${whereSql}
+    `;
+    return Number(rows[0]?.count ?? 0);
+  };
+  if (!cacheable) return run();
+  return cache.getOrSet(cacheKeys.randomCount(filterSignature(query)), RANDOM_COUNT_TTL_MS, run);
+}
+
 export async function getRandomFilms(query: RandomQuery, count: number): Promise<{
   films: RandomFilmRow[];
   total: number;
@@ -117,18 +146,13 @@ export async function getRandomFilms(query: RandomQuery, count: number): Promise
 
   const whereSql = buildWhereClause(query, additionalConditions);
 
-  const [films, countRows] = await Promise.all([
+  const [films, total] = await Promise.all([
     prisma.$queryRaw<RandomFilmRow[]>(
       Prisma.sql`SELECT ${randomSelect} FROM "Film" ${whereSql} ORDER BY RANDOM() LIMIT ${count}`,
     ),
-    prisma.$queryRaw<{ count: bigint }[]>`
-      SELECT COUNT(*)::BIGINT AS count
-      FROM "Film"
-      ${whereSql}
-    `,
+    countFilms(query, whereSql, additionalConditions.length === 0),
   ]);
 
-  const total = Number(countRows[0]?.count ?? 0);
   return { films, total };
 }
 
@@ -150,7 +174,7 @@ export async function getQualityCandidates(
 
   const whereSql = buildWhereClause(query, additionalConditions);
 
-  const [films, countRows] = await Promise.all([
+  const [films, total] = await Promise.all([
     prisma.$queryRaw<RandomFilmRow[]>(
       Prisma.sql`
         SELECT top_films.*
@@ -165,12 +189,10 @@ export async function getQualityCandidates(
         LIMIT ${sampleN}
       `,
     ),
-    prisma.$queryRaw<{ count: bigint }[]>`
-      SELECT COUNT(*)::BIGINT AS count FROM "Film" ${whereSql}
-    `,
+    countFilms(query, whereSql, additionalConditions.length === 0),
   ]);
 
-  return { films, total: Number(countRows[0]?.count ?? 0) };
+  return { films, total };
 }
 
 // ── Personalized roll (taste-weighted, ε-greedy) ─────────────────────────────
@@ -231,7 +253,7 @@ export async function getPersonalizedRandomFilm(query: RandomQuery): Promise<{
 
   const whereSql = buildWhereClause(query, additionalConditions);
 
-  const [pool, countRows] = await Promise.all([
+  const [pool, total] = await Promise.all([
     prisma.$queryRaw<RandomFilmRow[]>(
       Prisma.sql`
         SELECT ${randomSelect}
@@ -241,12 +263,9 @@ export async function getPersonalizedRandomFilm(query: RandomQuery): Promise<{
         LIMIT ${PERSONALIZED_POOL_SIZE}
       `,
     ),
-    prisma.$queryRaw<{ count: bigint }[]>`
-      SELECT COUNT(*)::BIGINT AS count FROM "Film" ${whereSql}
-    `,
+    countFilms(query, whereSql, additionalConditions.length === 0),
   ]);
 
-  const total = Number(countRows[0]?.count ?? 0);
   if (pool.length === 0) return { film: null, total, exploration: false };
 
   // ε-greedy explore: pick uniformly so the roll keeps surprising the user.

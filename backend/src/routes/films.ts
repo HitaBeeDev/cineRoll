@@ -1,13 +1,16 @@
 import { Prisma } from "@prisma/client";
 import { Router } from "express";
 import { z } from "zod";
-import { setPublicCache } from "../lib/cache";
+import { cache, cacheKeys, setPublicCache } from "../lib/cache";
 import { buildWhereClause, ListQuery, listQuerySchema } from "../lib/filmFilters";
 import { prisma } from "../lib/prisma";
 import { HttpError } from "../middleware/errorHandler";
 import { getValidated, validate } from "../middleware/validate";
 
 export const filmsRouter = Router();
+
+/** Film records are immutable between reseeds, so a long TTL is safe. */
+const FILM_DETAIL_TTL_MS = 60 * 60 * 1000;
 
 const filmListSelect = Prisma.sql`
   "Film"."id",
@@ -489,15 +492,20 @@ filmsRouter.get("/:slug/similar", validate(slugParamsSchema, "params"), async (r
 
 filmsRouter.get("/:slug", validate(slugParamsSchema, "params"), async (req, res) => {
   const { slug } = getValidated<z.infer<typeof slugParamsSchema>>(req, "params");
-  const film = await prisma.film.findUnique({
-    where: { slug },
-    select: filmDetailSelect,
+  // Film data only changes on reseed; cache the assembled payload by slug.
+  const payload = await cache.getOrSet(cacheKeys.filmDetail(slug), FILM_DETAIL_TTL_MS, async () => {
+    const film = await prisma.film.findUnique({
+      where: { slug },
+      select: filmDetailSelect,
+    });
+    if (!film) return null;
+    return { ...film, year: film.releaseYear };
   });
 
-  if (!film) {
+  if (!payload) {
     throw new HttpError(404, "Film not found", "FILM_NOT_FOUND");
   }
 
   setPublicCache(res, 86_400);
-  res.json({ ...film, year: film.releaseYear });
+  res.json(payload);
 });
