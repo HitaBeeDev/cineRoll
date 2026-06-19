@@ -506,6 +506,17 @@ filmsRouter.get("/:slug", validate(slugParamsSchema, "params"), async (req, res)
     throw new HttpError(404, "Film not found", "FILM_NOT_FOUND");
   }
 
-  setPublicCache(res, 86_400);
-  res.json(payload);
+  const ratingAggregate = await prisma.userRating.aggregate({
+    where: { filmId: payload.id },
+    _avg: { rating: true },
+    _count: { rating: true },
+  });
+  const averageRating = ratingAggregate._avg.rating;
+
+  setPublicCache(res, 300);
+  res.json({
+    ...payload,
+    averageRating: averageRating === null ? null : Math.round(averageRating * 10) / 10,
+    ratingCount: ratingAggregate._count.rating,
+  });
 });

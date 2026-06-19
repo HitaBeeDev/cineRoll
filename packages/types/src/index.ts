@@ -36,6 +36,8 @@ export interface Film {
   backdropUrl: string | null;
   trailerUrl: string | null;
   imdbRating: number | null;
+  averageRating: number | null;
+  ratingCount: number;
   rtScore: number | null;
   imdbTopMovieRank: number | null;
   imdbTopTvRank: number | null;
