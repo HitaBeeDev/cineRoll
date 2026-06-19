@@ -44,7 +44,7 @@ export function SiteFeedbackForm() {
       setEmail("");
       setBody("");
       setWebsite("");
-      toast({ title: "Feedback sent", description: "Thanks for helping shape CineRoll." });
+      toast({ title: "Thanks for your feedback!" });
     } catch (error) {
       toast({
         variant: "error",
