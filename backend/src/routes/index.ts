@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { autocompleteRouter } from "./autocomplete";
 import { eventsRouter } from "./events";
+import { feedbackRouter } from "./feedback";
 import { filmsRouter } from "./films";
 import { marathonRouter } from "./marathon";
 import { metricsRouter } from "./metrics";
@@ -18,6 +19,7 @@ export const router = Router();
 
 router.use("/autocomplete", autocompleteRouter);
 router.use("/events", eventsRouter);
+router.use("/feedback", feedbackRouter);
 router.use("/films", filmsRouter);
 router.use("/marathon", marathonRouter);
 router.use("/metrics", metricsRouter);
