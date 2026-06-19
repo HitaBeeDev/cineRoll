@@ -2,6 +2,7 @@ import { Prisma } from "@prisma/client";
 import { Router } from "express";
 import { z } from "zod";
 import { sanitizeContext } from "../lib/events";
+import { assignVariant } from "../lib/experiments";
 import { prisma } from "../lib/prisma";
 import { optionalAuth, OptionallyAuthedRequest } from "../middleware/auth";
 import { HttpError } from "../middleware/errorHandler";
@@ -114,7 +115,9 @@ eventsRouter.post(
         type: event.type,
         filmId: event.filmId ?? null,
         context: sanitizeContext(event.context) as Prisma.InputJsonValue,
-        variant: event.variant ?? null,
+        // Variant is assigned server-side from the actor id, not trusted from
+        // the client — deterministic bucketing tags every event.
+        variant: assignVariant(userId ?? event.anonId ?? null),
       })),
     });
 

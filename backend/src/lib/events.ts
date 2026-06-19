@@ -1,4 +1,5 @@
 import type { EventType, Prisma } from "@prisma/client";
+import { assignVariant } from "./experiments";
 import { prisma } from "./prisma";
 
 const PII_KEY_PATTERNS = [
@@ -88,7 +89,8 @@ export async function logEvent({
         type,
         filmId,
         context: sanitizeContext(context),
-        variant,
+        // Deterministic bucketing from the actor id unless a caller pins one.
+        variant: variant ?? assignVariant(userId ?? anonId ?? null),
       },
       select: { id: true },
     });
