@@ -4,6 +4,7 @@ import { z } from "zod";
 import { cache, cacheKeys, setPublicCache } from "../lib/cache";
 import { buildWhereClause, ListQuery, listQuerySchema } from "../lib/filmFilters";
 import { prisma } from "../lib/prisma";
+import { AuthedRequest, requireAuth } from "../middleware/auth";
 import { HttpError } from "../middleware/errorHandler";
 import { getValidated, validate } from "../middleware/validate";
 
@@ -99,10 +100,24 @@ const slugParamsSchema = z.object({
   slug: z.string().trim().min(1).max(180),
 });
 
+const commentParamsSchema = slugParamsSchema.extend({
+  id: z.string().trim().min(1),
+});
+
+const commentsQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+});
+
+const commentBodySchema = z.object({
+  body: z.string().trim().min(1).max(1000),
+});
+
 const peopleQuerySchema = z.object({
   query: z.string().trim().min(1).max(80),
   limit: z.coerce.number().int().min(1).max(12).default(8),
 });
+
+const COMMENTS_PAGE_SIZE = 20;
 
 function filmListOrderBy(sort: ListQuery["sort"], sortOrder: ListQuery["sortOrder"]) {
   const dir = sortOrder === "asc" ? Prisma.sql`ASC` : Prisma.sql`DESC`;
@@ -502,6 +517,126 @@ filmsRouter.get("/:slug/similar", validate(slugParamsSchema, "params"), async (r
   setPublicCache(res, 3600);
   res.json(rows.map(f => ({ ...f, year: f.releaseYear })));
 });
+
+filmsRouter.get(
+  "/:slug/comments",
+  validate(slugParamsSchema, "params"),
+  validate(commentsQuerySchema, "query"),
+  async (req, res) => {
+    const { slug } = getValidated<z.infer<typeof slugParamsSchema>>(req, "params");
+    const { page } = getValidated<z.infer<typeof commentsQuerySchema>>(req, "query");
+
+    const film = await prisma.film.findUnique({
+      where: { slug },
+      select: { id: true },
+    });
+
+    if (!film) {
+      throw new HttpError(404, "Film not found", "FILM_NOT_FOUND");
+    }
+
+    const skip = (page - 1) * COMMENTS_PAGE_SIZE;
+    const [comments, total] = await Promise.all([
+      prisma.filmComment.findMany({
+        where: { filmId: film.id, hidden: false },
+        orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+        skip,
+        take: COMMENTS_PAGE_SIZE,
+        select: {
+          id: true,
+          body: true,
+          createdAt: true,
+          updatedAt: true,
+          user: {
+            select: {
+              name: true,
+              image: true,
+            },
+          },
+        },
+      }),
+      prisma.filmComment.count({
+        where: { filmId: film.id, hidden: false },
+      }),
+    ]);
+
+    res.json({
+      comments,
+      page,
+      pageSize: COMMENTS_PAGE_SIZE,
+      total,
+      totalPages: Math.ceil(total / COMMENTS_PAGE_SIZE),
+    });
+  },
+);
+
+filmsRouter.post(
+  "/:slug/comments",
+  requireAuth,
+  validate(slugParamsSchema, "params"),
+  validate(commentBodySchema, "body"),
+  async (req, res) => {
+    const userId = (req as AuthedRequest).userId;
+    const { slug } = getValidated<z.infer<typeof slugParamsSchema>>(req, "params");
+    const { body } = getValidated<z.infer<typeof commentBodySchema>>(req, "body");
+
+    const film = await prisma.film.findUnique({
+      where: { slug },
+      select: { id: true },
+    });
+
+    if (!film) {
+      throw new HttpError(404, "Film not found", "FILM_NOT_FOUND");
+    }
+
+    const watched = await prisma.watchedFilm.findUnique({
+      where: { userId_filmId: { userId, filmId: film.id } },
+      select: { id: true },
+    });
+
+    if (!watched) {
+      throw new HttpError(403, "Only users who watched this film can comment", "FILM_NOT_WATCHED");
+    }
+
+    const comment = await prisma.filmComment.create({
+      data: { userId, filmId: film.id, body },
+      select: {
+        id: true,
+        body: true,
+        createdAt: true,
+        updatedAt: true,
+        user: {
+          select: {
+            name: true,
+            image: true,
+          },
+        },
+      },
+    });
+
+    res.status(201).json(comment);
+  },
+);
+
+filmsRouter.delete(
+  "/:slug/comments/:id",
+  requireAuth,
+  validate(commentParamsSchema, "params"),
+  async (req, res) => {
+    const userId = (req as AuthedRequest).userId;
+    const { id } = getValidated<z.infer<typeof commentParamsSchema>>(req, "params");
+
+    const result = await prisma.filmComment.deleteMany({
+      where: { id, userId },
+    });
+
+    if (result.count === 0) {
+      throw new HttpError(404, "Comment not found", "COMMENT_NOT_FOUND");
+    }
+
+    res.status(204).send();
+  },
+);
 
 filmsRouter.get("/:slug", validate(slugParamsSchema, "params"), async (req, res) => {
   const { slug } = getValidated<z.infer<typeof slugParamsSchema>>(req, "params");
