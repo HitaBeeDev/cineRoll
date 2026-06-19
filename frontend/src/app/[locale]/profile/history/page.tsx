@@ -15,12 +15,25 @@ export const dynamic = "force-dynamic";
 
 type RawWatchedEntry = WatchedEntry & { doNotSuggest: boolean };
 
-async function fetchWatched(): Promise<WatchedEntry[]> {
+async function fetchWatched(): Promise<{ entries: WatchedEntry[]; nextCursor: string | null }> {
   const res = await apiFetch("/api/user/watched");
-  if (!res.ok) return [];
-  const data = (await res.json().catch(() => ({}))) as { watched?: RawWatchedEntry[] };
+  if (!res.ok) return { entries: [], nextCursor: null };
+  const data = (await res.json().catch(() => ({}))) as {
+    watched?: RawWatchedEntry[];
+    nextCursor?: string | null;
+  };
   // Exclude "Not Interested" entries (doNotSuggest) — those are hidden, not watched.
-  return (data.watched ?? []).filter((e) => !e.doNotSuggest);
+  return {
+    entries: (data.watched ?? []).filter((e) => !e.doNotSuggest),
+    nextCursor: data.nextCursor ?? null,
+  };
+}
+
+async function fetchWatchedCount(): Promise<number | null> {
+  const res = await apiFetch("/api/user/summary");
+  if (!res.ok) return null;
+  const data = (await res.json().catch(() => ({}))) as { watched?: number };
+  return data.watched ?? null;
 }
 
 export default async function HistoryPage({
@@ -32,7 +45,11 @@ export default async function HistoryPage({
   const session = await auth();
   if (!session?.user) redirect(`/${locale}/auth/signin`);
 
-  const watched = await fetchWatched();
+  const [{ entries: watched, nextCursor }, watchedCount] = await Promise.all([
+    fetchWatched(),
+    fetchWatchedCount(),
+  ]);
+  const total = watchedCount ?? watched.length;
 
   return (
     <main className="min-h-screen bg-[#07070b] text-[#f4f4f5]">
@@ -42,7 +59,7 @@ export default async function HistoryPage({
           Watch History
         </h1>
         <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.2em] text-[#888899]">
-          {watched.length} {watched.length === 1 ? "film" : "films"} watched
+          {total} {total === 1 ? "film" : "films"} watched
         </p>
 
         <div className="mt-10">
@@ -59,7 +76,7 @@ export default async function HistoryPage({
               </Link>
             </div>
           ) : (
-            <HistoryGrid entries={watched} locale={locale} />
+            <HistoryGrid entries={watched} locale={locale} initialNextCursor={nextCursor} />
           )}
         </div>
       </div>

@@ -43,16 +43,38 @@ function awardSummary(film: WatchlistFilm): string | null {
   return null;
 }
 
+const PAGE_SIZE = 20;
+
 export function WatchlistGrid({
   entries,
   locale,
+  initialNextCursor = null,
 }: {
   entries: WatchlistEntry[];
   locale: string;
+  initialNextCursor?: string | null;
 }) {
   const { toast } = useToast();
   const [films, setFilms] = useState(entries);
   const [removing, setRemoving] = useState<Set<string>>(new Set());
+  const [nextCursor, setNextCursor] = useState<string | null>(initialNextCursor);
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  async function loadMore() {
+    if (loadingMore || !nextCursor) return;
+    setLoadingMore(true);
+    try {
+      const res = await fetch(`/api/user/watchlist?cursor=${encodeURIComponent(nextCursor)}&limit=${PAGE_SIZE}`);
+      if (!res.ok) throw new Error("failed");
+      const data = (await res.json()) as { watchlist?: WatchlistEntry[]; nextCursor?: string | null };
+      setFilms((prev) => [...prev, ...(data.watchlist ?? [])]);
+      setNextCursor(data.nextCursor ?? null);
+    } catch {
+      toast({ variant: "error", title: "Couldn't load more", description: "Check your connection and try again." });
+    } finally {
+      setLoadingMore(false);
+    }
+  }
 
   async function remove(film: WatchlistFilm) {
     if (removing.has(film.id)) return;
@@ -82,6 +104,7 @@ export function WatchlistGrid({
   }
 
   return (
+    <>
     <div className="grid grid-cols-2 gap-x-5 gap-y-8 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
       {films.map(({ id, film }) => {
         const summary = awardSummary(film);
@@ -148,5 +171,18 @@ export function WatchlistGrid({
         );
       })}
     </div>
+      {nextCursor ? (
+        <div className="mt-10 flex justify-center">
+          <button
+            type="button"
+            onClick={() => void loadMore()}
+            disabled={loadingMore}
+            className="inline-flex items-center rounded-xl border border-white/15 bg-[#0d0d1a] px-6 py-3 font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.2em] text-[#cfcadb] transition-colors hover:border-[#e8453c]/60 hover:text-[#e8453c] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {loadingMore ? "Loading…" : "Load more"}
+          </button>
+        </div>
+      ) : null}
+    </>
   );
 }

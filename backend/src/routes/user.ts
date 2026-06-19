@@ -29,6 +29,16 @@ const onboardingBodySchema = z.object({
   genres: z.array(z.string().trim().min(1)).max(30),
 });
 
+// Cursor pagination for the per-user lists (watchlist, watched). The cursor is
+// the last row's id; ordering by [timestamp desc, id desc] keeps it stable even
+// when timestamps tie. Default page is generous since these lists are modest.
+const PAGE_LIMIT_DEFAULT = 20;
+const cursorQuerySchema = z.object({
+  limit: z.coerce.number().int().min(1).max(100).default(PAGE_LIMIT_DEFAULT),
+  cursor: z.string().trim().min(1).optional(),
+});
+type CursorQuery = z.infer<typeof cursorQuerySchema>;
+
 const filmSummarySelect = {
   id: true,
   slug: true,
@@ -101,20 +111,28 @@ userRouter.post("/onboarding", validate(onboardingBodySchema, "body"), async (re
   res.status(204).send();
 });
 
-userRouter.get("/watchlist", async (req, res) => {
+userRouter.get("/watchlist", validate(cursorQuerySchema, "query"), async (req, res) => {
   const userId = getUserId(req);
+  const { limit, cursor } = getValidated<CursorQuery>(req, "query");
 
+  // Fetch one extra row to detect whether another page exists.
   const entries = await prisma.watchlist.findMany({
     where: { userId },
-    orderBy: { addedAt: "desc" },
+    orderBy: [{ addedAt: "desc" }, { id: "desc" }],
     include: { film: { select: filmSummarySelect } },
+    take: limit + 1,
+    ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
   });
 
+  const hasMore = entries.length > limit;
+  const page = hasMore ? entries.slice(0, limit) : entries;
+
   res.json({
-    watchlist: entries.map(({ film, ...entry }) => ({
+    watchlist: page.map(({ film, ...entry }) => ({
       ...entry,
       film: withYear(film),
     })),
+    nextCursor: hasMore ? page[page.length - 1]!.id : null,
   });
 });
 
@@ -173,20 +191,27 @@ userRouter.delete("/watchlist/:filmId", validate(filmIdParamsSchema, "params"), 
   res.status(204).send();
 });
 
-userRouter.get("/watched", async (req, res) => {
+userRouter.get("/watched", validate(cursorQuerySchema, "query"), async (req, res) => {
   const userId = getUserId(req);
+  const { limit, cursor } = getValidated<CursorQuery>(req, "query");
 
   const entries = await prisma.watchedFilm.findMany({
     where: { userId },
-    orderBy: { watchedAt: "desc" },
+    orderBy: [{ watchedAt: "desc" }, { id: "desc" }],
     include: { film: { select: filmSummarySelect } },
+    take: limit + 1,
+    ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
   });
 
+  const hasMore = entries.length > limit;
+  const page = hasMore ? entries.slice(0, limit) : entries;
+
   res.json({
-    watched: entries.map(({ film, ...entry }) => ({
+    watched: page.map(({ film, ...entry }) => ({
       ...entry,
       film: withYear(film),
     })),
+    nextCursor: hasMore ? page[page.length - 1]!.id : null,
   });
 });
 

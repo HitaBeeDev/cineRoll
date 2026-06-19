@@ -13,11 +13,21 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
-async function fetchWatchlist(): Promise<WatchlistEntry[]> {
+async function fetchWatchlist(): Promise<{ entries: WatchlistEntry[]; nextCursor: string | null }> {
   const res = await apiFetch("/api/user/watchlist");
-  if (!res.ok) return [];
-  const data = (await res.json().catch(() => ({}))) as { watchlist?: WatchlistEntry[] };
-  return data.watchlist ?? [];
+  if (!res.ok) return { entries: [], nextCursor: null };
+  const data = (await res.json().catch(() => ({}))) as {
+    watchlist?: WatchlistEntry[];
+    nextCursor?: string | null;
+  };
+  return { entries: data.watchlist ?? [], nextCursor: data.nextCursor ?? null };
+}
+
+async function fetchSavedCount(): Promise<number | null> {
+  const res = await apiFetch("/api/user/summary");
+  if (!res.ok) return null;
+  const data = (await res.json().catch(() => ({}))) as { watchlist?: number };
+  return data.watchlist ?? null;
 }
 
 export default async function WatchlistPage({
@@ -29,7 +39,11 @@ export default async function WatchlistPage({
   const session = await auth();
   if (!session?.user) redirect(`/${locale}/auth/signin`);
 
-  const watchlist = await fetchWatchlist();
+  const [{ entries: watchlist, nextCursor }, savedCount] = await Promise.all([
+    fetchWatchlist(),
+    fetchSavedCount(),
+  ]);
+  const total = savedCount ?? watchlist.length;
 
   return (
     <main className="min-h-screen bg-[#07070b] text-[#f4f4f5]">
@@ -39,7 +53,7 @@ export default async function WatchlistPage({
           Your Watchlist
         </h1>
         <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.2em] text-[#888899]">
-          {watchlist.length} {watchlist.length === 1 ? "film" : "films"} saved
+          {total} {total === 1 ? "film" : "films"} saved
         </p>
 
         <div className="mt-10">
@@ -56,7 +70,7 @@ export default async function WatchlistPage({
               </Link>
             </div>
           ) : (
-            <WatchlistGrid entries={watchlist} locale={locale} />
+            <WatchlistGrid entries={watchlist} locale={locale} initialNextCursor={nextCursor} />
           )}
         </div>
       </div>

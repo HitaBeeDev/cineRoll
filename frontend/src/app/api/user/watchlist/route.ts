@@ -1,6 +1,15 @@
 import { NextResponse } from "next/server";
 import { apiFetch } from "@/lib/apiWithAuth";
 
+// Forwards cursor pagination params (?cursor, ?limit) so a client "Load more"
+// can page through the watchlist via the same-origin proxy.
+export async function GET(req: Request): Promise<Response> {
+  const { search } = new URL(req.url);
+  const res = await apiFetch(`/api/user/watchlist${search}`);
+  const data = (await res.json().catch(() => ({}))) as unknown;
+  return NextResponse.json(data, { status: res.status });
+}
+
 export async function POST(req: Request): Promise<Response> {
   const body = (await req.json().catch(() => null)) as unknown;
 
