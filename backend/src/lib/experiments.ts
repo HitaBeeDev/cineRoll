@@ -45,3 +45,38 @@ export function assignVariant(
   }
   return `${experiment.key}:${variants[variants.length - 1]!.name}`;
 }
+
+// ── Recommender parameter flags ──────────────────────────────────────────────
+//
+// The knobs the ranker reads. Baseline is env-overridable (no redeploy to
+// retune); each variant layers its own overrides on top. This is the config the
+// A/B framework switches per variant.
+
+export type RecommenderParams = {
+  qualityWeight: number;
+  recencyWeight: number;
+  mmrLambda: number;
+};
+
+function envNumber(key: string, fallback: number): number {
+  const raw = process.env[key];
+  const parsed = raw == null ? NaN : Number(raw);
+  return Number.isFinite(parsed) ? parsed : fallback;
+}
+
+export const BASELINE_PARAMS: RecommenderParams = {
+  qualityWeight: envNumber("REC_QUALITY_WEIGHT", 0.8),
+  recencyWeight: envNumber("REC_RECENCY_WEIGHT", 0.15),
+  mmrLambda: envNumber("REC_MMR_LAMBDA", 0.7),
+};
+
+// Per-variant overrides keyed by the full variant tag from assignVariant().
+const VARIANT_OVERRIDES: Record<string, Partial<RecommenderParams>> = {
+  "rec_ranker_v1:control": {},
+  // Treatment: weaker MMR penalty → more diverse top-N.
+  "rec_ranker_v1:treatment": { mmrLambda: 0.55 },
+};
+
+export function recommenderParams(variant: string): RecommenderParams {
+  return { ...BASELINE_PARAMS, ...(VARIANT_OVERRIDES[variant] ?? {}) };
+}

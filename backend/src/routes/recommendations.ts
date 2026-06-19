@@ -33,6 +33,7 @@ recommendationsRouter.get("/", validate(querySchema, "query"), async (req, res) 
   await logEvent({
     type: "recommendation_served",
     userId,
+    variant: result.variant,
     context: {
       modelVersion: result.modelVersion,
       coldStart: result.coldStart,

@@ -1,4 +1,10 @@
 import { Prisma } from "@prisma/client";
+import {
+  assignVariant,
+  BASELINE_PARAMS,
+  recommenderParams,
+  type RecommenderParams,
+} from "./experiments";
 import { prisma } from "./prisma";
 import {
   filmFeatureKeys,
@@ -28,11 +34,6 @@ const DIM = {
   award: 0.6,
   rating: 0.4,
 } as const;
-/** How much the quality prior and recency contribute on top of taste similarity. */
-const QUALITY_WEIGHT = 0.8;
-const RECENCY_WEIGHT = 0.15;
-/** MMR trade-off: 1 = pure score, 0 = pure diversity. */
-const MMR_LAMBDA = 0.7;
 const RECENCY_BASE_YEAR = 1920;
 
 const candidateSelect = {
@@ -175,11 +176,12 @@ export function scoreFilm(
   film: FilmFeatures,
   taste: TasteProfileVectors,
   currentYear: number,
+  params: RecommenderParams = BASELINE_PARAMS,
 ): number {
   return (
     tasteScore(film, taste) +
-    QUALITY_WEIGHT * qualityPrior(film) +
-    RECENCY_WEIGHT * recencyPrior(film, currentYear)
+    params.qualityWeight * qualityPrior(film) +
+    params.recencyWeight * recencyPrior(film, currentYear)
   );
 }
 
@@ -207,18 +209,19 @@ export function rankCandidates(
   taste: TasteProfileVectors,
   limit: number,
   currentYear: number = new Date().getFullYear(),
+  params: RecommenderParams = BASELINE_PARAMS,
 ): Scored[] {
   const scored: Scored[] = candidates.map((film) => ({
     film,
-    score: scoreFilm(film, taste, currentYear),
+    score: scoreFilm(film, taste, currentYear, params),
   }));
   scored.sort((a, b) => b.score - a.score);
-  return mmrRerank(scored, limit);
+  return mmrRerank(scored, limit, params.mmrLambda);
 }
 
 /** Maximal Marginal Relevance: greedily pick high-scoring films while penalizing
  *  similarity to those already chosen, so the top N isn't all one director/genre. */
-function mmrRerank(scored: Scored[], limit: number): Scored[] {
+function mmrRerank(scored: Scored[], limit: number, lambda: number = BASELINE_PARAMS.mmrLambda): Scored[] {
   if (scored.length === 0) return [];
   // Min-max normalize scores so relevance and diversity are on the same scale.
   const scores = scored.map((s) => s.score);
@@ -240,7 +243,7 @@ function mmrRerank(scored: Scored[], limit: number): Scored[] {
       for (const sel of selected) {
         maxSim = Math.max(maxSim, filmSimilarity(candidate.film, sel.film));
       }
-      const mmr = MMR_LAMBDA * relevance - (1 - MMR_LAMBDA) * maxSim;
+      const mmr = lambda * relevance - (1 - lambda) * maxSim;
       if (mmr > bestMmr) {
         bestMmr = mmr;
         bestIdx = i;
@@ -354,7 +357,7 @@ export type Recommendation = {
 
 export type RecommendationResult =
   | { code: "NOT_ENOUGH_DATA"; modelVersion: string }
-  | { modelVersion: string; coldStart: boolean; recommendations: Recommendation[] };
+  | { modelVersion: string; coldStart: boolean; variant: string; recommendations: Recommendation[] };
 
 /**
  * Content-based recommendation pipeline:
@@ -379,12 +382,15 @@ export async function recommend(
   }
   const coldStart = totalSignals < COLD_START_MIN;
 
+  const variant = assignVariant(userId);
+  const params = recommenderParams(variant);
+
   const [candidates, likedByGenre] = await Promise.all([
     generateCandidates(userId, taste),
     coldStart ? Promise.resolve(new Map<string, string>()) : likedFilmsByGenre(userId),
   ]);
 
-  const top = rankCandidates(candidates, taste, limit);
+  const top = rankCandidates(candidates, taste, limit, new Date().getFullYear(), params);
 
   const recommendations: Recommendation[] = top.map(({ film, score }) => ({
     id: film.id,
@@ -400,5 +406,5 @@ export async function recommend(
     reason: buildReason(film, taste, likedByGenre),
   }));
 
-  return { modelVersion: MODEL_VERSION, coldStart, recommendations };
+  return { modelVersion: MODEL_VERSION, coldStart, variant, recommendations };
 }
