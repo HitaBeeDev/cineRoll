@@ -82,3 +82,45 @@ Run on the production branch (~5.3k films) after `db push` applied the indexes:
 - **`contentType` / `language`** applied as cheap post-scan filters here, never as the driving index — expected for low-cardinality equality. Kept; they enable bitmap-AND on stricter combos.
 - **NULLS LAST caveat confirmed:** the planner never used a btree for `imdbRating DESC NULLS LAST` — it sorts after scanning. Since both ordered queries pick a bitmap/seq scan for *row selection* anyway, the raw `DESC NULLS LAST` expression index isn't worth adding now. Revisit only if a high-selectivity genre+rating query shows the sort dominating.
 - Net: all five indexes retained; only the director trigram is load-bearing on today's query mix, the rest are cheap insurance for query shapes not in this sample.
+
+## Load check — hot endpoints vs latency targets
+
+**Targets (Appendix B):** random < 200 ms, browse < 200 ms, recommendations < 150 ms warm.
+
+**Harness:** `src/scripts/loadCheck.ts` (`npm run load-check`) — zero-dependency, warms
+each scenario then fires N requests at concurrency C over HTTP, reports p50/p95/p99 and
+pass/fail by **p95**. Read-only.
+
+```
+# server must be running, full dataset seeded
+npm run load-check -- --base=http://localhost:4000 --requests=500 --concurrency=20
+# include recommendations (needs a JWT for a user with ≥3 taste signals):
+npm run load-check -- --token=<jwt>
+```
+
+### Findings
+
+Local run (laptop → Neon us-east-1, free tier 0.25 CU), 500 req/scenario @ concurrency 20,
+rate limiter disabled, 0 errors:
+
+| scenario | p50 | p95 | p99 | rps | target | result |
+|----------|-----|-----|-----|-----|--------|--------|
+| random | 255 ms | 410 ms | 1045 ms | 67 | <200 ms | FAIL* |
+| browse | 184 ms | 305 ms | 406 ms | 99 | <200 ms | FAIL* |
+| browse+filter | 245 ms | 370 ms | 495 ms | 77 | <200 ms | FAIL* |
+| recommendations (warm) | — skipped (no token / no signal-rich user) | | | | <150 ms | — |
+
+**\*Not representative — bottleneck is topology, not code.** Server-side query time for
+these exact queries is 0.1–5.8 ms (see EXPLAIN ANALYZE above). The end-to-end latency here
+is dominated by ~80–130 ms round-trip to Neon **us-east-1** (×~2 queries/request) plus
+free-tier compute (0.25 CU) serializing under concurrency 20. A laptop → cross-region DB
+cannot meet a 200 ms target regardless of code quality.
+
+**Conclusion / what's needed.** The target is only meaningful with app and DB **co-located**
+(deployed backend in the DB region, or a local Postgres). Re-run `npm run load-check` from
+that environment to validate; given the sub-6 ms server-side query times, co-located latency
+should sit comfortably under target. The harness, targets, and per-query evidence are in
+place — the open item is the co-located measurement, which is a deploy-time check.
+
+> Recommendations needs an authed user with ≥3 taste signals; none exist yet
+> (see RECOMMENDATIONS.md), so that scenario stays skipped until real signal data lands.

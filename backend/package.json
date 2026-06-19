@@ -10,6 +10,7 @@
     "lint": "eslint src --ext .ts",
     "type-check": "tsc --noEmit",
     "eval:recommender": "npx tsx src/scripts/evalRecommender.ts",
+    "load-check": "npx tsx src/scripts/loadCheck.ts",
     "db:migrate": "prisma migrate dev",
     "db:generate": "prisma generate",
     "db:seed": "npx tsx data/scripts/seed.ts",
