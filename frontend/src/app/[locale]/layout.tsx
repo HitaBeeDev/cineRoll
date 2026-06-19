@@ -7,6 +7,7 @@ import { getMessages, setRequestLocale } from "next-intl/server";
 import { AnalyticsPageView } from "@/components/analytics-page-view";
 import { PageTransition } from "@/components/page-transition";
 import { Providers } from "@/components/providers";
+import { SiteFooter } from "@/components/site-footer";
 import { isSupportedLocale, type Locale } from "@/i18n/request";
 import "../globals.css";
 
@@ -77,6 +78,7 @@ export default async function RootLayout({
               <AnalyticsPageView />
             </Suspense>
             <PageTransition>{children}</PageTransition>
+            <SiteFooter />
           </Providers>
         </NextIntlClientProvider>
       </body>
