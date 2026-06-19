@@ -13,6 +13,8 @@ const envSchema = z.object({
   OMDB_API_KEY: z.string().min(1).optional(),
   // Natural language roll — route returns 503 if unset
   GEMINI_API_KEY: z.string().min(1).optional(),
+  // Ops metrics — /api/metrics returns 503 if unset, else requires this bearer token
+  METRICS_TOKEN: z.string().min(1).optional(),
 });
 
 const env = envSchema.parse(process.env);
@@ -27,4 +29,5 @@ export const config = {
   tmdbApiKey: env.TMDB_API_KEY ?? "",
   omdbApiKey: env.OMDB_API_KEY ?? "",
   geminiApiKey: env.GEMINI_API_KEY ?? "",
+  metricsToken: env.METRICS_TOKEN ?? "",
 };
