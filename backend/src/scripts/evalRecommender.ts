@@ -19,6 +19,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { prisma } from "../lib/prisma";
+import { BASELINE_PARAMS, type RecommenderParams } from "../lib/experiments";
 import { generateCandidatePool, rankCandidates, MODEL_VERSION } from "../lib/recommender";
 import { aggregateTasteVectors, filmFeatureSelect, type Signal } from "../lib/tasteProfile";
 import { SIGNAL_WEIGHT, sentimentWeight } from "../lib/tasteWeights";
@@ -36,18 +37,22 @@ const HOLDOUT_MAX = 5;
 const COLD_START_MIN = 3;
 const DEFAULT_K_VALUES = [5, 10, 20];
 
-type Args = { maxUsers: number | null; kValues: number[] };
+type Args = { maxUsers: number | null; kValues: number[]; mmrLambdas: number[] | null };
 
 function parseArgs(argv: string[]): Args {
   let maxUsers: number | null = null;
   let kValues = DEFAULT_K_VALUES;
+  let mmrLambdas: number[] | null = null;
   for (const arg of argv) {
     const users = arg.match(/^--max-users=(\d+)$/);
     if (users) maxUsers = Number(users[1]);
     const k = arg.match(/^--k=([\d,]+)$/);
     if (k) kValues = k[1]!.split(",").map(Number).filter(n => n > 0);
+    // A/B sweep: evaluate each listed MMR lambda as a separate arm.
+    const l = arg.match(/^--mmr-lambda=([\d.,]+)$/);
+    if (l) mmrLambdas = l[1]!.split(",").map(Number).filter(n => n >= 0 && n <= 1);
   }
-  return { maxUsers, kValues };
+  return { maxUsers, kValues, mmrLambdas };
 }
 
 type WatchedRow = {
@@ -69,6 +74,7 @@ async function evaluateUser(
   userId: string,
   kValues: number[],
   maxK: number,
+  params: RecommenderParams = BASELINE_PARAMS,
 ): Promise<UserMetrics | null> {
   const [watched, watchlist, user] = await Promise.all([
     prisma.watchedFilm.findMany({
@@ -127,7 +133,8 @@ async function evaluateUser(
   ].filter(id => !heldOutIds.has(id));
 
   const candidates = await generateCandidatePool(excludedIds, taste);
-  const rankedIds = rankCandidates(candidates, taste, maxK).map(r => r.film.id);
+  const rankedIds = rankCandidates(candidates, taste, maxK, new Date().getFullYear(), params)
+    .map(r => r.film.id);
 
   const recall: Record<number, number> = {};
   const precision: Record<number, number> = {};
@@ -197,11 +204,50 @@ function printComparison(records: EvalRecord[], kValues: number[]): void {
   console.log("");
 }
 
+/** A/B sweep: evaluate the same users under each MMR lambda and print the arms
+ *  side by side. Same protocol as the single run, so arms are comparable. */
+async function runAbSweep(
+  userIds: string[],
+  kValues: number[],
+  maxK: number,
+  maxUsers: number | null,
+  lambdas: number[],
+): Promise<void> {
+  const primaryK = Math.max(...kValues);
+  console.log(`\nRecommender A/B sweep — model ${MODEL_VERSION}, MMR lambda arms: ${lambdas.join(", ")}`);
+  console.log(`Protocol: leave-most-recent-${HOLDOUT_MAX}-out · cold-start gate ${COLD_START_MIN}\n`);
+  console.log(`  mmrLambda   users   MRR      recall@${primaryK}   precision@${primaryK}`);
+
+  for (const lambda of lambdas) {
+    const params: RecommenderParams = { ...BASELINE_PARAMS, mmrLambda: lambda };
+    const results: UserMetrics[] = [];
+    for (const id of userIds) {
+      if (maxUsers !== null && results.length >= maxUsers) break;
+      const metrics = await evaluateUser(id, kValues, maxK, params);
+      if (metrics) results.push(metrics);
+    }
+    const mrr = mean(results.map(m => m.reciprocalRank));
+    const recall = mean(results.map(m => m.recall[primaryK] ?? 0));
+    const precision = mean(results.map(m => m.precision[primaryK] ?? 0));
+    console.log(
+      `  ${lambda.toFixed(2).padEnd(11)} ${String(results.length).padEnd(7)} ` +
+        `${mrr.toFixed(4)}   ${recall.toFixed(4).padEnd(9)} ${precision.toFixed(4)}`,
+    );
+  }
+  console.log("");
+}
+
 async function main(): Promise<void> {
-  const { maxUsers, kValues } = parseArgs(process.argv.slice(2));
+  const { maxUsers, kValues, mmrLambdas } = parseArgs(process.argv.slice(2));
   const maxK = Math.max(...kValues);
 
   const users = await prisma.user.findMany({ select: { id: true } });
+
+  if (mmrLambdas && mmrLambdas.length > 0) {
+    await runAbSweep(users.map(u => u.id), kValues, maxK, maxUsers, mmrLambdas);
+    return;
+  }
+
   const results: UserMetrics[] = [];
   let skipped = 0;
 
