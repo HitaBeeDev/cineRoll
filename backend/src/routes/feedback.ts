@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { z } from "zod";
+import { sendFeedbackNotification } from "../lib/feedbackEmail";
 import { prisma } from "../lib/prisma";
 import { getValidated, validate } from "../middleware/validate";
 
@@ -22,6 +23,15 @@ feedbackRouter.post("/", validate(feedbackBodySchema, "body"), async (req, res) 
       id: true,
       createdAt: true,
     },
+  });
+
+  const feedbackEmail = email ?? null;
+  void sendFeedbackNotification({
+    email: feedbackEmail,
+    body,
+    feedbackId: feedback.id,
+  }).catch((error: unknown) => {
+    console.error("Failed to send feedback notification", error);
   });
 
   res.status(201).json(feedback);

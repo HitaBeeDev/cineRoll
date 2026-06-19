@@ -15,6 +15,9 @@ const envSchema = z.object({
   GEMINI_API_KEY: z.string().min(1).optional(),
   // Ops metrics — /api/metrics returns 503 if unset, else requires this bearer token
   METRICS_TOKEN: z.string().min(1).optional(),
+  // Feedback notifications — feedback still persists if unset
+  RESEND_API_KEY: z.string().min(1).optional(),
+  OWNER_EMAIL: z.string().email().optional(),
   // Global API rate limiting (per-IP and per-user fixed windows)
   RATE_LIMIT_WINDOW_MS: z.coerce.number().int().positive().default(60_000),
   RATE_LIMIT_MAX_PER_IP: z.coerce.number().int().positive().default(300),
@@ -38,6 +41,8 @@ export const config = {
   omdbApiKey: env.OMDB_API_KEY ?? "",
   geminiApiKey: env.GEMINI_API_KEY ?? "",
   metricsToken: env.METRICS_TOKEN ?? "",
+  resendApiKey: env.RESEND_API_KEY ?? "",
+  ownerEmail: env.OWNER_EMAIL ?? "",
   rateLimit: {
     windowMs: env.RATE_LIMIT_WINDOW_MS,
     maxPerIp: env.RATE_LIMIT_MAX_PER_IP,
