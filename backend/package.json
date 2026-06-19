@@ -31,7 +31,8 @@
     "dedup-master": "npx tsx data/scripts/dedup-master.ts",
     "oscar-cross-check": "npx tsx data/scripts/oscar-cross-check.ts",
     "move-to-recall": "npx tsx data/scripts/move-to-recall.ts",
-    "recall-find": "npx tsx data/scripts/recall-find.ts"
+    "recall-find": "npx tsx data/scripts/recall-find.ts",
+    "recall-lookup": "npx tsx data/scripts/recall-lookup.ts"
   },
   "keywords": [],
   "author": "",
