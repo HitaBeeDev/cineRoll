@@ -4,7 +4,7 @@ import { z } from "zod";
 import { cache, cacheKeys, setPublicCache } from "../lib/cache";
 import { buildWhereClause, ListQuery, listQuerySchema } from "../lib/filmFilters";
 import { prisma } from "../lib/prisma";
-import { AuthedRequest, requireAuth } from "../middleware/auth";
+import { AuthedRequest, OptionallyAuthedRequest, optionalAuth, requireAuth } from "../middleware/auth";
 import { HttpError } from "../middleware/errorHandler";
 import { getValidated, validate } from "../middleware/validate";
 
@@ -520,9 +520,11 @@ filmsRouter.get("/:slug/similar", validate(slugParamsSchema, "params"), async (r
 
 filmsRouter.get(
   "/:slug/comments",
+  optionalAuth,
   validate(slugParamsSchema, "params"),
   validate(commentsQuerySchema, "query"),
   async (req, res) => {
+    const userId = (req as OptionallyAuthedRequest).userId;
     const { slug } = getValidated<z.infer<typeof slugParamsSchema>>(req, "params");
     const { page } = getValidated<z.infer<typeof commentsQuerySchema>>(req, "query");
 
@@ -544,6 +546,7 @@ filmsRouter.get(
         take: COMMENTS_PAGE_SIZE,
         select: {
           id: true,
+          userId: true,
           body: true,
           createdAt: true,
           updatedAt: true,
@@ -561,7 +564,10 @@ filmsRouter.get(
     ]);
 
     res.json({
-      comments,
+      comments: comments.map(({ userId: commentUserId, ...comment }) => ({
+        ...comment,
+        canDelete: userId === commentUserId,
+      })),
       page,
       pageSize: COMMENTS_PAGE_SIZE,
       total,
@@ -602,6 +608,7 @@ filmsRouter.post(
       data: { userId, filmId: film.id, body },
       select: {
         id: true,
+        userId: true,
         body: true,
         createdAt: true,
         updatedAt: true,
@@ -614,7 +621,8 @@ filmsRouter.post(
       },
     });
 
-    res.status(201).json(comment);
+    const { userId: _commentUserId, ...payload } = comment;
+    res.status(201).json({ ...payload, canDelete: true });
   },
 );
 

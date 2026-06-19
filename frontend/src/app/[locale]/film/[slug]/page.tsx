@@ -19,6 +19,7 @@ import { ShareButton } from "@/components/share-button";
 import { ShareBanner } from "@/components/share-banner";
 import { FilmDetailActions } from "@/components/film-detail-actions";
 import { FilmRatingPanel } from "@/components/film-rating-panel";
+import { FilmCommentsSection } from "@/components/film-comments-section";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 const SITE_URL =
@@ -576,6 +577,8 @@ export default async function FilmPage({
               </div>
             </section>
           )}
+
+          <FilmCommentsSection slug={film.slug} accent={accent} />
 
           {/* ── SIMILAR FILMS ─────────────────────────────────────────── */}
           {similarFilms.length >= 3 && (
