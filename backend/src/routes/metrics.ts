@@ -154,3 +154,86 @@ metricsRouter.get("/recommendations", validate(querySchema, "query"), async (req
     bySurface,
   });
 });
+
+type RollRow = {
+  variant: string;
+  rolled: bigint;
+  clicked: bigint;
+  saved: bigint;
+  watched: bigint;
+};
+
+// GET /api/metrics/rolls?days=30
+//
+// Personalized-roll vs random-roll engagement. A roll impression is one
+// (actor, film, variant) where variant is "personalized" (roll_personalized)
+// or "random" (roll), deduped to the earliest roll. Engagement is attributed
+// post-roll: the same actor acting on the same film at or after it was rolled.
+// Click-through uses film_click; watch and save use watched / watchlist_add.
+metricsRouter.get("/rolls", validate(querySchema, "query"), async (req, res) => {
+  const { days } = getValidated<z.infer<typeof querySchema>>(req, "query");
+  const since = days != null ? new Date(Date.now() - days * 24 * 60 * 60 * 1000) : null;
+
+  const rows = await prisma.$queryRaw<RollRow[]>`
+    WITH rolled AS (
+      SELECT
+        COALESCE(e."userId", e."anonId") AS actor,
+        e."filmId" AS film_id,
+        CASE WHEN e.type = 'roll_personalized' THEN 'personalized' ELSE 'random' END AS variant,
+        MIN(e."createdAt") AS rolled_at
+      FROM "Event" e
+      WHERE e.type IN ('roll', 'roll_personalized')
+        AND e."filmId" IS NOT NULL
+        AND COALESCE(e."userId", e."anonId") IS NOT NULL
+        AND (${since}::timestamptz IS NULL OR e."createdAt" >= ${since})
+      GROUP BY actor, film_id, variant
+    )
+    SELECT
+      r.variant,
+      COUNT(*)::bigint AS rolled,
+      COUNT(*) FILTER (WHERE EXISTS (
+        SELECT 1 FROM "Event" e WHERE e.type = 'film_click'
+          AND COALESCE(e."userId", e."anonId") = r.actor
+          AND e."filmId" = r.film_id AND e."createdAt" >= r.rolled_at
+      ))::bigint AS clicked,
+      COUNT(*) FILTER (WHERE EXISTS (
+        SELECT 1 FROM "Event" e WHERE e.type = 'watchlist_add'
+          AND COALESCE(e."userId", e."anonId") = r.actor
+          AND e."filmId" = r.film_id AND e."createdAt" >= r.rolled_at
+      ))::bigint AS saved,
+      COUNT(*) FILTER (WHERE EXISTS (
+        SELECT 1 FROM "Event" e WHERE e.type = 'watched'
+          AND COALESCE(e."userId", e."anonId") = r.actor
+          AND e."filmId" = r.film_id AND e."createdAt" >= r.rolled_at
+      ))::bigint AS watched
+    FROM rolled r
+    GROUP BY r.variant
+  `;
+
+  const byVariant = Object.fromEntries(
+    rows.map((r) => {
+      const rolled = toNum(r.rolled);
+      const clicked = toNum(r.clicked);
+      const saved = toNum(r.saved);
+      const watched = toNum(r.watched);
+      return [
+        r.variant,
+        {
+          rolled,
+          clicked,
+          saved,
+          watched,
+          clickThroughRate: rate(clicked, rolled),
+          saveRate: rate(saved, rolled),
+          watchedRate: rate(watched, rolled),
+        },
+      ];
+    }),
+  );
+
+  res.json({
+    window: { days: days ?? null, since: since?.toISOString() ?? null },
+    personalized: byVariant["personalized"] ?? null,
+    random: byVariant["random"] ?? null,
+  });
+});
