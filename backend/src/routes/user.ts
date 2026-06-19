@@ -21,6 +21,13 @@ const watchedBodySchema = filmIdBodySchema.extend({
   sentiment: z.enum(["like", "dislike"]).nullable().optional(),
 });
 
+const ratingBodySchema = filmIdBodySchema.extend({
+  rating: z.number()
+    .min(1)
+    .max(10)
+    .refine(value => Number.isInteger(value * 2), "Rating must be a multiple of 0.5"),
+});
+
 const filmIdParamsSchema = z.object({
   filmId: z.string().trim().min(1),
 });
@@ -236,7 +243,7 @@ userRouter.get("/film-status/:filmId", validate(filmIdParamsSchema, "params"), a
   const userId = getUserId(req);
   const { filmId } = getValidated<z.infer<typeof filmIdParamsSchema>>(req, "params");
 
-  const [watchedEntry, watchlistEntry] = await Promise.all([
+  const [watchedEntry, watchlistEntry, ratingEntry] = await Promise.all([
     prisma.watchedFilm.findUnique({
       where: { userId_filmId: { userId, filmId } },
       select: { sentiment: true, doNotSuggest: true },
@@ -245,6 +252,10 @@ userRouter.get("/film-status/:filmId", validate(filmIdParamsSchema, "params"), a
       where: { userId_filmId: { userId, filmId } },
       select: { id: true },
     }),
+    prisma.userRating.findUnique({
+      where: { userId_filmId: { userId, filmId } },
+      select: { rating: true },
+    }),
   ]);
 
   res.json({
@@ -252,7 +263,64 @@ userRouter.get("/film-status/:filmId", validate(filmIdParamsSchema, "params"), a
     sentiment: watchedEntry?.sentiment ?? null,
     doNotSuggest: watchedEntry?.doNotSuggest ?? false,
     inWatchlist: watchlistEntry !== null,
+    rating: ratingEntry?.rating ?? null,
   });
+});
+
+userRouter.post("/ratings", validate(ratingBodySchema, "body"), async (req, res) => {
+  const userId = getUserId(req);
+  const { filmId, rating } = getValidated<z.infer<typeof ratingBodySchema>>(req, "body");
+
+  await assertFilmExists(filmId);
+
+  const entry = await prisma.userRating.upsert({
+    where: { userId_filmId: { userId, filmId } },
+    create: { userId, filmId, rating },
+    update: { rating },
+  });
+
+  await logEvent({
+    type: "rating_set",
+    userId,
+    filmId,
+    context: { source: "user_route", rating },
+  });
+
+  await markTasteProfileStale(userId);
+
+  res.json(entry);
+});
+
+userRouter.get("/ratings/:filmId", validate(filmIdParamsSchema, "params"), async (req, res) => {
+  const userId = getUserId(req);
+  const { filmId } = getValidated<z.infer<typeof filmIdParamsSchema>>(req, "params");
+
+  const entry = await prisma.userRating.findUnique({
+    where: { userId_filmId: { userId, filmId } },
+  });
+
+  if (!entry) {
+    throw new HttpError(404, "Rating not found", "RATING_NOT_FOUND");
+  }
+
+  res.json(entry);
+});
+
+userRouter.delete("/ratings/:filmId", validate(filmIdParamsSchema, "params"), async (req, res) => {
+  const userId = getUserId(req);
+  const { filmId } = getValidated<z.infer<typeof filmIdParamsSchema>>(req, "params");
+
+  const result = await prisma.userRating.deleteMany({
+    where: { userId, filmId },
+  });
+
+  if (result.count === 0) {
+    throw new HttpError(404, "Rating not found", "RATING_NOT_FOUND");
+  }
+
+  await markTasteProfileStale(userId);
+
+  res.status(204).send();
 });
 
 userRouter.post("/watched", validate(watchedBodySchema, "body"), async (req, res) => {
