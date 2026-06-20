@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
 import { cn } from "@/lib/utils";
 
-export function SiteFeedbackForm() {
+export function SiteFeedbackForm({ onSuccess }: { onSuccess?: () => void }) {
   const { toast } = useToast();
   const [email, setEmail] = useState("");
   const [body, setBody] = useState("");
@@ -45,6 +45,7 @@ export function SiteFeedbackForm() {
       setBody("");
       setWebsite("");
       toast({ title: "Thanks for your feedback!" });
+      onSuccess?.();
     } catch (error) {
       toast({
         variant: "error",
@@ -57,7 +58,7 @@ export function SiteFeedbackForm() {
   }
 
   return (
-    <form onSubmit={submitFeedback} className="grid gap-3 lg:grid-cols-[minmax(0,280px)_minmax(0,1fr)_auto] lg:items-start">
+    <form onSubmit={submitFeedback} className="grid gap-3">
       <input
         type="text"
         name="website"
