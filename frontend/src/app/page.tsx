@@ -1518,8 +1518,8 @@ function FilmCard({
           </div>
           <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-[8.5px] leading-relaxed tracking-wide text-[#707082]">
             {isAuthenticated
-              ? "Your feedback shapes future rolls."
-              : "Sign in to save feedback across visits."}
+              ? "Saved to your account."
+              : "This session only unless you sign in."}
           </p>
         </section>
 
