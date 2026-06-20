@@ -538,7 +538,7 @@ export function HomeClient({
                 </p>
               ) : (
                 <>
-                  <span className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#555568]">
+                  <span className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#888899]">
                     Reel Pool
                   </span>
                   <AnimatedPoolCount value={poolCountStr} />
@@ -554,7 +554,7 @@ export function HomeClient({
                       {effectiveCountLoading ? "finding films…" : getCountTagline(displayCount)}
                     </motion.span>
                   </AnimatePresence>
-                  <span className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-widest text-[#444458]">
+                  <span className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-widest text-[#888899]">
                     Press [Space] to spin
                   </span>
                 </>

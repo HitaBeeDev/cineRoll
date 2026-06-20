@@ -184,7 +184,7 @@ export function FilmCard({
             <h3 className="font-[family-name:var(--font-geist-mono)] text-[9px] font-bold uppercase tracking-[0.2em] text-[#F5F5F0]">
               Tune future rolls
             </h3>
-            <span className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.18em] text-[#606074]">
+            <span className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.18em] text-[#888899]">
               {isAuthenticated ? "Account signal" : "Session signal"}
             </span>
           </div>
@@ -226,7 +226,7 @@ export function FilmCard({
               activeLabel="Saved"
             />
           </div>
-          <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-[8.5px] leading-relaxed tracking-wide text-[#707082]">
+          <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-[8.5px] leading-relaxed tracking-wide text-[#888899]">
             {isAuthenticated
               ? "Saved to your account."
               : "This session only unless you sign in."}
@@ -292,7 +292,7 @@ function getListBadges(film: RollFilm) {
 function StatBox({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex flex-col gap-1 rounded-lg border border-[#1e1e2a] bg-[#0d0d1a] px-3 py-2.5">
-      <span className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-widest text-[#444458]">
+      <span className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-widest text-[#888899]">
         {label}
       </span>
       <span className="font-[family-name:var(--font-geist-mono)] text-base font-bold text-[#F5F5F0]">
@@ -324,7 +324,7 @@ function AwardsPanel({ highlights }: { highlights: AwardHighlight[] }) {
         <h3 className="font-[family-name:var(--font-geist-mono)] text-[9px] font-bold uppercase tracking-[0.2em] text-[#D4AF37]">
           Recognition
         </h3>
-        <span className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.18em] text-[#555568]">
+        <span className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.18em] text-[#888899]">
           Wins / Nominations
         </span>
       </div>
@@ -339,7 +339,7 @@ function AwardsPanel({ highlights }: { highlights: AwardHighlight[] }) {
                 {item.label}
               </span>
               {item.rank != null && (
-                <span className="mt-0.5 block font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.14em] text-[#555568]">
+                <span className="mt-0.5 block font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.14em] text-[#888899]">
                   Ranked list placement
                 </span>
               )}
@@ -380,7 +380,7 @@ function AwardCount({
       >
         {value}
       </span>
-      <span className="mt-0.5 font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-[0.14em] text-[#555568]">
+      <span className="mt-0.5 font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-[0.14em] text-[#888899]">
         {label}
       </span>
     </span>
@@ -524,7 +524,7 @@ function SentimentPrompt({
             type="button"
             aria-label="Dismiss"
             onClick={onDismiss}
-            className="ml-1 shrink-0 text-[#444458] transition-colors hover:text-[#F5F5F0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
+            className="ml-1 shrink-0 text-[#888899] transition-colors hover:text-[#F5F5F0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
           >
             <X className="h-4 w-4" aria-hidden />
           </button>
@@ -588,7 +588,7 @@ function ActionBtn({
       type="button"
       className={cn(
         "flex h-11 items-center justify-center rounded-xl px-3",
-        "border border-[#1e1e2a] text-[#444458]",
+        "border border-[#1e1e2a] text-[#888899]",
         "transition-colors hover:border-[#2a2a3e] hover:text-[#F5F5F0]",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
         className,

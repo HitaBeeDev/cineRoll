@@ -112,7 +112,7 @@ export function FirstVisitOnboarding({
             </button>
           </div>
 
-          <div className="mt-6 flex items-center gap-3 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.22em] text-[#555568]">
+          <div className="mt-6 flex items-center gap-3 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.22em] text-[#888899]">
             <span className="h-px w-9 bg-[#e8453c]/55" />
             {selectedSeenCount === 0
               ? "Tap any poster"

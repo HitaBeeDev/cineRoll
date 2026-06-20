@@ -121,7 +121,7 @@ export function RollHistoryDrawer({
                       <Film className="h-3 w-3 text-[#e8453c]" aria-hidden />
                       {visibleHistory.length} / 10
                     </span>
-                    <span className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.22em] text-[#252535]">
+                    <span className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.22em] text-[#888899]">
                       This tab only
                     </span>
                   </div>
@@ -134,7 +134,7 @@ export function RollHistoryDrawer({
                   aria-label="Close history"
                   className={cn(
                     "mt-1 flex h-9 w-9 shrink-0 items-center justify-center",
-                    "border border-[#1a1a28] text-[#3a3a52]",
+                    "border border-[#1a1a28] text-[#888899]",
                     "transition-all duration-150",
                     "hover:border-[#e8453c]/50 hover:bg-[#e8453c]/8 hover:text-[#e8453c]",
                     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
@@ -172,7 +172,7 @@ export function RollHistoryDrawer({
                     <br />
                     is empty.
                   </p>
-                  <p className="mt-3 text-xs leading-6 text-[#383850] max-w-[22ch]">
+                  <p className="mt-3 text-xs leading-6 text-[#888899] max-w-[22ch]">
                     Roll a film — it shows up here as a fast, clickable trail.
                   </p>
                 </div>
@@ -240,7 +240,7 @@ export function RollHistoryDrawer({
                           <p className="font-[family-name:var(--font-display)] text-[1.05rem] font-bold leading-[1.15] text-[#F5F5F0] line-clamp-2 transition-colors duration-150 group-hover:text-white">
                             {film.title}
                           </p>
-                          <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.24em] text-[#252535]">
+                          <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.24em] text-[#888899]">
                             {film.year}
                           </p>
                         </div>
