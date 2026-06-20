@@ -5,6 +5,7 @@ import { AnalyticsPageView } from "@/components/analytics-page-view";
 import { PageTransition } from "@/components/page-transition";
 import { Providers } from "@/components/providers";
 import { SiteFooter } from "@/components/site-footer";
+import { SiteFooterGate } from "@/components/site-footer-gate";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -59,7 +60,9 @@ export default function RootLayout({
             <AnalyticsPageView />
           </Suspense>
           <PageTransition>{children}</PageTransition>
-          <SiteFooter />
+          <SiteFooterGate>
+            <SiteFooter />
+          </SiteFooterGate>
         </Providers>
       </body>
     </html>
