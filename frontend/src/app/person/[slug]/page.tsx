@@ -65,7 +65,7 @@ async function fetchPerson(slug: string): Promise<PersonData | null> {
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ locale: string; slug: string }>;
+  params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
   const person = await fetchPerson(slug);
@@ -106,7 +106,7 @@ export async function generateMetadata({
 export default async function PersonPage({
   params,
 }: {
-  params: Promise<{ locale: string; slug: string }>;
+  params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
   const person = await fetchPerson(slug);

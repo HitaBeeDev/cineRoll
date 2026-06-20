@@ -23,11 +23,9 @@ export type Recommendation = {
  */
 export function RecommendationsSection({
   recommendations,
-  locale,
   coldStart,
 }: {
   recommendations: Recommendation[];
-  locale: string;
   coldStart: boolean;
 }) {
   return (
@@ -45,7 +43,7 @@ export function RecommendationsSection({
         {recommendations.map((rec) => (
           <div key={rec.id} className="flex flex-col">
             <Link
-              href={`/${locale}/film/${rec.slug}`}
+              href={`/film/${rec.slug}`}
               className="group block overflow-hidden rounded-lg border border-[#1e1e2a] bg-[#0d0d1a] transition-colors hover:border-[#e8453c]/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
             >
               <div className="relative aspect-[2/3] w-full bg-[#111120]">

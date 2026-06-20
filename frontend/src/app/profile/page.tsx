@@ -73,14 +73,9 @@ const SECTIONS = [
   },
 ] as const;
 
-export default async function ProfilePage({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
-  const { locale } = await params;
+export default async function ProfilePage() {
   const session = await auth();
-  if (!session?.user) redirect(`/${locale}/auth/signin`);
+  if (!session?.user) redirect(`/auth/signin`);
 
   const { name, email } = session.user;
   const [summary, recs] = await Promise.all([fetchSummary(), fetchRecommendations()]);
@@ -124,7 +119,7 @@ export default async function ProfilePage({
           {SECTIONS.map((section) => (
             <Link
               key={section.href}
-              href={`/${locale}/profile/${section.href}`}
+              href={`/profile/${section.href}`}
               className="group rounded-xl border border-[#1e1e2a] bg-[#0d0d1a] px-6 py-7 transition-colors hover:border-[#e8453c]/60 hover:bg-[#111120] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
             >
               <h2 className="font-[family-name:var(--font-display)] text-lg font-bold text-[#F5F5F0]">
@@ -140,7 +135,6 @@ export default async function ProfilePage({
         {recs.recommendations.length > 0 ? (
           <RecommendationsSection
             recommendations={recs.recommendations}
-            locale={locale}
             coldStart={recs.coldStart}
           />
         ) : recs.notEnoughData ? (
@@ -153,7 +147,7 @@ export default async function ProfilePage({
                 Roll and rate a few more films to unlock your picks
               </p>
               <Link
-                href={`/${locale}`}
+                href={`/`}
                 className="inline-flex items-center rounded-xl bg-[#e8453c] px-6 py-3 font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.2em] text-[#F5F5F0] transition-colors hover:bg-[#d5342b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
               >
                 Roll a film

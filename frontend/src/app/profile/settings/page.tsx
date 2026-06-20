@@ -11,14 +11,9 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
-export default async function SettingsPage({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
-  const { locale } = await params;
+export default async function SettingsPage() {
   const session = await auth();
-  if (!session?.user) redirect(`/${locale}/auth/signin`);
+  if (!session?.user) redirect(`/auth/signin`);
 
   const { name, email } = session.user;
 

@@ -47,11 +47,9 @@ const PAGE_SIZE = 20;
 
 export function WatchlistGrid({
   entries,
-  locale,
   initialNextCursor = null,
 }: {
   entries: WatchlistEntry[];
-  locale: string;
   initialNextCursor?: string | null;
 }) {
   const { toast } = useToast();
@@ -112,7 +110,7 @@ export function WatchlistGrid({
         return (
           <div key={id} className="group relative min-w-0">
             <Link
-              href={`/${locale}/film/${film.slug}`}
+              href={`/film/${film.slug}`}
               aria-label={`${film.title}${film.year ? ` (${film.year})` : ""}`}
               className="block outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/50 focus-visible:ring-offset-4 focus-visible:ring-offset-[#08080d]"
             >
