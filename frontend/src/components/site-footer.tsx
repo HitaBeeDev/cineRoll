@@ -14,7 +14,7 @@ export function SiteFooter() {
             rel="noopener noreferrer"
             className="transition-colors hover:text-[#e8453c] focus-visible:outline-none focus-visible:text-[#e8453c]"
           >
-            Built by Anahita ↗
+            Built by Anahita<span className="ml-1 tracking-normal">↗</span>
           </a>
         </p>
         <nav className="flex items-center gap-5">
