@@ -32,7 +32,8 @@
     "oscar-cross-check": "npx tsx data/scripts/oscar-cross-check.ts",
     "move-to-recall": "npx tsx data/scripts/move-to-recall.ts",
     "recall-find": "npx tsx data/scripts/recall-find.ts",
-    "recall-lookup": "npx tsx data/scripts/recall-lookup.ts"
+    "recall-lookup": "npx tsx data/scripts/recall-lookup.ts",
+    "recall-apply": "npx tsx data/scripts/recall-apply.ts"
   },
   "keywords": [],
   "author": "",
