@@ -1610,25 +1610,70 @@ type AwardHighlight = {
 function AwardsPanel({ highlights }: { highlights: AwardHighlight[] }) {
   return (
     <section className="rounded-xl border border-[#1e1e2a] bg-[#0b0b15] p-3">
-      <h3 className="font-[family-name:var(--font-geist-mono)] text-[9px] font-bold uppercase tracking-[0.2em] text-[#D4AF37]">
-        Recognition
-      </h3>
-      <div className="mt-2 grid gap-1.5">
+      <div className="flex items-center justify-between gap-3">
+        <h3 className="font-[family-name:var(--font-geist-mono)] text-[9px] font-bold uppercase tracking-[0.2em] text-[#D4AF37]">
+          Recognition
+        </h3>
+        <span className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.18em] text-[#555568]">
+          Wins / Nominations
+        </span>
+      </div>
+      <div className="mt-2 grid gap-2">
         {highlights.map((item) => (
           <div
             key={item.label}
-            className="flex items-center justify-between gap-3 rounded-lg border border-[#1a1a28] bg-[#0d0d1a] px-3 py-2"
+            className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-lg border border-[#1a1a28] bg-[#0d0d1a] px-3 py-2"
           >
-            <span className="font-[family-name:var(--font-geist-mono)] text-[8px] font-bold uppercase tracking-[0.18em] text-[#888899]">
-              {item.label}
-            </span>
-            <span className="font-[family-name:var(--font-geist-mono)] text-[9px] font-bold uppercase tracking-[0.16em] text-[#F5F5F0]">
-              {formatAwardHighlight(item)}
-            </span>
+            <div className="min-w-0">
+              <span className="block truncate font-[family-name:var(--font-geist-mono)] text-[8px] font-bold uppercase tracking-[0.18em] text-[#9a9aad]">
+                {item.label}
+              </span>
+              {item.rank != null && (
+                <span className="mt-0.5 block font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.14em] text-[#555568]">
+                  Ranked list placement
+                </span>
+              )}
+            </div>
+            {item.rank != null ? (
+              <span className="inline-flex min-w-16 items-center justify-center rounded-md border border-[#D4AF37]/25 bg-[#D4AF37]/10 px-2.5 py-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.12em] text-[#D4AF37]">
+                #{item.rank}
+              </span>
+            ) : (
+              <div className="grid grid-cols-2 overflow-hidden rounded-md border border-[#242436] bg-[#090914]">
+                <AwardCount label="Wins" value={item.wins} tone="win" />
+                <AwardCount label="Noms" value={item.nominations} />
+              </div>
+            )}
           </div>
         ))}
       </div>
     </section>
+  );
+}
+
+function AwardCount({
+  label,
+  value,
+  tone = "default",
+}: {
+  label: string;
+  value: number;
+  tone?: "default" | "win";
+}) {
+  return (
+    <span className="flex min-w-14 flex-col items-center justify-center border-l border-[#242436] first:border-l-0 px-2 py-1">
+      <span
+        className={cn(
+          "font-[family-name:var(--font-geist-mono)] text-sm font-bold leading-none",
+          tone === "win" && value > 0 ? "text-[#D4AF37]" : "text-[#F5F5F0]",
+        )}
+      >
+        {value}
+      </span>
+      <span className="mt-0.5 font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-[0.14em] text-[#555568]">
+        {label}
+      </span>
+    </span>
   );
 }
 
@@ -1672,14 +1717,6 @@ function getAwardHighlights(film: RollFilm): AwardHighlight[] {
     });
   }
   return highlights;
-}
-
-function formatAwardHighlight(item: AwardHighlight) {
-  if (item.rank != null) return `#${item.rank}`;
-  const parts: string[] = [];
-  if (item.wins > 0) parts.push(`${item.wins}W`);
-  if (item.nominations > 0) parts.push(`${item.nominations}N`);
-  return parts.length > 0 ? parts.join(" / ") : "—";
 }
 
 function QuickActionButton({
