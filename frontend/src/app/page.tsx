@@ -249,9 +249,15 @@ export default function HomePage() {
   const [isCountLoading, setIsCountLoading] = useState(false);
   const [genres, setGenres] = useState<string[]>([]);
   const [totalCount, setTotalCount] = useState<number | null>(null);
+  // Whether to show first-visit onboarding depends on localStorage, which only
+  // exists on the client. We default to "resolving" and render the main app in
+  // that state (and on the server) so the landing page is server-rendered for
+  // SEO and fast first paint — instead of a blank placeholder. The post-mount
+  // effect below swaps first-time visitors to onboarding. Server and first
+  // client render both produce the main app, so there is no hydration mismatch.
   const [onboardingState, setOnboardingState] = useState<
-    "checking" | "show" | "done"
-  >("checking");
+    "resolving" | "show" | "done"
+  >("resolving");
   const [tasteCards, setTasteCards] = useState<TasteCardFilm[]>([]);
   const [tasteCardsStatus, setTasteCardsStatus] = useState<
     "idle" | "loading" | "ready" | "error"
@@ -263,20 +269,18 @@ export default function HomePage() {
   const handleRollRef = useRef<() => Promise<void>>(async () => {});
   const filmCardRef = useRef<HTMLDivElement>(null);
 
+  // Resolve onboarding immediately after mount (no setTimeout) so first-time
+  // visitors are switched off the server-rendered main app as fast as possible.
   useEffect(() => {
-    const id = window.setTimeout(() => {
-      try {
-        setOnboardingState(
-          window.localStorage.getItem(ONBOARDED_STORAGE_KEY) === "true"
-            ? "done"
-            : "show",
-        );
-      } catch {
-        setOnboardingState("done");
-      }
-    }, 0);
-
-    return () => window.clearTimeout(id);
+    try {
+      setOnboardingState(
+        window.localStorage.getItem(ONBOARDED_STORAGE_KEY) === "true"
+          ? "done"
+          : "show",
+      );
+    } catch {
+      setOnboardingState("done");
+    }
   }, []);
 
   useEffect(() => {
@@ -461,10 +465,6 @@ export default function HomePage() {
       : totalCount !== null
         ? String(totalCount).padStart(3, "0")
         : "···";
-
-  if (onboardingState === "checking") {
-    return <div className="min-h-screen bg-[#09090f]" aria-hidden />;
-  }
 
   if (onboardingState === "show") {
     return (
