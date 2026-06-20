@@ -7,6 +7,15 @@ export function SiteFooter() {
       <div className="mx-auto flex max-w-screen-2xl flex-col gap-4 px-6 py-6 sm:flex-row sm:items-center sm:justify-between lg:px-10 xl:px-12">
         <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.28em] text-[#5f5f78]">
           © {new Date().getFullYear()} CineRoll
+          <span className="mx-2 text-[#2e2e44]">·</span>
+          <a
+            href="https://github.com/HitaBeeDev"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="transition-colors hover:text-[#e8453c] focus-visible:outline-none focus-visible:text-[#e8453c]"
+          >
+            Built by Anahita ↗
+          </a>
         </p>
         <nav className="flex items-center gap-5">
           <Link
@@ -16,14 +25,6 @@ export function SiteFooter() {
             Privacy
           </Link>
           <SiteFeedbackDialog />
-          <a
-            href="https://github.com/HitaBeeDev"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.28em] text-[#5f5f78] transition-colors hover:text-[#e8453c] focus-visible:outline-none focus-visible:text-[#e8453c]"
-          >
-            Built by Anahita ↗
-          </a>
         </nav>
       </div>
     </footer>
