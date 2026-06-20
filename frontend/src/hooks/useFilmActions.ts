@@ -76,6 +76,14 @@ export function useFilmActions({
     doNotSuggest: boolean,
   ) {
     if (pending) return;
+    if (!isAuthenticated && next === "watched") {
+      toast({
+        title: "Sign in to rate this",
+        description: "Ratings teach CineRoll your taste for future rolls.",
+      });
+      return;
+    }
+
     const previous = action;
     setAction(next);
 
@@ -107,10 +115,12 @@ export function useFilmActions({
     } else {
       void trackEvent({ type: "not_interested", filmId, context: { source } });
       toast({
-        title: isAuthenticated ? "Hidden from future rolls" : "Skipped",
+        title: isAuthenticated
+          ? "Hidden from future rolls"
+          : "Hidden for this session",
         description: isAuthenticated
           ? "We won't roll this one again."
-          : "Sign in to hide it for next time.",
+          : "Sign in to keep it hidden next time.",
       });
       onNotInterested?.();
     }

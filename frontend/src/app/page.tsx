@@ -10,6 +10,8 @@ import {
   Check,
   Clock3,
   Dices,
+  Eye,
+  EyeOff,
   Film,
   Share2,
   ThumbsDown,
@@ -42,7 +44,9 @@ const TASTE_SEED_STORAGE_KEY = "cineroll_taste_seed";
 const TASTE_SEED_SYNCED_KEY = "cineroll_taste_seed_synced";
 const PERSONALIZED_ROLL_KEY = "cineroll_personalized_roll";
 const ROLL_HISTORY_STORAGE_KEY = "roll_history";
+const SESSION_HIDDEN_FILMS_KEY = "cineroll_session_hidden_films";
 const MAX_ROLL_HISTORY_ITEMS = 10;
+const MAX_GUEST_REROLL_ATTEMPTS = 5;
 
 type PendingWatchedFilm = {
   filmId: string;
@@ -153,6 +157,32 @@ function pushRollHistory(film: RollFilm) {
     );
   } catch {
     // Session history is non-critical; rolling should keep working if storage is blocked.
+  }
+}
+
+function readSessionHiddenFilmIds(): string[] {
+  try {
+    const parsed = JSON.parse(
+      window.sessionStorage.getItem(SESSION_HIDDEN_FILMS_KEY) ?? "[]",
+    ) as unknown;
+    return Array.isArray(parsed)
+      ? parsed.filter((id): id is string => typeof id === "string")
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+function hideFilmForSession(filmId: string) {
+  try {
+    const next = [
+      filmId,
+      ...readSessionHiddenFilmIds().filter((id) => id !== filmId),
+    ].slice(0, 100);
+    window.sessionStorage.setItem(SESSION_HIDDEN_FILMS_KEY, JSON.stringify(next));
+    return next.length;
+  } catch {
+    return 0;
   }
 }
 
@@ -348,7 +378,18 @@ export default function HomePage() {
     try {
       // Signed-in users: the backend filters out films they marked "Not Interested".
       // With the taste toggle on, it returns a taste-weighted (ε-greedy) pick.
-      const result = await fetchRandom(filters, userId, isPersonalized);
+      let result = await fetchRandom(filters, userId, isPersonalized);
+      const hiddenIds = userId ? [] : readSessionHiddenFilmIds();
+      if (!userId && hiddenIds.length > 0) {
+        const hidden = new Set(hiddenIds);
+        for (
+          let attempt = 0;
+          attempt < MAX_GUEST_REROLL_ATTEMPTS && hidden.has(result.film.id);
+          attempt++
+        ) {
+          result = await fetchRandom(filters);
+        }
+      }
       setFilm(result.film);
       setFilteredCount(result.total);
       pushRollHistory(result.film);
@@ -392,6 +433,10 @@ export default function HomePage() {
     } finally {
       setIsRolling(false);
     }
+  }
+
+  function handleGuestHideForSession(filmId: string) {
+    hideFilmForSession(filmId);
   }
 
   // Keep ref in sync so space-key handler always calls latest version
@@ -739,6 +784,7 @@ export default function HomePage() {
                   film={film}
                   isAuthenticated={Boolean(userId)}
                   onNotInterested={() => void handleRoll()}
+                  onGuestHideForSession={handleGuestHideForSession}
                 />
               </motion.div>
             ) : effectiveCount === 0 ? (
@@ -1267,10 +1313,12 @@ function FilmCard({
   film,
   isAuthenticated,
   onNotInterested,
+  onGuestHideForSession,
 }: {
   film: RollFilm;
   isAuthenticated: boolean;
   onNotInterested?: () => void;
+  onGuestHideForSession?: (filmId: string) => void;
 }) {
   const { toast } = useToast();
   // The parent keys this card by film.id, so state resets for each new roll.
@@ -1302,6 +1350,7 @@ function FilmCard({
   const totalNoms =
     film.oscarNominations + film.ggNominations + film.cannesNominations;
   const listBadges = getListBadges(film);
+  const awardHighlights = getAwardHighlights(film);
 
   async function shareFilm() {
     const path = `/film/${film.slug}?from=roll`;
@@ -1365,31 +1414,11 @@ function FilmCard({
           {genre && ` · ${genre}`}
         </p>
 
-        {/* Title + bookmark */}
-        <div className="flex items-start justify-between gap-3 mt-1">
+        {/* Title */}
+        <div className="mt-1">
           <h2 className="font-[family-name:var(--font-display)] text-xl font-bold leading-tight text-[#F5F5F0] sm:text-2xl">
             {film.title}
           </h2>
-          <button
-            type="button"
-            aria-label={inWatchlist ? "Remove from watchlist" : "Add to watchlist"}
-            aria-pressed={inWatchlist}
-            disabled={watchlistPending}
-            onClick={() => void toggleWatchlist()}
-            className={cn(
-              "mt-0.5 shrink-0 transition-colors focus-visible:outline-none",
-              "disabled:cursor-not-allowed",
-              inWatchlist
-                ? "text-[#e8453c]"
-                : "text-[#444458] hover:text-[#e8453c]",
-            )}
-          >
-            <Bookmark
-              className="h-5 w-5"
-              fill={inWatchlist ? "currentColor" : "none"}
-              aria-hidden
-            />
-          </button>
         </div>
 
         {/* Director */}
@@ -1436,78 +1465,63 @@ function FilmCard({
           />
         </div>
 
-        {/* Award tags */}
-        {totalWins > 0 ||
-        totalNoms > 0 ||
-        film.imdbTopMovieRank !== null ||
-        film.imdbTopTvRank !== null ? (
-          <div className="flex flex-wrap gap-1.5">
-            {film.imdbTopMovieRank !== null && (
-              <AwardTag>IMDb Top 250 Movies #{film.imdbTopMovieRank}</AwardTag>
-            )}
-            {film.imdbTopTvRank !== null && (
-              <AwardTag>IMDb Top 250 TV #{film.imdbTopTvRank}</AwardTag>
-            )}
-            {film.oscarWins > 0 && (
-              <AwardTag>
-                + {film.oscarWins} Oscar {film.oscarWins === 1 ? "Win" : "Wins"}
-              </AwardTag>
-            )}
-            {film.oscarNominations > film.oscarWins && (
-              <AwardTag>
-                + {film.oscarNominations} Oscar Nom
-                {film.oscarNominations !== 1 ? "s" : ""}
-              </AwardTag>
-            )}
-            {film.ggWins > 0 && (
-              <AwardTag>
-                + {film.ggWins} GG {film.ggWins === 1 ? "Win" : "Wins"}
-              </AwardTag>
-            )}
-            {film.ggNominations > film.ggWins && (
-              <AwardTag>
-                + {film.ggNominations} GG Nom
-                {film.ggNominations !== 1 ? "s" : ""}
-              </AwardTag>
-            )}
-            {film.cannesWins > 0 && (
-              <AwardTag>
-                + {film.cannesWins} Cannes{" "}
-                {film.cannesWins === 1 ? "Win" : "Wins"}
-              </AwardTag>
-            )}
-            {film.cannesNominations > film.cannesWins && (
-              <AwardTag>
-                + {film.cannesNominations} Cannes Nom
-                {film.cannesNominations !== 1 ? "s" : ""}
-              </AwardTag>
-            )}
-          </div>
-        ) : null}
+        {awardHighlights.length > 0 && (
+          <AwardsPanel highlights={awardHighlights} />
+        )}
 
-        {/* Primary quick actions — visible immediately after every roll, for
-            everyone. Signed-out users can use them too; their picks just aren't
-            saved across sessions (see hint below). */}
-        <div className="grid grid-cols-2 gap-2 mt-2">
-          <QuickActionButton
-            tone="dismiss"
-            active={action === "not-interested"}
-            disabled={pending}
-            onClick={() => void saveDecision("not-interested", true)}
-            icon={<ThumbsDown className="h-4 w-4" aria-hidden />}
-            label="Not Interested"
-            activeLabel="Hidden"
-          />
-          <QuickActionButton
-            tone="confirm"
-            active={action === "watched"}
-            disabled={pending}
-            onClick={() => void saveDecision("watched", false)}
-            icon={<Check className="h-4 w-4" aria-hidden />}
-            label="Watched"
-            activeLabel="Watched ✓"
-          />
-        </div>
+        <section className="mt-2 rounded-xl border border-[#1e1e2a] bg-[#0b0b15] p-3">
+          <div className="mb-2 flex items-center justify-between gap-3">
+            <h3 className="font-[family-name:var(--font-geist-mono)] text-[9px] font-bold uppercase tracking-[0.2em] text-[#F5F5F0]">
+              Tune future rolls
+            </h3>
+            <span className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.18em] text-[#606074]">
+              {isAuthenticated ? "Account signal" : "Session signal"}
+            </span>
+          </div>
+          <div className="grid grid-cols-3 gap-2">
+            <QuickActionButton
+              tone="confirm"
+              active={action === "watched"}
+              disabled={pending}
+              onClick={() => void saveDecision("watched", false)}
+              icon={<Eye className="h-4 w-4" aria-hidden />}
+              label="Seen it"
+              activeLabel="Seen"
+            />
+            <QuickActionButton
+              tone="dismiss"
+              active={action === "not-interested"}
+              disabled={pending}
+              onClick={() => {
+                if (!isAuthenticated) onGuestHideForSession?.(film.id);
+                void saveDecision("not-interested", true);
+              }}
+              icon={<EyeOff className="h-4 w-4" aria-hidden />}
+              label="Not for me"
+              activeLabel="Hidden"
+            />
+            <QuickActionButton
+              tone="save"
+              active={inWatchlist}
+              disabled={watchlistPending}
+              onClick={() => void toggleWatchlist()}
+              icon={
+                <Bookmark
+                  className="h-4 w-4"
+                  fill={inWatchlist ? "currentColor" : "none"}
+                  aria-hidden
+                />
+              }
+              label="Save"
+              activeLabel="Saved"
+            />
+          </div>
+          <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-[8.5px] leading-relaxed tracking-wide text-[#707082]">
+            {isAuthenticated
+              ? "Seen ratings and hidden titles tune your account recommendations."
+              : "Hidden titles stay out of this session. Sign in when you want permanent taste history."}
+          </p>
+        </section>
 
         {/* One-tap 👍 / 👎 prompt, revealed after a film is marked watched.
             Dismissible and never blocks the rest of the card. */}
@@ -1521,19 +1535,6 @@ function FilmCard({
             />
           )}
         </AnimatePresence>
-
-        {!isAuthenticated && (
-          <p className="font-[family-name:var(--font-geist-mono)] text-[9px] leading-relaxed tracking-wide text-[#888899]">
-            Using as guest —{" "}
-            <Link
-              href="/auth/signin"
-              className="text-[#e8453c] underline underline-offset-2 transition-colors hover:text-[#F5F5F0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
-            >
-              sign in
-            </Link>{" "}
-            to save your picks for next time.
-          </p>
-        )}
 
         {/* Secondary actions */}
         <div className="flex items-center gap-2 mt-1">
@@ -1551,13 +1552,13 @@ function FilmCard({
             }}
             className={cn(
               "flex flex-1 items-center justify-center rounded-xl py-3",
-              "bg-[#e8453c] text-[#F5F5F0]",
+              "border border-[#2a2a3e] text-[#F5F5F0]",
               "font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.2em]",
-              "transition-colors hover:bg-[#d5342b]",
+              "transition-colors hover:border-[#e8453c]/45 hover:text-[#e8453c]",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
             )}
           >
-            View Full Details
+            View details
           </Link>
           <ActionBtn
             aria-label="Share this film"
@@ -1591,20 +1592,94 @@ function StatBox({ label, value }: { label: string; value: string }) {
   );
 }
 
-function AwardTag({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="inline-flex items-center rounded-full border border-[#1e1e2a] px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#888899]">
-      {children}
-    </span>
-  );
-}
-
 function ListBadge({ children }: { children: React.ReactNode }) {
   return (
     <span className="inline-flex items-center rounded-full border border-[#D4AF37]/25 bg-[#D4AF37]/10 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[8px] font-bold uppercase tracking-widest text-[#D4AF37]">
       {children}
     </span>
   );
+}
+
+type AwardHighlight = {
+  label: string;
+  wins: number;
+  nominations: number;
+  rank?: number;
+};
+
+function AwardsPanel({ highlights }: { highlights: AwardHighlight[] }) {
+  return (
+    <section className="rounded-xl border border-[#1e1e2a] bg-[#0b0b15] p-3">
+      <h3 className="font-[family-name:var(--font-geist-mono)] text-[9px] font-bold uppercase tracking-[0.2em] text-[#D4AF37]">
+        Recognition
+      </h3>
+      <div className="mt-2 grid gap-1.5">
+        {highlights.map((item) => (
+          <div
+            key={item.label}
+            className="flex items-center justify-between gap-3 rounded-lg border border-[#1a1a28] bg-[#0d0d1a] px-3 py-2"
+          >
+            <span className="font-[family-name:var(--font-geist-mono)] text-[8px] font-bold uppercase tracking-[0.18em] text-[#888899]">
+              {item.label}
+            </span>
+            <span className="font-[family-name:var(--font-geist-mono)] text-[9px] font-bold uppercase tracking-[0.16em] text-[#F5F5F0]">
+              {formatAwardHighlight(item)}
+            </span>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function getAwardHighlights(film: RollFilm): AwardHighlight[] {
+  const highlights: AwardHighlight[] = [];
+  if (film.oscarWins > 0 || film.oscarNominations > 0) {
+    highlights.push({
+      label: "Oscars",
+      wins: film.oscarWins,
+      nominations: film.oscarNominations,
+    });
+  }
+  if (film.ggWins > 0 || film.ggNominations > 0) {
+    highlights.push({
+      label: "Golden Globes",
+      wins: film.ggWins,
+      nominations: film.ggNominations,
+    });
+  }
+  if (film.cannesWins > 0 || film.cannesNominations > 0) {
+    highlights.push({
+      label: "Cannes",
+      wins: film.cannesWins,
+      nominations: film.cannesNominations,
+    });
+  }
+  if (film.imdbTopMovieRank != null) {
+    highlights.push({
+      label: "IMDb Top 250 Movies",
+      wins: 0,
+      nominations: 0,
+      rank: film.imdbTopMovieRank,
+    });
+  }
+  if (film.imdbTopTvRank != null) {
+    highlights.push({
+      label: "IMDb Top 250 TV",
+      wins: 0,
+      nominations: 0,
+      rank: film.imdbTopTvRank,
+    });
+  }
+  return highlights;
+}
+
+function formatAwardHighlight(item: AwardHighlight) {
+  if (item.rank != null) return `#${item.rank}`;
+  const parts: string[] = [];
+  if (item.wins > 0) parts.push(`${item.wins}W`);
+  if (item.nominations > 0) parts.push(`${item.nominations}N`);
+  return parts.length > 0 ? parts.join(" / ") : "—";
 }
 
 function QuickActionButton({
@@ -1616,7 +1691,7 @@ function QuickActionButton({
   label,
   activeLabel,
 }: {
-  tone: "confirm" | "dismiss";
+  tone: "confirm" | "dismiss" | "save";
   active: boolean;
   disabled?: boolean;
   onClick: () => void;
@@ -1629,9 +1704,13 @@ function QuickActionButton({
       ? active
         ? "border-[#3fb950]/45 bg-[#3fb950]/12 text-[#7ee787]"
         : "border-[#1e1e2a] text-[#888899] hover:border-[#3fb950]/45 hover:text-[#7ee787]"
-      : active
-        ? "border-[#e8453c]/45 bg-[#e8453c]/10 text-[#e8453c]"
-        : "border-[#1e1e2a] text-[#888899] hover:border-[#e8453c]/45 hover:text-[#e8453c]";
+      : tone === "dismiss"
+        ? active
+          ? "border-[#e8453c]/45 bg-[#e8453c]/10 text-[#e8453c]"
+          : "border-[#1e1e2a] text-[#888899] hover:border-[#e8453c]/45 hover:text-[#e8453c]"
+        : active
+          ? "border-[#D4AF37]/45 bg-[#D4AF37]/10 text-[#D4AF37]"
+          : "border-[#1e1e2a] text-[#888899] hover:border-[#D4AF37]/45 hover:text-[#D4AF37]";
 
   return (
     <button
