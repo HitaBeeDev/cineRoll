@@ -56,9 +56,6 @@ export function FilmCard({
   const genre = film.genres[0] ?? "";
   const runtime = formatRuntime(film.runtime);
   const imageUrl = film.backdropUrl ?? film.posterUrl;
-  const totalWins = film.oscarWins + film.ggWins + film.cannesWins;
-  const totalNoms =
-    film.oscarNominations + film.ggNominations + film.cannesNominations;
   const awardHighlights = getAwardHighlights(film);
 
   async function shareFilm() {
@@ -144,8 +141,8 @@ export function FilmCard({
           </p>
         )}
 
-        {/* Stats boxes */}
-        <div className="grid grid-cols-3 gap-2 mt-2">
+        {/* Score boxes — awards live in the Recognition ledger below. */}
+        <div className="grid grid-cols-2 gap-2 mt-2">
           <StatBox
             label="IMDb"
             value={film.imdbRating != null ? film.imdbRating.toFixed(1) : "—"}
@@ -153,18 +150,6 @@ export function FilmCard({
           <StatBox
             label="RT"
             value={film.rtScore != null ? `${film.rtScore}%` : "—"}
-          />
-          <StatBox
-            label="Awards"
-            value={
-              totalWins > 0 && totalNoms > 0
-                ? `${totalWins}W · ${totalNoms}N`
-                : totalWins > 0
-                  ? `${totalWins}W`
-                  : totalNoms > 0
-                    ? `${totalNoms}N`
-                    : "—"
-            }
           />
         </div>
 
