@@ -7,7 +7,7 @@ import { useFilmActions } from "@/hooks/useFilmActions";
 import { cn } from "@/lib/utils";
 
 const HERO_BUTTON_BASE =
-  "flex h-12 items-center gap-2 border px-5 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.2em] backdrop-blur-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] disabled:cursor-not-allowed disabled:opacity-60";
+  "flex h-12 items-center gap-2 border px-5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.2em] backdrop-blur-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] disabled:cursor-not-allowed disabled:opacity-60";
 
 const HERO_BUTTON_IDLE =
   "border-white/14 bg-white/6 text-white/50 hover:bg-white/10 hover:text-white/75";
@@ -112,7 +112,7 @@ export function FilmDetailActions({
             className="w-full overflow-hidden"
           >
             <div className="flex items-center gap-3 border border-white/14 bg-white/6 px-5 py-3 backdrop-blur-sm">
-              <span className="font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.18em] text-white/50">
+              <span className="font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.18em] text-white/50">
                 How was it?
               </span>
               <SentimentButton

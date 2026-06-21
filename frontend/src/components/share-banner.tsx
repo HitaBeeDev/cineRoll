@@ -12,14 +12,14 @@ export function ShareBanner() {
     <div className="relative z-50 flex items-center justify-between gap-4 border-b border-[#e8453c]/20 bg-[#e8453c]/8 px-4 py-2.5 backdrop-blur-sm sm:px-6">
       <div className="flex items-center gap-3">
         <span className="text-[#e8453c]" aria-hidden>◆</span>
-        <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.3em] text-[#c8c8e0]">
+        <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.3em] text-[#c8c8e0]">
           Someone shared this film with you
         </p>
       </div>
       <div className="flex shrink-0 items-center gap-4">
         <Link
           href="/"
-          className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.3em] text-[#e8453c] transition-opacity hover:opacity-75"
+          className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.3em] text-[#e8453c] transition-opacity hover:opacity-75"
         >
           Discover more →
         </Link>

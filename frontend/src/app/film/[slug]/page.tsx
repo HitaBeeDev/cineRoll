@@ -295,7 +295,7 @@ export default async function FilmPage({
                 {film.isPickOfDay && (
                   <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#e8453c]/40 bg-[#e8453c]/14 px-3.5 py-2 backdrop-blur-sm">
                     <Sparkles className="h-3 w-3 text-[#e8453c]" aria-hidden />
-                    <span className="font-[family-name:var(--font-geist-mono)] text-[8px] font-bold uppercase tracking-[0.28em] text-[#e8453c]">
+                    <span className="font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.28em] text-[#e8453c]">
                       Pick of the Day
                     </span>
                   </div>
@@ -310,7 +310,7 @@ export default async function FilmPage({
                   {film.director && (
                     <Link
                       href={`/person/${nameToSlug(film.director)}`}
-                      className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.36em] text-white/35 transition-colors hover:text-white/65"
+                      className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.36em] text-white/35 transition-colors hover:text-white/65"
                     >
                       {film.director}
                     </Link>
@@ -359,7 +359,7 @@ export default async function FilmPage({
                     {heroAwardTags.slice(0, 4).map((tag) => (
                       <span
                         key={tag}
-                        className="border border-white/14 bg-black/35 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-widest text-white/42 backdrop-blur-sm"
+                        className="border border-white/14 bg-black/35 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-white/42 backdrop-blur-sm"
                       >
                         {tag}
                       </span>
@@ -374,7 +374,7 @@ export default async function FilmPage({
                   <>
                     <div className="mt-8 flex flex-wrap items-start gap-8">
                       <div>
-                        <p className="mb-1.5 font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-[0.5em] text-white/32">
+                        <p className="mb-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.5em] text-white/32">
                           IMDb
                         </p>
                         <div className="flex min-h-10 items-end">
@@ -390,7 +390,7 @@ export default async function FilmPage({
                         </div>
                       </div>
                       <div>
-                        <p className="mb-1.5 font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-[0.5em] text-white/32">
+                        <p className="mb-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.5em] text-white/32">
                           RT
                         </p>
                         <div className="flex min-h-10 items-end">
@@ -407,7 +407,7 @@ export default async function FilmPage({
                       </div>
                       {totalAwardWins > 0 && (
                         <div>
-                          <p className="mb-1.5 font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-[0.5em] text-white/32">
+                          <p className="mb-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.5em] text-white/32">
                             Wins
                           </p>
                           <div className="flex min-h-10 items-end">
@@ -422,7 +422,7 @@ export default async function FilmPage({
                       )}
                       {totalAwardNoms > 0 && (
                         <div>
-                          <p className="mb-1.5 font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-[0.5em] text-white/32">
+                          <p className="mb-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.5em] text-white/32">
                             Noms
                           </p>
                           <div className="flex min-h-10 items-end">
@@ -447,7 +447,7 @@ export default async function FilmPage({
                   {film.trailerUrl && (
                     <a
                       href="#trailer"
-                      className="flex items-center gap-2.5 bg-[#e8453c] px-7 py-3.5 font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.22em] text-white shadow-lg shadow-[#e8453c]/20 transition-all hover:bg-[#d5342b] hover:shadow-[#e8453c]/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
+                      className="flex items-center gap-2.5 bg-[#e8453c] px-7 py-3.5 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.22em] text-white shadow-lg shadow-[#e8453c]/20 transition-all hover:bg-[#d5342b] hover:shadow-[#e8453c]/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
                     >
                       <Play className="h-3.5 w-3.5 fill-current" aria-hidden />
                       Watch Trailer
@@ -461,7 +461,7 @@ export default async function FilmPage({
                     url={`${SITE_URL}/film/${film.slug}`}
                     title={`Watch ${displayTitle(film.title)} tonight — CineRoll picked it`}
                     caption={buildShareCaption(film)}
-                    className="flex h-12 items-center gap-2 border border-white/14 bg-white/6 px-5 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.2em] text-white/50 backdrop-blur-sm transition-colors hover:bg-white/10 hover:text-white/75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
+                    className="flex h-12 items-center gap-2 border border-white/14 bg-white/6 px-5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.2em] text-white/50 backdrop-blur-sm transition-colors hover:bg-white/10 hover:text-white/75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
                   />
                 </div>
               </div>
@@ -548,7 +548,7 @@ export default async function FilmPage({
                   >
                     {totalAwardWins}
                   </span>
-                  <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.5em] text-[#707090]">
+                  <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.5em] text-[#707090]">
                     Wins
                   </p>
                 </div>
@@ -556,7 +556,7 @@ export default async function FilmPage({
                   <span className="font-[family-name:var(--font-display)] text-[3.5rem] font-bold leading-none tabular-nums text-[#5a5a7a]">
                     {totalAwardNoms}
                   </span>
-                  <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.5em] text-[#606080]">
+                  <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.5em] text-[#606080]">
                     Nominations
                   </p>
                 </div>
@@ -644,7 +644,7 @@ export default async function FilmPage({
               <section id="trailer" className="scroll-mt-24">
                 <SectionLabel>Trailer</SectionLabel>
                 <div className="mt-8 flex aspect-video w-full items-center justify-center border border-[#111118] bg-[#07070c]">
-                  <p className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.5em] text-[#555570]">
+                  <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.5em] text-[#555570]">
                     No trailer available
                   </p>
                 </div>
@@ -659,7 +659,7 @@ export default async function FilmPage({
                     {film.genres.map((g) => (
                       <span
                         key={g}
-                        className="border border-[#25253a] px-3.5 py-2 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.35em] text-[#8888a8] transition-colors hover:border-[#e8453c]/40 hover:text-[#d0d0e8]"
+                        className="border border-[#25253a] px-3.5 py-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.35em] text-[#8888a8] transition-colors hover:border-[#e8453c]/40 hover:text-[#d0d0e8]"
                       >
                         {g}
                       </span>
@@ -678,7 +678,7 @@ export default async function FilmPage({
                       rel="noopener noreferrer"
                       className="group flex items-center justify-between border border-[#25253a] bg-[#0d0d18] px-5 py-4 transition-colors hover:border-[#e8453c]/40"
                     >
-                      <span className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.4em] text-[#9898b8] transition-colors group-hover:text-[#f4f4f5]">
+                      <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.4em] text-[#9898b8] transition-colors group-hover:text-[#f4f4f5]">
                         IMDb
                       </span>
                       <ExternalLink
@@ -708,7 +708,7 @@ function HeroPill({
 }) {
   return (
     <span
-      className="rounded-full border border-white/14 bg-black/35 px-3 py-1.5 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-white/52 backdrop-blur-sm"
+      className="rounded-full border border-white/14 bg-black/35 px-3 py-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-white/52 backdrop-blur-sm"
       style={style}
     >
       {children}
@@ -721,10 +721,10 @@ function HeroPill({
 function SectionLabel({ children }: { children: ReactNode }) {
   return (
     <div className="flex items-center gap-4">
-      <span className="font-[family-name:var(--font-geist-mono)] text-[9px] text-[#e8453c]">
+      <span className="font-[family-name:var(--font-geist-mono)] text-[11px] text-[#e8453c]">
         ◆
       </span>
-      <h2 className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[10px] font-semibold uppercase tracking-[0.5em] text-[#c8c8e0]">
+      <h2 className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[11px] font-semibold uppercase tracking-[0.5em] text-[#c8c8e0]">
         {children}
       </h2>
       <div className="h-px flex-1 bg-gradient-to-r from-[#2a2a42] to-transparent" />
@@ -762,7 +762,7 @@ function AwardSummaryCard({
     <article className="overflow-hidden border border-[#1e1e30]">
       <div className="flex items-center justify-between border-b border-[#1a1a28] bg-[#0d0d18] px-5 py-4">
         <div>
-          <p className="font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-[0.55em] text-[#6868888]">
+          <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.55em] text-[#6868888]">
             {ceremonyCode}
           </p>
           <h3 className="mt-1.5 font-[family-name:var(--font-display)] text-lg font-bold leading-tight text-[#e0e0f0]">
@@ -777,7 +777,7 @@ function AwardSummaryCard({
             >
               {wins}
             </span>
-            <span className="font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-[0.4em] text-[#686888]">
+            <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.4em] text-[#686888]">
               Wins
             </span>
           </div>
@@ -785,7 +785,7 @@ function AwardSummaryCard({
             <span className="block font-[family-name:var(--font-display)] text-xl font-bold leading-none tabular-nums text-[#6868888]">
               {nominations}
             </span>
-            <span className="font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-[0.4em] text-[#686888]">
+            <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.4em] text-[#686888]">
               Noms
             </span>
           </div>
@@ -806,7 +806,7 @@ function AwardSummaryCard({
             >
               <span
                 className={cn(
-                  "shrink-0 font-[family-name:var(--font-geist-mono)] text-[7px] font-bold uppercase tracking-[0.4em]",
+                  "shrink-0 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.4em]",
                   record.won ? "text-[#c8a048]" : "text-[#2a2a3a]",
                 )}
               >
@@ -821,11 +821,11 @@ function AwardSummaryCard({
                 >
                   {record.category}
                 </p>
-                <p className="mt-0.5 truncate font-[family-name:var(--font-geist-mono)] text-[0.62rem] uppercase tracking-[0.14em] text-[#666680]">
+                <p className="mt-0.5 truncate font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-[#666680]">
                   {record.nominee}
                 </p>
               </div>
-              <span className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-[0.3em] text-[#525268]">
+              <span className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.3em] text-[#525268]">
                 {record.awardYear}
               </span>
             </div>
@@ -909,7 +909,7 @@ function CastCard({ member, accent }: { member: CastMember; accent: string }) {
         </p>
         {member.character && (
           <p
-            className="mt-0.5 truncate font-[family-name:var(--font-geist-mono)] text-[0.6rem] uppercase tracking-[0.2em]"
+            className="mt-0.5 truncate font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.2em]"
             style={{ color: `${accent}cc` }}
           >
             {member.character}

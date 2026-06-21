@@ -26,7 +26,7 @@ export default async function SettingsPage() {
         </h1>
 
         <section className="mt-10 rounded-xl border border-[#1e1e2a] bg-[#0d0d1a] px-6 py-7">
-          <h2 className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.2em] text-[#666677]">
+          <h2 className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.2em] text-[#666677]">
             Account
           </h2>
           <dl className="mt-4 space-y-3">

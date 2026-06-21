@@ -100,7 +100,7 @@ export function RollHistoryDrawer({
                   {/* Eyebrow */}
                   <div className="flex items-center gap-2 mb-4">
                     <span className="block h-px w-7 bg-[#e8453c]" aria-hidden />
-                    <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.38em] text-[#e8453c]">
+                    <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.38em] text-[#e8453c]">
                       Session Reel
                     </p>
                   </div>
@@ -117,11 +117,11 @@ export function RollHistoryDrawer({
 
                   {/* Meta */}
                   <div className="mt-5 flex items-center gap-2.5">
-                    <span className="inline-flex items-center gap-1.5 border border-[#e8453c]/22 bg-[#e8453c]/8 px-2.5 py-[5px] font-[family-name:var(--font-geist-mono)] text-[9px] font-bold uppercase tracking-[0.2em] text-[#F5F5F0]">
+                    <span className="inline-flex items-center gap-1.5 border border-[#e8453c]/22 bg-[#e8453c]/8 px-2.5 py-[5px] font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.2em] text-[#F5F5F0]">
                       <Film className="h-3 w-3 text-[#e8453c]" aria-hidden />
                       {visibleHistory.length} / 10
                     </span>
-                    <span className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.22em] text-[#888899]">
+                    <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.22em] text-[#888899]">
                       This tab only
                     </span>
                   </div>
@@ -222,7 +222,7 @@ export function RollHistoryDrawer({
                           />
                         ) : (
                           <div className="absolute inset-0 flex items-center justify-center bg-[#0f0f1c]">
-                            <span className="font-[family-name:var(--font-geist-mono)] text-[6px] uppercase tracking-wider text-[#1e1e30]">
+                            <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-wider text-[#1e1e30]">
                               —
                             </span>
                           </div>
@@ -240,7 +240,7 @@ export function RollHistoryDrawer({
                           <p className="font-[family-name:var(--font-display)] text-[1.05rem] font-bold leading-[1.15] text-[#F5F5F0] line-clamp-2 transition-colors duration-150 group-hover:text-white">
                             {film.title}
                           </p>
-                          <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.24em] text-[#888899]">
+                          <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.24em] text-[#888899]">
                             {film.year}
                           </p>
                         </div>

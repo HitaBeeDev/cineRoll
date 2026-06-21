@@ -83,7 +83,7 @@ export default function SignInPage() {
 
             <div className="flex items-center gap-3">
               <div className="h-px flex-1 bg-[#1e1e2a]" />
-              <span className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#444458]">
+              <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#444458]">
                 or
               </span>
               <div className="h-px flex-1 bg-[#1e1e2a]" />
@@ -104,7 +104,7 @@ export default function SignInPage() {
                 )}
               />
               {error !== null && (
-                <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest text-[#e8453c]">
+                <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#e8453c]">
                   {error}
                 </p>
               )}

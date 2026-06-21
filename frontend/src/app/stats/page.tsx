@@ -121,7 +121,7 @@ export default async function StatsPage() {
           <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(360px,480px)] lg:items-end">
             <div>
               <div className="mb-3 h-px w-10 bg-[#e8453c]" />
-              <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.22em] text-[#e8453c]">
+              <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.22em] text-[#e8453c]">
                 CineRoll archive
               </p>
               <h1
@@ -155,7 +155,7 @@ export default async function StatsPage() {
       <main className="mx-auto w-full max-w-[100vw] px-4 py-6 sm:max-w-screen-2xl sm:px-6 sm:py-8 lg:px-8 xl:px-12">
         {!stats ? (
           <div className="flex min-h-[50vh] items-center justify-center rounded-lg border border-white/10 bg-white/[0.025] p-8 text-center">
-            <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.22em] text-[#8f8a9f]">
+            <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.22em] text-[#8f8a9f]">
               Stats unavailable. Make sure the backend is running.
             </p>
           </div>
@@ -192,7 +192,7 @@ export default async function StatsPage() {
                 >
                   <div className="flex items-center justify-between gap-4">
                     <div>
-                      <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.2em] text-[#ff766d]">
+                      <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.2em] text-[#ff766d]">
                         Most contested year
                       </p>
                       <p className="mt-1 text-sm text-[#9d98ad]">Jump straight into the busiest ceremony year.</p>
@@ -205,7 +205,7 @@ export default async function StatsPage() {
                     <p className="font-[family-name:var(--font-display)] text-6xl font-bold leading-none text-[#e8453c] sm:text-7xl">
                       {stats.mostCompetitiveYear.awardYear}
                     </p>
-                    <p className="pb-2 text-right font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.16em] text-[#c8c3d8]">
+                    <p className="pb-2 text-right font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.16em] text-[#c8c3d8]">
                       {formatNumber(stats.mostCompetitiveYear.totalNominations)} nominations
                     </p>
                   </div>
@@ -311,7 +311,7 @@ export default async function StatsPage() {
                         href={`/browse?decadeMin=${item.decade}&decadeMax=${item.decade + 9}`}
                         className="group grid grid-cols-[52px_minmax(0,1fr)_72px] items-center gap-3"
                       >
-                        <span className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.14em] text-[#a9a5bc]">
+                        <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-[#a9a5bc]">
                           {item.decade}s
                         </span>
                         <span className="h-2 overflow-hidden rounded-full bg-white/[0.055]">
@@ -320,7 +320,7 @@ export default async function StatsPage() {
                             style={{ width: `${Math.max(5, (item.filmCount / maxDecadeFilms) * 100)}%` }}
                           />
                         </span>
-                        <span className="text-right font-[family-name:var(--font-geist-mono)] text-[10px] text-[#817c91]">
+                        <span className="text-right font-[family-name:var(--font-geist-mono)] text-[11px] text-[#817c91]">
                           {formatNumber(item.filmCount)}
                         </span>
                       </Link>
@@ -373,7 +373,7 @@ function HeroStat({ label, value, highlighted = false }: { label: string; value:
       >
         {formatNumber(value)}
       </p>
-      <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.16em] text-[#8f8a9f] sm:text-[9px]">
+      <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.16em] text-[#8f8a9f] sm:text-[11px]">
         {label}
       </p>
     </div>
@@ -398,7 +398,7 @@ function MetricCard({
   return (
     <div className="rounded-lg border border-white/10 bg-white/[0.035] p-5 shadow-[0_18px_50px_rgba(0,0,0,0.18)]">
       <div className="flex items-center justify-between gap-4">
-        <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.18em] text-[#8f8a9f]">
+        <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em] text-[#8f8a9f]">
           {label}
         </p>
         <span className={cn("flex h-8 w-8 items-center justify-center rounded-md border border-white/10 bg-white/[0.045]", iconClass)}>
@@ -429,7 +429,7 @@ function SectionHeader({
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
       <div>
-        <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.22em] text-[#e8453c]">
+        <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.22em] text-[#e8453c]">
           {eyebrow}
         </p>
         <h2 className={cn("mt-2 font-semibold tracking-normal text-[#f2eff8]", compact ? "text-xl" : "text-2xl sm:text-3xl")}>
@@ -439,7 +439,7 @@ function SectionHeader({
       {actionHref && actionLabel && (
         <Link
           href={actionHref}
-          className="inline-flex w-fit items-center gap-2 rounded-md border border-white/10 bg-white/[0.045] px-3.5 py-2 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.14em] text-[#b8b5c8] transition-colors hover:border-[#e8453c]/45 hover:text-[#ff766d]"
+          className="inline-flex w-fit items-center gap-2 rounded-md border border-white/10 bg-white/[0.045] px-3.5 py-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-[#b8b5c8] transition-colors hover:border-[#e8453c]/45 hover:text-[#ff766d]"
         >
           {actionLabel}
           <ArrowUpRight className="h-3.5 w-3.5" />
@@ -484,7 +484,7 @@ function RecordFilmCard({
       <div className="flex min-w-0 flex-col justify-between p-5 sm:p-6">
         <div>
           <div className="mb-5 flex items-center justify-between gap-4">
-            <p className={cn("font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.18em]", accentClass)}>
+            <p className={cn("font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em]", accentClass)}>
               {label}
             </p>
             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-white/10 bg-white/[0.045] text-[#b8b5c8] transition-colors group-hover:border-white/20 group-hover:text-white">
@@ -496,7 +496,7 @@ function RecordFilmCard({
           </h3>
         </div>
         <div className="mt-8 flex items-end justify-between gap-4">
-          <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.16em] text-[#817c91]">
+          <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.16em] text-[#817c91]">
             {film.releaseYear}
           </p>
           <p className={cn("text-right font-[family-name:var(--font-display)] text-2xl font-bold leading-none", accentClass)}>
@@ -531,7 +531,7 @@ function PersonRecordCard({
           <span className={cn("flex h-9 w-9 items-center justify-center rounded-md border border-white/10 bg-white/[0.045]", accentClass)}>
             {accent === "red" ? <Crown className="h-4 w-4" /> : <Users className="h-4 w-4" />}
           </span>
-          <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.18em] text-[#8f8a9f]">
+          <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em] text-[#8f8a9f]">
             {label}
           </p>
         </div>
@@ -545,7 +545,7 @@ function PersonRecordCard({
           <p className={cn("font-[family-name:var(--font-display)] text-5xl font-bold leading-none", accentClass)}>
             {person.count}
           </p>
-          <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.16em] text-[#817c91]">
+          <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.16em] text-[#817c91]">
             {unit}
           </p>
         </div>
@@ -581,7 +581,7 @@ function BreakdownLink({
       className="group rounded-md border border-white/10 bg-[#0d0d15] p-4 transition-colors hover:border-white/20 hover:bg-[#12121c]"
     >
       <div className="flex items-center justify-between gap-3">
-        <span className="flex items-center gap-2 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.16em] text-[#a9a5bc]">
+        <span className="flex items-center gap-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.16em] text-[#a9a5bc]">
           <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: color }} />
           {label}
         </span>
@@ -590,7 +590,7 @@ function BreakdownLink({
       <p className="mt-4 font-[family-name:var(--font-display)] text-3xl font-bold leading-none text-[#f4f0f7]">
         {formatNumber(count)}
       </p>
-      <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.14em] text-[#817c91]">
+      <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-[#817c91]">
         {percent.toFixed(1)}% of total
       </p>
     </Link>
@@ -645,11 +645,11 @@ function RankingList({
                 <span className="block truncate text-sm font-semibold text-[#eeeaf6] transition-colors group-hover:text-white">
                   {film.title}
                 </span>
-                <span className="mt-0.5 block font-[family-name:var(--font-geist-mono)] text-[9px] text-[#817c91]">
+                <span className="mt-0.5 block font-[family-name:var(--font-geist-mono)] text-[11px] text-[#817c91]">
                   {film.releaseYear}
                 </span>
               </span>
-              <span className={cn("shrink-0 text-right font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.14em]", accentClass)}>
+              <span className={cn("shrink-0 text-right font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em]", accentClass)}>
                 {formatNumber(film.count)} {unit}
               </span>
             </Link>

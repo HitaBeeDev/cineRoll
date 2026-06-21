@@ -145,7 +145,7 @@ export function SimilarFilmsSlider({
                   <FilmCard film={f} />
                   {reason && (
                     <div className="pointer-events-none absolute right-2 top-2 z-20">
-                      <span className="inline-flex items-center rounded-full border border-white/12 bg-black/60 px-2 py-0.5 font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-widest text-white/55 backdrop-blur-sm">
+                      <span className="inline-flex items-center rounded-full border border-white/12 bg-black/60 px-2 py-0.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-white/55 backdrop-blur-sm">
                         {reason}
                       </span>
                     </div>

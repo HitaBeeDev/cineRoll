@@ -96,7 +96,7 @@ export function FilmRatingPanel({
     <div className="mt-7 w-full max-w-[520px] border border-white/12 bg-black/25 px-5 py-4 backdrop-blur-sm">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="mb-2 font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-[0.5em] text-white/32">
+          <p className="mb-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.5em] text-white/32">
             CineRoll Rating
           </p>
           <div className="flex items-center gap-3">
@@ -104,14 +104,14 @@ export function FilmRatingPanel({
             <span className="font-[family-name:var(--font-display)] text-3xl font-bold leading-none text-[#F8F8F4]">
               {averageRating === null ? "—" : formatRating(averageRating)}
             </span>
-            <span className="pb-1 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.16em] text-white/35">
+            <span className="pb-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.16em] text-white/35">
               {ratingCount === 1 ? "1 rating" : `${ratingCount} ratings`}
             </span>
           </div>
         </div>
 
         <div className="min-w-[220px]">
-          <p className="mb-2 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.28em] text-white/42">
+          <p className="mb-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.28em] text-white/42">
             {selectedLabel}
           </p>
           <div
@@ -167,7 +167,7 @@ function RatingHint({
 }) {
   if (isSessionLoading || (isAuthenticated && !statusLoaded)) {
     return (
-      <p className="mt-3 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.16em] text-white/35">
+      <p className="mt-3 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.16em] text-white/35">
         Checking account
       </p>
     );
@@ -177,7 +177,7 @@ function RatingHint({
     return (
       <Link
         href="/auth/signin"
-        className="mt-3 inline-block font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.18em] text-[#e8453c] transition-colors hover:text-white"
+        className="mt-3 inline-block font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em] text-[#e8453c] transition-colors hover:text-white"
       >
         Sign in to rate
       </Link>
@@ -186,14 +186,14 @@ function RatingHint({
 
   if (!watched) {
     return (
-      <p className="mt-3 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.16em] text-white/35">
+      <p className="mt-3 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.16em] text-white/35">
         Mark watched to rate
       </p>
     );
   }
 
   return (
-    <p className="mt-3 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.16em] text-white/35">
+    <p className="mt-3 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.16em] text-white/35">
       Half-step rating
     </p>
   );

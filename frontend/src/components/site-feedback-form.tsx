@@ -94,7 +94,7 @@ export function SiteFeedbackForm({ onSuccess }: { onSuccess?: () => void }) {
         />
         <p
           className={cn(
-            "mt-2 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.24em]",
+            "mt-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.24em]",
             remaining < 120 ? "text-[#e8453c]" : "text-[#666680]",
           )}
         >

@@ -128,13 +128,13 @@ function FilmBattleCard({
 
         {/* Award wins badge */}
         {totalWins > 0 && (
-          <div className="absolute left-2 top-2 rounded-full border border-[#D4AF37]/40 bg-[#D4AF37]/15 px-2 py-0.5 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-widest text-[#D4AF37]">
+          <div className="absolute left-2 top-2 rounded-full border border-[#D4AF37]/40 bg-[#D4AF37]/15 px-2 py-0.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#D4AF37]">
             {totalWins === 1 ? "1 Win" : `${totalWins} Wins`}
           </div>
         )}
 
         {/* IMDb rating */}
-        <div className="absolute bottom-2 right-2 rounded-md border border-[#F5F5F0]/10 bg-[#09090f]/80 px-1.5 py-0.5 font-[family-name:var(--font-geist-mono)] text-[8px] backdrop-blur-sm">
+        <div className="absolute bottom-2 right-2 rounded-md border border-[#F5F5F0]/10 bg-[#09090f]/80 px-1.5 py-0.5 font-[family-name:var(--font-geist-mono)] text-[11px] backdrop-blur-sm">
           {film.imdbRating != null ? (
             <span className="text-[#F5F5F0]/70">★ {film.imdbRating.toFixed(1)}</span>
           ) : (
@@ -145,7 +145,7 @@ function FilmBattleCard({
 
       {/* Info */}
       <div className="flex flex-col gap-1 p-3">
-        <p className="truncate font-[family-name:var(--font-geist-mono)] text-[9px] font-semibold uppercase tracking-[0.16em] text-[#b6b6c8]">
+        <p className="truncate font-[family-name:var(--font-geist-mono)] text-[11px] font-semibold uppercase tracking-[0.16em] text-[#b6b6c8]">
           {film.year}
           {genre ? ` · ${genre}` : ""}
           {runtime ? ` · ${runtime}` : ""}
@@ -154,7 +154,7 @@ function FilmBattleCard({
           {film.title}
         </h3>
         {film.director && (
-          <p className="truncate font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.1em] text-[#555568]">
+          <p className="truncate font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.1em] text-[#555568]">
             Dir. {film.director}
           </p>
         )}
@@ -162,7 +162,7 @@ function FilmBattleCard({
 
       {/* Pick CTA */}
       <div className="px-3 pb-3">
-        <div className="w-full rounded-xl border border-[#e8453c]/30 bg-[#e8453c]/10 py-2 text-center font-[family-name:var(--font-geist-mono)] text-[9px] font-bold uppercase tracking-[0.2em] text-[#e8453c] transition-all group-hover:border-[#e8453c]/60 group-hover:bg-[#e8453c]/20">
+        <div className="w-full rounded-xl border border-[#e8453c]/30 bg-[#e8453c]/10 py-2 text-center font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.2em] text-[#e8453c] transition-all group-hover:border-[#e8453c]/60 group-hover:bg-[#e8453c]/20">
           Pick This
         </div>
       </div>
@@ -262,7 +262,7 @@ export default function RollBattlePage() {
         {phase === "loading" && (
           <div className="flex flex-1 flex-col items-center justify-center gap-4">
             <div className="h-7 w-7 animate-spin rounded-full border-2 border-[#e8453c]/30 border-t-[#e8453c]" />
-            <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#555568]">
+            <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#555568]">
               Loading battle…
             </p>
           </div>
@@ -290,7 +290,7 @@ export default function RollBattlePage() {
           <div className="flex w-full max-w-2xl flex-col gap-4">
             {/* Title + progress */}
             <div className="flex flex-col items-center gap-2 text-center">
-              <span className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.35em] text-[#555568]">
+              <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.35em] text-[#555568]">
                 Roll Battle
               </span>
               <h1 className="font-[family-name:var(--font-display)] text-2xl font-bold text-[#F5F5F0] sm:text-3xl">
@@ -310,7 +310,7 @@ export default function RollBattlePage() {
                   />
                 ))}
               </div>
-              <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#555568]">
+              <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#555568]">
                 Round {round + 1} of {TOTAL_ROUNDS}
               </p>
             </div>
@@ -338,7 +338,7 @@ export default function RollBattlePage() {
 
                 {/* VS divider */}
                 <div className="flex h-full flex-col items-center justify-center">
-                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[#e8453c]/25 bg-[#09090f] font-[family-name:var(--font-geist-mono)] text-[7px] font-bold uppercase tracking-widest text-[#e8453c]">
+                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[#e8453c]/25 bg-[#09090f] font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-widest text-[#e8453c]">
                     vs
                   </div>
                 </div>
@@ -367,7 +367,7 @@ export default function RollBattlePage() {
             <div className="flex flex-col items-center gap-2 text-center">
               <div className="flex items-center justify-center gap-2">
                 <Trophy className="h-4 w-4 shrink-0 text-[#D4AF37]" />
-                <span className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.35em] text-[#D4AF37]">
+                <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.35em] text-[#D4AF37]">
                   Tonight&apos;s Film
                 </span>
                 <Trophy className="h-4 w-4 shrink-0 text-[#D4AF37]" />
@@ -404,29 +404,29 @@ export default function RollBattlePage() {
 
               <div className="flex flex-col gap-4">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="rounded-md border border-[#1e1e2a] bg-[#0d0d1a] px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.14em] text-[#F5F5F0]/70">
+                  <span className="rounded-md border border-[#1e1e2a] bg-[#0d0d1a] px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-[#F5F5F0]/70">
                     {champion.year}
                   </span>
                   {formatRuntime(champion.runtime) && (
-                    <span className="rounded-md border border-[#1e1e2a] bg-[#0d0d1a] px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.14em] text-[#F5F5F0]/70">
+                    <span className="rounded-md border border-[#1e1e2a] bg-[#0d0d1a] px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-[#F5F5F0]/70">
                       {formatRuntime(champion.runtime)}
                     </span>
                   )}
                   {champion.imdbRating != null ? (
-                    <span className="rounded-md border border-[#1e1e2a] bg-[#0d0d1a] px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.14em] text-[#F5F5F0]/70">
+                    <span className="rounded-md border border-[#1e1e2a] bg-[#0d0d1a] px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-[#F5F5F0]/70">
                       IMDb {champion.imdbRating.toFixed(1)}
                     </span>
                   ) : (
-                    <span className="rounded-md border border-[#1e1e2a] bg-[#0d0d1a] px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.14em] text-[#F5F5F0]/30">
+                    <span className="rounded-md border border-[#1e1e2a] bg-[#0d0d1a] px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-[#F5F5F0]/30">
                       No IMDb Score
                     </span>
                   )}
                   {champion.rtScore != null ? (
-                    <span className="rounded-md border border-[#1e1e2a] bg-[#0d0d1a] px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.14em] text-[#F5F5F0]/70">
+                    <span className="rounded-md border border-[#1e1e2a] bg-[#0d0d1a] px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-[#F5F5F0]/70">
                       RT {champion.rtScore}%
                     </span>
                   ) : (
-                    <span className="rounded-md border border-[#1e1e2a] bg-[#0d0d1a] px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.14em] text-[#F5F5F0]/30">
+                    <span className="rounded-md border border-[#1e1e2a] bg-[#0d0d1a] px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-[#F5F5F0]/30">
                       No RT Score
                     </span>
                   )}
@@ -437,7 +437,7 @@ export default function RollBattlePage() {
                     {champion.genres.slice(0, 4).map((genre) => (
                       <span
                         key={genre}
-                        className="rounded-full border border-[#e8453c]/25 bg-[#e8453c]/10 px-3 py-1 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.16em] text-[#e8453c]"
+                        className="rounded-full border border-[#e8453c]/25 bg-[#e8453c]/10 px-3 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.16em] text-[#e8453c]"
                       >
                         {genre}
                       </span>
@@ -447,14 +447,14 @@ export default function RollBattlePage() {
 
                 <div className="space-y-2">
                   {champion.director && (
-                    <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.18em] text-[#555568]">
+                    <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em] text-[#555568]">
                       Directed by{" "}
                       <span className="text-[#F5F5F0]/70">
                         {champion.director}
                       </span>
                     </p>
                   )}
-                  <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.18em] text-[#D4AF37]">
+                  <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em] text-[#D4AF37]">
                     {formatAwardSummary(champion)}
                   </p>
                 </div>

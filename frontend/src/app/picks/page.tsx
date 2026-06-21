@@ -124,7 +124,7 @@ export default function PicksPage() {
                 <div className="h-[2px] w-3.5 bg-[#e8453c]/35" />
               </div>
               <div>
-                <p className="mb-0.5 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.35em] text-[#e8453c]/60">
+                <p className="mb-0.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.35em] text-[#e8453c]/60">
                   Three Films · One Evening
                 </p>
                 <h1 className="font-[family-name:var(--font-display)] text-2xl font-bold leading-none text-[#F5F5F0] sm:text-3xl">
@@ -132,7 +132,7 @@ export default function PicksPage() {
                 </h1>
               </div>
               <div className="hidden h-7 w-px bg-white/[0.07] sm:block" />
-              <p className="hidden font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#2e2e46] sm:block">
+              <p className="hidden font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#2e2e46] sm:block">
                 {dateLabel}
               </p>
             </div>
@@ -143,7 +143,7 @@ export default function PicksPage() {
               disabled={isRefreshing}
               className={cn(
                 "group flex items-center gap-2 rounded-full border border-[#1e1e2a] px-4 py-2",
-                "font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#444458]",
+                "font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#444458]",
                 "transition-all duration-200 hover:border-[#e8453c]/40 hover:text-[#F5F5F0]",
                 "disabled:pointer-events-none disabled:opacity-30",
               )}
@@ -183,7 +183,7 @@ export default function PicksPage() {
                       />
                     ))}
                   </div>
-                  <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.3em] text-[#2e2e46]">
+                  <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.3em] text-[#2e2e46]">
                     Curating today&apos;s selection
                   </p>
                 </div>
@@ -267,7 +267,7 @@ function PickCard({ pick, index }: { pick: DailyPick; index: number }) {
           <span
             className={cn(
               "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-[5px]",
-              "font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-widest backdrop-blur-sm",
+              "font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest backdrop-blur-sm",
               slot.borderColor,
             )}
             style={{ color: slot.accentColor, backgroundColor: `${slot.accentColor}12` }}
@@ -281,7 +281,7 @@ function PickCard({ pick, index }: { pick: DailyPick; index: number }) {
       {/* Content */}
       <div className="absolute bottom-0 left-0 right-0 z-10 flex flex-col gap-2 p-5">
         <span
-          className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.3em]"
+          className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.3em]"
           style={{ color: `${slot.accentColor}b3` }}
         >
           {slot.mood}
@@ -292,13 +292,13 @@ function PickCard({ pick, index }: { pick: DailyPick; index: number }) {
         </h2>
 
         <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
-          <span className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-wider text-[#555570]">
+          <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-wider text-[#555570]">
             {film.year}
           </span>
           {runtime && (
             <>
               <span className="text-[#252538]">·</span>
-              <span className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-wider text-[#555570]">
+              <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-wider text-[#555570]">
                 {runtime}
               </span>
             </>
@@ -306,7 +306,7 @@ function PickCard({ pick, index }: { pick: DailyPick; index: number }) {
           {genre && (
             <>
               <span className="text-[#252538]">·</span>
-              <span className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-wider text-[#555570]">
+              <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-wider text-[#555570]">
                 {genre}
               </span>
             </>
@@ -314,33 +314,33 @@ function PickCard({ pick, index }: { pick: DailyPick; index: number }) {
         </div>
 
         {film.director && (
-          <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-wider text-[#3a3a56]">
+          <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-wider text-[#3a3a56]">
             Dir. {film.director}
           </p>
         )}
 
         <div className="flex items-center gap-3">
           {film.imdbRating != null ? (
-            <span className="font-[family-name:var(--font-geist-mono)] text-[10px] font-bold text-[#c8c8d8]">
+            <span className="font-[family-name:var(--font-geist-mono)] text-[11px] font-bold text-[#c8c8d8]">
               ★ {film.imdbRating.toFixed(1)}
             </span>
           ) : (
-            <span className="font-[family-name:var(--font-geist-mono)] text-[10px] font-bold text-[#c8c8d8]/40">
+            <span className="font-[family-name:var(--font-geist-mono)] text-[11px] font-bold text-[#c8c8d8]/40">
               No IMDb Score
             </span>
           )}
           {film.rtScore != null ? (
-            <span className="font-[family-name:var(--font-geist-mono)] text-[10px] font-bold text-[#c8c8d8]">
+            <span className="font-[family-name:var(--font-geist-mono)] text-[11px] font-bold text-[#c8c8d8]">
               RT {film.rtScore}%
             </span>
           ) : (
-            <span className="font-[family-name:var(--font-geist-mono)] text-[10px] font-bold text-[#c8c8d8]/40">
+            <span className="font-[family-name:var(--font-geist-mono)] text-[11px] font-bold text-[#c8c8d8]/40">
               No RT Score
             </span>
           )}
           {totalWins > 0 && (
             <span
-              className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-wide"
+              className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-wide"
               style={{ color: slot.accentColor }}
             >
               {totalWins}× Winner
@@ -353,7 +353,7 @@ function PickCard({ pick, index }: { pick: DailyPick; index: number }) {
             href={`/film/${film.slug}`}
             className={cn(
               "group/btn flex flex-1 items-center justify-between rounded-xl px-4 py-2.5",
-              "font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-widest text-[#F5F5F0]",
+              "font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-widest text-[#F5F5F0]",
               "transition-all duration-150 hover:brightness-110",
             )}
             style={{ backgroundColor: slot.accentColor }}

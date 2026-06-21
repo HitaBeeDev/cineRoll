@@ -64,7 +64,7 @@ export function FirstVisitOnboarding({
         <button
           type="button"
           onClick={completeOnboarding}
-          className="font-[family-name:var(--font-geist-mono)] text-[9px] font-bold uppercase tracking-[0.28em] text-[#888899] transition hover:text-[#F5F5F0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090f]"
+          className="font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.28em] text-[#888899] transition hover:text-[#F5F5F0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090f]"
         >
           Skip
         </button>
@@ -72,7 +72,7 @@ export function FirstVisitOnboarding({
 
       <main className="relative z-20 grid flex-1 grid-cols-1 gap-8 px-5 pb-8 pt-4 sm:px-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-center lg:gap-10 lg:px-10 lg:pb-10 lg:pt-0">
         <section className="flex max-w-xl flex-col items-start">
-          <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.35em] text-[#D4AF37]">
+          <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.35em] text-[#D4AF37]">
             {"// Taste check"}
           </p>
 
@@ -112,7 +112,7 @@ export function FirstVisitOnboarding({
             </button>
           </div>
 
-          <div className="mt-6 flex items-center gap-3 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.22em] text-[#888899]">
+          <div className="mt-6 flex items-center gap-3 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.22em] text-[#888899]">
             <span className="h-px w-9 bg-[#e8453c]/55" />
             {selectedSeenCount === 0
               ? "Tap any poster"
@@ -131,7 +131,7 @@ export function FirstVisitOnboarding({
                   <button
                     type="button"
                     onClick={onRetryTasteCards}
-                    className="mt-2 font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-widest text-[#e8453c] transition hover:text-[#F5F5F0]"
+                    className="mt-2 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-widest text-[#e8453c] transition hover:text-[#F5F5F0]"
                   >
                     Try again
                   </button>

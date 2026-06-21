@@ -60,7 +60,7 @@ export function SiteNavigation({
               href={item.href}
               className={cn(
                 "px-3.5 py-2",
-                "font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.13em]",
+                "font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.13em]",
                 "transition-colors duration-150",
                 "focus-visible:outline-none focus-visible:ring-2",
                 focusRingClassName,
@@ -83,7 +83,7 @@ export function SiteNavigation({
               href={item.href}
               className={cn(
                 "px-3.5 py-2",
-                "font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.13em]",
+                "font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.13em]",
                 "transition-colors duration-150",
                 "focus-visible:outline-none focus-visible:ring-2",
                 focusRingClassName,
@@ -167,7 +167,7 @@ export function SiteNavigation({
                 </Link>
               ))}
               <div className="mt-2 flex flex-col gap-4 border-t border-[#222232] pt-5">
-                <span className="font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.24em] text-[#e8453c]">
+                <span className="font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.24em] text-[#e8453c]">
                   Game Modes
                 </span>
                 {gameModeItems.map((item) => (

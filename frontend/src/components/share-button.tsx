@@ -61,7 +61,7 @@ export function ShareButton({
           <div className="fixed bottom-6 left-1/2 z-[9999] -translate-x-1/2 animate-in fade-in slide-in-from-bottom-2 duration-200">
             <div className="flex items-center gap-2.5 rounded-full border border-white/12 bg-[#18182a] px-5 py-3 shadow-2xl shadow-black/60 backdrop-blur-md">
               <Check className="h-3.5 w-3.5 shrink-0 text-[#e8453c]" aria-hidden />
-              <span className="font-[family-name:var(--font-geist-mono)] text-[10px] font-semibold uppercase tracking-[0.22em] text-[#f0f0f8]">
+              <span className="font-[family-name:var(--font-geist-mono)] text-[11px] font-semibold uppercase tracking-[0.22em] text-[#f0f0f8]">
                 Link copied!
               </span>
             </div>

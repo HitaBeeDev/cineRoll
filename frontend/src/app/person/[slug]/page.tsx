@@ -219,7 +219,7 @@ export default async function PersonPage({
             {/* Info */}
             <div className="min-w-0 flex-1">
               {/* Label */}
-              <p className="mb-3 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.5em] text-[#e8453c]">
+              <p className="mb-3 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.5em] text-[#e8453c]">
                 ◆ Award Profile
               </p>
 
@@ -263,7 +263,7 @@ export default async function PersonPage({
               <div className="mt-8">
                 <Link
                   href={`/browse?person=${encodeURIComponent(person.name)}`}
-                  className="inline-flex items-center gap-2 border border-[#e8453c]/30 bg-[#e8453c]/8 px-5 py-2.5 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.3em] text-[#e8453c]/80 transition-all hover:border-[#e8453c]/60 hover:bg-[#e8453c]/14 hover:text-[#e8453c]"
+                  className="inline-flex items-center gap-2 border border-[#e8453c]/30 bg-[#e8453c]/8 px-5 py-2.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.3em] text-[#e8453c]/80 transition-all hover:border-[#e8453c]/60 hover:bg-[#e8453c]/14 hover:text-[#e8453c]"
                 >
                   Browse films with {person.name.split(" ")[0]}
                   <ArrowUpRight className="h-3 w-3" aria-hidden />
@@ -327,7 +327,7 @@ function Stat({ value, label, accent }: { value: number; label: string; accent: 
       >
         {value}
       </span>
-      <p className="mt-1.5 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.5em] text-[#555570]">
+      <p className="mt-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.5em] text-[#555570]">
         {label}
       </p>
     </div>
@@ -339,8 +339,8 @@ function Stat({ value, label, accent }: { value: number; label: string; accent: 
 function SectionLabel({ children }: { children: ReactNode }) {
   return (
     <div className="flex items-center gap-4">
-      <span className="font-[family-name:var(--font-geist-mono)] text-[9px] text-[#e8453c]">◆</span>
-      <h2 className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[10px] font-semibold uppercase tracking-[0.5em] text-[#c8c8e0]">
+      <span className="font-[family-name:var(--font-geist-mono)] text-[11px] text-[#e8453c]">◆</span>
+      <h2 className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[11px] font-semibold uppercase tracking-[0.5em] text-[#c8c8e0]">
         {children}
       </h2>
       <div className="h-px flex-1 bg-gradient-to-r from-[#2a2a42] to-transparent" />
@@ -367,7 +367,7 @@ function AwardBodyCard({
       {/* Header */}
       <div className="flex items-center justify-between border-b border-[#1a1a28] bg-[#0d0d18] px-5 py-4">
         <div>
-          <p className="font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-[0.55em] text-[#444460]">
+          <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.55em] text-[#444460]">
             {body.code}
           </p>
           <h3 className="mt-1 font-[family-name:var(--font-display)] text-lg font-bold text-[#e0e0f0]">
@@ -382,7 +382,7 @@ function AwardBodyCard({
             >
               {body.wins}
             </span>
-            <span className="font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-[0.4em] text-[#555570]">
+            <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.4em] text-[#555570]">
               Wins
             </span>
           </div>
@@ -390,7 +390,7 @@ function AwardBodyCard({
             <span className="block font-[family-name:var(--font-display)] text-xl font-bold leading-none tabular-nums text-[#555570]">
               {body.records.length}
             </span>
-            <span className="font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-[0.4em] text-[#555570]">
+            <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.4em] text-[#555570]">
               Noms
             </span>
           </div>
@@ -407,7 +407,7 @@ function AwardBodyCard({
             }`}
           >
             <span
-              className={`shrink-0 font-[family-name:var(--font-geist-mono)] text-[7px] font-bold uppercase tracking-[0.4em] ${
+              className={`shrink-0 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.4em] ${
                 r.won ? "text-[#c8a048]" : "text-[#2a2a3a]"
               }`}
             >
@@ -423,7 +423,7 @@ function AwardBodyCard({
               </p>
               <Link
                 href={`/film/${r.filmSlug}`}
-                className="group mt-0.5 inline-flex items-center gap-1 font-[family-name:var(--font-geist-mono)] text-[0.62rem] uppercase tracking-[0.14em] text-[#555570] transition-colors hover:text-[#e8453c]"
+                className="group mt-0.5 inline-flex items-center gap-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-[#555570] transition-colors hover:text-[#e8453c]"
               >
                 {r.filmTitle}
                 <span className="text-[#2a2a3a] transition-colors group-hover:text-[#e8453c]">
@@ -431,7 +431,7 @@ function AwardBodyCard({
                 </span>
               </Link>
             </div>
-            <span className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-[0.3em] text-[#444460]">
+            <span className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.3em] text-[#444460]">
               {r.awardYear}
             </span>
           </div>
@@ -478,7 +478,7 @@ function FilmPosterCard({ film }: { film: FilmRow }) {
         {/* Role tag */}
         <div className="absolute left-2 top-2">
           <span
-            className={`px-1.5 py-0.5 font-[family-name:var(--font-geist-mono)] text-[6px] uppercase tracking-[0.3em] ${
+            className={`px-1.5 py-0.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.3em] ${
               film.role === "director"
                 ? "bg-[#e8453c]/80 text-white"
                 : "bg-black/60 text-white/50"
@@ -490,7 +490,7 @@ function FilmPosterCard({ film }: { film: FilmRow }) {
 
         {film.imdbRating != null && (
           <div className="absolute bottom-2 right-2">
-            <span className="bg-black/70 px-1.5 py-0.5 font-[family-name:var(--font-geist-mono)] text-[8px] text-[#c8a048] backdrop-blur-sm">
+            <span className="bg-black/70 px-1.5 py-0.5 font-[family-name:var(--font-geist-mono)] text-[11px] text-[#c8a048] backdrop-blur-sm">
               {film.imdbRating.toFixed(1)}
             </span>
           </div>
@@ -502,7 +502,7 @@ function FilmPosterCard({ film }: { film: FilmRow }) {
         <p className="line-clamp-2 text-[0.75rem] font-semibold leading-[1.35] text-[#d4d4e8] transition-colors group-hover:text-white">
           {film.title}
         </p>
-        <p className="mt-0.5 font-[family-name:var(--font-geist-mono)] text-[0.6rem] text-[#444460]">
+        <p className="mt-0.5 font-[family-name:var(--font-geist-mono)] text-[11px] text-[#444460]">
           {film.releaseYear}
         </p>
       </div>

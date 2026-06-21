@@ -268,7 +268,7 @@ export function SnobTestClient() {
               <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#e8453c] via-[#D4AF37] to-[#4a9eff]" />
               <div className="grid gap-5 p-5 sm:p-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
                 <div>
-                  <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.28em] text-[#D4AF37]">
+                  <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.28em] text-[#D4AF37]">
                     {"// AWARDS GAUNTLET · 20 POSTERS"}
                   </p>
                   <h1 className="mt-3 font-[family-name:var(--font-display)] text-[clamp(3rem,4.2vw,4.6rem)] font-bold leading-[0.95] tracking-normal text-[#F5F5F0]">
@@ -299,7 +299,7 @@ export function SnobTestClient() {
                     <span className="font-[family-name:var(--font-geist-mono)] text-2xl font-bold leading-none text-[#F5F5F0]">
                       {selectedCount}/20
                     </span>
-                    <span className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#555568]">
+                    <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#555568]">
                       Seen
                     </span>
                   </div>
@@ -396,7 +396,7 @@ export function SnobTestClient() {
                 <div className="p-5">
                   <div className="grid grid-cols-2 gap-3">
                     <div className="border border-[#242435] bg-[#09090f] p-3">
-                      <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#555568]">
+                      <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#555568]">
                         Selected
                       </p>
                       <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-3xl font-bold leading-none text-[#e8453c]">
@@ -404,7 +404,7 @@ export function SnobTestClient() {
                       </p>
                     </div>
                     <div className="border border-[#242435] bg-[#09090f] p-3">
-                      <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#555568]">
+                      <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#555568]">
                         Max score
                       </p>
                       <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-3xl font-bold leading-none text-[#D4AF37]">
@@ -472,10 +472,10 @@ export function SnobTestClient() {
                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(212,175,55,0.22),transparent_34%),linear-gradient(135deg,rgba(232,69,60,0.22),transparent_45%)]" />
                     <div className="relative flex h-full flex-col justify-between">
                       <div className="flex items-center justify-between">
-                        <span className="font-[family-name:var(--font-geist-mono)] text-[10px] font-semibold uppercase tracking-widest text-[#D4AF37]">
+                        <span className="font-[family-name:var(--font-geist-mono)] text-[11px] font-semibold uppercase tracking-widest text-[#D4AF37]">
                           CineRoll
                         </span>
-                        <span className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest text-[#c9c9d4]">
+                        <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#c9c9d4]">
                           Snob Test
                         </span>
                       </div>

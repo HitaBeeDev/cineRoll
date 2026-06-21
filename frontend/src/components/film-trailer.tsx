@@ -42,7 +42,7 @@ export function FilmTrailer({
   return (
     <section>
       <div className="mb-4 flex items-center gap-2.5">
-        <h2 className="flex shrink-0 items-center gap-1.5 font-[family-name:var(--font-geist-mono)] text-[9px] font-bold uppercase tracking-[0.28em] text-[#888899]">
+        <h2 className="flex shrink-0 items-center gap-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.28em] text-[#888899]">
           <PlayCircle className="h-3 w-3 text-[#e8453c]" aria-hidden />
           Trailer
         </h2>

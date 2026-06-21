@@ -187,15 +187,15 @@ export function FilmCommentsSection({ slug, accent }: Props) {
   return (
     <section id="comments" className="scroll-mt-24">
       <div className="flex items-center gap-4">
-        <span className="font-[family-name:var(--font-geist-mono)] text-[9px] text-[#e8453c]">
+        <span className="font-[family-name:var(--font-geist-mono)] text-[11px] text-[#e8453c]">
           ◆
         </span>
-        <h2 className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[10px] font-semibold uppercase tracking-[0.5em] text-[#c8c8e0]">
+        <h2 className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[11px] font-semibold uppercase tracking-[0.5em] text-[#c8c8e0]">
           Comments
         </h2>
         <div className="h-px flex-1 bg-gradient-to-r from-[#2a2a42] to-transparent" />
         {!isLoading && (
-          <span className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.28em] text-[#666680]">
+          <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.28em] text-[#666680]">
             {commentCount}
           </span>
         )}
@@ -214,7 +214,7 @@ export function FilmCommentsSection({ slug, accent }: Props) {
             <div className="mt-3 flex items-center justify-between gap-3">
               <span
                 className={cn(
-                  "font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.25em]",
+                  "font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.25em]",
                   remaining < 80 ? "text-[#e8453c]" : "text-[#666680]",
                 )}
               >
@@ -297,7 +297,7 @@ function CommentItem({
           {comment.user.image ? (
             <Image src={comment.user.image} alt="" fill sizes="40px" className="object-cover" />
           ) : (
-            <span className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest text-[#8888a8]">
+            <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#8888a8]">
               {initials(name)}
             </span>
           )}
@@ -308,7 +308,7 @@ function CommentItem({
               <p className="truncate text-sm font-medium text-[#e8e8f0]">{name}</p>
               <time
                 dateTime={comment.createdAt}
-                className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.25em] text-[#666680]"
+                className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.25em] text-[#666680]"
               >
                 {formatCommentDate(comment.createdAt)}
               </time>

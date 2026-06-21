@@ -56,7 +56,7 @@ export function RecommendationsSection({
                     className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
                   />
                 ) : (
-                  <div className="flex h-full items-center justify-center px-3 text-center font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest text-[#444458]">
+                  <div className="flex h-full items-center justify-center px-3 text-center font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#444458]">
                     {rec.title}
                   </div>
                 )}
@@ -66,7 +66,7 @@ export function RecommendationsSection({
             <h3 className="mt-3 line-clamp-1 font-[family-name:var(--font-display)] text-sm font-bold text-[#F5F5F0]">
               {rec.title}
             </h3>
-            <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.15em] text-[#666677]">
+            <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.15em] text-[#666677]">
               {rec.year}
             </p>
             <p className="mt-1.5 line-clamp-2 font-[family-name:var(--font-geist-mono)] text-[11px] leading-relaxed text-[#888899]">

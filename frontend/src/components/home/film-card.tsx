@@ -86,7 +86,7 @@ export function FilmCard({
     <div className="flex flex-col">
       {/* Channel pill */}
       <div className="flex items-center -mx-1 -mt-1 mb-2">
-        <span className="inline-flex items-center rounded-full border border-[#e8453c]/22 bg-[#e8453c]/10 px-3 py-1 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#e8453c]">
+        <span className="inline-flex items-center rounded-full border border-[#e8453c]/22 bg-[#e8453c]/10 px-3 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#e8453c]">
           {channelLabel}
         </span>
       </div>
@@ -118,7 +118,7 @@ export function FilmCard({
       {/* Content */}
       <div className="flex flex-col gap-2 p-4">
         {/* Year · Runtime · Genre */}
-        <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.2em] text-[#888899]">
+        <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.2em] text-[#888899]">
           {film.year}
           {runtime && ` · ${runtime}`}
           {genre && ` · ${genre}`}
@@ -133,7 +133,7 @@ export function FilmCard({
 
         {/* Director */}
         {film.director && (
-          <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.2em] text-[#888899]">
+          <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.2em] text-[#888899]">
             Dir. {film.director}
           </p>
         )}
@@ -181,10 +181,10 @@ export function FilmCard({
 
         <section className="mt-2 rounded-xl border border-[#1e1e2a] bg-[#0b0b15] p-3">
           <div className="mb-2 flex items-center justify-between gap-3">
-            <h3 className="font-[family-name:var(--font-geist-mono)] text-[9px] font-bold uppercase tracking-[0.2em] text-[#F5F5F0]">
+            <h3 className="font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.2em] text-[#F5F5F0]">
               Tune future rolls
             </h3>
-            <span className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.18em] text-[#888899]">
+            <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em] text-[#888899]">
               {isAuthenticated ? "Account signal" : "Session signal"}
             </span>
           </div>
@@ -263,7 +263,7 @@ export function FilmCard({
             className={cn(
               "flex flex-1 items-center justify-center rounded-xl py-3",
               "border border-[#2a2a3e] text-[#F5F5F0]",
-              "font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.2em]",
+              "font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.2em]",
               "transition-colors hover:border-[#e8453c]/45 hover:text-[#e8453c]",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
             )}
@@ -292,7 +292,7 @@ function getListBadges(film: RollFilm) {
 function StatBox({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex flex-col gap-1 rounded-lg border border-[#1e1e2a] bg-[#0d0d1a] px-3 py-2.5">
-      <span className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-widest text-[#888899]">
+      <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#888899]">
         {label}
       </span>
       <span className="font-[family-name:var(--font-geist-mono)] text-base font-bold text-[#F5F5F0]">
@@ -304,7 +304,7 @@ function StatBox({ label, value }: { label: string; value: string }) {
 
 function ListBadge({ children }: { children: React.ReactNode }) {
   return (
-    <span className="inline-flex items-center rounded-full border border-[#D4AF37]/25 bg-[#D4AF37]/10 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[8px] font-bold uppercase tracking-widest text-[#D4AF37]">
+    <span className="inline-flex items-center rounded-full border border-[#D4AF37]/25 bg-[#D4AF37]/10 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-widest text-[#D4AF37]">
       {children}
     </span>
   );
@@ -321,10 +321,10 @@ function AwardsPanel({ highlights }: { highlights: AwardHighlight[] }) {
   return (
     <section className="rounded-xl border border-[#1e1e2a] bg-[#0b0b15] p-3">
       <div className="flex items-center justify-between gap-3">
-        <h3 className="font-[family-name:var(--font-geist-mono)] text-[9px] font-bold uppercase tracking-[0.2em] text-[#D4AF37]">
+        <h3 className="font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.2em] text-[#D4AF37]">
           Recognition
         </h3>
-        <span className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.18em] text-[#888899]">
+        <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em] text-[#888899]">
           Wins / Nominations
         </span>
       </div>
@@ -335,11 +335,11 @@ function AwardsPanel({ highlights }: { highlights: AwardHighlight[] }) {
             className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-lg border border-[#1a1a28] bg-[#0d0d1a] px-3 py-2"
           >
             <div className="min-w-0">
-              <span className="block truncate font-[family-name:var(--font-geist-mono)] text-[8px] font-bold uppercase tracking-[0.18em] text-[#9a9aad]">
+              <span className="block truncate font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.18em] text-[#9a9aad]">
                 {item.label}
               </span>
               {item.rank != null && (
-                <span className="mt-0.5 block font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.14em] text-[#888899]">
+                <span className="mt-0.5 block font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-[#888899]">
                   Ranked list placement
                 </span>
               )}
@@ -380,7 +380,7 @@ function AwardCount({
       >
         {value}
       </span>
-      <span className="mt-0.5 font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-[0.14em] text-[#888899]">
+      <span className="mt-0.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-[#888899]">
         {label}
       </span>
     </span>
@@ -467,7 +467,7 @@ function QuickActionButton({
       aria-pressed={active}
       className={cn(
         "flex h-11 items-center justify-center gap-2 rounded-xl border",
-        "font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.18em]",
+        "font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.18em]",
         "transition-colors",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
         "disabled:cursor-not-allowed disabled:opacity-60",
@@ -500,7 +500,7 @@ function SentimentPrompt({
       className="overflow-hidden"
     >
       <div className="mt-2 flex items-center justify-between gap-3 rounded-xl border border-[#1e1e2a] bg-[#0d0d1a] px-3 py-2.5">
-        <span className="font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.18em] text-[#888899]">
+        <span className="font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.18em] text-[#888899]">
           How was it?
         </span>
         <div className="flex items-center gap-2">

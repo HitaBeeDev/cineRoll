@@ -117,7 +117,7 @@ export function FilmCard({ film, className }: FilmCardProps) {
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center bg-[linear-gradient(135deg,#151520,#0b0b12)]">
-            <span className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.32em] text-[#555064]">
+            <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.32em] text-[#555064]">
               No Poster
             </span>
           </div>
@@ -131,7 +131,7 @@ export function FilmCard({ film, className }: FilmCardProps) {
             {listBadge && (
               <span
                 aria-label={`${listBadge.label} ${listBadge.detail}`}
-                className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-[#D4AF37]/45 bg-black/70 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[8px] font-semibold uppercase tracking-[0.14em] text-[#f2d86f] shadow-lg shadow-black/25 backdrop-blur-sm"
+                className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-[#D4AF37]/45 bg-black/70 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] font-semibold uppercase tracking-[0.14em] text-[#f2d86f] shadow-lg shadow-black/25 backdrop-blur-sm"
               >
                 <span className="truncate">{listBadge.label}</span>
                 <span className="shrink-0 text-[#f8f0b3]">{listBadge.detail}</span>
@@ -140,7 +140,7 @@ export function FilmCard({ film, className }: FilmCardProps) {
             {badge && (badge.won ? (
               <span
                 aria-label={`${badge.body} ${badge.detail}`}
-                className="inline-flex max-w-full items-center gap-1.5 rounded-full px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[8px] font-semibold uppercase tracking-[0.14em] shadow-lg shadow-black/25"
+                className="inline-flex max-w-full items-center gap-1.5 rounded-full px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] font-semibold uppercase tracking-[0.14em] shadow-lg shadow-black/25"
                 style={{ backgroundColor: badge.color, color: badge.text }}
               >
                 {badge.body && <span className="truncate">{badge.body}</span>}
@@ -149,7 +149,7 @@ export function FilmCard({ film, className }: FilmCardProps) {
             ) : (
               <span
                 aria-label={`${badge.body} ${badge.detail}`}
-                className="inline-flex max-w-full items-center gap-1.5 rounded-full border px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[8px] font-semibold uppercase tracking-[0.14em] shadow-lg shadow-black/25 backdrop-blur-sm"
+                className="inline-flex max-w-full items-center gap-1.5 rounded-full border px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] font-semibold uppercase tracking-[0.14em] shadow-lg shadow-black/25 backdrop-blur-sm"
                 style={{
                   borderColor: `${badge.color}60`,
                   color: badge.color,
@@ -167,7 +167,7 @@ export function FilmCard({ film, className }: FilmCardProps) {
           <span
             aria-label={`CineRoll average rating ${averageRating.toFixed(1)} from ${ratingCount} ${ratingCount === 1 ? "rating" : "ratings"}`}
             title={`CineRoll average ${averageRating.toFixed(1)}/10`}
-            className="absolute right-2.5 top-2.5 inline-flex items-center gap-1 rounded-full border border-[#e8453c]/35 bg-black/70 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[8px] font-semibold tracking-[0.1em] text-[#ff8a82] shadow-lg shadow-black/25 backdrop-blur-sm"
+            className="absolute right-2.5 top-2.5 inline-flex items-center gap-1 rounded-full border border-[#e8453c]/35 bg-black/70 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] font-semibold tracking-[0.1em] text-[#ff8a82] shadow-lg shadow-black/25 backdrop-blur-sm"
           >
             <Star className="h-3 w-3 fill-current" aria-hidden />
             {averageRating.toFixed(1)}
@@ -175,15 +175,15 @@ export function FilmCard({ film, className }: FilmCardProps) {
         )}
 
         <div className="absolute inset-x-2.5 bottom-2.5 flex translate-y-2 items-center justify-between gap-2 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-          <span className="rounded-full border border-white/15 bg-black/55 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.14em] text-white backdrop-blur-md">
+          <span className="rounded-full border border-white/15 bg-black/55 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-white backdrop-blur-md">
             Open
           </span>
           <div className="flex items-center gap-1.5">
-            <span className="inline-flex items-center gap-1 rounded-full border border-[#f5c518]/30 bg-black/60 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[9px] font-semibold tracking-[0.08em] text-[#f5c518] backdrop-blur-md">
+            <span className="inline-flex items-center gap-1 rounded-full border border-[#f5c518]/30 bg-black/60 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] font-semibold tracking-[0.08em] text-[#f5c518] backdrop-blur-md">
               <ImdbIcon />
               {film.imdbRating != null ? film.imdbRating : "—"}
             </span>
-            <span className="inline-flex items-center gap-1 rounded-full border border-[#fa320a]/30 bg-black/60 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[9px] font-semibold tracking-[0.08em] text-[#ff6b47] backdrop-blur-md">
+            <span className="inline-flex items-center gap-1 rounded-full border border-[#fa320a]/30 bg-black/60 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] font-semibold tracking-[0.08em] text-[#ff6b47] backdrop-blur-md">
               <TomatoIcon />
               {film.rtScore != null ? `${film.rtScore}%` : "—"}
             </span>
@@ -196,7 +196,7 @@ export function FilmCard({ film, className }: FilmCardProps) {
         <h3 className="line-clamp-1 text-[14px] font-semibold leading-snug text-[#eeeaf6] transition-colors group-hover:text-white sm:text-[15px]">
           {film.title}
         </h3>
-        <p className="mt-1 line-clamp-1 font-[family-name:var(--font-geist-mono)] text-[10px] text-[#9d98ad]">
+        <p className="mt-1 line-clamp-1 font-[family-name:var(--font-geist-mono)] text-[11px] text-[#9d98ad]">
           {film.year}
           <span className="text-[#6f6a80]"> · {primaryGenre}</span>
         </p>

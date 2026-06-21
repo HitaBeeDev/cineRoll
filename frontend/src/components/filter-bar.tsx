@@ -79,7 +79,7 @@ export function FilterBar({
       aria-label="Filter films"
       className={cn("flex flex-col gap-3", className)}
     >
-      <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.3em] text-[#686880]">
+      <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.3em] text-[#686880]">
         Build Your Roll
       </p>
 
@@ -193,7 +193,7 @@ export function FilterBar({
           <SelectTrigger
             className={cn(
               "h-auto! w-auto! gap-1.5 rounded-full! border px-3 py-1.5!",
-              "font-[family-name:var(--font-geist-mono)] text-[10px]! uppercase tracking-widest",
+              "font-[family-name:var(--font-geist-mono)] text-[11px]! uppercase tracking-widest",
               "transition-colors duration-150",
               "[&>svg]:h-3.5 [&>svg]:w-3.5 [&>svg]:text-current! [&>svg]:opacity-70",
               filters.genre
@@ -238,7 +238,7 @@ export function FilterBar({
                     className={cn(
                       "inline-flex h-6 items-center gap-0 rounded-full",
                       "border border-[#25253a] bg-[#0d0d1a]",
-                      "font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-wide text-[#9898b8]",
+                      "font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-wide text-[#9898b8]",
                     )}
                   >
                     {chip.href && (
@@ -270,7 +270,7 @@ export function FilterBar({
             <button
               type="button"
               onClick={onClearFilters}
-              className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#9090a8] transition-colors hover:text-[#e8453c] focus-visible:outline-none"
+              className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#9090a8] transition-colors hover:text-[#e8453c] focus-visible:outline-none"
             >
               Clear all
             </button>
@@ -280,7 +280,7 @@ export function FilterBar({
 
       {/* Roll Recipe + share */}
       {recipe && (
-        <p className="flex items-center gap-2 font-[family-name:var(--font-geist-mono)] text-[9px] tracking-wide text-[#686880]">
+        <p className="flex items-center gap-2 font-[family-name:var(--font-geist-mono)] text-[11px] tracking-wide text-[#686880]">
           <span className="min-w-0">
             <span className="text-[#444458]">Rolling from:</span>{" "}{recipe}
           </span>
@@ -390,7 +390,7 @@ function FilterRow({
 }) {
   return (
     <div className="flex items-start gap-3">
-      <span className="w-[42px] shrink-0 pt-[7px] font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#9090a8]">
+      <span className="w-[42px] shrink-0 pt-[7px] font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#9090a8]">
         {label}
       </span>
       <div className="flex flex-wrap gap-1.5">{children}</div>
@@ -416,7 +416,7 @@ function PillToggle({
       onClick={onClick}
       className={cn(
         "rounded-full border px-3 py-1.5 transition-colors duration-150",
-        "font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest",
+        "font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] focus-visible:ring-offset-1 focus-visible:ring-offset-[#09090f]",
         active
           ? (activeClassName ?? "border-[#c08818] bg-gradient-to-br from-[#deba4a] to-[#c08818] text-[#1a0d00]")

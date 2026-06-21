@@ -50,7 +50,7 @@ export function AnimatedJumpLink({ children, href }: AnimatedJumpLinkProps) {
       className={cn(
         "flex h-11 items-center justify-center rounded-xl px-3",
         "border border-[#e8453c]/25 bg-[#e8453c]/8 text-[#e8453c]",
-        "font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest",
+        "font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest",
         "transition-colors hover:border-[#e8453c]/55 hover:bg-[#e8453c]/12 hover:text-[#F5F5F0]",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
       )}

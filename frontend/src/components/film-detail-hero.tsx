@@ -66,7 +66,7 @@ export function FilmDetailHero({
             {isPickOfDay && (
               <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#e8453c]/35 bg-[#e8453c]/14 px-3 py-1.5 shadow-[0_0_34px_rgba(232,69,60,0.16)] backdrop-blur-md">
                 <Sparkles className="h-3 w-3 text-[#e8453c]" aria-hidden />
-                <span className="font-[family-name:var(--font-geist-mono)] text-[8px] font-bold uppercase tracking-[0.28em] text-[#e8453c]">
+                <span className="font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.28em] text-[#e8453c]">
                   Pick of the Day
                 </span>
               </div>
@@ -79,7 +79,7 @@ export function FilmDetailHero({
                 {originalTitle}
               </p>
             )}
-            <div className="mt-7 flex max-w-full flex-wrap items-center gap-2 overflow-hidden font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.18em] text-[#a6a6b5]">
+            <div className="mt-7 flex max-w-full flex-wrap items-center gap-2 overflow-hidden font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em] text-[#a6a6b5]">
               <span className="inline-flex items-center gap-1.5 rounded-full border border-white/12 bg-black/26 px-3 py-1.5 backdrop-blur-md">
                 <CalendarDays className="h-3 w-3 text-[#e8453c]" aria-hidden />
                 {year}

@@ -119,14 +119,14 @@ function FilterChips({ chips }: { chips: string[] }) {
 
   return (
     <div className="mt-4">
-      <p className="mb-2 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.22em] text-[#555568]">
+      <p className="mb-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.22em] text-[#555568]">
         Searched for
       </p>
       <div className="flex flex-wrap gap-2">
         {chips.map((chip) => (
           <span
             key={chip}
-            className="rounded-full border border-[#2a2a3e] bg-[#09090f]/70 px-3 py-1.5 font-[family-name:var(--font-geist-mono)] text-[9px] font-bold uppercase tracking-widest text-[#F5F5F0]"
+            className="rounded-full border border-[#2a2a3e] bg-[#09090f]/70 px-3 py-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-widest text-[#F5F5F0]"
           >
             {chip}
           </span>
@@ -180,18 +180,18 @@ function FilmCard({ film }: { film: RollFilm }) {
         <h3 className="font-[family-name:var(--font-display)] text-2xl font-bold leading-none text-[#F5F5F0] line-clamp-2">
           {film.title}
         </h3>
-        <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase leading-4 tracking-widest text-[#b6b6c6]">
+        <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase leading-4 tracking-widest text-[#b6b6c6]">
           {film.year}
           {film.director ? ` · ${film.director}` : ""}
         </p>
         <div className="flex flex-wrap gap-1.5">
           {genre && (
-            <span className="rounded-full border border-[#F5F5F0]/20 bg-[#09090f]/70 px-2 py-1 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-widest text-[#F5F5F0]">
+            <span className="rounded-full border border-[#F5F5F0]/20 bg-[#09090f]/70 px-2 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#F5F5F0]">
               {genre}
             </span>
           )}
           {film.imdbRating != null && (
-            <span className="rounded-full border border-[#e8453c]/35 bg-[#09090f]/70 px-2 py-1 font-[family-name:var(--font-geist-mono)] text-[8px] font-bold uppercase tracking-widest text-[#e8453c]">
+            <span className="rounded-full border border-[#e8453c]/35 bg-[#09090f]/70 px-2 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-widest text-[#e8453c]">
               IMDb {film.imdbRating.toFixed(1)}
             </span>
           )}
@@ -202,7 +202,7 @@ function FilmCard({ film }: { film: RollFilm }) {
             {awardBodies.map((b) => (
               <span
                 key={b.key}
-                className="rounded border border-[#2a2a3e] bg-[#09090f]/75 px-1.5 py-0.5 font-[family-name:var(--font-geist-mono)] text-[7px] uppercase tracking-widest text-[#d8d8df]"
+                className="rounded border border-[#2a2a3e] bg-[#09090f]/75 px-1.5 py-0.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#d8d8df]"
               >
                 {b.label}{" "}
                 {b.wins(film) > 0 && (
@@ -285,7 +285,7 @@ export default function DescribePage() {
       <main className="min-h-0 flex-1 overflow-hidden px-5 py-4 sm:px-8 lg:px-10 lg:py-5">
         <section className="grid h-full min-h-0 grid-rows-[auto_minmax(0,1fr)] gap-4">
           <div className="shrink-0">
-            <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.3em] text-[#e8453c]/70">
+            <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.3em] text-[#e8453c]/70">
               ◈ Natural Language Roll ◈
             </p>
             <h1 className="mt-2 font-[family-name:var(--font-display)] text-5xl font-bold leading-none tracking-tight text-[#F5F5F0] lg:text-7xl">
@@ -298,10 +298,10 @@ export default function DescribePage() {
             <div className="flex min-h-0 flex-col lg:col-span-7">
               <div className="flex min-h-0 flex-1 flex-col rounded-lg border border-[#1e1e2a] bg-[#0d0d16] shadow-[0_18px_70px_rgba(0,0,0,0.28)]">
                 <div className="flex shrink-0 items-center justify-between gap-4 border-b border-[#1e1e2a] px-4 py-3 sm:px-5">
-                  <span className="truncate font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-widest text-[#888899]">
+                  <span className="truncate font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-widest text-[#888899]">
                     Describe the mood, era, awards, or people
                   </span>
-                  <span className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#444458]">
+                  <span className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#444458]">
                     {prompt.length}/500
                   </span>
                 </div>
@@ -333,7 +333,7 @@ export default function DescribePage() {
                         disabled={isProcessing}
                         className={cn(
                           "rounded-full border border-[#2a2a3e] px-3 py-1.5 text-left",
-                          "font-[family-name:var(--font-geist-mono)] text-[9px] font-bold uppercase tracking-widest text-[#888899]",
+                          "font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-widest text-[#888899]",
                           "transition-colors hover:border-[#e8453c]/45 hover:text-[#F5F5F0]",
                           "disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-[#2a2a3e]",
                           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
@@ -352,7 +352,7 @@ export default function DescribePage() {
                         disabled={isProcessing}
                         className={cn(
                           "inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-full border border-[#2a2a3e] px-5",
-                          "font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-widest text-[#F5F5F0]",
+                          "font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-widest text-[#F5F5F0]",
                           "transition-colors hover:border-[#e8453c]/45 hover:text-[#e8453c]",
                           "disabled:cursor-not-allowed disabled:opacity-40",
                           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
@@ -370,7 +370,7 @@ export default function DescribePage() {
                       disabled={!prompt.trim() || isProcessing}
                       className={cn(
                         "inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-full px-5",
-                        "bg-[#e8453c] font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-widest text-[#F5F5F0]",
+                        "bg-[#e8453c] font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-widest text-[#F5F5F0]",
                         "transition-colors hover:bg-[#d5342b]",
                         "disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-[#e8453c]",
                         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
@@ -402,7 +402,7 @@ export default function DescribePage() {
             >
               {error ? (
                 <div className="flex h-full flex-col justify-center p-6">
-                  <p className="mb-2 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.24em] text-[#e8453c]/70">
+                  <p className="mb-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.24em] text-[#e8453c]/70">
                     Roll interrupted
                   </p>
                   <p className="font-[family-name:var(--font-display)] text-3xl font-bold leading-tight text-[#F5F5F0]">
@@ -411,13 +411,13 @@ export default function DescribePage() {
                 </div>
               ) : noMatchFilters ? (
                 <div className="flex h-full flex-col justify-center p-6">
-                  <p className="mb-2 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.24em] text-[#e8453c]/70">
+                  <p className="mb-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.24em] text-[#e8453c]/70">
                     No matching films
                   </p>
                   <h2 className="font-[family-name:var(--font-display)] text-4xl font-bold leading-none text-[#F5F5F0]">
                     Try loosening the description.
                   </h2>
-                  <p className="mt-3 max-w-xl font-[family-name:var(--font-geist-mono)] text-[10px] uppercase leading-5 tracking-widest text-[#66667a]">
+                  <p className="mt-3 max-w-xl font-[family-name:var(--font-geist-mono)] text-[11px] uppercase leading-5 tracking-widest text-[#66667a]">
                     Gemini understood the request, but the film pool came back
                     empty. Remove a year, award, rating, or exact person and
                     roll again.
@@ -427,11 +427,11 @@ export default function DescribePage() {
               ) : result ? (
                 <div className="flex h-full min-h-0 flex-col p-4">
                   <div className="mb-3 flex shrink-0 flex-wrap items-center gap-2">
-                    <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.24em] text-[#e8453c]/80">
+                    <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.24em] text-[#e8453c]/80">
                       {result.films.length === 1 ? "Your roll" : `${result.films.length} picks`}
                     </p>
                     {result.relaxed && (
-                      <span className="rounded-full border border-[#2a2a3e] px-2 py-0.5 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-widest text-[#555568]">
+                      <span className="rounded-full border border-[#2a2a3e] px-2 py-0.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#555568]">
                         Relaxed filters
                       </span>
                     )}
@@ -439,7 +439,7 @@ export default function DescribePage() {
                       {formatFilterChips(result.interpretedFilters).map((chip) => (
                         <span
                           key={chip}
-                          className="rounded-full border border-[#2a2a3e] bg-[#09090f]/70 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[8px] font-bold uppercase tracking-widest text-[#F5F5F0]"
+                          className="rounded-full border border-[#2a2a3e] bg-[#09090f]/70 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-widest text-[#F5F5F0]"
                         >
                           {chip}
                         </span>
@@ -455,7 +455,7 @@ export default function DescribePage() {
               ) : (
                 <div className="flex h-full flex-col justify-between p-6">
                   <div>
-                    <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.24em] text-[#e8453c]/70">
+                    <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.24em] text-[#e8453c]/70">
                       Channel 04 · Describe
                     </p>
                     <h2 className="mt-3 font-[family-name:var(--font-display)] text-5xl font-bold leading-none text-[#F5F5F0]">
@@ -470,7 +470,7 @@ export default function DescribePage() {
                         key={label}
                         className="border border-[#1e1e2a] bg-[#09090f]/70 px-3 py-4 text-center"
                       >
-                        <span className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#66667a]">
+                        <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#66667a]">
                           {label}
                         </span>
                       </div>

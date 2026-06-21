@@ -100,7 +100,7 @@ export default async function RollBattleResultPage({
         <div className="flex flex-col items-center gap-2 text-center">
           <div className="flex items-center justify-center gap-2">
             <Trophy className="h-4 w-4 shrink-0 text-[#D4AF37]" />
-            <span className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.35em] text-[#D4AF37]">
+            <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.35em] text-[#D4AF37]">
               Roll Battle Winner
             </span>
             <Trophy className="h-4 w-4 shrink-0 text-[#D4AF37]" />
@@ -126,29 +126,29 @@ export default async function RollBattleResultPage({
 
           <div className="flex flex-col gap-4">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="rounded-md border border-[#1e1e2a] bg-[#0d0d1a] px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.14em] text-[#F5F5F0]/70">
+              <span className="rounded-md border border-[#1e1e2a] bg-[#0d0d1a] px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-[#F5F5F0]/70">
                 {film.year}
               </span>
               {runtime && (
-                <span className="rounded-md border border-[#1e1e2a] bg-[#0d0d1a] px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.14em] text-[#F5F5F0]/70">
+                <span className="rounded-md border border-[#1e1e2a] bg-[#0d0d1a] px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-[#F5F5F0]/70">
                   {runtime}
                 </span>
               )}
               {film.imdbRating != null ? (
-                <span className="rounded-md border border-[#1e1e2a] bg-[#0d0d1a] px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.14em] text-[#F5F5F0]/70">
+                <span className="rounded-md border border-[#1e1e2a] bg-[#0d0d1a] px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-[#F5F5F0]/70">
                   IMDb {film.imdbRating.toFixed(1)}
                 </span>
               ) : (
-                <span className="rounded-md border border-[#1e1e2a] bg-[#0d0d1a] px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.14em] text-[#F5F5F0]/30">
+                <span className="rounded-md border border-[#1e1e2a] bg-[#0d0d1a] px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-[#F5F5F0]/30">
                   No IMDb Score
                 </span>
               )}
               {film.rtScore != null ? (
-                <span className="rounded-md border border-[#1e1e2a] bg-[#0d0d1a] px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.14em] text-[#F5F5F0]/70">
+                <span className="rounded-md border border-[#1e1e2a] bg-[#0d0d1a] px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-[#F5F5F0]/70">
                   RT {film.rtScore}%
                 </span>
               ) : (
-                <span className="rounded-md border border-[#1e1e2a] bg-[#0d0d1a] px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.14em] text-[#F5F5F0]/30">
+                <span className="rounded-md border border-[#1e1e2a] bg-[#0d0d1a] px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-[#F5F5F0]/30">
                   No RT Score
                 </span>
               )}
@@ -159,7 +159,7 @@ export default async function RollBattleResultPage({
                 {film.genres.slice(0, 4).map((genre) => (
                   <span
                     key={genre}
-                    className="rounded-full border border-[#e8453c]/25 bg-[#e8453c]/10 px-3 py-1 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.16em] text-[#e8453c]"
+                    className="rounded-full border border-[#e8453c]/25 bg-[#e8453c]/10 px-3 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.16em] text-[#e8453c]"
                   >
                     {genre}
                   </span>
@@ -169,11 +169,11 @@ export default async function RollBattleResultPage({
 
             <div className="space-y-2">
               {film.director && (
-                <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.18em] text-[#555568]">
+                <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em] text-[#555568]">
                   Directed by <span className="text-[#F5F5F0]/70">{film.director}</span>
                 </p>
               )}
-              <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.18em] text-[#D4AF37]">
+              <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em] text-[#D4AF37]">
                 {formatAwardSummary(film)}
               </p>
             </div>

@@ -143,14 +143,14 @@ export function VerifyForm() {
           </div>
 
           {error !== null && (
-            <p className="mt-3 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest text-[#e8453c]">
+            <p className="mt-3 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#e8453c]">
               {error}
             </p>
           )}
 
           <div className="mt-6 text-center">
             {countdown > 0 ? (
-              <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest text-[#444458]">
+              <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#444458]">
                 Resend code in {countdown}s
               </p>
             ) : (
@@ -158,7 +158,7 @@ export function VerifyForm() {
                 type="button"
                 onClick={() => void handleResend()}
                 disabled={isResending}
-                className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest text-[#888899] underline-offset-4 transition hover:text-[#F5F5F0] hover:underline disabled:opacity-50 focus-visible:outline-none"
+                className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#888899] underline-offset-4 transition hover:text-[#F5F5F0] hover:underline disabled:opacity-50 focus-visible:outline-none"
               >
                 {isResending ? "Sending…" : "Resend code"}
               </button>
@@ -168,7 +168,7 @@ export function VerifyForm() {
           <div className="mt-4 text-center">
             <Link
               href="/auth/signin"
-              className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#444458] underline-offset-4 transition hover:text-[#888899] hover:underline"
+              className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#444458] underline-offset-4 transition hover:text-[#888899] hover:underline"
             >
               ← Use a different email
             </Link>

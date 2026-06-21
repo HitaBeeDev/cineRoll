@@ -281,7 +281,7 @@ export default function BlindRollPage() {
 
       <main className="relative mx-auto flex min-h-0 w-full max-w-6xl flex-1 flex-col gap-4 px-4 py-3 sm:px-6 lg:gap-5 lg:py-4">
         <div className="relative flex shrink-0 flex-col gap-1.5 text-left">
-          <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.35em] text-[#e8453c]/70">
+          <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.35em] text-[#e8453c]/70">
             Blind Roll
           </p>
           <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
@@ -305,7 +305,7 @@ export default function BlindRollPage() {
                       aria-pressed={active}
                       onClick={() => handleDifficultyChange(item.value)}
                       className={[
-                        "rounded-full px-3 py-1.5 font-[family-name:var(--font-geist-mono)] text-[9px] font-bold uppercase tracking-[0.16em] transition-colors",
+                        "rounded-full px-3 py-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.16em] transition-colors",
                         active
                           ? "bg-[#D4AF37] text-[#09090f]"
                           : "text-[#77778b] hover:text-[#F5F5F0]",
@@ -316,7 +316,7 @@ export default function BlindRollPage() {
                   );
                 })}
               </div>
-              <div className="w-fit rounded-full border border-[#D4AF37]/35 bg-[#D4AF37]/10 px-4 py-2 font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.18em] text-[#D4AF37]">
+              <div className="w-fit rounded-full border border-[#D4AF37]/35 bg-[#D4AF37]/10 px-4 py-2 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.18em] text-[#D4AF37]">
                 {sessionScore.correct}/{sessionScore.total} correct
               </div>
             </div>
@@ -326,7 +326,7 @@ export default function BlindRollPage() {
         {phase === "loading" && (
           <div className="flex flex-1 flex-col items-center justify-center gap-4 py-20">
             <div className="h-7 w-7 animate-spin rounded-full border-2 border-[#e8453c]/30 border-t-[#e8453c]" />
-            <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#555568]">
+            <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#555568]">
               Loading blind roll...
             </p>
           </div>
@@ -352,10 +352,10 @@ export default function BlindRollPage() {
               <section className="relative overflow-hidden rounded-2xl border border-[#34344c] bg-[linear-gradient(145deg,rgba(18,18,31,0.98),rgba(8,8,14,0.98))] p-3 shadow-[0_24px_80px_rgba(0,0,0,0.38)]">
                 <div className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-[linear-gradient(90deg,#e8453c,#D4AF37,#e8453c)]" />
                 <div className="mb-2.5 flex shrink-0 items-center justify-between gap-4">
-                  <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.28em] text-[#e8453c]">
+                  <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.28em] text-[#e8453c]">
                     Case File
                   </p>
-                  <div className="rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/10 px-3 py-1 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.16em] text-[#D4AF37]">
+                  <div className="rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/10 px-3 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.16em] text-[#D4AF37]">
                     Classified
                   </div>
                 </div>
@@ -367,7 +367,7 @@ export default function BlindRollPage() {
                         key={card.label}
                         className="flex h-24 flex-col justify-between rounded-xl border border-[#2a2a3e] bg-[#09090f]/80 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
                       >
-                        <p className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.18em] text-[#77778b]">
+                        <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em] text-[#77778b]">
                           {card.label}
                         </p>
                         <p className="line-clamp-2 font-[family-name:var(--font-display)] text-2xl font-bold leading-tight">
@@ -386,7 +386,7 @@ export default function BlindRollPage() {
                         className="flex min-h-20 flex-col gap-2 rounded-xl border border-[#2a2a3e] bg-[#09090f]/80 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] sm:flex-row sm:items-center sm:justify-between"
                       >
                         <div className="min-w-0">
-                          <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.2em] text-[#e8453c]">
+                          <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.2em] text-[#e8453c]">
                             {formatAwardBody(award.awardBody)} · {award.awardYear}
                           </p>
                           <p className="mt-1 line-clamp-2 font-[family-name:var(--font-display)] text-base font-bold leading-tight">
@@ -394,7 +394,7 @@ export default function BlindRollPage() {
                           </p>
                           <p className="mt-1 truncate text-xs text-[#aaaabc]">{award.nominee}</p>
                         </div>
-                        <span className="w-fit shrink-0 rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/10 px-3 py-1 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.16em] text-[#D4AF37]">
+                        <span className="w-fit shrink-0 rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/10 px-3 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.16em] text-[#D4AF37]">
                           {award.won ? "Won" : "Nominated"}
                         </span>
                       </div>
@@ -410,7 +410,7 @@ export default function BlindRollPage() {
               <section className="relative overflow-hidden rounded-2xl border border-[#34344c] bg-[#0d0d1a] p-3 shadow-[0_24px_80px_rgba(0,0,0,0.32)]">
                 <div className="mb-2.5">
                   <div>
-                    <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.28em] text-[#D4AF37]">
+                    <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.28em] text-[#D4AF37]">
                       Suspect Lineup
                     </p>
                     <p className="mt-1 text-sm text-[#888899]">Choose the title that matches the clues.</p>
@@ -434,7 +434,7 @@ export default function BlindRollPage() {
                       ) : (
                         <XCircle className="h-4 w-4 shrink-0 text-[#e8453c]" />
                       )}
-                      <p className="truncate font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.18em]">
+                      <p className="truncate font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.18em]">
                         {correct ? "Correct pick" : "Case missed"}
                       </p>
                     </div>
@@ -478,7 +478,7 @@ export default function BlindRollPage() {
                       >
                         <span
                           className={[
-                            "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-widest transition-colors",
+                            "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-widest transition-colors",
                             markerStateClass,
                           ].join(" ")}
                         >
@@ -488,7 +488,7 @@ export default function BlindRollPage() {
                           <span className="line-clamp-2 font-[family-name:var(--font-display)] text-lg font-bold leading-tight text-[#F5F5F0]">
                             {option.title}
                           </span>
-                          <span className="mt-1 block font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.18em] text-[#66667a]">
+                          <span className="mt-1 block font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em] text-[#66667a]">
                             Candidate
                           </span>
                         </span>
@@ -526,7 +526,7 @@ export default function BlindRollPage() {
                       className="relative overflow-hidden rounded-xl border border-[#4ade80]/45 bg-[#4ade80]/10 px-4 py-3 text-center shadow-[0_0_40px_rgba(74,222,128,0.12)]"
                     >
                       <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-[#bbf7d0]/70" />
-                      <p className="font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.22em] text-[#4ade80]">
+                      <p className="font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.22em] text-[#4ade80]">
                         Case cracked
                       </p>
                       <p className="mt-1 text-sm text-[#d4d4df]">
@@ -543,7 +543,7 @@ export default function BlindRollPage() {
                       </div>
                     )}
                     <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/78 to-transparent p-4 pt-20 text-center">
-                      <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.24em] text-[#D4AF37]">
+                      <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.24em] text-[#D4AF37]">
                         {correct ? "Case Closed" : "The Answer"}
                       </p>
                       <h2 className="mt-2 line-clamp-2 font-[family-name:var(--font-display)] text-3xl font-bold leading-tight">
@@ -561,7 +561,7 @@ export default function BlindRollPage() {
                   <button
                     type="button"
                     onClick={() => void handleChallengeFriend()}
-                    className="flex h-12 items-center justify-center gap-2 rounded-xl border border-[#D4AF37]/35 bg-[#D4AF37]/10 font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.18em] text-[#D4AF37] transition-colors hover:bg-[#D4AF37]/15 hover:text-[#f3d76a]"
+                    className="flex h-12 items-center justify-center gap-2 rounded-xl border border-[#D4AF37]/35 bg-[#D4AF37]/10 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.18em] text-[#D4AF37] transition-colors hover:bg-[#D4AF37]/15 hover:text-[#f3d76a]"
                   >
                     <Link2 className="h-3.5 w-3.5" />
                     {shareStatus === "copied"
@@ -586,7 +586,7 @@ export default function BlindRollPage() {
                       <div className="flex h-20 w-20 items-center justify-center rounded-full border border-[#e8453c]/30 bg-[#e8453c]/10">
                         <Eye className="h-10 w-10 text-[#e8453c]" />
                       </div>
-                      <p className="max-w-48 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.18em] text-[#555568]">
+                      <p className="max-w-48 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em] text-[#555568]">
                         Title, poster, and plot hidden
                       </p>
                     </div>
@@ -595,7 +595,7 @@ export default function BlindRollPage() {
                     <button
                       type="button"
                       onClick={() => void handleChallengeFriend()}
-                      className="flex h-11 items-center justify-center gap-2 rounded-xl border border-[#D4AF37]/35 bg-[#D4AF37]/10 font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.18em] text-[#D4AF37] transition-colors hover:bg-[#D4AF37]/15 hover:text-[#f3d76a]"
+                      className="flex h-11 items-center justify-center gap-2 rounded-xl border border-[#D4AF37]/35 bg-[#D4AF37]/10 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.18em] text-[#D4AF37] transition-colors hover:bg-[#D4AF37]/15 hover:text-[#f3d76a]"
                     >
                       <Link2 className="h-3.5 w-3.5" />
                       {shareStatus === "copied"

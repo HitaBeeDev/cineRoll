@@ -405,7 +405,7 @@ export function HomeClient({
           <div className="flex flex-col lg:flex-1 lg:min-h-0 lg:overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:w-0">
           {/* Channel label */}
           <div className="flex items-center justify-between gap-3">
-            <p className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.25em] text-[#888899]">
+            <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.25em] text-[#888899]">
               {"// CHANNEL 03 · TONIGHT"}
             </p>
             <button
@@ -413,7 +413,7 @@ export function HomeClient({
               onClick={() => setIsHistoryOpen(true)}
               className={cn(
                 "inline-flex h-9 items-center gap-2 rounded-full border border-[#1e1e2a] bg-[#11111b] px-3 text-[#888899]",
-                "font-[family-name:var(--font-geist-mono)] text-[9px] font-bold uppercase tracking-[0.18em]",
+                "font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.18em]",
                 "transition hover:border-[#e8453c]/45 hover:text-[#F5F5F0]",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090f]",
               )}
@@ -518,7 +518,7 @@ export function HomeClient({
                 ) : hasActiveFilters && effectiveCount !== null && !effectiveCountLoading ? (
                   <span className="flex flex-col items-center leading-tight gap-0.5">
                     <span className="text-xl tracking-[0.25em]">Roll</span>
-                    <span className="text-[9px] tracking-[0.15em] font-normal normal-case opacity-80">
+                    <span className="text-[11px] tracking-[0.15em] font-normal normal-case opacity-80">
                       from {effectiveCount} films
                     </span>
                   </span>
@@ -531,14 +531,14 @@ export function HomeClient({
             {/* Pool counter — to the right of the ROLL box */}
             <div className="flex shrink-0 flex-col items-start gap-0.5">
               {effectiveCount === 0 ? (
-                <p className="font-[family-name:var(--font-geist-mono)] text-[9px] leading-relaxed tracking-wide text-[#9090a8] max-w-[180px]">
+                <p className="font-[family-name:var(--font-geist-mono)] text-[11px] leading-relaxed tracking-wide text-[#9090a8] max-w-[180px]">
                   No films match —<br />
                   even we couldn&apos;t find that.<br />
                   Try relaxing a filter.
                 </p>
               ) : (
                 <>
-                  <span className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-widest text-[#888899]">
+                  <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#888899]">
                     Reel Pool
                   </span>
                   <AnimatedPoolCount value={poolCountStr} />
@@ -549,12 +549,12 @@ export function HomeClient({
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
                       transition={{ duration: 0.25 }}
-                      className="font-[family-name:var(--font-geist-mono)] text-[9px] tracking-wide text-[#9090a8]"
+                      className="font-[family-name:var(--font-geist-mono)] text-[11px] tracking-wide text-[#9090a8]"
                     >
                       {effectiveCountLoading ? "finding films…" : getCountTagline(displayCount)}
                     </motion.span>
                   </AnimatePresence>
-                  <span className="font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-widest text-[#888899]">
+                  <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#888899]">
                     Press [Space] to spin
                   </span>
                 </>
@@ -565,7 +565,7 @@ export function HomeClient({
               href="/describe"
               className={cn(
                 "inline-flex shrink-0 self-end items-center gap-1.5 rounded-full border border-[#2a2a3e] px-3 py-1.5",
-                "font-[family-name:var(--font-geist-mono)] text-[9px] font-bold uppercase tracking-widest text-[#F5F5F0]",
+                "font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-widest text-[#F5F5F0]",
                 "transition-colors hover:border-[#e8453c]/45 hover:text-[#e8453c]",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
                 "focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090f]",
@@ -585,7 +585,7 @@ export function HomeClient({
               onClick={togglePersonalizedRoll}
               className={cn(
                 "mt-1 inline-flex w-fit items-center gap-2 rounded-full border px-3 py-1.5",
-                "font-[family-name:var(--font-geist-mono)] text-[9px] font-bold uppercase tracking-widest",
+                "font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-widest",
                 "transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
                 personalizedRoll
                   ? "border-[#e8453c]/45 bg-[#e8453c]/10 text-[#e8453c]"
@@ -618,7 +618,7 @@ export function HomeClient({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -3 }}
                 transition={{ duration: 0.08 }}
-                className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.25em] text-[#e8453c]/60"
+                className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.25em] text-[#e8453c]/60"
               >
                 Searching{effectiveCount !== null ? ` ${effectiveCount}` : ""} films…
               </motion.p>

@@ -125,7 +125,7 @@ export function WatchlistGrid({
                   />
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center bg-[linear-gradient(135deg,#151520,#0b0b12)]">
-                    <span className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.32em] text-[#555064]">
+                    <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.32em] text-[#555064]">
                       No Poster
                     </span>
                   </div>
@@ -155,12 +155,12 @@ export function WatchlistGrid({
               <h3 className="line-clamp-1 text-[14px] font-semibold leading-snug text-[#eeeaf6] sm:text-[15px]">
                 {film.title}
               </h3>
-              <p className="mt-1 line-clamp-1 font-[family-name:var(--font-geist-mono)] text-[10px] text-[#9d98ad]">
+              <p className="mt-1 line-clamp-1 font-[family-name:var(--font-geist-mono)] text-[11px] text-[#9d98ad]">
                 {film.year ?? "—"}
                 {primaryGenre ? <span className="text-[#6f6a80]"> · {primaryGenre}</span> : null}
               </p>
               {summary ? (
-                <p className="mt-1 line-clamp-1 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.14em] text-[#D4AF37]">
+                <p className="mt-1 line-clamp-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-[#D4AF37]">
                   {summary}
                 </p>
               ) : null}
@@ -175,7 +175,7 @@ export function WatchlistGrid({
             type="button"
             onClick={() => void loadMore()}
             disabled={loadingMore}
-            className="inline-flex items-center rounded-xl border border-white/15 bg-[#0d0d1a] px-6 py-3 font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.2em] text-[#cfcadb] transition-colors hover:border-[#e8453c]/60 hover:text-[#e8453c] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex items-center rounded-xl border border-white/15 bg-[#0d0d1a] px-6 py-3 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.2em] text-[#cfcadb] transition-colors hover:border-[#e8453c]/60 hover:text-[#e8453c] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] disabled:cursor-not-allowed disabled:opacity-50"
           >
             {loadingMore ? "Loading…" : "Load more"}
           </button>

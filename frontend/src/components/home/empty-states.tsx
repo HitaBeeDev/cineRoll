@@ -77,7 +77,7 @@ export function ZeroResultsEmpty({
 
           <motion.p
             variants={itemVariants}
-            className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.4em] text-[#e8453c]/70"
+            className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.4em] text-[#e8453c]/70"
           >
             ◈ No Matches ◈
           </motion.p>
@@ -93,7 +93,7 @@ export function ZeroResultsEmpty({
 
           <motion.p
             variants={itemVariants}
-            className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest text-[#888899]"
+            className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#888899]"
           >
             Your filters are very specific
           </motion.p>
@@ -112,7 +112,7 @@ export function ZeroResultsEmpty({
             <button
               type="button"
               onClick={onClearAndRoll}
-              className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest text-[#888899] underline-offset-4 transition-colors hover:text-[#F5F5F0] hover:underline"
+              className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#888899] underline-offset-4 transition-colors hover:text-[#F5F5F0] hover:underline"
             >
               or try a random film instead
             </button>
@@ -160,7 +160,7 @@ export function FilmCardEmpty() {
         {/* Radial glow */}
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(232,69,60,0.12)_0%,transparent_70%)]" />
 
-        <p className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.4em] text-[#e8453c]/70">
+        <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.4em] text-[#e8453c]/70">
           ◈ Reel Ready ◈
         </p>
 
@@ -179,7 +179,7 @@ export function FilmCardEmpty() {
           <div className="h-px flex-1 bg-gradient-to-l from-transparent to-[#2a2a3e]" />
         </div>
 
-        <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest text-[#888899]">
+        <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#888899]">
           Hit Roll or press Space to find out
         </p>
 
@@ -187,7 +187,7 @@ export function FilmCardEmpty() {
           {["Oscar", "Cannes", "Golden Globe"].map((award) => (
             <span
               key={award}
-              className="rounded-full border border-[#2a2a3e] px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-widest text-[#888899]"
+              className="rounded-full border border-[#2a2a3e] px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#888899]"
             >
               {award}
             </span>

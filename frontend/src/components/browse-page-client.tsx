@@ -279,7 +279,7 @@ export function BrowsePageClient() {
               {["Oscar", "Golden Globe", "Cannes", "Berlinale", "1929-Today"].map((label) => (
                 <span
                   key={label}
-                  className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.035] px-3.5 py-1.5 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.18em] text-[#b8b5c8]"
+                  className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.035] px-3.5 py-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em] text-[#b8b5c8]"
                 >
                   <span className="h-1 w-1 rounded-full bg-[#e8453c]/70" aria-hidden />
                   {label}
@@ -323,7 +323,7 @@ export function BrowsePageClient() {
                 >
                   {acResults.films.length > 0 && (
                     <>
-                      <div className="px-3 pt-2.5 pb-1 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.28em] text-[#555064]">
+                      <div className="px-3 pt-2.5 pb-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.28em] text-[#555064]">
                         Films
                       </div>
                       {acResults.films.map((film, i) => (
@@ -343,7 +343,7 @@ export function BrowsePageClient() {
                           <span className="min-w-0 flex-1 truncate font-[family-name:var(--font-geist-mono)] text-[11px] text-[#e8e5f4]">
                             {film.title}
                           </span>
-                          <span className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[10px] text-[#555064]">
+                          <span className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[11px] text-[#555064]">
                             {film.year}
                           </span>
                         </button>
@@ -353,7 +353,7 @@ export function BrowsePageClient() {
                   {acResults.people.length > 0 && (
                     <>
                       <div className={cn(
-                        "px-3 pb-1 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.28em] text-[#555064]",
+                        "px-3 pb-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.28em] text-[#555064]",
                         acResults.films.length > 0 ? "mt-2 border-t border-white/[0.06] pt-2.5" : "pt-2.5",
                       )}>
                         People
@@ -377,7 +377,7 @@ export function BrowsePageClient() {
                             <span className="min-w-0 flex-1 truncate font-[family-name:var(--font-geist-mono)] text-[11px] text-[#e8e5f4]">
                               {person.name}
                             </span>
-                            <span className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[9px] capitalize text-[#555064]">
+                            <span className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[11px] capitalize text-[#555064]">
                               {person.roles.join(" · ")}
                             </span>
                           </button>
@@ -408,7 +408,7 @@ export function BrowsePageClient() {
                       setFilters({ awardBody: value, imdbTopMoviesOnly: false, imdbTopTvOnly: false, page: 1 })
                     }
                     className={cn(
-                      "h-8 shrink-0 rounded px-3.5 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.14em] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40",
+                      "h-8 shrink-0 rounded px-3.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40",
                       active
                         ? "bg-[#e8453c] text-white shadow-[0_0_24px_rgba(232,69,60,0.24)]"
                         : "text-[#7f7a91] hover:bg-white/[0.055] hover:text-[#f1eff8]",
@@ -437,7 +437,7 @@ export function BrowsePageClient() {
                   type="button"
                   onClick={fn}
                   className={cn(
-                    "h-8 shrink-0 rounded px-3.5 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.14em] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37]/35",
+                    "h-8 shrink-0 rounded px-3.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37]/35",
                     active
                       ? "bg-[#D4AF37] font-semibold text-[#09090f] shadow-[0_0_24px_rgba(212,175,55,0.18)]"
                       : "text-[#7f7a91] hover:bg-white/[0.055] hover:text-[#f1eff8]",
@@ -464,7 +464,7 @@ export function BrowsePageClient() {
                   type="button"
                   onClick={fn}
                   className={cn(
-                    "h-8 shrink-0 rounded px-3.5 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.14em] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40",
+                    "h-8 shrink-0 rounded px-3.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40",
                     active
                       ? "bg-[#e8453c] text-white shadow-[0_0_24px_rgba(232,69,60,0.24)]"
                       : "text-[#7f7a91] hover:bg-white/[0.055] hover:text-[#f1eff8]",
@@ -486,7 +486,7 @@ export function BrowsePageClient() {
                   setFilters({ genre: val === "_all" ? "" : val, page: 1 })
                 }
               >
-                <SelectTrigger className="h-10 w-[158px] rounded-md border-white/10 bg-white/[0.045] font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.14em] text-[#b8b5c8] transition-colors hover:border-white/20 focus:ring-[#e8453c]/60 focus:ring-offset-0">
+                <SelectTrigger className="h-10 w-[158px] rounded-md border-white/10 bg-white/[0.045] font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-[#b8b5c8] transition-colors hover:border-white/20 focus:ring-[#e8453c]/60 focus:ring-offset-0">
                   <SelectValue placeholder="Genre" />
                 </SelectTrigger>
                 <SelectContent className="border-white/10 bg-[#101019]">
@@ -503,7 +503,7 @@ export function BrowsePageClient() {
               type="button"
               onClick={() => setShowMore((v) => !v)}
               className={cn(
-                "flex h-10 items-center gap-2 rounded-md border px-3.5 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.14em] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40",
+                "flex h-10 items-center gap-2 rounded-md border px-3.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40",
                 showMore
                   ? "border-[#e8453c]/55 bg-[#e8453c]/12 text-[#ff766d]"
                   : "border-white/10 bg-white/[0.045] text-[#b8b5c8] hover:border-white/20 hover:text-[#f1eff8]",
@@ -528,7 +528,7 @@ export function BrowsePageClient() {
                   type="button"
                   onClick={chip.onRemove}
                   aria-label={`Remove ${chip.label} filter`}
-                  className="inline-flex h-7 items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.045] px-2.5 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.18em] text-[#a9a5bc] transition-colors hover:border-[#e8453c]/45 hover:text-[#ff766d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/30"
+                  className="inline-flex h-7 items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.045] px-2.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em] text-[#a9a5bc] transition-colors hover:border-[#e8453c]/45 hover:text-[#ff766d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/30"
                 >
                   {chip.label}
                   <X className="h-2.5 w-2.5 shrink-0" aria-hidden />
@@ -537,7 +537,7 @@ export function BrowsePageClient() {
               <button
                 type="button"
                 onClick={() => { resetFilters(); setShowMore(false); }}
-                className="ml-1 font-[family-name:var(--font-geist-mono)] text-[8px] uppercase tracking-[0.24em] text-[#706b82] transition-colors hover:text-[#ff766d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/30"
+                className="ml-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.24em] text-[#706b82] transition-colors hover:text-[#ff766d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/30"
               >
                 Clear all
               </button>
@@ -611,7 +611,7 @@ export function BrowsePageClient() {
                     value={filters.category || "_all"}
                     onValueChange={(val) => setFilters({ category: val === "_all" ? "" : val, page: 1 })}
                   >
-                    <SelectTrigger className="h-10 w-full rounded-md border-white/10 bg-white/[0.045] font-[family-name:var(--font-geist-mono)] text-[10px] text-[#b8b5c8] transition-colors hover:border-white/20 focus:ring-[#e8453c]/60 focus:ring-offset-0">
+                    <SelectTrigger className="h-10 w-full rounded-md border-white/10 bg-white/[0.045] font-[family-name:var(--font-geist-mono)] text-[11px] text-[#b8b5c8] transition-colors hover:border-white/20 focus:ring-[#e8453c]/60 focus:ring-offset-0">
                       <SelectValue placeholder="Any category" />
                     </SelectTrigger>
                     <SelectContent className="border-white/10 bg-[#101019]">
@@ -629,7 +629,7 @@ export function BrowsePageClient() {
                       setFilters({ awardYear: val === "_any" ? null : Number(val), page: 1 })
                     }
                   >
-                    <SelectTrigger className="h-10 w-full rounded-md border-white/10 bg-white/[0.045] font-[family-name:var(--font-geist-mono)] text-[10px] text-[#b8b5c8] transition-colors hover:border-white/20 focus:ring-[#e8453c]/60 focus:ring-offset-0">
+                    <SelectTrigger className="h-10 w-full rounded-md border-white/10 bg-white/[0.045] font-[family-name:var(--font-geist-mono)] text-[11px] text-[#b8b5c8] transition-colors hover:border-white/20 focus:ring-[#e8453c]/60 focus:ring-offset-0">
                       <SelectValue placeholder="Any year" />
                     </SelectTrigger>
                     <SelectContent className="border-white/10 bg-[#101019]">
@@ -646,7 +646,7 @@ export function BrowsePageClient() {
                       value={String(filters.decadeMin)}
                       onValueChange={(val) => setFilters({ decadeMin: Number(val), page: 1 })}
                     >
-                      <SelectTrigger className="h-10 flex-1 rounded-md border-white/10 bg-white/[0.045] font-[family-name:var(--font-geist-mono)] text-[10px] text-[#b8b5c8] transition-colors hover:border-white/20 focus:ring-[#e8453c]/60 focus:ring-offset-0">
+                      <SelectTrigger className="h-10 flex-1 rounded-md border-white/10 bg-white/[0.045] font-[family-name:var(--font-geist-mono)] text-[11px] text-[#b8b5c8] transition-colors hover:border-white/20 focus:ring-[#e8453c]/60 focus:ring-offset-0">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent className="border-white/10 bg-[#101019]">
@@ -661,7 +661,7 @@ export function BrowsePageClient() {
                       value={String(filters.decadeMax)}
                       onValueChange={(val) => setFilters({ decadeMax: Number(val), page: 1 })}
                     >
-                      <SelectTrigger className="h-10 flex-1 rounded-md border-white/10 bg-white/[0.045] font-[family-name:var(--font-geist-mono)] text-[10px] text-[#b8b5c8] transition-colors hover:border-white/20 focus:ring-[#e8453c]/60 focus:ring-offset-0">
+                      <SelectTrigger className="h-10 flex-1 rounded-md border-white/10 bg-white/[0.045] font-[family-name:var(--font-geist-mono)] text-[11px] text-[#b8b5c8] transition-colors hover:border-white/20 focus:ring-[#e8453c]/60 focus:ring-offset-0">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent className="border-white/10 bg-[#101019]">
@@ -684,7 +684,7 @@ export function BrowsePageClient() {
       <main className="mx-auto w-full max-w-[100vw] flex-1 px-4 py-6 sm:max-w-screen-2xl sm:px-6 sm:py-8 lg:px-8 xl:px-12">
         <div className="mb-6 flex flex-col gap-4 border-b border-white/10 pb-5 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.22em] text-[#e8453c]">
+            <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.22em] text-[#e8453c]">
               {resultContext}
             </p>
             <h2 className="mt-2 text-xl font-semibold tracking-normal text-[#f2eff8] sm:text-2xl">
@@ -706,7 +706,7 @@ export function BrowsePageClient() {
               type="button"
               disabled={rolling || status === "loading" || total === 0}
               onClick={() => { void handleRollFromResults(); }}
-              className="flex shrink-0 items-center gap-2 rounded-lg border border-[#e8453c]/40 bg-[#e8453c]/10 px-4 py-2.5 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.16em] text-[#ff766d] transition-all hover:border-[#e8453c]/70 hover:bg-[#e8453c]/20 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40 disabled:cursor-not-allowed disabled:opacity-40"
+              className="flex shrink-0 items-center gap-2 rounded-lg border border-[#e8453c]/40 bg-[#e8453c]/10 px-4 py-2.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.16em] text-[#ff766d] transition-all hover:border-[#e8453c]/70 hover:bg-[#e8453c]/20 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40 disabled:cursor-not-allowed disabled:opacity-40"
             >
               <Shuffle className={cn("h-3.5 w-3.5", rolling && "animate-spin")} aria-hidden />
               {rolling ? "Rolling…" : total === 0 && status === "success" ? "No matches" : status === "success" ? `Roll from ${total.toLocaleString()} films` : "Roll from these results"}
@@ -714,7 +714,7 @@ export function BrowsePageClient() {
           )}
 
           <div className="flex w-full flex-wrap items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.025] p-2 shadow-[0_18px_50px_rgba(0,0,0,0.22)] lg:w-auto">
-            <span className="px-2 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.18em] text-[#7d788e]">
+            <span className="px-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em] text-[#7d788e]">
               Sort
             </span>
             {SORT_OPTIONS.map((option) => (
@@ -724,7 +724,7 @@ export function BrowsePageClient() {
                 aria-pressed={filters.sort === option.value}
                 onClick={() => setFilters({ sort: option.value, page: 1 })}
                 className={cn(
-                  "h-9 rounded-lg px-3 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.13em] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/35",
+                  "h-9 rounded-lg px-3 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.13em] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/35",
                   filters.sort === option.value
                     ? "bg-[#e8453c] text-white shadow-[0_10px_24px_rgba(232,69,60,0.22)]"
                     : "bg-[#111018] text-[#a9a5bc] hover:bg-white/[0.075] hover:text-white",
@@ -739,7 +739,7 @@ export function BrowsePageClient() {
               aria-label={filters.sortOrder === "asc" ? "Sort ascending" : "Sort descending"}
               onClick={() => setFilters({ sortOrder: filters.sortOrder === "asc" ? "desc" : "asc", page: 1 })}
               className={cn(
-                "flex h-9 items-center gap-1.5 rounded-lg px-3 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.13em] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/35",
+                "flex h-9 items-center gap-1.5 rounded-lg px-3 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.13em] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/35",
                 filters.sortOrder === "asc"
                   ? "bg-[#e8453c] text-white shadow-[0_10px_24px_rgba(232,69,60,0.22)]"
                   : "bg-[#111018] text-[#a9a5bc] hover:bg-white/[0.075] hover:text-white",
@@ -762,13 +762,13 @@ export function BrowsePageClient() {
         {/* Error */}
         {status === "error" && (
           <div className="flex min-h-80 flex-col items-center justify-center gap-5 rounded-lg border border-dashed border-white/12 bg-white/[0.025] px-6 py-16 text-center">
-            <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.32em] text-[#8e899e]">
+            <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.32em] text-[#8e899e]">
               Something went wrong
             </p>
             <button
               type="button"
               onClick={() => setFilter({ ...filters })}
-              className="rounded-full border border-[#e8453c]/35 px-4 py-2 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.24em] text-[#ff766d] transition-colors hover:border-[#e8453c]/70 hover:text-white"
+              className="rounded-full border border-[#e8453c]/35 px-4 py-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.24em] text-[#ff766d] transition-colors hover:border-[#e8453c]/70 hover:text-white"
             >
               Try again →
             </button>
@@ -779,13 +779,13 @@ export function BrowsePageClient() {
         {status === "success" && result?.films.length === 0 && (
           <div className="flex min-h-80 flex-col items-center justify-center gap-5 rounded-lg border border-dashed border-white/12 bg-white/[0.025] px-6 py-16 text-center">
             <Clapperboard className="h-10 w-10 text-[#555064]" aria-hidden />
-            <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.28em] text-[#8e899e]">
+            <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.28em] text-[#8e899e]">
               No films match — try adjusting your filters
             </p>
             <button
               type="button"
               onClick={resetFilters}
-              className="rounded-full border border-[#e8453c]/35 px-4 py-2 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.24em] text-[#ff766d] transition-colors hover:border-[#e8453c]/70 hover:text-white"
+              className="rounded-full border border-[#e8453c]/35 px-4 py-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.24em] text-[#ff766d] transition-colors hover:border-[#e8453c]/70 hover:text-white"
             >
               Reset filters →
             </button>
@@ -821,13 +821,13 @@ export function BrowsePageClient() {
                 type="button"
                 disabled={page <= 1}
                 onClick={() => setFilters({ page: page - 1 })}
-                className="flex items-center gap-2 rounded-md border border-white/10 bg-white/[0.035] px-5 py-2.5 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.22em] text-[#a9a5bc] transition-colors hover:border-[#e8453c]/35 hover:text-white disabled:cursor-not-allowed disabled:opacity-25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/30"
+                className="flex items-center gap-2 rounded-md border border-white/10 bg-white/[0.035] px-5 py-2.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.22em] text-[#a9a5bc] transition-colors hover:border-[#e8453c]/35 hover:text-white disabled:cursor-not-allowed disabled:opacity-25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/30"
               >
                 <ArrowLeft className="h-3.5 w-3.5" aria-hidden />
                 Prev
               </button>
 
-              <p className="rounded-full border border-white/10 bg-white/[0.035] px-4 py-2 font-[family-name:var(--font-geist-mono)] text-[10px] tracking-[0.22em] text-[#686378]">
+              <p className="rounded-full border border-white/10 bg-white/[0.035] px-4 py-2 font-[family-name:var(--font-geist-mono)] text-[11px] tracking-[0.22em] text-[#686378]">
                 <span className="text-[#dedbea]">{page.toLocaleString()}</span>
                 <span className="mx-1.5 text-[#575266]">/</span>
                 <span className="text-[#dedbea]">{totalPages.toLocaleString()}</span>
@@ -837,7 +837,7 @@ export function BrowsePageClient() {
                 type="button"
                 disabled={page >= totalPages}
                 onClick={() => setFilters({ page: page + 1 })}
-                className="flex items-center gap-2 rounded-md border border-white/10 bg-white/[0.035] px-5 py-2.5 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.22em] text-[#a9a5bc] transition-colors hover:border-[#e8453c]/35 hover:text-white disabled:cursor-not-allowed disabled:opacity-25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/30"
+                className="flex items-center gap-2 rounded-md border border-white/10 bg-white/[0.035] px-5 py-2.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.22em] text-[#a9a5bc] transition-colors hover:border-[#e8453c]/35 hover:text-white disabled:cursor-not-allowed disabled:opacity-25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/30"
               >
                 Next
                 <ArrowRight className="h-3.5 w-3.5" aria-hidden />
@@ -855,7 +855,7 @@ export function BrowsePageClient() {
 function PanelSection({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-2">
-      <span className="font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.3em] text-[#8e899e]">
+      <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.3em] text-[#8e899e]">
         {label}
       </span>
       {children}
@@ -878,7 +878,7 @@ function FilterChip({
       aria-pressed={active}
       onClick={onClick}
       className={cn(
-        "h-8 rounded-md border px-3 font-[family-name:var(--font-geist-mono)] text-[9px] uppercase tracking-[0.16em] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/35",
+        "h-8 rounded-md border px-3 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.16em] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/35",
         active
           ? "border-[#e8453c] bg-[#e8453c] text-white"
           : "border-white/10 bg-white/[0.035] text-[#a9a5bc] hover:border-white/20 hover:text-white",
