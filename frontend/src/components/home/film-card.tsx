@@ -59,7 +59,6 @@ export function FilmCard({
   const totalWins = film.oscarWins + film.ggWins + film.cannesWins;
   const totalNoms =
     film.oscarNominations + film.ggNominations + film.cannesNominations;
-  const listBadges = getListBadges(film);
   const awardHighlights = getAwardHighlights(film);
 
   async function shareFilm() {
@@ -137,14 +136,6 @@ export function FilmCard({
             Dir. {film.director}
           </p>
         )}
-
-        {listBadges.length > 0 ? (
-          <div className="flex flex-wrap gap-1.5">
-            {listBadges.map((badge) => (
-              <ListBadge key={badge}>{badge}</ListBadge>
-            ))}
-          </div>
-        ) : null}
 
         {/* Plot */}
         {film.plot && (
@@ -283,12 +274,6 @@ export function FilmCard({
   );
 }
 
-function getListBadges(film: RollFilm) {
-  const badges: string[] = [];
-  if (film.cannesNominations > 0) badges.push("Cannes");
-  return badges;
-}
-
 function StatBox({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex flex-col gap-1 rounded-lg border border-[#1e1e2a] bg-[#0d0d1a] px-3 py-2.5">
@@ -299,14 +284,6 @@ function StatBox({ label, value }: { label: string; value: string }) {
         {value}
       </span>
     </div>
-  );
-}
-
-function ListBadge({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="inline-flex items-center rounded-full border border-[#D4AF37]/25 bg-[#D4AF37]/10 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-widest text-[#D4AF37]">
-      {children}
-    </span>
   );
 }
 
