@@ -94,6 +94,14 @@ async function getDoNotSuggestFilmIds(userId: string): Promise<string[]> {
   return rows.map(row => row.filmId);
 }
 
+/** Exclusion for client-supplied film IDs (a guest's session-hidden films),
+ *  so the roll skips them server-side in one query instead of the client
+ *  re-rolling until it happens to miss them. */
+function excludeIdsCondition(query: RandomQuery): Prisma.Sql | null {
+  if (!query.excludeIds || query.excludeIds.length === 0) return null;
+  return Prisma.sql`"Film"."id" NOT IN (${Prisma.join(query.excludeIds)})`;
+}
+
 export async function getRandomFilm(query: RandomQuery): Promise<{
   film: RandomFilmRow | null;
   total: number;
@@ -143,6 +151,9 @@ export async function getRandomFilms(query: RandomQuery, count: number): Promise
       additionalConditions.push(Prisma.sql`"Film"."id" NOT IN (${Prisma.join(excludedFilmIds)})`);
     }
   }
+
+  const excludeIds = excludeIdsCondition(query);
+  if (excludeIds) additionalConditions.push(excludeIds);
 
   const whereSql = buildWhereClause(query, additionalConditions);
 
@@ -251,6 +262,9 @@ export async function getPersonalizedRandomFilm(query: RandomQuery): Promise<{
     additionalConditions.push(Prisma.sql`"Film"."id" NOT IN (${Prisma.join(excludedFilmIds)})`);
   }
 
+  const excludeIds = excludeIdsCondition(query);
+  if (excludeIds) additionalConditions.push(excludeIds);
+
   const whereSql = buildWhereClause(query, additionalConditions);
 
   const [pool, total] = await Promise.all([
@@ -289,7 +303,7 @@ export async function getPersonalizedRandomFilm(query: RandomQuery): Promise<{
 
 randomRouter.get("/", validate(randomQuerySchema), async (req, res) => {
   const query = getValidated<RandomQuery>(req, "query");
-  const { userId, personalized, ...loggedFilters } = query;
+  const { userId, personalized, excludeIds: _excludeIds, ...loggedFilters } = query;
   const usePersonalized = personalized === true && userId != null;
 
   const { film, total, exploration } = usePersonalized

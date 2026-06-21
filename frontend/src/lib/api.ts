@@ -180,12 +180,16 @@ export async function fetchRandom(
   filters?: Partial<FilterState>,
   userId?: string,
   personalized?: boolean,
+  excludeIds?: string[],
 ): Promise<RandomResult> {
   const params = filtersToParams(filters ?? {});
   // When signed in, the backend excludes films the user marked "Not Interested".
   if (userId) params.set("userId", userId);
   // Opt-in taste-weighted roll (signed-in only); the backend ignores it without a userId.
   if (personalized && userId) params.set("personalized", "1");
+  // Films to exclude server-side (e.g. a guest's session-hidden films), so the
+  // roll never returns one instead of relying on the client to re-roll past it.
+  if (excludeIds && excludeIds.length > 0) params.set("excludeIds", excludeIds.join(","));
   const qs = params.toString();
   const res = await fetch(`${API_URL}/api/random${qs ? `?${qs}` : ""}`, { cache: "no-store" });
   if (!res.ok) {

@@ -35,7 +35,6 @@ const ONBOARDED_COOKIE = "cineroll_onboarded";
 const TASTE_SEED_SYNCED_KEY = "cineroll_taste_seed_synced";
 const PERSONALIZED_ROLL_KEY = "cineroll_personalized_roll";
 const SESSION_HIDDEN_FILMS_KEY = "cineroll_session_hidden_films";
-const MAX_GUEST_REROLL_ATTEMPTS = 5;
 
 /** Persist the onboarding flag where the server can read it. `page.tsx` reads
  *  this cookie via `cookies()` to decide server-side whether to render
@@ -280,18 +279,10 @@ export function HomeClient({
     try {
       // Signed-in users: the backend filters out films they marked "Not Interested".
       // With the taste toggle on, it returns a taste-weighted (ε-greedy) pick.
-      let result = await fetchRandom(filters, userId, isPersonalized);
-      const hiddenIds = userId ? [] : readSessionHiddenFilmIds();
-      if (!userId && hiddenIds.length > 0) {
-        const hidden = new Set(hiddenIds);
-        for (
-          let attempt = 0;
-          attempt < MAX_GUEST_REROLL_ATTEMPTS && hidden.has(result.film.id);
-          attempt++
-        ) {
-          result = await fetchRandom(filters);
-        }
-      }
+      // Guests can hide films for the session; pass those IDs so the backend
+      // excludes them in a single query rather than re-rolling until it misses them.
+      const hiddenIds = userId ? undefined : readSessionHiddenFilmIds();
+      const result = await fetchRandom(filters, userId, isPersonalized, hiddenIds);
       setFilm(result.film);
       setFilteredCount(result.total);
       pushRollHistory(result.film);

@@ -91,6 +91,15 @@ export const randomQuerySchema = listQueryBaseSchema.extend({
   userId: z.string().trim().min(1).max(180).optional(),
   // Opt-in taste-weighted roll (signed-in only). Ignored without a userId.
   personalized: queryFlagSchema.optional(),
+  // Client-supplied film IDs to exclude from the roll — e.g. a guest's
+  // session-hidden films. Comma-separated; capped so the IN-list stays bounded.
+  excludeIds: z.preprocess(
+    value =>
+      typeof value === "string"
+        ? value.split(",").map(id => id.trim()).filter(Boolean)
+        : value,
+    z.array(z.string().min(1).max(180)).max(100).optional(),
+  ),
 }).refine(
   query =>
     query.decadeMin === undefined ||
