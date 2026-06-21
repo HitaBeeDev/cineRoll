@@ -198,7 +198,7 @@ export function FilterBar({
               "[&>svg]:h-3.5 [&>svg]:w-3.5 [&>svg]:text-current! [&>svg]:opacity-70",
               filters.genre
                 ? "border-[#c08818]! bg-gradient-to-br from-[#deba4a] to-[#c08818] text-[#1a0d00]!"
-                : "border-[#25253a]! bg-transparent! text-[#9898b8]! hover:border-[#e8453c]/40 hover:text-[#F5F5F0]",
+                : "border-[#34344d]! bg-[#0e0e1a]! text-[#aaaac6]! hover:border-[#e8453c]/45 hover:text-[#F5F5F0]",
             )}
           >
             <SelectValue placeholder="All" />
@@ -390,7 +390,7 @@ function FilterRow({
 }) {
   return (
     <div className="flex items-start gap-3">
-      <span className="w-[42px] shrink-0 pt-[7px] font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#9090a8]">
+      <span className="w-[42px] shrink-0 pt-[7px] font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#a2a2bb]">
         {label}
       </span>
       <div className="flex flex-wrap gap-1.5">{children}</div>
@@ -420,7 +420,7 @@ function PillToggle({
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] focus-visible:ring-offset-1 focus-visible:ring-offset-[#09090f]",
         active
           ? (activeClassName ?? "border-[#c08818] bg-gradient-to-br from-[#deba4a] to-[#c08818] text-[#1a0d00]")
-          : "border-[#25253a] text-[#9898b8] hover:border-[#e8453c]/40 hover:text-[#F5F5F0]",
+          : "border-[#34344d] bg-[#0e0e1a] text-[#aaaac6] hover:border-[#e8453c]/45 hover:text-[#F5F5F0]",
       )}
     >
       {children}

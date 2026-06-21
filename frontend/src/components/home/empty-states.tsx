@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import { Dices, Film, X } from "lucide-react";
+import { Film, X } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
@@ -158,12 +158,89 @@ export function ZeroResultsEmpty({
   );
 }
 
+// A teaser lineup for the idle "standby" ticker — iconic Oscar/Cannes/Globe
+// winners, so the panel previews the kind of films in the reel before the
+// first roll. Static + curated (no fetch) on purpose.
+const STANDBY_LINEUP = [
+  "Parasite",
+  "The Godfather",
+  "Casablanca",
+  "Pulp Fiction",
+  "Moonlight",
+  "Apocalypse Now",
+  "La Dolce Vita",
+  "No Country for Old Men",
+  "All About Eve",
+  "In the Mood for Love",
+  "Amour",
+  "Nomadland",
+];
+
+/** Slow horizontal ticker of award-winner titles — the "tonight's lineup" feel.
+ *  Loops seamlessly (two copies, translate −50%); static when reduced motion. */
+function StandbyMarquee() {
+  const prefersReduced = useReducedMotion();
+  const fade =
+    "linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)";
+
+  const Row = ({ ariaHidden = false }: { ariaHidden?: boolean }) => (
+    <div
+      className="flex shrink-0 items-center gap-6 pr-6 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em] text-[#9a9aad]"
+      aria-hidden={ariaHidden || undefined}
+    >
+      {STANDBY_LINEUP.map((title) => (
+        <span key={title} className="flex shrink-0 items-center gap-6 whitespace-nowrap">
+          {title}
+          <span className="text-[#D4AF37]/55">◆</span>
+        </span>
+      ))}
+    </div>
+  );
+
+  if (prefersReduced) {
+    return (
+      <div
+        className="w-full overflow-hidden"
+        style={{ maskImage: fade, WebkitMaskImage: fade }}
+      >
+        <div className="flex justify-center">
+          <Row />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="w-full overflow-hidden"
+      style={{ maskImage: fade, WebkitMaskImage: fade }}
+    >
+      <motion.div
+        className="flex w-max"
+        animate={{ x: ["0%", "-50%"] }}
+        transition={{ duration: 30, ease: "linear", repeat: Infinity }}
+      >
+        <Row />
+        <Row ariaHidden />
+      </motion.div>
+    </div>
+  );
+}
+
 export function FilmCardEmpty() {
+  const prefersReduced = useReducedMotion();
   return (
     <EmptyStateShell glowOpacity={0.12}>
-      <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.4em] text-[#e8453c]/70">
-        ◈ Reel Ready ◈
-      </p>
+      {/* Standby status — broadcast "on but untuned" */}
+      <div className="flex items-center gap-2.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.4em] text-[#e8453c]/80">
+        <motion.span
+          aria-hidden
+          className="h-1.5 w-1.5 rounded-full bg-[#e8453c]"
+          animate={prefersReduced ? { opacity: 1 } : { opacity: [1, 0.2, 1] }}
+          transition={{ duration: 1.8, ease: "easeInOut", repeat: Infinity }}
+        />
+        Standby · CH 03
+      </div>
 
       <div className="flex flex-col gap-0.5">
         <h3 className="font-[family-name:var(--font-display)] text-[2.4rem] font-bold leading-tight text-[#F5F5F0]">
@@ -174,26 +251,19 @@ export function FilmCardEmpty() {
         </h3>
       </div>
 
-      <div className="flex w-full items-center gap-3 px-4">
-        <div className="h-px flex-1 bg-gradient-to-r from-transparent to-[#2a2a3e]" />
-        <Dices className="h-4 w-4 text-[#e8453c]/50" aria-hidden />
-        <div className="h-px flex-1 bg-gradient-to-l from-transparent to-[#2a2a3e]" />
-      </div>
-
-      <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#888899]">
-        Hit Roll or press Space to find out
+      <p className="max-w-[19rem] font-[family-name:var(--font-geist-mono)] text-[11px] uppercase leading-relaxed tracking-[0.16em] text-[#888899]">
+        One random pick from six decades of Oscar, Cannes &amp; Golden Globe winners.
       </p>
 
-      <div className="flex gap-2">
-        {["Oscar", "Cannes", "Golden Globe"].map((award) => (
-          <span
-            key={award}
-            className="rounded-full border border-[#2a2a3e] px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#888899]"
-          >
-            {award}
-          </span>
-        ))}
-      </div>
+      <StandbyMarquee />
+
+      <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.16em] text-[#888899]">
+        Press{" "}
+        <kbd className="mx-0.5 rounded border border-[#2a2a3e] bg-[#11111b] px-1.5 py-0.5 text-[11px] font-bold not-italic text-[#cfcfe0]">
+          Space
+        </kbd>{" "}
+        or hit Roll to tune in
+      </p>
     </EmptyStateShell>
   );
 }

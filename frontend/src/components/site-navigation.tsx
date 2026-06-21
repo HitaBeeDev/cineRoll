@@ -89,7 +89,7 @@ export function SiteNavigation({
                 focusRingClassName,
                 isActive(item.href)
                   ? "text-[#ff625a]"
-                  : "text-[#777287] hover:text-[#F5F5F0]",
+                  : "text-[#8b86a0] hover:text-[#F5F5F0]",
               )}
             >
               {item.label}
