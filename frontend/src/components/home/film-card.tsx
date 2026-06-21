@@ -296,71 +296,70 @@ type AwardHighlight = {
 
 function AwardsPanel({ highlights }: { highlights: AwardHighlight[] }) {
   return (
-    <section className="rounded-xl border border-[#1e1e2a] bg-[#0b0b15] p-3">
-      <div className="flex items-center justify-between gap-3">
-        <h3 className="font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.2em] text-[#D4AF37]">
-          Recognition
-        </h3>
-        <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em] text-[#888899]">
-          Wins / Nominations
-        </span>
-      </div>
-      <div className="mt-2 grid gap-2">
-        {highlights.map((item) => (
-          <div
-            key={item.label}
-            className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-lg border border-[#1a1a28] bg-[#0d0d1a] px-3 py-2"
-          >
-            <div className="min-w-0">
-              <span className="block truncate font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.18em] text-[#9a9aad]">
-                {item.label}
+    <section className="rounded-xl border border-[#1e1e2a] bg-[#0b0b15] px-3.5 py-3">
+      <h3 className="font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.28em] text-[#D4AF37]">
+        Recognition
+      </h3>
+
+      {/* Honors ledger: a gold lozenge marks each body the film actually won at;
+          wins read gold, nominations recede. Zero-win bodies show noms only. */}
+      <ul className="mt-1.5 flex flex-col">
+        {highlights.map((item) => {
+          const honored = item.wins > 0 || item.rank != null;
+          return (
+            <li
+              key={item.label}
+              className="flex items-center justify-between gap-3 border-t border-[#17171f] py-2.5 first:border-t-0"
+            >
+              <span
+                className={cn(
+                  "flex min-w-0 items-center gap-2.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.16em]",
+                  honored ? "text-[#ECE7D6]" : "text-[#8a8a9c]",
+                )}
+              >
+                <span
+                  className={cn(
+                    "h-1.5 w-1.5 shrink-0 rotate-45 rounded-[1px]",
+                    honored ? "bg-[#D4AF37] shadow-[0_0_8px_rgba(212,175,55,0.55)]" : "bg-[#262634]",
+                  )}
+                  aria-hidden
+                />
+                <span className="truncate">{item.label}</span>
               </span>
-              {item.rank != null && (
-                <span className="mt-0.5 block font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-[#888899]">
-                  Ranked list placement
+
+              {item.rank != null ? (
+                <span className="flex shrink-0 items-baseline gap-1 font-[family-name:var(--font-geist-mono)]">
+                  <span className="text-base font-bold leading-none text-[#D4AF37]">#{item.rank}</span>
+                  <span className="text-[11px] uppercase tracking-[0.12em] text-[#D4AF37]/60">rank</span>
+                </span>
+              ) : (
+                <span className="flex shrink-0 items-baseline gap-3 font-[family-name:var(--font-geist-mono)]">
+                  {item.wins > 0 && (
+                    <span className="flex items-baseline gap-1">
+                      <span className="text-base font-bold leading-none text-[#D4AF37]">{item.wins}</span>
+                      <span className="text-[11px] uppercase tracking-[0.14em] text-[#D4AF37]/65">won</span>
+                    </span>
+                  )}
+                  {item.nominations > 0 && (
+                    <span className="flex items-baseline gap-1">
+                      <span
+                        className={cn(
+                          "text-base font-bold leading-none",
+                          item.wins > 0 ? "text-[#bdbdca]" : "text-[#F5F5F0]",
+                        )}
+                      >
+                        {item.nominations}
+                      </span>
+                      <span className="text-[11px] uppercase tracking-[0.14em] text-[#6c6c80]">nom</span>
+                    </span>
+                  )}
                 </span>
               )}
-            </div>
-            {item.rank != null ? (
-              <span className="inline-flex min-w-16 items-center justify-center rounded-md border border-[#D4AF37]/25 bg-[#D4AF37]/10 px-2.5 py-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.12em] text-[#D4AF37]">
-                #{item.rank}
-              </span>
-            ) : (
-              <div className="grid grid-cols-2 overflow-hidden rounded-md border border-[#242436] bg-[#090914]">
-                <AwardCount label="Wins" value={item.wins} tone="win" />
-                <AwardCount label="Noms" value={item.nominations} />
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
+            </li>
+          );
+        })}
+      </ul>
     </section>
-  );
-}
-
-function AwardCount({
-  label,
-  value,
-  tone = "default",
-}: {
-  label: string;
-  value: number;
-  tone?: "default" | "win";
-}) {
-  return (
-    <span className="flex min-w-14 flex-col items-center justify-center border-l border-[#242436] first:border-l-0 px-2 py-1">
-      <span
-        className={cn(
-          "font-[family-name:var(--font-geist-mono)] text-sm font-bold leading-none",
-          tone === "win" && value > 0 ? "text-[#D4AF37]" : "text-[#F5F5F0]",
-        )}
-      >
-        {value}
-      </span>
-      <span className="mt-0.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-[#888899]">
-        {label}
-      </span>
-    </span>
   );
 }
 
