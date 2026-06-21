@@ -1,11 +1,13 @@
-import { defineConfig } from 'vitest/config';
+import { defineConfig, configDefaults } from 'vitest/config';
 
-// Backend unit tests run against pure functions only — no DB, no server.
-// Tests live next to the code they cover (`src/**/*.test.ts`) or under `test/`.
+// Default backend suite — pure functions only, no DB, no server. Integration
+// tests (`*.integration.test.ts`) are excluded here and run via their own config
+// (`vitest.integration.config.ts` / `npm run test:integration`) against a test DB.
 export default defineConfig({
   test: {
     environment: 'node',
     include: ['src/**/*.test.ts', 'test/**/*.test.ts'],
+    exclude: [...configDefaults.exclude, '**/*.integration.test.ts'],
     // Pure-function suites are fast and isolated; no global setup / DB needed.
     globals: false,
   },
