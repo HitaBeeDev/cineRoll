@@ -102,6 +102,22 @@ function excludeIdsCondition(query: RandomQuery): Prisma.Sql | null {
   return Prisma.sql`"Film"."id" NOT IN (${Prisma.join(query.excludeIds)})`;
 }
 
+/** Per-request exclusions shared by every roll path and the count endpoint:
+ *  the signed-in user's "Not Interested" films plus any client-supplied IDs.
+ *  When non-empty the resulting count is user/request-specific (uncacheable). */
+async function buildExclusionConditions(query: RandomQuery): Promise<Prisma.Sql[]> {
+  const conditions: Prisma.Sql[] = [];
+  if (query.userId) {
+    const excludedFilmIds = await getDoNotSuggestFilmIds(query.userId);
+    if (excludedFilmIds.length > 0) {
+      conditions.push(Prisma.sql`"Film"."id" NOT IN (${Prisma.join(excludedFilmIds)})`);
+    }
+  }
+  const excludeIds = excludeIdsCondition(query);
+  if (excludeIds) conditions.push(excludeIds);
+  return conditions;
+}
+
 export async function getRandomFilm(query: RandomQuery): Promise<{
   film: RandomFilmRow | null;
   total: number;
@@ -143,17 +159,7 @@ export async function getRandomFilms(query: RandomQuery, count: number): Promise
   films: RandomFilmRow[];
   total: number;
 }> {
-  const additionalConditions: Prisma.Sql[] = [];
-
-  if (query.userId) {
-    const excludedFilmIds = await getDoNotSuggestFilmIds(query.userId);
-    if (excludedFilmIds.length > 0) {
-      additionalConditions.push(Prisma.sql`"Film"."id" NOT IN (${Prisma.join(excludedFilmIds)})`);
-    }
-  }
-
-  const excludeIds = excludeIdsCondition(query);
-  if (excludeIds) additionalConditions.push(excludeIds);
+  const additionalConditions = await buildExclusionConditions(query);
 
   const whereSql = buildWhereClause(query, additionalConditions);
 
@@ -256,14 +262,7 @@ export async function getPersonalizedRandomFilm(query: RandomQuery): Promise<{
     return { film, total, exploration: false };
   }
 
-  const additionalConditions: Prisma.Sql[] = [];
-  const excludedFilmIds = await getDoNotSuggestFilmIds(userId);
-  if (excludedFilmIds.length > 0) {
-    additionalConditions.push(Prisma.sql`"Film"."id" NOT IN (${Prisma.join(excludedFilmIds)})`);
-  }
-
-  const excludeIds = excludeIdsCondition(query);
-  if (excludeIds) additionalConditions.push(excludeIds);
+  const additionalConditions = await buildExclusionConditions(query);
 
   const whereSql = buildWhereClause(query, additionalConditions);
 
@@ -336,4 +335,17 @@ randomRouter.get("/", validate(randomQuerySchema), async (req, res) => {
 
   setPublicCache(res, 60);
   res.json({ film, total });
+});
+
+/** Lightweight pool count for the given filters. Returns just the integer so
+ *  the client doesn't fetch a whole random film (row + image URLs) merely to
+ *  read `.total` — e.g. the home page's mount-time catalog count. */
+randomRouter.get("/count", validate(randomQuerySchema), async (req, res) => {
+  const query = getValidated<RandomQuery>(req, "query");
+  const additionalConditions = await buildExclusionConditions(query);
+  const whereSql = buildWhereClause(query, additionalConditions);
+  const total = await countFilms(query, whereSql, additionalConditions.length === 0);
+
+  setPublicCache(res, 60);
+  res.json({ total });
 });

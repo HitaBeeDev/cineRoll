@@ -10,6 +10,7 @@ import { AppHeader } from "@/components/app-header";
 import { useSession } from "next-auth/react";
 import {
   fetchRandom,
+  fetchRandomCount,
   fetchFilms,
   fetchGenres,
   fetchOnboardingTasteCards,
@@ -204,8 +205,8 @@ export function HomeClient({
   // Fetch filter metadata + total film count
   useEffect(() => {
     void fetchGenres().then(setGenres);
-    void fetchRandom()
-      .then((r) => setTotalCount(r.total))
+    void fetchRandomCount()
+      .then(setTotalCount)
       .catch(() => {});
   }, []);
 

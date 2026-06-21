@@ -200,6 +200,19 @@ export async function fetchRandom(
   return res.json() as Promise<RandomResult>;
 }
 
+/** Pool count for the given filters, without fetching a film. Use when only the
+ *  `total` is needed (e.g. the home page's mount-time catalog count). */
+export async function fetchRandomCount(filters?: Partial<FilterState>): Promise<number> {
+  const params = filtersToParams(filters ?? {});
+  const qs = params.toString();
+  const res = await fetch(`${API_URL}/api/random/count${qs ? `?${qs}` : ""}`, {
+    cache: "no-store",
+  });
+  if (!res.ok) throw new Error("fetch failed");
+  const data = (await res.json()) as { total: number };
+  return data.total;
+}
+
 export async function fetchNaturalRoll(prompt: string, count = 2): Promise<NaturalRollResult> {
   const res = await fetch(`${API_URL}/api/natural-roll`, {
     method: "POST",
