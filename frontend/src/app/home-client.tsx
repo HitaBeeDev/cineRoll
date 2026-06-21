@@ -405,8 +405,10 @@ export function HomeClient({
       <div className="flex flex-1 flex-col lg:grid lg:grid-cols-12 lg:h-[calc(100vh-4rem)] lg:overflow-hidden">
         {/* LEFT: hero + filters + roll ──────────────────────────────── */}
         <div className="flex flex-col overflow-y-auto lg:overflow-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:w-0 px-5 py-4 sm:px-8 lg:px-10 lg:py-5 lg:col-span-7">
-          {/* Scroll region: hero + filters. Filters sit just above ROLL via mt-auto;
-              when filters grow, the gap above them collapses first so ROLL never moves. */}
+          {/* Scroll region: hero + filters. The hero wrapper absorbs the slack
+              (lg:flex-1) and centers the headline; filters sit at the bottom near
+              ROLL. When filters grow, the hero wrapper collapses first so ROLL
+              never moves. */}
           <div className="flex flex-col lg:flex-1 lg:min-h-0 lg:overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:w-0">
           {/* Channel label */}
           <div className="flex items-center justify-between gap-3">
@@ -432,24 +434,31 @@ export function HomeClient({
               `hero`. Font size is driven from this wrapper so the heading can
               still shrink when filters are active (it inherits `font-size`),
               while its markup stays in the server component / out of the client
-              bundle. The stack moves up so it stays visible without scrolling. */}
-          <div
-            className={cn(
-              "mt-2 transition-all duration-300",
-              hasActiveFilters ? "mb-6" : "mb-10",
-            )}
-            style={{
-              fontSize: hasActiveFilters
-                ? "clamp(3.75rem,5.4vw,5.75rem)"
-                : "clamp(4.5rem,6.5vw,7rem)",
-            }}
-          >
-            {hero}
+              bundle.
+
+              The hero is vertically centered in the free space (this wrapper
+              takes the slack via `lg:flex-1`) instead of clinging to the top.
+              That keeps the default state from being top-and-bottom heavy with a
+              dead gap in the middle, while filters stay anchored at the bottom
+              near ROLL and ROLL itself never moves. */}
+          <div className="lg:flex-1 lg:min-h-0 lg:flex lg:flex-col lg:justify-center">
+            <div
+              className={cn(
+                "mt-2 transition-all duration-300",
+                hasActiveFilters ? "mb-6" : "mb-10",
+              )}
+              style={{
+                fontSize: hasActiveFilters
+                  ? "clamp(3.75rem,5.4vw,5.75rem)"
+                  : "clamp(4.5rem,6.5vw,7rem)",
+              }}
+            >
+              {hero}
+            </div>
           </div>
 
           {/* Filters */}
           <FilterBar
-            className="mt-auto"
             filters={filters}
             genres={genres}
             onFiltersChange={(updates) => {
