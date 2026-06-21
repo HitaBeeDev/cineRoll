@@ -41,12 +41,20 @@ export function FirstVisitOnboarding({
     });
   }
 
-  function completeOnboarding() {
+  // "Done" commits the picks: persist the taste seed + pending watched films
+  // so the first rolls are shaped by them.
+  function handleDone() {
     const selectedFilmIds = [...selectedSeenIds];
     const seed = createTasteSeed(tasteCards, selectedFilmIds);
     savePendingWatchedFilms(selectedFilmIds);
     saveTasteSeed(seed);
     onContinue(seed);
+  }
+
+  // "Skip" actually skips: continue without saving any seed, so selections are
+  // discarded rather than committed. `onContinue(null)` still marks onboarding done.
+  function handleSkip() {
+    onContinue(null);
   }
 
   return (
@@ -63,7 +71,7 @@ export function FirstVisitOnboarding({
         </Link>
         <button
           type="button"
-          onClick={completeOnboarding}
+          onClick={handleSkip}
           className="font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.28em] text-[#888899] transition hover:text-[#F5F5F0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090f]"
         >
           Skip
@@ -88,7 +96,7 @@ export function FirstVisitOnboarding({
           <div className="mt-8 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
             <button
               type="button"
-              onClick={completeOnboarding}
+              onClick={handleDone}
               className={cn(
                 "min-w-[180px] bg-[#F5F5F0] px-7 py-4 text-[#09090f]",
                 "font-[family-name:var(--font-geist-mono)] text-sm font-bold uppercase tracking-[0.2em]",
@@ -100,7 +108,7 @@ export function FirstVisitOnboarding({
             </button>
             <button
               type="button"
-              onClick={completeOnboarding}
+              onClick={handleSkip}
               className={cn(
                 "min-w-[180px] border border-[#2a2a3e] bg-[#11111b]/70 px-7 py-4 text-[#888899]",
                 "font-[family-name:var(--font-geist-mono)] text-sm font-bold uppercase tracking-[0.2em]",
