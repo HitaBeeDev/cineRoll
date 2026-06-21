@@ -157,11 +157,13 @@ export function FilmCard({
           <StatBox
             label="Awards"
             value={
-              totalWins > 0
-                ? `${totalWins}W`
-                : totalNoms > 0
-                  ? `${totalNoms}N`
-                  : "—"
+              totalWins > 0 && totalNoms > 0
+                ? `${totalWins}W · ${totalNoms}N`
+                : totalWins > 0
+                  ? `${totalWins}W`
+                  : totalNoms > 0
+                    ? `${totalNoms}N`
+                    : "—"
             }
           />
         </div>
