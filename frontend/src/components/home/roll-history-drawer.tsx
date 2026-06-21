@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Dices, Film, X } from "lucide-react";
+import { ArrowUpRight, Dices, Film, X } from "lucide-react";
 import { trackEvent } from "@/lib/analytics";
 import { cn } from "@/lib/utils";
 import type { RollFilm } from "@/lib/api";
@@ -93,47 +93,21 @@ export function RollHistoryDrawer({
               ))}
             </div>
 
-            {/* Header */}
-            <header className="relative z-10 shrink-0 px-7 pt-7 pb-5">
-              <div className="flex items-start justify-between">
-                <div>
-                  {/* Eyebrow */}
-                  <div className="flex items-center gap-2 mb-4">
-                    <span className="block h-px w-7 bg-[#e8453c]" aria-hidden />
-                    <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.38em] text-[#e8453c]">
-                      Session Reel
-                    </p>
-                  </div>
-
-                  {/* Title */}
-                  <h2
-                    id="roll-history-title"
-                    className="font-[family-name:var(--font-display)] text-[3.4rem] font-bold leading-[0.86] tracking-tight"
-                  >
-                    Roll
-                    <br />
-                    <span className="text-[#e8453c]">History</span>
-                  </h2>
-
-                  {/* Meta */}
-                  <div className="mt-5 flex items-center gap-2.5">
-                    <span className="inline-flex items-center gap-1.5 border border-[#e8453c]/22 bg-[#e8453c]/8 px-2.5 py-[5px] font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.2em] text-[#F5F5F0]">
-                      <Film className="h-3 w-3 text-[#e8453c]" aria-hidden />
-                      {visibleHistory.length} / 10
-                    </span>
-                    <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.22em] text-[#888899]">
-                      This tab only
-                    </span>
-                  </div>
+            {/* Header — compact so the list (the point of the drawer) leads */}
+            <header className="relative z-10 shrink-0 px-6 pt-6 pb-4">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <span className="block h-px w-6 bg-[#e8453c]" aria-hidden />
+                  <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.34em] text-[#e8453c]">
+                    Session Reel
+                  </p>
                 </div>
-
-                {/* Close */}
                 <button
                   type="button"
                   onClick={onClose}
                   aria-label="Close history"
                   className={cn(
-                    "mt-1 flex h-9 w-9 shrink-0 items-center justify-center",
+                    "flex h-8 w-8 shrink-0 items-center justify-center rounded-full",
                     "border border-[#1a1a28] text-[#888899]",
                     "transition-all duration-150",
                     "hover:border-[#e8453c]/50 hover:bg-[#e8453c]/8 hover:text-[#e8453c]",
@@ -144,13 +118,24 @@ export function RollHistoryDrawer({
                 </button>
               </div>
 
-              {/* Divider */}
-              <div className="mt-6 flex items-center gap-3">
-                <div className="h-px flex-1 bg-gradient-to-r from-[#e8453c]/25 via-[#1a1a28] to-transparent" />
-                <span className="font-[family-name:var(--font-geist-mono)] text-[7.5px] uppercase tracking-[0.35em] text-[#1e1e30]">
-                  Tonight
-                </span>
+              <div className="mt-3 flex items-baseline justify-between gap-3">
+                <h2
+                  id="roll-history-title"
+                  className="font-[family-name:var(--font-display)] text-[2rem] font-bold leading-none tracking-tight"
+                >
+                  Roll <span className="text-[#e8453c]">History</span>
+                </h2>
+                {visibleHistory.length > 0 && (
+                  <span className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em] text-[#888899]">
+                    <span className="font-bold text-[#F5F5F0]">{visibleHistory.length}</span>
+                    {" / "}
+                    {MAX_ROLL_HISTORY_ITEMS}
+                  </span>
+                )}
               </div>
+              <p className="mt-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.2em] text-[#5c5c70]">
+                This tab only
+              </p>
             </header>
 
             {/* Scroll area */}
@@ -177,76 +162,78 @@ export function RollHistoryDrawer({
                   </p>
                 </div>
               ) : (
-                <div className="flex flex-col gap-[2px] px-4">
-                  {visibleHistory.map((film, index) => (
-                    <Link
-                      key={film.id}
-                      href={`/film/${film.slug}`}
-                      onClick={() => {
-                        trackEvent({
-                          type: "film_click",
-                          filmId: film.id,
-                          context: {
-                            source: "roll_history",
-                            slug: film.slug,
-                          },
-                        });
-                        onClose();
-                      }}
-                      className={cn(
-                        "group relative flex h-[90px] overflow-hidden",
-                        "border border-[#0f0f1a] bg-[#080812]",
-                        "transition-all duration-200",
-                        "hover:border-[#e8453c]/28 hover:bg-[#0c0c16]",
-                        "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#e8453c] focus-visible:ring-inset",
-                      )}
-                    >
-                      {/* Giant ghost number watermark */}
-                      <span
-                        className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 select-none font-[family-name:var(--font-display)] font-bold leading-none text-[#0c0c18] transition-colors duration-200 group-hover:text-[#100f1e]"
-                        style={{ fontSize: "5rem" }}
-                        aria-hidden
-                      >
-                        {String(index + 1).padStart(2, "0")}
-                      </span>
-
-                      {/* Poster */}
-                      <div className="relative w-[60px] shrink-0 overflow-hidden">
-                        {film.posterUrl ? (
-                          <Image
-                            src={film.posterUrl}
-                            alt={`${film.title} poster`}
-                            fill
-                            sizes="60px"
-                            className="object-cover transition-transform duration-500 group-hover:scale-[1.07]"
-                          />
-                        ) : (
-                          <div className="absolute inset-0 flex items-center justify-center bg-[#0f0f1c]">
-                            <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-wider text-[#1e1e30]">
-                              —
-                            </span>
-                          </div>
+                <div className="flex flex-col gap-1.5 px-4">
+                  {visibleHistory.map((film, index) => {
+                    const meta = [
+                      film.year,
+                      film.genres?.[0],
+                      film.imdbRating != null ? `★ ${film.imdbRating.toFixed(1)}` : null,
+                    ]
+                      .filter(Boolean)
+                      .join("  ·  ");
+                    return (
+                      <Link
+                        key={film.id}
+                        href={`/film/${film.slug}`}
+                        onClick={() => {
+                          trackEvent({
+                            type: "film_click",
+                            filmId: film.id,
+                            context: {
+                              source: "roll_history",
+                              slug: film.slug,
+                            },
+                          });
+                          onClose();
+                        }}
+                        className={cn(
+                          "group relative flex items-center gap-3 rounded-lg px-3 py-2.5",
+                          "border border-[#17171f] bg-[#0a0a14]",
+                          "transition-all duration-200",
+                          "hover:border-[#e8453c]/35 hover:bg-[#0e0e1a]",
+                          "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#e8453c] focus-visible:ring-inset",
                         )}
-                        {/* Feather blend into card bg */}
-                        <div className="absolute inset-y-0 right-0 w-14 bg-gradient-to-r from-transparent to-[#080812] transition-colors duration-200 group-hover:to-[#0c0c16]" />
-                      </div>
+                      >
+                        {/* Roll index — chronological, so the number carries real order */}
+                        <span className="w-5 shrink-0 text-center font-[family-name:var(--font-geist-mono)] text-[11px] font-bold tabular-nums text-[#3c3c54] transition-colors group-hover:text-[#e8453c]/75">
+                          {String(index + 1).padStart(2, "0")}
+                        </span>
 
-                      {/* Content */}
-                      <div className="flex flex-1 min-w-0 items-center pl-2 pr-5">
+                        {/* Poster */}
+                        <div className="relative h-[56px] w-[38px] shrink-0 overflow-hidden rounded">
+                          {film.posterUrl ? (
+                            <Image
+                              src={film.posterUrl}
+                              alt=""
+                              fill
+                              sizes="38px"
+                              className="object-cover transition-transform duration-500 group-hover:scale-[1.06]"
+                            />
+                          ) : (
+                            <div className="absolute inset-0 flex items-center justify-center bg-[#0f0f1c]">
+                              <Film className="h-3.5 w-3.5 text-[#2a2a3e]" aria-hidden />
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Content */}
                         <div className="min-w-0 flex-1">
-                          <p className="font-[family-name:var(--font-geist-mono)] text-[7.5px] font-bold uppercase tracking-[0.34em] text-[#e8453c]/50 mb-1.5">
-                            Roll {String(index + 1).padStart(2, "0")}
-                          </p>
-                          <p className="font-[family-name:var(--font-display)] text-[1.05rem] font-bold leading-[1.15] text-[#F5F5F0] line-clamp-2 transition-colors duration-150 group-hover:text-white">
+                          <p className="line-clamp-1 font-[family-name:var(--font-display)] text-[1.02rem] font-bold leading-tight text-[#F5F5F0] transition-colors group-hover:text-white">
                             {film.title}
                           </p>
-                          <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.24em] text-[#888899]">
-                            {film.year}
+                          <p className="mt-1 truncate font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-[#7a7a90]">
+                            {meta}
                           </p>
                         </div>
-                      </div>
-                    </Link>
-                  ))}
+
+                        {/* Click affordance */}
+                        <ArrowUpRight
+                          className="h-4 w-4 shrink-0 text-[#2a2a3e] transition-all duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-[#e8453c]"
+                          aria-hidden
+                        />
+                      </Link>
+                    );
+                  })}
                 </div>
               )}
             </div>
