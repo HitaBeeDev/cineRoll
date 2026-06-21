@@ -10,15 +10,15 @@ import { AuthButton } from "@/components/AuthButton";
 const primaryNavItems = [
   { href: "/", label: "Home" },
   { href: "/browse", label: "Browse" },
-  { href: "/picks", label: "Picks" },
-  { href: "/describe", label: "Describe It" },
+  { href: "/picks", label: "Daily Picks" },
+  { href: "/describe", label: "Mood Match" },
   { href: "/stats", label: "Stats" },
 ];
 
 const gameModeItems = [
-  { href: "/snob-test", label: "Test Yourself" },
-  { href: "/roll-battle", label: "Roll Battle" },
-  { href: "/blind-roll", label: "Blind Roll" },
+  { href: "/snob-test", label: "Snob Test" },
+  { href: "/roll-battle", label: "Versus" },
+  { href: "/blind-roll", label: "Guess the Film" },
 ];
 
 type SiteNavigationProps = {
