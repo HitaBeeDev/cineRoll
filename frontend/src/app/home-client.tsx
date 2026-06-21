@@ -355,6 +355,19 @@ export function HomeClient({
     return () => window.clearTimeout(timer);
   }, [shouldAutoRoll]);
 
+  // Screen-reader announcement for the roll result. The film card region is
+  // otherwise silent on roll (only the pool counter has a live region), so a
+  // sighted user sees the new film but an assistive-tech user gets nothing.
+  // A concise polite message keeps the announcement from re-reading the whole
+  // card on every animation.
+  const rollAnnouncement = isRolling
+    ? "Rolling for a film…"
+    : film
+      ? `Rolled: ${film.title}${film.year ? `, ${film.year}` : ""}.`
+      : effectiveCount === 0
+        ? "No films match your filters."
+        : "";
+
   // Pool count display
   const poolCountStr = effectiveCountLoading
     ? "···"
@@ -638,6 +651,10 @@ export function HomeClient({
             "p-4",
           )}
         >
+          {/* Polite live region: announces the rolled film to screen readers. */}
+          <p role="status" aria-live="polite" aria-atomic="true" className="sr-only">
+            {rollAnnouncement}
+          </p>
           <AnimatePresence mode="wait">
             {isRolling ? (
               <motion.div
