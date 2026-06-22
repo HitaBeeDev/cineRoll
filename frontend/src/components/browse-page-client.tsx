@@ -468,9 +468,6 @@ export function BrowsePageClient() {
               ))}
             </div>
 
-            {/* Push genre + advanced filters to the right edge */}
-            <div className="hidden flex-1 sm:block" />
-
             {/* Divider */}
             <div className="hidden h-6 w-px bg-white/10 sm:block" />
 
