@@ -410,6 +410,33 @@ export function BrowsePageClient() {
             </div>
 
             {/* Divider */}
+            <div className="hidden h-6 w-px bg-white/10 lg:block" />
+
+            {/* Curated lists */}
+            <div className="flex w-full max-w-full items-center gap-1 overflow-x-auto rounded-md border border-white/10 bg-white/[0.025] p-1 sm:w-auto sm:overflow-visible">
+              {(
+                [
+                  { label: "IMDb Top 250 Films", active: filters.imdbTopMoviesOnly, fn: () => setFilters({ imdbTopMoviesOnly: !filters.imdbTopMoviesOnly, imdbTopTvOnly: false, page: 1 }) },
+                  { label: "IMDb Top 250 TV",    active: filters.imdbTopTvOnly,     fn: () => setFilters({ imdbTopTvOnly: !filters.imdbTopTvOnly, imdbTopMoviesOnly: false, page: 1 }) },
+                ] as { label: string; active: boolean; fn: () => void }[]
+              ).map(({ label, active, fn }) => (
+                <button
+                  key={label}
+                  type="button"
+                  onClick={fn}
+                  className={cn(
+                    "h-8 shrink-0 rounded px-3.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40",
+                    active
+                      ? "bg-[#e8453c] text-white shadow-[0_0_24px_rgba(232,69,60,0.24)]"
+                      : "text-[#7f7a91] hover:bg-white/[0.055] hover:text-[#f1eff8]",
+                  )}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+
+            {/* Divider */}
             <div className="hidden h-6 w-px bg-white/10 xl:block" />
 
             {/* Status */}
@@ -429,33 +456,6 @@ export function BrowsePageClient() {
                     "h-8 shrink-0 rounded px-3.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37]/35",
                     active
                       ? "bg-[#D4AF37] font-semibold text-[#09090f] shadow-[0_0_24px_rgba(212,175,55,0.18)]"
-                      : "text-[#7f7a91] hover:bg-white/[0.055] hover:text-[#f1eff8]",
-                  )}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-
-            {/* Divider */}
-            <div className="hidden h-6 w-px bg-white/10 lg:block" />
-
-            {/* Curated lists */}
-            <div className="flex w-full max-w-full items-center gap-1 overflow-x-auto rounded-md border border-white/10 bg-white/[0.025] p-1 sm:w-auto sm:overflow-visible">
-              {(
-                [
-                  { label: "IMDb Top 250 Films", active: filters.imdbTopMoviesOnly, fn: () => setFilters({ imdbTopMoviesOnly: !filters.imdbTopMoviesOnly, imdbTopTvOnly: false, page: 1 }) },
-                  { label: "IMDb Top 250 TV",    active: filters.imdbTopTvOnly,     fn: () => setFilters({ imdbTopTvOnly: !filters.imdbTopTvOnly, imdbTopMoviesOnly: false, page: 1 }) },
-                ] as { label: string; active: boolean; fn: () => void }[]
-              ).map(({ label, active, fn }) => (
-                <button
-                  key={label}
-                  type="button"
-                  onClick={fn}
-                  className={cn(
-                    "h-8 shrink-0 rounded px-3.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40",
-                    active
-                      ? "bg-[#e8453c] text-white shadow-[0_0_24px_rgba(232,69,60,0.24)]"
                       : "text-[#7f7a91] hover:bg-white/[0.055] hover:text-[#f1eff8]",
                   )}
                 >
