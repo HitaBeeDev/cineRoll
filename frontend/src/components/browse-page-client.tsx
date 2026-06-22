@@ -722,37 +722,29 @@ export function BrowsePageClient() {
             </button>
           )}
 
-          <div className="flex w-full flex-wrap items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.025] p-2 shadow-[0_18px_50px_rgba(0,0,0,0.22)] lg:w-auto">
-            <span className="px-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em] text-[#7d788e]">
-              Sort
+          <div className="flex w-full items-center gap-2 lg:w-auto">
+            <span className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em] text-[#7d788e]">
+              Sort by
             </span>
-            {SORT_OPTIONS.map((option) => (
-              <button
-                key={option.value}
-                type="button"
-                aria-pressed={filters.sort === option.value}
-                onClick={() => setFilters({ sort: option.value, page: 1 })}
-                className={cn(
-                  "h-9 rounded-lg px-3 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.13em] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/35",
-                  filters.sort === option.value
-                    ? "bg-[#e8453c] text-white shadow-[0_10px_24px_rgba(232,69,60,0.22)]"
-                    : "bg-[#111018] text-[#a9a5bc] hover:bg-white/[0.075] hover:text-white",
-                )}
-              >
-                {option.label}
-              </button>
-            ))}
-            <div className="mx-1 h-5 w-px bg-white/10" aria-hidden />
+            <Select
+              value={filters.sort}
+              onValueChange={(val) => setFilters({ sort: val as FilterState["sort"], page: 1 })}
+            >
+              <SelectTrigger className="h-10 w-full min-w-[150px] rounded-md border-white/10 bg-white/[0.045] font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-[#e8e5f4] transition-colors hover:border-white/20 focus:ring-[#e8453c]/60 focus:ring-offset-0 lg:w-[150px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="border-white/10 bg-[#101019]">
+                {SORT_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <button
               type="button"
-              aria-label={filters.sortOrder === "asc" ? "Sort ascending" : "Sort descending"}
+              aria-label={filters.sortOrder === "asc" ? "Switch to descending" : "Switch to ascending"}
+              title={filters.sortOrder === "asc" ? "Ascending" : "Descending"}
               onClick={() => setFilters({ sortOrder: filters.sortOrder === "asc" ? "desc" : "asc", page: 1 })}
-              className={cn(
-                "flex h-9 items-center gap-1.5 rounded-lg px-3 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.13em] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/35",
-                filters.sortOrder === "asc"
-                  ? "bg-[#e8453c] text-white shadow-[0_10px_24px_rgba(232,69,60,0.22)]"
-                  : "bg-[#111018] text-[#a9a5bc] hover:bg-white/[0.075] hover:text-white",
-              )}
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-white/10 bg-white/[0.045] text-[#b8b5c8] transition-colors hover:border-white/20 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/35"
             >
               {filters.sortOrder === "asc"
                 ? <ArrowUpNarrowWide className="h-4 w-4" aria-hidden />
