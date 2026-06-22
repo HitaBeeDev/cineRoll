@@ -302,7 +302,7 @@ export function BrowsePageClient() {
               <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#6f6b80]" />
               <input
                 type="text"
-                placeholder="Search titles, directors, people…"
+                placeholder="Search films or people…"
                 value={filters.search}
                 onChange={(e) => setFilters({ search: e.target.value, page: 1 })}
                 onKeyDown={handleSearchKeyDown}
