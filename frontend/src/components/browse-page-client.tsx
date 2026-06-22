@@ -234,6 +234,10 @@ export function BrowsePageClient() {
   const totalPages  = Math.max(result?.totalPages ?? 1, 1);
   const showingEnd  = result ? Math.min(page * PAGE_SIZE, result.total) : 0;
   const showingStart = total === 0 ? 0 : (page - 1) * PAGE_SIZE + 1;
+  const hasResult = result != null;
+  // Keep the last count on screen while a new query is in flight so the most
+  // reassuring number on the page refreshes in place instead of flickering away.
+  const isStaleCount = status === "loading" && hasResult;
 
   const activeChips = buildActiveChips(filters, setFilters);
   const resultContext = buildResultContext(filters);
@@ -703,15 +707,26 @@ export function BrowsePageClient() {
                 {resultContext}
               </p>
             )}
-            <h2 className="mt-2 text-xl font-semibold tracking-normal text-[#f2eff8] sm:text-2xl">
-              {status === "success" && total > 0
-                ? `${total.toLocaleString()} films`
+            <h2
+              aria-live="polite"
+              className={cn(
+                "mt-2 text-xl font-semibold tracking-normal text-[#f2eff8] transition-opacity duration-200 sm:text-2xl",
+                isStaleCount && "opacity-40",
+              )}
+            >
+              {hasResult
+                ? `${total.toLocaleString()} ${total === 1 ? "film" : "films"}`
                 : status === "loading"
                   ? "Loading films"
                   : "Browse results"}
             </h2>
-            {status === "success" && total > 0 && (
-              <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.16em] text-[#817c91]">
+            {hasResult && total > 0 && (
+              <p
+                className={cn(
+                  "mt-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.16em] text-[#817c91] transition-opacity duration-200",
+                  isStaleCount && "opacity-40",
+                )}
+              >
                 Showing {showingStart.toLocaleString()}-{showingEnd.toLocaleString()} of {total.toLocaleString()}
               </p>
             )}
