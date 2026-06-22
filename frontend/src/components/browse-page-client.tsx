@@ -237,6 +237,7 @@ export function BrowsePageClient() {
 
   const activeChips = buildActiveChips(filters, setFilters);
   const resultContext = buildResultContext(filters);
+  const advancedCount = countAdvancedFilters(filters);
   const gridClassName = "grid min-w-0 grid-cols-1 gap-x-4 gap-y-8 [&>*]:min-w-0 sm:grid-cols-3 sm:gap-x-5 sm:gap-y-9 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6";
 
   return (
@@ -492,21 +493,24 @@ export function BrowsePageClient() {
               </Select>
             </div>
 
-            {/* More filters */}
+            {/* Advanced filters disclosure */}
             <button
               type="button"
               onClick={() => setShowMore((v) => !v)}
+              aria-expanded={showMore}
               className={cn(
                 "flex h-10 items-center gap-2 rounded-md border px-3.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40",
-                showMore
+                showMore || advancedCount > 0
                   ? "border-[#e8453c]/55 bg-[#e8453c]/12 text-[#ff766d]"
                   : "border-white/10 bg-white/[0.045] text-[#b8b5c8] hover:border-white/20 hover:text-[#f1eff8]",
               )}
             >
               <SlidersHorizontal className="h-3.5 w-3.5" aria-hidden />
-              Filters
-              {hasActiveFilters && (
-                <span className="h-1.5 w-1.5 rounded-full bg-[#e8453c]" />
+              Advanced
+              {advancedCount > 0 && (
+                <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-[#e8453c] px-1 text-[10px] font-semibold leading-none text-white">
+                  {advancedCount}
+                </span>
               )}
             </button>
           </div>
@@ -938,6 +942,18 @@ function buildActiveChips(
     chips.push({ key: "decade", label: `${filters.decadeMin}–${filters.decadeMax}`, onRemove: () => setFilters({ decadeMin: DECADE_MIN, decadeMax: DECADE_MAX, page: 1 }) });
 
   return chips;
+}
+
+/** Count of filters that live behind the Advanced disclosure (not the always-visible primary bar). */
+function countAdvancedFilters(filters: FilterState): number {
+  let n = 0;
+  if (filters.imdbRatingMin > 0) n++;
+  if (filters.rtScoreMin > 0) n++;
+  if (filters.contentType) n++;
+  if (filters.category.trim()) n++;
+  if (filters.awardYear != null) n++;
+  if (filters.decadeMin !== DECADE_MIN || filters.decadeMax !== DECADE_MAX) n++;
+  return n;
 }
 
 function buildResultContext(filters: FilterState): string {
