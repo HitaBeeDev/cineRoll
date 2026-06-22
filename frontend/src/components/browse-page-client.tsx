@@ -623,20 +623,24 @@ export function BrowsePageClient() {
 
                 {/* Ceremony year */}
                 <PanelSection label="Ceremony Year">
-                  <Select
-                    value={filters.awardYear != null ? String(filters.awardYear) : "_any"}
-                    onValueChange={(val) =>
-                      setFilters({ awardYear: val === "_any" ? null : Number(val), page: 1 })
-                    }
-                  >
-                    <SelectTrigger className="h-10 w-full rounded-md border-white/10 bg-white/[0.045] font-[family-name:var(--font-geist-mono)] text-[11px] text-[#b8b5c8] transition-colors hover:border-white/20 focus:ring-[#e8453c]/60 focus:ring-offset-0">
-                      <SelectValue placeholder="Any year" />
-                    </SelectTrigger>
-                    <SelectContent className="border-white/10 bg-[#101019]">
-                      <SelectItem value="_any">Any year</SelectItem>
-                      {awardYears.map((y) => <SelectItem key={y} value={String(y)}>{y}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
+                  <div className="flex flex-col gap-1">
+                    {/* Invisible caption to align this dropdown with the Decade From/To row */}
+                    <span className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.2em] text-transparent select-none" aria-hidden>From</span>
+                    <Select
+                      value={filters.awardYear != null ? String(filters.awardYear) : "_any"}
+                      onValueChange={(val) =>
+                        setFilters({ awardYear: val === "_any" ? null : Number(val), page: 1 })
+                      }
+                    >
+                      <SelectTrigger className="h-10 w-full rounded-md border-white/10 bg-white/[0.045] font-[family-name:var(--font-geist-mono)] text-[11px] text-[#b8b5c8] transition-colors hover:border-white/20 focus:ring-[#e8453c]/60 focus:ring-offset-0">
+                        <SelectValue placeholder="Any year" />
+                      </SelectTrigger>
+                      <SelectContent className="border-white/10 bg-[#101019]">
+                        <SelectItem value="_any">Any year</SelectItem>
+                        {awardYears.map((y) => <SelectItem key={y} value={String(y)}>{y}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </PanelSection>
 
                 {/* Decade */}
