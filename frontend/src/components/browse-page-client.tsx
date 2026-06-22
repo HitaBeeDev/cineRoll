@@ -292,11 +292,11 @@ export function BrowsePageClient() {
           <div className="flex flex-wrap items-center gap-2 py-2.5">
 
             {/* Search */}
-            <div ref={searchContainerRef} className="relative w-full min-w-0 sm:max-w-[340px] sm:flex-1 lg:flex-none">
+            <div ref={searchContainerRef} className="relative w-full min-w-0 sm:grow sm:basis-72">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#6f6b80]" />
               <input
                 type="text"
-                placeholder="Title, director, person…"
+                placeholder="Search titles, directors, people…"
                 value={filters.search}
                 onChange={(e) => setFilters({ search: e.target.value, page: 1 })}
                 onKeyDown={handleSearchKeyDown}
@@ -468,6 +468,9 @@ export function BrowsePageClient() {
               ))}
             </div>
 
+            {/* Push genre + advanced filters to the right edge */}
+            <div className="hidden flex-1 sm:block" />
+
             {/* Divider */}
             <div className="hidden h-6 w-px bg-white/10 sm:block" />
 
@@ -508,8 +511,6 @@ export function BrowsePageClient() {
                 <span className="h-1.5 w-1.5 rounded-full bg-[#e8453c]" />
               )}
             </button>
-
-            <div className="flex-1" />
           </div>
 
           {/* Active chips */}
