@@ -9,6 +9,7 @@ import {
   ArrowRight,
   ArrowUpNarrowWide,
   Clapperboard,
+  RotateCcw,
   Search,
   Shuffle,
   SlidersHorizontal,
@@ -675,9 +676,22 @@ export function BrowsePageClient() {
       <main className="mx-auto w-full max-w-[100vw] flex-1 px-4 py-6 sm:max-w-screen-2xl sm:px-6 sm:py-8 lg:px-8 xl:px-12">
         <div className="mb-6 flex flex-col gap-4 border-b border-white/10 pb-5 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.22em] text-[#e8453c]">
-              {resultContext}
-            </p>
+            {hasActiveFilters ? (
+              <button
+                type="button"
+                onClick={() => { resetFilters(); setShowMore(false); }}
+                title="Reset all filters"
+                className="group inline-flex items-center gap-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.22em] text-[#e8453c] transition-colors hover:text-[#ff766d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/30"
+              >
+                {resultContext}
+                <RotateCcw className="h-3 w-3 shrink-0 opacity-0 transition-opacity group-hover:opacity-100" aria-hidden />
+                <span className="sr-only">— reset all filters</span>
+              </button>
+            ) : (
+              <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.22em] text-[#e8453c]">
+                {resultContext}
+              </p>
+            )}
             <h2 className="mt-2 text-xl font-semibold tracking-normal text-[#f2eff8] sm:text-2xl">
               {status === "success" && total > 0
                 ? `${total.toLocaleString()} films`
