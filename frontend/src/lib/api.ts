@@ -155,6 +155,11 @@ export function filtersToParams(filters: Partial<FilterState>): URLSearchParams 
   if (filters.rtScoreMin != null && filters.rtScoreMin > 0) {
     params.set("rtScoreMin", String(filters.rtScoreMin));
   }
+  if (filters.imdbRatingMax != null) params.set("imdbRatingMax", String(filters.imdbRatingMax));
+  if (filters.imdbTopMoviesOnly) params.set("imdbTopMoviesOnly", "true");
+  if (filters.imdbTopTvOnly) params.set("imdbTopTvOnly", "true");
+  if (filters.certificate?.trim()) params.set("certificate", filters.certificate.trim());
+  if (filters.tvType?.trim()) params.set("tvType", filters.tvType.trim());
   if (filters.sort && filters.sort !== "newest") params.set("sort", filters.sort);
   if (filters.sortOrder && filters.sortOrder !== "desc") params.set("sortOrder", filters.sortOrder);
   return params;
