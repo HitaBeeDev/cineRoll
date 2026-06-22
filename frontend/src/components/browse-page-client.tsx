@@ -257,7 +257,7 @@ export function BrowsePageClient() {
         />
 
         <div className="relative mx-auto w-full max-w-[100vw] px-4 sm:max-w-screen-2xl sm:px-6 lg:px-8 xl:px-12">
-          <div className="flex flex-col gap-3 py-4 sm:flex-row sm:items-end sm:justify-between sm:py-5">
+          <div className="flex flex-col gap-3 py-4 sm:py-5">
             <div>
               <div className="mb-2.5 h-px w-10 bg-[#e8453c]" />
               <h1
@@ -274,17 +274,6 @@ export function BrowsePageClient() {
                   Search award films, festival discoveries, and ranked favorites with fast filters built for browsing.
                 </span>
               </p>
-            </div>
-            <div className="hidden flex-wrap items-center gap-2 sm:flex sm:justify-end">
-              {["Oscar", "Golden Globe", "Cannes", "Berlinale", "1929-Today"].map((label) => (
-                <span
-                  key={label}
-                  className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.035] px-3.5 py-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em] text-[#b8b5c8]"
-                >
-                  <span className="h-1 w-1 rounded-full bg-[#e8453c]/70" aria-hidden />
-                  {label}
-                </span>
-              ))}
             </div>
           </div>
         </div>
