@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { motion, useReducedMotion } from "framer-motion";
 import {
@@ -384,27 +384,29 @@ export function BrowsePageClient() {
 
             {/* Award body */}
             <div className="flex w-full max-w-full items-center gap-1 overflow-x-auto rounded-md border border-white/10 bg-white/[0.025] p-1 sm:w-auto sm:overflow-visible">
-              {AWARD_BODIES.map(({ value, label }) => {
+              {AWARD_BODIES.map(({ value, label }, i) => {
                 const active =
                   filters.awardBody === value &&
                   !filters.imdbTopMoviesOnly &&
                   !filters.imdbTopTvOnly;
                 return (
-                  <button
-                    key={value}
-                    type="button"
-                    onClick={() =>
-                      setFilters({ awardBody: value, imdbTopMoviesOnly: false, imdbTopTvOnly: false, page: 1 })
-                    }
-                    className={cn(
-                      "h-8 shrink-0 rounded px-3.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40",
-                      active
-                        ? "bg-[#e8453c] text-white shadow-[0_0_24px_rgba(232,69,60,0.24)]"
-                        : "text-[#7f7a91] hover:bg-white/[0.055] hover:text-[#f1eff8]",
-                    )}
-                  >
-                    {label}
-                  </button>
+                  <Fragment key={value}>
+                    {i > 0 && <span className="h-4 w-px shrink-0 bg-white/10" aria-hidden />}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setFilters({ awardBody: value, imdbTopMoviesOnly: false, imdbTopTvOnly: false, page: 1 })
+                      }
+                      className={cn(
+                        "h-8 shrink-0 rounded px-3.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40",
+                        active
+                          ? "bg-[#e8453c] text-white shadow-[0_0_24px_rgba(232,69,60,0.24)]"
+                          : "text-[#7f7a91] hover:bg-white/[0.055] hover:text-[#f1eff8]",
+                      )}
+                    >
+                      {label}
+                    </button>
+                  </Fragment>
                 );
               })}
             </div>
@@ -419,20 +421,22 @@ export function BrowsePageClient() {
                   { label: "IMDb Top 250 Films", active: filters.imdbTopMoviesOnly, fn: () => setFilters({ imdbTopMoviesOnly: !filters.imdbTopMoviesOnly, imdbTopTvOnly: false, page: 1 }) },
                   { label: "IMDb Top 250 TV",    active: filters.imdbTopTvOnly,     fn: () => setFilters({ imdbTopTvOnly: !filters.imdbTopTvOnly, imdbTopMoviesOnly: false, page: 1 }) },
                 ] as { label: string; active: boolean; fn: () => void }[]
-              ).map(({ label, active, fn }) => (
-                <button
-                  key={label}
-                  type="button"
-                  onClick={fn}
-                  className={cn(
-                    "h-8 shrink-0 rounded px-3.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40",
-                    active
-                      ? "bg-[#e8453c] text-white shadow-[0_0_24px_rgba(232,69,60,0.24)]"
-                      : "text-[#7f7a91] hover:bg-white/[0.055] hover:text-[#f1eff8]",
-                  )}
-                >
-                  {label}
-                </button>
+              ).map(({ label, active, fn }, i) => (
+                <Fragment key={label}>
+                  {i > 0 && <span className="h-4 w-px shrink-0 bg-white/10" aria-hidden />}
+                  <button
+                    type="button"
+                    onClick={fn}
+                    className={cn(
+                      "h-8 shrink-0 rounded px-3.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40",
+                      active
+                        ? "bg-[#e8453c] text-white shadow-[0_0_24px_rgba(232,69,60,0.24)]"
+                        : "text-[#7f7a91] hover:bg-white/[0.055] hover:text-[#f1eff8]",
+                    )}
+                  >
+                    {label}
+                  </button>
+                </Fragment>
               ))}
             </div>
 
