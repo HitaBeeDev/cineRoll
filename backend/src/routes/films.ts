@@ -192,6 +192,18 @@ filmsRouter.get("/genres", async (_req, res) => {
   res.json({ genres: rows.map(r => r.genre) });
 });
 
+filmsRouter.get("/countries", async (_req, res) => {
+  const rows = await prisma.$queryRaw<{ country: string }[]>`
+    SELECT DISTINCT unnest("Film"."countries") AS country
+    FROM "Film"
+    WHERE array_length("Film"."countries", 1) > 0
+    ORDER BY country ASC
+  `;
+
+  setPublicCache(res, 3600);
+  res.json({ countries: rows.map(r => r.country) });
+});
+
 filmsRouter.get("/award-years", async (_req, res) => {
   const rows = await prisma.$queryRaw<{ awardYear: number }[]>`
     SELECT DISTINCT (award->>'awardYear')::INT AS "awardYear"

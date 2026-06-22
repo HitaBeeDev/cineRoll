@@ -54,6 +54,7 @@ const listQueryBaseSchema = z.object({
   contentType: z.string().trim().min(1).max(60).optional(),
   language: z.string().trim().min(1).max(10).optional(),
   genre: z.string().trim().min(1).max(80).optional(),
+  country: z.string().trim().min(1).max(80).optional(),
   runtimeMax: z.coerce.number().int().min(1).max(1000).optional(),
   decadeMin: z.coerce.number().int().min(1800).max(2200).optional(),
   decadeMax: z.coerce.number().int().min(1800).max(2200).optional(),
@@ -239,6 +240,10 @@ export function buildWhereClause(
 
   if (query.language) {
     where.push(Prisma.sql`"Film"."language" = ${query.language}`);
+  }
+
+  if (query.country) {
+    where.push(Prisma.sql`"Film"."countries" @> ARRAY[${query.country}]::TEXT[]`);
   }
 
   if (query.genre) {

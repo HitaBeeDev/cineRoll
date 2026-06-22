@@ -17,6 +17,7 @@ export const DEFAULT_FILTERS: FilterState = {
   awardYear: null,
   language: "",
   genre: "",
+  country: "",
   contentType: "",
   runtimeMax: null,
   decadeMin: DEFAULT_DECADE_MIN,
@@ -61,6 +62,7 @@ export function useFilters(initial?: Partial<FilterState>) {
       filters.awardYear != null ||
       !!filters.language ||
       !!filters.genre ||
+      !!filters.country ||
       !!filters.contentType ||
       filters.runtimeMax != null ||
       filters.decadeMin !== DEFAULT_DECADE_MIN ||

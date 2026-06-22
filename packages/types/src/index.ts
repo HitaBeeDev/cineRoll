@@ -26,6 +26,7 @@ export interface Film {
   year: number;
   runtime: number | null;
   genres: string[];
+  countries: string[];
   contentType: string;
   plot: string | null;
   director: string | null;
@@ -86,6 +87,7 @@ export interface FilterState {
   awardYear: number | null;
   language: string;
   genre: string;
+  country: string;
   contentType: string;
   runtimeMax: number | null;
   decadeMin: number;

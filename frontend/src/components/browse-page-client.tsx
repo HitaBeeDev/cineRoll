@@ -23,6 +23,7 @@ import {
   fetchAwardYears,
   fetchAutocomplete,
   fetchCategories,
+  fetchCountries,
   fetchFilms,
   fetchGenres,
   fetchRandom,
@@ -53,6 +54,24 @@ const AWARD_BODIES: { value: AwardBody; label: string }[] = [
   { value: "berlin",      label: "Berlinale"    },
 ];
 
+/**
+ * Display-only overrides for verbose/awkward country names. The stored value
+ * (the TMDB form used for filtering) is unchanged — only the label differs.
+ */
+const COUNTRY_DISPLAY_NAMES: Record<string, string> = {
+  "United States of America": "United States",
+  "United Kingdom of Great Britain and Northern Ireland": "United Kingdom",
+  "Syrian Arab Republic": "Syria",
+  "Kyrgyz Republic": "Kyrgyzstan",
+  "Cote D'Ivoire": "Côte d'Ivoire",
+  "Palestinian Territory": "Palestine",
+  "Russian Federation": "Russia",
+};
+
+function countryLabel(value: string): string {
+  return COUNTRY_DISPLAY_NAMES[value] ?? value;
+}
+
 type LoadStatus = "loading" | "success" | "error";
 
 const SORT_OPTIONS: { value: FilterState["sort"]; label: string }[] = [
@@ -72,6 +91,7 @@ export function BrowsePageClient() {
   const { filters, setFilter, resetFilters, hasActiveFilters } = useFilters(initialFilters);
 
   const [genres,     setGenres]     = useState<string[]>([]);
+  const [countries,  setCountries]  = useState<string[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [awardYears, setAwardYears] = useState<number[]>([]);
   const [result,     setResult]     = useState<PaginatedFilms | null>(null);
@@ -89,6 +109,7 @@ export function BrowsePageClient() {
 
   useEffect(() => {
     void fetchGenres().then(setGenres);
+    void fetchCountries().then(setCountries);
     void fetchCategories().then(setCategories);
     void fetchAwardYears().then(setAwardYears);
   }, []);
@@ -621,6 +642,22 @@ export function BrowsePageClient() {
                   </Select>
                 </PanelSection>
 
+                {/* Country */}
+                <PanelSection label="Country">
+                  <Select
+                    value={filters.country || "_all"}
+                    onValueChange={(val) => setFilters({ country: val === "_all" ? "" : val, page: 1 })}
+                  >
+                    <SelectTrigger className="h-10 w-full rounded-md border-white/10 bg-white/[0.045] font-[family-name:var(--font-geist-mono)] text-[11px] text-[#b8b5c8] transition-colors hover:border-white/20 focus:ring-[#e8453c]/60 focus:ring-offset-0">
+                      <SelectValue placeholder="Any country" />
+                    </SelectTrigger>
+                    <SelectContent className="border-white/10 bg-[#101019]">
+                      <SelectItem value="_all">Any country</SelectItem>
+                      {countries.map((c) => <SelectItem key={c} value={c}>{countryLabel(c)}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </PanelSection>
+
                 {/* Ceremony year */}
                 <PanelSection label="Ceremony Year">
                   <div className="flex flex-col gap-1">
@@ -940,6 +977,8 @@ function buildActiveChips(
     chips.push({ key: "nom", label: "Nominated", onRemove: () => setFilters({ nominatedOnly: false, page: 1 }) });
   if (filters.genre.trim())
     chips.push({ key: "genre", label: filters.genre, onRemove: () => setFilters({ genre: "", page: 1 }) });
+  if (filters.country.trim())
+    chips.push({ key: "country", label: countryLabel(filters.country), onRemove: () => setFilters({ country: "", page: 1 }) });
   if (filters.category.trim())
     chips.push({ key: "cat", label: filters.category, onRemove: () => setFilters({ category: "", page: 1 }) });
   if (filters.awardYear != null)
@@ -969,6 +1008,7 @@ function countAdvancedFilters(filters: FilterState): number {
   if (filters.rtScoreMin > 0) n++;
   if (filters.contentType) n++;
   if (filters.category.trim()) n++;
+  if (filters.country.trim()) n++;
   if (filters.awardYear != null) n++;
   if (filters.decadeMin !== DECADE_MIN || filters.decadeMax !== DECADE_MAX) n++;
   return n;
@@ -1030,6 +1070,7 @@ function filtersFromSearchParams(params: URLSearchParams): FilterState {
     category:      params.get("category")     ?? "",
     awardYear,
     genre:         params.get("genre")        ?? "",
+    country:       params.get("country")       ?? "",
     contentType:   params.get("contentType")  ?? "",
     runtimeMax,
     decadeMin:     decadeMin ?? DEFAULT_FILTERS.decadeMin,

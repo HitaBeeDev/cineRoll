@@ -140,6 +140,7 @@ export function filtersToParams(filters: Partial<FilterState>): URLSearchParams 
   if (filters.category?.trim()) params.set("category", filters.category.trim());
   if (filters.awardYear != null) params.set("awardYear", String(filters.awardYear));
   if (filters.genre?.trim()) params.set("genre", filters.genre.trim());
+  if (filters.country?.trim()) params.set("country", filters.country.trim());
   if (filters.contentType?.trim()) params.set("contentType", filters.contentType.trim());
   if (filters.runtimeMax != null) params.set("runtimeMax", String(filters.runtimeMax));
   if (filters.decadeMin != null && filters.decadeMin !== DEFAULT_DECADE_MIN) {
@@ -439,6 +440,13 @@ export async function fetchGenres(): Promise<string[]> {
   if (!res.ok) return [];
   const data = await res.json() as { genres: string[] };
   return data.genres;
+}
+
+export async function fetchCountries(): Promise<string[]> {
+  const res = await fetch(`${API_URL}/api/films/countries`);
+  if (!res.ok) return [];
+  const data = await res.json() as { countries: string[] };
+  return data.countries;
 }
 
 export async function fetchCategories(): Promise<string[]> {
