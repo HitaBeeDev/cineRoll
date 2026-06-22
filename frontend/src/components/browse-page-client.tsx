@@ -636,38 +636,45 @@ export function BrowsePageClient() {
                 </PanelSection>
 
                 {/* Decade */}
-                <PanelSection label="Decade">
-                  <div className="flex gap-2">
-                    <Select
-                      value={String(filters.decadeMin)}
-                      onValueChange={(val) => setFilters({ decadeMin: Number(val), page: 1 })}
-                    >
-                      <SelectTrigger className="h-10 flex-1 rounded-md border-white/10 bg-white/[0.045] font-[family-name:var(--font-geist-mono)] text-[11px] text-[#b8b5c8] transition-colors hover:border-white/20 focus:ring-[#e8453c]/60 focus:ring-offset-0">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="border-white/10 bg-[#101019]">
-                        {BROWSE_DECADE_OPTIONS.map((d) => (
-                          <SelectItem key={d} value={String(d)}>
-                            {d === DECADE_MIN ? "Any" : `${d}s`}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <Select
-                      value={String(filters.decadeMax)}
-                      onValueChange={(val) => setFilters({ decadeMax: Number(val), page: 1 })}
-                    >
-                      <SelectTrigger className="h-10 flex-1 rounded-md border-white/10 bg-white/[0.045] font-[family-name:var(--font-geist-mono)] text-[11px] text-[#b8b5c8] transition-colors hover:border-white/20 focus:ring-[#e8453c]/60 focus:ring-offset-0">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="border-white/10 bg-[#101019]">
-                        {BROWSE_DECADE_OPTIONS.map((d) => (
-                          <SelectItem key={d} value={String(d)}>
-                            {d === DECADE_MAX ? "Any" : `${d}s`}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                <PanelSection label="Decade range">
+                  <div className="flex items-end gap-2">
+                    <label className="flex flex-1 flex-col gap-1">
+                      <span className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.2em] text-[#6b6679]">From</span>
+                      <Select
+                        value={String(filters.decadeMin)}
+                        onValueChange={(val) => setFilters({ decadeMin: Number(val), page: 1 })}
+                      >
+                        <SelectTrigger className="h-10 w-full rounded-md border-white/10 bg-white/[0.045] font-[family-name:var(--font-geist-mono)] text-[11px] text-[#b8b5c8] transition-colors hover:border-white/20 focus:ring-[#e8453c]/60 focus:ring-offset-0">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="border-white/10 bg-[#101019]">
+                          {BROWSE_DECADE_OPTIONS.map((d) => (
+                            <SelectItem key={d} value={String(d)}>
+                              {d === DECADE_MIN ? "Earliest" : `${d}s`}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </label>
+                    <span className="pb-3 font-[family-name:var(--font-geist-mono)] text-[12px] text-[#56515f]" aria-hidden>–</span>
+                    <label className="flex flex-1 flex-col gap-1">
+                      <span className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.2em] text-[#6b6679]">To</span>
+                      <Select
+                        value={String(filters.decadeMax)}
+                        onValueChange={(val) => setFilters({ decadeMax: Number(val), page: 1 })}
+                      >
+                        <SelectTrigger className="h-10 w-full rounded-md border-white/10 bg-white/[0.045] font-[family-name:var(--font-geist-mono)] text-[11px] text-[#b8b5c8] transition-colors hover:border-white/20 focus:ring-[#e8453c]/60 focus:ring-offset-0">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="border-white/10 bg-[#101019]">
+                          {BROWSE_DECADE_OPTIONS.map((d) => (
+                            <SelectItem key={d} value={String(d)}>
+                              {d === DECADE_MAX ? "Latest" : `${d}s`}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </label>
                   </div>
                 </PanelSection>
               </div>
