@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { motion, useReducedMotion } from "framer-motion";
 import {
@@ -992,17 +992,23 @@ function SegmentedControl<T extends string>({
   disabled?: boolean;
   disabledHint?: string;
 }) {
+  // The disabled reason is shown as visible helper text (not just a `title`, which
+  // is invisible to keyboard, touch, and screen-reader users) and linked to the
+  // group via aria-describedby so assistive tech announces it with the control.
+  const hintId = useId();
+  const showHint = disabled && !!disabledHint;
   return (
-    <div
-      role="radiogroup"
-      aria-label={ariaLabel}
-      aria-disabled={disabled || undefined}
-      title={disabled ? disabledHint : undefined}
-      className={cn(
-        "flex w-full max-w-full items-center gap-1 overflow-x-auto rounded-md border border-white/10 bg-white/[0.025] p-1 transition-opacity sm:w-auto sm:overflow-visible",
-        disabled && "pointer-events-none opacity-40",
-      )}
-    >
+    <div className="flex w-full flex-col gap-1 sm:w-auto">
+      <div
+        role="radiogroup"
+        aria-label={ariaLabel}
+        aria-disabled={disabled || undefined}
+        aria-describedby={showHint ? hintId : undefined}
+        className={cn(
+          "flex w-full max-w-full items-center gap-1 overflow-x-auto rounded-md border border-white/10 bg-white/[0.025] p-1 transition-opacity sm:w-auto sm:overflow-visible",
+          disabled && "pointer-events-none opacity-40",
+        )}
+      >
       {options.map((opt, i) => {
         const active = opt.value === value;
         return (
@@ -1032,6 +1038,15 @@ function SegmentedControl<T extends string>({
           </Fragment>
         );
       })}
+      </div>
+      {showHint && (
+        <p
+          id={hintId}
+          className="max-w-[15rem] font-[family-name:var(--font-geist-mono)] text-[10px] leading-tight text-[#857f95]"
+        >
+          {disabledHint}
+        </p>
+      )}
     </div>
   );
 }
