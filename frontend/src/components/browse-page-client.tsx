@@ -424,9 +424,6 @@ export function BrowsePageClient() {
             <h1 className="font-[family-name:var(--font-display)] shrink-0 text-base font-semibold tracking-tight text-[#f4f0f7] sm:text-lg">
               Browse Films
             </h1>
-            <p className="hidden min-w-0 truncate text-[13px] text-[#8b8799] sm:block">
-              Award films, festival discoveries, and ranked favorites — fast filters built for browsing.
-            </p>
           </div>
         </div>
 
