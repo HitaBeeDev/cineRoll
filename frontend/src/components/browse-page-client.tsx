@@ -600,15 +600,15 @@ export function BrowsePageClient() {
               />
             )}
 
-            {/* Advanced disclosure — pinned to the right edge (sm:ml-auto), so its
-                active-count badge grows the button rightward without nudging the
-                status control beside it. */}
+            {/* Advanced disclosure — sits inline after status with the same gap
+                as the other controls. As the last item, its active-count badge
+                grows the button into the trailing space without nudging status. */}
             <button
               type="button"
               onClick={() => setShowMore((v) => !v)}
               aria-expanded={showMore}
               className={cn(
-                "flex h-10 shrink-0 items-center gap-2 rounded-md border px-3.5 font-[family-name:var(--font-geist-mono)] text-[12px] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40 sm:ml-auto",
+                "flex h-10 shrink-0 items-center gap-2 rounded-md border px-3.5 font-[family-name:var(--font-geist-mono)] text-[12px] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40",
                 showMore || advancedCount > 0
                   ? "border-[#e8453c]/55 bg-[#e8453c]/12 text-[#ff766d]"
                   : "border-white/10 bg-white/[0.045] text-[#b8b5c8] hover:border-white/20 hover:text-[#f1eff8]",
