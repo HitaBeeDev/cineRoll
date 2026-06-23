@@ -10,12 +10,16 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { trackEvent, trackFilmImpression } from "@/lib/analytics";
 
 type AwardBadge = {
-  body: string;
   detail: string;
-  won: boolean;
-  color: string;   // bg color for wins
-  text: string;    // text color for wins
+  // "marquee" = the rare, heavily-decorated films that get loud emphasis;
+  // "quiet" = everyone else, who still earn a badge but a recessive one.
+  tier: "marquee" | "quiet";
 } | null;
+
+// Every film in the DB is an award film, so a loud badge on each one carries no
+// signal. Reserve the marquee treatment for the genuinely exceptional — films
+// that swept (5+ total wins) — and let the rest sit quietly.
+const MARQUEE_WIN_THRESHOLD = 5;
 
 function getAwardBadge(film: Film): AwardBadge {
   // One combined count across every award body — no single body is named, so
@@ -24,9 +28,12 @@ function getAwardBadge(film: Film): AwardBadge {
   const totalNoms = film.oscarNominations + film.ggNominations + film.cannesNominations + film.berlinNominations;
 
   if (totalWins > 0)
-    return { body: "", detail: `${totalWins} ${totalWins === 1 ? "award" : "awards"}`, won: true, color: "#e8453c", text: "#ffffff" };
+    return {
+      detail: `${totalWins} ${totalWins === 1 ? "award" : "awards"}`,
+      tier: totalWins >= MARQUEE_WIN_THRESHOLD ? "marquee" : "quiet",
+    };
   if (totalNoms > 0)
-    return { body: "", detail: `${totalNoms} ${totalNoms === 1 ? "nom" : "noms"}`, won: false, color: "#e8453c", text: "#ffffff" };
+    return { detail: `${totalNoms} ${totalNoms === 1 ? "nom" : "noms"}`, tier: "quiet" };
   return null;
 }
 
@@ -127,26 +134,18 @@ export function FilmCard({ film, className }: FilmCardProps) {
                 <span className="shrink-0 text-[#f8f0b3]">{listBadge.detail}</span>
               </span>
             )}
-            {badge && (badge.won ? (
+            {badge && (badge.tier === "marquee" ? (
               <span
-                aria-label={`${badge.body} ${badge.detail}`}
-                className="inline-flex max-w-full items-center gap-1.5 rounded-full px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] font-semibold uppercase tracking-[0.14em] shadow-lg shadow-black/25"
-                style={{ backgroundColor: badge.color, color: badge.text }}
+                aria-label={badge.detail}
+                className="inline-flex max-w-full items-center rounded-full bg-[#e8453c] px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] font-semibold uppercase tracking-[0.14em] text-white shadow-[0_0_22px_rgba(232,69,60,0.4)]"
               >
-                {badge.body && <span className="truncate">{badge.body}</span>}
                 <span className="shrink-0">{badge.detail}</span>
               </span>
             ) : (
               <span
-                aria-label={`${badge.body} ${badge.detail}`}
-                className="inline-flex max-w-full items-center gap-1.5 rounded-full border px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] font-semibold uppercase tracking-[0.14em] shadow-lg shadow-black/25 backdrop-blur-sm"
-                style={{
-                  borderColor: `${badge.color}60`,
-                  color: badge.color,
-                  backgroundColor: "rgba(0,0,0,0.65)",
-                }}
+                aria-label={badge.detail}
+                className="inline-flex max-w-full items-center rounded-full border border-white/12 bg-black/55 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] font-medium uppercase tracking-[0.14em] text-[#b7b2c4] backdrop-blur-sm"
               >
-                {badge.body && <span className="truncate">{badge.body}</span>}
                 <span className="shrink-0">{badge.detail}</span>
               </span>
             ))}
