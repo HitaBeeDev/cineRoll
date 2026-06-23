@@ -40,7 +40,10 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 
-const PAGE_SIZE = 25;
+// 24 tiles cleanly across the grid's column counts (sm:3 / lg:4 / 2xl:6) so the
+// skeleton — which always renders a full PAGE_SIZE — never leaves a ragged last
+// row. (25 was only divisible by the 5-col xl breakpoint.)
+const PAGE_SIZE = 24;
 // The decade bounds live in DEFAULT_FILTERS (the model); alias them here rather
 // than re-typing 1900/2030 across the options list, panel, chips, and count.
 const DECADE_MIN = DEFAULT_FILTERS.decadeMin;
@@ -197,6 +200,20 @@ export function BrowsePageClient() {
 
   const [rolling, setRolling] = useState(false);
 
+  // While a refetch is in flight, keep the previous grid on screen (dimmed)
+  // rather than flashing skeletons — most filter taps resolve from cache in a
+  // few ms. Skeletons appear only once a load is genuinely slow (>150ms) or when
+  // there is no previous grid to hold (the first load).
+  const [slowLoad, setSlowLoad] = useState(false);
+  // Reset the flag at the start of each load by adjusting state during render
+  // (the documented pattern, same as searchDraft) so a fresh refetch starts
+  // optimistic and the 150ms timer below is what re-raises it.
+  const [slowLoadStatus, setSlowLoadStatus] = useState(status);
+  if (status !== slowLoadStatus) {
+    setSlowLoadStatus(status);
+    if (status === "loading") setSlowLoad(false);
+  }
+
   const [acResults, setAcResults] = useState<AutocompleteResult | null>(null);
   const [acOpen, setAcOpen] = useState(false);
   const [acIdx, setAcIdx] = useState(-1);
@@ -240,10 +257,26 @@ export function BrowsePageClient() {
       setStatus("loading");
       void fetchFilms(filters, PAGE_SIZE)
         .then((data) => { if (!cancelled) { setResult(data); setStatus("success"); } })
-        .catch(()    => { if (!cancelled) { setResult(null); setStatus("error");   } });
+        .catch((err) => {
+          if (cancelled) return;
+          // Surface the real failure for debugging instead of swallowing it; the
+          // UI still shows the generic "Something went wrong" retry state.
+          console.error("[browse] fetchFilms failed", err);
+          setResult(null);
+          setStatus("error");
+        });
     }, delay);
     return () => { cancelled = true; window.clearTimeout(timer); };
   }, [filters, reloadNonce]);
+
+  // Promote a load to "slow" after 150ms so the grid-vs-skeleton choice below can
+  // hold the previous grid for quick (cache-served) refetches and only fall back
+  // to skeletons when the wait is actually perceptible.
+  useEffect(() => {
+    if (status !== "loading") return;
+    const timer = window.setTimeout(() => setSlowLoad(true), 150);
+    return () => window.clearTimeout(timer);
+  }, [status, filters, reloadNonce]);
 
   useEffect(() => {
     const q = filters.search.trim();
@@ -394,6 +427,12 @@ export function BrowsePageClient() {
   // Keep the last count on screen while a new query is in flight so the most
   // reassuring number on the page refreshes in place instead of flickering away.
   const isStaleCount = status === "loading" && hasResult;
+  // Grid-level stale handling (mirrors isStaleCount for the cards): hold the
+  // current grid dimmed during a quick refetch, and fall back to skeletons only
+  // when there is no grid to hold (first load) or the load has gone slow.
+  const hasGrid = hasResult && (result?.films.length ?? 0) > 0;
+  const showSkeleton = status === "loading" && (!hasGrid || slowLoad);
+  const showStaleGrid = status === "loading" && hasGrid && !slowLoad;
 
   const scope       = scopeFromFilters(filters);
   const awardStatus = statusFromFilters(filters);
@@ -404,7 +443,13 @@ export function BrowsePageClient() {
   const gridClassName = "grid min-w-0 grid-cols-1 gap-x-4 gap-y-8 [&>*]:min-w-0 sm:grid-cols-3 sm:gap-x-5 sm:gap-y-9 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6";
 
   return (
-    <div className="flex min-h-screen flex-col overflow-x-hidden bg-[#08080d] text-[#F5F5F0]">
+    <div
+      className="flex min-h-screen flex-col overflow-x-hidden bg-[#08080d] text-[#F5F5F0]"
+      // Single source for the in-page scroll offset (~app header 56px + sticky
+      // filter bar). Named here so the results anchor's scroll-margin references
+      // one value instead of a bare magic number.
+      style={{ "--browse-scroll-offset": "8rem" } as React.CSSProperties}
+    >
       <AppHeader />
 
       {/* ── HERO ────────────────────────────────────────────────────────── */}
@@ -801,7 +846,7 @@ export function BrowsePageClient() {
       <main className="mx-auto w-full max-w-[100vw] flex-1 px-4 py-6 sm:max-w-screen-2xl sm:px-6 sm:py-8 lg:px-8 xl:px-12">
         <div
           ref={resultsTopRef}
-          className="mb-6 flex scroll-mt-32 flex-col gap-4 border-b border-white/10 pb-5 lg:flex-row lg:items-center lg:justify-between"
+          className="mb-6 flex scroll-mt-[var(--browse-scroll-offset)] flex-col gap-4 border-b border-white/10 pb-5 lg:flex-row lg:items-center lg:justify-between"
         >
           <div>
             <h2
@@ -877,8 +922,8 @@ export function BrowsePageClient() {
           </div>
         </div>
 
-        {/* Loading */}
-        {status === "loading" && (
+        {/* Loading — only when there's no grid to hold or the load has gone slow */}
+        {showSkeleton && (
           <div className={gridClassName}>
             {Array.from({ length: PAGE_SIZE }).map((_, i) => <FilmCardSkeleton key={i} />)}
           </div>
@@ -917,9 +962,10 @@ export function BrowsePageClient() {
           </div>
         )}
 
-        {/* Grid */}
-        {status === "success" && result && result.films.length > 0 && (
-          <>
+        {/* Grid — stays mounted (dimmed) through a quick refetch so cache-served
+            filter taps don't flash skeletons; only swaps out once slow. */}
+        {(status === "success" || showStaleGrid) && result && result.films.length > 0 && (
+          <div className={cn("transition-opacity duration-150", showStaleGrid && "pointer-events-none opacity-40")}>
             <div className={gridClassName}>
               {result.films.map((film, index) => (
                 <motion.div
@@ -938,7 +984,7 @@ export function BrowsePageClient() {
             </div>
 
             <Pagination page={page} totalPages={totalPages} onChange={goToPage} />
-          </>
+          </div>
         )}
       </main>
     </div>
