@@ -456,7 +456,7 @@ export function BrowsePageClient() {
                 onFocus={() => { if (acResults && acResults.films.length + acResults.people.length > 0) setAcOpen(true); }}
                 aria-autocomplete="list"
                 aria-expanded={acOpen}
-                className="h-10 w-full rounded-md border border-white/10 bg-white/[0.045] pl-9 pr-3 text-[13px] text-[#f1eff8] outline-none transition-colors placeholder:text-[#6f6a80] hover:border-white/18 focus:border-[#e8453c]/70 focus:ring-2 focus:ring-[#e8453c]/15"
+                className="h-10 w-full rounded-md border border-white/10 bg-white/[0.045] pl-9 pr-3 text-[13px] text-[#f1eff8] outline-none transition-colors placeholder:text-[#857f95] hover:border-white/18 focus:border-[#e8453c]/70 focus:ring-2 focus:ring-[#e8453c]/15"
               />
               {acOpen && acResults && (acResults.films.length + acResults.people.length) > 0 && (
                 <div
@@ -606,7 +606,7 @@ export function BrowsePageClient() {
               <button
                 type="button"
                 onClick={() => { resetFilters(); setShowMore(false); }}
-                className="ml-1 font-[family-name:var(--font-geist-mono)] text-[12px] text-[#706b82] transition-colors hover:text-[#ff766d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/30"
+                className="ml-1 font-[family-name:var(--font-geist-mono)] text-[12px] text-[#857f95] transition-colors hover:text-[#ff766d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/30"
               >
                 Clear all
               </button>
@@ -1133,7 +1133,7 @@ function Pagination({
           <span
             key={`ellipsis-${i}`}
             aria-hidden
-            className="flex h-9 w-7 items-center justify-center font-[family-name:var(--font-geist-mono)] text-[12px] text-[#575266]"
+            className="flex h-9 w-7 items-center justify-center font-[family-name:var(--font-geist-mono)] text-[12px] text-[#817c91]"
           >
             …
           </span>
