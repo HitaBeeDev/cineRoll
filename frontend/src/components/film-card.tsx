@@ -138,7 +138,7 @@ export function FilmCard({ film, className }: FilmCardProps) {
             {badge && (badge.tier === "marquee" ? (
               <span
                 aria-label={badge.detail}
-                className="inline-flex max-w-full items-center rounded-full border border-white/25 bg-white/[0.12] px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] font-semibold uppercase tracking-[0.14em] text-[#f5f3fb] shadow-lg shadow-black/25 backdrop-blur-sm"
+                className="inline-flex max-w-full items-center rounded-full border border-white/30 bg-black/75 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] font-semibold uppercase tracking-[0.14em] text-[#f8f6fc] shadow-lg shadow-black/30 backdrop-blur-sm"
               >
                 <span className="shrink-0">{badge.detail}</span>
               </span>
