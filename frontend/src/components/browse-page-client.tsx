@@ -566,7 +566,7 @@ export function BrowsePageClient() {
 
                 {/* IMDb */}
                 <PanelSection label="IMDb Rating">
-                  <div className="flex flex-wrap gap-1">
+                  <ChipGroup label="Minimum IMDb rating">
                     {[0, 6, 6.5, 7, 7.5, 8, 8.5, 9].map((r) => (
                       <FilterChip
                         key={r}
@@ -576,12 +576,12 @@ export function BrowsePageClient() {
                         {r === 0 ? "Any" : `${r}+`}
                       </FilterChip>
                     ))}
-                  </div>
+                  </ChipGroup>
                 </PanelSection>
 
                 {/* RT */}
                 <PanelSection label="Rotten Tomatoes">
-                  <div className="flex flex-wrap gap-1">
+                  <ChipGroup label="Minimum Rotten Tomatoes score">
                     {[0, 50, 60, 70, 80, 90, 95].map((s) => (
                       <FilterChip
                         key={s}
@@ -591,12 +591,12 @@ export function BrowsePageClient() {
                         {s === 0 ? "Any" : `${s}%+`}
                       </FilterChip>
                     ))}
-                  </div>
+                  </ChipGroup>
                 </PanelSection>
 
                 {/* Type */}
                 <PanelSection label="Content Type">
-                  <div className="flex flex-wrap gap-1">
+                  <ChipGroup label="Content type">
                     {(
                       [
                         { value: "",            label: "All"       },
@@ -615,7 +615,7 @@ export function BrowsePageClient() {
                         {label}
                       </FilterChip>
                     ))}
-                  </div>
+                  </ChipGroup>
                 </PanelSection>
 
                 {/* Category */}
@@ -638,86 +638,74 @@ export function BrowsePageClient() {
                 <div className="grid grid-cols-1 gap-x-8 gap-y-6 sm:col-span-2 sm:grid-cols-2 lg:col-span-3 lg:grid-cols-4 xl:col-span-4">
                 {/* Country */}
                 <PanelSection label="Country">
-                  <div className="flex flex-col gap-1">
-                    {/* Invisible caption to align this dropdown with the Decade From/To row */}
-                    <span className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.2em] text-transparent select-none" aria-hidden>From</span>
-                    <Select
-                      value={filters.country || "_all"}
-                      onValueChange={(val) => setFilters({ country: val === "_all" ? "" : val, page: 1 })}
-                    >
-                      <SelectTrigger className="h-10 w-full rounded-md border-white/10 bg-white/[0.045] font-[family-name:var(--font-geist-mono)] text-[11px] text-[#b8b5c8] transition-colors hover:border-white/20 focus:ring-[#e8453c]/60 focus:ring-offset-0">
-                        <SelectValue placeholder="Any country" />
-                      </SelectTrigger>
-                      <SelectContent className="border-white/10 bg-[#101019]">
-                        <SelectItem value="_all">Any country</SelectItem>
-                        {countries.map((c) => <SelectItem key={c} value={c}>{countryLabel(c)}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  <Select
+                    value={filters.country || "_all"}
+                    onValueChange={(val) => setFilters({ country: val === "_all" ? "" : val, page: 1 })}
+                  >
+                    <SelectTrigger className="h-10 w-full rounded-md border-white/10 bg-white/[0.045] font-[family-name:var(--font-geist-mono)] text-[11px] text-[#b8b5c8] transition-colors hover:border-white/20 focus:ring-[#e8453c]/60 focus:ring-offset-0">
+                      <SelectValue placeholder="Any country" />
+                    </SelectTrigger>
+                    <SelectContent className="border-white/10 bg-[#101019]">
+                      <SelectItem value="_all">Any country</SelectItem>
+                      {countries.map((c) => <SelectItem key={c} value={c}>{countryLabel(c)}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
                 </PanelSection>
 
                 {/* Ceremony year */}
                 <PanelSection label="Ceremony Year">
-                  <div className="flex flex-col gap-1">
-                    {/* Invisible caption to align this dropdown with the Decade From/To row */}
-                    <span className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.2em] text-transparent select-none" aria-hidden>From</span>
-                    <Select
-                      value={filters.awardYear != null ? String(filters.awardYear) : "_any"}
-                      onValueChange={(val) =>
-                        setFilters({ awardYear: val === "_any" ? null : Number(val), page: 1 })
-                      }
-                    >
-                      <SelectTrigger className="h-10 w-full rounded-md border-white/10 bg-white/[0.045] font-[family-name:var(--font-geist-mono)] text-[11px] text-[#b8b5c8] transition-colors hover:border-white/20 focus:ring-[#e8453c]/60 focus:ring-offset-0">
-                        <SelectValue placeholder="Any year" />
-                      </SelectTrigger>
-                      <SelectContent className="border-white/10 bg-[#101019]">
-                        <SelectItem value="_any">Any year</SelectItem>
-                        {awardYears.map((y) => <SelectItem key={y} value={String(y)}>{y}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  <Select
+                    value={filters.awardYear != null ? String(filters.awardYear) : "_any"}
+                    onValueChange={(val) =>
+                      setFilters({ awardYear: val === "_any" ? null : Number(val), page: 1 })
+                    }
+                  >
+                    <SelectTrigger className="h-10 w-full rounded-md border-white/10 bg-white/[0.045] font-[family-name:var(--font-geist-mono)] text-[11px] text-[#b8b5c8] transition-colors hover:border-white/20 focus:ring-[#e8453c]/60 focus:ring-offset-0">
+                      <SelectValue placeholder="Any year" />
+                    </SelectTrigger>
+                    <SelectContent className="border-white/10 bg-[#101019]">
+                      <SelectItem value="_any">Any year</SelectItem>
+                      {awardYears.map((y) => <SelectItem key={y} value={String(y)}>{y}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
                 </PanelSection>
 
-                {/* Decade */}
+                {/* Decade — the heading and the dash convey the range, so the two
+                    selects need no From/To captions (kept as aria-labels), which
+                    also lets all three controls in this row share one baseline. */}
                 <PanelSection label="Decade range" className="lg:col-span-2">
-                  <div className="flex items-end gap-2">
-                    <label className="flex flex-1 flex-col gap-1">
-                      <span className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.2em] text-[#6b6679]">From</span>
-                      <Select
-                        value={String(filters.decadeMin)}
-                        onValueChange={(val) => setFilters({ decadeMin: Number(val), page: 1 })}
-                      >
-                        <SelectTrigger className="h-10 w-full rounded-md border-white/10 bg-white/[0.045] font-[family-name:var(--font-geist-mono)] text-[11px] text-[#b8b5c8] transition-colors hover:border-white/20 focus:ring-[#e8453c]/60 focus:ring-offset-0">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent className="border-white/10 bg-[#101019]">
-                          {BROWSE_DECADE_OPTIONS.map((d) => (
-                            <SelectItem key={d} value={String(d)}>
-                              {d === DECADE_MIN ? "Earliest" : `${d}s`}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </label>
-                    <span className="pb-3 font-[family-name:var(--font-geist-mono)] text-[12px] text-[#56515f]" aria-hidden>–</span>
-                    <label className="flex flex-1 flex-col gap-1">
-                      <span className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.2em] text-[#6b6679]">To</span>
-                      <Select
-                        value={String(filters.decadeMax)}
-                        onValueChange={(val) => setFilters({ decadeMax: Number(val), page: 1 })}
-                      >
-                        <SelectTrigger className="h-10 w-full rounded-md border-white/10 bg-white/[0.045] font-[family-name:var(--font-geist-mono)] text-[11px] text-[#b8b5c8] transition-colors hover:border-white/20 focus:ring-[#e8453c]/60 focus:ring-offset-0">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent className="border-white/10 bg-[#101019]">
-                          {BROWSE_DECADE_OPTIONS.map((d) => (
-                            <SelectItem key={d} value={String(d)}>
-                              {d === DECADE_MAX ? "Latest" : `${d}s`}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </label>
+                  <div className="flex items-center gap-2">
+                    <Select
+                      value={String(filters.decadeMin)}
+                      onValueChange={(val) => setFilters({ decadeMin: Number(val), page: 1 })}
+                    >
+                      <SelectTrigger aria-label="Decade from" className="h-10 w-full flex-1 rounded-md border-white/10 bg-white/[0.045] font-[family-name:var(--font-geist-mono)] text-[11px] text-[#b8b5c8] transition-colors hover:border-white/20 focus:ring-[#e8453c]/60 focus:ring-offset-0">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="border-white/10 bg-[#101019]">
+                        {BROWSE_DECADE_OPTIONS.map((d) => (
+                          <SelectItem key={d} value={String(d)}>
+                            {d === DECADE_MIN ? "Earliest" : `${d}s`}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <span className="font-[family-name:var(--font-geist-mono)] text-[12px] text-[#56515f]" aria-hidden>–</span>
+                    <Select
+                      value={String(filters.decadeMax)}
+                      onValueChange={(val) => setFilters({ decadeMax: Number(val), page: 1 })}
+                    >
+                      <SelectTrigger aria-label="Decade to" className="h-10 w-full flex-1 rounded-md border-white/10 bg-white/[0.045] font-[family-name:var(--font-geist-mono)] text-[11px] text-[#b8b5c8] transition-colors hover:border-white/20 focus:ring-[#e8453c]/60 focus:ring-offset-0">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="border-white/10 bg-[#101019]">
+                        {BROWSE_DECADE_OPTIONS.map((d) => (
+                          <SelectItem key={d} value={String(d)}>
+                            {d === DECADE_MAX ? "Latest" : `${d}s`}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                 </PanelSection>
                 </div>
@@ -994,7 +982,8 @@ function FilterChip({
   return (
     <button
       type="button"
-      aria-pressed={active}
+      role="radio"
+      aria-checked={active}
       onClick={onClick}
       className={cn(
         "h-8 rounded-md border px-3 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.16em] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/35",
@@ -1005,6 +994,15 @@ function FilterChip({
     >
       {children}
     </button>
+  );
+}
+
+/** Wraps a set of single-select FilterChips so assistive tech reads them as one radio group. */
+function ChipGroup({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div role="radiogroup" aria-label={label} className="flex flex-wrap gap-1">
+      {children}
+    </div>
   );
 }
 
