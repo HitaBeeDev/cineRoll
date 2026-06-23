@@ -485,10 +485,10 @@ export function BrowsePageClient() {
       <div className="sticky top-14 z-40 max-w-[100vw] border-b border-[#1c1a25] bg-[#08080d]/92 shadow-[0_18px_50px_rgba(0,0,0,0.28)] backdrop-blur-xl">
         <div className="mx-auto w-full max-w-[100vw] px-4 sm:max-w-screen-2xl sm:px-6 lg:px-8 xl:px-12">
 
-          {/* Primary row — search and the scope selector group on the left; the
-              award status sits at the right edge and falls away for IMDb lists,
-              where win / nomination has no meaning. */}
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-2 pt-3">
+          {/* Primary row — search + scope on the left; award status and the
+              Advanced disclosure are grouped at the right edge. Status falls
+              away for IMDb lists (no win/nomination there). */}
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2 pt-3 pb-2.5">
             {/* Search — capped so it sizes to its content, not the viewport */}
             <div ref={searchContainerRef} className="relative w-full min-w-0 sm:w-[360px]">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#6f6b80]" />
@@ -585,52 +585,37 @@ export function BrowsePageClient() {
               onChange={(value) => setFilters(scopeToUpdates(value))}
             />
 
-            {/* Award status — right-aligned; gone for IMDb lists */}
-            {!scopeIsImdb && (
-              <div className="sm:ml-auto">
+            {/* Award status + Advanced disclosure — grouped at the right edge.
+                Status falls away for IMDb lists (no win/nomination there). */}
+            <div className="flex w-full flex-wrap items-center gap-2 sm:ml-auto sm:w-auto">
+              {!scopeIsImdb && (
                 <SegmentedControl
                   ariaLabel="Award status"
                   options={STATUS_OPTIONS}
                   value={awardStatus}
                   onChange={(value) => setFilters(statusToUpdates(value))}
                 />
-              </div>
-            )}
-          </div>
-
-          {/* Secondary row — genre and the advanced disclosure */}
-          <div className="flex flex-wrap items-center gap-2 py-2.5">
-            {/* Genre — full width in the mobile stack, fixed width from sm up */}
-            <div className="w-full sm:w-auto">
-              <FilterSelect
-                value={filters.genre || "_all"}
-                onValueChange={(val) => setFilters({ genre: val === "_all" ? "" : val, page: 1 })}
-                placeholder="Genre"
-                className="w-full text-[12px] text-[#b8b5c8] sm:w-[158px]"
-                options={[{ value: "_all", label: "All genres" }, ...genres.map((g) => ({ value: g, label: g }))]}
-              />
+              )}
+              <button
+                type="button"
+                onClick={() => setShowMore((v) => !v)}
+                aria-expanded={showMore}
+                className={cn(
+                  "flex h-10 items-center gap-2 rounded-md border px-3.5 font-[family-name:var(--font-geist-mono)] text-[12px] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40",
+                  showMore || advancedCount > 0
+                    ? "border-[#e8453c]/55 bg-[#e8453c]/12 text-[#ff766d]"
+                    : "border-white/10 bg-white/[0.045] text-[#b8b5c8] hover:border-white/20 hover:text-[#f1eff8]",
+                )}
+              >
+                <SlidersHorizontal className="h-3.5 w-3.5" aria-hidden />
+                Advanced
+                {advancedCount > 0 && (
+                  <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-[#e8453c] px-1 text-[10px] font-semibold leading-none text-white">
+                    {advancedCount}
+                  </span>
+                )}
+              </button>
             </div>
-
-            {/* Advanced filters disclosure */}
-            <button
-              type="button"
-              onClick={() => setShowMore((v) => !v)}
-              aria-expanded={showMore}
-              className={cn(
-                "flex h-10 items-center gap-2 rounded-md border px-3.5 font-[family-name:var(--font-geist-mono)] text-[12px] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40",
-                showMore || advancedCount > 0
-                  ? "border-[#e8453c]/55 bg-[#e8453c]/12 text-[#ff766d]"
-                  : "border-white/10 bg-white/[0.045] text-[#b8b5c8] hover:border-white/20 hover:text-[#f1eff8]",
-              )}
-            >
-              <SlidersHorizontal className="h-3.5 w-3.5" aria-hidden />
-              Advanced
-              {advancedCount > 0 && (
-                <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-[#e8453c] px-1 text-[10px] font-semibold leading-none text-white">
-                  {advancedCount}
-                </span>
-              )}
-            </button>
           </div>
 
           {/* Active chips */}
@@ -693,6 +678,16 @@ export function BrowsePageClient() {
                       </FilterChip>
                     ))}
                   </ChipGroup>
+                </PanelSection>
+
+                <PanelSection label="Genre">
+                  <FilterSelect
+                    value={filters.genre || "_all"}
+                    onValueChange={(val) => setFilters({ genre: val === "_all" ? "" : val, page: 1 })}
+                    placeholder="Any genre"
+                    className="w-full text-[#b8b5c8]"
+                    options={[{ value: "_all", label: "All genres" }, ...genres.map((g) => ({ value: g, label: g }))]}
+                  />
                 </PanelSection>
 
                 <PanelSection label="Content Type">
@@ -1250,7 +1245,7 @@ const FILTER_DESCRIPTORS: FilterDescriptor[] = [
     toChip: (f, set) => f.winnerOnly
       ? { key: "won", label: "Won", onRemove: () => set({ winnerOnly: false, page: 1 }) }
       : { key: "nom", label: "Nominated", onRemove: () => set({ nominatedOnly: false, page: 1 }) } },
-  { advanced: false, isActive: (f) => !!f.genre.trim(),
+  { advanced: true, isActive: (f) => !!f.genre.trim(),
     toChip: (f, set) => ({ key: "genre", label: f.genre, onRemove: () => set({ genre: "", page: 1 }) }) },
   { advanced: true, isActive: (f) => !!f.language.trim(),
     toChip: (f, set) => ({ key: "language", label: languageLabel(f.language), onRemove: () => set({ language: "", page: 1 }) }) },
