@@ -110,6 +110,8 @@ export interface PaginatedFilms {
   total: number;
   page: number;
   totalPages: number;
+  /** Page size the server actually applied (its clamped limit), so clients can size the window without assuming their requested limit was honored. */
+  pageSize: number;
 }
 
 export interface ApiError {

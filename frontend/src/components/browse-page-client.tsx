@@ -326,8 +326,13 @@ export function BrowsePageClient() {
   const total       = result?.total    ?? 0;
   const page        = result?.page     ?? filters.page;
   const totalPages  = Math.max(result?.totalPages ?? 1, 1);
-  const showingEnd  = result ? Math.min(page * PAGE_SIZE, result.total) : 0;
-  const showingStart = total === 0 ? 0 : (page - 1) * PAGE_SIZE + 1;
+  // Window is derived from the page size the server reports it applied and the
+  // rows it actually returned — not from the limit we requested — so the
+  // "Showing X–Y" line stays correct even if the server clamps the page size
+  // or the final page is short.
+  const pageSize     = result?.pageSize ?? PAGE_SIZE;
+  const showingStart = total === 0 ? 0 : (page - 1) * pageSize + 1;
+  const showingEnd   = result ? showingStart + result.films.length - 1 : 0;
   const hasResult = result != null;
   // Keep the last count on screen while a new query is in flight so the most
   // reassuring number on the page refreshes in place instead of flickering away.

@@ -390,6 +390,7 @@ filmsRouter.get("/", validate(listQuerySchema), async (req, res) => {
       total,
       page: 1,
       totalPages: Math.ceil(total / query.limit),
+      pageSize: query.limit,
     });
     return;
   }
@@ -418,6 +419,7 @@ filmsRouter.get("/", validate(listQuerySchema), async (req, res) => {
     total,
     page: query.page,
     totalPages: Math.ceil(total / query.limit),
+    pageSize: query.limit,
   });
 });
 
