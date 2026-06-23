@@ -87,7 +87,7 @@ function scopeToUpdates(scope: Scope): Partial<FilterState> {
 // `cn` is a plain join with no tailwind-merge, so those must not be duplicated
 // in the base or the override couldn't win.
 const SELECT_TRIGGER_BASE =
-  "h-10 rounded-md border-white/10 bg-white/[0.045] font-[family-name:var(--font-geist-mono)] text-[11px] transition-colors hover:border-white/20 focus:ring-[#e8453c]/60 focus:ring-offset-0";
+  "h-10 rounded-md border-white/10 bg-white/[0.045] text-[12px] transition-colors hover:border-white/20 focus:ring-[#e8453c]/60 focus:ring-offset-0";
 
 type AwardStatus = "any" | "won" | "nom";
 
@@ -419,9 +419,12 @@ export function BrowsePageClient() {
         />
 
         <div className="relative mx-auto w-full max-w-[100vw] px-4 sm:max-w-screen-2xl sm:px-6 lg:px-8 xl:px-12">
-          <div className="flex items-center gap-3 py-4 sm:py-5">
-            <div className="h-7 w-1 shrink-0 rounded-full bg-[#e8453c] sm:h-9" aria-hidden />
-            <h1 className="font-[family-name:var(--font-display)] shrink-0 text-2xl font-bold tracking-tight text-[#f4f0f7] sm:text-[2rem]">
+          <div className="py-5">
+            <div className="mb-2.5 h-px w-10 bg-[#e8453c]" aria-hidden />
+            <h1
+              className="font-[family-name:var(--font-display)] font-bold leading-none tracking-tight text-[#f4f0f7]"
+              style={{ fontSize: "clamp(1.9rem, 3.6vw, 3.25rem)" }}
+            >
               Browse Films
             </h1>
           </div>
@@ -437,23 +440,12 @@ export function BrowsePageClient() {
       <div className="sticky top-14 z-40 max-w-[100vw] border-b border-[#1c1a25] bg-[#08080d]/92 shadow-[0_18px_50px_rgba(0,0,0,0.28)] backdrop-blur-xl">
         <div className="mx-auto w-full max-w-[100vw] px-4 sm:max-w-screen-2xl sm:px-6 lg:px-8 xl:px-12">
 
-          {/* Row 1 — Scope is the primary axis; it leads on its own line. */}
-          <div className="pt-3 pb-2.5">
-            <SegmentedControl
-              ariaLabel="Browse scope"
-              options={SCOPE_OPTIONS}
-              value={scope}
-              onChange={(value) => setFilters(scopeToUpdates(value))}
-            />
-          </div>
-
-          {/* Row 2 — Refine within the chosen scope: a capped search, the award
-              status (nested under scope, gone for IMDb lists), then genre and
-              the advanced disclosure. Everything is grouped to the left so the
-              toolbar reads as one cluster rather than spreading into voids. */}
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-2 pb-2.5">
+          {/* Primary row — search and the scope selector group on the left; the
+              award status sits at the right edge and falls away for IMDb lists,
+              where win / nomination has no meaning. */}
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2 pt-3">
             {/* Search — capped so it sizes to its content, not the viewport */}
-            <div ref={searchContainerRef} className="relative w-full min-w-0 sm:w-[380px]">
+            <div ref={searchContainerRef} className="relative w-full min-w-0 sm:w-[360px]">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#6f6b80]" />
               <input
                 type="text"
@@ -464,7 +456,7 @@ export function BrowsePageClient() {
                 onFocus={() => { if (acResults && acResults.films.length + acResults.people.length > 0) setAcOpen(true); }}
                 aria-autocomplete="list"
                 aria-expanded={acOpen}
-                className="h-10 w-full rounded-md border border-white/10 bg-white/[0.045] pl-9 pr-3 font-[family-name:var(--font-geist-mono)] text-[12px] text-[#f1eff8] outline-none transition-colors placeholder:text-[#6f6a80] hover:border-white/18 focus:border-[#e8453c]/70 focus:ring-2 focus:ring-[#e8453c]/15"
+                className="h-10 w-full rounded-md border border-white/10 bg-white/[0.045] pl-9 pr-3 text-[13px] text-[#f1eff8] outline-none transition-colors placeholder:text-[#6f6a80] hover:border-white/18 focus:border-[#e8453c]/70 focus:ring-2 focus:ring-[#e8453c]/15"
               />
               {acOpen && acResults && (acResults.films.length + acResults.people.length) > 0 && (
                 <div
@@ -490,7 +482,7 @@ export function BrowsePageClient() {
                           )}
                         >
                           <Clapperboard className="h-3 w-3 shrink-0 text-[#555064]" aria-hidden />
-                          <span className="min-w-0 flex-1 truncate font-[family-name:var(--font-geist-mono)] text-[11px] text-[#e8e5f4]">
+                          <span className="min-w-0 flex-1 truncate text-[13px] text-[#e8e5f4]">
                             {film.title}
                           </span>
                           <span className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[11px] text-[#555064]">
@@ -524,7 +516,7 @@ export function BrowsePageClient() {
                             )}
                           >
                             <Search className="h-3 w-3 shrink-0 text-[#555064]" aria-hidden />
-                            <span className="min-w-0 flex-1 truncate font-[family-name:var(--font-geist-mono)] text-[11px] text-[#e8e5f4]">
+                            <span className="min-w-0 flex-1 truncate text-[13px] text-[#e8e5f4]">
                               {person.name}
                             </span>
                             <span className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[11px] capitalize text-[#555064]">
@@ -540,11 +532,17 @@ export function BrowsePageClient() {
               )}
             </div>
 
+            {/* Scope — the award corpus (or an IMDb list); the two are exclusive */}
+            <SegmentedControl
+              ariaLabel="Browse scope"
+              options={SCOPE_OPTIONS}
+              value={scope}
+              onChange={(value) => setFilters(scopeToUpdates(value))}
+            />
+
+            {/* Award status — right-aligned; gone for IMDb lists */}
             {!scopeIsImdb && (
-              <div className="flex items-center gap-2.5">
-                <span className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.28em] text-[#6f6a80]">
-                  Status
-                </span>
+              <div className="sm:ml-auto">
                 <SegmentedControl
                   ariaLabel="Award status"
                   options={STATUS_OPTIONS}
@@ -553,11 +551,10 @@ export function BrowsePageClient() {
                 />
               </div>
             )}
+          </div>
 
-            {/* Divider between the query controls (search/status) and the
-                refine controls (genre/advanced) */}
-            <div className="hidden h-6 w-px shrink-0 bg-white/10 sm:block" />
-
+          {/* Secondary row — genre and the advanced disclosure */}
+          <div className="flex flex-wrap items-center gap-2 py-2.5">
             {/* Genre — full width in the mobile stack, fixed width from sm up */}
             <div className="w-full sm:w-auto">
               <FilterSelect
