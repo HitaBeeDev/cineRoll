@@ -1169,17 +1169,6 @@ const FILTER_DESCRIPTORS: FilterDescriptor[] = [
     toChip: (f, set) => ({ key: "runtime", label: `≤ ${f.runtimeMax}m`, onRemove: () => set({ runtimeMax: null, page: 1 }) }) },
   { advanced: true, isActive: (f) => f.nominationCount != null && f.nominationCount > 0,
     toChip: (f, set) => ({ key: "noms", label: `${f.nominationCount}+ noms`, onRemove: () => set({ nominationCount: null, page: 1 }) }) },
-  // Fields browse has no control for, but that `filtersFromSearchParams` still
-  // parses — so a hand-built or handed-off URL can carry them. Represented here
-  // so they show as removable chips instead of being applied invisibly.
-  { advanced: false, isActive: (f) => !!f.director.trim(),
-    toChip: (f, set) => ({ key: "director", label: `Dir. ${f.director.trim()}`, onRemove: () => set({ director: "", page: 1 }) }) },
-  { advanced: false, isActive: (f) => !!f.certificate.trim(),
-    toChip: (f, set) => ({ key: "certificate", label: f.certificate.trim(), onRemove: () => set({ certificate: "", page: 1 }) }) },
-  { advanced: false, isActive: (f) => !!f.tvType.trim(),
-    toChip: (f, set) => ({ key: "tvType", label: f.tvType.trim(), onRemove: () => set({ tvType: "", page: 1 }) }) },
-  { advanced: false, isActive: (f) => f.imdbRatingMax != null,
-    toChip: (f, set) => ({ key: "imdbMax", label: `IMDb ≤ ${f.imdbRatingMax}`, onRemove: () => set({ imdbRatingMax: null, page: 1 }) }) },
 ];
 
 /** Does any browse filter differ from its default? Derived from the same table
@@ -1225,11 +1214,15 @@ function filtersFromSearchParams(params: URLSearchParams): FilterState {
   const sort           = params.get("sort");
   const sortOrder      = params.get("sortOrder");
 
+  // Browse intentionally reads only the filters its UI can set. The remaining
+  // FilterState fields (director, certificate, tvType, imdbRatingMax) belong to
+  // other surfaces (e.g. /describe) and have no browse control, so they're left
+  // at their DEFAULT_FILTERS values rather than parsed into a filter nobody here
+  // could see or clear.
   return {
     ...DEFAULT_FILTERS,
     search:           params.get("search")   ?? "",
     person:           params.get("person")   ?? "",
-    director:         params.get("director") ?? "",
     femaleDirectorOnly: params.get("femaleDirectorOnly") === "true",
     awardBody:
       awardBody === "oscar" || awardBody === "goldenglobe" || awardBody === "cannes" || awardBody === "berlin" || awardBody === "all"
@@ -1248,12 +1241,9 @@ function filtersFromSearchParams(params: URLSearchParams): FilterState {
     decadeMax:     decadeMax ?? DEFAULT_FILTERS.decadeMax,
     nominationCount,
     imdbRatingMin: imdbRatingMin ?? DEFAULT_FILTERS.imdbRatingMin,
-    imdbRatingMax: numberParam(params.get("imdbRatingMax")),
     rtScoreMin:    rtScoreMin ?? DEFAULT_FILTERS.rtScoreMin,
-    certificate:   params.get("certificate") ?? "",
     imdbTopMoviesOnly: params.get("imdbTopMoviesOnly") === "true",
     imdbTopTvOnly:     params.get("imdbTopTvOnly")     === "true",
-    tvType:        params.get("tvType") ?? "",
     sort:
       sort === "title" || sort === "rating" || sort === "rt" || sort === "awards" || sort === "newest"
         ? sort
