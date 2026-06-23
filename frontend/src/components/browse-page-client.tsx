@@ -592,10 +592,10 @@ export function BrowsePageClient() {
         {/* ── EXPANDED FILTER PANEL ─────────────────────────── */}
         {showMore && (
           <div className="border-t border-white/10 bg-[#090910]/98">
-            <div className="mx-auto w-full max-w-[100vw] px-4 py-6 sm:max-w-screen-2xl sm:px-6 lg:px-8 xl:px-12">
-              <div className="grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div className="mx-auto flex w-full max-w-[100vw] flex-col gap-8 px-4 py-6 sm:max-w-screen-2xl sm:px-6 lg:px-8 xl:px-12">
 
-                {/* IMDb */}
+              {/* ── Ratings ─────────────────────────────────── */}
+              <FilterGroup label="Ratings">
                 <PanelSection label="IMDb Rating">
                   <ChipGroup label="Minimum IMDb rating">
                     {[0, 6, 6.5, 7, 7.5, 8, 8.5, 9].map((r) => (
@@ -610,7 +610,6 @@ export function BrowsePageClient() {
                   </ChipGroup>
                 </PanelSection>
 
-                {/* RT */}
                 <PanelSection label="Rotten Tomatoes">
                   <ChipGroup label="Minimum Rotten Tomatoes score">
                     {[0, 50, 60, 70, 80, 90, 95].map((s) => (
@@ -624,8 +623,10 @@ export function BrowsePageClient() {
                     ))}
                   </ChipGroup>
                 </PanelSection>
+              </FilterGroup>
 
-                {/* Type */}
+              {/* ── Film ────────────────────────────────────── */}
+              <FilterGroup label="Film">
                 <PanelSection label="Content Type">
                   <ChipGroup label="Content type">
                     {(
@@ -649,7 +650,6 @@ export function BrowsePageClient() {
                   </ChipGroup>
                 </PanelSection>
 
-                {/* Max runtime */}
                 <PanelSection label="Max Runtime">
                   <ChipGroup label="Maximum runtime">
                     {([
@@ -670,7 +670,45 @@ export function BrowsePageClient() {
                   </ChipGroup>
                 </PanelSection>
 
-                {/* Award nominations (minimum total) */}
+                <PanelSection label="Language">
+                  <FilterSelect
+                    value={filters.language || "_all"}
+                    onValueChange={(val) => setFilters({ language: val === "_all" ? "" : val, page: 1 })}
+                    placeholder="Any language"
+                    className="w-full text-[#b8b5c8]"
+                    options={[
+                      { value: "_all", label: "Any language" },
+                      ...languages
+                        .map((c) => ({ value: c, label: languageLabel(c) }))
+                        .sort((a, b) => a.label.localeCompare(b.label)),
+                    ]}
+                  />
+                </PanelSection>
+
+                <PanelSection label="Country">
+                  <FilterSelect
+                    value={filters.country || "_all"}
+                    onValueChange={(val) => setFilters({ country: val === "_all" ? "" : val, page: 1 })}
+                    placeholder="Any country"
+                    className="w-full text-[#b8b5c8]"
+                    options={[{ value: "_all", label: "Any country" }, ...countries.map((c) => ({ value: c, label: countryLabel(c) }))]}
+                  />
+                </PanelSection>
+
+                <PanelSection label="Director">
+                  <ChipGroup label="Director">
+                    <FilterChip active={!filters.femaleDirectorOnly} onClick={() => setFilters({ femaleDirectorOnly: false, page: 1 })}>
+                      Any
+                    </FilterChip>
+                    <FilterChip active={filters.femaleDirectorOnly} onClick={() => setFilters({ femaleDirectorOnly: true, page: 1 })}>
+                      Female-directed
+                    </FilterChip>
+                  </ChipGroup>
+                </PanelSection>
+              </FilterGroup>
+
+              {/* ── Awards ──────────────────────────────────── */}
+              <FilterGroup label="Awards">
                 <PanelSection label="Award Nominations">
                   <ChipGroup label="Minimum total award nominations">
                     {([
@@ -692,19 +730,6 @@ export function BrowsePageClient() {
                   </ChipGroup>
                 </PanelSection>
 
-                {/* Director */}
-                <PanelSection label="Director">
-                  <ChipGroup label="Director">
-                    <FilterChip active={!filters.femaleDirectorOnly} onClick={() => setFilters({ femaleDirectorOnly: false, page: 1 })}>
-                      Any
-                    </FilterChip>
-                    <FilterChip active={filters.femaleDirectorOnly} onClick={() => setFilters({ femaleDirectorOnly: true, page: 1 })}>
-                      Female-directed
-                    </FilterChip>
-                  </ChipGroup>
-                </PanelSection>
-
-                {/* Category */}
                 <PanelSection label="Award Category">
                   <FilterSelect
                     value={filters.category || "_all"}
@@ -715,36 +740,6 @@ export function BrowsePageClient() {
                   />
                 </PanelSection>
 
-                {/* Language */}
-                <PanelSection label="Language">
-                  <FilterSelect
-                    value={filters.language || "_all"}
-                    onValueChange={(val) => setFilters({ language: val === "_all" ? "" : val, page: 1 })}
-                    placeholder="Any language"
-                    className="w-full text-[#b8b5c8]"
-                    options={[
-                      { value: "_all", label: "Any language" },
-                      ...languages
-                        .map((c) => ({ value: c, label: languageLabel(c) }))
-                        .sort((a, b) => a.label.localeCompare(b.label)),
-                    ]}
-                  />
-                </PanelSection>
-
-                {/* Geo + time — kept on one row across breakpoints */}
-                <div className="grid grid-cols-1 gap-x-8 gap-y-6 sm:col-span-2 sm:grid-cols-2 lg:col-span-3 lg:grid-cols-4 xl:col-span-4">
-                {/* Country */}
-                <PanelSection label="Country">
-                  <FilterSelect
-                    value={filters.country || "_all"}
-                    onValueChange={(val) => setFilters({ country: val === "_all" ? "" : val, page: 1 })}
-                    placeholder="Any country"
-                    className="w-full text-[#b8b5c8]"
-                    options={[{ value: "_all", label: "Any country" }, ...countries.map((c) => ({ value: c, label: countryLabel(c) }))]}
-                  />
-                </PanelSection>
-
-                {/* Ceremony year */}
                 <PanelSection label="Ceremony Year">
                   <FilterSelect
                     value={filters.awardYear != null ? String(filters.awardYear) : "_any"}
@@ -755,10 +750,9 @@ export function BrowsePageClient() {
                   />
                 </PanelSection>
 
-                {/* Decade — the heading and the dash convey the range, so the two
-                    selects need no From/To captions (kept as aria-labels), which
-                    also lets all three controls in this row share one baseline. */}
-                <PanelSection label="Decade range" className="lg:col-span-2">
+                {/* Decade — heading and the dash convey the range, so the two
+                    selects need no From/To captions (kept as aria-labels). */}
+                <PanelSection label="Decade range">
                   <div className="flex items-center gap-2">
                     <FilterSelect
                       value={String(filters.decadeMin)}
@@ -777,8 +771,7 @@ export function BrowsePageClient() {
                     />
                   </div>
                 </PanelSection>
-                </div>
-              </div>
+              </FilterGroup>
             </div>
           </div>
         )}
@@ -948,6 +941,23 @@ export function BrowsePageClient() {
 }
 
 /* ── Sub-components ─────────────────────────────────────────────────── */
+
+/** A labelled cluster of related filter sections inside the advanced panel. */
+function FilterGroup({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <div className="mb-4 flex items-center gap-3">
+        <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.34em] text-[#6b6679]">
+          {label}
+        </span>
+        <span className="h-px flex-1 bg-white/[0.07]" aria-hidden />
+      </div>
+      <div className="grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {children}
+      </div>
+    </div>
+  );
+}
 
 function PanelSection({
   label,
