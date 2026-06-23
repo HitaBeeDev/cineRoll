@@ -436,39 +436,62 @@ export async function scoreSnobTest(seenFilmIds: string[]): Promise<SnobTestScor
   return res.json() as Promise<SnobTestScore>;
 }
 
-export async function fetchGenres(): Promise<string[]> {
-  const res = await fetch(`${API_URL}/api/films/genres`);
-  if (!res.ok) return [];
-  const data = await res.json() as { genres: string[] };
-  return data.genres;
+// Facet lists (genres, countries, …) are effectively static within a session,
+// so each is fetched at most once and the resolved promise is reused across
+// component mounts and SPA navigations. `force-cache` lets a hard reload reuse
+// the HTTP cache too. Failures are not cached — a rejected load is evicted so
+// the next caller retries instead of being stuck with the empty fallback.
+const facetCache = new Map<string, Promise<unknown>>();
+
+function cachedFacet<T>(key: string, loader: () => Promise<T>): Promise<T> {
+  const cached = facetCache.get(key) as Promise<T> | undefined;
+  if (cached) return cached;
+  const pending = loader().catch((err) => {
+    facetCache.delete(key);
+    throw err;
+  });
+  facetCache.set(key, pending);
+  return pending;
 }
 
-export async function fetchCountries(): Promise<string[]> {
-  const res = await fetch(`${API_URL}/api/films/countries`);
-  if (!res.ok) return [];
-  const data = await res.json() as { countries: string[] };
-  return data.countries;
+export function fetchGenres(): Promise<string[]> {
+  return cachedFacet("genres", async () => {
+    const res = await fetch(`${API_URL}/api/films/genres`, { cache: "force-cache" });
+    if (!res.ok) throw new Error(`genres ${res.status}`);
+    return (await res.json() as { genres: string[] }).genres;
+  }).catch(() => []);
 }
 
-export async function fetchLanguages(): Promise<string[]> {
-  const res = await fetch(`${API_URL}/api/films/languages`);
-  if (!res.ok) return [];
-  const data = await res.json() as { languages: string[] };
-  return data.languages;
+export function fetchCountries(): Promise<string[]> {
+  return cachedFacet("countries", async () => {
+    const res = await fetch(`${API_URL}/api/films/countries`, { cache: "force-cache" });
+    if (!res.ok) throw new Error(`countries ${res.status}`);
+    return (await res.json() as { countries: string[] }).countries;
+  }).catch(() => []);
 }
 
-export async function fetchCategories(): Promise<string[]> {
-  const res = await fetch(`${API_URL}/api/films/categories`);
-  if (!res.ok) return [];
-  const data = await res.json() as { categories: string[] };
-  return data.categories;
+export function fetchLanguages(): Promise<string[]> {
+  return cachedFacet("languages", async () => {
+    const res = await fetch(`${API_URL}/api/films/languages`, { cache: "force-cache" });
+    if (!res.ok) throw new Error(`languages ${res.status}`);
+    return (await res.json() as { languages: string[] }).languages;
+  }).catch(() => []);
 }
 
-export async function fetchAwardYears(): Promise<number[]> {
-  const res = await fetch(`${API_URL}/api/films/award-years`);
-  if (!res.ok) return [];
-  const data = await res.json() as { awardYears: number[] };
-  return data.awardYears;
+export function fetchCategories(): Promise<string[]> {
+  return cachedFacet("categories", async () => {
+    const res = await fetch(`${API_URL}/api/films/categories`, { cache: "force-cache" });
+    if (!res.ok) throw new Error(`categories ${res.status}`);
+    return (await res.json() as { categories: string[] }).categories;
+  }).catch(() => []);
+}
+
+export function fetchAwardYears(): Promise<number[]> {
+  return cachedFacet("awardYears", async () => {
+    const res = await fetch(`${API_URL}/api/films/award-years`, { cache: "force-cache" });
+    if (!res.ok) throw new Error(`award-years ${res.status}`);
+    return (await res.json() as { awardYears: number[] }).awardYears;
+  }).catch(() => []);
 }
 
 export type AutocompleteResult = {
