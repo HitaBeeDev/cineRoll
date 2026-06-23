@@ -577,7 +577,7 @@ export function BrowsePageClient() {
                 value={filters.genre || "_all"}
                 onValueChange={(val) => setFilters({ genre: val === "_all" ? "" : val, page: 1 })}
                 placeholder="Genre"
-                className="w-full uppercase tracking-[0.14em] text-[#b8b5c8] sm:w-[158px]"
+                className="w-full text-[12px] text-[#b8b5c8] sm:w-[158px]"
                 options={[{ value: "_all", label: "All genres" }, ...genres.map((g) => ({ value: g, label: g }))]}
               />
             </div>
@@ -588,7 +588,7 @@ export function BrowsePageClient() {
               onClick={() => setShowMore((v) => !v)}
               aria-expanded={showMore}
               className={cn(
-                "flex h-10 items-center gap-2 rounded-md border px-3.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40",
+                "flex h-10 items-center gap-2 rounded-md border px-3.5 font-[family-name:var(--font-geist-mono)] text-[12px] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40",
                 showMore || advancedCount > 0
                   ? "border-[#e8453c]/55 bg-[#e8453c]/12 text-[#ff766d]"
                   : "border-white/10 bg-white/[0.045] text-[#b8b5c8] hover:border-white/20 hover:text-[#f1eff8]",
@@ -613,7 +613,7 @@ export function BrowsePageClient() {
                   type="button"
                   onClick={chip.onRemove}
                   aria-label={`Remove ${chip.label} filter`}
-                  className="inline-flex h-7 items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.045] px-2.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em] text-[#a9a5bc] transition-colors hover:border-[#e8453c]/45 hover:text-[#ff766d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/30"
+                  className="inline-flex h-7 items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.045] px-2.5 font-[family-name:var(--font-geist-mono)] text-[12px] text-[#a9a5bc] transition-colors hover:border-[#e8453c]/45 hover:text-[#ff766d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/30"
                 >
                   {chip.label}
                   <X className="h-2.5 w-2.5 shrink-0" aria-hidden />
@@ -622,7 +622,7 @@ export function BrowsePageClient() {
               <button
                 type="button"
                 onClick={() => { resetFilters(); setShowMore(false); }}
-                className="ml-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.24em] text-[#706b82] transition-colors hover:text-[#ff766d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/30"
+                className="ml-1 font-[family-name:var(--font-geist-mono)] text-[12px] text-[#706b82] transition-colors hover:text-[#ff766d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/30"
               >
                 Clear all
               </button>
@@ -836,7 +836,7 @@ export function BrowsePageClient() {
             {hasResult && total > 0 && (
               <p
                 className={cn(
-                  "mt-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.16em] text-[#817c91] transition-opacity duration-200",
+                  "mt-1 font-[family-name:var(--font-geist-mono)] text-[12px] tabular-nums text-[#817c91] transition-opacity duration-200",
                   isStaleCount && "opacity-40",
                 )}
               >
@@ -871,7 +871,7 @@ export function BrowsePageClient() {
             <FilterSelect
               value={filters.sort}
               onValueChange={(val) => setFilters({ sort: val as FilterState["sort"], page: 1 })}
-              className="w-full min-w-[150px] uppercase tracking-[0.14em] text-[#e8e5f4] lg:w-[150px]"
+              className="w-full min-w-[150px] text-[12px] text-[#e8e5f4] lg:w-[150px]"
               options={SORT_OPTIONS}
             />
             <button
@@ -1021,7 +1021,7 @@ function SegmentedControl<T extends string>({
               tabIndex={disabled ? -1 : 0}
               onClick={() => onChange(opt.value)}
               className={cn(
-                "h-8 shrink-0 rounded px-3.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40",
+                "h-8 shrink-0 rounded px-3.5 font-[family-name:var(--font-geist-mono)] text-[12px] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40",
                 active
                   ? "bg-[#e8453c] text-white shadow-[0_0_24px_rgba(232,69,60,0.24)]"
                   : "text-[#7f7a91] hover:bg-white/[0.055] hover:text-[#f1eff8]",
@@ -1082,7 +1082,7 @@ function FilterChip({
       aria-checked={active}
       onClick={onClick}
       className={cn(
-        "h-8 rounded-md border px-3 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.16em] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/35",
+        "h-8 rounded-md border px-3 font-[family-name:var(--font-geist-mono)] text-[12px] tabular-nums transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/35",
         active
           ? "border-[#e8453c] bg-[#e8453c] text-white"
           : "border-white/10 bg-white/[0.035] text-[#a9a5bc] hover:border-white/20 hover:text-white",
