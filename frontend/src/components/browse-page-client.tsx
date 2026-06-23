@@ -40,8 +40,10 @@ import {
 import { cn } from "@/lib/utils";
 
 const PAGE_SIZE = 25;
-const DECADE_MIN = 1900;
-const DECADE_MAX = 2030;
+// The decade bounds live in DEFAULT_FILTERS (the model); alias them here rather
+// than re-typing 1900/2030 across the options list, panel, chips, and count.
+const DECADE_MIN = DEFAULT_FILTERS.decadeMin;
+const DECADE_MAX = DEFAULT_FILTERS.decadeMax;
 const BROWSE_DECADE_OPTIONS = Array.from({ length: (DECADE_MAX - DECADE_MIN) / 10 + 1 }, (_, i) => DECADE_MIN + i * 10);
 const GRAIN_SVG = `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`;
 
@@ -1015,61 +1017,67 @@ function ChipGroup({ label, children }: { label: string; children: React.ReactNo
 
 type ActiveChip = { key: string; label: string; onRemove: () => void };
 
-function buildActiveChips(
-  filters: FilterState,
-  setFilters: (u: Partial<FilterState>) => void,
-): ActiveChip[] {
-  const chips: ActiveChip[] = [];
+type SetFilters = (u: Partial<FilterState>) => void;
 
-  if (filters.search.trim())
-    chips.push({ key: "search", label: `"${filters.search.trim()}"`, onRemove: () => setFilters({ search: "", page: 1 }) });
-  if (filters.person.trim())
-    chips.push({ key: "person", label: filters.person.trim(), onRemove: () => setFilters({ person: "", page: 1 }) });
-  if (filters.femaleDirectorOnly)
-    chips.push({ key: "femaleDir", label: "Female director", onRemove: () => setFilters({ femaleDirectorOnly: false, page: 1 }) });
-  if (filters.awardBody !== "all")
-    chips.push({ key: "body", label: awardBodyLabel(filters.awardBody), onRemove: () => setFilters({ awardBody: "all", page: 1 }) });
-  if (filters.winnerOnly)
-    chips.push({ key: "won", label: "Won", onRemove: () => setFilters({ winnerOnly: false, page: 1 }) });
-  else if (filters.nominatedOnly)
-    chips.push({ key: "nom", label: "Nominated", onRemove: () => setFilters({ nominatedOnly: false, page: 1 }) });
-  if (filters.genre.trim())
-    chips.push({ key: "genre", label: filters.genre, onRemove: () => setFilters({ genre: "", page: 1 }) });
-  if (filters.country.trim())
-    chips.push({ key: "country", label: countryLabel(filters.country), onRemove: () => setFilters({ country: "", page: 1 }) });
-  if (filters.category.trim())
-    chips.push({ key: "cat", label: filters.category, onRemove: () => setFilters({ category: "", page: 1 }) });
-  if (filters.awardYear != null)
-    chips.push({ key: "year", label: String(filters.awardYear), onRemove: () => setFilters({ awardYear: null, page: 1 }) });
-  if (filters.contentType)
-    chips.push({ key: "type", label: filters.contentType, onRemove: () => setFilters({ contentType: "", page: 1 }) });
-  if (filters.imdbTopMoviesOnly)
-    chips.push({ key: "imdbMovies", label: "IMDb Top 250 Films", onRemove: () => setFilters({ imdbTopMoviesOnly: false, page: 1 }) });
-  if (filters.imdbTopTvOnly)
-    chips.push({ key: "imdbTv", label: "IMDb Top 250 TV", onRemove: () => setFilters({ imdbTopTvOnly: false, page: 1 }) });
-  if (filters.sort !== "awards")
-    chips.push({ key: "sort", label: `Sort: ${sortLabel(filters.sort)}`, onRemove: () => setFilters({ sort: "awards", page: 1 }) });
-  if (filters.imdbRatingMin > 0)
-    chips.push({ key: "imdb", label: `IMDb ${filters.imdbRatingMin}+`, onRemove: () => setFilters({ imdbRatingMin: 0, page: 1 }) });
-  if (filters.rtScoreMin > 0)
-    chips.push({ key: "rt", label: `RT ${filters.rtScoreMin}%+`, onRemove: () => setFilters({ rtScoreMin: 0, page: 1 }) });
-  if (filters.decadeMin !== DECADE_MIN || filters.decadeMax !== DECADE_MAX)
-    chips.push({ key: "decade", label: `${filters.decadeMin}–${filters.decadeMax}`, onRemove: () => setFilters({ decadeMin: DECADE_MIN, decadeMax: DECADE_MAX, page: 1 }) });
+/**
+ * Single source of truth for "what does a non-default filter look like." Each
+ * descriptor knows whether the filter is active (vs. its default in
+ * DEFAULT_FILTERS), whether it lives behind the Advanced disclosure, and how to
+ * render/clear its removable chip. The active-chip list and the advanced badge
+ * count are both derived from this one ordered table — change a filter here and
+ * both stay in agreement. (The defaults themselves stay in DEFAULT_FILTERS; this
+ * table only references them.)
+ */
+type FilterDescriptor = {
+  advanced: boolean;
+  isActive: (f: FilterState) => boolean;
+  toChip: (f: FilterState, set: SetFilters) => ActiveChip;
+};
 
-  return chips;
+const FILTER_DESCRIPTORS: FilterDescriptor[] = [
+  { advanced: false, isActive: (f) => !!f.search.trim(),
+    toChip: (f, set) => ({ key: "search", label: `"${f.search.trim()}"`, onRemove: () => set({ search: "", page: 1 }) }) },
+  { advanced: false, isActive: (f) => !!f.person.trim(),
+    toChip: (f, set) => ({ key: "person", label: f.person.trim(), onRemove: () => set({ person: "", page: 1 }) }) },
+  { advanced: false, isActive: (f) => f.femaleDirectorOnly,
+    toChip: (_f, set) => ({ key: "femaleDir", label: "Female director", onRemove: () => set({ femaleDirectorOnly: false, page: 1 }) }) },
+  { advanced: false, isActive: (f) => f.awardBody !== "all",
+    toChip: (f, set) => ({ key: "body", label: awardBodyLabel(f.awardBody), onRemove: () => set({ awardBody: "all", page: 1 }) }) },
+  { advanced: false, isActive: (f) => f.winnerOnly || f.nominatedOnly,
+    toChip: (f, set) => f.winnerOnly
+      ? { key: "won", label: "Won", onRemove: () => set({ winnerOnly: false, page: 1 }) }
+      : { key: "nom", label: "Nominated", onRemove: () => set({ nominatedOnly: false, page: 1 }) } },
+  { advanced: false, isActive: (f) => !!f.genre.trim(),
+    toChip: (f, set) => ({ key: "genre", label: f.genre, onRemove: () => set({ genre: "", page: 1 }) }) },
+  { advanced: true, isActive: (f) => !!f.country.trim(),
+    toChip: (f, set) => ({ key: "country", label: countryLabel(f.country), onRemove: () => set({ country: "", page: 1 }) }) },
+  { advanced: true, isActive: (f) => !!f.category.trim(),
+    toChip: (f, set) => ({ key: "cat", label: f.category, onRemove: () => set({ category: "", page: 1 }) }) },
+  { advanced: true, isActive: (f) => f.awardYear != null,
+    toChip: (f, set) => ({ key: "year", label: String(f.awardYear), onRemove: () => set({ awardYear: null, page: 1 }) }) },
+  { advanced: true, isActive: (f) => !!f.contentType,
+    toChip: (f, set) => ({ key: "type", label: f.contentType, onRemove: () => set({ contentType: "", page: 1 }) }) },
+  { advanced: false, isActive: (f) => f.imdbTopMoviesOnly,
+    toChip: (_f, set) => ({ key: "imdbMovies", label: "IMDb Top 250 Films", onRemove: () => set({ imdbTopMoviesOnly: false, page: 1 }) }) },
+  { advanced: false, isActive: (f) => f.imdbTopTvOnly,
+    toChip: (_f, set) => ({ key: "imdbTv", label: "IMDb Top 250 TV", onRemove: () => set({ imdbTopTvOnly: false, page: 1 }) }) },
+  { advanced: false, isActive: (f) => f.sort !== "awards",
+    toChip: (f, set) => ({ key: "sort", label: `Sort: ${sortLabel(f.sort)}`, onRemove: () => set({ sort: "awards", page: 1 }) }) },
+  { advanced: true, isActive: (f) => f.imdbRatingMin > 0,
+    toChip: (f, set) => ({ key: "imdb", label: `IMDb ${f.imdbRatingMin}+`, onRemove: () => set({ imdbRatingMin: 0, page: 1 }) }) },
+  { advanced: true, isActive: (f) => f.rtScoreMin > 0,
+    toChip: (f, set) => ({ key: "rt", label: `RT ${f.rtScoreMin}%+`, onRemove: () => set({ rtScoreMin: 0, page: 1 }) }) },
+  { advanced: true, isActive: (f) => f.decadeMin !== DECADE_MIN || f.decadeMax !== DECADE_MAX,
+    toChip: (f, set) => ({ key: "decade", label: `${f.decadeMin}–${f.decadeMax}`, onRemove: () => set({ decadeMin: DECADE_MIN, decadeMax: DECADE_MAX, page: 1 }) }) },
+];
+
+function buildActiveChips(filters: FilterState, setFilters: SetFilters): ActiveChip[] {
+  return FILTER_DESCRIPTORS.filter((d) => d.isActive(filters)).map((d) => d.toChip(filters, setFilters));
 }
 
-/** Count of filters that live behind the Advanced disclosure (not the always-visible primary bar). */
+/** Count of active filters that live behind the Advanced disclosure (not the always-visible primary bar). */
 function countAdvancedFilters(filters: FilterState): number {
-  let n = 0;
-  if (filters.imdbRatingMin > 0) n++;
-  if (filters.rtScoreMin > 0) n++;
-  if (filters.contentType) n++;
-  if (filters.category.trim()) n++;
-  if (filters.country.trim()) n++;
-  if (filters.awardYear != null) n++;
-  if (filters.decadeMin !== DECADE_MIN || filters.decadeMax !== DECADE_MAX) n++;
-  return n;
+  return FILTER_DESCRIPTORS.filter((d) => d.advanced && d.isActive(filters)).length;
 }
 
 function awardBodyLabel(awardBody: AwardBody): string {
