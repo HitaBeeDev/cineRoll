@@ -866,7 +866,7 @@ export function BrowsePageClient() {
         {/* Loading */}
         {status === "loading" && (
           <div className={gridClassName}>
-            {Array.from({ length: 18 }).map((_, i) => <FilmCardSkeleton key={i} />)}
+            {Array.from({ length: PAGE_SIZE }).map((_, i) => <FilmCardSkeleton key={i} />)}
           </div>
         )}
 
