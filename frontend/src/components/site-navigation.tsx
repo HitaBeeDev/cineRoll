@@ -30,10 +30,11 @@ export function SiteNavigation({
 }: SiteNavigationProps) {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
-  const segments = pathname.split("/").filter(Boolean);
-  const currentPath = segments.length <= 1 ? "/" : "/" + segments.slice(1).join("/");
+  // Routes are flat (/browse, /picks, …) — compare the pathname directly. The
+  // home link matches only the exact root; every other link also matches its
+  // sub-routes (e.g. /film detail pages under a section).
   const isActive = (href: string) =>
-    href === "/" ? currentPath === "/" : currentPath === href || currentPath.startsWith(href + "/");
+    href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(href + "/");
 
   useEffect(() => {
     if (!isOpen) return;
