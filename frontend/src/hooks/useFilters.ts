@@ -35,6 +35,37 @@ export const DEFAULT_FILTERS: FilterState = {
   page: 1,
 };
 
+/** Pure predicate: does this filter set differ from the defaults in any user-meaningful way? */
+export function computeHasActiveFilters(filters: FilterState): boolean {
+  return (
+    !!filters.search ||
+    !!filters.person ||
+    !!filters.director ||
+    filters.femaleDirectorOnly ||
+    filters.awardBody !== "all" ||
+    filters.winnerOnly ||
+    filters.nominatedOnly ||
+    !!filters.category ||
+    filters.awardYear != null ||
+    !!filters.language ||
+    !!filters.genre ||
+    !!filters.country ||
+    !!filters.contentType ||
+    filters.runtimeMax != null ||
+    filters.decadeMin !== DEFAULT_DECADE_MIN ||
+    filters.decadeMax !== DEFAULT_DECADE_MAX ||
+    filters.nominationCount != null ||
+    filters.imdbRatingMin > 0 ||
+    filters.imdbRatingMax != null ||
+    !!filters.certificate ||
+    filters.imdbTopMoviesOnly ||
+    filters.imdbTopTvOnly ||
+    !!filters.tvType ||
+    filters.sort !== "awards" ||
+    filters.rtScoreMin > 0
+  );
+}
+
 export function useFilters(initial?: Partial<FilterState>) {
   const [filters, setFiltersState] = useState<FilterState>({
     ...DEFAULT_FILTERS,
@@ -49,35 +80,7 @@ export function useFilters(initial?: Partial<FilterState>) {
     setFiltersState(DEFAULT_FILTERS);
   }, []);
 
-  const hasActiveFilters = useMemo(
-    () =>
-      !!filters.search ||
-      !!filters.person ||
-      !!filters.director ||
-      filters.femaleDirectorOnly ||
-      filters.awardBody !== "all" ||
-      filters.winnerOnly ||
-      filters.nominatedOnly ||
-      !!filters.category ||
-      filters.awardYear != null ||
-      !!filters.language ||
-      !!filters.genre ||
-      !!filters.country ||
-      !!filters.contentType ||
-      filters.runtimeMax != null ||
-      filters.decadeMin !== DEFAULT_DECADE_MIN ||
-      filters.decadeMax !== DEFAULT_DECADE_MAX ||
-      filters.nominationCount != null ||
-      filters.imdbRatingMin > 0 ||
-      filters.imdbRatingMax != null ||
-      !!filters.certificate ||
-      filters.imdbTopMoviesOnly ||
-      filters.imdbTopTvOnly ||
-      !!filters.tvType ||
-      filters.sort !== "awards" ||
-      filters.rtScoreMin > 0,
-    [filters],
-  );
+  const hasActiveFilters = useMemo(() => computeHasActiveFilters(filters), [filters]);
 
   return { filters, setFilter, resetFilters, hasActiveFilters };
 }

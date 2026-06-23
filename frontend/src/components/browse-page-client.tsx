@@ -17,7 +17,7 @@ import {
 import type { AwardBody, FilterState, PaginatedFilms } from "@cineroll/types";
 import { FilmCard, FilmCardSkeleton } from "@/components/film-card";
 import { AppHeader } from "@/components/app-header";
-import { DEFAULT_FILTERS, useFilters } from "@/hooks/useFilters";
+import { computeHasActiveFilters, DEFAULT_FILTERS } from "@/hooks/useFilters";
 import {
   fetchAwardYears,
   fetchAutocomplete,
@@ -130,8 +130,14 @@ export function BrowsePageClient() {
   const router    = useRouter();
   const pathname  = usePathname();
   const searchParams = useSearchParams();
-  const initialFilters = useMemo(() => filtersFromSearchParams(searchParams), [searchParams]);
-  const { filters, setFilter, resetFilters, hasActiveFilters } = useFilters(initialFilters);
+
+  // ── URL is the single source of truth ──────────────────────────────────
+  // `filters` is derived from the query string; nothing mirrors it back into
+  // component state. Edits write to the URL and flow back in through
+  // `searchParams`, so back/forward navigation just works and there is no
+  // bidirectional sync (and no setTimeout/guard-ref dance) to keep honest.
+  const filters = useMemo(() => filtersFromSearchParams(searchParams), [searchParams]);
+  const hasActiveFilters = useMemo(() => computeHasActiveFilters(filters), [filters]);
 
   const [genres,     setGenres]     = useState<string[]>([]);
   const [countries,  setCountries]  = useState<string[]>([]);
@@ -139,7 +145,27 @@ export function BrowsePageClient() {
   const [awardYears, setAwardYears] = useState<number[]>([]);
   const [result,     setResult]     = useState<PaginatedFilms | null>(null);
   const [status,     setStatus]     = useState<LoadStatus>("loading");
+  const [reloadNonce, setReloadNonce] = useState(0);
   const [showMore, setShowMore] = useState(false);
+
+  // Local buffer so the search box echoes keystrokes instantly while the URL
+  // (the real source of truth) is updated underneath it. When the URL's search
+  // changes from outside the input (back/forward, chip removal, reset) we adjust
+  // the draft during render — the documented pattern, no mirroring effect.
+  const [searchDraft, setSearchDraft] = useState(filters.search);
+  const [lastUrlSearch, setLastUrlSearch] = useState(filters.search);
+  if (filters.search !== lastUrlSearch) {
+    setLastUrlSearch(filters.search);
+    setSearchDraft(filters.search);
+  }
+
+  // First grid paint gets the staggered entrance; every later result set uses a
+  // quick uniform fade. Flipped once, during render, the first time a non-empty
+  // grid is shown — so browsing doesn't pay a ~0.4s cascade on every tap.
+  const showGrid = status === "success" && !!result && result.films.length > 0;
+  const [hasAnimatedGrid, setHasAnimatedGrid] = useState(false);
+  if (showGrid && !hasAnimatedGrid) setHasAnimatedGrid(true);
+  const firstGridPaint = showGrid && !hasAnimatedGrid;
 
   const [rolling, setRolling] = useState(false);
 
@@ -148,12 +174,18 @@ export function BrowsePageClient() {
   const [acIdx, setAcIdx] = useState(-1);
   const searchContainerRef = useRef<HTMLDivElement>(null);
 
-  const lastSyncedQuery = useRef<string | null>(null);
+  const commitFilters = useCallback(
+    (updates: Partial<FilterState>) => {
+      const next = { ...filters, ...updates };
+      const query = serializeFilters(next);
+      router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+    },
+    [filters, pathname, router],
+  );
 
-  // The staggered grid entrance is a first-impression flourish. After the grid
-  // has painted once, filter/page changes use a quick uniform fade instead, so
-  // browsing doesn't pay a ~0.4s cascade on every tap.
-  const hasPaintedGrid = useRef(false);
+  const resetFilters = useCallback(() => {
+    router.replace(pathname, { scroll: false });
+  }, [pathname, router]);
 
   useEffect(() => {
     void fetchGenres().then(setGenres);
@@ -161,22 +193,6 @@ export function BrowsePageClient() {
     void fetchCategories().then(setCategories);
     void fetchAwardYears().then(setAwardYears);
   }, []);
-
-  useEffect(() => {
-    const urlFilters = filtersFromSearchParams(searchParams);
-    const urlQuery   = serializeFilters(urlFilters);
-    if (lastSyncedQuery.current === urlQuery) return;
-    const t = window.setTimeout(() => setFilter(urlFilters), 0);
-    return () => window.clearTimeout(t);
-  }, [searchParams, setFilter]);
-
-  useEffect(() => {
-    const query   = serializeFilters(filters);
-    const current = searchParams.toString();
-    if (query === current) { lastSyncedQuery.current = query; return; }
-    lastSyncedQuery.current = query;
-    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
-  }, [filters, pathname, router, searchParams]);
 
   useEffect(() => {
     let cancelled = false;
@@ -187,13 +203,7 @@ export function BrowsePageClient() {
         .catch(()    => { if (!cancelled) { setResult(null); setStatus("error");   } });
     }, 300);
     return () => { cancelled = true; window.clearTimeout(timer); };
-  }, [filters]);
-
-  useEffect(() => {
-    if (status === "success" && result && result.films.length > 0) {
-      hasPaintedGrid.current = true;
-    }
-  }, [status, result]);
+  }, [filters, reloadNonce]);
 
   useEffect(() => {
     const q = filters.search.trim();
@@ -227,7 +237,7 @@ export function BrowsePageClient() {
 
   const setFilters = useCallback(
     (updates: Partial<FilterState>) => {
-      setFilter(updates);
+      commitFilters(updates);
 
       const changedKeys = Object.keys(updates).filter(key => key !== "page");
       if (changedKeys.length === 0) return;
@@ -251,7 +261,7 @@ export function BrowsePageClient() {
         },
       });
     },
-    [setFilter],
+    [commitFilters],
   );
 
   const selectAcItem = useCallback((idx: number) => {
@@ -381,8 +391,8 @@ export function BrowsePageClient() {
               <input
                 type="text"
                 placeholder="Search films or people…"
-                value={filters.search}
-                onChange={(e) => setFilters({ search: e.target.value, page: 1 })}
+                value={searchDraft}
+                onChange={(e) => { setSearchDraft(e.target.value); setFilters({ search: e.target.value, page: 1 }); }}
                 onKeyDown={handleSearchKeyDown}
                 onFocus={() => { if (acResults && acResults.films.length + acResults.people.length > 0) setAcOpen(true); }}
                 aria-autocomplete="list"
@@ -802,7 +812,7 @@ export function BrowsePageClient() {
             </p>
             <button
               type="button"
-              onClick={() => setFilter({ ...filters })}
+              onClick={() => setReloadNonce((n) => n + 1)}
               className="rounded-full border border-[#e8453c]/35 px-4 py-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.24em] text-[#ff766d] transition-colors hover:border-[#e8453c]/70 hover:text-white"
             >
               Try again →
@@ -831,25 +841,20 @@ export function BrowsePageClient() {
         {status === "success" && result && result.films.length > 0 && (
           <>
             <div className={gridClassName}>
-              {result.films.map((film, index) => {
-                // First paint: staggered slide-up cascade. Every later result set
-                // (filter change, pagination): a quick uniform fade, no cascade.
-                const firstPaint = !hasPaintedGrid.current;
-                return (
+              {result.films.map((film, index) => (
                 <motion.div
                   key={film.id}
-                  initial={{ opacity: 0, y: shouldReduceMotion || !firstPaint ? 0 : 8 }}
+                  initial={{ opacity: 0, y: shouldReduceMotion || !firstGridPaint ? 0 : 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{
-                    delay: shouldReduceMotion || !firstPaint ? 0 : Math.min(index * 0.025, 0.4),
-                    duration: shouldReduceMotion ? 0 : firstPaint ? 0.22 : 0.16,
+                    delay: shouldReduceMotion || !firstGridPaint ? 0 : Math.min(index * 0.025, 0.4),
+                    duration: shouldReduceMotion ? 0 : firstGridPaint ? 0.22 : 0.16,
                     ease: "easeOut",
                   }}
                 >
                   <FilmCard film={film} />
                 </motion.div>
-                );
-              })}
+              ))}
             </div>
 
             {/* Pagination */}
