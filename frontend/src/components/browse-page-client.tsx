@@ -249,6 +249,24 @@ export function BrowsePageClient() {
     return () => window.clearTimeout(timer);
   }, [filters.search]);
 
+  // Emit one `search` analytics event per settled query rather than one per
+  // keystroke. Seeded from the initial URL search so landing on a shared link
+  // isn't counted as a fresh search, and short/empty drafts are ignored.
+  const lastTrackedSearch = useRef(filters.search);
+  useEffect(() => {
+    const q = filters.search.trim();
+    if (q.length < 2) {
+      lastTrackedSearch.current = filters.search;
+      return;
+    }
+    const timer = window.setTimeout(() => {
+      if (filters.search === lastTrackedSearch.current) return;
+      lastTrackedSearch.current = filters.search;
+      trackEvent({ type: "search", context: { source: "browse", query: filters.search } });
+    }, 500);
+    return () => window.clearTimeout(timer);
+  }, [filters.search]);
+
   useEffect(() => {
     if (!acOpen) return;
     function handleClick(e: MouseEvent) {
@@ -260,23 +278,17 @@ export function BrowsePageClient() {
     return () => document.removeEventListener("mousedown", handleClick);
   }, [acOpen]);
 
+  // Search is tracked separately by the debounced effect above — emitting one
+  // event per settled query instead of one per keystroke (the URL still commits
+  // on every keystroke, since it drives the input and the debounced fetch).
   const setFilters = useCallback(
     (updates: Partial<FilterState>) => {
       commitFilters(updates);
 
-      const changedKeys = Object.keys(updates).filter(key => key !== "page");
-      if (changedKeys.length === 0) return;
-
-      if (Object.prototype.hasOwnProperty.call(updates, "search")) {
-        trackEvent({
-          type: "search",
-          context: {
-            source: "browse",
-            query: updates.search ?? "",
-          },
-        });
-        return;
-      }
+      const trackedKeys = Object.keys(updates).filter(
+        (key) => key !== "page" && key !== "search",
+      );
+      if (trackedKeys.length === 0) return;
 
       trackEvent({
         type: "filter_apply",
