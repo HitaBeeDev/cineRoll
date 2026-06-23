@@ -514,13 +514,13 @@ export function BrowsePageClient() {
             {/* Divider */}
             <div className="hidden h-6 w-px bg-white/10 sm:block" />
 
-            {/* Genre */}
-            <div className="hidden sm:block">
+            {/* Genre — full width in the mobile stack, fixed width from sm up */}
+            <div className="w-full sm:w-auto">
               <FilterSelect
                 value={filters.genre || "_all"}
                 onValueChange={(val) => setFilters({ genre: val === "_all" ? "" : val, page: 1 })}
                 placeholder="Genre"
-                className="w-[158px] uppercase tracking-[0.14em] text-[#b8b5c8]"
+                className="w-full uppercase tracking-[0.14em] text-[#b8b5c8] sm:w-[158px]"
                 options={[{ value: "_all", label: "All genres" }, ...genres.map((g) => ({ value: g, label: g }))]}
               />
             </div>
