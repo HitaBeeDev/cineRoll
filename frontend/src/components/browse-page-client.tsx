@@ -437,12 +437,23 @@ export function BrowsePageClient() {
       <div className="sticky top-14 z-40 max-w-[100vw] border-b border-[#1c1a25] bg-[#08080d]/92 shadow-[0_18px_50px_rgba(0,0,0,0.28)] backdrop-blur-xl">
         <div className="mx-auto w-full max-w-[100vw] px-4 sm:max-w-screen-2xl sm:px-6 lg:px-8 xl:px-12">
 
-          {/* Row 1 — Search leads and spans the full width: it's the control
-              people reach for first, and a full-width field reads intentional
-              instead of stretching awkwardly beside the dropdowns. */}
+          {/* Row 1 — Scope is the primary axis; it leads on its own line. */}
           <div className="pt-3 pb-2.5">
-            {/* Search */}
-            <div ref={searchContainerRef} className="relative w-full min-w-0">
+            <SegmentedControl
+              ariaLabel="Browse scope"
+              options={SCOPE_OPTIONS}
+              value={scope}
+              onChange={(value) => setFilters(scopeToUpdates(value))}
+            />
+          </div>
+
+          {/* Row 2 — Refine within the chosen scope: a capped search, the award
+              status (nested under scope, gone for IMDb lists), then genre and
+              the advanced disclosure. Everything is grouped to the left so the
+              toolbar reads as one cluster rather than spreading into voids. */}
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2 pb-2.5">
+            {/* Search — capped so it sizes to its content, not the viewport */}
+            <div ref={searchContainerRef} className="relative w-full min-w-0 sm:w-[360px]">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#6f6b80]" />
               <input
                 type="text"
@@ -528,35 +539,21 @@ export function BrowsePageClient() {
                 </div>
               )}
             </div>
-          </div>
 
-          {/* Row 2 — Scope is the primary axis, so it leads on the left with its
-              nested award-status control; the lighter refine controls (genre,
-              advanced) sit on the right and fill the width via justify-between. */}
-          <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3 pb-2.5">
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-              <SegmentedControl
-                ariaLabel="Browse scope"
-                options={SCOPE_OPTIONS}
-                value={scope}
-                onChange={(value) => setFilters(scopeToUpdates(value))}
-              />
-              {!scopeIsImdb && (
-                <div className="flex items-center gap-2.5">
-                  <span className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.28em] text-[#6f6a80]">
-                    Status
-                  </span>
-                  <SegmentedControl
-                    ariaLabel="Award status"
-                    options={STATUS_OPTIONS}
-                    value={awardStatus}
-                    onChange={(value) => setFilters(statusToUpdates(value))}
-                  />
-                </div>
-              )}
-            </div>
+            {!scopeIsImdb && (
+              <div className="flex items-center gap-2.5">
+                <span className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.28em] text-[#6f6a80]">
+                  Status
+                </span>
+                <SegmentedControl
+                  ariaLabel="Award status"
+                  options={STATUS_OPTIONS}
+                  value={awardStatus}
+                  onChange={(value) => setFilters(statusToUpdates(value))}
+                />
+              </div>
+            )}
 
-            <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
             {/* Genre — full width in the mobile stack, fixed width from sm up */}
             <div className="w-full sm:w-auto">
               <FilterSelect
@@ -588,7 +585,6 @@ export function BrowsePageClient() {
                 </span>
               )}
             </button>
-            </div>
           </div>
 
           {/* Active chips */}
