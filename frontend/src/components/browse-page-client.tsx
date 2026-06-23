@@ -25,6 +25,7 @@ import {
   fetchCountries,
   fetchFilms,
   fetchGenres,
+  fetchLanguages,
   fetchRandom,
   filtersToParams,
   type AutocompleteResult,
@@ -124,6 +125,19 @@ function countryLabel(value: string): string {
   return COUNTRY_DISPLAY_NAMES[value] ?? value;
 }
 
+// Languages are stored as ISO 639-1 codes (en, fr, …); render them as names.
+const LANGUAGE_DISPLAY = typeof Intl !== "undefined" && "DisplayNames" in Intl
+  ? new Intl.DisplayNames(["en"], { type: "language", fallback: "code" })
+  : null;
+
+function languageLabel(code: string): string {
+  try {
+    return LANGUAGE_DISPLAY?.of(code) ?? code.toUpperCase();
+  } catch {
+    return code.toUpperCase();
+  }
+}
+
 type LoadStatus = "loading" | "success" | "error";
 
 const SORT_OPTIONS: { value: FilterState["sort"]; label: string }[] = [
@@ -150,6 +164,7 @@ export function BrowsePageClient() {
 
   const [genres,     setGenres]     = useState<string[]>([]);
   const [countries,  setCountries]  = useState<string[]>([]);
+  const [languages,  setLanguages]  = useState<string[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [awardYears, setAwardYears] = useState<number[]>([]);
   const [result,     setResult]     = useState<PaginatedFilms | null>(null);
@@ -199,6 +214,7 @@ export function BrowsePageClient() {
   useEffect(() => {
     void fetchGenres().then(setGenres);
     void fetchCountries().then(setCountries);
+    void fetchLanguages().then(setLanguages);
     void fetchCategories().then(setCategories);
     void fetchAwardYears().then(setAwardYears);
   }, []);
@@ -633,6 +649,61 @@ export function BrowsePageClient() {
                   </ChipGroup>
                 </PanelSection>
 
+                {/* Max runtime */}
+                <PanelSection label="Max Runtime">
+                  <ChipGroup label="Maximum runtime">
+                    {([
+                      { value: null, label: "Any"   },
+                      { value: 90,   label: "≤ 90m" },
+                      { value: 120,  label: "≤ 2h"  },
+                      { value: 150,  label: "≤ 2h30" },
+                      { value: 180,  label: "≤ 3h"  },
+                    ] as { value: number | null; label: string }[]).map(({ value, label }) => (
+                      <FilterChip
+                        key={label}
+                        active={filters.runtimeMax === value}
+                        onClick={() => setFilters({ runtimeMax: value, page: 1 })}
+                      >
+                        {label}
+                      </FilterChip>
+                    ))}
+                  </ChipGroup>
+                </PanelSection>
+
+                {/* Award nominations (minimum total) */}
+                <PanelSection label="Award Nominations">
+                  <ChipGroup label="Minimum total award nominations">
+                    {([
+                      { value: null, label: "Any" },
+                      { value: 1,    label: "1+"  },
+                      { value: 3,    label: "3+"  },
+                      { value: 5,    label: "5+"  },
+                      { value: 10,   label: "10+" },
+                      { value: 20,   label: "20+" },
+                    ] as { value: number | null; label: string }[]).map(({ value, label }) => (
+                      <FilterChip
+                        key={label}
+                        active={(filters.nominationCount ?? null) === value}
+                        onClick={() => setFilters({ nominationCount: value, page: 1 })}
+                      >
+                        {label}
+                      </FilterChip>
+                    ))}
+                  </ChipGroup>
+                </PanelSection>
+
+                {/* Director */}
+                <PanelSection label="Director">
+                  <ChipGroup label="Director">
+                    <FilterChip active={!filters.femaleDirectorOnly} onClick={() => setFilters({ femaleDirectorOnly: false, page: 1 })}>
+                      Any
+                    </FilterChip>
+                    <FilterChip active={filters.femaleDirectorOnly} onClick={() => setFilters({ femaleDirectorOnly: true, page: 1 })}>
+                      Female-directed
+                    </FilterChip>
+                  </ChipGroup>
+                </PanelSection>
+
                 {/* Category */}
                 <PanelSection label="Award Category">
                   <FilterSelect
@@ -641,6 +712,22 @@ export function BrowsePageClient() {
                     placeholder="Any category"
                     className="w-full text-[#b8b5c8]"
                     options={[{ value: "_all", label: "Any category" }, ...categories.map((c) => ({ value: c, label: c }))]}
+                  />
+                </PanelSection>
+
+                {/* Language */}
+                <PanelSection label="Language">
+                  <FilterSelect
+                    value={filters.language || "_all"}
+                    onValueChange={(val) => setFilters({ language: val === "_all" ? "" : val, page: 1 })}
+                    placeholder="Any language"
+                    className="w-full text-[#b8b5c8]"
+                    options={[
+                      { value: "_all", label: "Any language" },
+                      ...languages
+                        .map((c) => ({ value: c, label: languageLabel(c) }))
+                        .sort((a, b) => a.label.localeCompare(b.label)),
+                    ]}
                   />
                 </PanelSection>
 
@@ -1032,8 +1119,8 @@ const FILTER_DESCRIPTORS: FilterDescriptor[] = [
     toChip: (f, set) => ({ key: "search", label: `"${f.search.trim()}"`, onRemove: () => set({ search: "", page: 1 }) }) },
   { advanced: false, isActive: (f) => !!f.person.trim(),
     toChip: (f, set) => ({ key: "person", label: f.person.trim(), onRemove: () => set({ person: "", page: 1 }) }) },
-  { advanced: false, isActive: (f) => f.femaleDirectorOnly,
-    toChip: (_f, set) => ({ key: "femaleDir", label: "Female director", onRemove: () => set({ femaleDirectorOnly: false, page: 1 }) }) },
+  { advanced: true, isActive: (f) => f.femaleDirectorOnly,
+    toChip: (_f, set) => ({ key: "femaleDir", label: "Female-directed", onRemove: () => set({ femaleDirectorOnly: false, page: 1 }) }) },
   { advanced: false, isActive: (f) => f.awardBody !== "all",
     toChip: (f, set) => ({ key: "body", label: awardBodyLabel(f.awardBody), onRemove: () => set({ awardBody: "all", page: 1 }) }) },
   { advanced: false, isActive: (f) => f.winnerOnly || f.nominatedOnly,
@@ -1042,6 +1129,8 @@ const FILTER_DESCRIPTORS: FilterDescriptor[] = [
       : { key: "nom", label: "Nominated", onRemove: () => set({ nominatedOnly: false, page: 1 }) } },
   { advanced: false, isActive: (f) => !!f.genre.trim(),
     toChip: (f, set) => ({ key: "genre", label: f.genre, onRemove: () => set({ genre: "", page: 1 }) }) },
+  { advanced: true, isActive: (f) => !!f.language.trim(),
+    toChip: (f, set) => ({ key: "language", label: languageLabel(f.language), onRemove: () => set({ language: "", page: 1 }) }) },
   { advanced: true, isActive: (f) => !!f.country.trim(),
     toChip: (f, set) => ({ key: "country", label: countryLabel(f.country), onRemove: () => set({ country: "", page: 1 }) }) },
   { advanced: true, isActive: (f) => !!f.category.trim(),
@@ -1062,6 +1151,10 @@ const FILTER_DESCRIPTORS: FilterDescriptor[] = [
     toChip: (f, set) => ({ key: "rt", label: `RT ${f.rtScoreMin}%+`, onRemove: () => set({ rtScoreMin: 0, page: 1 }) }) },
   { advanced: true, isActive: (f) => f.decadeMin !== DECADE_MIN || f.decadeMax !== DECADE_MAX,
     toChip: (f, set) => ({ key: "decade", label: `${f.decadeMin}–${f.decadeMax}`, onRemove: () => set({ decadeMin: DECADE_MIN, decadeMax: DECADE_MAX, page: 1 }) }) },
+  { advanced: true, isActive: (f) => f.runtimeMax != null,
+    toChip: (f, set) => ({ key: "runtime", label: `≤ ${f.runtimeMax}m`, onRemove: () => set({ runtimeMax: null, page: 1 }) }) },
+  { advanced: true, isActive: (f) => f.nominationCount != null && f.nominationCount > 0,
+    toChip: (f, set) => ({ key: "noms", label: `${f.nominationCount}+ noms`, onRemove: () => set({ nominationCount: null, page: 1 }) }) },
 ];
 
 function buildActiveChips(filters: FilterState, setFilters: SetFilters): ActiveChip[] {
@@ -1116,6 +1209,7 @@ function filtersFromSearchParams(params: URLSearchParams): FilterState {
     category:      params.get("category")     ?? "",
     awardYear,
     genre:         params.get("genre")        ?? "",
+    language:      params.get("language")      ?? "",
     country:       params.get("country")       ?? "",
     contentType:   params.get("contentType")  ?? "",
     runtimeMax,

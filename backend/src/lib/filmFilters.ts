@@ -279,13 +279,15 @@ export function buildWhereClause(
   }
 
   if (query.nominationCount !== undefined) {
+    // Treated as a minimum ("at least N total nominations") — the natural,
+    // useful reading for a filter, vs. an exact match that almost never hits.
     where.push(Prisma.sql`
       (
         "Film"."oscarNominations"
         + "Film"."ggNominations"
         + "Film"."cannesNominations"
         + "Film"."berlinNominations"
-      ) = ${query.nominationCount}
+      ) >= ${query.nominationCount}
     `);
   }
 

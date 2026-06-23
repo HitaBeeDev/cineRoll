@@ -168,6 +168,18 @@ filmsRouter.get("/certificates", async (_req, res) => {
   res.json({ certificates: rows.map(r => r.certificate) });
 });
 
+filmsRouter.get("/languages", async (_req, res) => {
+  const rows = await prisma.$queryRaw<{ language: string }[]>`
+    SELECT DISTINCT "Film"."language"
+    FROM "Film"
+    WHERE "Film"."language" IS NOT NULL AND "Film"."language" <> ''
+    ORDER BY "Film"."language" ASC
+  `;
+
+  setPublicCache(res, 3600);
+  res.json({ languages: rows.map(r => r.language) });
+});
+
 filmsRouter.get("/tv-types", async (_req, res) => {
   const rows = await prisma.$queryRaw<{ tvType: string }[]>`
     SELECT DISTINCT "Film"."tvType"
