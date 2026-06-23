@@ -46,13 +46,57 @@ const DECADE_MAX = 2030;
 const BROWSE_DECADE_OPTIONS = Array.from({ length: (DECADE_MAX - DECADE_MIN) / 10 + 1 }, (_, i) => DECADE_MIN + i * 10);
 const GRAIN_SVG = `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`;
 
-const AWARD_BODIES: { value: AwardBody; label: string }[] = [
-  { value: "all",         label: "All"    },
-  { value: "oscar",       label: "Oscar"        },
-  { value: "goldenglobe", label: "Golden Globe" },
-  { value: "cannes",      label: "Cannes"       },
-  { value: "berlin",      label: "Berlinale"    },
+/**
+ * An award body and the IMDb curated lists are mutually exclusive: a film is
+ * browsed either through an awards corpus or through one of the Top 250 lists,
+ * never both. Modeling them as a single "scope" makes that exclusivity visible
+ * in one radio group instead of burying it inside click handlers.
+ */
+type Scope = AwardBody | "imdb-films" | "imdb-tv";
+
+const SCOPE_OPTIONS: { value: Scope; label: string; groupStart?: boolean }[] = [
+  { value: "all",         label: "All"                                  },
+  { value: "oscar",       label: "Oscar"                                },
+  { value: "goldenglobe", label: "Golden Globe"                         },
+  { value: "cannes",      label: "Cannes"                               },
+  { value: "berlin",      label: "Berlinale"                            },
+  { value: "imdb-films",  label: "IMDb Top 250 Films", groupStart: true },
+  { value: "imdb-tv",     label: "IMDb Top 250 TV"                      },
 ];
+
+function scopeFromFilters(f: FilterState): Scope {
+  if (f.imdbTopMoviesOnly) return "imdb-films";
+  if (f.imdbTopTvOnly)     return "imdb-tv";
+  return f.awardBody;
+}
+
+function scopeToUpdates(scope: Scope): Partial<FilterState> {
+  // Switching onto an IMDb list also clears the win/nom status, which has no
+  // meaning for those lists (and the status control is disabled to match).
+  if (scope === "imdb-films")
+    return { awardBody: "all", imdbTopMoviesOnly: true,  imdbTopTvOnly: false, winnerOnly: false, nominatedOnly: false, page: 1 };
+  if (scope === "imdb-tv")
+    return { awardBody: "all", imdbTopMoviesOnly: false, imdbTopTvOnly: true,  winnerOnly: false, nominatedOnly: false, page: 1 };
+  return { awardBody: scope, imdbTopMoviesOnly: false, imdbTopTvOnly: false, page: 1 };
+}
+
+type AwardStatus = "any" | "won" | "nom";
+
+const STATUS_OPTIONS: { value: AwardStatus; label: string }[] = [
+  { value: "any", label: "Any"  },
+  { value: "won", label: "Won"  },
+  { value: "nom", label: "Nom." },
+];
+
+function statusFromFilters(f: FilterState): AwardStatus {
+  if (f.winnerOnly)    return "won";
+  if (f.nominatedOnly) return "nom";
+  return "any";
+}
+
+function statusToUpdates(status: AwardStatus): Partial<FilterState> {
+  return { winnerOnly: status === "won", nominatedOnly: status === "nom", page: 1 };
+}
 
 /**
  * Display-only overrides for verbose/awkward country names. The stored value
@@ -260,6 +304,10 @@ export function BrowsePageClient() {
   // reassuring number on the page refreshes in place instead of flickering away.
   const isStaleCount = status === "loading" && hasResult;
 
+  const scope       = scopeFromFilters(filters);
+  const awardStatus = statusFromFilters(filters);
+  const scopeIsImdb = scope === "imdb-films" || scope === "imdb-tv";
+
   const activeChips = buildActiveChips(filters, setFilters);
   const resultContext = buildResultContext(filters);
   const advancedCount = countAdvancedFilters(filters);
@@ -409,91 +457,26 @@ export function BrowsePageClient() {
             {/* Divider */}
             <div className="hidden h-6 w-px bg-white/10 lg:block" />
 
-            {/* Award body */}
-            <div className="flex w-full max-w-full items-center gap-1 overflow-x-auto rounded-md border border-white/10 bg-white/[0.025] p-1 sm:w-auto sm:overflow-visible">
-              {AWARD_BODIES.map(({ value, label }, i) => {
-                const active =
-                  filters.awardBody === value &&
-                  !filters.imdbTopMoviesOnly &&
-                  !filters.imdbTopTvOnly;
-                return (
-                  <Fragment key={value}>
-                    {i > 0 && <span className="h-4 w-px shrink-0 bg-white/10" aria-hidden />}
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setFilters({ awardBody: value, imdbTopMoviesOnly: false, imdbTopTvOnly: false, page: 1 })
-                      }
-                      className={cn(
-                        "h-8 shrink-0 rounded px-3.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40",
-                        active
-                          ? "bg-[#e8453c] text-white shadow-[0_0_24px_rgba(232,69,60,0.24)]"
-                          : "text-[#7f7a91] hover:bg-white/[0.055] hover:text-[#f1eff8]",
-                      )}
-                    >
-                      {label}
-                    </button>
-                  </Fragment>
-                );
-              })}
-            </div>
-
-            {/* Divider */}
-            <div className="hidden h-6 w-px bg-white/10 lg:block" />
-
-            {/* Curated lists */}
-            <div className="flex w-full max-w-full items-center gap-1 overflow-x-auto rounded-md border border-white/10 bg-white/[0.025] p-1 sm:w-auto sm:overflow-visible">
-              {(
-                [
-                  { label: "IMDb Top 250 Films", active: filters.imdbTopMoviesOnly, fn: () => setFilters({ imdbTopMoviesOnly: !filters.imdbTopMoviesOnly, imdbTopTvOnly: false, page: 1 }) },
-                  { label: "IMDb Top 250 TV",    active: filters.imdbTopTvOnly,     fn: () => setFilters({ imdbTopTvOnly: !filters.imdbTopTvOnly, imdbTopMoviesOnly: false, page: 1 }) },
-                ] as { label: string; active: boolean; fn: () => void }[]
-              ).map(({ label, active, fn }, i) => (
-                <Fragment key={label}>
-                  {i > 0 && <span className="h-4 w-px shrink-0 bg-white/10" aria-hidden />}
-                  <button
-                    type="button"
-                    onClick={fn}
-                    className={cn(
-                      "h-8 shrink-0 rounded px-3.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40",
-                      active
-                        ? "bg-[#e8453c] text-white shadow-[0_0_24px_rgba(232,69,60,0.24)]"
-                        : "text-[#7f7a91] hover:bg-white/[0.055] hover:text-[#f1eff8]",
-                    )}
-                  >
-                    {label}
-                  </button>
-                </Fragment>
-              ))}
-            </div>
+            {/* Scope — an award body or an IMDb list; the two are exclusive */}
+            <SegmentedControl
+              ariaLabel="Browse scope"
+              options={SCOPE_OPTIONS}
+              value={scope}
+              onChange={(value) => setFilters(scopeToUpdates(value))}
+            />
 
             {/* Divider */}
             <div className="hidden h-6 w-px bg-white/10 xl:block" />
 
-            {/* Status */}
-            <div className="flex w-full max-w-full items-center gap-1 overflow-x-auto rounded-md border border-white/10 bg-white/[0.025] p-1 sm:w-auto sm:overflow-visible">
-              {(
-                [
-                  { label: "Any",  active: !filters.winnerOnly && !filters.nominatedOnly, fn: () => setFilters({ winnerOnly: false, nominatedOnly: false, page: 1 }) },
-                  { label: "Won",  active: filters.winnerOnly,                             fn: () => setFilters({ winnerOnly: true,  nominatedOnly: false, page: 1 }) },
-                  { label: "Nom.", active: filters.nominatedOnly && !filters.winnerOnly,   fn: () => setFilters({ winnerOnly: false,  nominatedOnly: true,  page: 1 }) },
-                ] as { label: string; active: boolean; fn: () => void }[]
-              ).map(({ label, active, fn }) => (
-                <button
-                  key={label}
-                  type="button"
-                  onClick={fn}
-                  className={cn(
-                    "h-8 shrink-0 rounded px-3.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40",
-                    active
-                      ? "bg-[#e8453c] text-white shadow-[0_0_24px_rgba(232,69,60,0.24)]"
-                      : "text-[#7f7a91] hover:bg-white/[0.055] hover:text-[#f1eff8]",
-                  )}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
+            {/* Award status — disabled while an IMDb list is the active scope */}
+            <SegmentedControl
+              ariaLabel="Award status"
+              options={STATUS_OPTIONS}
+              value={awardStatus}
+              onChange={(value) => setFilters(statusToUpdates(value))}
+              disabled={scopeIsImdb}
+              disabledHint="Win / nomination filters don't apply to IMDb lists"
+            />
 
             {/* Divider */}
             <div className="hidden h-6 w-px bg-white/10 sm:block" />
@@ -938,6 +921,65 @@ function PanelSection({
         {label}
       </span>
       {children}
+    </div>
+  );
+}
+
+function SegmentedControl<T extends string>({
+  options,
+  value,
+  onChange,
+  ariaLabel,
+  disabled = false,
+  disabledHint,
+}: {
+  options: { value: T; label: string; groupStart?: boolean }[];
+  value: T;
+  onChange: (value: T) => void;
+  ariaLabel: string;
+  disabled?: boolean;
+  disabledHint?: string;
+}) {
+  return (
+    <div
+      role="radiogroup"
+      aria-label={ariaLabel}
+      aria-disabled={disabled || undefined}
+      title={disabled ? disabledHint : undefined}
+      className={cn(
+        "flex w-full max-w-full items-center gap-1 overflow-x-auto rounded-md border border-white/10 bg-white/[0.025] p-1 transition-opacity sm:w-auto sm:overflow-visible",
+        disabled && "pointer-events-none opacity-40",
+      )}
+    >
+      {options.map((opt, i) => {
+        const active = opt.value === value;
+        return (
+          <Fragment key={opt.value}>
+            {/* A heavier divider marks a group break (e.g. award bodies → IMDb lists) */}
+            {i > 0 && (
+              <span
+                aria-hidden
+                className={cn("w-px shrink-0", opt.groupStart ? "mx-1 h-5 bg-white/20" : "h-4 bg-white/10")}
+              />
+            )}
+            <button
+              type="button"
+              role="radio"
+              aria-checked={active}
+              tabIndex={disabled ? -1 : 0}
+              onClick={() => onChange(opt.value)}
+              className={cn(
+                "h-8 shrink-0 rounded px-3.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40",
+                active
+                  ? "bg-[#e8453c] text-white shadow-[0_0_24px_rgba(232,69,60,0.24)]"
+                  : "text-[#7f7a91] hover:bg-white/[0.055] hover:text-[#f1eff8]",
+              )}
+            >
+              {opt.label}
+            </button>
+          </Fragment>
+        );
+      })}
     </div>
   );
 }
