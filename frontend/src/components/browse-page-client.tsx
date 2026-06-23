@@ -586,38 +586,40 @@ export function BrowsePageClient() {
               onChange={(value) => setFilters(scopeToUpdates(value))}
             />
 
-            {/* Award status + Advanced disclosure — flow inline after scope so
-                the whole control set sits on one row. Status falls away for IMDb
-                lists (no win/nomination there). */}
-            <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
-              {!scopeIsImdb && (
-                <SegmentedControl
-                  ariaLabel="Award status"
-                  options={STATUS_OPTIONS}
-                  value={awardStatus}
-                  onChange={(value) => setFilters(statusToUpdates(value))}
-                />
+            {/* Award status — flows inline right after scope, so its position is
+                fixed by the (constant-width) search + scope and never shifts when
+                other filters change. Gone for IMDb lists (no win/nomination). */}
+            {!scopeIsImdb && (
+              <SegmentedControl
+                ariaLabel="Award status"
+                options={STATUS_OPTIONS}
+                value={awardStatus}
+                onChange={(value) => setFilters(statusToUpdates(value))}
+              />
+            )}
+
+            {/* Advanced disclosure — pinned to the right edge (sm:ml-auto), so its
+                active-count badge grows the button rightward without nudging the
+                status control beside it. */}
+            <button
+              type="button"
+              onClick={() => setShowMore((v) => !v)}
+              aria-expanded={showMore}
+              className={cn(
+                "flex h-10 shrink-0 items-center gap-2 rounded-md border px-3.5 font-[family-name:var(--font-geist-mono)] text-[12px] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40 sm:ml-auto",
+                showMore || advancedCount > 0
+                  ? "border-[#e8453c]/55 bg-[#e8453c]/12 text-[#ff766d]"
+                  : "border-white/10 bg-white/[0.045] text-[#b8b5c8] hover:border-white/20 hover:text-[#f1eff8]",
               )}
-              <button
-                type="button"
-                onClick={() => setShowMore((v) => !v)}
-                aria-expanded={showMore}
-                className={cn(
-                  "flex h-10 items-center gap-2 rounded-md border px-3.5 font-[family-name:var(--font-geist-mono)] text-[12px] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40",
-                  showMore || advancedCount > 0
-                    ? "border-[#e8453c]/55 bg-[#e8453c]/12 text-[#ff766d]"
-                    : "border-white/10 bg-white/[0.045] text-[#b8b5c8] hover:border-white/20 hover:text-[#f1eff8]",
-                )}
-              >
-                <SlidersHorizontal className="h-3.5 w-3.5" aria-hidden />
-                Advanced
-                {advancedCount > 0 && (
-                  <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-[#e8453c] px-1 text-[10px] font-semibold leading-none text-white">
-                    {advancedCount}
-                  </span>
-                )}
-              </button>
-            </div>
+            >
+              <SlidersHorizontal className="h-3.5 w-3.5" aria-hidden />
+              Advanced
+              {advancedCount > 0 && (
+                <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-[#e8453c] px-1 text-[10px] font-semibold leading-none text-white">
+                  {advancedCount}
+                </span>
+              )}
+            </button>
           </div>
 
           {/* Active chips */}
