@@ -592,10 +592,11 @@ export function BrowsePageClient() {
         {/* ── EXPANDED FILTER PANEL ─────────────────────────── */}
         {showMore && (
           <div className="border-t border-white/10 bg-[#090910]/98">
-            <div className="mx-auto flex w-full max-w-[100vw] flex-col gap-8 px-4 py-6 sm:max-w-screen-2xl sm:px-6 lg:px-8 xl:px-12">
+            <div className="mx-auto w-full max-w-[100vw] px-4 py-6 sm:max-w-screen-2xl sm:px-6 lg:px-8 xl:px-12">
+              {/* One dense grid, ordered so related filters sit together:
+                  ratings → format/origin → people → awards/time. */}
+              <div className="grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
 
-              {/* ── Ratings ─────────────────────────────────── */}
-              <FilterGroup label="Ratings">
                 <PanelSection label="IMDb Rating">
                   <ChipGroup label="Minimum IMDb rating">
                     {[0, 6, 6.5, 7, 7.5, 8, 8.5, 9].map((r) => (
@@ -623,10 +624,7 @@ export function BrowsePageClient() {
                     ))}
                   </ChipGroup>
                 </PanelSection>
-              </FilterGroup>
 
-              {/* ── Film ────────────────────────────────────── */}
-              <FilterGroup label="Film">
                 <PanelSection label="Content Type">
                   <ChipGroup label="Content type">
                     {(
@@ -705,10 +703,7 @@ export function BrowsePageClient() {
                     </FilterChip>
                   </ChipGroup>
                 </PanelSection>
-              </FilterGroup>
 
-              {/* ── Awards ──────────────────────────────────── */}
-              <FilterGroup label="Awards">
                 <PanelSection label="Award Nominations">
                   <ChipGroup label="Minimum total award nominations">
                     {([
@@ -771,7 +766,7 @@ export function BrowsePageClient() {
                     />
                   </div>
                 </PanelSection>
-              </FilterGroup>
+              </div>
             </div>
           </div>
         )}
@@ -941,23 +936,6 @@ export function BrowsePageClient() {
 }
 
 /* ── Sub-components ─────────────────────────────────────────────────── */
-
-/** A labelled cluster of related filter sections inside the advanced panel. */
-function FilterGroup({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div>
-      <div className="mb-4 flex items-center gap-3">
-        <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.34em] text-[#6b6679]">
-          {label}
-        </span>
-        <span className="h-px flex-1 bg-white/[0.07]" aria-hidden />
-      </div>
-      <div className="grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {children}
-      </div>
-    </div>
-  );
-}
 
 function PanelSection({
   label,
