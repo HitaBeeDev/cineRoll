@@ -419,9 +419,9 @@ export function BrowsePageClient() {
         />
 
         <div className="relative mx-auto w-full max-w-[100vw] px-4 sm:max-w-screen-2xl sm:px-6 lg:px-8 xl:px-12">
-          <div className="flex items-center gap-3 py-3">
-            <div className="h-4 w-px shrink-0 bg-[#e8453c]" aria-hidden />
-            <h1 className="font-[family-name:var(--font-display)] shrink-0 text-base font-semibold tracking-tight text-[#f4f0f7] sm:text-lg">
+          <div className="flex items-center gap-3 py-4 sm:py-5">
+            <div className="h-7 w-1 shrink-0 rounded-full bg-[#e8453c] sm:h-9" aria-hidden />
+            <h1 className="font-[family-name:var(--font-display)] shrink-0 text-2xl font-bold tracking-tight text-[#f4f0f7] sm:text-[2rem]">
               Browse Films
             </h1>
           </div>
@@ -453,7 +453,7 @@ export function BrowsePageClient() {
               toolbar reads as one cluster rather than spreading into voids. */}
           <div className="flex flex-wrap items-center gap-x-3 gap-y-2 pb-2.5">
             {/* Search — capped so it sizes to its content, not the viewport */}
-            <div ref={searchContainerRef} className="relative w-full min-w-0 sm:w-[360px]">
+            <div ref={searchContainerRef} className="relative w-full min-w-0 sm:w-[380px]">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#6f6b80]" />
               <input
                 type="text"
@@ -553,6 +553,10 @@ export function BrowsePageClient() {
                 />
               </div>
             )}
+
+            {/* Divider between the query controls (search/status) and the
+                refine controls (genre/advanced) */}
+            <div className="hidden h-6 w-px shrink-0 bg-white/10 sm:block" />
 
             {/* Genre — full width in the mobile stack, fixed width from sm up */}
             <div className="w-full sm:w-auto">
