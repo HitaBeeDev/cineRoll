@@ -219,14 +219,24 @@ export function BrowsePageClient() {
     void fetchAwardYears().then(setAwardYears);
   }, []);
 
+  // Only the free-text search needs debouncing (one fetch per settled query
+  // instead of one per keystroke). Discrete controls — genre, chips, sort,
+  // pagination — change one value per tap and should fire immediately rather
+  // than pay a 300ms tax. So the delay is 300ms when `search` changed and 0
+  // otherwise. The ref seeds from the initial search so the first load is
+  // immediate too.
+  const prevFetchedSearch = useRef(filters.search);
   useEffect(() => {
+    const delay = filters.search !== prevFetchedSearch.current ? 300 : 0;
+    prevFetchedSearch.current = filters.search;
+
     let cancelled = false;
     const timer = window.setTimeout(() => {
       setStatus("loading");
       void fetchFilms(filters, PAGE_SIZE)
         .then((data) => { if (!cancelled) { setResult(data); setStatus("success"); } })
         .catch(()    => { if (!cancelled) { setResult(null); setStatus("error");   } });
-    }, 300);
+    }, delay);
     return () => { cancelled = true; window.clearTimeout(timer); };
   }, [filters, reloadNonce]);
 
