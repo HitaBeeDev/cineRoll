@@ -81,6 +81,13 @@ function scopeToUpdates(scope: Scope): Partial<FilterState> {
   return { awardBody: scope, imdbTopMoviesOnly: false, imdbTopTvOnly: false, page: 1 };
 }
 
+// Constant look shared by every filter dropdown trigger. Deliberately omits the
+// utilities that vary per instance (width, text colour, uppercase/tracking) —
+// `cn` is a plain join with no tailwind-merge, so those must not be duplicated
+// in the base or the override couldn't win.
+const SELECT_TRIGGER_BASE =
+  "h-10 rounded-md border-white/10 bg-white/[0.045] font-[family-name:var(--font-geist-mono)] text-[11px] transition-colors hover:border-white/20 focus:ring-[#e8453c]/60 focus:ring-offset-0";
+
 type AwardStatus = "any" | "won" | "nom";
 
 const STATUS_OPTIONS: { value: AwardStatus; label: string }[] = [
@@ -504,22 +511,13 @@ export function BrowsePageClient() {
 
             {/* Genre */}
             <div className="hidden sm:block">
-              <Select
+              <FilterSelect
                 value={filters.genre || "_all"}
-                onValueChange={(val) =>
-                  setFilters({ genre: val === "_all" ? "" : val, page: 1 })
-                }
-              >
-                <SelectTrigger className="h-10 w-[158px] rounded-md border-white/10 bg-white/[0.045] font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-[#b8b5c8] transition-colors hover:border-white/20 focus:ring-[#e8453c]/60 focus:ring-offset-0">
-                  <SelectValue placeholder="Genre" />
-                </SelectTrigger>
-                <SelectContent className="border-white/10 bg-[#101019]">
-                  <SelectItem value="_all">All genres</SelectItem>
-                  {genres.map((g) => (
-                    <SelectItem key={g} value={g}>{g}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                onValueChange={(val) => setFilters({ genre: val === "_all" ? "" : val, page: 1 })}
+                placeholder="Genre"
+                className="w-[158px] uppercase tracking-[0.14em] text-[#b8b5c8]"
+                options={[{ value: "_all", label: "All genres" }, ...genres.map((g) => ({ value: g, label: g }))]}
+              />
             </div>
 
             {/* Advanced filters disclosure */}
@@ -632,54 +630,37 @@ export function BrowsePageClient() {
 
                 {/* Category */}
                 <PanelSection label="Award Category">
-                  <Select
+                  <FilterSelect
                     value={filters.category || "_all"}
                     onValueChange={(val) => setFilters({ category: val === "_all" ? "" : val, page: 1 })}
-                  >
-                    <SelectTrigger className="h-10 w-full rounded-md border-white/10 bg-white/[0.045] font-[family-name:var(--font-geist-mono)] text-[11px] text-[#b8b5c8] transition-colors hover:border-white/20 focus:ring-[#e8453c]/60 focus:ring-offset-0">
-                      <SelectValue placeholder="Any category" />
-                    </SelectTrigger>
-                    <SelectContent className="border-white/10 bg-[#101019]">
-                      <SelectItem value="_all">Any category</SelectItem>
-                      {categories.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
+                    placeholder="Any category"
+                    className="w-full text-[#b8b5c8]"
+                    options={[{ value: "_all", label: "Any category" }, ...categories.map((c) => ({ value: c, label: c }))]}
+                  />
                 </PanelSection>
 
                 {/* Geo + time — kept on one row across breakpoints */}
                 <div className="grid grid-cols-1 gap-x-8 gap-y-6 sm:col-span-2 sm:grid-cols-2 lg:col-span-3 lg:grid-cols-4 xl:col-span-4">
                 {/* Country */}
                 <PanelSection label="Country">
-                  <Select
+                  <FilterSelect
                     value={filters.country || "_all"}
                     onValueChange={(val) => setFilters({ country: val === "_all" ? "" : val, page: 1 })}
-                  >
-                    <SelectTrigger className="h-10 w-full rounded-md border-white/10 bg-white/[0.045] font-[family-name:var(--font-geist-mono)] text-[11px] text-[#b8b5c8] transition-colors hover:border-white/20 focus:ring-[#e8453c]/60 focus:ring-offset-0">
-                      <SelectValue placeholder="Any country" />
-                    </SelectTrigger>
-                    <SelectContent className="border-white/10 bg-[#101019]">
-                      <SelectItem value="_all">Any country</SelectItem>
-                      {countries.map((c) => <SelectItem key={c} value={c}>{countryLabel(c)}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
+                    placeholder="Any country"
+                    className="w-full text-[#b8b5c8]"
+                    options={[{ value: "_all", label: "Any country" }, ...countries.map((c) => ({ value: c, label: countryLabel(c) }))]}
+                  />
                 </PanelSection>
 
                 {/* Ceremony year */}
                 <PanelSection label="Ceremony Year">
-                  <Select
+                  <FilterSelect
                     value={filters.awardYear != null ? String(filters.awardYear) : "_any"}
-                    onValueChange={(val) =>
-                      setFilters({ awardYear: val === "_any" ? null : Number(val), page: 1 })
-                    }
-                  >
-                    <SelectTrigger className="h-10 w-full rounded-md border-white/10 bg-white/[0.045] font-[family-name:var(--font-geist-mono)] text-[11px] text-[#b8b5c8] transition-colors hover:border-white/20 focus:ring-[#e8453c]/60 focus:ring-offset-0">
-                      <SelectValue placeholder="Any year" />
-                    </SelectTrigger>
-                    <SelectContent className="border-white/10 bg-[#101019]">
-                      <SelectItem value="_any">Any year</SelectItem>
-                      {awardYears.map((y) => <SelectItem key={y} value={String(y)}>{y}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
+                    onValueChange={(val) => setFilters({ awardYear: val === "_any" ? null : Number(val), page: 1 })}
+                    placeholder="Any year"
+                    className="w-full text-[#b8b5c8]"
+                    options={[{ value: "_any", label: "Any year" }, ...awardYears.map((y) => ({ value: String(y), label: String(y) }))]}
+                  />
                 </PanelSection>
 
                 {/* Decade — the heading and the dash convey the range, so the two
@@ -687,37 +668,21 @@ export function BrowsePageClient() {
                     also lets all three controls in this row share one baseline. */}
                 <PanelSection label="Decade range" className="lg:col-span-2">
                   <div className="flex items-center gap-2">
-                    <Select
+                    <FilterSelect
                       value={String(filters.decadeMin)}
                       onValueChange={(val) => setFilters({ decadeMin: Number(val), page: 1 })}
-                    >
-                      <SelectTrigger aria-label="Decade from" className="h-10 w-full flex-1 rounded-md border-white/10 bg-white/[0.045] font-[family-name:var(--font-geist-mono)] text-[11px] text-[#b8b5c8] transition-colors hover:border-white/20 focus:ring-[#e8453c]/60 focus:ring-offset-0">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="border-white/10 bg-[#101019]">
-                        {BROWSE_DECADE_OPTIONS.map((d) => (
-                          <SelectItem key={d} value={String(d)}>
-                            {d === DECADE_MIN ? "Earliest" : `${d}s`}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      ariaLabel="Decade from"
+                      className="w-full flex-1 text-[#b8b5c8]"
+                      options={BROWSE_DECADE_OPTIONS.map((d) => ({ value: String(d), label: d === DECADE_MIN ? "Earliest" : `${d}s` }))}
+                    />
                     <span className="font-[family-name:var(--font-geist-mono)] text-[12px] text-[#56515f]" aria-hidden>–</span>
-                    <Select
+                    <FilterSelect
                       value={String(filters.decadeMax)}
                       onValueChange={(val) => setFilters({ decadeMax: Number(val), page: 1 })}
-                    >
-                      <SelectTrigger aria-label="Decade to" className="h-10 w-full flex-1 rounded-md border-white/10 bg-white/[0.045] font-[family-name:var(--font-geist-mono)] text-[11px] text-[#b8b5c8] transition-colors hover:border-white/20 focus:ring-[#e8453c]/60 focus:ring-offset-0">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="border-white/10 bg-[#101019]">
-                        {BROWSE_DECADE_OPTIONS.map((d) => (
-                          <SelectItem key={d} value={String(d)}>
-                            {d === DECADE_MAX ? "Latest" : `${d}s`}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      ariaLabel="Decade to"
+                      className="w-full flex-1 text-[#b8b5c8]"
+                      options={BROWSE_DECADE_OPTIONS.map((d) => ({ value: String(d), label: d === DECADE_MAX ? "Latest" : `${d}s` }))}
+                    />
                   </div>
                 </PanelSection>
                 </div>
@@ -772,19 +737,12 @@ export function BrowsePageClient() {
             <span className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em] text-[#7d788e]">
               Sort by
             </span>
-            <Select
+            <FilterSelect
               value={filters.sort}
               onValueChange={(val) => setFilters({ sort: val as FilterState["sort"], page: 1 })}
-            >
-              <SelectTrigger className="h-10 w-full min-w-[150px] rounded-md border-white/10 bg-white/[0.045] font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-[#e8e5f4] transition-colors hover:border-white/20 focus:ring-[#e8453c]/60 focus:ring-offset-0 lg:w-[150px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="border-white/10 bg-[#101019]">
-                {SORT_OPTIONS.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              className="w-full min-w-[150px] uppercase tracking-[0.14em] text-[#e8e5f4] lg:w-[150px]"
+              options={SORT_OPTIONS}
+            />
             <button
               type="button"
               aria-label={filters.sortOrder === "asc" ? "Switch to descending" : "Switch to ascending"}
@@ -974,6 +932,36 @@ function SegmentedControl<T extends string>({
         );
       })}
     </div>
+  );
+}
+
+/** A filter dropdown with the shared trigger styling, content panel, and option mapping baked in. */
+function FilterSelect({
+  value,
+  onValueChange,
+  options,
+  placeholder,
+  ariaLabel,
+  className,
+}: {
+  value: string;
+  onValueChange: (value: string) => void;
+  options: { value: string; label: string }[];
+  placeholder?: string;
+  ariaLabel?: string;
+  className?: string;
+}) {
+  return (
+    <Select value={value} onValueChange={onValueChange}>
+      <SelectTrigger aria-label={ariaLabel} className={cn(SELECT_TRIGGER_BASE, className)}>
+        <SelectValue placeholder={placeholder} />
+      </SelectTrigger>
+      <SelectContent className="border-white/10 bg-[#101019]">
+        {options.map((o) => (
+          <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 }
 
