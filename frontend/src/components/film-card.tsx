@@ -17,9 +17,10 @@ type AwardBadge = {
 } | null;
 
 // Every film in the DB is an award film, so a loud badge on each one carries no
-// signal. Reserve the marquee treatment for the genuinely exceptional — films
-// that swept (5+ total wins) — and let the rest sit quietly.
-const MARQUEE_WIN_THRESHOLD = 5;
+// signal. Browse defaults to awards-descending, so page one is the most-decorated
+// films — keep the marquee threshold high enough that even there the emphatic
+// badge stays rare and doesn't become a wall of accent colour.
+const MARQUEE_WIN_THRESHOLD = 10;
 
 function getAwardBadge(film: Film): AwardBadge {
   // One combined count across every award body — no single body is named, so
@@ -137,7 +138,7 @@ export function FilmCard({ film, className }: FilmCardProps) {
             {badge && (badge.tier === "marquee" ? (
               <span
                 aria-label={badge.detail}
-                className="inline-flex max-w-full items-center rounded-full bg-[#e8453c] px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] font-semibold uppercase tracking-[0.14em] text-white shadow-[0_0_22px_rgba(232,69,60,0.4)]"
+                className="inline-flex max-w-full items-center rounded-full border border-[#e8453c]/45 bg-black/70 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] font-semibold uppercase tracking-[0.14em] text-[#ff766d] shadow-lg shadow-black/25 backdrop-blur-sm"
               >
                 <span className="shrink-0">{badge.detail}</span>
               </span>
