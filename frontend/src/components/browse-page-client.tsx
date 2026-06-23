@@ -65,8 +65,8 @@ const SCOPE_OPTIONS: { value: Scope; label: string; groupStart?: boolean }[] = [
   { value: "goldenglobe", label: "Golden Globe"                         },
   { value: "cannes",      label: "Cannes"                               },
   { value: "berlin",      label: "Berlinale"                            },
-  { value: "imdb-films",  label: "IMDb Films", groupStart: true },
-  { value: "imdb-tv",     label: "IMDb TV"                      },
+  { value: "imdb-films",  label: "IMDb Top 250 Films", groupStart: true },
+  { value: "imdb-tv",     label: "IMDb Top 250 TV"                      },
 ];
 
 function scopeFromFilters(f: FilterState): Scope {
@@ -489,9 +489,10 @@ export function BrowsePageClient() {
               Advanced disclosure are grouped at the right edge. Status falls
               away for IMDb lists (no win/nomination there). */}
           <div className="flex flex-wrap items-center gap-x-2 gap-y-2 pt-3 pb-2.5 xl:flex-nowrap">
-            {/* Search — compact so the scope, status, and Advanced controls all
-                fit on this one row; grows a little on the widest screens. */}
-            <div ref={searchContainerRef} className="relative w-full min-w-0 sm:w-[190px] xl:w-[220px] xl:shrink-0">
+            {/* Search — grows to absorb the leftover row space (flex-1) so the
+                row ends flush with no trailing gap; a min-width keeps it usable
+                when the scope/status/Advanced controls are wide. */}
+            <div ref={searchContainerRef} className="relative w-full min-w-0 sm:grow sm:basis-[180px]">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#6f6b80]" />
               <input
                 type="text"
