@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { motion, useReducedMotion } from "framer-motion";
 import {
@@ -453,8 +453,35 @@ export function BrowsePageClient() {
       <div className="sticky top-14 z-40 max-w-[100vw] border-b border-[#1c1a25] bg-[#08080d]/92 shadow-[0_18px_50px_rgba(0,0,0,0.28)] backdrop-blur-xl">
         <div className="mx-auto w-full max-w-[100vw] px-4 sm:max-w-screen-2xl sm:px-6 lg:px-8 xl:px-12">
 
-          {/* Primary filter row */}
-          <div className="flex flex-wrap items-center gap-2 py-2.5">
+          {/* Tier 1 — Scope is the primary axis: it reframes everything below,
+              so it gets its own row rather than sitting as one chip among many.
+              Award status nests beneath it and falls away entirely for IMDb
+              lists, where win/nomination has no meaning (so the layout itself
+              conveys the dependency instead of a disabled control + hint). */}
+          <div className="flex flex-col gap-2 pt-3 pb-2.5">
+            <SegmentedControl
+              ariaLabel="Browse scope"
+              options={SCOPE_OPTIONS}
+              value={scope}
+              onChange={(value) => setFilters(scopeToUpdates(value))}
+            />
+            {!scopeIsImdb && (
+              <div className="flex items-center gap-2.5 sm:pl-3">
+                <span className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.28em] text-[#6f6a80]">
+                  Status
+                </span>
+                <SegmentedControl
+                  ariaLabel="Award status"
+                  options={STATUS_OPTIONS}
+                  value={awardStatus}
+                  onChange={(value) => setFilters(statusToUpdates(value))}
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Tier 2 — Refine within the chosen scope */}
+          <div className="flex flex-wrap items-center gap-2 pb-2.5">
 
             {/* Search */}
             <div ref={searchContainerRef} className="relative w-full min-w-0 sm:grow sm:basis-72">
@@ -543,33 +570,6 @@ export function BrowsePageClient() {
                 </div>
               )}
             </div>
-
-            {/* Divider */}
-            <div className="hidden h-6 w-px bg-white/10 lg:block" />
-
-            {/* Scope — an award body or an IMDb list; the two are exclusive */}
-            <SegmentedControl
-              ariaLabel="Browse scope"
-              options={SCOPE_OPTIONS}
-              value={scope}
-              onChange={(value) => setFilters(scopeToUpdates(value))}
-            />
-
-            {/* Divider */}
-            <div className="hidden h-6 w-px bg-white/10 xl:block" />
-
-            {/* Award status — disabled while an IMDb list is the active scope */}
-            <SegmentedControl
-              ariaLabel="Award status"
-              options={STATUS_OPTIONS}
-              value={awardStatus}
-              onChange={(value) => setFilters(statusToUpdates(value))}
-              disabled={scopeIsImdb}
-              disabledHint="Win / nomination filters don't apply to IMDb lists"
-            />
-
-            {/* Divider */}
-            <div className="hidden h-6 w-px bg-white/10 sm:block" />
 
             {/* Genre — full width in the mobile stack, fixed width from sm up */}
             <div className="w-full sm:w-auto">
@@ -982,32 +982,18 @@ function SegmentedControl<T extends string>({
   value,
   onChange,
   ariaLabel,
-  disabled = false,
-  disabledHint,
 }: {
   options: { value: T; label: string; groupStart?: boolean }[];
   value: T;
   onChange: (value: T) => void;
   ariaLabel: string;
-  disabled?: boolean;
-  disabledHint?: string;
 }) {
-  // The disabled reason is shown as visible helper text (not just a `title`, which
-  // is invisible to keyboard, touch, and screen-reader users) and linked to the
-  // group via aria-describedby so assistive tech announces it with the control.
-  const hintId = useId();
-  const showHint = disabled && !!disabledHint;
   return (
     <div className="flex w-full flex-col gap-1 sm:w-auto">
       <div
         role="radiogroup"
         aria-label={ariaLabel}
-        aria-disabled={disabled || undefined}
-        aria-describedby={showHint ? hintId : undefined}
-        className={cn(
-          "flex w-full max-w-full items-center gap-1 overflow-x-auto rounded-md border border-white/10 bg-white/[0.025] p-1 transition-opacity sm:w-auto sm:overflow-visible",
-          disabled && "pointer-events-none opacity-40",
-        )}
+        className="flex w-full max-w-full flex-wrap items-center gap-1 rounded-md border border-white/10 bg-white/[0.025] p-1 sm:w-auto"
       >
       {options.map((opt, i) => {
         const active = opt.value === value;
@@ -1024,7 +1010,6 @@ function SegmentedControl<T extends string>({
               type="button"
               role="radio"
               aria-checked={active}
-              tabIndex={disabled ? -1 : 0}
               onClick={() => onChange(opt.value)}
               className={cn(
                 "h-8 shrink-0 rounded px-3.5 font-[family-name:var(--font-geist-mono)] text-[12px] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40",
@@ -1039,14 +1024,6 @@ function SegmentedControl<T extends string>({
         );
       })}
       </div>
-      {showHint && (
-        <p
-          id={hintId}
-          className="max-w-[15rem] font-[family-name:var(--font-geist-mono)] text-[10px] leading-tight text-[#857f95]"
-        >
-          {disabledHint}
-        </p>
-      )}
     </div>
   );
 }
