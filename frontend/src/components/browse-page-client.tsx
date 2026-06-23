@@ -488,9 +488,10 @@ export function BrowsePageClient() {
           {/* Primary row — search + scope on the left; award status and the
               Advanced disclosure are grouped at the right edge. Status falls
               away for IMDb lists (no win/nomination there). */}
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-2 pt-3 pb-2.5">
-            {/* Search — capped so it sizes to its content, not the viewport */}
-            <div ref={searchContainerRef} className="relative w-full min-w-0 sm:w-[360px]">
+          <div className="flex flex-wrap items-center gap-x-2.5 gap-y-2 pt-3 pb-2.5">
+            {/* Search — compact so the scope, status, and Advanced controls all
+                fit on this one row; grows a little on the widest screens. */}
+            <div ref={searchContainerRef} className="relative w-full min-w-0 sm:w-[200px] xl:w-[240px]">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#6f6b80]" />
               <input
                 type="text"
@@ -585,9 +586,10 @@ export function BrowsePageClient() {
               onChange={(value) => setFilters(scopeToUpdates(value))}
             />
 
-            {/* Award status + Advanced disclosure — grouped at the right edge.
-                Status falls away for IMDb lists (no win/nomination there). */}
-            <div className="flex w-full flex-wrap items-center gap-2 sm:ml-auto sm:w-auto">
+            {/* Award status + Advanced disclosure — flow inline after scope so
+                the whole control set sits on one row. Status falls away for IMDb
+                lists (no win/nomination there). */}
+            <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
               {!scopeIsImdb && (
                 <SegmentedControl
                   ariaLabel="Award status"
