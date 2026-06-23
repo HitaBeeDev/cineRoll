@@ -20,22 +20,25 @@ type AwardBadge = {
 function getAwardBadge(film: Film): AwardBadge {
   const totalWins = film.oscarWins + film.ggWins + film.cannesWins + film.berlinWins;
   const totalNoms = film.oscarNominations + film.ggNominations + film.cannesNominations + film.berlinNominations;
+  const wins = (n: number) => `${n} win${n === 1 ? "" : "s"}`;
+  const noms = (n: number) => `${n} nom${n === 1 ? "" : "s"}`;
+
   if (film.oscarWins > 0)
-    return { body: "", detail: `${totalWins} win`, won: true, color: "#e8453c", text: "#ffffff" };
+    return { body: "Oscar", detail: wins(totalWins), won: true, color: "#e8453c", text: "#ffffff" };
   if (film.ggWins > 0)
-    return { body: "Golden Globe", detail: `${totalWins} win${totalWins === 1 ? "" : "s"}`, won: true, color: "#D4AF37", text: "#09090f" };
+    return { body: "Golden Globe", detail: wins(totalWins), won: true, color: "#D4AF37", text: "#09090f" };
   if (film.cannesWins > 0)
-    return { body: "Cannes", detail: `${totalWins} win${totalWins === 1 ? "" : "s"}`, won: true, color: "#c0a030", text: "#09090f" };
+    return { body: "Cannes", detail: wins(totalWins), won: true, color: "#c0a030", text: "#09090f" };
   if (film.berlinWins > 0)
-    return { body: "Berlin", detail: `${totalWins} win${totalWins === 1 ? "" : "s"}`, won: true, color: "#c0a030", text: "#09090f" };
+    return { body: "Berlin", detail: wins(totalWins), won: true, color: "#c0a030", text: "#09090f" };
   if (totalNoms > 0) {
     if (film.oscarNominations > 0)
-      return { body: "", detail: `${totalNoms} nom`, won: false, color: "#e8453c", text: "#ffffff" };
+      return { body: "Oscar", detail: noms(totalNoms), won: false, color: "#e8453c", text: "#ffffff" };
     if (film.ggNominations > 0)
-      return { body: "", detail: `${totalNoms} nom`, won: false, color: "#D4AF37", text: "#09090f" };
+      return { body: "Golden Globe", detail: noms(totalNoms), won: false, color: "#D4AF37", text: "#09090f" };
     if (film.cannesNominations > 0)
-      return { body: "", detail: `${totalNoms} nom`, won: false, color: "#c0a030", text: "#09090f" };
-    return { body: "", detail: `${totalNoms} nom`, won: false, color: "#c0a030", text: "#09090f" };
+      return { body: "Cannes", detail: noms(totalNoms), won: false, color: "#c0a030", text: "#09090f" };
+    return { body: "Berlin", detail: noms(totalNoms), won: false, color: "#c0a030", text: "#09090f" };
   }
   return null;
 }
