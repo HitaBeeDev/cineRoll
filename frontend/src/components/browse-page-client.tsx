@@ -201,6 +201,7 @@ export function BrowsePageClient() {
   const [acOpen, setAcOpen] = useState(false);
   const [acIdx, setAcIdx] = useState(-1);
   const searchContainerRef = useRef<HTMLDivElement>(null);
+  const resultsTopRef = useRef<HTMLDivElement>(null);
 
   const commitFilters = useCallback(
     (updates: Partial<FilterState>) => {
@@ -327,6 +328,20 @@ export function BrowsePageClient() {
     setAcOpen(false);
     setAcIdx(-1);
   }, [acResults, setFilters]);
+
+  // Page changes (unlike filter edits, which deliberately stay put) scroll the
+  // results back into view — landing just below the sticky bar via the target's
+  // scroll-margin rather than jumping to the very top of the page.
+  const goToPage = useCallback(
+    (nextPage: number) => {
+      setFilters({ page: nextPage });
+      resultsTopRef.current?.scrollIntoView({
+        behavior: shouldReduceMotion ? "auto" : "smooth",
+        block: "start",
+      });
+    },
+    [setFilters, shouldReduceMotion],
+  );
 
   async function handleRollFromResults() {
     if (rolling) return;
@@ -800,7 +815,10 @@ export function BrowsePageClient() {
 
       {/* ── MAIN GRID ───────────────────────────────────────────────────── */}
       <main className="mx-auto w-full max-w-[100vw] flex-1 px-4 py-6 sm:max-w-screen-2xl sm:px-6 sm:py-8 lg:px-8 xl:px-12">
-        <div className="mb-6 flex flex-col gap-4 border-b border-white/10 pb-5 lg:flex-row lg:items-center lg:justify-between">
+        <div
+          ref={resultsTopRef}
+          className="mb-6 flex scroll-mt-32 flex-col gap-4 border-b border-white/10 pb-5 lg:flex-row lg:items-center lg:justify-between"
+        >
           <div>
             <h2
               aria-live="polite"
@@ -923,37 +941,7 @@ export function BrowsePageClient() {
               ))}
             </div>
 
-            {/* Pagination */}
-            <nav
-              aria-label="Browse pagination"
-              className="mt-14 flex items-center justify-between border-t border-white/10 pt-6"
-            >
-              <button
-                type="button"
-                disabled={page <= 1}
-                onClick={() => setFilters({ page: page - 1 })}
-                className="flex items-center gap-2 rounded-md border border-white/10 bg-white/[0.035] px-5 py-2.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.22em] text-[#a9a5bc] transition-colors hover:border-[#e8453c]/35 hover:text-white disabled:cursor-not-allowed disabled:opacity-25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/30"
-              >
-                <ArrowLeft className="h-3.5 w-3.5" aria-hidden />
-                Prev
-              </button>
-
-              <p className="rounded-full border border-white/10 bg-white/[0.035] px-4 py-2 font-[family-name:var(--font-geist-mono)] text-[11px] tracking-[0.22em] text-[#686378]">
-                <span className="text-[#dedbea]">{page.toLocaleString()}</span>
-                <span className="mx-1.5 text-[#575266]">/</span>
-                <span className="text-[#dedbea]">{totalPages.toLocaleString()}</span>
-              </p>
-
-              <button
-                type="button"
-                disabled={page >= totalPages}
-                onClick={() => setFilters({ page: page + 1 })}
-                className="flex items-center gap-2 rounded-md border border-white/10 bg-white/[0.035] px-5 py-2.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.22em] text-[#a9a5bc] transition-colors hover:border-[#e8453c]/35 hover:text-white disabled:cursor-not-allowed disabled:opacity-25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/30"
-              >
-                Next
-                <ArrowRight className="h-3.5 w-3.5" aria-hidden />
-              </button>
-            </nav>
+            <Pagination page={page} totalPages={totalPages} onChange={goToPage} />
           </>
         )}
       </main>
@@ -1104,6 +1092,97 @@ function ChipGroup({ label, children }: { label: string; children: React.ReactNo
     <div role="radiogroup" aria-label={label} className="flex flex-wrap gap-1">
       {children}
     </div>
+  );
+}
+
+/**
+ * Numbered pagination: first/last are always reachable, with the current page
+ * and its immediate neighbours shown and the rest collapsed to ellipses — so
+ * page 1, the last page, and a jump near the current spot are all one click,
+ * which prev/next-only navigation never allowed across hundreds of pages.
+ */
+function paginationRange(current: number, total: number): (number | "ellipsis")[] {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+
+  const left  = Math.max(2, current - 1);
+  const right = Math.min(total - 1, current + 1);
+  const range: (number | "ellipsis")[] = [1];
+
+  if (left > 2) range.push("ellipsis");
+  for (let p = left; p <= right; p++) range.push(p);
+  if (right < total - 1) range.push("ellipsis");
+
+  range.push(total);
+  return range;
+}
+
+function Pagination({
+  page,
+  totalPages,
+  onChange,
+}: {
+  page: number;
+  totalPages: number;
+  onChange: (page: number) => void;
+}) {
+  if (totalPages <= 1) return null;
+
+  const arrowClass =
+    "flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-white/10 bg-white/[0.035] text-[#a9a5bc] transition-colors hover:border-[#e8453c]/35 hover:text-white disabled:cursor-not-allowed disabled:opacity-25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/30";
+
+  return (
+    <nav
+      aria-label="Browse pagination"
+      className="mt-14 flex flex-wrap items-center justify-center gap-1.5 border-t border-white/10 pt-6"
+    >
+      <button
+        type="button"
+        aria-label="Previous page"
+        disabled={page <= 1}
+        onClick={() => onChange(page - 1)}
+        className={arrowClass}
+      >
+        <ArrowLeft className="h-3.5 w-3.5" aria-hidden />
+      </button>
+
+      {paginationRange(page, totalPages).map((item, i) =>
+        item === "ellipsis" ? (
+          <span
+            key={`ellipsis-${i}`}
+            aria-hidden
+            className="flex h-9 w-7 items-center justify-center font-[family-name:var(--font-geist-mono)] text-[12px] text-[#575266]"
+          >
+            …
+          </span>
+        ) : (
+          <button
+            key={item}
+            type="button"
+            aria-label={`Page ${item}`}
+            aria-current={item === page ? "page" : undefined}
+            onClick={() => onChange(item)}
+            className={cn(
+              "flex h-9 min-w-9 shrink-0 items-center justify-center rounded-md border px-2 font-[family-name:var(--font-geist-mono)] text-[12px] tabular-nums transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/30",
+              item === page
+                ? "border-[#e8453c] bg-[#e8453c] text-white"
+                : "border-white/10 bg-white/[0.035] text-[#a9a5bc] hover:border-[#e8453c]/35 hover:text-white",
+            )}
+          >
+            {item.toLocaleString()}
+          </button>
+        ),
+      )}
+
+      <button
+        type="button"
+        aria-label="Next page"
+        disabled={page >= totalPages}
+        onClick={() => onChange(page + 1)}
+        className={arrowClass}
+      >
+        <ArrowRight className="h-3.5 w-3.5" aria-hidden />
+      </button>
+    </nav>
   );
 }
 
