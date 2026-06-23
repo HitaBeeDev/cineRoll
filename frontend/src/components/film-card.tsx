@@ -18,30 +18,15 @@ type AwardBadge = {
 } | null;
 
 function getAwardBadge(film: Film): AwardBadge {
+  // One combined count across every award body — no single body is named, so
+  // the number can't be misread as "11 Oscars" when it's 11 awards in total.
+  const totalWins = film.oscarWins + film.ggWins + film.cannesWins + film.berlinWins;
   const totalNoms = film.oscarNominations + film.ggNominations + film.cannesNominations + film.berlinNominations;
-  const wins = (n: number) => `${n} win${n === 1 ? "" : "s"}`;
-  const noms = (n: number) => `${n} nom${n === 1 ? "" : "s"}`;
 
-  // The badge names a single award body, so the count must be that body's own
-  // wins/noms — never the cross-body total, or "Oscar 11 wins" would claim
-  // 11 Oscars for a film that won 11 awards across several bodies.
-  if (film.oscarWins > 0)
-    return { body: "Oscar", detail: wins(film.oscarWins), won: true, color: "#e8453c", text: "#ffffff" };
-  if (film.ggWins > 0)
-    return { body: "Golden Globe", detail: wins(film.ggWins), won: true, color: "#D4AF37", text: "#09090f" };
-  if (film.cannesWins > 0)
-    return { body: "Cannes", detail: wins(film.cannesWins), won: true, color: "#c0a030", text: "#09090f" };
-  if (film.berlinWins > 0)
-    return { body: "Berlin", detail: wins(film.berlinWins), won: true, color: "#c0a030", text: "#09090f" };
-  if (totalNoms > 0) {
-    if (film.oscarNominations > 0)
-      return { body: "Oscar", detail: noms(film.oscarNominations), won: false, color: "#e8453c", text: "#ffffff" };
-    if (film.ggNominations > 0)
-      return { body: "Golden Globe", detail: noms(film.ggNominations), won: false, color: "#D4AF37", text: "#09090f" };
-    if (film.cannesNominations > 0)
-      return { body: "Cannes", detail: noms(film.cannesNominations), won: false, color: "#c0a030", text: "#09090f" };
-    return { body: "Berlin", detail: noms(film.berlinNominations), won: false, color: "#c0a030", text: "#09090f" };
-  }
+  if (totalWins > 0)
+    return { body: "", detail: `${totalWins} ${totalWins === 1 ? "award" : "awards"}`, won: true, color: "#e8453c", text: "#ffffff" };
+  if (totalNoms > 0)
+    return { body: "", detail: `${totalNoms} ${totalNoms === 1 ? "nom" : "noms"}`, won: false, color: "#e8453c", text: "#ffffff" };
   return null;
 }
 
