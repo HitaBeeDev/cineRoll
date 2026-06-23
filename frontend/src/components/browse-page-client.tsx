@@ -17,7 +17,7 @@ import {
 import type { AwardBody, FilterState, PaginatedFilms } from "@cineroll/types";
 import { FilmCard, FilmCardSkeleton } from "@/components/film-card";
 import { AppHeader } from "@/components/app-header";
-import { computeHasActiveFilters, DEFAULT_FILTERS } from "@/hooks/useFilters";
+import { DEFAULT_FILTERS } from "@/hooks/useFilters";
 import {
   fetchAwardYears,
   fetchAutocomplete,
@@ -160,7 +160,11 @@ export function BrowsePageClient() {
   // `searchParams`, so back/forward navigation just works and there is no
   // bidirectional sync (and no setTimeout/guard-ref dance) to keep honest.
   const filters = useMemo(() => filtersFromSearchParams(searchParams), [searchParams]);
-  const hasActiveFilters = useMemo(() => computeHasActiveFilters(filters), [filters]);
+  // "Active" is derived from the same descriptor table that renders the chips,
+  // so the Roll button / Clear-all only appear when there is a chip to clear —
+  // the two can never disagree. (Browse exposes a subset of FilterState, hence
+  // a browse-specific predicate rather than the general computeHasActiveFilters.)
+  const hasActiveFilters = useMemo(() => anyFilterActive(filters), [filters]);
 
   const [genres,     setGenres]     = useState<string[]>([]);
   const [countries,  setCountries]  = useState<string[]>([]);
@@ -1165,7 +1169,24 @@ const FILTER_DESCRIPTORS: FilterDescriptor[] = [
     toChip: (f, set) => ({ key: "runtime", label: `≤ ${f.runtimeMax}m`, onRemove: () => set({ runtimeMax: null, page: 1 }) }) },
   { advanced: true, isActive: (f) => f.nominationCount != null && f.nominationCount > 0,
     toChip: (f, set) => ({ key: "noms", label: `${f.nominationCount}+ noms`, onRemove: () => set({ nominationCount: null, page: 1 }) }) },
+  // Fields browse has no control for, but that `filtersFromSearchParams` still
+  // parses — so a hand-built or handed-off URL can carry them. Represented here
+  // so they show as removable chips instead of being applied invisibly.
+  { advanced: false, isActive: (f) => !!f.director.trim(),
+    toChip: (f, set) => ({ key: "director", label: `Dir. ${f.director.trim()}`, onRemove: () => set({ director: "", page: 1 }) }) },
+  { advanced: false, isActive: (f) => !!f.certificate.trim(),
+    toChip: (f, set) => ({ key: "certificate", label: f.certificate.trim(), onRemove: () => set({ certificate: "", page: 1 }) }) },
+  { advanced: false, isActive: (f) => !!f.tvType.trim(),
+    toChip: (f, set) => ({ key: "tvType", label: f.tvType.trim(), onRemove: () => set({ tvType: "", page: 1 }) }) },
+  { advanced: false, isActive: (f) => f.imdbRatingMax != null,
+    toChip: (f, set) => ({ key: "imdbMax", label: `IMDb ≤ ${f.imdbRatingMax}`, onRemove: () => set({ imdbRatingMax: null, page: 1 }) }) },
 ];
+
+/** Does any browse filter differ from its default? Derived from the same table
+ *  that builds the chips, so "is active" and "has a removable chip" stay in lockstep. */
+function anyFilterActive(filters: FilterState): boolean {
+  return FILTER_DESCRIPTORS.some((d) => d.isActive(filters));
+}
 
 function buildActiveChips(filters: FilterState, setFilters: SetFilters): ActiveChip[] {
   return FILTER_DESCRIPTORS.filter((d) => d.isActive(filters)).map((d) => d.toChip(filters, setFilters));
