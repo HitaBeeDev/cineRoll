@@ -408,38 +408,25 @@ export function BrowsePageClient() {
       <AppHeader />
 
       {/* ── HERO ────────────────────────────────────────────────────────── */}
+      {/* Browse is a utility page — the title earns one compact line, not a
+          full band, so the filters and first row of posters sit higher up.
+          Title + tagline run inline; the tagline drops on mobile. */}
       <section className="relative overflow-hidden border-b border-[#24202a] bg-[#0a0a10]">
         {/* Grain */}
         <div
           className="pointer-events-none absolute inset-0 opacity-[0.035]"
           style={{ backgroundImage: GRAIN_SVG, backgroundSize: "256px 256px" }}
         />
-        <div
-          className="pointer-events-none absolute inset-0"
-          style={{
-            background: "linear-gradient(180deg, rgba(255,255,255,0.025), transparent 70%)",
-          }}
-        />
 
         <div className="relative mx-auto w-full max-w-[100vw] px-4 sm:max-w-screen-2xl sm:px-6 lg:px-8 xl:px-12">
-          <div className="flex flex-col gap-3 py-4 sm:py-5">
-            <div>
-              <div className="mb-2.5 h-px w-10 bg-[#e8453c]" />
-              <h1
-                className="font-[family-name:var(--font-display)] font-bold leading-none tracking-tight text-[#f4f0f7]"
-                style={{
-                  fontSize: "clamp(1.9rem, 3.6vw, 3.25rem)",
-                }}
-              >
-                Browse Films
-              </h1>
-              <p className="mt-2 max-w-full text-sm leading-6 text-[#a7a4b8] sm:max-w-xl">
-                <span className="sm:hidden">Search award films with fast filters.</span>
-                <span className="hidden sm:inline">
-                  Search award films, festival discoveries, and ranked favorites with fast filters built for browsing.
-                </span>
-              </p>
-            </div>
+          <div className="flex items-center gap-3 py-3">
+            <div className="h-4 w-px shrink-0 bg-[#e8453c]" aria-hidden />
+            <h1 className="font-[family-name:var(--font-display)] shrink-0 text-base font-semibold tracking-tight text-[#f4f0f7] sm:text-lg">
+              Browse Films
+            </h1>
+            <p className="hidden min-w-0 truncate text-[13px] text-[#8b8799] sm:block">
+              Award films, festival discoveries, and ranked favorites — fast filters built for browsing.
+            </p>
           </div>
         </div>
 
