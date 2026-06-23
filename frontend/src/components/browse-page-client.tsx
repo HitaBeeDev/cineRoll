@@ -65,8 +65,8 @@ const SCOPE_OPTIONS: { value: Scope; label: string; groupStart?: boolean }[] = [
   { value: "goldenglobe", label: "Golden Globe"                         },
   { value: "cannes",      label: "Cannes"                               },
   { value: "berlin",      label: "Berlinale"                            },
-  { value: "imdb-films",  label: "IMDb Top 250 Films", groupStart: true },
-  { value: "imdb-tv",     label: "IMDb Top 250 TV"                      },
+  { value: "imdb-films",  label: "IMDb Films", groupStart: true },
+  { value: "imdb-tv",     label: "IMDb TV"                      },
 ];
 
 function scopeFromFilters(f: FilterState): Scope {
@@ -488,10 +488,10 @@ export function BrowsePageClient() {
           {/* Primary row — search + scope on the left; award status and the
               Advanced disclosure are grouped at the right edge. Status falls
               away for IMDb lists (no win/nomination there). */}
-          <div className="flex flex-wrap items-center gap-x-2.5 gap-y-2 pt-3 pb-2.5">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-2 pt-3 pb-2.5 xl:flex-nowrap">
             {/* Search — compact so the scope, status, and Advanced controls all
                 fit on this one row; grows a little on the widest screens. */}
-            <div ref={searchContainerRef} className="relative w-full min-w-0 sm:w-[200px] xl:w-[240px]">
+            <div ref={searchContainerRef} className="relative w-full min-w-0 sm:w-[190px] xl:w-[220px] xl:shrink-0">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#6f6b80]" />
               <input
                 type="text"
@@ -584,6 +584,7 @@ export function BrowsePageClient() {
               options={SCOPE_OPTIONS}
               value={scope}
               onChange={(value) => setFilters(scopeToUpdates(value))}
+              className="xl:shrink-0"
             />
 
             {/* Award status — flows inline right after scope, so its position is
@@ -595,6 +596,7 @@ export function BrowsePageClient() {
                 options={STATUS_OPTIONS}
                 value={awardStatus}
                 onChange={(value) => setFilters(statusToUpdates(value))}
+                className="xl:shrink-0"
               />
             )}
 
@@ -1012,18 +1014,20 @@ function SegmentedControl<T extends string>({
   value,
   onChange,
   ariaLabel,
+  className,
 }: {
   options: { value: T; label: string; groupStart?: boolean }[];
   value: T;
   onChange: (value: T) => void;
   ariaLabel: string;
+  className?: string;
 }) {
   return (
-    <div className="flex w-full flex-col gap-1 sm:w-auto">
+    <div className={cn("flex w-full flex-col gap-1 sm:w-auto", className)}>
       <div
         role="radiogroup"
         aria-label={ariaLabel}
-        className="flex w-full max-w-full flex-wrap items-center gap-1 rounded-md border border-white/10 bg-white/[0.025] p-1 sm:w-auto"
+        className="flex w-full max-w-full flex-wrap items-center gap-1 rounded-md border border-white/10 bg-white/[0.025] p-1 sm:w-auto xl:flex-nowrap"
       >
       {options.map((opt, i) => {
         const active = opt.value === value;
@@ -1042,7 +1046,7 @@ function SegmentedControl<T extends string>({
               aria-checked={active}
               onClick={() => onChange(opt.value)}
               className={cn(
-                "h-8 shrink-0 rounded px-3.5 font-[family-name:var(--font-geist-mono)] text-[12px] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40",
+                "h-8 shrink-0 rounded px-3 font-[family-name:var(--font-geist-mono)] text-[12px] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40",
                 active
                   ? "bg-[#e8453c] text-white shadow-[0_0_24px_rgba(232,69,60,0.24)]"
                   : "text-[#7f7a91] hover:bg-white/[0.055] hover:text-[#f1eff8]",
