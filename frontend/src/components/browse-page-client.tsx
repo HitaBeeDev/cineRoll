@@ -150,6 +150,11 @@ export function BrowsePageClient() {
 
   const lastSyncedQuery = useRef<string | null>(null);
 
+  // The staggered grid entrance is a first-impression flourish. After the grid
+  // has painted once, filter/page changes use a quick uniform fade instead, so
+  // browsing doesn't pay a ~0.4s cascade on every tap.
+  const hasPaintedGrid = useRef(false);
+
   useEffect(() => {
     void fetchGenres().then(setGenres);
     void fetchCountries().then(setCountries);
@@ -183,6 +188,12 @@ export function BrowsePageClient() {
     }, 300);
     return () => { cancelled = true; window.clearTimeout(timer); };
   }, [filters]);
+
+  useEffect(() => {
+    if (status === "success" && result && result.films.length > 0) {
+      hasPaintedGrid.current = true;
+    }
+  }, [status, result]);
 
   useEffect(() => {
     const q = filters.search.trim();
@@ -832,20 +843,25 @@ export function BrowsePageClient() {
         {status === "success" && result && result.films.length > 0 && (
           <>
             <div className={gridClassName}>
-              {result.films.map((film, index) => (
+              {result.films.map((film, index) => {
+                // First paint: staggered slide-up cascade. Every later result set
+                // (filter change, pagination): a quick uniform fade, no cascade.
+                const firstPaint = !hasPaintedGrid.current;
+                return (
                 <motion.div
                   key={film.id}
-                  initial={{ opacity: 0, y: 8 }}
+                  initial={{ opacity: 0, y: shouldReduceMotion || !firstPaint ? 0 : 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{
-                    delay: shouldReduceMotion ? 0 : Math.min(index * 0.025, 0.4),
-                    duration: shouldReduceMotion ? 0 : 0.22,
+                    delay: shouldReduceMotion || !firstPaint ? 0 : Math.min(index * 0.025, 0.4),
+                    duration: shouldReduceMotion ? 0 : firstPaint ? 0.22 : 0.16,
                     ease: "easeOut",
                   }}
                 >
                   <FilmCard film={film} />
                 </motion.div>
-              ))}
+                );
+              })}
             </div>
 
             {/* Pagination */}
