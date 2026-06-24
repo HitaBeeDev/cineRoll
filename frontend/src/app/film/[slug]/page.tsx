@@ -357,41 +357,31 @@ export default async function FilmPage({
                   ))}
                 </div>
 
-                {/* Ratings */}
-                <div className="mt-8 flex flex-wrap items-start gap-8">
-                  <div>
-                    <p className="mb-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.5em] text-white/32">
-                      IMDb
-                    </p>
-                    <div className="flex min-h-10 items-end">
-                      {film.imdbRating != null ? (
+                {/* Ratings — only render the scores we actually have */}
+                {(film.imdbRating != null || film.rtScore != null) && (
+                  <div className="mt-8 flex flex-wrap items-start gap-8">
+                    {film.imdbRating != null && (
+                      <div>
+                        <p className="mb-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.5em] text-white/32">
+                          IMDb
+                        </p>
                         <p className="font-[family-name:var(--font-display)] text-[2.5rem] font-bold leading-none text-[#F8F8F4]">
                           {film.imdbRating.toFixed(1)}
                         </p>
-                      ) : (
-                        <p className="font-[family-name:var(--font-geist-mono)] text-sm leading-none text-white/30">
-                          No score
+                      </div>
+                    )}
+                    {film.rtScore != null && (
+                      <div>
+                        <p className="mb-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.5em] text-white/32">
+                          RT
                         </p>
-                      )}
-                    </div>
-                  </div>
-                  <div>
-                    <p className="mb-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.5em] text-white/32">
-                      RT
-                    </p>
-                    <div className="flex min-h-10 items-end">
-                      {film.rtScore != null ? (
                         <p className="font-[family-name:var(--font-display)] text-[2.5rem] font-bold leading-none text-[#F8F8F4]">
                           {film.rtScore}%
                         </p>
-                      ) : (
-                        <p className="font-[family-name:var(--font-geist-mono)] text-sm leading-none text-white/30">
-                          No score
-                        </p>
-                      )}
-                    </div>
+                      </div>
+                    )}
                   </div>
-                </div>
+                )}
                 {/* CTAs */}
                 <div className="mt-9 flex flex-wrap items-center gap-3">
                   {film.trailerUrl && (
