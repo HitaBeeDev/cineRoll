@@ -339,7 +339,7 @@ type AwardHighlight = {
 function AwardsPanel({ highlights }: { highlights: AwardHighlight[] }) {
   const shouldReduceMotion = useReducedMotion();
   return (
-    <section className="relative mt-1 overflow-hidden rounded-xl border border-[#D4AF37]/25 bg-gradient-to-b from-[#D4AF37]/[0.07] to-transparent px-3.5 py-3 shadow-[0_0_24px_rgba(212,175,55,0.06)]">
+    <section className="relative mt-auto overflow-hidden rounded-xl border border-[#D4AF37]/25 bg-gradient-to-b from-[#D4AF37]/[0.07] to-transparent px-3.5 py-3 shadow-[0_0_24px_rgba(212,175,55,0.06)]">
       {/* Landing beat: a single gold sheen sweeps across as the card settles, so
           the moment registers on the differentiator. Fires once per roll (the
           parent keys this card by film.id). */}
