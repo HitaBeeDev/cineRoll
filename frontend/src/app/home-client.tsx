@@ -681,7 +681,6 @@ export function HomeClient({
               <motion.div
                 key={film.id}
                 layout={!shouldReduceMotion}
-                className="lg:flex lg:min-h-0 lg:flex-1 lg:flex-col"
                 initial={{
                   opacity: 0,
                   y: shouldReduceMotion ? 0 : 24,

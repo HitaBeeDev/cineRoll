@@ -19,6 +19,7 @@ import { formatRuntime } from "@/lib/format";
 import { trackEvent } from "@/lib/analytics";
 import { cn } from "@/lib/utils";
 import type { RollFilm } from "@/lib/api";
+import type { AwardRecord } from "@cineroll/types";
 
 export function FilmCard({
   film,
@@ -60,6 +61,7 @@ export function FilmCard({
   const posterUrl = film.posterUrl;
   const backdropUrl = film.backdropUrl;
   const awardHighlights = getAwardHighlights(film);
+  const recognition = getRecognitionRecords(film);
 
   async function shareFilm() {
     const path = `/film/${film.slug}?from=roll`;
@@ -82,7 +84,7 @@ export function FilmCard({
   }
 
   return (
-    <div className="flex flex-col lg:h-full">
+    <div className="flex flex-col">
       {/* Channel pill */}
       <div className="flex items-center -mx-1 -mt-1 mb-2">
         <span className="inline-flex items-center rounded-full border border-[#e8453c]/22 bg-[#e8453c]/10 px-3 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#e8453c]">
@@ -217,7 +219,7 @@ export function FilmCard({
       </div>
 
       {/* Content below the header */}
-      <div className="flex flex-col gap-2 px-4 pb-4 pt-3 lg:flex-1">
+      <div className="flex flex-col gap-2 px-4 pb-4 pt-3">
         {/* Plot */}
         {film.plot && (
           <p className="line-clamp-3 text-xs leading-relaxed text-[#888899]">
@@ -237,10 +239,17 @@ export function FilmCard({
           />
         </div>
 
+        {/* Recognized for — the itemised award record. The header badge gives the
+            at-a-glance count; this is the receipts, and it's the film's own data
+            earning the space the column would otherwise leave empty. */}
+        {recognition.records.length > 0 && (
+          <RecognizedFor records={recognition.records} more={recognition.more} />
+        )}
+
         {/* Maintenance tier — deliberately demoted below a hairline divider so it
             reads as utility, not as a peer card competing with the result. No
             border/fill: the reward content above owns the focal weight. */}
-        <section className="mt-4 border-t border-[#17171f] pt-4 lg:mt-auto">
+        <section className="mt-4 border-t border-[#17171f] pt-4">
           <div className="mb-2 flex items-center justify-between gap-3">
             <h3 className="font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.2em] text-[#888899]">
               Tune future rolls
@@ -487,6 +496,78 @@ function getAwardHighlights(film: RollFilm): AwardHighlight[] {
     });
   }
   return highlights;
+}
+
+const RECOGNITION_CAP = 4;
+
+const AWARD_BODY_LABEL: Record<AwardRecord["awardBody"], string> = {
+  oscar: "Oscar",
+  goldenglobe: "Golden Globe",
+  cannes: "Cannes",
+  berlin: "Berlinale",
+};
+
+/** Flatten the per-body category arrays into one wins-first, recent-first ledger.
+ *  Capped so the roll card stays scannable; the rest lives on the detail page. */
+function getRecognitionRecords(film: RollFilm): {
+  records: AwardRecord[];
+  more: number;
+} {
+  const all = [
+    ...film.oscarCategories,
+    ...film.ggCategories,
+    ...film.cannesCategories,
+  ].sort((a, b) => Number(b.won) - Number(a.won) || b.awardYear - a.awardYear);
+  return {
+    records: all.slice(0, RECOGNITION_CAP),
+    more: Math.max(0, all.length - RECOGNITION_CAP),
+  };
+}
+
+function RecognizedFor({
+  records,
+  more,
+}: {
+  records: AwardRecord[];
+  more: number;
+}) {
+  return (
+    <section className="mt-2">
+      <h3 className="font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.2em] text-[#888899]">
+        Recognized for
+      </h3>
+      <ul className="mt-1.5 flex flex-col">
+        {records.map((rec, i) => (
+          <li
+            key={`${rec.awardBody}-${rec.awardYear}-${rec.category}-${i}`}
+            className="flex items-center justify-between gap-3 border-t border-[#17171f] py-2 first:border-t-0"
+          >
+            <span className="min-w-0">
+              <span className="block truncate text-xs text-[#cfcfda]">
+                {rec.category}
+              </span>
+              <span className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-wide text-[#6c6c80]">
+                {AWARD_BODY_LABEL[rec.awardBody]} · {rec.awardYear}
+              </span>
+            </span>
+            <span
+              className={cn(
+                "shrink-0 font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.14em]",
+                rec.won ? "text-[#D4AF37]" : "text-[#6c6c80]",
+              )}
+            >
+              {rec.won ? "Won" : "Nominated"}
+            </span>
+          </li>
+        ))}
+      </ul>
+      {more > 0 && (
+        <p className="mt-1.5 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-wide text-[#6c6c80]">
+          +{more} more on the detail page
+        </p>
+      )}
+    </section>
+  );
 }
 
 function QuickActionButton({
