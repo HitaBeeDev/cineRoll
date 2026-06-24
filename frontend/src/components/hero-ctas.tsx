@@ -41,7 +41,7 @@ export function HeroCTAs({
         label=""
         ariaLabel="Share this film"
         iconClassName="h-4 w-4"
-        className="flex h-12 w-12 items-center justify-center border border-white/12 bg-white/[0.04] text-white/55 backdrop-blur-sm transition-colors hover:bg-white/10 hover:text-white/85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
+        className="flex h-12 w-12 items-center justify-center border border-white/10 bg-transparent text-white/45 backdrop-blur-sm transition-colors hover:border-white/25 hover:bg-white/[0.06] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
       />
     </div>
   );

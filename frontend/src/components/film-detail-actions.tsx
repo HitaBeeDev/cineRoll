@@ -9,16 +9,18 @@ import { cn } from "@/lib/utils";
 const HERO_BUTTON_BASE =
   "flex h-12 items-center border font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.2em] backdrop-blur-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] disabled:cursor-not-allowed disabled:opacity-60";
 
-// Secondary action (Watchlist): brighter than the quiet icon row, clearly the
-// next-most-important choice after the primary "Watch Trailer".
+// Secondary action (Watchlist): a solid, clearly-bordered surface — distinctly
+// the next-most-important choice after the primary "Watch Trailer", and a step
+// above the ghost icon cluster.
 const SECONDARY_BUTTON = `${HERO_BUTTON_BASE} gap-2 px-5`;
 const SECONDARY_IDLE =
-  "border-white/25 bg-white/10 text-white/85 hover:bg-white/15 hover:text-white";
+  "border-white/30 bg-white/[0.12] text-white hover:border-white/45 hover:bg-white/[0.18]";
 
-// Tertiary, low-intent actions (Watched / Not Interested): icon-only squares.
+// Tertiary, low-intent actions (Watched / Not Interested): ghost icon squares,
+// near-invisible until hover so they sit clearly below the labelled buttons.
 const ICON_BUTTON = `${HERO_BUTTON_BASE} w-12 justify-center`;
 const ICON_IDLE =
-  "border-white/12 bg-white/[0.04] text-white/55 hover:bg-white/10 hover:text-white/85";
+  "border-white/10 bg-transparent text-white/45 hover:border-white/25 hover:bg-white/[0.06] hover:text-white";
 
 /**
  * The post-roll action set, rendered on the film detail hero. Shares all
@@ -77,6 +79,12 @@ export function FilmDetailActions({
         />
         {inWatchlist ? "Saved" : "Watchlist"}
       </button>
+
+      {/* Divider: separates the labelled CTAs from the utility icon cluster */}
+      <span
+        aria-hidden
+        className="hidden h-7 w-px self-center bg-white/12 sm:block"
+      />
 
       {/* Tertiary icon row: lower-intent actions, visually quiet */}
       <div className="flex items-center gap-2">
