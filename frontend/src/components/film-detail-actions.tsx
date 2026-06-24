@@ -7,10 +7,18 @@ import { useFilmActions } from "@/hooks/useFilmActions";
 import { cn } from "@/lib/utils";
 
 const HERO_BUTTON_BASE =
-  "flex h-12 items-center gap-2 border px-5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.2em] backdrop-blur-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] disabled:cursor-not-allowed disabled:opacity-60";
+  "flex h-12 items-center border font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.2em] backdrop-blur-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] disabled:cursor-not-allowed disabled:opacity-60";
 
-const HERO_BUTTON_IDLE =
-  "border-white/14 bg-white/6 text-white/50 hover:bg-white/10 hover:text-white/75";
+// Secondary action (Watchlist): brighter than the quiet icon row, clearly the
+// next-most-important choice after the primary "Watch Trailer".
+const SECONDARY_BUTTON = `${HERO_BUTTON_BASE} gap-2 px-5`;
+const SECONDARY_IDLE =
+  "border-white/25 bg-white/10 text-white/85 hover:bg-white/15 hover:text-white";
+
+// Tertiary, low-intent actions (Watched / Not Interested): icon-only squares.
+const ICON_BUTTON = `${HERO_BUTTON_BASE} w-12 justify-center`;
+const ICON_IDLE =
+  "border-white/12 bg-white/[0.04] text-white/45 hover:bg-white/10 hover:text-white/80";
 
 /**
  * The post-roll action set, rendered on the film detail hero. Shares all
@@ -49,16 +57,17 @@ export function FilmDetailActions({
 
   return (
     <>
+      {/* Secondary: save to watchlist */}
       <button
         type="button"
         aria-pressed={inWatchlist}
         disabled={watchlistPending}
         onClick={() => void toggleWatchlist()}
         className={cn(
-          HERO_BUTTON_BASE,
+          SECONDARY_BUTTON,
           inWatchlist
             ? "border-[#e8453c]/50 bg-[#e8453c]/15 text-white"
-            : HERO_BUTTON_IDLE,
+            : SECONDARY_IDLE,
         )}
       >
         <Bookmark
@@ -69,37 +78,42 @@ export function FilmDetailActions({
         {inWatchlist ? "Saved" : "Watchlist"}
       </button>
 
-      <button
-        type="button"
-        aria-pressed={action === "watched"}
-        disabled={pending}
-        onClick={() => void saveDecision("watched", false)}
-        className={cn(
-          HERO_BUTTON_BASE,
-          action === "watched"
-            ? "border-[#3fb950]/50 bg-[#3fb950]/15 text-[#7ee787]"
-            : HERO_BUTTON_IDLE,
-        )}
-      >
-        <Check className="h-3.5 w-3.5" aria-hidden />
-        {action === "watched" ? "Watched ✓" : "Watched"}
-      </button>
+      {/* Tertiary icon row: lower-intent actions, visually quiet */}
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          aria-pressed={action === "watched"}
+          aria-label={action === "watched" ? "Marked watched" : "Mark watched"}
+          title={action === "watched" ? "Watched" : "Mark watched"}
+          disabled={pending}
+          onClick={() => void saveDecision("watched", false)}
+          className={cn(
+            ICON_BUTTON,
+            action === "watched"
+              ? "border-[#3fb950]/50 bg-[#3fb950]/15 text-[#7ee787]"
+              : ICON_IDLE,
+          )}
+        >
+          <Check className="h-4 w-4" aria-hidden />
+        </button>
 
-      <button
-        type="button"
-        aria-pressed={action === "not-interested"}
-        disabled={pending}
-        onClick={() => void saveDecision("not-interested", true)}
-        className={cn(
-          HERO_BUTTON_BASE,
-          action === "not-interested"
-            ? "border-[#e8453c]/50 bg-[#e8453c]/12 text-[#e8453c]"
-            : HERO_BUTTON_IDLE,
-        )}
-      >
-        <ThumbsDown className="h-3.5 w-3.5" aria-hidden />
-        {action === "not-interested" ? "Hidden" : "Not Interested"}
-      </button>
+        <button
+          type="button"
+          aria-pressed={action === "not-interested"}
+          aria-label={action === "not-interested" ? "Hidden" : "Not interested"}
+          title={action === "not-interested" ? "Hidden" : "Not interested"}
+          disabled={pending}
+          onClick={() => void saveDecision("not-interested", true)}
+          className={cn(
+            ICON_BUTTON,
+            action === "not-interested"
+              ? "border-[#e8453c]/50 bg-[#e8453c]/12 text-[#e8453c]"
+              : ICON_IDLE,
+          )}
+        >
+          <ThumbsDown className="h-4 w-4" aria-hidden />
+        </button>
+      </div>
 
       {/* One-tap 👍 / 👎 prompt, revealed after the film is marked watched. */}
       <AnimatePresence initial={false}>

@@ -410,7 +410,10 @@ export default async function FilmPage({
                     url={`${SITE_URL}/film/${film.slug}`}
                     title={`Watch ${displayTitle(film.title)} tonight — CineRoll picked it`}
                     caption={buildShareCaption(film)}
-                    className="flex h-12 items-center gap-2 border border-white/14 bg-white/6 px-5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.2em] text-white/50 backdrop-blur-sm transition-colors hover:bg-white/10 hover:text-white/75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
+                    label=""
+                    ariaLabel="Share this film"
+                    iconClassName="h-4 w-4"
+                    className="flex h-12 w-12 items-center justify-center border border-white/12 bg-white/[0.04] text-white/45 backdrop-blur-sm transition-colors hover:bg-white/10 hover:text-white/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
                   />
                 </div>
               </div>

@@ -9,6 +9,7 @@ interface ShareButtonProps {
   title: string;
   caption?: string | undefined;
   label?: string | undefined;
+  ariaLabel?: string | undefined;
   className?: string | undefined;
   iconClassName?: string | undefined;
 }
@@ -18,6 +19,7 @@ export function ShareButton({
   title,
   caption,
   label = "Share Tonight's Pick",
+  ariaLabel,
   className,
   iconClassName = "h-3.5 w-3.5",
 }: ShareButtonProps) {
@@ -46,13 +48,19 @@ export function ShareButton({
 
   return (
     <>
-      <button type="button" onClick={handleShare} className={className}>
+      <button
+        type="button"
+        onClick={handleShare}
+        className={className}
+        aria-label={ariaLabel ?? (label || undefined)}
+        title={ariaLabel ?? (label || undefined)}
+      >
         {copied ? (
           <Check className={iconClassName} aria-hidden />
         ) : (
           <Share2 className={iconClassName} aria-hidden />
         )}
-        {copied ? "Copied!" : label}
+        {label ? (copied ? "Copied!" : label) : null}
       </button>
 
       {copied &&
