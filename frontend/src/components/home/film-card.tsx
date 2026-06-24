@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import {
+  Award,
   Bookmark,
   Eye,
   EyeOff,
@@ -182,6 +183,13 @@ export function FilmCard({
           </p>
         )}
 
+        {/* Recognition — the award record is why this film is in CineRoll at all,
+            so it leads as the headline credential directly under the identity,
+            above the plot and the ratings that merely support it. */}
+        {awardHighlights.length > 0 && (
+          <AwardsPanel highlights={awardHighlights} />
+        )}
+
         {/* Plot */}
         {film.plot && (
           <p className="line-clamp-3 text-xs leading-relaxed text-[#888899]">
@@ -189,7 +197,7 @@ export function FilmCard({
           </p>
         )}
 
-        {/* Score boxes — awards live in the Recognition ledger below. */}
+        {/* Score boxes — supporting evidence beneath the award headline. */}
         <div className="grid grid-cols-2 gap-2 mt-2">
           <StatBox
             label="IMDb"
@@ -200,10 +208,6 @@ export function FilmCard({
             value={film.rtScore != null ? `${film.rtScore}%` : "—"}
           />
         </div>
-
-        {awardHighlights.length > 0 && (
-          <AwardsPanel highlights={awardHighlights} />
-        )}
 
         {/* Maintenance tier — deliberately demoted below a hairline divider so it
             reads as utility, not as a peer card competing with the result. No
@@ -334,8 +338,9 @@ type AwardHighlight = {
 
 function AwardsPanel({ highlights }: { highlights: AwardHighlight[] }) {
   return (
-    <section className="rounded-xl border border-[#1e1e2a] bg-[#0b0b15] px-3.5 py-3">
-      <h3 className="font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.28em] text-[#D4AF37]">
+    <section className="mt-1 rounded-xl border border-[#D4AF37]/25 bg-gradient-to-b from-[#D4AF37]/[0.07] to-transparent px-3.5 py-3 shadow-[0_0_24px_rgba(212,175,55,0.06)]">
+      <h3 className="flex items-center gap-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.28em] text-[#D4AF37]">
+        <Award className="h-3.5 w-3.5" aria-hidden />
         Recognition
       </h3>
 
