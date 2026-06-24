@@ -244,6 +244,19 @@ export default async function FilmPage({
   // crisp poster card on the right.
   const heroImageIsPoster = !film.backdropUrl && film.posterUrl != null;
 
+  // Scrim strategy is source-aware. A real backdrop is the film's most
+  // emotional asset, so we keep the dark concentrated over the left (text
+  // zone) and let the scene emerge through the center-right instead of
+  // burying it — this turns the old dead gulf between the copy and the poster
+  // into the cinematic focal point. A poster used as a fallback backdrop is
+  // just a blurred duplicate of the poster card, so we darken it harder to
+  // keep it ambient rather than competing.
+  const heroScrim = heroImageIsPoster
+    ? `linear-gradient(105deg, rgba(7,7,11,0.97) 0%, rgba(7,7,11,0.92) 35%, rgba(7,7,11,0.72) 60%, rgba(7,7,11,0.45) 100%),
+       radial-gradient(ellipse 70% 80% at 22% 50%, rgba(7,7,11,0.55), transparent 62%)`
+    : `linear-gradient(100deg, rgba(7,7,11,0.94) 0%, rgba(7,7,11,0.80) 26%, rgba(7,7,11,0.38) 52%, rgba(7,7,11,0.02) 80%),
+       radial-gradient(ellipse 55% 75% at 16% 50%, rgba(7,7,11,0.42), transparent 60%)`;
+
   return (
     <main
       className="min-h-screen bg-[#07070b] text-[#f4f4f5]"
@@ -266,7 +279,7 @@ export default async function FilmPage({
               "object-cover object-center",
               heroImageIsPoster
                 ? "scale-110 opacity-50 blur-2xl saturate-[0.9]"
-                : "opacity-[0.65] saturate-[1.2]",
+                : "opacity-[0.82] saturate-[1.15]",
             )}
           />
         )}
@@ -276,8 +289,7 @@ export default async function FilmPage({
           className="pointer-events-none absolute inset-0"
           style={{
             background: `
-              linear-gradient(105deg, rgba(7,7,11,0.97) 0%, rgba(7,7,11,0.90) 35%, rgba(7,7,11,0.58) 58%, rgba(7,7,11,0.06) 100%),
-              radial-gradient(ellipse 70% 80% at 22% 50%, rgba(7,7,11,0.55), transparent 62%),
+              ${heroScrim},
               linear-gradient(to top, rgba(7,7,11,1) 0%, rgba(7,7,11,0.90) 12%, rgba(7,7,11,0.0) 46%),
               radial-gradient(ellipse 60% 70% at 76% 20%, ${accent}38, transparent 65%),
               radial-gradient(ellipse 35% 25% at 15% 95%, ${accent}12, transparent 70%)
