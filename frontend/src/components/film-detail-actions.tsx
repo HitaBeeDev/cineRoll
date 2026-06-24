@@ -18,7 +18,7 @@ const SECONDARY_IDLE =
 // Tertiary, low-intent actions (Watched / Not Interested): icon-only squares.
 const ICON_BUTTON = `${HERO_BUTTON_BASE} w-12 justify-center`;
 const ICON_IDLE =
-  "border-white/12 bg-white/[0.04] text-white/45 hover:bg-white/10 hover:text-white/80";
+  "border-white/12 bg-white/[0.04] text-white/55 hover:bg-white/10 hover:text-white/85";
 
 /**
  * The post-roll action set, rendered on the film detail hero. Shares all

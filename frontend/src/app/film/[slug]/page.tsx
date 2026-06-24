@@ -323,7 +323,7 @@ export default async function FilmPage({
                   {film.director && (
                     <Link
                       href={`/person/${nameToSlug(film.director)}`}
-                      className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.36em] text-white/35 transition-colors hover:text-white/65"
+                      className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.36em] text-white/60 transition-colors hover:text-white/90"
                     >
                       {film.director}
                     </Link>
@@ -340,7 +340,7 @@ export default async function FilmPage({
 
                 {/* Original title */}
                 {film.originalTitle && film.originalTitle !== film.title && (
-                  <p className="mt-4 font-[family-name:var(--font-display)] text-xl italic text-white/30">
+                  <p className="mt-4 font-[family-name:var(--font-display)] text-xl italic text-white/55">
                     {film.originalTitle}
                   </p>
                 )}
@@ -371,7 +371,7 @@ export default async function FilmPage({
                   <div className="mt-8 flex flex-wrap items-start gap-8">
                     {film.imdbRating != null && (
                       <div>
-                        <p className="mb-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.5em] text-white/32">
+                        <p className="mb-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.5em] text-white/55">
                           IMDb
                         </p>
                         <p className="font-[family-name:var(--font-display)] text-[2.5rem] font-bold leading-none text-[#F8F8F4]">
@@ -381,7 +381,7 @@ export default async function FilmPage({
                     )}
                     {film.rtScore != null && (
                       <div>
-                        <p className="mb-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.5em] text-white/32">
+                        <p className="mb-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.5em] text-white/55">
                           RT
                         </p>
                         <p className="font-[family-name:var(--font-display)] text-[2.5rem] font-bold leading-none text-[#F8F8F4]">
@@ -413,7 +413,7 @@ export default async function FilmPage({
                     label=""
                     ariaLabel="Share this film"
                     iconClassName="h-4 w-4"
-                    className="flex h-12 w-12 items-center justify-center border border-white/12 bg-white/[0.04] text-white/45 backdrop-blur-sm transition-colors hover:bg-white/10 hover:text-white/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
+                    className="flex h-12 w-12 items-center justify-center border border-white/12 bg-white/[0.04] text-white/55 backdrop-blur-sm transition-colors hover:bg-white/10 hover:text-white/85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
                   />
                 </div>
               </div>
@@ -688,7 +688,7 @@ function HeroPill({
 }) {
   return (
     <span
-      className="rounded-full border border-white/14 bg-black/35 px-3 py-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-white/52 backdrop-blur-sm"
+      className="rounded-full border border-white/14 bg-black/35 px-3 py-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-white/60 backdrop-blur-sm"
       style={style}
     >
       {children}
