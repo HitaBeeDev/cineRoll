@@ -12,6 +12,7 @@ import { WhereToWatch } from "@/components/where-to-watch";
 import { SimilarFilmsSlider } from "@/components/similar-films-slider";
 import { ShareBanner } from "@/components/share-banner";
 import { HeroRatings } from "@/components/hero-ratings";
+import { HeroAwards } from "@/components/hero-awards";
 import { HeroCTAs } from "@/components/hero-ctas";
 import { PosterCard } from "@/components/poster-card";
 import { FilmRatingPanel } from "@/components/film-rating-panel";
@@ -335,6 +336,9 @@ export default async function FilmPage({
                     {film.originalTitle}
                   </p>
                 )}
+
+                {/* Awards: CineRoll's headline value proposition */}
+                {hasAwards && <HeroAwards ceremonies={awardSummary.ceremonies} />}
 
                 {/* Specs: factual metadata as a lightweight dotted text line */}
                 <div className="mt-6 flex flex-wrap items-center gap-x-2.5 gap-y-1.5 font-[family-name:var(--font-geist-mono)] text-[12px] uppercase tracking-[0.18em] text-white/60">
