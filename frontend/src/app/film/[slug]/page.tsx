@@ -336,26 +336,39 @@ export default async function FilmPage({
                   </p>
                 )}
 
-                {/* Metadata pills */}
-                <div className="mt-6 flex flex-wrap items-center gap-2">
-                  <HeroPill>{film.year}</HeroPill>
-                  {formattedRuntime && <HeroPill>{formattedRuntime}</HeroPill>}
-                  {film.language && <HeroPill>{film.language}</HeroPill>}
+                {/* Specs: factual metadata as a lightweight dotted text line */}
+                <div className="mt-6 flex flex-wrap items-center gap-x-2.5 gap-y-1.5 font-[family-name:var(--font-geist-mono)] text-[12px] uppercase tracking-[0.18em] text-white/60">
+                  <span>{film.year}</span>
+                  {formattedRuntime && (
+                    <>
+                      <MetaDot />
+                      <span>{formattedRuntime}</span>
+                    </>
+                  )}
+                  {film.language && (
+                    <>
+                      <MetaDot />
+                      <span>{film.language}</span>
+                    </>
+                  )}
                   {film.certificate && (
-                    <HeroPill
-                      style={{
-                        color: accent,
-                        borderColor: `${accent}55`,
-                        backgroundColor: `${accent}12`,
-                      }}
+                    <span
+                      className="ml-0.5 rounded border px-1.5 py-0.5 text-[10px] font-bold leading-none tracking-[0.16em]"
+                      style={{ color: accent, borderColor: `${accent}66` }}
                     >
                       {film.certificate}
-                    </HeroPill>
+                    </span>
                   )}
-                  {film.genres.slice(0, 2).map((g) => (
-                    <HeroPill key={g}>{g}</HeroPill>
-                  ))}
                 </div>
+
+                {/* Tags: genres as chips — the only pills, so they read as tags */}
+                {film.genres.length > 0 && (
+                  <div className="mt-4 flex flex-wrap items-center gap-2">
+                    {film.genres.slice(0, 3).map((g) => (
+                      <HeroPill key={g}>{g}</HeroPill>
+                    ))}
+                  </div>
+                )}
 
                 <HeroRatings
                   imdbRating={film.imdbRating}
@@ -622,7 +635,16 @@ export default async function FilmPage({
   );
 }
 
-// ── Hero pill ─────────────────────────────────────────────────────────────────
+// ── Hero meta ─────────────────────────────────────────────────────────────────
+
+/** Middot separator for the factual spec line (year · runtime · language). */
+function MetaDot() {
+  return (
+    <span aria-hidden className="text-white/25">
+      ·
+    </span>
+  );
+}
 
 function HeroPill({
   children,
