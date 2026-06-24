@@ -2,12 +2,7 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import type { CSSProperties, ReactNode } from "react";
-import {
-  ChevronDown,
-  ExternalLink,
-  Play,
-  Sparkles,
-} from "lucide-react";
+import { ChevronDown, ExternalLink, Sparkles } from "lucide-react";
 import type { Film, AwardRecord, CastMember } from "@cineroll/types";
 import { cn, nameToSlug } from "@/lib/utils";
 import { formatRuntime } from "@/lib/format";
@@ -15,9 +10,10 @@ import { AppHeader } from "@/components/app-header";
 import { FilmTrailer } from "@/components/film-trailer";
 import { WhereToWatch } from "@/components/where-to-watch";
 import { SimilarFilmsSlider } from "@/components/similar-films-slider";
-import { ShareButton } from "@/components/share-button";
 import { ShareBanner } from "@/components/share-banner";
-import { FilmDetailActions } from "@/components/film-detail-actions";
+import { HeroRatings } from "@/components/hero-ratings";
+import { HeroCTAs } from "@/components/hero-ctas";
+import { PosterCard } from "@/components/poster-card";
 import { FilmRatingPanel } from "@/components/film-rating-panel";
 import { FilmCommentsSection } from "@/components/film-comments-section";
 
@@ -366,79 +362,28 @@ export default async function FilmPage({
                   ))}
                 </div>
 
-                {/* Ratings — only render the scores we actually have */}
-                {(film.imdbRating != null || film.rtScore != null) && (
-                  <div className="mt-8 flex flex-wrap items-start gap-8">
-                    {film.imdbRating != null && (
-                      <div>
-                        <p className="mb-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.5em] text-white/55">
-                          IMDb
-                        </p>
-                        <p className="font-[family-name:var(--font-display)] text-[2.5rem] font-bold leading-none text-[#F8F8F4]">
-                          {film.imdbRating.toFixed(1)}
-                        </p>
-                      </div>
-                    )}
-                    {film.rtScore != null && (
-                      <div>
-                        <p className="mb-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.5em] text-white/55">
-                          RT
-                        </p>
-                        <p className="font-[family-name:var(--font-display)] text-[2.5rem] font-bold leading-none text-[#F8F8F4]">
-                          {film.rtScore}%
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                )}
-                {/* CTAs */}
-                <div className="mt-9 flex flex-wrap items-center gap-3">
-                  {film.trailerUrl && (
-                    <a
-                      href="#trailer"
-                      className="flex items-center gap-2.5 bg-[#e8453c] px-7 py-3.5 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.22em] text-white shadow-lg shadow-[#e8453c]/20 transition-all hover:bg-[#d5342b] hover:shadow-[#e8453c]/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
-                    >
-                      <Play className="h-3.5 w-3.5 fill-current" aria-hidden />
-                      Watch Trailer
-                    </a>
-                  )}
-                  <FilmDetailActions
-                    filmId={film.id}
-                    filmTitle={displayTitle(film.title)}
-                  />
-                  <ShareButton
-                    url={`${SITE_URL}/film/${film.slug}`}
-                    title={`Watch ${displayTitle(film.title)} tonight — CineRoll picked it`}
-                    caption={buildShareCaption(film)}
-                    label=""
-                    ariaLabel="Share this film"
-                    iconClassName="h-4 w-4"
-                    className="flex h-12 w-12 items-center justify-center border border-white/12 bg-white/[0.04] text-white/55 backdrop-blur-sm transition-colors hover:bg-white/10 hover:text-white/85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
-                  />
-                </div>
+                <HeroRatings
+                  imdbRating={film.imdbRating}
+                  rtScore={film.rtScore}
+                />
+
+                <HeroCTAs
+                  trailerUrl={film.trailerUrl}
+                  filmId={film.id}
+                  filmTitle={displayTitle(film.title)}
+                  shareUrl={`${SITE_URL}/film/${film.slug}`}
+                  shareTitle={`Watch ${displayTitle(film.title)} tonight — CineRoll picked it`}
+                  shareCaption={buildShareCaption(film)}
+                />
               </div>
 
               {/* ── Right: Poster card (desktop only) ──────────────── */}
               {film.posterUrl && (
-                <div className="hidden shrink-0 lg:block">
-                  <div
-                    className="relative h-[460px] w-[307px] overflow-hidden"
-                    style={{
-                      boxShadow: `0 48px 100px rgba(0,0,0,0.92), 0 0 0 1px rgba(255,255,255,0.10), 0 20px 60px ${accent}40`,
-                    }}
-                  >
-                    <Image
-                      src={film.posterUrl}
-                      alt={`${film.title} poster`}
-                      fill
-                      sizes="307px"
-                      className="object-cover"
-                      priority
-                    />
-                    {/* Poster edge shimmer */}
-                    <div className="absolute inset-0 ring-1 ring-inset ring-white/10" />
-                  </div>
-                </div>
+                <PosterCard
+                  posterUrl={film.posterUrl}
+                  title={film.title}
+                  accent={accent}
+                />
               )}
             </div>
           </div>
@@ -747,7 +692,7 @@ function AwardSummaryCard({
     <article className="overflow-hidden border border-[#1e1e30]">
       <div className="flex items-center justify-between border-b border-[#1a1a28] bg-[#0d0d18] px-5 py-4">
         <div>
-          <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.55em] text-[#6868888]">
+          <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.55em] text-[#686888]">
             {ceremonyCode}
           </p>
           <h3 className="mt-1.5 font-[family-name:var(--font-display)] text-lg font-bold leading-tight text-[#e0e0f0]">
@@ -767,7 +712,7 @@ function AwardSummaryCard({
             </span>
           </div>
           <div className="text-right">
-            <span className="block font-[family-name:var(--font-display)] text-xl font-bold leading-none tabular-nums text-[#6868888]">
+            <span className="block font-[family-name:var(--font-display)] text-xl font-bold leading-none tabular-nums text-[#686888]">
               {nominations}
             </span>
             <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.4em] text-[#686888]">
