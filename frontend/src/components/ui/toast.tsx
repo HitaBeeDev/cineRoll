@@ -35,13 +35,13 @@ const icons: Record<ToastVariant, React.ReactNode> = {
 };
 
 const borderAccents: Record<ToastVariant, string> = {
-  default: "border-[#1e1e2a]",
-  success: "border-[#e8453c]/35",
+  default: "border-[#34344a]",
+  success: "border-[#3fb950]/40",
   error: "border-[#e8453c]/45",
 };
 
 const accentBars: Record<ToastVariant, string> = {
-  default: "bg-[#3a3a52]",
+  default: "bg-[#6a6a85]",
   success: "bg-[#3fb950]",
   error: "bg-[#e8453c]",
 };
@@ -106,7 +106,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
               duration={duration}
               className={cn(
                 "group pointer-events-auto relative flex w-full items-start gap-3 overflow-hidden",
-                "rounded-xl border bg-[#0b0b14] py-3.5 pl-5 pr-3 shadow-[0_20px_60px_rgba(0,0,0,0.5)]",
+                "rounded-xl border bg-[#17171f] py-3.5 pl-5 pr-3 shadow-[0_24px_70px_rgba(0,0,0,0.75)] ring-1 ring-black/40",
                 "transition-all duration-300",
                 "data-[state=open]:opacity-100 data-[state=open]:translate-x-0",
                 "data-[state=closed]:opacity-0 data-[state=closed]:translate-x-3",
