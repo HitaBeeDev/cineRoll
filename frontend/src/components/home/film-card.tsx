@@ -90,15 +90,13 @@ export function FilmCard({
         </span>
       </div>
 
-      {/* Poster stage — the poster is the film's single most recognizable asset,
-          so it's the hero here, shown at its native 2:3 over a blurred, dimmed
-          wash of the backdrop for cinematic depth. Backdrop is ambient, not the
-          subject. Falls back to a full backdrop, then to a placeholder. */}
-      <div
-        className="relative w-full overflow-hidden rounded-xl"
-        style={{ aspectRatio: "16/10" }}
-      >
-        {/* Ambient wash */}
+      {/* Verdict header — a horizontal composition that fits in one viewport:
+          the poster anchors the left as a large 2:3 slab, with the identity
+          (meta → title → director → recognition) stacked beside it. The whole
+          payoff (poster + title + recognition) is visible at a glance instead of
+          stacked into a scroll. A strongly-dimmed blurred backdrop sits behind
+          for ambient depth; the big poster dominates it so it recedes. */}
+      <div className="relative overflow-hidden rounded-xl">
         {backdropUrl ? (
           <Image
             src={backdropUrl}
@@ -106,19 +104,21 @@ export function FilmCard({
             aria-hidden
             fill
             sizes="(max-width: 1024px) 100vw, 500px"
-            className="scale-110 object-cover opacity-40 blur-2xl"
+            className="scale-110 object-cover opacity-25 blur-2xl"
           />
         ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a2e] to-[#0a0a18]" />
+          <div className="absolute inset-0 bg-gradient-to-br from-[#15151f] to-[#0a0a14]" />
         )}
-        <div className="pointer-events-none absolute inset-0 bg-[#09090f]/55" />
+        <div className="pointer-events-none absolute inset-0 bg-[#09090f]/75" />
 
-        {/* Poster (hero) — zoom-settles into focus a beat after the card lands,
-            so the iconic asset reads as the machine snapping onto this pick. */}
-        {posterUrl ? (
+        <div className="relative flex gap-4 p-4">
+          {/* Poster anchor (left) — zoom-settles into focus a beat after the card
+              lands, so the iconic asset reads as the machine snapping onto this
+              pick. Falls back to backdrop, then a placeholder. */}
           <motion.div
-            className="absolute inset-0 flex items-center justify-center p-5"
-            initial={shouldReduceMotion ? false : { scale: 1.08, opacity: 0 }}
+            className="relative w-[42%] max-w-[180px] shrink-0 self-start overflow-hidden rounded-lg shadow-[0_16px_44px_rgba(0,0,0,0.6)] ring-1 ring-white/5"
+            style={{ aspectRatio: "2/3" }}
+            initial={shouldReduceMotion ? false : { scale: 1.06, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={
               shouldReduceMotion
@@ -126,70 +126,70 @@ export function FilmCard({
                 : { type: "spring", stiffness: 230, damping: 20, delay: 0.06 }
             }
           >
-            <div className="relative h-full" style={{ aspectRatio: "2/3" }}>
+            {posterUrl ? (
               <Image
                 src={posterUrl}
                 alt={film.title}
                 fill
-                sizes="(max-width: 1024px) 60vw, 240px"
-                className="rounded-lg object-cover shadow-[0_16px_44px_rgba(0,0,0,0.6)] ring-1 ring-white/5"
+                sizes="(max-width: 1024px) 45vw, 200px"
+                className="object-cover"
                 priority
               />
-            </div>
+            ) : backdropUrl ? (
+              <Image
+                src={backdropUrl}
+                alt={film.title}
+                fill
+                sizes="(max-width: 1024px) 45vw, 200px"
+                className="object-cover"
+                priority
+              />
+            ) : (
+              <div className="flex h-full items-center justify-center bg-gradient-to-br from-[#1a1a2e] to-[#0a0a18]">
+                <span className="font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-widest text-[#888899]">
+                  No image
+                </span>
+              </div>
+            )}
           </motion.div>
-        ) : backdropUrl ? (
-          // No poster: fall back to the backdrop as the subject (sharp, full).
-          <Image
-            src={backdropUrl}
-            alt={film.title}
-            fill
-            sizes="(max-width: 1024px) 100vw, 500px"
-            className="object-cover"
-            priority
-          />
-        ) : (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <span className="font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-widest text-[#888899]">
-              No image
-            </span>
+
+          {/* Identity (right) */}
+          <div className="flex min-w-0 flex-1 flex-col gap-2">
+            {/* Year · Runtime · Genre */}
+            <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.2em] text-[#888899]">
+              {film.year}
+              {runtime && ` · ${runtime}`}
+              {genre && ` · ${genre}`}
+            </p>
+
+            {/* Title — the payoff of the roll, at display scale so it reads as
+                the loudest element in the result column. */}
+            <h2
+              className="font-[family-name:var(--font-display)] font-bold leading-[0.95] tracking-tight text-[#F5F5F0]"
+              style={{ fontSize: "clamp(1.85rem, 2.8vw, 2.85rem)" }}
+            >
+              {film.title}
+            </h2>
+
+            {/* Director */}
+            {film.director && (
+              <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.2em] text-[#888899]">
+                Dir. {film.director}
+              </p>
+            )}
+
+            {/* Recognition — the award record is why this film is in CineRoll at
+                all, so it leads beside the identity as the headline credential,
+                above the plot and the ratings that merely support it. */}
+            {awardHighlights.length > 0 && (
+              <AwardsPanel highlights={awardHighlights} />
+            )}
           </div>
-        )}
+        </div>
       </div>
 
-      {/* Content */}
-      <div className="flex flex-col gap-2 p-4">
-        {/* Year · Runtime · Genre */}
-        <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.2em] text-[#888899]">
-          {film.year}
-          {runtime && ` · ${runtime}`}
-          {genre && ` · ${genre}`}
-        </p>
-
-        {/* Title — this is the payoff of the roll, so it lands at display scale
-            and reads as the loudest element in the result column. */}
-        <div className="mt-1">
-          <h2
-            className="font-[family-name:var(--font-display)] font-bold leading-[0.95] tracking-tight text-[#F5F5F0]"
-            style={{ fontSize: "clamp(2.25rem, 3.4vw, 3.5rem)" }}
-          >
-            {film.title}
-          </h2>
-        </div>
-
-        {/* Director */}
-        {film.director && (
-          <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.2em] text-[#888899]">
-            Dir. {film.director}
-          </p>
-        )}
-
-        {/* Recognition — the award record is why this film is in CineRoll at all,
-            so it leads as the headline credential directly under the identity,
-            above the plot and the ratings that merely support it. */}
-        {awardHighlights.length > 0 && (
-          <AwardsPanel highlights={awardHighlights} />
-        )}
-
+      {/* Content below the header */}
+      <div className="flex flex-col gap-2 px-4 pb-4 pt-3">
         {/* Plot */}
         {film.plot && (
           <p className="line-clamp-3 text-xs leading-relaxed text-[#888899]">
