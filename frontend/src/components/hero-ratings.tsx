@@ -9,8 +9,11 @@ const RT_FRESH = "#FA320A";
 const RT_ROTTEN = "#13B25B";
 
 /**
- * Critic scores shown in the film detail hero. Renders nothing when neither
- * score exists, so a missing rating leaves no empty slot.
+ * Critic scores shown in the film detail hero. Rendered as light inline
+ * readouts — not filled cards — so they sit clearly *below* the gold award
+ * band in the visual hierarchy: CineRoll's own award data leads, third-party
+ * scores support. Renders nothing when neither score exists, so a missing
+ * rating leaves no empty slot.
  */
 export function HeroRatings({
   imdbRating,
@@ -24,16 +27,16 @@ export function HeroRatings({
   const rtFresh = rtScore != null && rtScore >= 60;
 
   return (
-    <div className="mt-8 flex flex-wrap items-stretch gap-3">
+    <div className="mt-7 flex flex-wrap items-center gap-x-8 gap-y-4">
       {imdbRating != null && (
-        <ScoreCard
+        <ScoreStat
           accent={IMDB_GOLD}
           source="IMDb"
           value={imdbRating.toFixed(1)}
           suffix="/10"
           icon={
             <Star
-              className="h-4 w-4"
+              className="h-[18px] w-[18px]"
               style={{ fill: IMDB_GOLD, color: IMDB_GOLD }}
               aria-hidden
             />
@@ -41,7 +44,7 @@ export function HeroRatings({
         />
       )}
       {rtScore != null && (
-        <ScoreCard
+        <ScoreStat
           accent={rtFresh ? RT_FRESH : RT_ROTTEN}
           source="Rotten Tomatoes"
           caption={rtFresh ? "Fresh" : "Rotten"}
@@ -54,7 +57,7 @@ export function HeroRatings({
   );
 }
 
-function ScoreCard({
+function ScoreStat({
   accent,
   source,
   caption,
@@ -70,27 +73,22 @@ function ScoreCard({
   icon: ReactNode;
 }) {
   return (
-    <div
-      className="flex items-center gap-3.5 rounded-xl border bg-black/45 px-4 py-3 backdrop-blur-sm"
-      style={{ borderColor: `${accent}40` }}
-    >
-      <div
-        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
-        style={{ background: `${accent}1f` }}
-      >
-        {icon}
-      </div>
+    <div className="flex items-center gap-2.5">
+      <span className="shrink-0">{icon}</span>
       <div className="min-w-0">
         <div className="flex items-baseline gap-1">
-          <span className="font-[family-name:var(--font-display)] text-[2rem] font-bold leading-none text-[#F8F8F4]">
+          <span
+            className="font-[family-name:var(--font-display)] text-[1.6rem] font-bold leading-none text-[#F0F0EC]"
+            style={{ textShadow: "0 1px 16px rgba(0,0,0,0.5)" }}
+          >
             {value}
           </span>
-          <span className="font-[family-name:var(--font-geist-mono)] text-xs text-white/40">
+          <span className="font-[family-name:var(--font-geist-mono)] text-[11px] text-white/40">
             {suffix}
           </span>
         </div>
         <p
-          className="mt-1.5 font-[family-name:var(--font-geist-mono)] text-[10px] font-semibold uppercase tracking-[0.28em]"
+          className="mt-1 font-[family-name:var(--font-geist-mono)] text-[10px] font-semibold uppercase tracking-[0.26em]"
           style={{ color: accent }}
         >
           {source}
@@ -106,7 +104,7 @@ function TomatoGlyph({ color }: { color: string }) {
   return (
     <svg
       viewBox="0 0 24 24"
-      className="h-4 w-4"
+      className="h-[18px] w-[18px]"
       fill="none"
       aria-hidden
     >
