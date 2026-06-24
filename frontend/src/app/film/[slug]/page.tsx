@@ -275,7 +275,8 @@ export default async function FilmPage({
           className="pointer-events-none absolute inset-0"
           style={{
             background: `
-              linear-gradient(105deg, rgba(7,7,11,0.93) 0%, rgba(7,7,11,0.75) 40%, rgba(7,7,11,0.05) 100%),
+              linear-gradient(105deg, rgba(7,7,11,0.97) 0%, rgba(7,7,11,0.90) 35%, rgba(7,7,11,0.58) 58%, rgba(7,7,11,0.06) 100%),
+              radial-gradient(ellipse 70% 80% at 22% 50%, rgba(7,7,11,0.55), transparent 62%),
               linear-gradient(to top, rgba(7,7,11,1) 0%, rgba(7,7,11,0.90) 12%, rgba(7,7,11,0.0) 46%),
               radial-gradient(ellipse 60% 70% at 76% 20%, ${accent}38, transparent 65%),
               radial-gradient(ellipse 35% 25% at 15% 95%, ${accent}12, transparent 70%)
@@ -632,7 +633,7 @@ function HeroPill({
 }) {
   return (
     <span
-      className="rounded-full border border-white/14 bg-black/35 px-3 py-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-white/60 backdrop-blur-sm"
+      className="rounded-full border border-white/20 bg-black/50 px-3 py-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-white/80 backdrop-blur-sm"
       style={style}
     >
       {children}
