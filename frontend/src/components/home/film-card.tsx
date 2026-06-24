@@ -112,46 +112,67 @@ export function FilmCard({
         <div className="pointer-events-none absolute inset-0 bg-[#09090f]/75" />
 
         <div className="relative flex gap-4 p-4">
-          {/* Poster anchor (left) — zoom-settles into focus a beat after the card
-              lands, so the iconic asset reads as the machine snapping onto this
-              pick. Falls back to backdrop, then a placeholder. */}
-          <motion.div
-            className="relative w-[42%] max-w-[180px] shrink-0 self-start overflow-hidden rounded-lg shadow-[0_16px_44px_rgba(0,0,0,0.6)] ring-1 ring-white/5"
+          {/* Poster anchor (left) — links to the film's detail page. It
+              zoom-settles into focus a beat after the card lands, then scales up
+              smoothly on hover/focus. Falls back to backdrop, then a placeholder. */}
+          <Link
+            href={`/film/${film.slug}`}
+            onClick={() => {
+              trackEvent({
+                type: "film_click",
+                filmId: film.id,
+                context: { source: "roll_card_poster", slug: film.slug },
+              });
+            }}
+            aria-label={`View details for ${film.title}`}
+            className="relative w-[42%] max-w-[180px] shrink-0 self-start rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090f]"
             style={{ aspectRatio: "2/3" }}
-            initial={shouldReduceMotion ? false : { scale: 1.06, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={
-              shouldReduceMotion
-                ? { duration: 0 }
-                : { type: "spring", stiffness: 230, damping: 20, delay: 0.06 }
-            }
           >
-            {posterUrl ? (
-              <Image
-                src={posterUrl}
-                alt={film.title}
-                fill
-                sizes="(max-width: 1024px) 45vw, 200px"
-                className="object-cover"
-                priority
-              />
-            ) : backdropUrl ? (
-              <Image
-                src={backdropUrl}
-                alt={film.title}
-                fill
-                sizes="(max-width: 1024px) 45vw, 200px"
-                className="object-cover"
-                priority
-              />
-            ) : (
-              <div className="flex h-full items-center justify-center bg-gradient-to-br from-[#1a1a2e] to-[#0a0a18]">
-                <span className="font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-widest text-[#888899]">
-                  No image
-                </span>
-              </div>
-            )}
-          </motion.div>
+            <motion.div
+              className="relative h-full w-full overflow-hidden rounded-lg shadow-[0_16px_44px_rgba(0,0,0,0.6)] ring-1 ring-white/5"
+              initial={shouldReduceMotion ? false : { scale: 1.06, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              {...(shouldReduceMotion
+                ? {}
+                : {
+                    whileHover: {
+                      scale: 1.05,
+                      transition: { type: "spring", stiffness: 260, damping: 20 },
+                    },
+                  })}
+              transition={
+                shouldReduceMotion
+                  ? { duration: 0 }
+                  : { type: "spring", stiffness: 230, damping: 20, delay: 0.06 }
+              }
+            >
+              {posterUrl ? (
+                <Image
+                  src={posterUrl}
+                  alt={film.title}
+                  fill
+                  sizes="(max-width: 1024px) 45vw, 200px"
+                  className="object-cover"
+                  priority
+                />
+              ) : backdropUrl ? (
+                <Image
+                  src={backdropUrl}
+                  alt={film.title}
+                  fill
+                  sizes="(max-width: 1024px) 45vw, 200px"
+                  className="object-cover"
+                  priority
+                />
+              ) : (
+                <div className="flex h-full items-center justify-center bg-gradient-to-br from-[#1a1a2e] to-[#0a0a18]">
+                  <span className="font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-widest text-[#888899]">
+                    No image
+                  </span>
+                </div>
+              )}
+            </motion.div>
+          </Link>
 
           {/* Identity (right) */}
           <div className="flex min-w-0 flex-1 flex-col gap-2">
