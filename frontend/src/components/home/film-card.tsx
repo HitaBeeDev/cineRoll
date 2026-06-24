@@ -87,7 +87,7 @@ export function FilmCard({
     <div className="flex flex-col">
       {/* Channel pill */}
       <div className="flex items-center -mx-1 -mt-1 mb-2">
-        <span className="inline-flex items-center rounded-full border border-[#e8453c]/22 bg-[#e8453c]/10 px-3 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#e8453c]">
+        <span className="inline-flex items-center rounded-full border border-[#2a2a3e] bg-[#11111b] px-3 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#888899]">
           {channelLabel}
         </span>
       </div>
@@ -334,7 +334,7 @@ export function FilmCard({
               "flex flex-1 items-center justify-center rounded-xl py-3",
               "border border-[#2a2a3e] text-[#F5F5F0]",
               "font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.2em]",
-              "transition-colors hover:border-[#e8453c]/45 hover:text-[#e8453c]",
+              "transition-colors hover:border-[#6a6a85] hover:text-[#F5F5F0]",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
             )}
           >
@@ -594,11 +594,11 @@ function QuickActionButton({
         : "border-[#1e1e2a] text-[#888899] hover:border-[#3fb950]/45 hover:text-[#7ee787]"
       : tone === "dismiss"
         ? active
-          ? "border-[#e8453c]/45 bg-[#e8453c]/10 text-[#e8453c]"
-          : "border-[#1e1e2a] text-[#888899] hover:border-[#e8453c]/45 hover:text-[#e8453c]"
+          ? "border-[#46465e] bg-white/[0.06] text-[#F5F5F0]"
+          : "border-[#1e1e2a] text-[#888899] hover:border-[#6a6a85] hover:text-[#F5F5F0]"
         : active
-          ? "border-[#D4AF37]/45 bg-[#D4AF37]/10 text-[#D4AF37]"
-          : "border-[#1e1e2a] text-[#888899] hover:border-[#D4AF37]/45 hover:text-[#D4AF37]";
+          ? "border-[#46465e] bg-white/[0.06] text-[#F5F5F0]"
+          : "border-[#1e1e2a] text-[#888899] hover:border-[#6a6a85] hover:text-[#F5F5F0]";
 
   return (
     <button
@@ -696,8 +696,8 @@ function SentimentButton({
         ? "border-[#3fb950]/45 bg-[#3fb950]/12 text-[#7ee787]"
         : "border-[#1e1e2a] text-[#888899] hover:border-[#3fb950]/45 hover:text-[#7ee787]"
       : active
-        ? "border-[#e8453c]/45 bg-[#e8453c]/10 text-[#e8453c]"
-        : "border-[#1e1e2a] text-[#888899] hover:border-[#e8453c]/45 hover:text-[#e8453c]";
+        ? "border-[#46465e] bg-white/[0.06] text-[#F5F5F0]"
+        : "border-[#1e1e2a] text-[#888899] hover:border-[#6a6a85] hover:text-[#F5F5F0]";
 
   return (
     <button

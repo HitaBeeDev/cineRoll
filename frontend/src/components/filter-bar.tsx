@@ -401,8 +401,8 @@ function PillToggle({
         "font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] focus-visible:ring-offset-1 focus-visible:ring-offset-[#09090f]",
         active
-          ? (activeClassName ?? "border-[#c08818] bg-gradient-to-br from-[#deba4a] to-[#c08818] text-[#1a0d00]")
-          : "border-[#34344d] bg-[#0e0e1a] text-[#aaaac6] hover:border-[#e8453c]/45 hover:text-[#F5F5F0]",
+          ? (activeClassName ?? "border-[#d8d8e2] bg-[#d8d8e2] text-[#0c0c14]")
+          : "border-[#34344d] bg-[#0e0e1a] text-[#aaaac6] hover:border-[#6a6a85] hover:text-[#F5F5F0]",
       )}
     >
       {children}

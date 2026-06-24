@@ -98,10 +98,10 @@ export function MultiSelect({
             : "flex h-10 w-full items-center justify-between gap-2 rounded-md border px-3 text-[12px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40",
           isPill
             ? selected.length > 0
-              ? "border-[#c08818] bg-gradient-to-br from-[#deba4a] to-[#c08818] text-[#1a0d00]"
-              : "border-[#34344d] bg-[#0e0e1a] text-[#aaaac6] hover:border-[#e8453c]/45 hover:text-[#F5F5F0]"
+              ? "border-[#d8d8e2] bg-[#d8d8e2] text-[#0c0c14]"
+              : "border-[#34344d] bg-[#0e0e1a] text-[#aaaac6] hover:border-[#6a6a85] hover:text-[#F5F5F0]"
             : selected.length > 0
-              ? "border-[#e8453c]/50 bg-[#e8453c]/10 text-[#ff9089]"
+              ? "border-[#5a5a72] bg-white/[0.08] text-[#F5F5F0]"
               : "border-white/10 bg-white/[0.045] text-[#b8b5c8] hover:border-white/20",
           triggerClassName,
         )}
@@ -125,7 +125,7 @@ export function MultiSelect({
                 value={query}
                 onChange={e => setQuery(e.target.value)}
                 placeholder="Filter…"
-                className="h-8 w-full rounded-md border border-white/10 bg-white/[0.04] pl-8 pr-2 text-[12px] text-[#f1eff8] outline-none placeholder:text-[#857f95] focus:border-[#e8453c]/60"
+                className="h-8 w-full rounded-md border border-white/10 bg-white/[0.04] pl-8 pr-2 text-[12px] text-[#f1eff8] outline-none placeholder:text-[#857f95] focus:border-white/35"
               />
             </div>
           )}
@@ -150,11 +150,11 @@ export function MultiSelect({
                     <span
                       className={cn(
                         "flex h-4 w-4 shrink-0 items-center justify-center rounded border",
-                        isSelected ? "border-[#e8453c] bg-[#e8453c]" : "border-white/20",
+                        isSelected ? "border-[#d8d8e2] bg-[#d8d8e2]" : "border-white/20",
                       )}
                       aria-hidden
                     >
-                      {isSelected && <Check className="h-3 w-3 text-white" />}
+                      {isSelected && <Check className="h-3 w-3 text-[#0c0c14]" />}
                     </span>
                     <span className="min-w-0 truncate">{opt.label}</span>
                   </button>

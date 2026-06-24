@@ -30,14 +30,20 @@ export function useToast() {
 
 const icons: Record<ToastVariant, React.ReactNode> = {
   default: <Info className="h-4 w-4 text-[#888899]" />,
-  success: <CheckCircle className="h-4 w-4 text-[#e8453c]" />,
+  success: <CheckCircle className="h-4 w-4 text-[#7ee787]" />,
   error: <AlertCircle className="h-4 w-4 text-[#e8453c]" />,
 };
 
 const borderAccents: Record<ToastVariant, string> = {
-  default: "border-[#2a2a3e]",
-  success: "border-[#e8453c]/45",
-  error: "border-[#e8453c]/55",
+  default: "border-[#1e1e2a]",
+  success: "border-[#e8453c]/35",
+  error: "border-[#e8453c]/45",
+};
+
+const accentBars: Record<ToastVariant, string> = {
+  default: "bg-[#3a3a52]",
+  success: "bg-[#3fb950]",
+  error: "bg-[#e8453c]",
 };
 
 function ToastProgress({ duration }: { duration: number }) {
@@ -61,9 +67,9 @@ function ToastProgress({ duration }: { duration: number }) {
   }, [duration]);
 
   return (
-    <span className="absolute inset-x-0 bottom-0 h-1 bg-[#241018]" aria-hidden>
+    <span className="absolute inset-x-0 bottom-0 h-1 bg-[#1a1a26]" aria-hidden>
       <span
-        className="block h-full bg-[#e8453c]"
+        className="block h-full bg-[#5a5a72]"
         style={{ width: `${remaining}%` }}
       />
     </span>
@@ -100,7 +106,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
               duration={duration}
               className={cn(
                 "group pointer-events-auto relative flex w-full items-start gap-3 overflow-hidden",
-                "border border-[#1a1a28] bg-[#060610] px-5 pb-7 pt-7 shadow-[0_24px_80px_rgba(0,0,0,0.62)]",
+                "rounded-xl border bg-[#0b0b14] py-3.5 pl-5 pr-3 shadow-[0_20px_60px_rgba(0,0,0,0.5)]",
                 "transition-all duration-300",
                 "data-[state=open]:opacity-100 data-[state=open]:translate-x-0",
                 "data-[state=closed]:opacity-0 data-[state=closed]:translate-x-3",
@@ -112,27 +118,12 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
               )}
             >
             <span
-              className="pointer-events-none absolute inset-x-3 top-2 flex h-[10px] items-center gap-[5px] overflow-hidden"
+              className={cn(
+                "pointer-events-none absolute inset-y-0 left-0 w-[3px]",
+                accentBars[t.variant ?? "default"]
+              )}
               aria-hidden
-            >
-              {Array.from({ length: 28 }).map((_, index) => (
-                <span
-                  key={index}
-                  className="h-[10px] w-[7px] shrink-0 rounded-[2px] bg-[#111120]"
-                />
-              ))}
-            </span>
-            <span
-              className="pointer-events-none absolute inset-x-3 bottom-2 flex h-[10px] items-center gap-[5px] overflow-hidden"
-              aria-hidden
-            >
-              {Array.from({ length: 28 }).map((_, index) => (
-                <span
-                  key={index}
-                  className="h-[10px] w-[7px] shrink-0 rounded-[2px] bg-[#111120]"
-                />
-              ))}
-            </span>
+            />
             <ToastProgress duration={duration} />
             <span className="mt-0.5 shrink-0">
               {icons[t.variant ?? "default"]}

@@ -38,8 +38,8 @@ export function AuthButton({
         className={cn(
           "rounded-full px-4 py-2",
           "font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.13em]",
-          "bg-[#e8453c] text-[#F5F5F0] transition-colors duration-150",
-          "hover:bg-[#d5342b]",
+          "border border-[#34344d] bg-transparent text-[#F5F5F0] transition-colors duration-150",
+          "hover:border-[#6a6a85] hover:bg-white/[0.04]",
           "focus-visible:outline-none focus-visible:ring-2",
           focusRingClassName,
         )}
@@ -63,8 +63,8 @@ export function AuthButton({
         aria-expanded={menuOpen}
         className={cn(
           "flex h-8 w-8 items-center justify-center rounded-full",
-          "bg-[#e8453c] font-[family-name:var(--font-geist-mono)] text-xs font-bold text-white",
-          "transition hover:bg-[#d5342b]",
+          "border border-[#34344d] bg-[#1a1a26] font-[family-name:var(--font-geist-mono)] text-xs font-bold text-[#F5F5F0]",
+          "transition hover:border-[#6a6a85]",
           "focus-visible:outline-none focus-visible:ring-2",
           focusRingClassName,
         )}

@@ -421,7 +421,7 @@ export function HomeClient({
               className={cn(
                 "inline-flex h-9 items-center gap-2 rounded-full border border-[#1e1e2a] bg-[#11111b] px-3 text-[#888899]",
                 "font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.18em]",
-                "transition hover:border-[#e8453c]/45 hover:text-[#F5F5F0]",
+                "transition hover:border-[#6a6a85] hover:text-[#F5F5F0]",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090f]",
               )}
             >
@@ -580,7 +580,7 @@ export function HomeClient({
               className={cn(
                 "inline-flex shrink-0 self-end items-center gap-1.5 rounded-full border border-[#2a2a3e] px-3 py-1.5",
                 "font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-widest text-[#F5F5F0]",
-                "transition-colors hover:border-[#e8453c]/45 hover:text-[#e8453c]",
+                "transition-colors hover:border-[#6a6a85] hover:text-[#F5F5F0]",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
                 "focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090f]",
               )}
@@ -602,14 +602,14 @@ export function HomeClient({
                 "font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-widest",
                 "transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
                 personalizedRoll
-                  ? "border-[#e8453c]/45 bg-[#e8453c]/10 text-[#e8453c]"
-                  : "border-[#2a2a3e] text-[#888899] hover:border-[#e8453c]/45 hover:text-[#e8453c]",
+                  ? "border-[#d8d8e2]/60 bg-white/[0.08] text-[#F5F5F0]"
+                  : "border-[#2a2a3e] text-[#888899] hover:border-[#6a6a85] hover:text-[#F5F5F0]",
               )}
             >
               <span
                 className={cn(
                   "relative h-3 w-5 rounded-full transition-colors",
-                  personalizedRoll ? "bg-[#e8453c]" : "bg-[#2a2a3e]",
+                  personalizedRoll ? "bg-[#8a8aa0]" : "bg-[#2a2a3e]",
                 )}
               >
                 <span
@@ -632,7 +632,7 @@ export function HomeClient({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -3 }}
                 transition={{ duration: 0.08 }}
-                className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.25em] text-[#e8453c]/60"
+                className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.25em] text-[#888899]"
               >
                 Searching{effectiveCount !== null ? ` ${effectiveCount}` : ""} films…
               </motion.p>
@@ -783,7 +783,7 @@ function AnimatedPoolCount({ value }: { value: string }) {
 
   if (prefersReduced) {
     return (
-      <span className="font-[family-name:var(--font-geist-mono)] text-[2rem] font-bold leading-none text-[#e8453c]">
+      <span className="font-[family-name:var(--font-geist-mono)] text-[2rem] font-bold leading-none text-[#F5F5F0]">
         {value}
       </span>
     );
@@ -793,7 +793,7 @@ function AnimatedPoolCount({ value }: { value: string }) {
     <span
       aria-live="polite"
       aria-atomic="true"
-      className="inline-flex font-[family-name:var(--font-geist-mono)] text-[2rem] font-bold leading-none text-[#e8453c]"
+      className="inline-flex font-[family-name:var(--font-geist-mono)] text-[2rem] font-bold leading-none text-[#F5F5F0]"
     >
       <span className="sr-only">{value}</span>
       {[...value].map((char, idx) => (
