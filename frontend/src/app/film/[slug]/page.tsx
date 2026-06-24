@@ -292,10 +292,10 @@ export default async function FilmPage({
           }}
         />
 
-        {/* Hero content anchored to bottom */}
-        <div className="relative z-10 flex min-h-[calc(100vh-4rem)] flex-col justify-end">
-          <div className="px-6 pb-20 sm:px-10 lg:px-16 lg:pb-24">
-            <div className="flex items-end justify-between gap-8 lg:gap-16">
+        {/* Hero content vertically centered to fill the height */}
+        <div className="relative z-10 flex min-h-[calc(100vh-4rem)] flex-col justify-center">
+          <div className="px-6 py-20 sm:px-10 lg:px-16 lg:py-24">
+            <div className="flex items-center justify-between gap-8 lg:gap-16">
 
               {/* ── Left: film info ────────────────────────────────── */}
               <div className="min-w-0 flex-1" style={{ maxWidth: "65ch" }}>
