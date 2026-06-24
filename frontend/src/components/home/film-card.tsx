@@ -337,9 +337,22 @@ type AwardHighlight = {
 };
 
 function AwardsPanel({ highlights }: { highlights: AwardHighlight[] }) {
+  const shouldReduceMotion = useReducedMotion();
   return (
-    <section className="mt-1 rounded-xl border border-[#D4AF37]/25 bg-gradient-to-b from-[#D4AF37]/[0.07] to-transparent px-3.5 py-3 shadow-[0_0_24px_rgba(212,175,55,0.06)]">
-      <h3 className="flex items-center gap-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.28em] text-[#D4AF37]">
+    <section className="relative mt-1 overflow-hidden rounded-xl border border-[#D4AF37]/25 bg-gradient-to-b from-[#D4AF37]/[0.07] to-transparent px-3.5 py-3 shadow-[0_0_24px_rgba(212,175,55,0.06)]">
+      {/* Landing beat: a single gold sheen sweeps across as the card settles, so
+          the moment registers on the differentiator. Fires once per roll (the
+          parent keys this card by film.id). */}
+      {!shouldReduceMotion && (
+        <motion.div
+          aria-hidden
+          className="pointer-events-none absolute inset-y-0 -left-1/3 w-1/3 bg-gradient-to-r from-transparent via-[#D4AF37]/20 to-transparent"
+          initial={{ x: 0 }}
+          animate={{ x: "400%" }}
+          transition={{ duration: 0.9, delay: 0.28, ease: "easeOut" }}
+        />
+      )}
+      <h3 className="relative flex items-center gap-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.28em] text-[#D4AF37]">
         <Award className="h-3.5 w-3.5" aria-hidden />
         Recognition
       </h3>
