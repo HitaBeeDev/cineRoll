@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Bookmark, Check, ThumbsDown, ThumbsUp, X } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useFilmActions } from "@/hooks/useFilmActions";
+import { HoverTooltip } from "@/components/hover-tooltip";
 import { cn } from "@/lib/utils";
 
 const HERO_BUTTON_BASE =
@@ -86,41 +87,46 @@ export function FilmDetailActions({
         className="hidden h-7 w-px self-center bg-white/12 sm:block"
       />
 
-      {/* Tertiary icon row: lower-intent actions, visually quiet */}
+      {/* Tertiary icon row: lower-intent actions, visually quiet. Each carries
+          a hover/focus label so the icons aren't a guessing game. */}
       <div className="flex items-center gap-2">
-        <button
-          type="button"
-          aria-pressed={action === "watched"}
-          aria-label={action === "watched" ? "Marked watched" : "Mark watched"}
-          title={action === "watched" ? "Watched" : "Mark watched"}
-          disabled={pending}
-          onClick={() => void saveDecision("watched", false)}
-          className={cn(
-            ICON_BUTTON,
-            action === "watched"
-              ? "border-[#3fb950]/50 bg-[#3fb950]/15 text-[#7ee787]"
-              : ICON_IDLE,
-          )}
-        >
-          <Check className="h-4 w-4" aria-hidden />
-        </button>
+        <HoverTooltip label={action === "watched" ? "Watched" : "Mark watched"}>
+          <button
+            type="button"
+            aria-pressed={action === "watched"}
+            aria-label={action === "watched" ? "Marked watched" : "Mark watched"}
+            disabled={pending}
+            onClick={() => void saveDecision("watched", false)}
+            className={cn(
+              ICON_BUTTON,
+              action === "watched"
+                ? "border-[#3fb950]/50 bg-[#3fb950]/15 text-[#7ee787]"
+                : ICON_IDLE,
+            )}
+          >
+            <Check className="h-4 w-4" aria-hidden />
+          </button>
+        </HoverTooltip>
 
-        <button
-          type="button"
-          aria-pressed={action === "not-interested"}
-          aria-label={action === "not-interested" ? "Hidden" : "Not interested"}
-          title={action === "not-interested" ? "Hidden" : "Not interested"}
-          disabled={pending}
-          onClick={() => void saveDecision("not-interested", true)}
-          className={cn(
-            ICON_BUTTON,
-            action === "not-interested"
-              ? "border-[#e8453c]/50 bg-[#e8453c]/12 text-[#e8453c]"
-              : ICON_IDLE,
-          )}
+        <HoverTooltip
+          label={action === "not-interested" ? "Hidden" : "Not interested"}
         >
-          <ThumbsDown className="h-4 w-4" aria-hidden />
-        </button>
+          <button
+            type="button"
+            aria-pressed={action === "not-interested"}
+            aria-label={action === "not-interested" ? "Hidden" : "Not interested"}
+            disabled={pending}
+            onClick={() => void saveDecision("not-interested", true)}
+            className={cn(
+              ICON_BUTTON,
+              action === "not-interested"
+                ? "border-[#e8453c]/50 bg-[#e8453c]/12 text-[#e8453c]"
+                : ICON_IDLE,
+            )}
+          >
+            <ThumbsDown className="h-4 w-4" aria-hidden />
+          </button>
+        </HoverTooltip>
       </div>
 
       {/* One-tap 👍 / 👎 prompt, revealed after the film is marked watched. */}

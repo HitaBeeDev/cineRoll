@@ -1,6 +1,7 @@
 import { Play } from "lucide-react";
 import { FilmDetailActions } from "@/components/film-detail-actions";
 import { ShareButton } from "@/components/share-button";
+import { HoverTooltip } from "@/components/hover-tooltip";
 
 /**
  * The hero action row: primary "Watch Trailer", secondary Watchlist, and the
@@ -34,15 +35,17 @@ export function HeroCTAs({
         </a>
       )}
       <FilmDetailActions filmId={filmId} filmTitle={filmTitle} />
-      <ShareButton
-        url={shareUrl}
-        title={shareTitle}
-        caption={shareCaption}
-        label=""
-        ariaLabel="Share this film"
-        iconClassName="h-4 w-4"
-        className="flex h-12 w-12 items-center justify-center border border-white/10 bg-transparent text-white/45 backdrop-blur-sm transition-colors hover:border-white/25 hover:bg-white/[0.06] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
-      />
+      <HoverTooltip label="Share">
+        <ShareButton
+          url={shareUrl}
+          title={shareTitle}
+          caption={shareCaption}
+          label=""
+          ariaLabel="Share this film"
+          iconClassName="h-4 w-4"
+          className="flex h-12 w-12 items-center justify-center border border-white/10 bg-transparent text-white/45 backdrop-blur-sm transition-colors hover:border-white/25 hover:bg-white/[0.06] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
+        />
+      </HoverTooltip>
     </div>
   );
 }
