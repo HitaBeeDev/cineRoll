@@ -776,7 +776,7 @@ function getCountTagline(count: number | null): string {
   if (count <= 5) return "films. Very specific taste.";
   if (count <= 20) return "films. A good shortlist.";
   if (count <= 100) return "films. Ready to roll?";
-  return "films. Feeling lucky?";
+  return "films. Plenty to choose from.";
 }
 
 function AnimatedPoolCount({ value }: { value: string }) {
