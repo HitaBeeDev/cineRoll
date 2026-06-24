@@ -242,6 +242,10 @@ export default async function FilmPage({
   const accentStyle = { "--film-accent": accent } as CSSProperties;
 
   const heroImageUrl = film.backdropUrl ?? film.posterUrl;
+  // With no real backdrop we fall back to the poster for the full-bleed image.
+  // Blur it hard so it reads as an ambient wash rather than a duplicate of the
+  // crisp poster card on the right.
+  const heroImageIsPoster = !film.backdropUrl && film.posterUrl != null;
 
   return (
     <main
@@ -261,7 +265,12 @@ export default async function FilmPage({
             fill
             priority
             sizes="100vw"
-            className="object-cover object-center opacity-[0.65] saturate-[1.2]"
+            className={cn(
+              "object-cover object-center",
+              heroImageIsPoster
+                ? "scale-110 opacity-50 blur-2xl saturate-[0.9]"
+                : "opacity-[0.65] saturate-[1.2]",
+            )}
           />
         )}
 
