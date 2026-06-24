@@ -161,12 +161,15 @@ export function FilmCard({
           <AwardsPanel highlights={awardHighlights} />
         )}
 
-        <section className="mt-2 rounded-xl border border-[#1e1e2a] bg-[#0b0b15] p-3">
+        {/* Maintenance tier — deliberately demoted below a hairline divider so it
+            reads as utility, not as a peer card competing with the result. No
+            border/fill: the reward content above owns the focal weight. */}
+        <section className="mt-4 border-t border-[#17171f] pt-4">
           <div className="mb-2 flex items-center justify-between gap-3">
-            <h3 className="font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.2em] text-[#F5F5F0]">
+            <h3 className="font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.2em] text-[#888899]">
               Tune future rolls
             </h3>
-            <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em] text-[#888899]">
+            <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em] text-[#5a5a6a]">
               {isAuthenticated ? "Account signal" : "Session signal"}
             </span>
           </div>
