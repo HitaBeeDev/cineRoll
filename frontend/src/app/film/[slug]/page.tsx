@@ -310,22 +310,6 @@ export default async function FilmPage({
                   </div>
                 )}
 
-                {/* Accent rule + Director */}
-                <div className="mb-5 flex items-center gap-4">
-                  <div
-                    className="h-px w-12 shrink-0"
-                    style={{ background: `linear-gradient(to right, ${accent}, transparent)` }}
-                  />
-                  {film.director && (
-                    <Link
-                      href={`/person/${nameToSlug(film.director)}`}
-                      className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.36em] text-white/60 transition-colors hover:text-white/90"
-                    >
-                      {film.director}
-                    </Link>
-                  )}
-                </div>
-
                 {/* Title */}
                 <h1
                   className="font-[family-name:var(--font-display)] font-bold leading-[0.87] tracking-tight text-[#F8F8F4]"
@@ -333,6 +317,16 @@ export default async function FilmPage({
                 >
                   {displayTitle(film.title)}
                 </h1>
+
+                {/* Director */}
+                {film.director && (
+                  <Link
+                    href={`/person/${nameToSlug(film.director)}`}
+                    className="mt-5 inline-block font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.36em] text-white/60 transition-colors hover:text-white/90"
+                  >
+                    {film.director}
+                  </Link>
+                )}
 
                 {/* Original title */}
                 {film.originalTitle && film.originalTitle !== film.title && (
