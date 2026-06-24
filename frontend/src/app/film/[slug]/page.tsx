@@ -102,16 +102,70 @@ async function fetchSimilarFilms(slug: string): Promise<SimilarFilm[]> {
   }
 }
 
-function getAwardSummary(film: Film) {
-  const wins = film.oscarWins + film.ggWins + film.cannesWins;
-  const nominations =
-    film.oscarNominations + film.ggNominations + film.cannesNominations;
-  const parts = [
-    film.oscarNominations > 0 ? `${film.oscarNominations} Oscar` : null,
-    film.ggNominations > 0 ? `${film.ggNominations} Golden Globe` : null,
-    film.cannesNominations > 0 ? `${film.cannesNominations} Cannes` : null,
-  ].filter(Boolean);
-  if (wins > 0) return `${wins} wins across ${nominations} major nominations.`;
+type CeremonySummary = {
+  title: string;
+  code: string;
+  shortLabel: string;
+  icon: "oscar" | "globe" | "cannes";
+  wins: number;
+  nominations: number;
+  records: AwardRecord[];
+};
+
+type AwardSummary = {
+  totalWins: number;
+  totalNominations: number;
+  ceremonies: CeremonySummary[];
+};
+
+/**
+ * Single source of truth for a film's award numbers. Every wins/nominations
+ * figure on the page — the headline counter, the per-ceremony cards, and the
+ * SEO summary — derives from this, so the totals can never drift apart.
+ */
+function computeAwardSummary(film: Film): AwardSummary {
+  const ceremonies: CeremonySummary[] = [
+    {
+      title: "Academy Awards",
+      code: "AMPAS",
+      shortLabel: "Oscar",
+      icon: "oscar" as const,
+      wins: film.oscarWins,
+      nominations: film.oscarNominations,
+      records: (film.oscarCategories as AwardRecord[]) ?? [],
+    },
+    {
+      title: "Golden Globes",
+      code: "HFPA",
+      shortLabel: "Golden Globe",
+      icon: "globe" as const,
+      wins: film.ggWins,
+      nominations: film.ggNominations,
+      records: (film.ggCategories as AwardRecord[]) ?? [],
+    },
+    {
+      title: "Cannes Film Festival",
+      code: "Cannes",
+      shortLabel: "Cannes",
+      icon: "cannes" as const,
+      wins: film.cannesWins,
+      nominations: film.cannesNominations,
+      records: (film.cannesCategories as AwardRecord[]) ?? [],
+    },
+  ].filter((c) => c.nominations > 0);
+
+  return {
+    totalWins: ceremonies.reduce((sum, c) => sum + c.wins, 0),
+    totalNominations: ceremonies.reduce((sum, c) => sum + c.nominations, 0),
+    ceremonies,
+  };
+}
+
+function getAwardSummary(film: Film): string {
+  const { totalWins, totalNominations, ceremonies } = computeAwardSummary(film);
+  if (totalWins > 0)
+    return `${totalWins} wins across ${totalNominations} major nominations.`;
+  const parts = ceremonies.map((c) => `${c.nominations} ${c.shortLabel}`);
   if (parts.length > 0) return `${parts.join(", ")} nominations.`;
   return "Explore its CineRoll film profile.";
 }
@@ -170,72 +224,21 @@ export default async function FilmPage({
   if (!film) notFound();
 
   const youtubeId = film.trailerUrl ? extractYouTubeId(film.trailerUrl) : null;
-  const oscarAwards = (film.oscarCategories as AwardRecord[]) ?? [];
-  const ggAwards = (film.ggCategories as AwardRecord[]) ?? [];
-  const cannesAwards = (film.cannesCategories as AwardRecord[]) ?? [];
-  const totalAwardWins = film.oscarWins + film.ggWins + film.cannesWins;
-  const totalAwardNoms =
-    film.oscarNominations + film.ggNominations + film.cannesNominations;
-  const hasAwards = totalAwardNoms > 0;
+  const awardSummary = computeAwardSummary(film);
+  const hasAwards = awardSummary.totalNominations > 0;
   const accent = film.posterColor ?? FALLBACK_ACCENT;
   const formattedRuntime = formatRuntime(film.runtime);
 
-  const heroAwardTags = [
+  // Hero carries ranking signals only; all award win/nom counts live in the
+  // Awards section below (single source: computeAwardSummary).
+  const heroRankTags = [
     film.imdbTopMovieRank !== null
       ? `IMDb Top 250 #${film.imdbTopMovieRank}`
       : null,
     film.imdbTopTvRank !== null ? `IMDb Top TV #${film.imdbTopTvRank}` : null,
-    film.oscarWins > 0
-      ? `${film.oscarWins} Oscar ${film.oscarWins === 1 ? "Win" : "Wins"}`
-      : null,
-    film.oscarNominations > film.oscarWins && film.oscarNominations > 0
-      ? `${film.oscarNominations} Oscar Nom${film.oscarNominations === 1 ? "" : "s"}`
-      : null,
-    film.ggWins > 0
-      ? `${film.ggWins} Globe ${film.ggWins === 1 ? "Win" : "Wins"}`
-      : null,
-    film.cannesWins > 0
-      ? `${film.cannesWins} Cannes ${film.cannesWins === 1 ? "Win" : "Wins"}`
-      : null,
   ].filter(Boolean) as string[];
 
   const accentStyle = { "--film-accent": accent } as CSSProperties;
-
-  const activeCeremonies = [
-    film.oscarNominations > 0
-      ? {
-          title: "Academy Awards",
-          icon: "oscar" as const,
-          wins: film.oscarWins,
-          nominations: film.oscarNominations,
-          records: oscarAwards,
-        }
-      : null,
-    film.ggNominations > 0
-      ? {
-          title: "Golden Globes",
-          icon: "globe" as const,
-          wins: film.ggWins,
-          nominations: film.ggNominations,
-          records: ggAwards,
-        }
-      : null,
-    film.cannesNominations > 0
-      ? {
-          title: "Cannes Film Festival",
-          icon: "cannes" as const,
-          wins: film.cannesWins,
-          nominations: film.cannesNominations,
-          records: cannesAwards,
-        }
-      : null,
-  ].filter(Boolean) as {
-    title: string;
-    icon: "oscar" | "globe" | "cannes";
-    wins: number;
-    nominations: number;
-    records: AwardRecord[];
-  }[];
 
   const heroImageUrl = film.backdropUrl ?? film.posterUrl;
 
@@ -353,10 +356,10 @@ export default async function FilmPage({
                   ))}
                 </div>
 
-                {/* Award tags */}
-                {heroAwardTags.length > 0 && (
+                {/* Ranking tags */}
+                {heroRankTags.length > 0 && (
                   <div className="mt-4 flex flex-wrap gap-1.5">
-                    {heroAwardTags.slice(0, 4).map((tag) => (
+                    {heroRankTags.map((tag) => (
                       <span
                         key={tag}
                         className="border border-white/14 bg-black/35 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-white/42 backdrop-blur-sm"
@@ -368,79 +371,46 @@ export default async function FilmPage({
                 )}
 
                 {/* Ratings */}
-                {(film.imdbRating != null ||
-                  totalAwardWins > 0 ||
-                  true) && (
-                  <>
-                    <div className="mt-8 flex flex-wrap items-start gap-8">
-                      <div>
-                        <p className="mb-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.5em] text-white/32">
-                          IMDb
+                <div className="mt-8 flex flex-wrap items-start gap-8">
+                  <div>
+                    <p className="mb-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.5em] text-white/32">
+                      IMDb
+                    </p>
+                    <div className="flex min-h-10 items-end">
+                      {film.imdbRating != null ? (
+                        <p className="font-[family-name:var(--font-display)] text-[2.5rem] font-bold leading-none text-[#F8F8F4]">
+                          {film.imdbRating.toFixed(1)}
                         </p>
-                        <div className="flex min-h-10 items-end">
-                          {film.imdbRating != null ? (
-                            <p className="font-[family-name:var(--font-display)] text-[2.5rem] font-bold leading-none text-[#F8F8F4]">
-                              {film.imdbRating.toFixed(1)}
-                            </p>
-                          ) : (
-                            <p className="font-[family-name:var(--font-geist-mono)] text-sm leading-none text-white/30">
-                              No score
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                      <div>
-                        <p className="mb-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.5em] text-white/32">
-                          RT
+                      ) : (
+                        <p className="font-[family-name:var(--font-geist-mono)] text-sm leading-none text-white/30">
+                          No score
                         </p>
-                        <div className="flex min-h-10 items-end">
-                          {film.rtScore != null ? (
-                            <p className="font-[family-name:var(--font-display)] text-[2.5rem] font-bold leading-none text-[#F8F8F4]">
-                              {film.rtScore}%
-                            </p>
-                          ) : (
-                            <p className="font-[family-name:var(--font-geist-mono)] text-sm leading-none text-white/30">
-                              No score
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                      {totalAwardWins > 0 && (
-                        <div>
-                          <p className="mb-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.5em] text-white/32">
-                            Wins
-                          </p>
-                          <div className="flex min-h-10 items-end">
-                            <p
-                              className="font-[family-name:var(--font-display)] text-[2.5rem] font-bold leading-none"
-                              style={{ color: accent }}
-                            >
-                              {totalAwardWins}
-                            </p>
-                          </div>
-                        </div>
-                      )}
-                      {totalAwardNoms > 0 && (
-                        <div>
-                          <p className="mb-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.5em] text-white/32">
-                            Noms
-                          </p>
-                          <div className="flex min-h-10 items-end">
-                            <p className="font-[family-name:var(--font-display)] text-[2.5rem] font-bold leading-none text-[#F8F8F4]">
-                              {totalAwardNoms}
-                            </p>
-                          </div>
-                        </div>
                       )}
                     </div>
-                    <FilmRatingPanel
-                      filmId={film.id}
-                      filmTitle={displayTitle(film.title)}
-                      averageRating={film.averageRating}
-                      ratingCount={film.ratingCount}
-                    />
-                  </>
-                )}
+                  </div>
+                  <div>
+                    <p className="mb-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.5em] text-white/32">
+                      RT
+                    </p>
+                    <div className="flex min-h-10 items-end">
+                      {film.rtScore != null ? (
+                        <p className="font-[family-name:var(--font-display)] text-[2.5rem] font-bold leading-none text-[#F8F8F4]">
+                          {film.rtScore}%
+                        </p>
+                      ) : (
+                        <p className="font-[family-name:var(--font-geist-mono)] text-sm leading-none text-white/30">
+                          No score
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                <FilmRatingPanel
+                  filmId={film.id}
+                  filmTitle={displayTitle(film.title)}
+                  averageRating={film.averageRating}
+                  ratingCount={film.ratingCount}
+                />
 
                 {/* CTAs */}
                 <div className="mt-9 flex flex-wrap items-center gap-3">
@@ -544,9 +514,9 @@ export default async function FilmPage({
                 <div>
                   <span
                     className="font-[family-name:var(--font-display)] text-[5.5rem] font-bold leading-none tabular-nums"
-                    style={{ color: totalAwardWins > 0 ? accent : "#3a3a58" }}
+                    style={{ color: awardSummary.totalWins > 0 ? accent : "#3a3a58" }}
                   >
-                    {totalAwardWins}
+                    {awardSummary.totalWins}
                   </span>
                   <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.5em] text-[#707090]">
                     Wins
@@ -554,7 +524,7 @@ export default async function FilmPage({
                 </div>
                 <div>
                   <span className="font-[family-name:var(--font-display)] text-[3.5rem] font-bold leading-none tabular-nums text-[#5a5a7a]">
-                    {totalAwardNoms}
+                    {awardSummary.totalNominations}
                   </span>
                   <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.5em] text-[#606080]">
                     Nominations
@@ -563,7 +533,7 @@ export default async function FilmPage({
               </div>
 
               <div className="mt-8 space-y-4">
-                {activeCeremonies.map((c) => (
+                {awardSummary.ceremonies.map((c) => (
                   <AwardSummaryCard
                     key={c.title}
                     title={c.title}
