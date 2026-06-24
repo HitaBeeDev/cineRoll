@@ -298,7 +298,7 @@ export default async function FilmPage({
 
         {/* Hero content anchored to bottom */}
         <div className="relative z-10 flex min-h-[calc(100vh-4rem)] flex-col justify-end">
-          <div className="px-6 pb-14 sm:px-10 lg:px-16 lg:pb-20">
+          <div className="px-6 pb-20 sm:px-10 lg:px-16 lg:pb-24">
             <div className="flex items-end justify-between gap-8 lg:gap-16">
 
               {/* ── Left: film info ────────────────────────────────── */}
@@ -445,9 +445,14 @@ export default async function FilmPage({
         </div>
 
         {/* Scroll cue */}
-        <div className="absolute bottom-7 left-1/2 flex -translate-x-1/2 flex-col items-center gap-1 opacity-25">
-          <div className="h-7 w-px bg-gradient-to-b from-transparent to-white" />
-          <ChevronDown className="h-3.5 w-3.5 text-white" aria-hidden />
+        <div className="pointer-events-none absolute bottom-6 left-1/2 flex -translate-x-1/2 flex-col items-center gap-2">
+          <span className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.4em] text-white/50">
+            Scroll
+          </span>
+          <ChevronDown
+            className="h-4 w-4 animate-bounce text-white/70 [animation-duration:2s]"
+            aria-hidden
+          />
         </div>
       </section>
 
