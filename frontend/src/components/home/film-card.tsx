@@ -55,7 +55,8 @@ export function FilmCard({
   const channelLabel = `REEL // ${film.title.toUpperCase().slice(0, 11)}`;
   const genre = film.genres[0] ?? "";
   const runtime = formatRuntime(film.runtime);
-  const imageUrl = film.backdropUrl ?? film.posterUrl;
+  const posterUrl = film.posterUrl;
+  const backdropUrl = film.backdropUrl;
   const awardHighlights = getAwardHighlights(film);
 
   async function shareFilm() {
@@ -87,14 +88,47 @@ export function FilmCard({
         </span>
       </div>
 
-      {/* Backdrop / poster image */}
+      {/* Poster stage — the poster is the film's single most recognizable asset,
+          so it's the hero here, shown at its native 2:3 over a blurred, dimmed
+          wash of the backdrop for cinematic depth. Backdrop is ambient, not the
+          subject. Falls back to a full backdrop, then to a placeholder. */}
       <div
-        className="relative w-full overflow-hidden"
-        style={{ aspectRatio: "16/9" }}
+        className="relative w-full overflow-hidden rounded-xl"
+        style={{ aspectRatio: "16/10" }}
       >
-        {imageUrl ? (
+        {/* Ambient wash */}
+        {backdropUrl ? (
           <Image
-            src={imageUrl}
+            src={backdropUrl}
+            alt=""
+            aria-hidden
+            fill
+            sizes="(max-width: 1024px) 100vw, 500px"
+            className="scale-110 object-cover opacity-40 blur-2xl"
+          />
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a2e] to-[#0a0a18]" />
+        )}
+        <div className="pointer-events-none absolute inset-0 bg-[#09090f]/55" />
+
+        {/* Poster (hero) */}
+        {posterUrl ? (
+          <div className="absolute inset-0 flex items-center justify-center p-5">
+            <div className="relative h-full" style={{ aspectRatio: "2/3" }}>
+              <Image
+                src={posterUrl}
+                alt={film.title}
+                fill
+                sizes="(max-width: 1024px) 60vw, 240px"
+                className="rounded-lg object-cover shadow-[0_16px_44px_rgba(0,0,0,0.6)] ring-1 ring-white/5"
+                priority
+              />
+            </div>
+          </div>
+        ) : backdropUrl ? (
+          // No poster: fall back to the backdrop as the subject (sharp, full).
+          <Image
+            src={backdropUrl}
             alt={film.title}
             fill
             sizes="(max-width: 1024px) 100vw, 500px"
@@ -102,13 +136,12 @@ export function FilmCard({
             priority
           />
         ) : (
-          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[#1a1a2e] to-[#0a0a18]">
+          <div className="absolute inset-0 flex items-center justify-center">
             <span className="font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-widest text-[#888899]">
               No image
             </span>
           </div>
         )}
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#09090f]/55 to-transparent" />
       </div>
 
       {/* Content */}
