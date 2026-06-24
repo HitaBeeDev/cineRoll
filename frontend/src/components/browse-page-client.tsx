@@ -654,8 +654,9 @@ export function BrowsePageClient() {
               <button
                 type="button"
                 onClick={() => { resetFilters(); setShowMore(false); }}
-                className="ml-1 font-[family-name:var(--font-geist-mono)] text-[12px] text-[#857f95] transition-colors hover:text-[#ff766d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/30"
+                className="ml-1 inline-flex h-7 items-center gap-1.5 rounded-full border border-[#e8453c]/40 bg-[#e8453c]/10 px-3 font-[family-name:var(--font-geist-mono)] text-[12px] uppercase tracking-[0.08em] text-[#ff766d] transition-colors hover:border-[#e8453c]/70 hover:bg-[#e8453c]/20 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40"
               >
+                <X className="h-3 w-3 shrink-0" aria-hidden />
                 Clear all
               </button>
             </div>
