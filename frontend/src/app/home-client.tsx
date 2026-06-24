@@ -681,8 +681,12 @@ export function HomeClient({
               <motion.div
                 key={film.id}
                 layout={!shouldReduceMotion}
-                initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 10 }}
-                animate={{ opacity: 1, y: 0 }}
+                initial={{
+                  opacity: 0,
+                  y: shouldReduceMotion ? 0 : 24,
+                  scale: shouldReduceMotion ? 1 : 0.97,
+                }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{
                   opacity: 0,
                   transition: {
@@ -693,7 +697,9 @@ export function HomeClient({
                 transition={
                   shouldReduceMotion
                     ? { duration: 0 }
-                    : { type: "spring", stiffness: 300, damping: 28 }
+                    : // Lower damping + a touch of mass: the card drops, slightly
+                      // overshoots, then settles — the result lands with weight.
+                      { type: "spring", stiffness: 260, damping: 19, mass: 0.9 }
                 }
               >
                 <FilmCard

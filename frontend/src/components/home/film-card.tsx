@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import {
   Bookmark,
   Eye,
@@ -31,6 +31,7 @@ export function FilmCard({
   onGuestHideForSession?: (filmId: string) => void;
 }) {
   const { toast } = useToast();
+  const shouldReduceMotion = useReducedMotion();
   // The parent keys this card by film.id, so state resets for each new roll.
   const {
     action,
@@ -111,9 +112,19 @@ export function FilmCard({
         )}
         <div className="pointer-events-none absolute inset-0 bg-[#09090f]/55" />
 
-        {/* Poster (hero) */}
+        {/* Poster (hero) — zoom-settles into focus a beat after the card lands,
+            so the iconic asset reads as the machine snapping onto this pick. */}
         {posterUrl ? (
-          <div className="absolute inset-0 flex items-center justify-center p-5">
+          <motion.div
+            className="absolute inset-0 flex items-center justify-center p-5"
+            initial={shouldReduceMotion ? false : { scale: 1.08, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={
+              shouldReduceMotion
+                ? { duration: 0 }
+                : { type: "spring", stiffness: 230, damping: 20, delay: 0.06 }
+            }
+          >
             <div className="relative h-full" style={{ aspectRatio: "2/3" }}>
               <Image
                 src={posterUrl}
@@ -124,7 +135,7 @@ export function FilmCard({
                 priority
               />
             </div>
-          </div>
+          </motion.div>
         ) : backdropUrl ? (
           // No poster: fall back to the backdrop as the subject (sharp, full).
           <Image
