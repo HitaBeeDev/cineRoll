@@ -229,9 +229,10 @@ export default async function FilmPage({
   const accent = film.posterColor ?? FALLBACK_ACCENT;
   const formattedRuntime = formatRuntime(film.runtime);
 
-  // Hero carries ranking signals only; all award win/nom counts live in the
-  // Awards section below (single source: computeAwardSummary).
-  const heroRankTags = [
+  // IMDb Top-250 / Top-TV ranking signals, surfaced in the meta sidebar below
+  // the fold; award win/nom counts live in the Awards section (single source:
+  // computeAwardSummary).
+  const rankTags = [
     film.imdbTopMovieRank !== null
       ? `IMDb Top 250 #${film.imdbTopMovieRank}`
       : null,
@@ -356,20 +357,6 @@ export default async function FilmPage({
                   ))}
                 </div>
 
-                {/* Ranking tags */}
-                {heroRankTags.length > 0 && (
-                  <div className="mt-4 flex flex-wrap gap-1.5">
-                    {heroRankTags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="border border-white/14 bg-black/35 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-white/42 backdrop-blur-sm"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                )}
-
                 {/* Ratings */}
                 <div className="mt-8 flex flex-wrap items-start gap-8">
                   <div>
@@ -405,13 +392,6 @@ export default async function FilmPage({
                     </div>
                   </div>
                 </div>
-                <FilmRatingPanel
-                  filmId={film.id}
-                  filmTitle={displayTitle(film.title)}
-                  averageRating={film.averageRating}
-                  ratingCount={film.ratingCount}
-                />
-
                 {/* CTAs */}
                 <div className="mt-9 flex flex-wrap items-center gap-3">
                   {film.trailerUrl && (
@@ -548,6 +528,19 @@ export default async function FilmPage({
             </section>
           )}
 
+          {/* ── RATINGS ──────────────────────────────────────────────── */}
+          <section id="rate" className="scroll-mt-24">
+            <SectionLabel>Ratings</SectionLabel>
+            <div className="mt-8">
+              <FilmRatingPanel
+                filmId={film.id}
+                filmTitle={displayTitle(film.title)}
+                averageRating={film.averageRating}
+                ratingCount={film.ratingCount}
+              />
+            </div>
+          </section>
+
           <FilmCommentsSection slug={film.slug} accent={accent} />
 
           {/* ── SIMILAR FILMS ─────────────────────────────────────────── */}
@@ -622,6 +615,21 @@ export default async function FilmPage({
             )}
 
             <div className="flex flex-col gap-10">
+              {rankTags.length > 0 && (
+                <section>
+                  <SectionLabel>Rankings</SectionLabel>
+                  <div className="mt-6 flex flex-col gap-2">
+                    {rankTags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="border border-[#25253a] bg-[#0d0d18] px-3.5 py-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.3em] text-[#9898b8]"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </section>
+              )}
               {film.genres.length > 0 && (
                 <section>
                   <SectionLabel>Genres</SectionLabel>

@@ -93,7 +93,7 @@ export function FilmRatingPanel({
   }
 
   return (
-    <div className="mt-7 w-full max-w-[520px] border border-white/12 bg-black/25 px-5 py-4 backdrop-blur-sm">
+    <div className="w-full max-w-[520px] border border-white/12 bg-black/25 px-5 py-4 backdrop-blur-sm">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="mb-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.5em] text-white/32">
