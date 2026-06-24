@@ -135,20 +135,22 @@ export function FilmCard({
           >
             <motion.div
               className="relative h-full w-full origin-top-left overflow-hidden rounded-lg shadow-[0_16px_44px_rgba(0,0,0,0.6)] ring-1 ring-white/5 group-hover:shadow-[0_30px_70px_rgba(0,0,0,0.75)]"
-              initial={shouldReduceMotion ? false : { scale: 1.06, opacity: 0 }}
+              initial={shouldReduceMotion ? false : { scale: 1.04, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               {...(shouldReduceMotion
                 ? {}
                 : {
                     whileHover: {
                       scale: 1.5,
-                      transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] },
+                      transition: { duration: 0.55, ease: [0.16, 1, 0.3, 1] },
                     },
                   })}
+              // One smooth eased tween governs entrance + hover-out so the poster
+              // grows and shrinks identically — no springy snap-back.
               transition={
                 shouldReduceMotion
                   ? { duration: 0 }
-                  : { type: "spring", stiffness: 230, damping: 20, delay: 0.06 }
+                  : { duration: 0.55, ease: [0.16, 1, 0.3, 1] }
               }
             >
               {posterUrl ? (
