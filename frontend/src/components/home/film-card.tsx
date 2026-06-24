@@ -96,20 +96,25 @@ export function FilmCard({
           payoff (poster + title + recognition) is visible at a glance instead of
           stacked into a scroll. A strongly-dimmed blurred backdrop sits behind
           for ambient depth; the big poster dominates it so it recedes. */}
-      <div className="relative overflow-hidden rounded-xl">
-        {backdropUrl ? (
-          <Image
-            src={backdropUrl}
-            alt=""
-            aria-hidden
-            fill
-            sizes="(max-width: 1024px) 100vw, 500px"
-            className="scale-110 object-cover opacity-25 blur-2xl"
-          />
-        ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-[#15151f] to-[#0a0a14]" />
-        )}
-        <div className="pointer-events-none absolute inset-0 bg-[#09090f]/75" />
+      <div className="relative rounded-xl">
+        {/* Ambient backdrop layer — clipped to the rounded box so the blur stays
+            inside. Kept separate from the header so a hovered poster can scale
+            up and out without being clipped. */}
+        <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-xl">
+          {backdropUrl ? (
+            <Image
+              src={backdropUrl}
+              alt=""
+              aria-hidden
+              fill
+              sizes="(max-width: 1024px) 100vw, 500px"
+              className="scale-110 object-cover opacity-25 blur-2xl"
+            />
+          ) : (
+            <div className="absolute inset-0 bg-gradient-to-br from-[#15151f] to-[#0a0a14]" />
+          )}
+          <div className="absolute inset-0 bg-[#09090f]/75" />
+        </div>
 
         <div className="relative flex gap-4 p-4">
           {/* Poster anchor (left) — links to the film's detail page. It
@@ -125,19 +130,19 @@ export function FilmCard({
               });
             }}
             aria-label={`View details for ${film.title}`}
-            className="relative w-[42%] max-w-[180px] shrink-0 self-start rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090f]"
+            className="group relative z-20 w-[42%] max-w-[180px] shrink-0 self-start rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090f]"
             style={{ aspectRatio: "2/3" }}
           >
             <motion.div
-              className="relative h-full w-full overflow-hidden rounded-lg shadow-[0_16px_44px_rgba(0,0,0,0.6)] ring-1 ring-white/5"
+              className="relative h-full w-full origin-top-left overflow-hidden rounded-lg shadow-[0_16px_44px_rgba(0,0,0,0.6)] ring-1 ring-white/5 group-hover:shadow-[0_30px_70px_rgba(0,0,0,0.75)]"
               initial={shouldReduceMotion ? false : { scale: 1.06, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               {...(shouldReduceMotion
                 ? {}
                 : {
                     whileHover: {
-                      scale: 1.05,
-                      transition: { type: "spring", stiffness: 260, damping: 20 },
+                      scale: 1.5,
+                      transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] },
                     },
                   })}
               transition={
