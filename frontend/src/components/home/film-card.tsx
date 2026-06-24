@@ -193,7 +193,7 @@ export function FilmCard({
             {/* Title — the payoff of the roll, at display scale so it reads as
                 the loudest element in the result column. */}
             <h2
-              className="font-[family-name:var(--font-display)] font-bold leading-[0.95] tracking-tight text-[#F5F5F0]"
+              className="font-[family-name:var(--font-display)] font-bold leading-[1.05] tracking-tight text-[#F5F5F0]"
               style={{ fontSize: "clamp(1.85rem, 2.8vw, 2.85rem)" }}
             >
               {film.title}
