@@ -21,6 +21,7 @@ export function MultiSelect({
   searchable = false,
   triggerClassName,
   ariaLabel,
+  variant = "default",
 }: {
   options: MultiSelectOption[];
   selected: string[];
@@ -29,6 +30,9 @@ export function MultiSelect({
   searchable?: boolean;
   triggerClassName?: string;
   ariaLabel?: string;
+  /** "pill" matches the FilterBar's PillToggle styling so the trigger sits
+   *  inline with the other facet pills instead of as a boxed select. */
+  variant?: "default" | "pill";
 }) {
   const [open, setOpen] = React.useState(false);
   const [query, setQuery] = React.useState("");
@@ -78,8 +82,10 @@ export function MultiSelect({
     ? options.filter(o => o.label.toLowerCase().includes(query.trim().toLowerCase()))
     : options;
 
+  const isPill = variant === "pill";
+
   return (
-    <div ref={containerRef} className="relative">
+    <div ref={containerRef} className={cn("relative", isPill && "inline-flex")}>
       <button
         type="button"
         aria-label={ariaLabel}
@@ -87,11 +93,16 @@ export function MultiSelect({
         aria-expanded={open}
         onClick={() => setOpen(v => !v)}
         className={cn(
-          "flex h-10 w-full items-center justify-between gap-2 rounded-md border px-3 text-[12px] transition-colors",
-          selected.length > 0
-            ? "border-[#e8453c]/50 bg-[#e8453c]/10 text-[#ff9089]"
-            : "border-white/10 bg-white/[0.045] text-[#b8b5c8] hover:border-white/20",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40",
+          isPill
+            ? "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] focus-visible:ring-offset-1 focus-visible:ring-offset-[#09090f]"
+            : "flex h-10 w-full items-center justify-between gap-2 rounded-md border px-3 text-[12px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40",
+          isPill
+            ? selected.length > 0
+              ? "border-[#c08818] bg-gradient-to-br from-[#deba4a] to-[#c08818] text-[#1a0d00]"
+              : "border-[#34344d] bg-[#0e0e1a] text-[#aaaac6] hover:border-[#e8453c]/45 hover:text-[#F5F5F0]"
+            : selected.length > 0
+              ? "border-[#e8453c]/50 bg-[#e8453c]/10 text-[#ff9089]"
+              : "border-white/10 bg-white/[0.045] text-[#b8b5c8] hover:border-white/20",
           triggerClassName,
         )}
       >

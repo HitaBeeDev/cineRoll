@@ -195,7 +195,7 @@ export function FilterBar({
           onChange={(vals) => onFiltersChange({ genres: vals, page: 1 })}
           placeholder="All"
           searchable
-          triggerClassName="rounded-full"
+          variant="pill"
           options={genres.map((genre) => ({ value: genre, label: genre }))}
         />
       </FilterRow>
