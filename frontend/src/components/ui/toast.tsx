@@ -40,10 +40,10 @@ const borderAccents: Record<ToastVariant, string> = {
   error: "border-[#e8453c]/45",
 };
 
-const accentBars: Record<ToastVariant, string> = {
-  default: "bg-[#6a6a85]",
-  success: "bg-[#3fb950]",
-  error: "bg-[#e8453c]",
+const iconBadges: Record<ToastVariant, string> = {
+  default: "border-white/10 bg-white/[0.06]",
+  success: "border-[#3fb950]/30 bg-[#3fb950]/12",
+  error: "border-[#e8453c]/30 bg-[#e8453c]/12",
 };
 
 function ToastProgress({ duration }: { duration: number }) {
@@ -106,7 +106,8 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
               duration={duration}
               className={cn(
                 "group pointer-events-auto relative flex w-full items-start gap-3 overflow-hidden",
-                "rounded-xl border bg-[#17171f] py-3.5 pl-5 pr-3 shadow-[0_24px_70px_rgba(0,0,0,0.75)] ring-1 ring-black/40",
+                "rounded-xl border bg-gradient-to-b from-[#1c1c25] to-[#141418] px-4 py-3.5 shadow-[0_24px_70px_rgba(0,0,0,0.75)] ring-1 ring-black/40",
+                "before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-white/10",
                 "transition-all duration-300",
                 "data-[state=open]:opacity-100 data-[state=open]:translate-x-0",
                 "data-[state=closed]:opacity-0 data-[state=closed]:translate-x-3",
@@ -117,15 +118,13 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
                 borderAccents[t.variant ?? "default"]
               )}
             >
+            <ToastProgress duration={duration} />
             <span
               className={cn(
-                "pointer-events-none absolute inset-y-0 left-0 w-[3px]",
-                accentBars[t.variant ?? "default"]
+                "mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border",
+                iconBadges[t.variant ?? "default"]
               )}
-              aria-hidden
-            />
-            <ToastProgress duration={duration} />
-            <span className="mt-0.5 shrink-0">
+            >
               {icons[t.variant ?? "default"]}
             </span>
             <div className="flex min-w-0 flex-1 flex-col gap-0.5">
