@@ -60,12 +60,13 @@ export function FilmRatingPanel({
     };
   }, [filmId, isAuthenticated]);
 
+  const hasRatings = ratingCount > 0;
   const displayRating = hoverRating ?? userRating ?? averageRating;
   const selectedLabel = useMemo(() => {
     if (hoverRating !== null) return `Rate ${formatRating(hoverRating)}`;
     if (userRating !== null) return `Your rating ${formatRating(userRating)}`;
     if (averageRating !== null) return `Average ${formatRating(averageRating)}`;
-    return "No ratings yet";
+    return "Be the first to rate";
   }, [averageRating, hoverRating, userRating]);
 
   async function handleRate(rating: number) {
@@ -92,6 +93,55 @@ export function FilmRatingPanel({
     }
   }
 
+  const ratingInput = (
+    <div className="min-w-[220px]">
+      <p className="mb-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.28em] text-white/42">
+        {selectedLabel}
+      </p>
+      <div
+        className="relative inline-flex"
+        onMouseLeave={() => setHoverRating(null)}
+      >
+        <RatingStars value={displayRating} size="lg" />
+        <div
+          className="absolute inset-0 grid"
+          style={{ gridTemplateColumns: `repeat(${RATING_VALUES.length}, minmax(0, 1fr))` }}
+        >
+          {RATING_VALUES.map((rating) => (
+            <button
+              key={rating}
+              type="button"
+              disabled={!isAuthenticated || !watched || pending || !statusLoaded}
+              aria-label={`Rate ${formatRating(rating)} out of 10`}
+              onMouseEnter={() => setHoverRating(rating)}
+              onFocus={() => setHoverRating(rating)}
+              onBlur={() => setHoverRating(null)}
+              onClick={() => void handleRate(rating)}
+              className={cn(
+                "h-8 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
+                "disabled:cursor-not-allowed",
+                !isAuthenticated || !watched || !statusLoaded ? "opacity-45" : "hover:opacity-100",
+              )}
+            />
+          ))}
+        </div>
+      </div>
+      <RatingHint
+        isAuthenticated={isAuthenticated}
+        isSessionLoading={isSessionLoading}
+        statusLoaded={statusLoaded}
+        watched={watched}
+      />
+    </div>
+  );
+
+  // Cold start: with no ratings yet, an aggregate "0 ratings" panel reads as
+  // negative social proof. Collapse to just the rating control so the section
+  // invites the first rating instead of advertising emptiness.
+  if (!hasRatings) {
+    return <div className="w-full max-w-[520px]">{ratingInput}</div>;
+  }
+
   return (
     <div className="w-full max-w-[520px] border border-white/12 bg-black/25 px-5 py-4 backdrop-blur-sm">
       <div className="flex flex-wrap items-end justify-between gap-4">
@@ -110,45 +160,7 @@ export function FilmRatingPanel({
           </div>
         </div>
 
-        <div className="min-w-[220px]">
-          <p className="mb-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.28em] text-white/42">
-            {selectedLabel}
-          </p>
-          <div
-            className="relative inline-flex"
-            onMouseLeave={() => setHoverRating(null)}
-          >
-            <RatingStars value={displayRating} size="lg" />
-            <div
-              className="absolute inset-0 grid"
-              style={{ gridTemplateColumns: `repeat(${RATING_VALUES.length}, minmax(0, 1fr))` }}
-            >
-            {RATING_VALUES.map((rating) => (
-              <button
-                key={rating}
-                type="button"
-                disabled={!isAuthenticated || !watched || pending || !statusLoaded}
-                aria-label={`Rate ${formatRating(rating)} out of 10`}
-                onMouseEnter={() => setHoverRating(rating)}
-                onFocus={() => setHoverRating(rating)}
-                onBlur={() => setHoverRating(null)}
-                onClick={() => void handleRate(rating)}
-                className={cn(
-                  "h-8 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
-                  "disabled:cursor-not-allowed",
-                  !isAuthenticated || !watched || !statusLoaded ? "opacity-45" : "hover:opacity-100",
-                )}
-              />
-            ))}
-            </div>
-          </div>
-          <RatingHint
-            isAuthenticated={isAuthenticated}
-            isSessionLoading={isSessionLoading}
-            statusLoaded={statusLoaded}
-            watched={watched}
-          />
-        </div>
+        {ratingInput}
       </div>
     </div>
   );
