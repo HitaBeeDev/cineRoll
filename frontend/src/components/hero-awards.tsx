@@ -31,7 +31,7 @@ export function HeroAwards({ ceremonies }: { ceremonies: HeroCeremony[] }) {
   if (ceremonies.length === 0) return null;
 
   return (
-    <div className="mt-8 flex flex-wrap items-center gap-x-9 gap-y-5">
+    <div className="flex flex-wrap items-center gap-x-9 gap-y-5">
       {ceremonies.map((c) => {
         const showWins = c.wins > 0;
         const count = showWins ? c.wins : c.nominations;

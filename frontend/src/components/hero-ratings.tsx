@@ -27,7 +27,7 @@ export function HeroRatings({
   const rtFresh = rtScore != null && rtScore >= 60;
 
   return (
-    <div className="mt-7 flex flex-wrap items-center gap-x-8 gap-y-4">
+    <div className="flex flex-wrap items-center gap-x-8 gap-y-4">
       {imdbRating != null && (
         <ScoreStat
           accent={IMDB_GOLD}

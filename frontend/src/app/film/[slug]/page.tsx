@@ -223,6 +223,7 @@ export default async function FilmPage({
   const youtubeId = film.trailerUrl ? extractYouTubeId(film.trailerUrl) : null;
   const awardSummary = computeAwardSummary(film);
   const hasAwards = awardSummary.totalNominations > 0;
+  const hasRatings = film.imdbRating != null || film.rtScore != null;
   const accent = film.posterColor ?? FALLBACK_ACCENT;
   const formattedRuntime = formatRuntime(film.runtime);
 
@@ -324,7 +325,10 @@ export default async function FilmPage({
                   </div>
                 )}
 
-                {/* Title */}
+                {/* ── ZONE 1 · IDENTITY ─────────────────────────────
+                    What the film is: title, who made it, and the factual
+                    metadata line. Tight internal spacing so it reads as one
+                    block. */}
                 <h1
                   className="font-[family-name:var(--font-display)] font-bold leading-[0.87] tracking-tight text-[#F8F8F4]"
                   style={{ fontSize: "clamp(3rem,7.5vw,7.5rem)", textShadow: "0 2px 40px rgba(0,0,0,0.6)" }}
@@ -344,13 +348,10 @@ export default async function FilmPage({
 
                 {/* Original title */}
                 {film.originalTitle && film.originalTitle !== film.title && (
-                  <p className="mt-4 font-[family-name:var(--font-display)] text-xl italic text-white/55">
+                  <p className="mt-3 font-[family-name:var(--font-display)] text-xl italic text-white/55">
                     {film.originalTitle}
                   </p>
                 )}
-
-                {/* Awards: CineRoll's headline value proposition */}
-                {hasAwards && <HeroAwards ceremonies={awardSummary.ceremonies} />}
 
                 {/* Specs: factual metadata as a lightweight dotted text line */}
                 <div className="mt-6 flex flex-wrap items-center gap-x-2.5 gap-y-1.5 font-[family-name:var(--font-geist-mono)] text-[12px] uppercase tracking-[0.18em] text-white/60">
@@ -386,19 +387,34 @@ export default async function FilmPage({
                   </div>
                 )}
 
-                <HeroRatings
-                  imdbRating={film.imdbRating}
-                  rtScore={film.rtScore}
-                />
+                {/* ── ZONE 2 · ACCOLADES ────────────────────────────
+                    How decorated and how rated the film is — CineRoll's award
+                    data leads, third-party scores support. The large zone gap
+                    separates it from the identity block above. */}
+                {(hasAwards || hasRatings) && (
+                  <div className="mt-12 space-y-7">
+                    {hasAwards && (
+                      <HeroAwards ceremonies={awardSummary.ceremonies} />
+                    )}
+                    <HeroRatings
+                      imdbRating={film.imdbRating}
+                      rtScore={film.rtScore}
+                    />
+                  </div>
+                )}
 
-                <HeroCTAs
-                  trailerUrl={film.trailerUrl}
-                  filmId={film.id}
-                  filmTitle={displayTitle(film.title)}
-                  shareUrl={`${SITE_URL}/film/${film.slug}`}
-                  shareTitle={`Watch ${displayTitle(film.title)} tonight — CineRoll picked it`}
-                  shareCaption={buildShareCaption(film)}
-                />
+                {/* ── ZONE 3 · ACTIONS ──────────────────────────────
+                    What you can do with it. */}
+                <div className="mt-12">
+                  <HeroCTAs
+                    trailerUrl={film.trailerUrl}
+                    filmId={film.id}
+                    filmTitle={displayTitle(film.title)}
+                    shareUrl={`${SITE_URL}/film/${film.slug}`}
+                    shareTitle={`Watch ${displayTitle(film.title)} tonight — CineRoll picked it`}
+                    shareCaption={buildShareCaption(film)}
+                  />
+                </div>
               </div>
 
               {/* ── Right: Poster card (desktop only) ──────────────── */}
