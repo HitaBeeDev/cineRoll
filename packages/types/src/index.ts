@@ -72,6 +72,8 @@ export interface RollEvent {
 }
 
 export type AwardBody = "oscar" | "goldenglobe" | "cannes" | "berlin" | "all";
+/** A concrete award corpus selectable in the multi-select award filter (no "all" sentinel — an empty array means "all"). */
+export type AwardBodyFilter = Exclude<AwardBody, "all">;
 export type FilmSort = "newest" | "title" | "rating" | "rt" | "awards";
 export type SortOrder = "asc" | "desc";
 
@@ -80,15 +82,17 @@ export interface FilterState {
   person: string;
   director: string;
   femaleDirectorOnly: boolean;
-  awardBody: AwardBody;
+  // Multi-select facets: an empty array means "no constraint" (was the "all"/""
+  // sentinel in the old single-value model). Matching is OR within a facet.
+  awardBodies: AwardBodyFilter[];
   winnerOnly: boolean;
   nominatedOnly: boolean;
-  category: string;
+  categories: string[];
   awardYear: number | null;
-  language: string;
-  genre: string;
-  country: string;
-  contentType: string;
+  languages: string[];
+  genres: string[];
+  countries: string[];
+  contentTypes: string[];
   runtimeMax: number | null;
   decadeMin: number;
   decadeMax: number;

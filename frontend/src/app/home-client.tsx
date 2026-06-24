@@ -385,7 +385,7 @@ export function HomeClient({
         }}
         onContinue={(seed) => {
           if (seed?.primaryGenre) {
-            setFilter({ genre: seed.primaryGenre, page: 1 });
+            setFilter({ genres: [seed.primaryGenre], page: 1 });
           }
           try {
             window.localStorage.setItem(ONBOARDED_STORAGE_KEY, "true");

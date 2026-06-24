@@ -27,7 +27,7 @@ const PICK_SLOTS: {
     icon: <Trophy className="h-3.5 w-3.5" />,
     accentColor: "#e8453c",
     borderColor: "border-[#e8453c]/30",
-    filters: { awardBody: "oscar", winnerOnly: true, imdbRatingMin: 7.5 },
+    filters: { awardBodies: ["oscar"], winnerOnly: true, imdbRatingMin: 7.5 },
   },
   {
     num: "02",
@@ -36,7 +36,7 @@ const PICK_SLOTS: {
     icon: <Clapperboard className="h-3.5 w-3.5" />,
     accentColor: "#4a9eff",
     borderColor: "border-[#4a9eff]/30",
-    filters: { awardBody: "cannes", winnerOnly: true },
+    filters: { awardBodies: ["cannes"], winnerOnly: true },
   },
   {
     num: "03",

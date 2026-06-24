@@ -45,16 +45,49 @@ const FEMALE_DIRECTORS = [
   "Susanne Bier",
 ];
 
+const AWARD_BODY_VALUES = ["oscar", "goldenglobe", "cannes", "berlin"] as const;
+type AwardBodyValue = (typeof AWARD_BODY_VALUES)[number];
+
+// Multi-select facet param: a comma-separated list (`?genre=Drama,Comedy`) parsed
+// into a string array. A single value parses to a 1-element array, so old
+// single-value shared links and the natural-roll path keep working unchanged.
+// `undefined` (param absent) short-circuits via `.optional()` before the effect runs.
+const csvParam = (max: number) =>
+  z
+    .preprocess(
+      value =>
+        typeof value === "string"
+          ? value.split(",").map(s => s.trim()).filter(Boolean)
+          : value,
+      z.array(z.string().min(1).max(max)),
+    )
+    .optional();
+
+// Award bodies are a fixed enum; unknown tokens (and the legacy "all" sentinel)
+// are dropped rather than rejected, mirroring the old default-to-all behavior.
+const awardBodiesParam = z
+  .preprocess(
+    value =>
+      typeof value === "string"
+        ? value
+            .split(",")
+            .map(s => s.trim().toLowerCase())
+            .filter((s): s is AwardBodyValue => (AWARD_BODY_VALUES as readonly string[]).includes(s))
+        : value,
+    z.array(z.enum(AWARD_BODY_VALUES)),
+  )
+  .optional();
+
 const listQueryBaseSchema = z.object({
   search: z.string().trim().min(1).max(120).optional(),
   person: z.string().trim().min(1).max(120).optional(),
   director: z.string().trim().min(1).max(120).optional(),
   femaleDirectorOnly: queryBooleanSchema.optional(),
-  awardBody: z.enum(["oscar", "goldenglobe", "cannes", "berlin", "all"]).default("all"),
-  contentType: z.string().trim().min(1).max(60).optional(),
-  language: z.string().trim().min(1).max(10).optional(),
-  genre: z.string().trim().min(1).max(80).optional(),
-  country: z.string().trim().min(1).max(80).optional(),
+  awardBody: awardBodiesParam,
+  contentType: csvParam(60),
+  language: csvParam(10),
+  genre: csvParam(80),
+  country: csvParam(80),
   runtimeMax: z.coerce.number().int().min(1).max(1000).optional(),
   decadeMin: z.coerce.number().int().min(1800).max(2200).optional(),
   decadeMax: z.coerce.number().int().min(1800).max(2200).optional(),
@@ -63,7 +96,7 @@ const listQueryBaseSchema = z.object({
   imdbRatingMin: z.coerce.number().min(0).max(10).optional(),
   imdbRatingMax: z.coerce.number().min(0).max(10).optional(),
   rtScoreMin: z.coerce.number().int().min(0).max(100).optional(),
-  category: z.string().trim().min(1).max(120).optional(),
+  category: csvParam(120),
   winnerOnly: queryBooleanSchema.optional(),
   nominatedOnly: queryBooleanSchema.optional(),
   certificate: z.string().trim().min(1).max(20).optional(),
@@ -119,29 +152,24 @@ export const randomQuerySchema = listQueryBaseSchema.extend({
 export type ListQuery = z.infer<typeof listQuerySchema>;
 export type RandomQuery = z.infer<typeof randomQuerySchema>;
 
-export function awardJsonSources(awardBody: ListQuery["awardBody"]) {
-  if (awardBody === "oscar") {
-    return [Prisma.sql`"Film"."oscarCategories"`];
+// The JSON columns to search for an award match. With no bodies selected (empty
+// or undefined) every corpus is searched; otherwise only the chosen ones are,
+// unioned with OR by the caller.
+export function awardJsonSources(awardBodies: ListQuery["awardBody"]) {
+  const byBody: Record<AwardBodyValue, Prisma.Sql> = {
+    oscar: Prisma.sql`"Film"."oscarCategories"`,
+    goldenglobe: Prisma.sql`"Film"."ggCategories"`,
+    cannes: Prisma.sql`"Film"."cannesCategories"`,
+    berlin: Prisma.sql`"Film"."berlinCategories"`,
+  };
+  if (!awardBodies || awardBodies.length === 0) {
+    return Object.values(byBody);
   }
-  if (awardBody === "goldenglobe") {
-    return [Prisma.sql`"Film"."ggCategories"`];
-  }
-  if (awardBody === "cannes") {
-    return [Prisma.sql`"Film"."cannesCategories"`];
-  }
-  if (awardBody === "berlin") {
-    return [Prisma.sql`"Film"."berlinCategories"`];
-  }
-  return [
-    Prisma.sql`"Film"."oscarCategories"`,
-    Prisma.sql`"Film"."ggCategories"`,
-    Prisma.sql`"Film"."cannesCategories"`,
-    Prisma.sql`"Film"."berlinCategories"`,
-  ];
+  return awardBodies.map(body => byBody[body]);
 }
 
 export function awardExists(
-  awardBody: ListQuery["awardBody"],
+  awardBodies: ListQuery["awardBody"],
   awardConditions: Prisma.Sql[] = [],
 ) {
   const whereSql =
@@ -149,7 +177,7 @@ export function awardExists(
       ? Prisma.sql`WHERE ${Prisma.join(awardConditions, " AND ")}`
       : Prisma.empty;
 
-  const existsClauses = awardJsonSources(awardBody).map(source => Prisma.sql`
+  const existsClauses = awardJsonSources(awardBodies).map(source => Prisma.sql`
     EXISTS (
       SELECT 1
       FROM jsonb_array_elements(${source}) AS award
@@ -167,19 +195,20 @@ function awardFilter(query: ListQuery) {
     awardConditions.push(Prisma.sql`(award->>'awardYear')::INT = ${query.awardYear}`);
   }
 
-  if (query.category) {
-    awardConditions.push(Prisma.sql`award->>'category' ILIKE ${`%${query.category}%`}`);
+  if (query.category && query.category.length > 0) {
+    // Multiple categories are OR'd: an award matching any selected category counts.
+    const categoryMatches = query.category.map(
+      cat => Prisma.sql`award->>'category' ILIKE ${`%${cat}%`}`,
+    );
+    awardConditions.push(Prisma.sql`(${Prisma.join(categoryMatches, " OR ")})`);
   }
 
   if (query.winnerOnly === true) {
     awardConditions.push(Prisma.sql`(award->>'won')::BOOLEAN = true`);
   }
 
-  if (
-    query.awardBody === "all" &&
-    query.nominatedOnly !== true &&
-    awardConditions.length === 0
-  ) {
+  const noBodies = !query.awardBody || query.awardBody.length === 0;
+  if (noBodies && query.nominatedOnly !== true && awardConditions.length === 0) {
     return undefined;
   }
 
@@ -234,20 +263,22 @@ export function buildWhereClause(
     )`);
   }
 
-  if (query.contentType) {
-    where.push(Prisma.sql`"Film"."contentType" = ${query.contentType}`);
+  if (query.contentType && query.contentType.length > 0) {
+    where.push(Prisma.sql`"Film"."contentType" = ANY(ARRAY[${Prisma.join(query.contentType)}])`);
   }
 
-  if (query.language) {
-    where.push(Prisma.sql`"Film"."language" = ${query.language}`);
+  if (query.language && query.language.length > 0) {
+    where.push(Prisma.sql`"Film"."language" = ANY(ARRAY[${Prisma.join(query.language)}])`);
   }
 
-  if (query.country) {
-    where.push(Prisma.sql`"Film"."countries" @> ARRAY[${query.country}]::TEXT[]`);
+  // Array-overlap (`&&`): the film qualifies if it has any of the selected
+  // countries/genres — OR within the facet (was single-element containment `@>`).
+  if (query.country && query.country.length > 0) {
+    where.push(Prisma.sql`"Film"."countries" && ARRAY[${Prisma.join(query.country)}]::TEXT[]`);
   }
 
-  if (query.genre) {
-    where.push(Prisma.sql`"Film"."genres" @> ARRAY[${query.genre}]::TEXT[]`);
+  if (query.genre && query.genre.length > 0) {
+    where.push(Prisma.sql`"Film"."genres" && ARRAY[${Prisma.join(query.genre)}]::TEXT[]`);
   }
 
   if (query.runtimeMax !== undefined) {

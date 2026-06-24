@@ -49,7 +49,34 @@ export type RandomResult = {
 
 export type MarathonResult = { films: RollFilm[]; totalRuntime: number; total: number };
 
-export type NaturalRollFilters = Partial<Record<keyof FilterState, string | number | boolean>>;
+// The natural-roll ("describe") path is independent of the browse multi-select
+// model: the AI emits single-value structural constraints under its own keys, so
+// this type is spelled out explicitly rather than derived from FilterState (whose
+// facets are now arrays). Kept in sync with the backend Stage-1 schema.
+export type NaturalRollFilters = {
+  search?: string;
+  person?: string;
+  director?: string;
+  femaleDirectorOnly?: boolean;
+  awardBody?: string;
+  winnerOnly?: boolean;
+  nominatedOnly?: boolean;
+  category?: string;
+  awardYear?: number;
+  language?: string;
+  genre?: string;
+  country?: string;
+  contentType?: string;
+  decadeMin?: number;
+  decadeMax?: number;
+  runtimeMax?: number;
+  imdbRatingMin?: number;
+  rtScoreMin?: number;
+  imdbTopMoviesOnly?: boolean;
+  imdbTopTvOnly?: boolean;
+  tvType?: string;
+  certificate?: string;
+};
 
 export type NaturalRollResult = {
   films: RollFilm[];
@@ -134,15 +161,17 @@ export function filtersToParams(filters: Partial<FilterState>): URLSearchParams 
   if (filters.person?.trim()) params.set("person", filters.person.trim());
   if (filters.director?.trim()) params.set("director", filters.director.trim());
   if (filters.femaleDirectorOnly) params.set("femaleDirectorOnly", "true");
-  if (filters.awardBody && filters.awardBody !== "all") params.set("awardBody", filters.awardBody);
+  // Multi-select facets are serialized as comma-joined lists under the original
+  // (singular) param names, so old single-value shared links still parse.
+  if (filters.awardBodies?.length) params.set("awardBody", filters.awardBodies.join(","));
   if (filters.winnerOnly) params.set("winnerOnly", "true");
   if (filters.nominatedOnly) params.set("nominatedOnly", "true");
-  if (filters.category?.trim()) params.set("category", filters.category.trim());
+  if (filters.categories?.length) params.set("category", filters.categories.join(","));
   if (filters.awardYear != null) params.set("awardYear", String(filters.awardYear));
-  if (filters.genre?.trim()) params.set("genre", filters.genre.trim());
-  if (filters.language?.trim()) params.set("language", filters.language.trim());
-  if (filters.country?.trim()) params.set("country", filters.country.trim());
-  if (filters.contentType?.trim()) params.set("contentType", filters.contentType.trim());
+  if (filters.genres?.length) params.set("genre", filters.genres.join(","));
+  if (filters.languages?.length) params.set("language", filters.languages.join(","));
+  if (filters.countries?.length) params.set("country", filters.countries.join(","));
+  if (filters.contentTypes?.length) params.set("contentType", filters.contentTypes.join(","));
   if (filters.runtimeMax != null) params.set("runtimeMax", String(filters.runtimeMax));
   if (filters.decadeMin != null && filters.decadeMin !== DEFAULT_DECADE_MIN) {
     params.set("decadeMin", String(filters.decadeMin));

@@ -4,16 +4,10 @@ import * as React from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowUpRight, Check, Globe, Link2, PawPrint, TreePalm, X } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { MultiSelect } from "@/components/ui/multi-select";
 import { filtersToParams } from "@/lib/api";
 import { cn, nameToSlug } from "@/lib/utils";
-import type { FilterState, AwardBody } from "@cineroll/types";
+import type { FilterState, AwardBodyFilter } from "@cineroll/types";
 
 interface FilterBarProps {
   filters: FilterState;
@@ -27,8 +21,7 @@ const DECADE_MIN = 1900;
 const DECADE_MAX = 2030;
 
 
-const AWARD_BODIES: { value: AwardBody; label: string }[] = [
-  { value: "all", label: "All" },
+const AWARD_BODIES: { value: AwardBodyFilter; label: string }[] = [
   { value: "oscar", label: "Oscar" },
   { value: "goldenglobe", label: "Golden Globe" },
   { value: "cannes", label: "Cannes" },
@@ -36,13 +29,21 @@ const AWARD_BODIES: { value: AwardBody; label: string }[] = [
 ];
 
 const CONTENT_TYPES: { value: string; label: string }[] = [
-  { value: "", label: "All" },
   { value: "movie", label: "Movie" },
   { value: "short", label: "Short" },
   { value: "animation", label: "Animation" },
   { value: "documentary", label: "Documentary" },
   { value: "tv-series", label: "TV Series" },
 ];
+
+/** Add/remove `value` in a multi-select facet array. */
+function toggleValue<T>(list: T[], value: T): T[] {
+  return list.includes(value) ? list.filter((v) => v !== value) : [...list, value];
+}
+
+function awardBodyName(body: AwardBodyFilter): string {
+  return AWARD_BODIES.find((b) => b.value === body)?.label ?? body;
+}
 
 export function FilterBar({
   filters,
@@ -83,23 +84,21 @@ export function FilterBar({
         Build Your Roll
       </p>
 
-      {/* AWARDS */}
+      {/* AWARDS — bodies are multi-select (combine Oscar + Golden Globe, etc.);
+          the IMDb lists are independent toggles that can coexist with them. */}
       <FilterRow label="Awards">
+        <PillToggle
+          active={filters.awardBodies.length === 0}
+          onClick={() => onFiltersChange({ awardBodies: [], page: 1 })}
+        >
+          All
+        </PillToggle>
         {AWARD_BODIES.map(({ value, label }) => (
           <PillToggle
             key={value}
-            active={
-              filters.awardBody === value &&
-              !filters.imdbTopMoviesOnly &&
-              !filters.imdbTopTvOnly
-            }
+            active={filters.awardBodies.includes(value)}
             onClick={() =>
-              onFiltersChange({
-                awardBody: value,
-                imdbTopMoviesOnly: false,
-                imdbTopTvOnly: false,
-                page: 1,
-              })
+              onFiltersChange({ awardBodies: toggleValue(filters.awardBodies, value), page: 1 })
             }
           >
             <span className="inline-flex items-center gap-1">
@@ -169,13 +168,19 @@ export function FilterBar({
         </PillToggle>
       </FilterRow>
 
-      {/* TYPE */}
+      {/* TYPE — multi-select; "All" clears the selection */}
       <FilterRow label="Type">
+        <PillToggle
+          active={filters.contentTypes.length === 0}
+          onClick={() => onFiltersChange({ contentTypes: [], page: 1 })}
+        >
+          All
+        </PillToggle>
         {CONTENT_TYPES.map(({ value, label }) => (
           <PillToggle
-            key={value || "all"}
-            active={filters.contentType === value}
-            onClick={() => onFiltersChange({ contentType: value, page: 1 })}
+            key={value}
+            active={filters.contentTypes.includes(value)}
+            onClick={() => onFiltersChange({ contentTypes: toggleValue(filters.contentTypes, value), page: 1 })}
           >
             {label}
           </PillToggle>
@@ -184,34 +189,15 @@ export function FilterBar({
 
       {/* GENRE */}
       <FilterRow label="Genre">
-        <Select
-          value={filters.genre || "_all"}
-          onValueChange={(val) =>
-            onFiltersChange({ genre: val === "_all" ? "" : val, page: 1 })
-          }
-        >
-          <SelectTrigger
-            className={cn(
-              "h-auto! w-auto! gap-1.5 rounded-full! border px-3 py-1.5!",
-              "font-[family-name:var(--font-geist-mono)] text-[11px]! uppercase tracking-widest",
-              "transition-colors duration-150",
-              "[&>svg]:h-3.5 [&>svg]:w-3.5 [&>svg]:text-current! [&>svg]:opacity-70",
-              filters.genre
-                ? "border-[#c08818]! bg-gradient-to-br from-[#deba4a] to-[#c08818] text-[#1a0d00]!"
-                : "border-[#34344d]! bg-[#0e0e1a]! text-[#aaaac6]! hover:border-[#e8453c]/45 hover:text-[#F5F5F0]",
-            )}
-          >
-            <SelectValue placeholder="All" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="_all">All</SelectItem>
-            {genres.map((genre) => (
-              <SelectItem key={genre} value={genre}>
-                {genre}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <MultiSelect
+          ariaLabel="Genre"
+          selected={filters.genres}
+          onChange={(vals) => onFiltersChange({ genres: vals, page: 1 })}
+          placeholder="All"
+          searchable
+          triggerClassName="rounded-full"
+          options={genres.map((genre) => ({ value: genre, label: genre }))}
+        />
       </FilterRow>
 
       {/* Active filter chips */}
@@ -304,37 +290,33 @@ export function FilterBar({
 function buildRollRecipe(filters: FilterState): string {
   const parts: string[] = [];
 
-  if (filters.imdbTopMoviesOnly) {
-    parts.push("IMDb Top 250 Movies");
-  } else if (filters.imdbTopTvOnly) {
-    parts.push("IMDb Top 250 Shows");
-  } else {
-    const bodyName =
-      filters.awardBody === "oscar" ? "Oscar" :
-      filters.awardBody === "goldenglobe" ? "Golden Globe" :
-      filters.awardBody === "cannes" ? "Cannes" :
-      filters.awardBody === "berlin" ? "Berlinale" : null;
+  if (filters.imdbTopMoviesOnly) parts.push("IMDb Top 250 Movies");
+  if (filters.imdbTopTvOnly) parts.push("IMDb Top 250 Shows");
 
-    if (bodyName !== null) {
-      if (filters.winnerOnly) parts.push(`${bodyName} winners`);
-      else if (filters.nominatedOnly) parts.push(`${bodyName} nominations`);
-      else parts.push(`${bodyName} films`);
-    } else {
-      if (filters.winnerOnly) parts.push("winners");
-      else if (filters.nominatedOnly) parts.push("nominated films");
-    }
+  const bodyLabel = filters.awardBodies.length > 0
+    ? filters.awardBodies.map(awardBodyName).join(" & ")
+    : null;
+  if (bodyLabel !== null) {
+    if (filters.winnerOnly) parts.push(`${bodyLabel} winners`);
+    else if (filters.nominatedOnly) parts.push(`${bodyLabel} nominations`);
+    else parts.push(`${bodyLabel} films`);
+  } else if (!filters.imdbTopMoviesOnly && !filters.imdbTopTvOnly) {
+    if (filters.winnerOnly) parts.push("winners");
+    else if (filters.nominatedOnly) parts.push("nominated films");
   }
 
-  const contentLabel =
-    filters.contentType === "movie" ? "movies" :
-    filters.contentType === "short" ? "short films" :
-    filters.contentType === "animation" ? "animations" :
-    filters.contentType === "documentary" ? "documentaries" :
-    filters.contentType === "tv-series" ? "TV shows" : null;
-  if (contentLabel !== null) parts.push(contentLabel);
+  const contentLabels: Record<string, string> = {
+    movie: "movies",
+    short: "short films",
+    animation: "animations",
+    documentary: "documentaries",
+    "tv-series": "TV shows",
+  };
+  const contentLabel = filters.contentTypes.map((t) => contentLabels[t] ?? t).join(" & ");
+  if (contentLabel) parts.push(contentLabel);
 
-  if (filters.genre.trim()) parts.push(filters.genre.trim());
-  if (filters.category.trim()) parts.push(filters.category.trim());
+  if (filters.genres.length > 0) parts.push(filters.genres.join(" & "));
+  if (filters.categories.length > 0) parts.push(filters.categories.join(" & "));
 
   const minSet = filters.decadeMin !== DECADE_MIN;
   const maxSet = filters.decadeMax !== DECADE_MAX;
@@ -466,18 +448,12 @@ function getActiveFilterChips(
     });
   }
 
-  if (filters.awardBody !== "all") {
-    const awardBodyLabels: Record<AwardBody, string> = {
-      all: "All",
-      oscar: "Oscar",
-      goldenglobe: "Golden Globe",
-      cannes: "Cannes",
-      berlin: "Berlinale",
-    };
+  for (const body of filters.awardBodies) {
     chips.push({
-      key: "awardBody",
-      label: awardBodyLabels[filters.awardBody],
-      onRemove: () => onFiltersChange({ awardBody: "all", page: 1 }),
+      key: `awardBody:${body}`,
+      label: awardBodyName(body),
+      onRemove: () =>
+        onFiltersChange({ awardBodies: filters.awardBodies.filter((b) => b !== body), page: 1 }),
     });
   }
 
@@ -496,11 +472,12 @@ function getActiveFilterChips(
     });
   }
 
-  if (filters.category.trim()) {
+  for (const category of filters.categories) {
     chips.push({
-      key: "category",
-      label: filters.category.trim(),
-      onRemove: () => onFiltersChange({ category: "", page: 1 }),
+      key: `category:${category}`,
+      label: category,
+      onRemove: () =>
+        onFiltersChange({ categories: filters.categories.filter((c) => c !== category), page: 1 }),
     });
   }
 
@@ -512,11 +489,12 @@ function getActiveFilterChips(
     });
   }
 
-  if (filters.genre.trim()) {
+  for (const genre of filters.genres) {
     chips.push({
-      key: "genre",
-      label: filters.genre.trim(),
-      onRemove: () => onFiltersChange({ genre: "", page: 1 }),
+      key: `genre:${genre}`,
+      label: genre,
+      onRemove: () =>
+        onFiltersChange({ genres: filters.genres.filter((g) => g !== genre), page: 1 }),
     });
   }
 
@@ -549,19 +527,20 @@ function getActiveFilterChips(
     });
   }
 
-  if (filters.contentType) {
-    const contentTypeLabels: Record<string, string> = {
-      movie: "Movie",
-      short: "Short",
-      animation: "Animation",
-      documentary: "Documentary",
-      "tv-series": "TV Series",
-      "tv-mini-series": "TV Mini-Series",
-    };
+  const contentTypeLabels: Record<string, string> = {
+    movie: "Movie",
+    short: "Short",
+    animation: "Animation",
+    documentary: "Documentary",
+    "tv-series": "TV Series",
+    "tv-mini-series": "TV Mini-Series",
+  };
+  for (const type of filters.contentTypes) {
     chips.push({
-      key: "contentType",
-      label: contentTypeLabels[filters.contentType] ?? filters.contentType,
-      onRemove: () => onFiltersChange({ contentType: "", page: 1 }),
+      key: `contentType:${type}`,
+      label: contentTypeLabels[type] ?? type,
+      onRemove: () =>
+        onFiltersChange({ contentTypes: filters.contentTypes.filter((t) => t !== type), page: 1 }),
     });
   }
 

@@ -10,15 +10,15 @@ export const DEFAULT_FILTERS: FilterState = {
   person: "",
   director: "",
   femaleDirectorOnly: false,
-  awardBody: "all",
+  awardBodies: [],
   winnerOnly: false,
   nominatedOnly: false,
-  category: "",
+  categories: [],
   awardYear: null,
-  language: "",
-  genre: "",
-  country: "",
-  contentType: "",
+  languages: [],
+  genres: [],
+  countries: [],
+  contentTypes: [],
   runtimeMax: null,
   decadeMin: DEFAULT_DECADE_MIN,
   decadeMax: DEFAULT_DECADE_MAX,
@@ -42,15 +42,15 @@ export function computeHasActiveFilters(filters: FilterState): boolean {
     !!filters.person ||
     !!filters.director ||
     filters.femaleDirectorOnly ||
-    filters.awardBody !== "all" ||
+    filters.awardBodies.length > 0 ||
     filters.winnerOnly ||
     filters.nominatedOnly ||
-    !!filters.category ||
+    filters.categories.length > 0 ||
     filters.awardYear != null ||
-    !!filters.language ||
-    !!filters.genre ||
-    !!filters.country ||
-    !!filters.contentType ||
+    filters.languages.length > 0 ||
+    filters.genres.length > 0 ||
+    filters.countries.length > 0 ||
+    filters.contentTypes.length > 0 ||
     filters.runtimeMax != null ||
     filters.decadeMin !== DEFAULT_DECADE_MIN ||
     filters.decadeMax !== DEFAULT_DECADE_MAX ||

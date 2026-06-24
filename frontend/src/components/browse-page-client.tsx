@@ -14,8 +14,9 @@ import {
   SlidersHorizontal,
   X,
 } from "lucide-react";
-import type { AwardBody, FilterState, PaginatedFilms } from "@cineroll/types";
+import type { AwardBodyFilter, FilterState, PaginatedFilms } from "@cineroll/types";
 import { FilmCard, FilmCardSkeleton } from "@/components/film-card";
+import { MultiSelect } from "@/components/ui/multi-select";
 import { AppHeader } from "@/components/app-header";
 import { DEFAULT_FILTERS } from "@/hooks/useFilters";
 import {
@@ -52,37 +53,30 @@ const BROWSE_DECADE_OPTIONS = Array.from({ length: (DECADE_MAX - DECADE_MIN) / 1
 const GRAIN_SVG = `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`;
 
 /**
- * An award body and the IMDb curated lists are mutually exclusive: a film is
- * browsed either through an awards corpus or through one of the Top 250 lists,
- * never both. Modeling them as a single "scope" makes that exclusivity visible
- * in one radio group instead of burying it inside click handlers.
+ * The browse "scope" strip is one bordered group of independent toggles: the
+ * four award corpora (multi-select — combine Oscar + Golden Globe, etc.) and the
+ * two IMDb Top 250 lists. Award bodies and IMDb lists are independent and can
+ * coexist; the two IMDb lists are mutually exclusive (a film is never in both),
+ * so picking one clears the other without touching the award selection.
  */
-type Scope = AwardBody | "imdb-films" | "imdb-tv";
-
-const SCOPE_OPTIONS: { value: Scope; label: string; groupStart?: boolean }[] = [
-  { value: "all",         label: "All"                                  },
-  { value: "oscar",       label: "Oscar"                                },
-  { value: "goldenglobe", label: "Golden Globe"                         },
-  { value: "cannes",      label: "Cannes"                               },
-  { value: "berlin",      label: "Berlinale"                            },
-  { value: "imdb-films",  label: "IMDb Top 250 Films", groupStart: true },
-  { value: "imdb-tv",     label: "IMDb Top 250 TV"                      },
+const AWARD_BODY_OPTIONS: { value: AwardBodyFilter; label: string }[] = [
+  { value: "oscar",       label: "Oscar"        },
+  { value: "goldenglobe", label: "Golden Globe" },
+  { value: "cannes",      label: "Cannes"       },
+  { value: "berlin",      label: "Berlinale"    },
 ];
 
-function scopeFromFilters(f: FilterState): Scope {
-  if (f.imdbTopMoviesOnly) return "imdb-films";
-  if (f.imdbTopTvOnly)     return "imdb-tv";
-  return f.awardBody;
-}
+const CONTENT_TYPE_OPTIONS: { value: string; label: string }[] = [
+  { value: "movie",       label: "Movie"     },
+  { value: "short",       label: "Short"     },
+  { value: "animation",   label: "Animation" },
+  { value: "documentary", label: "Doc"       },
+  { value: "tv-series",   label: "TV Series" },
+];
 
-function scopeToUpdates(scope: Scope): Partial<FilterState> {
-  // Switching onto an IMDb list also clears the win/nom status, which has no
-  // meaning for those lists (and the status control is disabled to match).
-  if (scope === "imdb-films")
-    return { awardBody: "all", imdbTopMoviesOnly: true,  imdbTopTvOnly: false, winnerOnly: false, nominatedOnly: false, page: 1 };
-  if (scope === "imdb-tv")
-    return { awardBody: "all", imdbTopMoviesOnly: false, imdbTopTvOnly: true,  winnerOnly: false, nominatedOnly: false, page: 1 };
-  return { awardBody: scope, imdbTopMoviesOnly: false, imdbTopTvOnly: false, page: 1 };
+/** Add/remove `value` in a multi-select facet array. */
+function toggleValue<T>(list: T[], value: T): T[] {
+  return list.includes(value) ? list.filter(v => v !== value) : [...list, value];
 }
 
 // Constant look shared by every filter dropdown trigger. Deliberately omits the
@@ -434,9 +428,7 @@ export function BrowsePageClient() {
   const showSkeleton = status === "loading" && (!hasGrid || slowLoad);
   const showStaleGrid = status === "loading" && hasGrid && !slowLoad;
 
-  const scope       = scopeFromFilters(filters);
   const awardStatus = statusFromFilters(filters);
-  const scopeIsImdb = scope === "imdb-films" || scope === "imdb-tv";
 
   const activeChips = buildActiveChips(filters, setFilters);
   const advancedCount = countAdvancedFilters(filters);
@@ -579,27 +571,46 @@ export function BrowsePageClient() {
               )}
             </div>
 
-            {/* Scope — the award corpus (or an IMDb list); the two are exclusive */}
-            <SegmentedControl
+            {/* Scope — one strip of independent toggles: the four award corpora
+                (multi-select) plus the two IMDb lists, separated by a divider.
+                Award bodies and IMDb lists can be combined; the IMDb pair is
+                mutually exclusive. */}
+            <ToggleStrip
               ariaLabel="Browse scope"
-              options={SCOPE_OPTIONS}
-              value={scope}
-              onChange={(value) => setFilters(scopeToUpdates(value))}
               className="xl:shrink-0"
+              items={[
+                ...AWARD_BODY_OPTIONS.map((opt) => ({
+                  key: opt.value,
+                  label: opt.label,
+                  active: filters.awardBodies.includes(opt.value),
+                  onToggle: () => setFilters({ awardBodies: toggleValue(filters.awardBodies, opt.value), page: 1 }),
+                })),
+                {
+                  key: "imdb-films",
+                  label: "IMDb Top 250 Films",
+                  active: filters.imdbTopMoviesOnly,
+                  groupStart: true,
+                  onToggle: () => setFilters({ imdbTopMoviesOnly: !filters.imdbTopMoviesOnly, imdbTopTvOnly: false, page: 1 }),
+                },
+                {
+                  key: "imdb-tv",
+                  label: "IMDb Top 250 TV",
+                  active: filters.imdbTopTvOnly,
+                  onToggle: () => setFilters({ imdbTopTvOnly: !filters.imdbTopTvOnly, imdbTopMoviesOnly: false, page: 1 }),
+                },
+              ]}
             />
 
             {/* Award status — flows inline right after scope, so its position is
                 fixed by the (constant-width) search + scope and never shifts when
-                other filters change. Gone for IMDb lists (no win/nomination). */}
-            {!scopeIsImdb && (
-              <SegmentedControl
-                ariaLabel="Award status"
-                options={STATUS_OPTIONS}
-                value={awardStatus}
-                onChange={(value) => setFilters(statusToUpdates(value))}
-                className="xl:shrink-0"
-              />
-            )}
+                other filters change. */}
+            <SegmentedControl
+              ariaLabel="Award status"
+              options={STATUS_OPTIONS}
+              value={awardStatus}
+              onChange={(value) => setFilters(statusToUpdates(value))}
+              className="xl:shrink-0"
+            />
 
             {/* Advanced disclosure — sits inline after status with the same gap
                 as the other controls. As the last item, its active-count badge
@@ -688,31 +699,32 @@ export function BrowsePageClient() {
                 </PanelSection>
 
                 <PanelSection label="Genre">
-                  <FilterSelect
-                    value={filters.genre || "_all"}
-                    onValueChange={(val) => setFilters({ genre: val === "_all" ? "" : val, page: 1 })}
+                  <MultiSelect
+                    ariaLabel="Genre"
+                    selected={filters.genres}
+                    onChange={(vals) => setFilters({ genres: vals, page: 1 })}
                     placeholder="Any genre"
-                    className="w-full text-[#b8b5c8]"
-                    options={[{ value: "_all", label: "All genres" }, ...genres.map((g) => ({ value: g, label: g }))]}
+                    searchable
+                    triggerClassName="w-full"
+                    options={genres.map((g) => ({ value: g, label: g }))}
                   />
                 </PanelSection>
 
                 <PanelSection label="Content Type">
-                  <ChipGroup label="Content type">
-                    {(
-                      [
-                        { value: "",            label: "All"       },
-                        { value: "movie",       label: "Movie"     },
-                        { value: "short",       label: "Short"     },
-                        { value: "animation",   label: "Animation" },
-                        { value: "documentary", label: "Doc"       },
-                        { value: "tv-series",   label: "TV Series" },
-                      ] as { value: string; label: string }[]
-                    ).map(({ value, label }) => (
+                  <ChipGroup label="Content type" multiple>
+                    <FilterChip
+                      multiple
+                      active={filters.contentTypes.length === 0}
+                      onClick={() => setFilters({ contentTypes: [], page: 1 })}
+                    >
+                      All
+                    </FilterChip>
+                    {CONTENT_TYPE_OPTIONS.map(({ value, label }) => (
                       <FilterChip
                         key={value}
-                        active={filters.contentType === value}
-                        onClick={() => setFilters({ contentType: value, page: 1 })}
+                        multiple
+                        active={filters.contentTypes.includes(value)}
+                        onClick={() => setFilters({ contentTypes: toggleValue(filters.contentTypes, value), page: 1 })}
                       >
                         {label}
                       </FilterChip>
@@ -741,27 +753,28 @@ export function BrowsePageClient() {
                 </PanelSection>
 
                 <PanelSection label="Language">
-                  <FilterSelect
-                    value={filters.language || "_all"}
-                    onValueChange={(val) => setFilters({ language: val === "_all" ? "" : val, page: 1 })}
+                  <MultiSelect
+                    ariaLabel="Language"
+                    selected={filters.languages}
+                    onChange={(vals) => setFilters({ languages: vals, page: 1 })}
                     placeholder="Any language"
-                    className="w-full text-[#b8b5c8]"
-                    options={[
-                      { value: "_all", label: "Any language" },
-                      ...languages
-                        .map((c) => ({ value: c, label: languageLabel(c) }))
-                        .sort((a, b) => a.label.localeCompare(b.label)),
-                    ]}
+                    searchable
+                    triggerClassName="w-full"
+                    options={languages
+                      .map((c) => ({ value: c, label: languageLabel(c) }))
+                      .sort((a, b) => a.label.localeCompare(b.label))}
                   />
                 </PanelSection>
 
                 <PanelSection label="Country">
-                  <FilterSelect
-                    value={filters.country || "_all"}
-                    onValueChange={(val) => setFilters({ country: val === "_all" ? "" : val, page: 1 })}
+                  <MultiSelect
+                    ariaLabel="Country"
+                    selected={filters.countries}
+                    onChange={(vals) => setFilters({ countries: vals, page: 1 })}
                     placeholder="Any country"
-                    className="w-full text-[#b8b5c8]"
-                    options={[{ value: "_all", label: "Any country" }, ...countries.map((c) => ({ value: c, label: countryLabel(c) }))]}
+                    searchable
+                    triggerClassName="w-full"
+                    options={countries.map((c) => ({ value: c, label: countryLabel(c) }))}
                   />
                 </PanelSection>
 
@@ -798,12 +811,14 @@ export function BrowsePageClient() {
                 </PanelSection>
 
                 <PanelSection label="Award Category">
-                  <FilterSelect
-                    value={filters.category || "_all"}
-                    onValueChange={(val) => setFilters({ category: val === "_all" ? "" : val, page: 1 })}
+                  <MultiSelect
+                    ariaLabel="Award category"
+                    selected={filters.categories}
+                    onChange={(vals) => setFilters({ categories: vals, page: 1 })}
                     placeholder="Any category"
-                    className="w-full text-[#b8b5c8]"
-                    options={[{ value: "_all", label: "Any category" }, ...categories.map((c) => ({ value: c, label: c }))]}
+                    searchable
+                    triggerClassName="w-full"
+                    options={categories.map((c) => ({ value: c, label: c }))}
                   />
                 </PanelSection>
 
@@ -1063,6 +1078,55 @@ function SegmentedControl<T extends string>({
   );
 }
 
+/**
+ * Same bordered look as SegmentedControl, but every item is an independent
+ * toggle (aria-pressed) rather than a single-choice radio — so award bodies can
+ * be combined and the IMDb lists can sit alongside them in one strip.
+ */
+function ToggleStrip({
+  items,
+  ariaLabel,
+  className,
+}: {
+  items: { key: string; label: string; active: boolean; onToggle: () => void; groupStart?: boolean }[];
+  ariaLabel: string;
+  className?: string;
+}) {
+  return (
+    <div className={cn("flex w-full flex-col gap-1 sm:w-auto", className)}>
+      <div
+        role="group"
+        aria-label={ariaLabel}
+        className="flex w-full max-w-full flex-wrap items-center gap-1 rounded-md border border-white/10 bg-white/[0.025] p-1 sm:w-auto xl:flex-nowrap"
+      >
+        {items.map((item, i) => (
+          <Fragment key={item.key}>
+            {i > 0 && (
+              <span
+                aria-hidden
+                className={cn("w-px shrink-0", item.groupStart ? "mx-1 h-5 bg-white/20" : "h-4 bg-white/10")}
+              />
+            )}
+            <button
+              type="button"
+              aria-pressed={item.active}
+              onClick={item.onToggle}
+              className={cn(
+                "h-8 shrink-0 rounded px-3 font-[family-name:var(--font-geist-mono)] text-[12px] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40",
+                item.active
+                  ? "bg-[#e8453c] text-white shadow-[0_0_24px_rgba(232,69,60,0.24)]"
+                  : "text-[#7f7a91] hover:bg-white/[0.055] hover:text-[#f1eff8]",
+              )}
+            >
+              {item.label}
+            </button>
+          </Fragment>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 /** A filter dropdown with the shared trigger styling, content panel, and option mapping baked in. */
 function FilterSelect({
   value,
@@ -1097,16 +1161,20 @@ function FilterChip({
   active,
   onClick,
   children,
+  multiple = false,
 }: {
   active: boolean;
   onClick: () => void;
   children: React.ReactNode;
+  /** Render as a toggle (aria-pressed) rather than a single-choice radio. */
+  multiple?: boolean;
 }) {
   return (
     <button
       type="button"
-      role="radio"
-      aria-checked={active}
+      role={multiple ? undefined : "radio"}
+      aria-pressed={multiple ? active : undefined}
+      aria-checked={multiple ? undefined : active}
       onClick={onClick}
       className={cn(
         "h-8 rounded-md border px-3 font-[family-name:var(--font-geist-mono)] text-[12px] tabular-nums transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/35",
@@ -1120,10 +1188,10 @@ function FilterChip({
   );
 }
 
-/** Wraps a set of single-select FilterChips so assistive tech reads them as one radio group. */
-function ChipGroup({ label, children }: { label: string; children: React.ReactNode }) {
+/** Wraps a set of FilterChips as one group — a radiogroup for single-select, a plain group for multi-select. */
+function ChipGroup({ label, children, multiple = false }: { label: string; children: React.ReactNode; multiple?: boolean }) {
   return (
-    <div role="radiogroup" aria-label={label} className="flex flex-wrap gap-1">
+    <div role={multiple ? "group" : "radiogroup"} aria-label={label} className="flex flex-wrap gap-1">
       {children}
     </div>
   );
@@ -1238,50 +1306,67 @@ type SetFilters = (u: Partial<FilterState>) => void;
 type FilterDescriptor = {
   advanced: boolean;
   isActive: (f: FilterState) => boolean;
-  toChip: (f: FilterState, set: SetFilters) => ActiveChip;
+  // Returns one chip per active value, so a multi-select facet shows a removable
+  // chip for each selected option (each clearing only its own value).
+  toChips: (f: FilterState, set: SetFilters) => ActiveChip[];
 };
+
+/** Build the per-value removable chips for one multi-select facet. */
+function facetChips<T extends string>(
+  keyPrefix: string,
+  values: T[],
+  labelOf: (v: T) => string,
+  clear: (remaining: T[]) => Partial<FilterState>,
+  set: SetFilters,
+): ActiveChip[] {
+  return values.map((v) => ({
+    key: `${keyPrefix}:${v}`,
+    label: labelOf(v),
+    onRemove: () => set({ ...clear(values.filter((x) => x !== v)), page: 1 }),
+  }));
+}
 
 const FILTER_DESCRIPTORS: FilterDescriptor[] = [
   { advanced: false, isActive: (f) => !!f.search.trim(),
-    toChip: (f, set) => ({ key: "search", label: `"${f.search.trim()}"`, onRemove: () => set({ search: "", page: 1 }) }) },
+    toChips: (f, set) => [{ key: "search", label: `"${f.search.trim()}"`, onRemove: () => set({ search: "", page: 1 }) }] },
   { advanced: false, isActive: (f) => !!f.person.trim(),
-    toChip: (f, set) => ({ key: "person", label: f.person.trim(), onRemove: () => set({ person: "", page: 1 }) }) },
+    toChips: (f, set) => [{ key: "person", label: f.person.trim(), onRemove: () => set({ person: "", page: 1 }) }] },
   { advanced: true, isActive: (f) => f.femaleDirectorOnly,
-    toChip: (_f, set) => ({ key: "femaleDir", label: "Female-directed", onRemove: () => set({ femaleDirectorOnly: false, page: 1 }) }) },
-  { advanced: false, isActive: (f) => f.awardBody !== "all",
-    toChip: (f, set) => ({ key: "body", label: awardBodyLabel(f.awardBody), onRemove: () => set({ awardBody: "all", page: 1 }) }) },
+    toChips: (_f, set) => [{ key: "femaleDir", label: "Female-directed", onRemove: () => set({ femaleDirectorOnly: false, page: 1 }) }] },
+  { advanced: false, isActive: (f) => f.awardBodies.length > 0,
+    toChips: (f, set) => facetChips("body", f.awardBodies, awardBodyLabel, (awardBodies) => ({ awardBodies }), set) },
   { advanced: false, isActive: (f) => f.winnerOnly || f.nominatedOnly,
-    toChip: (f, set) => f.winnerOnly
+    toChips: (f, set) => [f.winnerOnly
       ? { key: "won", label: "Won", onRemove: () => set({ winnerOnly: false, page: 1 }) }
-      : { key: "nom", label: "Nominated", onRemove: () => set({ nominatedOnly: false, page: 1 }) } },
-  { advanced: true, isActive: (f) => !!f.genre.trim(),
-    toChip: (f, set) => ({ key: "genre", label: f.genre, onRemove: () => set({ genre: "", page: 1 }) }) },
-  { advanced: true, isActive: (f) => !!f.language.trim(),
-    toChip: (f, set) => ({ key: "language", label: languageLabel(f.language), onRemove: () => set({ language: "", page: 1 }) }) },
-  { advanced: true, isActive: (f) => !!f.country.trim(),
-    toChip: (f, set) => ({ key: "country", label: countryLabel(f.country), onRemove: () => set({ country: "", page: 1 }) }) },
-  { advanced: true, isActive: (f) => !!f.category.trim(),
-    toChip: (f, set) => ({ key: "cat", label: f.category, onRemove: () => set({ category: "", page: 1 }) }) },
+      : { key: "nom", label: "Nominated", onRemove: () => set({ nominatedOnly: false, page: 1 }) }] },
+  { advanced: true, isActive: (f) => f.genres.length > 0,
+    toChips: (f, set) => facetChips("genre", f.genres, (g) => g, (genres) => ({ genres }), set) },
+  { advanced: true, isActive: (f) => f.languages.length > 0,
+    toChips: (f, set) => facetChips("language", f.languages, languageLabel, (languages) => ({ languages }), set) },
+  { advanced: true, isActive: (f) => f.countries.length > 0,
+    toChips: (f, set) => facetChips("country", f.countries, countryLabel, (countries) => ({ countries }), set) },
+  { advanced: true, isActive: (f) => f.categories.length > 0,
+    toChips: (f, set) => facetChips("cat", f.categories, (c) => c, (categories) => ({ categories }), set) },
   { advanced: true, isActive: (f) => f.awardYear != null,
-    toChip: (f, set) => ({ key: "year", label: String(f.awardYear), onRemove: () => set({ awardYear: null, page: 1 }) }) },
-  { advanced: true, isActive: (f) => !!f.contentType,
-    toChip: (f, set) => ({ key: "type", label: f.contentType, onRemove: () => set({ contentType: "", page: 1 }) }) },
+    toChips: (f, set) => [{ key: "year", label: String(f.awardYear), onRemove: () => set({ awardYear: null, page: 1 }) }] },
+  { advanced: true, isActive: (f) => f.contentTypes.length > 0,
+    toChips: (f, set) => facetChips("type", f.contentTypes, contentTypeLabel, (contentTypes) => ({ contentTypes }), set) },
   { advanced: false, isActive: (f) => f.imdbTopMoviesOnly,
-    toChip: (_f, set) => ({ key: "imdbMovies", label: "IMDb Top 250 Films", onRemove: () => set({ imdbTopMoviesOnly: false, page: 1 }) }) },
+    toChips: (_f, set) => [{ key: "imdbMovies", label: "IMDb Top 250 Films", onRemove: () => set({ imdbTopMoviesOnly: false, page: 1 }) }] },
   { advanced: false, isActive: (f) => f.imdbTopTvOnly,
-    toChip: (_f, set) => ({ key: "imdbTv", label: "IMDb Top 250 TV", onRemove: () => set({ imdbTopTvOnly: false, page: 1 }) }) },
+    toChips: (_f, set) => [{ key: "imdbTv", label: "IMDb Top 250 TV", onRemove: () => set({ imdbTopTvOnly: false, page: 1 }) }] },
   { advanced: false, isActive: (f) => f.sort !== "awards",
-    toChip: (f, set) => ({ key: "sort", label: `Sort: ${sortLabel(f.sort)}`, onRemove: () => set({ sort: "awards", page: 1 }) }) },
+    toChips: (f, set) => [{ key: "sort", label: `Sort: ${sortLabel(f.sort)}`, onRemove: () => set({ sort: "awards", page: 1 }) }] },
   { advanced: true, isActive: (f) => f.imdbRatingMin > 0,
-    toChip: (f, set) => ({ key: "imdb", label: `IMDb ${f.imdbRatingMin}+`, onRemove: () => set({ imdbRatingMin: 0, page: 1 }) }) },
+    toChips: (f, set) => [{ key: "imdb", label: `IMDb ${f.imdbRatingMin}+`, onRemove: () => set({ imdbRatingMin: 0, page: 1 }) }] },
   { advanced: true, isActive: (f) => f.rtScoreMin > 0,
-    toChip: (f, set) => ({ key: "rt", label: `RT ${f.rtScoreMin}%+`, onRemove: () => set({ rtScoreMin: 0, page: 1 }) }) },
+    toChips: (f, set) => [{ key: "rt", label: `RT ${f.rtScoreMin}%+`, onRemove: () => set({ rtScoreMin: 0, page: 1 }) }] },
   { advanced: true, isActive: (f) => f.decadeMin !== DECADE_MIN || f.decadeMax !== DECADE_MAX,
-    toChip: (f, set) => ({ key: "decade", label: `${f.decadeMin}–${f.decadeMax}`, onRemove: () => set({ decadeMin: DECADE_MIN, decadeMax: DECADE_MAX, page: 1 }) }) },
+    toChips: (f, set) => [{ key: "decade", label: `${f.decadeMin}–${f.decadeMax}`, onRemove: () => set({ decadeMin: DECADE_MIN, decadeMax: DECADE_MAX, page: 1 }) }] },
   { advanced: true, isActive: (f) => f.runtimeMax != null,
-    toChip: (f, set) => ({ key: "runtime", label: `≤ ${f.runtimeMax}m`, onRemove: () => set({ runtimeMax: null, page: 1 }) }) },
+    toChips: (f, set) => [{ key: "runtime", label: `≤ ${f.runtimeMax}m`, onRemove: () => set({ runtimeMax: null, page: 1 }) }] },
   { advanced: true, isActive: (f) => f.nominationCount != null && f.nominationCount > 0,
-    toChip: (f, set) => ({ key: "noms", label: `${f.nominationCount}+ noms`, onRemove: () => set({ nominationCount: null, page: 1 }) }) },
+    toChips: (f, set) => [{ key: "noms", label: `${f.nominationCount}+ noms`, onRemove: () => set({ nominationCount: null, page: 1 }) }] },
 ];
 
 /** Does any browse filter differ from its default? Derived from the same table
@@ -1291,7 +1376,7 @@ function anyFilterActive(filters: FilterState): boolean {
 }
 
 function buildActiveChips(filters: FilterState, setFilters: SetFilters): ActiveChip[] {
-  return FILTER_DESCRIPTORS.filter((d) => d.isActive(filters)).map((d) => d.toChip(filters, setFilters));
+  return FILTER_DESCRIPTORS.filter((d) => d.isActive(filters)).flatMap((d) => d.toChips(filters, setFilters));
 }
 
 /** Count of active filters that live behind the Advanced disclosure (not the always-visible primary bar). */
@@ -1299,23 +1384,21 @@ function countAdvancedFilters(filters: FilterState): number {
   return FILTER_DESCRIPTORS.filter((d) => d.advanced && d.isActive(filters)).length;
 }
 
-function awardBodyLabel(awardBody: AwardBody): string {
-  const labels: Record<AwardBody, string> = {
-    all: "All",
-    oscar: "Oscar",
-    goldenglobe: "Golden Globe",
-    cannes: "Cannes",
-    berlin: "Berlinale",
-  };
-  return labels[awardBody];
+function awardBodyLabel(awardBody: AwardBodyFilter): string {
+  return AWARD_BODY_OPTIONS.find((o) => o.value === awardBody)?.label ?? awardBody;
+}
+
+function contentTypeLabel(value: string): string {
+  return CONTENT_TYPE_OPTIONS.find((o) => o.value === value)?.label ?? value;
 }
 
 function sortLabel(sort: FilterState["sort"]): string {
   return SORT_OPTIONS.find((option) => option.value === sort)?.label ?? "Newest";
 }
 
+const VALID_AWARD_BODIES: AwardBodyFilter[] = ["oscar", "goldenglobe", "cannes", "berlin"];
+
 function filtersFromSearchParams(params: URLSearchParams): FilterState {
-  const awardBody      = params.get("awardBody");
   const awardYear      = numberParam(params.get("awardYear"));
   const decadeMin      = numberParam(params.get("decadeMin"));
   const decadeMax      = numberParam(params.get("decadeMax"));
@@ -1337,18 +1420,16 @@ function filtersFromSearchParams(params: URLSearchParams): FilterState {
     search:           params.get("search")   ?? "",
     person:           params.get("person")   ?? "",
     femaleDirectorOnly: params.get("femaleDirectorOnly") === "true",
-    awardBody:
-      awardBody === "oscar" || awardBody === "goldenglobe" || awardBody === "cannes" || awardBody === "berlin" || awardBody === "all"
-        ? awardBody
-        : DEFAULT_FILTERS.awardBody,
+    awardBodies:   listParam(params.get("awardBody")).filter((b): b is AwardBodyFilter =>
+                     (VALID_AWARD_BODIES as string[]).includes(b)),
     winnerOnly:    params.get("winnerOnly")    === "true",
     nominatedOnly: params.get("nominatedOnly") === "true",
-    category:      params.get("category")     ?? "",
+    categories:    listParam(params.get("category")),
     awardYear,
-    genre:         params.get("genre")        ?? "",
-    language:      params.get("language")      ?? "",
-    country:       params.get("country")       ?? "",
-    contentType:   params.get("contentType")  ?? "",
+    genres:        listParam(params.get("genre")),
+    languages:     listParam(params.get("language")),
+    countries:     listParam(params.get("country")),
+    contentTypes:  listParam(params.get("contentType")),
     runtimeMax,
     decadeMin:     decadeMin ?? DEFAULT_FILTERS.decadeMin,
     decadeMax:     decadeMax ?? DEFAULT_FILTERS.decadeMax,
@@ -1376,4 +1457,9 @@ function numberParam(value: string | null): number | null {
   if (!value) return null;
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : null;
+}
+
+/** Parse a comma-separated multi-select param into a trimmed, non-empty list. */
+function listParam(value: string | null): string[] {
+  return value ? value.split(",").map((s) => s.trim()).filter(Boolean) : [];
 }
