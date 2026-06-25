@@ -312,7 +312,7 @@ export default async function FilmPage({
 
         {/* Hero content vertically centered to fill the height */}
         <div className="relative z-10 flex min-h-[calc(100vh-4rem)] flex-col justify-center">
-          <div className="px-6 py-20 sm:px-10 lg:px-16 lg:py-24">
+          <div className="px-6 py-12 sm:px-10 sm:py-14 lg:px-16 lg:py-16">
             <div className="flex items-center justify-between gap-8 lg:gap-16">
 
               {/* ── Left: film info ────────────────────────────────── */}
@@ -334,7 +334,7 @@ export default async function FilmPage({
                     block. */}
                 <h1
                   className="font-[family-name:var(--font-display)] font-bold leading-[0.87] tracking-tight text-[#F8F8F4]"
-                  style={{ fontSize: "clamp(3rem,7.5vw,7.5rem)", textShadow: "0 2px 40px rgba(0,0,0,0.6)" }}
+                  style={{ fontSize: "clamp(2.75rem,6vw,6rem)", textShadow: "0 2px 40px rgba(0,0,0,0.6)" }}
                 >
                   {displayTitle(film.title)}
                 </h1>
@@ -399,7 +399,7 @@ export default async function FilmPage({
                     support. The large zone gap separates it from the identity
                     block above. */}
                 {(hasAwards || hasRatings) && (
-                  <div className="mt-12">
+                  <div className="mt-9">
                     <div className="flex items-center gap-3">
                       <span
                         aria-hidden
@@ -413,7 +413,7 @@ export default async function FilmPage({
                       </span>
                     </div>
 
-                    <div className="mt-7 space-y-7">
+                    <div className="mt-6 space-y-6">
                       {hasAwards && (
                         <HeroAwards ceremonies={awardSummary.ceremonies} />
                       )}
@@ -430,7 +430,7 @@ export default async function FilmPage({
 
                 {/* ── ZONE 3 · ACTIONS ──────────────────────────────
                     What you can do with it. */}
-                <div className="mt-10">
+                <div className="mt-8">
                   <HeroCTAs
                     trailerUrl={film.trailerUrl}
                     filmId={film.id}
