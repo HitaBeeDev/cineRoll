@@ -1,311 +1,30 @@
-import { Prisma } from "@prisma/client";
-import { Router } from "express";
+import { Router, Response } from "express";
+
+import { setPublicCache } from "../lib/cache";
 import { RandomQuery, randomQuerySchema } from "../lib/filmFilters/randomQuerySchema";
-import { buildWhereClause } from "../lib/filmFilters/whereClause";
-import { cache, cacheKeys, setPublicCache } from "../lib/cache";
-import { logEvent } from "../lib/events";
-import { prisma } from "../lib/prisma";
-import { scoreFilm } from "../lib/recommender";
-import { getTasteProfile } from "../lib/tasteProfile";
 import { HttpError } from "../middleware/errorHandler";
 import { getValidated, validate } from "../middleware/validate";
+import { logRollEvent } from "./randomRoute/eventLogger";
+import { getPersonalizedRandomFilm } from "./randomRoute/personalizedService";
+import {
+  getRandomCount,
+  getRandomFilm,
+} from "./randomRoute/randomRepository";
+import { RandomFilmRow } from "./randomRoute/types";
+
+export {
+  getQualityCandidates,
+  getRandomFilm,
+  getRandomFilms,
+} from "./randomRoute/randomRepository";
+export { getPersonalizedRandomFilm } from "./randomRoute/personalizedService";
+export type { RandomFilmRow } from "./randomRoute/types";
 
 export const randomRouter = Router();
 
-export type RandomFilmRow = {
-  id: string;
-  slug: string;
-  title: string;
-  originalTitle: string | null;
-  releaseYear: number;
-  year: number;
-  runtime: number | null;
-  genres: string[];
-  contentType: string;
-  plot: string | null;
-  director: string | null;
-  posterUrl: string | null;
-  posterColor: string | null;
-  backdropUrl: string | null;
-  imdbRating: number | null;
-  rtScore: number | null;
-  imdbTopMovieRank: number | null;
-  imdbTopTvRank: number | null;
-  oscarCategories: Prisma.JsonValue;
-  oscarNominations: number;
-  oscarWins: number;
-  ggCategories: Prisma.JsonValue;
-  ggNominations: number;
-  ggWins: number;
-  cannesCategories: Prisma.JsonValue;
-  cannesNominations: number;
-  cannesWins: number;
-  berlinCategories: Prisma.JsonValue;
-  berlinNominations: number;
-  berlinWins: number;
-};
-
-const randomSelect = Prisma.sql`
-  "Film"."id",
-  "Film"."slug",
-  "Film"."title",
-  "Film"."originalTitle",
-  "Film"."year" AS "releaseYear",
-  "Film"."year",
-  "Film"."runtime",
-  "Film"."genres",
-  "Film"."contentType",
-  "Film"."plot",
-  "Film"."director",
-  "Film"."posterUrl",
-  "Film"."posterColor",
-  "Film"."backdropUrl",
-  "Film"."imdbRating",
-  "Film"."rtScore",
-  "Film"."imdbTopMovieRank",
-  "Film"."imdbTopTvRank",
-  "Film"."oscarCategories",
-  "Film"."oscarNominations",
-  "Film"."oscarWins",
-  "Film"."ggCategories",
-  "Film"."ggNominations",
-  "Film"."ggWins",
-  "Film"."cannesCategories",
-  "Film"."cannesNominations",
-  "Film"."cannesWins",
-  "Film"."berlinCategories",
-  "Film"."berlinNominations",
-  "Film"."berlinWins"
-`;
-
-async function getDoNotSuggestFilmIds(userId: string): Promise<string[]> {
-  const tableRows = await prisma.$queryRaw<{ exists: boolean }[]>`
-    SELECT to_regclass('public."WatchedFilm"') IS NOT NULL AS "exists"
-  `;
-
-  if (tableRows[0]?.exists !== true) return [];
-
-  const rows = await prisma.$queryRaw<{ filmId: string }[]>`
-    SELECT "filmId"
-    FROM "WatchedFilm"
-    WHERE "userId" = ${userId}
-      AND "doNotSuggest" = true
-  `;
-
-  return rows.map(row => row.filmId);
-}
-
-/** Exclusion for client-supplied film IDs (a guest's session-hidden films),
- *  so the roll skips them server-side in one query instead of the client
- *  re-rolling until it happens to miss them. */
-function excludeIdsCondition(query: RandomQuery): Prisma.Sql | null {
-  if (!query.excludeIds || query.excludeIds.length === 0) return null;
-  return Prisma.sql`"Film"."id" NOT IN (${Prisma.join(query.excludeIds)})`;
-}
-
-/** Per-request exclusions shared by every roll path and the count endpoint:
- *  the signed-in user's "Not Interested" films plus any client-supplied IDs.
- *  When non-empty the resulting count is user/request-specific (uncacheable). */
-async function buildExclusionConditions(query: RandomQuery): Promise<Prisma.Sql[]> {
-  const conditions: Prisma.Sql[] = [];
-  if (query.userId) {
-    const excludedFilmIds = await getDoNotSuggestFilmIds(query.userId);
-    if (excludedFilmIds.length > 0) {
-      conditions.push(Prisma.sql`"Film"."id" NOT IN (${Prisma.join(excludedFilmIds)})`);
-    }
-  }
-  const excludeIds = excludeIdsCondition(query);
-  if (excludeIds) conditions.push(excludeIds);
-  return conditions;
-}
-
-export async function getRandomFilm(query: RandomQuery): Promise<{
-  film: RandomFilmRow | null;
-  total: number;
-}> {
-  const { films, total } = await getRandomFilms(query, 1);
-  return { film: films[0] ?? null, total };
-}
-
-/** Pool counts move slowly (only on reseed) and the same filter combos repeat
- *  across users, so a short TTL on the public filter signature pays off. */
-const RANDOM_COUNT_TTL_MS = 60 * 1000;
-
-/** Stable cache key from the public filter fields only — `userId`/`personalized`
- *  don't change the catalog-wide count and must not leak across users. */
-function filterSignature(query: RandomQuery): string {
-  const { userId: _userId, personalized: _personalized, ...filters } = query;
-  return JSON.stringify(filters, Object.keys(filters).sort());
-}
-
-/** COUNT(*) for the query's where-clause. Cached only when there are no
- *  per-user conditions (e.g. doNotSuggest exclusions), which would make the
- *  count user-specific. */
-async function countFilms(
-  query: RandomQuery,
-  whereSql: Prisma.Sql,
-  cacheable: boolean,
-): Promise<number> {
-  const run = async () => {
-    const rows = await prisma.$queryRaw<{ count: bigint }[]>`
-      SELECT COUNT(*)::BIGINT AS count FROM "Film" ${whereSql}
-    `;
-    return Number(rows[0]?.count ?? 0);
-  };
-  if (!cacheable) return run();
-  return cache.getOrSet(cacheKeys.randomCount(filterSignature(query)), RANDOM_COUNT_TTL_MS, run);
-}
-
-export async function getRandomFilms(query: RandomQuery, count: number): Promise<{
-  films: RandomFilmRow[];
-  total: number;
-}> {
-  const additionalConditions = await buildExclusionConditions(query);
-
-  const whereSql = buildWhereClause(query, additionalConditions);
-
-  const [films, total] = await Promise.all([
-    prisma.$queryRaw<RandomFilmRow[]>(
-      Prisma.sql`SELECT ${randomSelect} FROM "Film" ${whereSql} ORDER BY RANDOM() LIMIT ${count}`,
-    ),
-    countFilms(query, whereSql, additionalConditions.length === 0),
-  ]);
-
-  return { films, total };
-}
-
-// Returns a random sample from the top-rated films matching the query.
-// Used for natural-language candidate pools: quality films first, random variety within them.
-export async function getQualityCandidates(
-  query: RandomQuery,
-  topN: number,
-  sampleN: number,
-): Promise<{ films: RandomFilmRow[]; total: number }> {
-  const additionalConditions: Prisma.Sql[] = [];
-
-  if (query.userId) {
-    const excludedFilmIds = await getDoNotSuggestFilmIds(query.userId);
-    if (excludedFilmIds.length > 0) {
-      additionalConditions.push(Prisma.sql`"Film"."id" NOT IN (${Prisma.join(excludedFilmIds)})`);
-    }
-  }
-
-  const whereSql = buildWhereClause(query, additionalConditions);
-
-  const [films, total] = await Promise.all([
-    prisma.$queryRaw<RandomFilmRow[]>(
-      Prisma.sql`
-        SELECT top_films.*
-        FROM (
-          SELECT ${randomSelect}
-          FROM "Film"
-          ${whereSql}
-          ORDER BY "Film"."imdbRating" DESC NULLS LAST
-          LIMIT ${topN}
-        ) top_films
-        ORDER BY RANDOM()
-        LIMIT ${sampleN}
-      `,
-    ),
-    countFilms(query, whereSql, additionalConditions.length === 0),
-  ]);
-
-  return { films, total };
-}
-
-// ── Personalized roll (taste-weighted, ε-greedy) ─────────────────────────────
-
-/** Size of the quality candidate pool the taste scorer ranks. Matches the
- *  recommender's pool size so both surfaces draw from the same shape of pool. */
-const PERSONALIZED_POOL_SIZE = 300;
-/** Exploration factor: with probability ε the roll picks uniformly from the pool
- *  instead of by taste, so it never tunnels into a filter bubble. Tuned for a
- *  visible balance of "on-taste" vs "surprise" (≈1-in-6 rolls explore). */
-const EXPLORATION_EPSILON = 0.15;
-/** Softmax temperature over taste scores. Lower = sharper bias toward the
- *  highest-scoring films; higher = flatter, closer to uniform. */
-const SOFTMAX_TEMPERATURE = 0.5;
-
-/** Pick one item by weight (roulette-wheel). Falls back to uniform if all
- *  weights are zero/degenerate. */
-function weightedSample<T>(items: T[], weights: number[]): T {
-  let total = 0;
-  for (const w of weights) total += w;
-  if (!(total > 0)) return items[Math.floor(Math.random() * items.length)]!;
-
-  let r = Math.random() * total;
-  for (let i = 0; i < items.length; i++) {
-    r -= weights[i]!;
-    if (r <= 0) return items[i]!;
-  }
-  return items[items.length - 1]!;
-}
-
-/**
- * Taste-weighted roll. Builds the same quality candidate pool the normal roll
- * filters against (respecting `doNotSuggest`), then applies ε-greedy selection:
- * with probability ε it picks uniformly (exploration / serendipity), otherwise
- * it samples by softmax over each film's taste score (exploitation). Cold-start
- * users — empty taste profile — score purely on the quality/recency prior, so
- * the weighted draw degrades gracefully to a quality-biased random pick.
- *
- * Empty/edge handling matches the normal roll: returns `null` when nothing
- * matches the filters.
- */
-export async function getPersonalizedRandomFilm(query: RandomQuery): Promise<{
-  film: RandomFilmRow | null;
-  total: number;
-  exploration: boolean;
-}> {
-  const { userId } = query;
-  if (!userId) {
-    const { film, total } = await getRandomFilm(query);
-    return { film, total, exploration: false };
-  }
-
-  const additionalConditions = await buildExclusionConditions(query);
-
-  const whereSql = buildWhereClause(query, additionalConditions);
-
-  const [pool, total] = await Promise.all([
-    prisma.$queryRaw<RandomFilmRow[]>(
-      Prisma.sql`
-        SELECT ${randomSelect}
-        FROM "Film"
-        ${whereSql}
-        ORDER BY "Film"."imdbRating" DESC NULLS LAST
-        LIMIT ${PERSONALIZED_POOL_SIZE}
-      `,
-    ),
-    countFilms(query, whereSql, additionalConditions.length === 0),
-  ]);
-
-  if (pool.length === 0) return { film: null, total, exploration: false };
-
-  // ε-greedy explore: pick uniformly so the roll keeps surprising the user.
-  if (Math.random() < EXPLORATION_EPSILON) {
-    return {
-      film: pool[Math.floor(Math.random() * pool.length)]!,
-      total,
-      exploration: true,
-    };
-  }
-
-  // Exploit: weighted-random by taste score via a (numerically stable) softmax.
-  const taste = await getTasteProfile(userId);
-  const currentYear = new Date().getFullYear();
-  const scores = pool.map(film => scoreFilm(film, taste, currentYear));
-  const maxScore = Math.max(...scores);
-  const weights = scores.map(s => Math.exp((s - maxScore) / SOFTMAX_TEMPERATURE));
-
-  return { film: weightedSample(pool, weights), total, exploration: false };
-}
-
 randomRouter.get("/", validate(randomQuerySchema), async (req, res) => {
   const query = getValidated<RandomQuery>(req, "query");
-  const { userId, personalized, excludeIds: _excludeIds, ...loggedFilters } = query;
-  const usePersonalized = personalized === true && userId != null;
-
+  const usePersonalized = query.personalized === true && query.userId != null;
   const { film, total, exploration } = usePersonalized
     ? await getPersonalizedRandomFilm(query)
     : { ...(await getRandomFilm(query)), exploration: false };
@@ -314,20 +33,25 @@ randomRouter.get("/", validate(randomQuerySchema), async (req, res) => {
     throw new HttpError(404, "No films match the given filters", "NO_FILMS_FOUND");
   }
 
-  await logEvent({
-    type: usePersonalized ? "roll_personalized" : "roll",
-    userId: userId ?? null,
-    filmId: film.id,
-    context: {
-      source: "random_endpoint",
-      personalized: usePersonalized,
-      ...(usePersonalized ? { exploration } : {}),
-      total,
-      filters: loggedFilters,
-    },
-  });
+  await logRollEvent(query, film, total, usePersonalized, exploration);
+  sendRandomFilmResponse(res, film, total, usePersonalized, exploration);
+});
 
-  // Personalized rolls are per-user and stochastic — never shared-cache them.
+randomRouter.get("/count", validate(randomQuerySchema), async (req, res) => {
+  const query = getValidated<RandomQuery>(req, "query");
+  const total = await getRandomCount(query);
+
+  setPublicCache(res, 60);
+  res.json({ total });
+});
+
+function sendRandomFilmResponse(
+  res: Response,
+  film: RandomFilmRow,
+  total: number,
+  usePersonalized: boolean,
+  exploration: boolean,
+): void {
   if (usePersonalized) {
     res.set("Cache-Control", "private, no-store");
     res.json({ film, total, personalized: true, exploration });
@@ -336,17 +60,4 @@ randomRouter.get("/", validate(randomQuerySchema), async (req, res) => {
 
   setPublicCache(res, 60);
   res.json({ film, total });
-});
-
-/** Lightweight pool count for the given filters. Returns just the integer so
- *  the client doesn't fetch a whole random film (row + image URLs) merely to
- *  read `.total` — e.g. the home page's mount-time catalog count. */
-randomRouter.get("/count", validate(randomQuerySchema), async (req, res) => {
-  const query = getValidated<RandomQuery>(req, "query");
-  const additionalConditions = await buildExclusionConditions(query);
-  const whereSql = buildWhereClause(query, additionalConditions);
-  const total = await countFilms(query, whereSql, additionalConditions.length === 0);
-
-  setPublicCache(res, 60);
-  res.json({ total });
-});
+}

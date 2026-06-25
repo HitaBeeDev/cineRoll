@@ -1,0 +1,4 @@
+export const RANDOM_COUNT_TTL_MS = 60 * 1000;
+export const PERSONALIZED_POOL_SIZE = 300;
+export const EXPLORATION_EPSILON = 0.15;
+export const SOFTMAX_TEMPERATURE = 0.5;
