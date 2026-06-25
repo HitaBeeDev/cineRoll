@@ -212,6 +212,46 @@ function pickHeadlineAccolade(
   return headline;
 }
 
+type Editorial = { lede: string; chips: string[] };
+
+/**
+ * The "Why this film matters" editorial layer: a single curated sentence plus
+ * punchy fact chips, both composed entirely from real data (award headline,
+ * win/nom totals, decade, genres). It frames the film instead of merely listing
+ * its data — the missing product/emotional beat after the hero.
+ */
+function buildEditorial(
+  film: Film,
+  summary: AwardSummary,
+  headline: HeadlineAccolade | null,
+): Editorial {
+  const decade = `${Math.floor(film.year / 10) * 10}s`;
+  const primaryGenre = film.genres[0]?.toLowerCase();
+  const subject = primaryGenre ? `A ${decade} ${primaryGenre}` : `A ${decade} film`;
+
+  let lede: string;
+  if (summary.totalWins >= 5 && headline?.won) {
+    lede = `${subject} that dominated the ${headline.year} ${headline.ceremony}, winning ${summary.totalWins} awards from ${summary.totalNominations} nominations — including ${headline.category}.`;
+  } else if (summary.totalWins > 0) {
+    lede = `${subject} honoured with ${summary.totalWins} ${summary.totalWins === 1 ? "major award" : "major awards"} across ${summary.totalNominations} ${summary.totalNominations === 1 ? "nomination" : "nominations"}${headline?.won ? `, including ${headline.category}` : ""}.`;
+  } else if (summary.totalNominations > 0) {
+    lede = `${subject} recognised with ${summary.totalNominations} major award ${summary.totalNominations === 1 ? "nomination" : "nominations"}${headline ? `, including ${headline.category}` : ""}.`;
+  } else {
+    lede = `${subject}.`;
+  }
+
+  const chips: string[] = [];
+  const topByWins = [...summary.ceremonies].sort((a, b) => b.wins - a.wins)[0];
+  if (topByWins && topByWins.wins > 0) {
+    chips.push(`${topByWins.wins} ${topByWins.shortLabel} Win${topByWins.wins === 1 ? "" : "s"}`);
+  }
+  if (headline?.won) chips.push(headline.category);
+  for (const g of film.genres.slice(0, 3)) chips.push(g);
+  chips.push(`${decade} Classic`);
+
+  return { lede, chips: [...new Set(chips)] };
+}
+
 function getAwardSummary(film: Film): string {
   const { totalWins, totalNominations, ceremonies } = computeAwardSummary(film);
   if (totalWins > 0)
@@ -278,6 +318,9 @@ export default async function FilmPage({
   const awardSummary = computeAwardSummary(film);
   const hasAwards = awardSummary.totalNominations > 0;
   const headlineAccolade = pickHeadlineAccolade(awardSummary.ceremonies);
+  const editorial = hasAwards
+    ? buildEditorial(film, awardSummary, headlineAccolade)
+    : null;
   const hasRatings = film.imdbRating != null || film.rtScore != null;
   const accent = film.posterColor ?? FALLBACK_ACCENT;
   const formattedRuntime = formatRuntime(film.runtime);
@@ -574,6 +617,32 @@ export default async function FilmPage({
 
         <div className="relative mx-auto max-w-5xl space-y-20 px-6 py-20 lg:px-10">
 
+          {/* ── WHY THIS FILM MATTERS ──────────────────────────────────────
+              The editorial / "why care" beat after the hero. Intentionally
+              breaks the repeated diamond+label+box rhythm — a large curated
+              lede and gold fact chips — so it reads as a statement, not a row
+              of data. Composed entirely from real award data. */}
+          {editorial && (
+            <section id="why" className="scroll-mt-24">
+              <p className="font-[family-name:var(--font-geist-mono)] text-[11px] font-semibold uppercase tracking-[0.5em] text-[#D4AF37]/85">
+                Why this film matters
+              </p>
+              <p className="mt-5 max-w-3xl font-[family-name:var(--font-display)] text-[1.5rem] font-medium leading-[1.5] text-[#ECECF4] sm:text-[1.7rem]">
+                {editorial.lede}
+              </p>
+              <div className="mt-7 flex flex-wrap gap-2.5">
+                {editorial.chips.map((chip) => (
+                  <span
+                    key={chip}
+                    className="rounded-[3px] border border-[#D4AF37]/25 bg-[#D4AF37]/[0.07] px-3 py-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.16em] text-[#E5D6A8]"
+                  >
+                    {chip}
+                  </span>
+                ))}
+              </div>
+            </section>
+          )}
+
           {/* ── WHERE TO WATCH ────────────────────────────────────────────
               Hoisted to the top of the page body: "can I watch it, and where"
               is a primary user need, so it leads the content instead of
@@ -606,44 +675,33 @@ export default async function FilmPage({
             <section id="awards" className="scroll-mt-24">
               <SectionLabel>Awards &amp; Recognition</SectionLabel>
 
-              {/* Counter */}
-              <div className="mt-10 flex items-baseline gap-12 border-b border-[#1e1e2e] pb-10">
-                <div>
-                  <span
-                    className="font-[family-name:var(--font-display)] text-[5.5rem] font-bold leading-none tabular-nums"
-                    style={{ color: awardSummary.totalWins > 0 ? HERO_GOLD : "#3a3a58" }}
-                  >
-                    {awardSummary.totalWins}
-                  </span>
-                  <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.5em] text-[#707090]">
-                    Wins
-                  </p>
-                </div>
-                <div>
-                  <span className="font-[family-name:var(--font-display)] text-[3.5rem] font-bold leading-none tabular-nums text-[#5a5a7a]">
-                    {awardSummary.totalNominations}
-                  </span>
-                  <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.5em] text-[#606080]">
-                    Nominations
-                  </p>
-                </div>
-              </div>
+              {/* Dramatic lead: stage the strongest ceremony as one bold stat. */}
+              <AwardsDominance summary={awardSummary} />
 
-              <div className="mt-8 space-y-4">
-                {awardSummary.ceremonies.map((c) => (
-                  <AwardSummaryCard
-                    key={c.title}
-                    title={c.title}
-                    wins={c.wins}
-                    nominations={c.nominations}
-                    records={c.records}
-                    // With one ceremony the big counter already states these
-                    // totals, so the card header drops them to avoid restating
-                    // the same numbers back-to-back.
-                    showCounts={awardSummary.ceremonies.length > 1}
+              {/* Full per-ceremony breakdown, collapsed by default so the
+                  dominance card carries the impact and the long table is
+                  opt-in rather than flattening the section. */}
+              <details className="group mt-6">
+                <summary className="flex w-fit cursor-pointer list-none items-center gap-2 font-[family-name:var(--font-geist-mono)] text-[11px] font-semibold uppercase tracking-[0.3em] text-[#9090b0] transition-colors hover:text-[#e8e8f0] [&::-webkit-details-marker]:hidden">
+                  Full award breakdown
+                  <ChevronDown
+                    className="h-3.5 w-3.5 transition-transform group-open:rotate-180"
+                    aria-hidden
                   />
-                ))}
-              </div>
+                </summary>
+                <div className="mt-6 space-y-4">
+                  {awardSummary.ceremonies.map((c) => (
+                    <AwardSummaryCard
+                      key={c.title}
+                      title={c.title}
+                      wins={c.wins}
+                      nominations={c.nominations}
+                      records={c.records}
+                      showCounts={awardSummary.ceremonies.length > 1}
+                    />
+                  ))}
+                </div>
+              </details>
             </section>
           )}
 
@@ -670,18 +728,26 @@ export default async function FilmPage({
           {similarFilms.length >= 3 && (
             <section id="similar" className="scroll-mt-24">
               <SectionLabel>You Might Also Like</SectionLabel>
+              <p className="mt-3 max-w-2xl font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.22em] text-[#7c7ca0]">
+                Ranked by shared director, genre &amp; award era
+              </p>
               <div className="mt-8">
                 <SimilarFilmsSlider
                   films={similarFilms as unknown as Film[]}
+                  // Surface the actual ranking factors the /similar endpoint
+                  // scores on (director, genre overlap, award era) plus an
+                  // award signal — the real "why", not a fabricated %.
                   reasons={similarFilms.map((sf) => {
+                    const factors: string[] = [];
                     if (film.director && sf.director === film.director)
-                      return "Same director";
-                    const shared = sf.genres.find((g) =>
-                      film.genres.includes(g),
-                    );
-                    if (shared) return "Same genre";
-                    if (sf.year === film.year) return "From the same year";
-                    return null;
+                      factors.push("Same director");
+                    if (sf.genres.some((g) => film.genres.includes(g)))
+                      factors.push("Same genre");
+                    if (Math.floor(sf.year / 10) === Math.floor(film.year / 10))
+                      factors.push(`${Math.floor(film.year / 10) * 10}s era`);
+                    if (sf.oscarWins + sf.ggWins + sf.cannesWins > 0)
+                      factors.push("Award-winning");
+                    return factors.slice(0, 3).join(" · ") || null;
                   })}
                 />
               </div>
@@ -833,6 +899,100 @@ function SectionLabel({ children }: { children: ReactNode }) {
         {children}
       </h2>
       <div className="h-px flex-1 bg-gradient-to-r from-[#2a2a42] to-transparent" />
+    </div>
+  );
+}
+
+// ── Awards dominance card ──────────────────────────────────────────────────────
+
+/**
+ * The dramatic lead-in to the awards section: instead of opening with a flat
+ * table, it stages the film's strongest ceremony as a single bold stat
+ * (wins / nominations) beside the list of won categories. Makes "10 / 11
+ * Academy Awards" feel as massive as it is. The full per-ceremony table follows,
+ * collapsed, so the drama leads and the detail is opt-in.
+ */
+function AwardsDominance({ summary }: { summary: AwardSummary }) {
+  const top = [...summary.ceremonies].sort(
+    (a, b) => b.wins - a.wins || b.nominations - a.nominations,
+  )[0];
+  if (!top) return null;
+
+  const hasWins = top.wins > 0;
+  const cats = [...top.records]
+    .filter((r) => (hasWins ? r.won : true))
+    .sort(
+      (a, b) => a.awardYear - b.awardYear || a.category.localeCompare(b.category),
+    );
+  const others = summary.ceremonies.filter((c) => c !== top && c.wins > 0);
+
+  return (
+    <div className="relative mt-8 overflow-hidden border border-[#D4AF37]/20 bg-gradient-to-br from-[#16130b] via-[#0d0d14] to-[#0a0a10] p-7 sm:p-9">
+      <div
+        className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full blur-3xl"
+        style={{ background: `radial-gradient(circle, ${HERO_GOLD}24, transparent 70%)` }}
+      />
+      <div className="relative grid gap-8 sm:grid-cols-[auto_1fr] sm:gap-10">
+        <div className="sm:border-r sm:border-white/10 sm:pr-10">
+          <p
+            className="font-[family-name:var(--font-geist-mono)] text-[10px] font-semibold uppercase tracking-[0.4em]"
+            style={{ color: `${HERO_GOLD}cc` }}
+          >
+            {hasWins ? "Awards Dominance" : "Award Recognition"}
+          </p>
+          <div className="mt-3 flex items-baseline gap-2.5">
+            <span
+              className="font-[family-name:var(--font-display)] text-[4.5rem] font-bold leading-none tabular-nums"
+              style={{ color: HERO_GOLD, textShadow: `0 0 40px ${HERO_GOLD}40` }}
+            >
+              {hasWins ? top.wins : top.nominations}
+            </span>
+            {hasWins && (
+              <span className="font-[family-name:var(--font-display)] text-2xl font-semibold text-white/35">
+                / {top.nominations}
+              </span>
+            )}
+          </div>
+          <p className="mt-2 font-[family-name:var(--font-display)] text-lg font-bold text-white/90">
+            {top.title}
+          </p>
+          <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.32em] text-white/40">
+            {hasWins ? "Wins / Nominations" : "Nominations"}
+          </p>
+          {others.length > 0 && (
+            <p className="mt-5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-[#9a8a55]">
+              + {others.map((o) => `${o.wins} ${o.shortLabel}`).join(" · ")}
+            </p>
+          )}
+        </div>
+
+        {cats.length > 0 && (
+          <div>
+            <p className="font-[family-name:var(--font-geist-mono)] text-[10px] font-semibold uppercase tracking-[0.4em] text-white/40">
+              {hasWins ? "Won" : "Nominated"}
+            </p>
+            <ul className="mt-4 grid gap-x-8 gap-y-2.5 sm:grid-cols-2">
+              {cats.map((r) => (
+                <li
+                  key={`${r.awardYear}-${r.category}-${r.nominee}`}
+                  className="flex items-baseline gap-2.5"
+                >
+                  <span
+                    className="shrink-0 text-[11px]"
+                    style={{ color: HERO_GOLD }}
+                    aria-hidden
+                  >
+                    ◆
+                  </span>
+                  <span className="text-[0.82rem] leading-5 text-[#e8ddb8]">
+                    {r.category}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
