@@ -578,14 +578,15 @@ export default async function FilmPage({
           {film.plot && (
             <section id="overview">
               <SectionLabel>Synopsis</SectionLabel>
-              <div className="relative mt-8 pl-6">
+              <div className="relative mt-8 pl-7">
                 <div
-                  className="absolute bottom-0 left-0 top-0 w-[2px] rounded-full"
+                  className="absolute bottom-0 left-0 top-0 w-[4px] rounded-full"
                   style={{
-                    background: `linear-gradient(to bottom, ${accent}aa, ${accent}18, transparent)`,
+                    background: `linear-gradient(to bottom, ${accent}, ${accent}66, ${accent}14)`,
+                    boxShadow: `0 0 18px ${accent}40`,
                   }}
                 />
-                <p className="text-[1rem] leading-[1.95] tracking-wide text-[#c0c0d8]">
+                <p className="max-w-3xl text-[1.2rem] font-light leading-[1.8] tracking-wide text-[#efedf8] sm:text-[1.3rem]">
                   {film.plot}
                 </p>
               </div>
