@@ -47,14 +47,27 @@ export function FilmRatingPanel({ filmId, filmTitle }: RatingPanelProps) {
   const dirty = selected !== null && selected !== userRating;
   const buttonLabel = saving
     ? "Saving"
-    : userRating !== null
+    : isAuthenticated && userRating !== null
       ? dirty
         ? "Update"
         : "Submitted"
       : "Submit";
 
   async function handleSubmit() {
-    if (!isAuthenticated || selected === null || !dirty || saving) return;
+    if (saving) return;
+    if (!isAuthenticated) {
+      toast({
+        title: "Sign in to rate this",
+        description: filmTitle,
+        action: {
+          label: "Sign in",
+          href: `/auth/signin?callbackUrl=${encodeURIComponent(window.location.pathname)}`,
+        },
+        duration: 7000,
+      });
+      return;
+    }
+    if (selected === null || !dirty) return;
     const previous = userRating;
     setSaving(true);
     try {
@@ -77,13 +90,8 @@ export function FilmRatingPanel({ filmId, filmTitle }: RatingPanelProps) {
     }
   }
 
-  const signInHref =
-    typeof window !== "undefined"
-      ? `/auth/signin?callbackUrl=${encodeURIComponent(window.location.pathname)}`
-      : "/auth/signin";
-
   return (
-    <div className="flex flex-col gap-3 border border-[#1e1e30] bg-[#0c0c14] px-6 py-5">
+    <div className="border border-[#1e1e30] bg-[#0c0c14] p-5">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div
           className="relative inline-flex"
@@ -98,7 +106,7 @@ export function FilmRatingPanel({ filmId, filmTitle }: RatingPanelProps) {
               <button
                 key={rating}
                 type="button"
-                disabled={!isAuthenticated || saving}
+                disabled={saving}
                 aria-label={`Rate ${formatRating(rating)} out of 10`}
                 onMouseEnter={() => setHoverRating(rating)}
                 onFocus={() => setHoverRating(rating)}
@@ -113,21 +121,12 @@ export function FilmRatingPanel({ filmId, filmTitle }: RatingPanelProps) {
         <button
           type="button"
           onClick={() => void handleSubmit()}
-          disabled={!isAuthenticated || !dirty || saving}
+          disabled={saving || (isAuthenticated && !dirty)}
           className="bg-[#e8453c] px-5 py-2.5 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.2em] text-white transition-colors hover:bg-[#d5342b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] disabled:cursor-not-allowed disabled:opacity-40"
         >
           {buttonLabel}
         </button>
       </div>
-
-      {!isAuthenticated && (
-        <a
-          href={signInHref}
-          className="w-fit font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em] text-[#e8453c] transition-colors hover:text-white"
-        >
-          Sign in to rate
-        </a>
-      )}
     </div>
   );
 }

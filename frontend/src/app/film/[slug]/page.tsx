@@ -670,7 +670,7 @@ export default async function FilmPage({
             </div>
           </section>
 
-          <FilmCommentsSection slug={film.slug} accent={accent} />
+          <FilmCommentsSection slug={film.slug} />
 
           {/* ── TRAILER + META ────────────────────────────────────────── */}
           <div className="grid gap-14 xl:grid-cols-[1fr_240px]">

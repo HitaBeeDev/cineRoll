@@ -1,8 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
-import { Loader2, Send, Trash2 } from "lucide-react";
+import { Loader2, Trash2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -31,10 +30,9 @@ type CommentsResponse = {
 
 type Props = {
   slug: string;
-  accent: string;
 };
 
-export function FilmCommentsSection({ slug, accent }: Props) {
+export function FilmCommentsSection({ slug }: Props) {
   const { status } = useSession();
   const { toast } = useToast();
   const [comments, setComments] = useState<FilmComment[]>([]);
@@ -106,6 +104,17 @@ export function FilmCommentsSection({ slug, accent }: Props) {
 
   async function postComment(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!canPost) {
+      toast({
+        title: "Sign in to comment",
+        action: {
+          label: "Sign in",
+          href: `/auth/signin?callbackUrl=${encodeURIComponent(window.location.pathname)}`,
+        },
+        duration: 7000,
+      });
+      return;
+    }
     const trimmed = body.trim();
     if (!trimmed || isPosting) return;
 
@@ -202,48 +211,33 @@ export function FilmCommentsSection({ slug, accent }: Props) {
       </div>
 
       <div className="mt-8 space-y-6">
-        {canPost ? (
-          <form onSubmit={postComment} className="border border-[#1e1e30] bg-[#0d0d18] p-4 sm:p-5">
-            <textarea
-              value={body}
-              onChange={(event) => setBody(event.target.value.slice(0, 1000))}
-              rows={4}
-              placeholder="Add your take after watching..."
-              className="min-h-28 w-full resize-y border border-[#25253a] bg-[#080810] px-4 py-3 text-sm leading-6 text-[#e8e8f0] outline-none transition-colors placeholder:text-[#555570] focus:border-[#e8453c]/60 focus:ring-1 focus:ring-[#e8453c]/50"
-            />
-            <div className="mt-3 flex items-center justify-between gap-3">
-              <span
-                className={cn(
-                  "font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.25em]",
-                  remaining < 80 ? "text-[#e8453c]" : "text-[#666680]",
-                )}
-              >
-                {remaining}
-              </span>
-              <Button
-                type="submit"
-                size="sm"
-                disabled={isPosting || body.trim().length === 0}
-                className="rounded-none border-0 px-4"
-                style={{ backgroundColor: accent }}
-              >
-                {isPosting ? (
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
-                ) : (
-                  <Send className="h-3.5 w-3.5" aria-hidden />
-                )}
-                Post
-              </Button>
-            </div>
-          </form>
-        ) : (
-          <div className="flex flex-col gap-3 border border-[#1e1e30] bg-[#0d0d18] p-5 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-sm text-[#a8a8c0]">Sign in to comment.</p>
-            <Button asChild size="sm" className="rounded-none border-0 px-4" style={{ backgroundColor: accent }}>
-              <Link href="/auth/signin">Sign in</Link>
-            </Button>
+        <form onSubmit={postComment} className="border border-[#1e1e30] bg-[#0c0c14] p-5">
+          <textarea
+            value={body}
+            onChange={(event) => setBody(event.target.value.slice(0, 1000))}
+            rows={4}
+            placeholder="Add your take..."
+            className="min-h-28 w-full resize-y border border-[#25253a] bg-[#080810] px-4 py-3 text-sm leading-6 text-[#e8e8f0] outline-none transition-colors placeholder:text-[#555570] focus:border-[#e8453c]/60 focus:ring-1 focus:ring-[#e8453c]/50"
+          />
+          <div className="mt-3 flex items-center justify-between gap-3">
+            <span
+              className={cn(
+                "font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.25em]",
+                remaining < 80 ? "text-[#e8453c]" : "text-[#666680]",
+              )}
+            >
+              {remaining}
+            </span>
+            <button
+              type="submit"
+              disabled={isPosting || (canPost && body.trim().length === 0)}
+              className="flex items-center gap-2 bg-[#e8453c] px-5 py-2.5 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.2em] text-white transition-colors hover:bg-[#d5342b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              {isPosting && <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />}
+              Post
+            </button>
           </div>
-        )}
+        </form>
 
         <div className="space-y-3">
           {isLoading ? (
@@ -253,10 +247,7 @@ export function FilmCommentsSection({ slug, accent }: Props) {
             </div>
           ) : comments.length === 0 ? (
             <p className="px-1 py-1.5 text-[0.82rem] leading-6 text-[#6f6f8c]">
-              No comments yet —{" "}
-              {canPost
-                ? "be the first to start the discussion."
-                : "sign in above to start the discussion."}
+              No comments yet — be the first to start the discussion.
             </p>
           ) : (
             comments.map((comment) => (
