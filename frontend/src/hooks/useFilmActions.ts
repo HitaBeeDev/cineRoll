@@ -12,10 +12,37 @@ import { useToast } from "@/components/ui/toast";
 
 export type FilmActionState = "none" | "watched" | "not-interested";
 export type Sentiment = "like" | "dislike" | null;
+// Which gated action a guest attempted — drives the inline sign-in prompt copy.
+export type AuthGate = "watched" | "watchlist";
 
 // Guest sign-in nudges carry a CTA, so they linger longer than plain feedback
 // toasts to give the user time to reach the button before auto-dismiss.
 const NUDGE_TOAST_DURATION = 10000;
+
+// Once a guest dismisses the inline sign-in prompt, we don't re-open it this
+// session — further gated taps fall back to a quiet toast so the click still
+// gives feedback without re-nagging with the full prompt.
+const AUTH_PROMPT_SUPPRESS_KEY = "cineroll:auth-prompt-dismissed";
+
+function isAuthPromptSuppressed(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    return window.sessionStorage.getItem(AUTH_PROMPT_SUPPRESS_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+const AUTH_GATE_TOAST: Record<AuthGate, { title: string; description: string }> = {
+  watched: {
+    title: "Sign in to rate this",
+    description: "Marking films seen helps CineRoll learn your taste.",
+  },
+  watchlist: {
+    title: "Sign in to save",
+    description: "Create a profile to keep a watchlist.",
+  },
+};
 
 /**
  * Shared post-roll / film-detail action set: Watched, Not Interested, the
@@ -49,6 +76,31 @@ export function useFilmActions({
   // Watchlist bookmark: filled/active when the film is saved.
   const [inWatchlist, setInWatchlist] = useState(false);
   const [watchlistPending, setWatchlistPending] = useState(false);
+  // Inline sign-in prompt for guests who tap a gated action (watched/save).
+  const [authPrompt, setAuthPrompt] = useState<AuthGate | null>(null);
+
+  // Open the inline prompt, unless the guest already dismissed it this session —
+  // then just give quiet toast feedback so the tap isn't a silent no-op.
+  function triggerAuthGate(gate: AuthGate) {
+    if (isAuthPromptSuppressed()) {
+      toast({
+        ...AUTH_GATE_TOAST[gate],
+        action: { label: "Sign in", href: "/auth/signin" },
+        duration: NUDGE_TOAST_DURATION,
+      });
+      return;
+    }
+    setAuthPrompt(gate);
+  }
+
+  function dismissAuthPrompt() {
+    setAuthPrompt(null);
+    try {
+      window.sessionStorage.setItem(AUTH_PROMPT_SUPPRESS_KEY, "1");
+    } catch {
+      // Private mode / storage disabled: prompt simply won't be suppressed.
+    }
+  }
 
   // Revisiting a film the user already acted on: reflect its existing
   // watchlist / watched / sentiment state so the UI matches the account.
@@ -81,12 +133,7 @@ export function useFilmActions({
   ) {
     if (pending) return;
     if (!isAuthenticated && next === "watched") {
-      toast({
-        title: "Sign in to rate this",
-        description: "Ratings teach CineRoll your taste for future rolls.",
-        action: { label: "Sign in", href: "/auth/signin" },
-        duration: NUDGE_TOAST_DURATION,
-      });
+      triggerAuthGate("watched");
       return;
     }
 
@@ -185,12 +232,7 @@ export function useFilmActions({
 
   async function toggleWatchlist() {
     if (!isAuthenticated) {
-      toast({
-        title: "Sign in to save",
-        description: "Create a profile to keep a watchlist.",
-        action: { label: "Sign in", href: "/auth/signin" },
-        duration: NUDGE_TOAST_DURATION,
-      });
+      triggerAuthGate("watchlist");
       return;
     }
     if (watchlistPending) return;
@@ -243,5 +285,7 @@ export function useFilmActions({
     saveDecision,
     saveSentiment,
     toggleWatchlist,
+    authPrompt,
+    dismissAuthPrompt,
   };
 }

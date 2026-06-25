@@ -14,6 +14,7 @@ import {
   X,
 } from "lucide-react";
 import { useToast } from "@/components/ui/toast";
+import { SignInPrompt } from "@/components/sign-in-prompt";
 import { useFilmActions } from "@/hooks/useFilmActions";
 import { formatRuntime } from "@/lib/format";
 import { trackEvent } from "@/lib/analytics";
@@ -47,6 +48,8 @@ export function FilmCard({
     saveDecision,
     saveSentiment,
     toggleWatchlist,
+    authPrompt,
+    dismissAuthPrompt,
   } = useFilmActions({
     filmId: film.id,
     filmTitle: film.title,
@@ -301,6 +304,19 @@ export function FilmCard({
               ? "Saved to your account."
               : "This session only unless you sign in."}
           </p>
+
+          {/* Guest auth gate: appears in-place when a guest taps Seen it / Save,
+              so it reads as a direct response to the tap and never covers the
+              controls above it. */}
+          <AnimatePresence initial={false}>
+            {authPrompt && (
+              <SignInPrompt
+                gate={authPrompt}
+                surface="card"
+                onDismiss={dismissAuthPrompt}
+              />
+            )}
+          </AnimatePresence>
         </section>
 
         {/* One-tap 👍 / 👎 prompt, revealed after a film is marked watched.

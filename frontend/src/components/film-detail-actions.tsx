@@ -5,6 +5,7 @@ import { Bookmark, Check, ThumbsDown, ThumbsUp, X } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useFilmActions } from "@/hooks/useFilmActions";
 import { HoverTooltip } from "@/components/hover-tooltip";
+import { SignInPrompt } from "@/components/sign-in-prompt";
 import { cn } from "@/lib/utils";
 
 const HERO_BUTTON_BASE =
@@ -51,6 +52,8 @@ export function FilmDetailActions({
     saveDecision,
     saveSentiment,
     toggleWatchlist,
+    authPrompt,
+    dismissAuthPrompt,
   } = useFilmActions({
     filmId,
     filmTitle,
@@ -128,6 +131,18 @@ export function FilmDetailActions({
           </button>
         </HoverTooltip>
       </div>
+
+      {/* Guest auth gate: a guest tapping Watched / Watchlist gets this inline
+          prompt on its own full-width row instead of a floating toast. */}
+      <AnimatePresence initial={false}>
+        {authPrompt && (
+          <SignInPrompt
+            gate={authPrompt}
+            surface="hero"
+            onDismiss={dismissAuthPrompt}
+          />
+        )}
+      </AnimatePresence>
 
       {/* One-tap 👍 / 👎 prompt, revealed after the film is marked watched. */}
       <AnimatePresence initial={false}>
