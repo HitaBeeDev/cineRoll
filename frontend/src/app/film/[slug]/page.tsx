@@ -602,7 +602,7 @@ export default async function FilmPage({
                 <div>
                   <span
                     className="font-[family-name:var(--font-display)] text-[5.5rem] font-bold leading-none tabular-nums"
-                    style={{ color: awardSummary.totalWins > 0 ? accent : "#3a3a58" }}
+                    style={{ color: awardSummary.totalWins > 0 ? HERO_GOLD : "#3a3a58" }}
                   >
                     {awardSummary.totalWins}
                   </span>
@@ -625,11 +625,13 @@ export default async function FilmPage({
                   <AwardSummaryCard
                     key={c.title}
                     title={c.title}
-                    icon={c.icon}
                     wins={c.wins}
                     nominations={c.nominations}
                     records={c.records}
-                    accent={accent}
+                    // With one ceremony the big counter already states these
+                    // totals, so the card header drops them to avoid restating
+                    // the same numbers back-to-back.
+                    showCounts={awardSummary.ceremonies.length > 1}
                   />
                 ))}
               </div>
@@ -835,18 +837,16 @@ function SectionLabel({ children }: { children: ReactNode }) {
 
 function AwardSummaryCard({
   title,
-  icon,
   wins,
   nominations,
   records,
-  accent,
+  showCounts,
 }: {
   title: string;
-  icon: "oscar" | "globe" | "cannes";
   wins: number;
   nominations: number;
   records: AwardRecord[];
-  accent: string;
+  showCounts: boolean;
 }) {
   const sorted = [...records].sort(
     (a, b) =>
@@ -854,41 +854,51 @@ function AwardSummaryCard({
       a.awardYear - b.awardYear ||
       a.category.localeCompare(b.category),
   );
-  const ceremonyCode =
-    icon === "oscar" ? "AMPAS" : icon === "globe" ? "HFPA" : "Cannes";
+  // Eyebrow carries the ceremony year(s) — a fact a visitor actually values —
+  // instead of an insider body acronym (AMPAS/HFPA) that just repeats the
+  // ceremony name directly below it.
+  const years = records.map((r) => r.awardYear);
+  const minYear = years.length > 0 ? Math.min(...years) : null;
+  const maxYear = years.length > 0 ? Math.max(...years) : null;
+  const yearLabel =
+    minYear === null ? null : minYear === maxYear ? `${minYear}` : `${minYear}–${maxYear}`;
 
   return (
     <article className="overflow-hidden border border-[#1e1e30]">
       <div className="flex items-center justify-between border-b border-[#1a1a28] bg-[#0d0d18] px-5 py-4">
         <div>
-          <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.55em] text-[#686888]">
-            {ceremonyCode}
-          </p>
+          {yearLabel && (
+            <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.55em] text-[#686888]">
+              {yearLabel}
+            </p>
+          )}
           <h3 className="mt-1.5 font-[family-name:var(--font-display)] text-lg font-bold leading-tight text-[#e0e0f0]">
             {title}
           </h3>
         </div>
-        <div className="flex items-baseline gap-6">
-          <div className="text-right">
-            <span
-              className="block font-[family-name:var(--font-display)] text-2xl font-bold leading-none tabular-nums"
-              style={{ color: wins > 0 ? accent : "#4a4a68" }}
-            >
-              {wins}
-            </span>
-            <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.4em] text-[#686888]">
-              Wins
-            </span>
+        {showCounts && (
+          <div className="flex items-baseline gap-6">
+            <div className="text-right">
+              <span
+                className="block font-[family-name:var(--font-display)] text-2xl font-bold leading-none tabular-nums"
+                style={{ color: wins > 0 ? HERO_GOLD : "#4a4a68" }}
+              >
+                {wins}
+              </span>
+              <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.4em] text-[#686888]">
+                Wins
+              </span>
+            </div>
+            <div className="text-right">
+              <span className="block font-[family-name:var(--font-display)] text-xl font-bold leading-none tabular-nums text-[#686888]">
+                {nominations}
+              </span>
+              <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.4em] text-[#686888]">
+                Noms
+              </span>
+            </div>
           </div>
-          <div className="text-right">
-            <span className="block font-[family-name:var(--font-display)] text-xl font-bold leading-none tabular-nums text-[#686888]">
-              {nominations}
-            </span>
-            <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.4em] text-[#686888]">
-              Noms
-            </span>
-          </div>
-        </div>
+        )}
       </div>
 
       {sorted.length > 0 && (
@@ -899,14 +909,14 @@ function AwardSummaryCard({
               className={cn(
                 "grid grid-cols-[auto_1fr_auto] items-center gap-4 border-l-2 px-5 py-3.5",
                 record.won
-                  ? "border-l-[#D4AF37]/50 bg-[#0e0d09]"
+                  ? "border-l-[#D4AF37] bg-[#16130b]"
                   : "border-l-transparent bg-[#080810]",
               )}
             >
               <span
                 className={cn(
                   "shrink-0 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.4em]",
-                  record.won ? "text-[#c8a048]" : "text-[#2a2a3a]",
+                  record.won ? "text-[#D4AF37]" : "text-[#2a2a3a]",
                 )}
               >
                 {record.won ? "◆ Won" : "Nom"}
