@@ -212,46 +212,6 @@ function pickHeadlineAccolade(
   return headline;
 }
 
-type Editorial = { lede: string; chips: string[] };
-
-/**
- * The "Why this film matters" editorial layer: a single curated sentence plus
- * punchy fact chips, both composed entirely from real data (award headline,
- * win/nom totals, decade, genres). It frames the film instead of merely listing
- * its data — the missing product/emotional beat after the hero.
- */
-function buildEditorial(
-  film: Film,
-  summary: AwardSummary,
-  headline: HeadlineAccolade | null,
-): Editorial {
-  const decade = `${Math.floor(film.year / 10) * 10}s`;
-  const primaryGenre = film.genres[0]?.toLowerCase();
-  const subject = primaryGenre ? `A ${decade} ${primaryGenre}` : `A ${decade} film`;
-
-  let lede: string;
-  if (summary.totalWins >= 5 && headline?.won) {
-    lede = `${subject} that dominated the ${headline.year} ${headline.ceremony}, winning ${summary.totalWins} awards from ${summary.totalNominations} nominations — including ${headline.category}.`;
-  } else if (summary.totalWins > 0) {
-    lede = `${subject} honoured with ${summary.totalWins} ${summary.totalWins === 1 ? "major award" : "major awards"} across ${summary.totalNominations} ${summary.totalNominations === 1 ? "nomination" : "nominations"}${headline?.won ? `, including ${headline.category}` : ""}.`;
-  } else if (summary.totalNominations > 0) {
-    lede = `${subject} recognised with ${summary.totalNominations} major award ${summary.totalNominations === 1 ? "nomination" : "nominations"}${headline ? `, including ${headline.category}` : ""}.`;
-  } else {
-    lede = `${subject}.`;
-  }
-
-  const chips: string[] = [];
-  const topByWins = [...summary.ceremonies].sort((a, b) => b.wins - a.wins)[0];
-  if (topByWins && topByWins.wins > 0) {
-    chips.push(`${topByWins.wins} ${topByWins.shortLabel} Win${topByWins.wins === 1 ? "" : "s"}`);
-  }
-  if (headline?.won) chips.push(headline.category);
-  for (const g of film.genres.slice(0, 3)) chips.push(g);
-  chips.push(`${decade} Classic`);
-
-  return { lede, chips: [...new Set(chips)] };
-}
-
 function getAwardSummary(film: Film): string {
   const { totalWins, totalNominations, ceremonies } = computeAwardSummary(film);
   if (totalWins > 0)
@@ -318,9 +278,6 @@ export default async function FilmPage({
   const awardSummary = computeAwardSummary(film);
   const hasAwards = awardSummary.totalNominations > 0;
   const headlineAccolade = pickHeadlineAccolade(awardSummary.ceremonies);
-  const editorial = hasAwards
-    ? buildEditorial(film, awardSummary, headlineAccolade)
-    : null;
   const hasRatings = film.imdbRating != null || film.rtScore != null;
   const accent = film.posterColor ?? FALLBACK_ACCENT;
   const formattedRuntime = formatRuntime(film.runtime);
@@ -616,32 +573,6 @@ export default async function FilmPage({
         />
 
         <div className="relative mx-auto max-w-5xl space-y-20 px-6 py-20 lg:px-10">
-
-          {/* ── WHY THIS FILM MATTERS ──────────────────────────────────────
-              The editorial / "why care" beat after the hero. Intentionally
-              breaks the repeated diamond+label+box rhythm — a large curated
-              lede and gold fact chips — so it reads as a statement, not a row
-              of data. Composed entirely from real award data. */}
-          {editorial && (
-            <section id="why" className="scroll-mt-24">
-              <p className="font-[family-name:var(--font-geist-mono)] text-[11px] font-semibold uppercase tracking-[0.5em] text-[#D4AF37]/85">
-                Why this film matters
-              </p>
-              <p className="mt-5 max-w-3xl font-[family-name:var(--font-display)] text-[1.5rem] font-medium leading-[1.5] text-[#ECECF4] sm:text-[1.7rem]">
-                {editorial.lede}
-              </p>
-              <div className="mt-7 flex flex-wrap gap-2.5">
-                {editorial.chips.map((chip) => (
-                  <span
-                    key={chip}
-                    className="rounded-[3px] border border-[#D4AF37]/25 bg-[#D4AF37]/[0.07] px-3 py-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.16em] text-[#E5D6A8]"
-                  >
-                    {chip}
-                  </span>
-                ))}
-              </div>
-            </section>
-          )}
 
           {/* ── WHERE TO WATCH ────────────────────────────────────────────
               Hoisted to the top of the page body: "can I watch it, and where"
