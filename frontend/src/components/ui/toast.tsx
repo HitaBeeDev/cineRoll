@@ -3,10 +3,10 @@
 import * as React from "react";
 import Link from "next/link";
 import * as ToastPrimitive from "@radix-ui/react-toast";
-import { X, CheckCircle, AlertCircle, Info, ArrowRight } from "lucide-react";
+import { X, CheckCircle, AlertCircle, Info, ArrowRight, SlidersHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type ToastVariant = "default" | "success" | "error";
+type ToastVariant = "default" | "success" | "error" | "signin";
 // Plain feedback should clear quickly; conversion nudges that carry an action
 // pass their own longer duration so the user has time to reach the CTA.
 const DEFAULT_TOAST_DURATION = 4500;
@@ -41,18 +41,32 @@ const icons: Record<ToastVariant, React.ReactNode> = {
   default: <Info className="h-4 w-4 text-[#888899]" />,
   success: <CheckCircle className="h-4 w-4 text-[#7ee787]" />,
   error: <AlertCircle className="h-4 w-4 text-[#e8453c]" />,
+  // Gold tuning glyph — mirrors the home-page SignInPrompt: reads as
+  // "reward / taste", not an alert.
+  signin: <SlidersHorizontal className="h-4 w-4 text-[#D4AF37]" />,
 };
 
 const borderAccents: Record<ToastVariant, string> = {
   default: "border-[#34344a]",
   success: "border-[#3fb950]/40",
   error: "border-[#e8453c]/45",
+  signin: "border-[#D4AF37]/25",
 };
 
 const iconBadges: Record<ToastVariant, string> = {
   default: "border-white/10 bg-white/[0.06]",
   success: "border-[#3fb950]/30 bg-[#3fb950]/12",
   error: "border-[#e8453c]/30 bg-[#e8453c]/12",
+  signin: "border-[#D4AF37]/30 bg-[#D4AF37]/12",
+};
+
+// Surface gradient per variant. The sign-in nudge uses the warm purple-black
+// of the home-page SignInPrompt instead of the neutral feedback surface.
+const surfaces: Record<ToastVariant, string> = {
+  default: "from-[#1c1c25] to-[#141418]",
+  success: "from-[#1c1c25] to-[#141418]",
+  error: "from-[#1c1c25] to-[#141418]",
+  signin: "from-[#16121f] to-[#0c0a12]",
 };
 
 function ToastProgress({ duration }: { duration: number }) {
@@ -107,6 +121,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
         {children}
         {toasts.map((t) => {
           const duration = t.duration ?? DEFAULT_TOAST_DURATION;
+          const variant = t.variant ?? "default";
           return (
             <ToastPrimitive.Root
               key={t.id}
@@ -115,7 +130,8 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
               duration={duration}
               className={cn(
                 "group pointer-events-auto relative flex w-full items-start gap-3 overflow-hidden",
-                "rounded-xl border bg-gradient-to-b from-[#1c1c25] to-[#141418] px-4 py-3.5 shadow-[0_24px_70px_rgba(0,0,0,0.75)] ring-1 ring-black/40",
+                "rounded-xl border bg-gradient-to-b px-4 py-3.5 shadow-[0_24px_70px_rgba(0,0,0,0.75)] ring-1 ring-black/40",
+                surfaces[variant],
                 "before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-white/10",
                 "transition-all duration-300",
                 "data-[state=open]:opacity-100 data-[state=open]:translate-x-0",
@@ -124,17 +140,17 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
                 "data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)]",
                 "data-[swipe=cancel]:translate-x-0 data-[swipe=cancel]:transition-transform",
                 "data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=end]:opacity-0",
-                borderAccents[t.variant ?? "default"]
+                borderAccents[variant]
               )}
             >
             <ToastProgress duration={duration} />
             <span
               className={cn(
                 "mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border",
-                iconBadges[t.variant ?? "default"]
+                iconBadges[variant]
               )}
             >
-              {icons[t.variant ?? "default"]}
+              {icons[variant]}
             </span>
             <div className="flex min-w-0 flex-1 flex-col gap-0.5">
               {t.title && (
@@ -152,15 +168,19 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
                   <Link
                     href={t.action.href}
                     className={cn(
-                      "mt-2 inline-flex w-fit items-center gap-1.5 rounded-md border border-white/12 bg-white/[0.06] px-2.5 py-1",
-                      "font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.14em] text-[#F5F5F0]",
-                      "transition-colors duration-150 hover:border-[#e8453c]/50 hover:bg-[#e8453c]/12 hover:text-white",
-                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
+                      "mt-2 inline-flex w-fit items-center gap-1.5",
+                      "font-[family-name:var(--font-geist-mono)] font-bold uppercase",
+                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
+                      variant === "signin"
+                        ? // Filled CineRoll red — ties to the Roll button and the
+                          // home-page SignInPrompt's primary CTA.
+                          "rounded-lg bg-[#e8453c] px-5 py-2 text-[11px] tracking-[0.16em] text-white shadow-[0_6px_20px_-4px_rgba(232,69,60,0.6)] transition-colors hover:bg-[#ff5247]"
+                        : "rounded-md border border-white/12 bg-white/[0.06] px-2.5 py-1 text-[11px] tracking-[0.14em] text-[#F5F5F0] transition-colors duration-150 hover:border-[#e8453c]/50 hover:bg-[#e8453c]/12 hover:text-white",
                     )}
                     onClick={() => dismiss(t.id)}
                   >
                     {t.action.label}
-                    <ArrowRight className="h-3 w-3" />
+                    {variant !== "signin" && <ArrowRight className="h-3 w-3" />}
                   </Link>
                 </ToastPrimitive.Action>
               )}

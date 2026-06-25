@@ -57,6 +57,7 @@ export function FilmRatingPanel({ filmId, filmTitle }: RatingPanelProps) {
     if (saving) return;
     if (!isAuthenticated) {
       toast({
+        variant: "signin",
         title: "Sign in to rate this",
         description: filmTitle,
         action: {

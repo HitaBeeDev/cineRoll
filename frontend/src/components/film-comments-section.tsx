@@ -106,6 +106,7 @@ export function FilmCommentsSection({ slug }: Props) {
     event.preventDefault();
     if (!canPost) {
       toast({
+        variant: "signin",
         title: "Sign in to comment",
         action: {
           label: "Sign in",
