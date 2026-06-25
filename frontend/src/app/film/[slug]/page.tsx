@@ -574,15 +574,6 @@ export default async function FilmPage({
 
         <div className="relative mx-auto max-w-5xl space-y-20 px-6 py-20 lg:px-10">
 
-          {/* ── WHERE TO WATCH ────────────────────────────────────────────
-              Hoisted to the top of the page body: "can I watch it, and where"
-              is a primary user need, so it leads the content instead of
-              sitting below awards, cast and comments. */}
-          <WhereToWatch
-            watchProviders={film.watchProviders ?? null}
-            accent={accent}
-          />
-
           {/* ── SYNOPSIS ─────────────────────────────────────────────── */}
           {film.plot && (
             <section id="overview">
@@ -600,6 +591,15 @@ export default async function FilmPage({
               </div>
             </section>
           )}
+
+          {/* ── WHERE TO WATCH ────────────────────────────────────────────
+              "Can I watch it, and where" is a primary user need, so it leads
+              the content (just after the synopsis) instead of sitting below
+              awards, cast and comments. */}
+          <WhereToWatch
+            watchProviders={film.watchProviders ?? null}
+            accent={accent}
+          />
 
           {/* ── AWARDS ───────────────────────────────────────────────── */}
           {hasAwards && (
