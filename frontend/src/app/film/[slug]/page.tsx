@@ -857,17 +857,12 @@ function AwardsDominance({ summary }: { summary: AwardSummary }) {
             >
               {hasWins ? top.wins : top.nominations}
             </span>
-            {hasWins && (
-              <span className="font-[family-name:var(--font-display)] text-2xl font-semibold text-white/35">
-                / {top.nominations}
-              </span>
-            )}
           </div>
           <p className="mt-2 font-[family-name:var(--font-display)] text-lg font-bold text-white/90">
             {top.title}
           </p>
           <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.32em] text-white/40">
-            {hasWins ? "Wins / Nominations" : "Nominations"}
+            {hasWins ? "Wins" : "Nominations"}
           </p>
           {others.length > 0 && (
             <p className="mt-5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-[#9a8a55]">
