@@ -291,7 +291,7 @@ export default async function FilmPage({
           style={{
             background: `
               ${heroScrim},
-              linear-gradient(to top, rgba(7,7,11,1) 0%, rgba(7,7,11,0.90) 12%, rgba(7,7,11,0.0) 46%),
+              linear-gradient(to top, rgba(7,7,11,0.99) 0%, rgba(7,7,11,0.58) 14%, rgba(7,7,11,0.0) 42%),
               radial-gradient(ellipse 60% 70% at 76% 20%, ${accent}38, transparent 65%),
               radial-gradient(ellipse 35% 25% at 15% 95%, ${accent}12, transparent 70%)
             `,
@@ -405,7 +405,7 @@ export default async function FilmPage({
 
                 {/* ── ZONE 3 · ACTIONS ──────────────────────────────
                     What you can do with it. */}
-                <div className="mt-12">
+                <div className="mt-10">
                   <HeroCTAs
                     trailerUrl={film.trailerUrl}
                     filmId={film.id}

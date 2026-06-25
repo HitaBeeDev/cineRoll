@@ -84,15 +84,18 @@ export function FilmDetailActions({
         {inWatchlist ? "Saved" : "Watchlist"}
       </button>
 
-      {/* Divider: separates the labelled CTAs from the utility icon cluster */}
+      {/* Divider: the visual boundary between the two action groups — labelled
+          primary CTAs (Watch Trailer / Watchlist) on the left, quiet utility
+          icons (Watched / Not Interested / Share) on the right. Margins widen
+          the boundary so the split reads as intentional grouping. */}
       <span
         aria-hidden
-        className="hidden h-7 w-px self-center bg-white/12 sm:block"
+        className="mx-1.5 hidden h-8 w-px self-center bg-white/20 sm:block"
       />
 
       {/* Tertiary icon row: lower-intent actions, visually quiet. Each carries
           a hover/focus label so the icons aren't a guessing game. */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2.5">
         <HoverTooltip label={action === "watched" ? "Watched" : "Mark watched"}>
           <button
             type="button"

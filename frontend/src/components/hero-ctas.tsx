@@ -24,7 +24,7 @@ export function HeroCTAs({
   shareCaption: string;
 }) {
   return (
-    <div className="flex flex-wrap items-center gap-3">
+    <div className="flex flex-wrap items-center gap-2.5">
       {trailerUrl && (
         <a
           href="#trailer"
