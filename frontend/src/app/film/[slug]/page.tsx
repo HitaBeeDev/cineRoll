@@ -666,11 +666,6 @@ export default async function FilmPage({
               <FilmRatingPanel
                 filmId={film.id}
                 filmTitle={displayTitle(film.title)}
-                averageRating={film.averageRating}
-                ratingCount={film.ratingCount}
-                genres={film.genres}
-                year={film.year}
-                hasAwards={hasAwards}
               />
             </div>
           </section>
