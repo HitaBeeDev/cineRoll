@@ -300,12 +300,19 @@ export function FilmCard({
             />
           </div>
           {/* The auth prompt below already explains the sign-in benefit, so
-              suppress the tiny session-only footnote while it's open. */}
+              suppress this status footnote while it's open. */}
           {!authPrompt && (
-            <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-[8.5px] leading-relaxed tracking-wide text-[#888899]">
+            <p className="mt-2.5 flex items-center gap-1.5 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.14em] text-[#6c6c80]">
+              <span
+                aria-hidden
+                className={cn(
+                  "h-1.5 w-1.5 rounded-full",
+                  isAuthenticated ? "bg-[#3fb950]" : "bg-[#D4AF37]",
+                )}
+              />
               {isAuthenticated
-                ? "Saved to your account."
-                : "This session only unless you sign in."}
+                ? "Saved to your account"
+                : "Sign in to make Seen it, Not for me & Save work"}
             </p>
           )}
 
