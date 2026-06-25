@@ -1,0 +1,84 @@
+import { Prisma } from "@prisma/client";
+
+export const filmListSelect = Prisma.sql`
+  "Film"."id",
+  "Film"."slug",
+  "Film"."title",
+  "Film"."originalTitle",
+  "Film"."year" AS "releaseYear",
+  "Film"."year",
+  "Film"."genres",
+  "Film"."contentType",
+  "Film"."posterUrl",
+  "Film"."posterColor",
+  "Film"."imdbRating",
+  "Film"."rtScore",
+  "Film"."imdbTopMovieRank",
+  "Film"."imdbTopTvRank",
+  "Film"."certificate",
+  "Film"."tvType",
+  "Film"."tvStartYear",
+  "Film"."tvEndYear",
+  "Film"."oscarNominations",
+  "Film"."oscarWins",
+  "Film"."ggNominations",
+  "Film"."ggWins",
+  "Film"."cannesNominations",
+  "Film"."cannesWins",
+  "Film"."berlinNominations",
+  "Film"."berlinWins",
+  (
+    SELECT ROUND(AVG("UserRating"."rating")::numeric, 1)::double precision
+    FROM "UserRating"
+    WHERE "UserRating"."filmId" = "Film"."id"
+  ) AS "averageRating",
+  (
+    SELECT COUNT(*)::int
+    FROM "UserRating"
+    WHERE "UserRating"."filmId" = "Film"."id"
+  ) AS "ratingCount"
+`;
+
+export const filmDetailSelect = {
+  id: true,
+  slug: true,
+  tmdbId: true,
+  imdbId: true,
+  title: true,
+  originalTitle: true,
+  releaseYear: true,
+  runtime: true,
+  genres: true,
+  contentType: true,
+  plot: true,
+  director: true,
+  cast: true,
+  language: true,
+  posterUrl: true,
+  posterColor: true,
+  backdropUrl: true,
+  trailerUrl: true,
+  imdbRating: true,
+  rtScore: true,
+  imdbTopMovieRank: true,
+  imdbTopTvRank: true,
+  certificate: true,
+  tvType: true,
+  tvStartYear: true,
+  tvEndYear: true,
+  oscarNominations: true,
+  oscarWins: true,
+  oscarCategories: true,
+  ggNominations: true,
+  ggWins: true,
+  ggCategories: true,
+  cannesNominations: true,
+  cannesWins: true,
+  cannesCategories: true,
+  berlinNominations: true,
+  berlinWins: true,
+  berlinCategories: true,
+  watchProviders: true,
+  isPickOfDay: true,
+  pickOfDayDate: true,
+} satisfies Prisma.FilmSelect;
