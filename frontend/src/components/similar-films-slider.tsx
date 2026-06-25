@@ -11,13 +11,7 @@ const GAP = 12;
 const STEP = CARD_W + GAP;
 const SPRING = { type: "spring", stiffness: 320, damping: 38 } as const;
 
-export function SimilarFilmsSlider({
-  films,
-  reasons,
-}: {
-  films: Film[];
-  reasons?: (string | null)[];
-}) {
+export function SimilarFilmsSlider({ films }: { films: Film[] }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const x = useMotionValue(0);
 
@@ -128,30 +122,20 @@ export function SimilarFilmsSlider({
           onDragStart={(e) => e.preventDefault()}
           className="flex cursor-grab gap-3 pb-3 active:cursor-grabbing"
         >
-          {films.map((f, i) => {
-            const reason = reasons?.[i] ?? null;
-            return (
-              <div
-                key={f.id}
-                onClickCapture={(e) => {
-                  if (didMove.current) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                  }
-                }}
-                className="w-52 flex-shrink-0"
-              >
-                <div>
-                  <FilmCard film={f} />
-                  {reason && (
-                    <p className="mt-2 px-0.5 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase leading-4 tracking-[0.12em] text-white/45">
-                      {reason}
-                    </p>
-                  )}
-                </div>
-              </div>
-            );
-          })}
+          {films.map((f) => (
+            <div
+              key={f.id}
+              onClickCapture={(e) => {
+                if (didMove.current) {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }
+              }}
+              className="w-52 flex-shrink-0"
+            >
+              <FilmCard film={f} />
+            </div>
+          ))}
         </motion.div>
       </div>
 

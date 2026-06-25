@@ -654,24 +654,7 @@ export default async function FilmPage({
                 Ranked by shared director, genre &amp; award era
               </p>
               <div className="mt-8">
-                <SimilarFilmsSlider
-                  films={similarFilms as unknown as Film[]}
-                  // Surface the actual ranking factors the /similar endpoint
-                  // scores on (director, genre overlap, award era) plus an
-                  // award signal — the real "why", not a fabricated %.
-                  reasons={similarFilms.map((sf) => {
-                    const factors: string[] = [];
-                    if (film.director && sf.director === film.director)
-                      factors.push("Same director");
-                    if (sf.genres.some((g) => film.genres.includes(g)))
-                      factors.push("Same genre");
-                    if (Math.floor(sf.year / 10) === Math.floor(film.year / 10))
-                      factors.push(`${Math.floor(film.year / 10) * 10}s era`);
-                    if (sf.oscarWins + sf.ggWins + sf.cannesWins > 0)
-                      factors.push("Award-winning");
-                    return factors.slice(0, 3).join(" · ") || null;
-                  })}
-                />
+                <SimilarFilmsSlider films={similarFilms as unknown as Film[]} />
               </div>
             </section>
           )}
