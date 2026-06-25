@@ -2,14 +2,14 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Sparkles, X } from "lucide-react";
+import { SlidersHorizontal, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { AuthGate } from "@/hooks/useFilmActions";
 
 const GATE_COPY: Record<AuthGate, { title: string; body: string }> = {
   watched: {
-    title: "Sign in to tune your rolls",
-    body: "Marking films seen helps CineRoll learn your taste.",
+    title: "Sign in to tune future rolls",
+    body: "Mark films to help CineRoll learn your taste.",
   },
   watchlist: {
     title: "Sign in to save films",
@@ -46,17 +46,19 @@ export function SignInPrompt({
       <div
         role="status"
         className={cn(
-          "flex items-start gap-3 px-4 py-3.5",
+          "flex items-start gap-3 px-4 py-2.5",
           surface === "card"
             ? "mt-2 rounded-xl border border-[#2a2a3e] bg-[#0d0d1a]"
             : "border border-white/14 bg-white/[0.06] backdrop-blur-sm",
         )}
       >
-        <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-[#e8453c]/30 bg-[#e8453c]/12 text-[#e8453c]">
-          <Sparkles className="h-3.5 w-3.5" aria-hidden />
+        {/* Soft, neutral accent — a tuning glyph, not a red alert badge — so the
+            prompt reads as a helpful nudge rather than an error. */}
+        <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-white/10 bg-white/[0.06] text-[#cfcfda]">
+          <SlidersHorizontal className="h-3 w-3" aria-hidden />
         </span>
 
-        <div className="flex min-w-0 flex-1 flex-col gap-1">
+        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
           <p className="font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.16em] leading-tight text-[#F5F5F0]">
             {copy.title}
           </p>
@@ -64,7 +66,7 @@ export function SignInPrompt({
             {copy.body}
           </p>
 
-          <div className="mt-2.5 flex items-center gap-2">
+          <div className="mt-2 flex items-center gap-2">
             {/* Primary: a clearly filled surface that reads as the next step,
                 with a red accent reserved for hover so it doesn't compete with
                 the always-red primary actions (Roll, Seen it). */}
@@ -79,12 +81,14 @@ export function SignInPrompt({
             >
               Sign in
             </Link>
+            {/* Ghost button so the secondary choice still reads as clickable. */}
             <button
               type="button"
               onClick={onDismiss}
               className={cn(
-                "rounded-lg px-3 py-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.16em] text-[#888899]",
-                "transition-colors hover:text-[#F5F5F0]",
+                "rounded-lg border border-white/12 px-3 py-1.5",
+                "font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.16em] text-[#888899]",
+                "transition-colors hover:border-white/25 hover:text-[#F5F5F0]",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
               )}
             >

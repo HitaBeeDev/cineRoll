@@ -299,11 +299,15 @@ export function FilmCard({
               activeLabel="Saved"
             />
           </div>
-          <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-[8.5px] leading-relaxed tracking-wide text-[#888899]">
-            {isAuthenticated
-              ? "Saved to your account."
-              : "This session only unless you sign in."}
-          </p>
+          {/* The auth prompt below already explains the sign-in benefit, so
+              suppress the tiny session-only footnote while it's open. */}
+          {!authPrompt && (
+            <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-[8.5px] leading-relaxed tracking-wide text-[#888899]">
+              {isAuthenticated
+                ? "Saved to your account."
+                : "This session only unless you sign in."}
+            </p>
+          )}
 
           {/* Guest auth gate: appears in-place when a guest taps Seen it / Save,
               so it reads as a direct response to the tap and never covers the
