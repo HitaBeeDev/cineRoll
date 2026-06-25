@@ -2,14 +2,14 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { LogIn } from "lucide-react";
+import { Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { AuthGate } from "@/hooks/useFilmActions";
 
 const GATE_COPY: Record<AuthGate, string> = {
-  watched: "Please sign in to tune future rolls",
-  notInterested: "Please sign in to skip this film",
-  watchlist: "Please sign in to save films",
+  watched: "Sign in to tune your future rolls",
+  notInterested: "Sign in to hide films you skip",
+  watchlist: "Sign in to start your watchlist",
 };
 
 /**
@@ -36,13 +36,13 @@ export function SignInPrompt({
       <Link
         href="/auth/signin"
         className={cn(
-          "mt-2 inline-flex items-center gap-2",
-          "font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.14em]",
+          "mt-2 inline-flex items-center gap-1.5",
+          "font-[family-name:var(--font-geist-mono)] text-[10px] font-medium uppercase tracking-[0.12em]",
           "text-[#e8453c] transition-colors hover:text-[#ff5247]",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
         )}
       >
-        <LogIn className="h-3.5 w-3.5" aria-hidden />
+        <Lock className="h-3 w-3" aria-hidden />
         {GATE_COPY[gate]}
       </Link>
     </motion.div>
