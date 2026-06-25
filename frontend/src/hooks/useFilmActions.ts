@@ -13,6 +13,10 @@ import { useToast } from "@/components/ui/toast";
 export type FilmActionState = "none" | "watched" | "not-interested";
 export type Sentiment = "like" | "dislike" | null;
 
+// Guest sign-in nudges carry a CTA, so they linger longer than plain feedback
+// toasts to give the user time to reach the button before auto-dismiss.
+const NUDGE_TOAST_DURATION = 10000;
+
 /**
  * Shared post-roll / film-detail action set: Watched, Not Interested, the
  * 👍 / 👎 sentiment prompt, and the watchlist bookmark. Owns the optimistic
@@ -80,6 +84,8 @@ export function useFilmActions({
       toast({
         title: "Sign in to rate this",
         description: "Ratings teach CineRoll your taste for future rolls.",
+        action: { label: "Sign in", href: "/auth/signin" },
+        duration: NUDGE_TOAST_DURATION,
       });
       return;
     }
@@ -121,6 +127,12 @@ export function useFilmActions({
         description: isAuthenticated
           ? "We won't roll this one again."
           : "Sign in to keep it hidden next time.",
+        ...(isAuthenticated
+          ? {}
+          : {
+              action: { label: "Sign in", href: "/auth/signin" },
+              duration: NUDGE_TOAST_DURATION,
+            }),
       });
       onNotInterested?.();
     }
@@ -134,6 +146,8 @@ export function useFilmActions({
       toast({
         title: "Sign in to save your taste",
         description: "Create a profile to tune your recommendations.",
+        action: { label: "Sign in", href: "/auth/signin" },
+        duration: NUDGE_TOAST_DURATION,
       });
       return;
     }
@@ -174,6 +188,8 @@ export function useFilmActions({
       toast({
         title: "Sign in to save",
         description: "Create a profile to keep a watchlist.",
+        action: { label: "Sign in", href: "/auth/signin" },
+        duration: NUDGE_TOAST_DURATION,
       });
       return;
     }

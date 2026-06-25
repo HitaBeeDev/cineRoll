@@ -1,12 +1,20 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import * as ToastPrimitive from "@radix-ui/react-toast";
-import { X, CheckCircle, AlertCircle, Info } from "lucide-react";
+import { X, CheckCircle, AlertCircle, Info, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type ToastVariant = "default" | "success" | "error";
-const DEFAULT_TOAST_DURATION = 15000;
+// Plain feedback should clear quickly; conversion nudges that carry an action
+// pass their own longer duration so the user has time to reach the CTA.
+const DEFAULT_TOAST_DURATION = 4500;
+
+interface ToastAction {
+  label: string;
+  href: string;
+}
 
 interface ToastData {
   id: string;
@@ -14,6 +22,7 @@ interface ToastData {
   description?: string;
   variant?: ToastVariant;
   duration?: number;
+  action?: ToastAction;
 }
 
 interface ToastContextValue {
@@ -138,6 +147,23 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
                   {t.description}
                 </ToastPrimitive.Description>
               )}
+              {t.action && (
+                <ToastPrimitive.Action asChild altText={t.action.label}>
+                  <Link
+                    href={t.action.href}
+                    className={cn(
+                      "mt-2 inline-flex w-fit items-center gap-1.5 rounded-md border border-white/12 bg-white/[0.06] px-2.5 py-1",
+                      "font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.14em] text-[#F5F5F0]",
+                      "transition-colors duration-150 hover:border-[#e8453c]/50 hover:bg-[#e8453c]/12 hover:text-white",
+                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
+                    )}
+                    onClick={() => dismiss(t.id)}
+                  >
+                    {t.action.label}
+                    <ArrowRight className="h-3 w-3" />
+                  </Link>
+                </ToastPrimitive.Action>
+              )}
             </div>
             <ToastPrimitive.Close
               className={cn(
@@ -155,7 +181,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
         })}
         <ToastPrimitive.Viewport
           className={cn(
-            "fixed right-6 top-24 z-[100]",
+            "fixed bottom-6 right-6 z-[100]",
             "flex w-[360px] max-w-[calc(100vw-2rem)] flex-col gap-2",
             "outline-none"
           )}
