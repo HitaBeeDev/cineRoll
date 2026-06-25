@@ -78,8 +78,9 @@ export function SignInPrompt({
             <Link
               href="/auth/signin"
               className={cn(
-                "inline-flex items-center rounded-lg bg-[#e8453c] px-4 py-1.5",
+                "inline-flex items-center rounded-lg bg-[#e8453c] px-5 py-2",
                 "font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.16em] text-white",
+                "shadow-[0_6px_20px_-4px_rgba(232,69,60,0.6)]",
                 "transition-colors hover:bg-[#ff5247]",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0c0a12]",
               )}
