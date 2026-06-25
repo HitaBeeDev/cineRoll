@@ -72,10 +72,16 @@ function ScoreStat({
   suffix: string;
   icon: ReactNode;
 }) {
+  // Spell the meaning out for assistive tech so it never depends on the colour
+  // or the visual "·" separator: e.g. "Rotten Tomatoes: 92% — Fresh".
+  const label = `${source}: ${value}${suffix}${caption ? ` — ${caption}` : ""}`;
+
   return (
-    <div className="flex items-center gap-3">
-      <span className="shrink-0">{icon}</span>
-      <div className="min-w-0">
+    <div className="flex items-center gap-3" role="img" aria-label={label}>
+      <span className="shrink-0" aria-hidden>
+        {icon}
+      </span>
+      <div className="min-w-0" aria-hidden>
         <div className="flex items-baseline gap-1">
           <span
             className="font-[family-name:var(--font-display)] text-[1.8rem] font-bold leading-none text-[#F0F0EC]"
@@ -83,7 +89,7 @@ function ScoreStat({
           >
             {value}
           </span>
-          <span className="font-[family-name:var(--font-geist-mono)] text-[11px] text-white/40">
+          <span className="font-[family-name:var(--font-geist-mono)] text-[11px] text-white/55">
             {suffix}
           </span>
         </div>
@@ -92,7 +98,7 @@ function ScoreStat({
           style={{ color: accent }}
         >
           {source}
-          {caption && <span className="text-white/40"> · {caption}</span>}
+          {caption && <span className="text-white/60"> · {caption}</span>}
         </p>
       </div>
     </div>

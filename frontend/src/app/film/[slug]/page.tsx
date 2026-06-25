@@ -15,6 +15,10 @@ import { HeroRatings } from "@/components/hero-ratings";
 import { HeroAwards } from "@/components/hero-awards";
 import { HeroCTAs } from "@/components/hero-ctas";
 import { PosterCard } from "@/components/poster-card";
+import {
+  HeroHeadlineAccolade,
+  type HeadlineAccolade,
+} from "@/components/hero-headline-accolade";
 import { FilmRatingPanel } from "@/components/film-rating-panel";
 import { FilmCommentsSection } from "@/components/film-comments-section";
 
@@ -161,6 +165,53 @@ function computeAwardSummary(film: Film): AwardSummary {
   };
 }
 
+// Category prestige ranking, used to pick the single headline accolade shown in
+// the hero's right-third. Higher = more prestigious; matched case-insensitively
+// across ceremonies (Oscars / Golden Globes / Cannes use different wording).
+const CATEGORY_PRESTIGE: ReadonlyArray<readonly [RegExp, number]> = [
+  [/palme d['’]?or/i, 100],
+  [/best (motion )?picture|best (motion picture|film)|best motion picture/i, 95],
+  [/grand prix/i, 85],
+  [/best director/i, 80],
+  [/best (lead )?(actor|actress)/i, 70],
+  [/best (original |adapted )?screenplay|best writing/i, 60],
+  [/best supporting (actor|actress)/i, 55],
+];
+
+function categoryScore(category: string): number {
+  for (const [re, score] of CATEGORY_PRESTIGE) if (re.test(category)) return score;
+  return 30;
+}
+
+/**
+ * The film's single most prestigious accolade for the hero headline panel: a
+ * win always outranks a nomination, then category prestige, then the earliest
+ * year breaks ties. Returns null when no per-category records exist (e.g. only
+ * aggregate counts are known), so the panel falls back to totals only.
+ */
+function pickHeadlineAccolade(
+  ceremonies: CeremonySummary[],
+): HeadlineAccolade | null {
+  let best: (HeadlineAccolade & { rank: number }) | null = null;
+  for (const c of ceremonies) {
+    for (const r of c.records) {
+      const rank = (r.won ? 1000 : 0) + categoryScore(r.category);
+      if (best && (rank < best.rank || (rank === best.rank && r.awardYear >= best.year)))
+        continue;
+      best = {
+        category: r.category,
+        ceremony: c.title,
+        year: r.awardYear,
+        won: r.won,
+        rank,
+      };
+    }
+  }
+  if (!best) return null;
+  const { rank: _rank, ...headline } = best;
+  return headline;
+}
+
 function getAwardSummary(film: Film): string {
   const { totalWins, totalNominations, ceremonies } = computeAwardSummary(film);
   if (totalWins > 0)
@@ -226,6 +277,7 @@ export default async function FilmPage({
   const youtubeId = film.trailerUrl ? extractYouTubeId(film.trailerUrl) : null;
   const awardSummary = computeAwardSummary(film);
   const hasAwards = awardSummary.totalNominations > 0;
+  const headlineAccolade = pickHeadlineAccolade(awardSummary.ceremonies);
   const hasRatings = film.imdbRating != null || film.rtScore != null;
   const accent = film.posterColor ?? FALLBACK_ACCENT;
   const formattedRuntime = formatRuntime(film.runtime);
@@ -344,7 +396,8 @@ export default async function FilmPage({
                 {film.director && (
                   <Link
                     href={`/person/${nameToSlug(film.director)}`}
-                    className="mt-4 inline-block font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.36em] text-white/60 transition-colors hover:text-white/90"
+                    className="mt-4 inline-block font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.36em] text-white/75 transition-colors hover:text-white"
+                    style={{ textShadow: "0 1px 10px rgba(0,0,0,0.75)" }}
                   >
                     {film.director}
                   </Link>
@@ -449,18 +502,31 @@ export default async function FilmPage({
                 </div>
               </div>
 
-              {/* ── Right: poster card ───────────────────────────────
-                  Only shown when there's NO real backdrop. With a backdrop the
-                  full-bleed still IS the hero, so a separate poster card just
-                  duplicates the title and sits on the scene as a hard-edged
-                  modal. Poster-as-fallback films keep the crisp card, since the
-                  background is only a blurred wash of that same poster. */}
-              {film.posterUrl && !film.backdropUrl && (
-                <PosterCard
-                  posterUrl={film.posterUrl}
-                  title={film.title}
-                  accent={accent}
-                />
+              {/* ── Right-third ──────────────────────────────────────
+                  Two mutually-exclusive uses, so the space is never empty or
+                  doubled:
+                  • No real backdrop → poster card (the background is just a
+                    blurred wash of that poster, so the crisp card earns it).
+                  • Real backdrop → headline-accolade panel: the full-bleed
+                    still is already the hero, so rather than duplicate the
+                    title with a poster we put the film's marquee award here —
+                    prime real estate spent on CineRoll's actual value prop. */}
+              {film.backdropUrl ? (
+                hasAwards && (
+                  <HeroHeadlineAccolade
+                    headline={headlineAccolade}
+                    totalWins={awardSummary.totalWins}
+                    totalNominations={awardSummary.totalNominations}
+                  />
+                )
+              ) : (
+                film.posterUrl && (
+                  <PosterCard
+                    posterUrl={film.posterUrl}
+                    title={film.title}
+                    accent={accent}
+                  />
+                )
               )}
             </div>
           </div>
