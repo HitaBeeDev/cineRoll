@@ -80,20 +80,9 @@ export function FilterBar({
       aria-label="Filter films"
       className={cn("flex flex-col gap-3", className)}
     >
-      <div className="flex items-center justify-between gap-3">
-        <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.3em] text-[#686880]">
-          Build Your Roll
-        </p>
-        {activeChips.length > 0 && (
-          <button
-            type="button"
-            onClick={onClearFilters}
-            className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#9090a8] transition-colors hover:text-[#e8453c] focus-visible:outline-none"
-          >
-            Clear all
-          </button>
-        )}
-      </div>
+      <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.3em] text-[#686880]">
+        Build Your Roll
+      </p>
 
       {/* AWARDS — bodies are multi-select (combine Oscar + Golden Globe, etc.);
           the IMDb lists are independent toggles that can coexist with them. */}
@@ -222,7 +211,7 @@ export function FilterBar({
             transition={{ duration: 0.2 }}
             className="flex items-start gap-2 -mt-1 mb-1"
           >
-            <div className="relative flex flex-1 flex-wrap gap-1.5">
+            <div className="relative flex flex-1 flex-wrap items-center gap-1.5">
               <AnimatePresence mode="popLayout">
                 {activeChips.map((chip) => (
                   <motion.div
@@ -263,6 +252,13 @@ export function FilterBar({
                   </motion.div>
                 ))}
               </AnimatePresence>
+              <button
+                type="button"
+                onClick={onClearFilters}
+                className="ml-1 shrink-0 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#9090a8] transition-colors hover:text-[#e8453c] focus-visible:outline-none"
+              >
+                Clear all
+              </button>
             </div>
           </motion.div>
         )}
