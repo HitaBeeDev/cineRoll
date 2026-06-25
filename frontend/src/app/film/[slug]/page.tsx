@@ -825,18 +825,20 @@ function SectionLabel({ children }: { children: ReactNode }) {
  * collapsed, so the drama leads and the detail is opt-in.
  */
 function AwardsDominance({ summary }: { summary: AwardSummary }) {
-  const top = [...summary.ceremonies].sort(
-    (a, b) => b.wins - a.wins || b.nominations - a.nominations,
-  )[0];
-  if (!top) return null;
+  if (summary.ceremonies.length === 0) return null;
+  const hasWins = summary.totalWins > 0;
 
-  const hasWins = top.wins > 0;
-  const cats = [...top.records]
+  // All won (or, when nothing won, all nominated) categories across every
+  // ceremony, so the highlight list matches the aggregate headline count.
+  const cats = summary.ceremonies
+    .flatMap((c) => c.records)
     .filter((r) => (hasWins ? r.won : true))
-    .sort(
-      (a, b) => a.awardYear - b.awardYear || a.category.localeCompare(b.category),
-    );
-  const others = summary.ceremonies.filter((c) => c !== top && c.wins > 0);
+    .sort((a, b) => a.awardYear - b.awardYear || a.category.localeCompare(b.category));
+
+  // Per-ceremony split shown under the totals (e.g. "7 Oscar · 5 Golden Globe").
+  const breakdown = summary.ceremonies
+    .filter((c) => (hasWins ? c.wins > 0 : c.nominations > 0))
+    .map((c) => `${hasWins ? c.wins : c.nominations} ${c.shortLabel}`);
 
   return (
     <div className="relative mt-8 overflow-hidden border border-[#D4AF37]/20 bg-gradient-to-br from-[#16130b] via-[#0d0d14] to-[#0a0a10] p-7 sm:p-9">
@@ -852,23 +854,35 @@ function AwardsDominance({ summary }: { summary: AwardSummary }) {
           >
             {hasWins ? "Awards Dominance" : "Award Recognition"}
           </p>
-          <div className="mt-3 flex items-baseline gap-2.5">
-            <span
-              className="font-[family-name:var(--font-display)] text-[4.5rem] font-bold leading-none tabular-nums"
-              style={{ color: HERO_GOLD, textShadow: `0 0 40px ${HERO_GOLD}40` }}
-            >
-              {hasWins ? top.wins : top.nominations}
-            </span>
+          <div className="mt-3 flex items-end gap-7">
+            {hasWins && (
+              <div>
+                <span
+                  className="block font-[family-name:var(--font-display)] text-[4.5rem] font-bold leading-none tabular-nums"
+                  style={{ color: HERO_GOLD, textShadow: `0 0 40px ${HERO_GOLD}40` }}
+                >
+                  {summary.totalWins}
+                </span>
+                <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.32em] text-white/40">
+                  Wins
+                </p>
+              </div>
+            )}
+            <div className={hasWins ? "pb-1.5" : undefined}>
+              <span
+                className={`block font-[family-name:var(--font-display)] font-bold leading-none tabular-nums ${hasWins ? "text-[2.75rem] font-semibold text-white/45" : "text-[4.5rem]"}`}
+                style={hasWins ? undefined : { color: HERO_GOLD, textShadow: `0 0 40px ${HERO_GOLD}40` }}
+              >
+                {summary.totalNominations}
+              </span>
+              <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.32em] text-white/40">
+                Nominations
+              </p>
+            </div>
           </div>
-          <p className="mt-2 font-[family-name:var(--font-display)] text-lg font-bold text-white/90">
-            {top.title}
-          </p>
-          <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.32em] text-white/40">
-            {hasWins ? "Wins" : "Nominations"}
-          </p>
-          {others.length > 0 && (
+          {breakdown.length > 1 && (
             <p className="mt-5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-[#9a8a55]">
-              + {others.map((o) => `${o.wins} ${o.shortLabel}`).join(" · ")}
+              {breakdown.join(" · ")}
             </p>
           )}
         </div>
@@ -881,7 +895,7 @@ function AwardsDominance({ summary }: { summary: AwardSummary }) {
             <ul className="mt-4 grid gap-x-8 gap-y-2.5 sm:grid-cols-2">
               {cats.map((r) => (
                 <li
-                  key={`${r.awardYear}-${r.category}-${r.nominee}`}
+                  key={`${r.awardBody}-${r.awardYear}-${r.category}-${r.nominee}`}
                   className="flex items-baseline gap-2.5"
                 >
                   <span
