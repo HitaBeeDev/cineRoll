@@ -32,7 +32,12 @@ export default function SignInPage() {
 
   async function handleGoogleSignIn() {
     setIsGoogleLoading(true);
-    await signIn("google", { callbackUrl: "/" });
+    // Honour ?callbackUrl= so flows like "rate → sign in → land back on the
+    // film" return where they started. Only relative paths, to avoid an
+    // open-redirect.
+    const raw = new URLSearchParams(window.location.search).get("callbackUrl");
+    const callbackUrl = raw && raw.startsWith("/") ? raw : "/";
+    await signIn("google", { callbackUrl });
   }
 
   return (

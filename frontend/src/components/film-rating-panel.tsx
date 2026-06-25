@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Star } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { fetchFilmStatus, saveFilmRating } from "@/lib/api";
@@ -11,6 +10,10 @@ import { useToast } from "@/components/ui/toast";
 // Gold stars tie the rating to CineRoll's prestige/award language; the CTA
 // stays red (the brand/interactive colour).
 const STAR_GOLD = "#E3B53E";
+
+// localStorage key for a rating a signed-out user picked before signing in — so
+// the rating survives the auth round-trip and auto-applies on return.
+const pendingKey = (filmId: string) => `cineroll:pending-rating:${filmId}`;
 
 type RatingPanelProps = {
   filmId: string;
@@ -41,8 +44,8 @@ function ratingMood(value: number): string {
 // The surfaces the rating-fed taste profile ACTUALLY powers (verified against
 // the backend: recommend() for Recommendations, getPersonalizedRandomFilm for
 // Daily Picks, and the profile itself). Similar Films (film-to-film) and Mood
-// Match (prompt-based) don't read the taste profile, so they're excluded —
-// no fabricated algorithmic claims.
+// Match (prompt-based) don't read the taste profile, so they're excluded — no
+// fabricated algorithmic claims.
 const IMPROVES = ["Daily Picks", "Recommendations", "Taste Profile"] as const;
 
 /** A short, real description of the film's taste traits the rating will weight:
@@ -69,22 +72,52 @@ export function FilmRatingPanel({
   const isAuthenticated = status === "authenticated";
   const isSessionLoading = status === "loading";
   const { toast } = useToast();
-  const [watched, setWatched] = useState(false);
   const [userRating, setUserRating] = useState<number | null>(null);
   const [hoverRating, setHoverRating] = useState<number | null>(null);
-  const [pending, setPending] = useState(false);
+  // A signed-out, locally-chosen rating awaiting "Save to Taste Profile".
+  const [pendingRating, setPendingRating] = useState<number | null>(null);
+  const [saving, setSaving] = useState(false);
   const [loadedFilmId, setLoadedFilmId] = useState<string | null>(null);
   const statusLoaded = loadedFilmId === filmId;
 
+  const traits = useMemo(
+    () => tasteTraits(genres, year, hasAwards),
+    [genres, year, hasAwards],
+  );
+
+  const persistRating = useCallback(
+    async (rating: number, previous: number | null) => {
+      setUserRating(rating);
+      setSaving(true);
+      try {
+        await saveFilmRating(filmId, rating);
+        toast({
+          variant: "success",
+          title: "Rating saved · taste profile updated",
+          description: `${filmTitle} · ${formatRating(rating)}/10 — ${ratingMood(rating)}`,
+        });
+      } catch {
+        setUserRating(previous);
+        toast({
+          variant: "error",
+          title: "Couldn't save rating",
+          description: "Check your connection and try again.",
+        });
+      } finally {
+        setSaving(false);
+      }
+    },
+    [filmId, filmTitle, toast],
+  );
+
+  // Load any existing rating for signed-in users.
   useEffect(() => {
     if (!isAuthenticated) return;
     let cancelled = false;
 
     void fetchFilmStatus(filmId)
-      .then((status) => {
-        if (cancelled) return;
-        setWatched(status.watched && !status.doNotSuggest);
-        setUserRating(status.rating);
+      .then((s) => {
+        if (!cancelled) setUserRating(s.rating);
       })
       .catch(() => {
         // Non-blocking: the aggregate rating still renders for everyone.
@@ -98,51 +131,50 @@ export function FilmRatingPanel({
     };
   }, [filmId, isAuthenticated]);
 
-  const hasRatings = ratingCount > 0;
-  const canRate = isAuthenticated && watched && statusLoaded;
-  const displayRating = hoverRating ?? userRating ?? averageRating;
-  const traits = useMemo(
-    () => tasteTraits(genres, year, hasAwards),
-    [genres, year, hasAwards],
-  );
+  // After a signed-out user signs in via "Save to Taste Profile", apply the
+  // rating they picked before the auth round-trip.
+  useEffect(() => {
+    if (!isAuthenticated || !statusLoaded || userRating !== null) return;
+    const stored = window.localStorage.getItem(pendingKey(filmId));
+    if (!stored) return;
+    window.localStorage.removeItem(pendingKey(filmId));
+    const rating = Number(stored);
+    if (Number.isFinite(rating) && rating >= 1 && rating <= 10) {
+      void persistRating(rating, null);
+    }
+  }, [isAuthenticated, statusLoaded, userRating, filmId, persistRating]);
 
+  const hasRatings = ratingCount > 0;
   const hasUserRating = userRating !== null;
+  const displayRating = hoverRating ?? pendingRating ?? userRating ?? averageRating;
   const heading = hasUserRating ? "Your Rating" : "Shape Your Recommendations";
 
   const copy = useMemo(() => {
-    if (!isAuthenticated)
-      return `Sign in to rate ${filmTitle} and help CineRoll learn your taste for ${traits}.`;
-    if (!statusLoaded) return `Rate ${filmTitle} to sharpen your recommendations.`;
-    if (!watched)
-      return `Mark ${filmTitle} watched, then rate it — your score tunes your matches for ${traits}.`;
     if (hasUserRating)
       return `Your score is feeding your taste profile, refining picks for ${traits}.`;
-    return `How did ${filmTitle} land for you? Your rating tunes your matches for ${traits}.`;
-  }, [isAuthenticated, statusLoaded, watched, hasUserRating, filmTitle, traits]);
+    return `Rate ${filmTitle} to help CineRoll learn your taste for ${traits}.`;
+  }, [hasUserRating, filmTitle, traits]);
 
-  async function handleRate(rating: number) {
-    if (!canRate || pending) return;
-    const previous = userRating;
-    setUserRating(rating);
-    setPending(true);
-    try {
-      await saveFilmRating(filmId, rating);
-      toast({
-        variant: "success",
-        title: "Rating saved · taste profile updated",
-        description: `${filmTitle} · ${formatRating(rating)}/10 — ${ratingMood(rating)}`,
-      });
-    } catch {
-      setUserRating(previous);
-      toast({
-        variant: "error",
-        title: "Couldn't save rating",
-        description: "Check your connection and try again.",
-      });
-    } finally {
-      setPending(false);
-    }
+  function onStar(rating: number) {
+    if (saving) return;
+    if (isAuthenticated) void persistRating(rating, userRating);
+    else setPendingRating(rating);
   }
+
+  function saveViaSignin() {
+    if (pendingRating == null) return;
+    try {
+      window.localStorage.setItem(pendingKey(filmId), String(pendingRating));
+    } catch {
+      // Private mode etc. — sign-in still works, the rating just won't persist.
+    }
+    const callback = encodeURIComponent(
+      window.location.pathname + window.location.search,
+    );
+    window.location.href = `/auth/signin?callbackUrl=${callback}`;
+  }
+
+  const showConfirm = !isAuthenticated && pendingRating !== null;
 
   return (
     <div className="relative overflow-hidden border border-[#1e1e30] bg-gradient-to-br from-[#13110c] via-[#0c0c14] to-[#0a0a10] p-6 sm:p-7">
@@ -179,32 +211,58 @@ export function FilmRatingPanel({
                   <button
                     key={rating}
                     type="button"
-                    disabled={!canRate || pending}
+                    disabled={saving || isSessionLoading}
                     aria-label={`Rate ${formatRating(rating)} out of 10`}
                     onMouseEnter={() => setHoverRating(rating)}
                     onFocus={() => setHoverRating(rating)}
                     onBlur={() => setHoverRating(null)}
-                    onClick={() => void handleRate(rating)}
-                    className={cn(
-                      "h-8 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
-                      "disabled:cursor-not-allowed",
-                      canRate ? "hover:opacity-100" : "opacity-45",
-                    )}
+                    onClick={() => onStar(rating)}
+                    className="h-8 cursor-pointer transition-opacity hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] disabled:cursor-not-allowed disabled:opacity-50"
                   />
                 ))}
               </div>
             </div>
 
-            <RatingStatus
-              isAuthenticated={isAuthenticated}
-              isSessionLoading={isSessionLoading}
-              statusLoaded={statusLoaded}
-              watched={watched}
-              userRating={userRating}
-            />
+            {!showConfirm && (
+              <RatingStatus
+                isSessionLoading={isSessionLoading}
+                userRating={userRating}
+              />
+            )}
           </div>
 
-          {canRate && hasUserRating && (
+          {/* Signed-out save prompt — interact first, sign in only to save. */}
+          {showConfirm && pendingRating !== null && (
+            <div className="mt-5 border-l-2 pl-4" style={{ borderColor: `${STAR_GOLD}66` }}>
+              <p className="font-[family-name:var(--font-display)] text-base font-bold text-[#F2F2F6]">
+                {formatRating(pendingRating)} selected
+                <span className="ml-2 font-[family-name:var(--font-geist-mono)] text-[11px] font-semibold uppercase tracking-[0.16em] text-white/45">
+                  {ratingMood(pendingRating)}
+                </span>
+              </p>
+              <p className="mt-1 text-[0.85rem] leading-6 text-[#9a9ab4]">
+                Save this rating to your Taste Profile and improve future matches.
+              </p>
+              <div className="mt-3 flex flex-wrap items-center gap-2.5">
+                <button
+                  type="button"
+                  onClick={saveViaSignin}
+                  className="inline-flex items-center bg-[#e8453c] px-4 py-2.5 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.18em] text-white transition-colors hover:bg-[#d5342b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0c0c14]"
+                >
+                  Save to Taste Profile
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPendingRating(null)}
+                  className="px-3 py-2.5 font-[family-name:var(--font-geist-mono)] text-[11px] font-semibold uppercase tracking-[0.18em] text-white/45 transition-colors hover:text-white"
+                >
+                  Not now
+                </button>
+              </div>
+            </div>
+          )}
+
+          {isAuthenticated && hasUserRating && (
             <p
               className="mt-4 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em]"
               style={{ color: `${STAR_GOLD}cc` }}
@@ -255,41 +313,16 @@ export function FilmRatingPanel({
 }
 
 function RatingStatus({
-  isAuthenticated,
   isSessionLoading,
-  statusLoaded,
-  watched,
   userRating,
 }: {
-  isAuthenticated: boolean;
   isSessionLoading: boolean;
-  statusLoaded: boolean;
-  watched: boolean;
   userRating: number | null;
 }) {
-  if (isSessionLoading || (isAuthenticated && !statusLoaded)) {
+  if (isSessionLoading) {
     return (
       <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.16em] text-white/35">
         Checking account…
-      </span>
-    );
-  }
-
-  if (!isAuthenticated) {
-    return (
-      <Link
-        href="/auth/signin"
-        className="font-[family-name:var(--font-geist-mono)] text-[12px] font-semibold uppercase tracking-[0.18em] text-[#e8453c] transition-colors hover:text-white"
-      >
-        Sign in to rate →
-      </Link>
-    );
-  }
-
-  if (!watched) {
-    return (
-      <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.16em] text-white/40">
-        Mark watched to rate
       </span>
     );
   }
@@ -311,8 +344,8 @@ function RatingStatus({
   }
 
   return (
-    <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.16em] text-white/40">
-      Tap a star — half-steps supported
+    <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em] text-white/45">
+      Choose your rating
     </span>
   );
 }
