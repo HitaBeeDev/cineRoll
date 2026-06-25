@@ -133,7 +133,10 @@ export function FilmCard({
               });
             }}
             aria-label={`View details for ${film.title}`}
-            className="group relative z-20 w-[42%] max-w-[180px] shrink-0 self-start rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090f]"
+            // self-stretch lets the poster grow to match a tall identity column
+            // (long titles) instead of leaving dead space below it; the 2/3
+            // aspect ratio acts as the minimum height when the column is short.
+            className="group relative z-20 w-[42%] max-w-[180px] shrink-0 self-stretch rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090f]"
             style={{ aspectRatio: "2/3" }}
           >
             <motion.div
