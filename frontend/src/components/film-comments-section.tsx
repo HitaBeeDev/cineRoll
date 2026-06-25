@@ -203,12 +203,12 @@ export function FilmCommentsSection({ slug }: Props) {
         <h2 className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[11px] font-semibold uppercase tracking-[0.5em] text-[#c8c8e0]">
           Comments
         </h2>
-        <div className="h-px flex-1 bg-gradient-to-r from-[#2a2a42] to-transparent" />
         {!isLoading && (
-          <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.28em] text-[#666680]">
+          <span className="inline-flex shrink-0 items-center justify-center rounded-full border border-[#23233a] bg-[#101019] px-2 py-0.5 font-[family-name:var(--font-geist-mono)] text-[11px] tabular-nums text-[#8a8aa6]">
             {commentCount}
           </span>
         )}
+        <div className="h-px flex-1 bg-gradient-to-r from-[#2a2a42] to-transparent" />
       </div>
 
       <div className="mt-8 space-y-6">
@@ -216,18 +216,18 @@ export function FilmCommentsSection({ slug }: Props) {
           <textarea
             value={body}
             onChange={(event) => setBody(event.target.value.slice(0, 1000))}
-            rows={4}
+            rows={2}
             placeholder="Add your take..."
-            className="min-h-28 w-full resize-y border border-[#25253a] bg-[#080810] px-4 py-3 text-sm leading-6 text-[#e8e8f0] outline-none transition-colors placeholder:text-[#555570] focus:border-[#e8453c]/60 focus:ring-1 focus:ring-[#e8453c]/50"
+            className="min-h-[60px] w-full resize-y border border-[#25253a] bg-[#080810] px-4 py-2.5 text-sm leading-6 text-[#e8e8f0] outline-none transition-colors placeholder:text-[#555570] focus:border-[#e8453c]/60 focus:ring-1 focus:ring-[#e8453c]/50"
           />
-          <div className="mt-3 flex items-center justify-between gap-3">
+          <div className="mt-2.5 flex items-center justify-between gap-3">
             <span
               className={cn(
-                "font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.25em]",
+                "font-[family-name:var(--font-geist-mono)] text-[11px] tabular-nums tracking-[0.18em]",
                 remaining < 80 ? "text-[#e8453c]" : "text-[#666680]",
               )}
             >
-              {remaining}
+              {body.length} / 1000
             </span>
             <button
               type="submit"
