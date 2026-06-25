@@ -5,7 +5,7 @@ import type { CSSProperties, ReactNode } from "react";
 import { ChevronDown, ExternalLink, Sparkles } from "lucide-react";
 import type { Film, AwardRecord, CastMember } from "@cineroll/types";
 import { cn, nameToSlug } from "@/lib/utils";
-import { formatRuntime } from "@/lib/format";
+import { formatRuntime, formatLanguage } from "@/lib/format";
 import { AppHeader } from "@/components/app-header";
 import { FilmTrailer } from "@/components/film-trailer";
 import { WhereToWatch } from "@/components/where-to-watch";
@@ -229,6 +229,7 @@ export default async function FilmPage({
   const hasRatings = film.imdbRating != null || film.rtScore != null;
   const accent = film.posterColor ?? FALLBACK_ACCENT;
   const formattedRuntime = formatRuntime(film.runtime);
+  const formattedLanguage = formatLanguage(film.language);
 
   // IMDb Top-250 / Top-TV ranking signals, surfaced in the meta sidebar below
   // the fold; award win/nom counts live in the Awards section (single source:
@@ -356,8 +357,10 @@ export default async function FilmPage({
                   </p>
                 )}
 
-                {/* Specs: factual metadata as a lightweight dotted text line */}
-                <div className="mt-6 flex flex-wrap items-center gap-x-2.5 gap-y-1.5 font-[family-name:var(--font-geist-mono)] text-[12px] uppercase tracking-[0.18em] text-white/60">
+                {/* Specs: factual metadata as a lightweight dotted text line.
+                    Mixed-case (not uppercased) so values read as designed copy
+                    — "2h 23m", "English" — rather than raw enum/format codes. */}
+                <div className="mt-6 flex flex-wrap items-center gap-x-2.5 gap-y-1.5 font-[family-name:var(--font-geist-mono)] text-[13px] tracking-[0.02em] text-white/65">
                   <span>{film.year}</span>
                   {formattedRuntime && (
                     <>
@@ -365,10 +368,10 @@ export default async function FilmPage({
                       <span>{formattedRuntime}</span>
                     </>
                   )}
-                  {film.language && (
+                  {formattedLanguage && (
                     <>
                       <MetaDot />
-                      <span>{film.language}</span>
+                      <span>{formattedLanguage}</span>
                     </>
                   )}
                   {film.certificate && (
