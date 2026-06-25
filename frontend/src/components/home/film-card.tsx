@@ -297,20 +297,12 @@ export function FilmCard({
               activeLabel="Saved"
             />
           </div>
-          {/* The auth prompt below already explains the sign-in benefit, so
-              suppress this status footnote while it's open. */}
-          {!authPrompt && (
+          {/* Signed-in status footnote only. Guests get no standing nudge — the
+              red sign-in line below appears in its place when they tap an action. */}
+          {isAuthenticated && (
             <p className="mt-2.5 flex items-center gap-1.5 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.14em] text-[#6c6c80]">
-              <span
-                aria-hidden
-                className={cn(
-                  "h-1.5 w-1.5 rounded-full",
-                  isAuthenticated ? "bg-[#3fb950]" : "bg-[#D4AF37]",
-                )}
-              />
-              {isAuthenticated
-                ? "Saved to your account"
-                : "Sign in to save your choices and tune future rolls"}
+              <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-[#3fb950]" />
+              Saved to your account
             </p>
           )}
 
