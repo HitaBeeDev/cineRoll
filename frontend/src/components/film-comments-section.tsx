@@ -212,19 +212,24 @@ export function FilmCommentsSection({ slug }: Props) {
       </div>
 
       <div className="mt-8 space-y-6">
-        <form onSubmit={postComment} className="border border-[#1e1e30] bg-[#0c0c14] p-5">
+        {/* One surface: the card IS the field — flush textarea + an action bar,
+            no box-in-box. Focus lights the whole composer. */}
+        <form
+          onSubmit={postComment}
+          className="border border-[#22223a] bg-[#0c0c14] transition-colors focus-within:border-[#e8453c]/55 focus-within:ring-1 focus-within:ring-[#e8453c]/35"
+        >
           <textarea
             value={body}
             onChange={(event) => setBody(event.target.value.slice(0, 1000))}
             rows={2}
             placeholder="Add your take..."
-            className="min-h-[60px] w-full resize-y border border-[#25253a] bg-[#080810] px-4 py-2.5 text-sm leading-6 text-[#e8e8f0] outline-none transition-colors placeholder:text-[#555570] focus:border-[#e8453c]/60 focus:ring-1 focus:ring-[#e8453c]/50"
+            className="block min-h-[56px] w-full resize-y bg-transparent px-4 pb-2 pt-3.5 text-sm leading-6 text-[#e8e8f0] outline-none placeholder:text-[#555570]"
           />
-          <div className="mt-2.5 flex items-center justify-between gap-3">
+          <div className="flex items-center justify-between gap-3 border-t border-[#1a1a2c] px-3 py-2.5">
             <span
               className={cn(
-                "font-[family-name:var(--font-geist-mono)] text-[11px] tabular-nums tracking-[0.18em]",
-                remaining < 80 ? "text-[#e8453c]" : "text-[#666680]",
+                "pl-1 font-[family-name:var(--font-geist-mono)] text-[11px] tabular-nums tracking-[0.18em]",
+                remaining < 80 ? "text-[#e8453c]" : "text-[#5c5c74]",
               )}
             >
               {body.length} / 1000
@@ -232,7 +237,7 @@ export function FilmCommentsSection({ slug }: Props) {
             <button
               type="submit"
               disabled={isPosting || (canPost && body.trim().length === 0)}
-              className="flex items-center gap-2 bg-[#e8453c] px-5 py-2.5 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.2em] text-white transition-colors hover:bg-[#d5342b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] disabled:cursor-not-allowed disabled:opacity-40"
+              className="flex items-center gap-2 bg-[#e8453c] px-4 py-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.2em] text-white transition-colors hover:bg-[#d5342b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] disabled:cursor-not-allowed disabled:opacity-40"
             >
               {isPosting && <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />}
               Post
