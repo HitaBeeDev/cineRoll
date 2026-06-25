@@ -1,0 +1,30 @@
+export const FEMALE_DIRECTORS = [
+  "Agnès Varda",
+  "Alice Rohrwacher",
+  "Andrea Arnold",
+  "Ava DuVernay",
+  "Barbra Streisand",
+  "Céline Sciamma",
+  "Chloé Zhao",
+  "Claire Denis",
+  "Dee Rees",
+  "Emerald Fennell",
+  "Greta Gerwig",
+  "Jane Campion",
+  "Justine Triet",
+  "Kathryn Bigelow",
+  "Kelly Reichardt",
+  "Lina Wertmüller",
+  "Lucrecia Martel",
+  "Mira Nair",
+  "Nancy Meyers",
+  "Nora Ephron",
+  "Patty Jenkins",
+  "Penny Marshall",
+  "Sarah Polley",
+  "Sofia Coppola",
+  "Susanne Bier",
+];
+
+export const AWARD_BODY_VALUES = ["oscar", "goldenglobe", "cannes", "berlin"] as const;
+export type AwardBodyValue = (typeof AWARD_BODY_VALUES)[number];
