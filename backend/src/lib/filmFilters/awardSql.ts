@@ -1,7 +1,7 @@
 import { Prisma } from "@prisma/client";
 
 import { AWARD_BODY_VALUES, AwardBodyValue } from "./constants";
-import { ListQuery } from "./querySchemas";
+import { ListQuery } from "./listQuerySchema";
 
 // The JSON columns to search for an award match. With no bodies selected (empty
 // or undefined) every corpus is searched; otherwise only the chosen ones are,

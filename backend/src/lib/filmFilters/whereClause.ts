@@ -2,7 +2,7 @@ import { Prisma } from "@prisma/client";
 
 import { awardFilter } from "./awardSql";
 import { facetPredicates } from "./facetPredicates";
-import { ListQuery } from "./querySchemas";
+import { ListQuery } from "./listQuerySchema";
 import { rangePredicates } from "./rangePredicates";
 import { rankingPredicates } from "./rankingPredicates";
 import { textPredicates } from "./textPredicates";

@@ -1,6 +1,6 @@
 import { Prisma } from "@prisma/client";
 
-import { ListQuery } from "./querySchemas";
+import { ListQuery } from "./listQuerySchema";
 
 export function facetPredicates(query: ListQuery): Prisma.Sql[] {
   return [

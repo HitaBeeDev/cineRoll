@@ -1,6 +1,7 @@
 import { Prisma } from "@prisma/client";
 import { Router } from "express";
-import { buildWhereClause, RandomQuery, randomQuerySchema } from "../lib/filmFilters";
+import { RandomQuery, randomQuerySchema } from "../lib/filmFilters/randomQuerySchema";
+import { buildWhereClause } from "../lib/filmFilters/whereClause";
 import { cache, cacheKeys, setPublicCache } from "../lib/cache";
 import { logEvent } from "../lib/events";
 import { prisma } from "../lib/prisma";

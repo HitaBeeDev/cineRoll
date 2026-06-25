@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { z } from "zod";
-import { randomQuerySchema, RandomQuery } from "../lib/filmFilters";
+import { RandomQuery, randomQuerySchema } from "../lib/filmFilters/randomQuerySchema";
 import { setPublicCache } from "../lib/cache";
 import { getRandomFilms } from "./random";
 import { getValidated, validate } from "../middleware/validate";

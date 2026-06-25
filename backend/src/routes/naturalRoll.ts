@@ -3,7 +3,7 @@ import type { ResponseSchema } from "@google/generative-ai";
 import { Router } from "express";
 import { z } from "zod";
 import { config } from "../config";
-import { randomQuerySchema } from "../lib/filmFilters";
+import { randomQuerySchema } from "../lib/filmFilters/randomQuerySchema";
 import { getAllowedFilterValues } from "../lib/allowedFilterValues";
 import { validateStructuralFilters } from "../lib/validateFilters";
 import { HttpError } from "../middleware/errorHandler";

@@ -2,7 +2,7 @@ import { Prisma } from "@prisma/client";
 
 import { awardExists } from "./awardSql";
 import { FEMALE_DIRECTORS } from "./constants";
-import { ListQuery } from "./querySchemas";
+import { ListQuery } from "./listQuerySchema";
 
 export function textPredicates(query: ListQuery): Prisma.Sql[] {
   return [
