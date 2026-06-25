@@ -145,7 +145,7 @@ export function SimilarFilmsSlider({
                   <FilmCard film={f} />
                   {reason && (
                     <p className="mt-2 px-0.5 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase leading-4 tracking-[0.12em] text-white/45">
-                      <span className="text-[#e8453c]">Because</span> {reason}
+                      {reason}
                     </p>
                   )}
                 </div>
