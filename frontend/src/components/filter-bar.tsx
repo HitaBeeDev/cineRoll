@@ -80,9 +80,20 @@ export function FilterBar({
       aria-label="Filter films"
       className={cn("flex flex-col gap-3", className)}
     >
-      <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.3em] text-[#686880]">
-        Build Your Roll
-      </p>
+      <div className="flex items-center justify-between gap-3">
+        <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.3em] text-[#686880]">
+          Build Your Roll
+        </p>
+        {activeChips.length > 0 && (
+          <button
+            type="button"
+            onClick={onClearFilters}
+            className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#9090a8] transition-colors hover:text-[#e8453c] focus-visible:outline-none"
+          >
+            Clear all
+          </button>
+        )}
+      </div>
 
       {/* AWARDS — bodies are multi-select (combine Oscar + Golden Globe, etc.);
           the IMDb lists are independent toggles that can coexist with them. */}
@@ -253,13 +264,6 @@ export function FilterBar({
                 ))}
               </AnimatePresence>
             </div>
-            <button
-              type="button"
-              onClick={onClearFilters}
-              className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#9090a8] transition-colors hover:text-[#e8453c] focus-visible:outline-none"
-            >
-              Clear all
-            </button>
           </motion.div>
         )}
       </AnimatePresence>
