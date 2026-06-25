@@ -496,13 +496,6 @@ export function HomeClient({
                   <span className="text-xl tracking-[0.25em]">Rolling…</span>
                 ) : hasActiveFilters && effectiveCount === 0 ? (
                   <span className="text-xl tracking-[0.25em]">No matches</span>
-                ) : hasActiveFilters && effectiveCount !== null && !effectiveCountLoading ? (
-                  <span className="flex flex-col items-center leading-tight gap-0.5">
-                    <span className="text-xl tracking-[0.25em]">Roll</span>
-                    <span className="text-[11px] tracking-[0.15em] font-normal normal-case opacity-80">
-                      from {effectiveCount} films
-                    </span>
-                  </span>
                 ) : (
                   <span className="text-xl tracking-[0.25em]">Roll</span>
                 )}
