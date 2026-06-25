@@ -417,8 +417,13 @@ export default async function FilmPage({
                 </div>
               </div>
 
-              {/* ── Right: Poster card (desktop only) ──────────────── */}
-              {film.posterUrl && (
+              {/* ── Right: poster card ───────────────────────────────
+                  Only shown when there's NO real backdrop. With a backdrop the
+                  full-bleed still IS the hero, so a separate poster card just
+                  duplicates the title and sits on the scene as a hard-edged
+                  modal. Poster-as-fallback films keep the crisp card, since the
+                  background is only a blurred wash of that same poster. */}
+              {film.posterUrl && !film.backdropUrl && (
                 <PosterCard
                   posterUrl={film.posterUrl}
                   title={film.title}
