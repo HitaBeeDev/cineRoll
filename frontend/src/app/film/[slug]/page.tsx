@@ -574,6 +574,15 @@ export default async function FilmPage({
 
         <div className="relative mx-auto max-w-5xl space-y-20 px-6 py-20 lg:px-10">
 
+          {/* ── WHERE TO WATCH ────────────────────────────────────────────
+              Hoisted to the top of the page body: "can I watch it, and where"
+              is a primary user need, so it leads the content instead of
+              sitting below awards, cast and comments. */}
+          <WhereToWatch
+            watchProviders={film.watchProviders ?? null}
+            accent={accent}
+          />
+
           {/* ── SYNOPSIS ─────────────────────────────────────────────── */}
           {film.plot && (
             <section id="overview">
@@ -638,20 +647,24 @@ export default async function FilmPage({
             </section>
           )}
 
-          {/* ── RATINGS ──────────────────────────────────────────────── */}
-          <section id="rate" className="scroll-mt-24">
-            <SectionLabel>Ratings</SectionLabel>
-            <div className="mt-8">
-              <FilmRatingPanel
-                filmId={film.id}
-                filmTitle={displayTitle(film.title)}
-                averageRating={film.averageRating}
-                ratingCount={film.ratingCount}
-              />
-            </div>
-          </section>
-
-          <FilmCommentsSection slug={film.slug} accent={accent} />
+          {/* ── CAST ──────────────────────────────────────────────────── */}
+          {film.cast.length > 0 && (
+            <section id="cast" className="scroll-mt-24">
+              <SectionLabel>Cast</SectionLabel>
+              <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+                {normalizeCast(film.cast)
+                  .filter((member) => member.name.trim().length > 0)
+                  .slice(0, 8)
+                  .map((member, i) => (
+                    <CastCard
+                      key={`${member.name}-${i}`}
+                      member={member}
+                      accent={accent}
+                    />
+                  ))}
+              </div>
+            </section>
+          )}
 
           {/* ── SIMILAR FILMS ─────────────────────────────────────────── */}
           {similarFilms.length >= 3 && (
@@ -675,29 +688,20 @@ export default async function FilmPage({
             </section>
           )}
 
-          {/* ── CAST ──────────────────────────────────────────────────── */}
-          {film.cast.length > 0 && (
-            <section id="cast" className="scroll-mt-24">
-              <SectionLabel>Cast</SectionLabel>
-              <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-                {normalizeCast(film.cast)
-                  .slice(0, 8)
-                  .map((member, i) => (
-                    <CastCard
-                      key={`${member.name}-${i}`}
-                      member={member}
-                      accent={accent}
-                    />
-                  ))}
-              </div>
-            </section>
-          )}
+          {/* ── RATINGS ──────────────────────────────────────────────── */}
+          <section id="rate" className="scroll-mt-24">
+            <SectionLabel>Ratings</SectionLabel>
+            <div className="mt-8">
+              <FilmRatingPanel
+                filmId={film.id}
+                filmTitle={displayTitle(film.title)}
+                averageRating={film.averageRating}
+                ratingCount={film.ratingCount}
+              />
+            </div>
+          </section>
 
-          {/* ── WHERE TO WATCH ────────────────────────────────────────── */}
-          <WhereToWatch
-            watchProviders={film.watchProviders ?? null}
-            accent={accent}
-          />
+          <FilmCommentsSection slug={film.slug} accent={accent} />
 
           {/* ── TRAILER + META ────────────────────────────────────────── */}
           <div className="grid gap-14 xl:grid-cols-[1fr_240px]">
@@ -930,7 +934,10 @@ function AwardSummaryCard({
                 >
                   {record.category}
                 </p>
-                <p className="mt-0.5 truncate font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-[#666680]">
+                <p
+                  className="mt-1 text-[0.78rem] leading-5 text-[#85859e]"
+                  title={record.nominee}
+                >
                   {record.nominee}
                 </p>
               </div>
@@ -993,7 +1000,7 @@ function CastCard({ member, accent }: { member: CastMember; accent: string }) {
             alt={member.name}
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 200px"
-            className="object-cover object-top grayscale-[15%] transition-all duration-500 group-hover:scale-[1.04] group-hover:grayscale-0"
+            className="object-cover object-top grayscale-[55%] transition-all duration-500 group-hover:scale-[1.04] group-hover:grayscale-0"
           />
         ) : (
           <div

@@ -114,12 +114,8 @@ export function WhereToWatch({
         <div className="h-px flex-1 bg-gradient-to-r from-[#2a2a42] to-transparent" />
       </div>
 
-      <div className="mt-8 border border-[#1e1e30] bg-[#0d0d18] p-6">
-        {noData ? (
-          <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.4em] text-[#666680]">
-            Streaming data not yet available
-          </p>
-        ) : hasAny ? (
+      {hasAny ? (
+        <div className="mt-8 border border-[#1e1e30] bg-[#0d0d18] p-6">
           <div className="flex flex-col gap-7">
             <ProviderGroup label="Stream" providers={flatrate} accent={accent} />
             <ProviderGroup label="Rent" providers={rent} accent={accent} />
@@ -137,12 +133,22 @@ export function WhereToWatch({
               </a>
             )}
           </div>
-        ) : (
-          <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.4em] text-[#666680]">
-            Not available for streaming in your region
+        </div>
+      ) : (
+        /* Empty state kept deliberately lightweight — a dashed, low-contrast
+           strip so "no streaming" never carries the same visual weight as a
+           real provider list. */
+        <div className="mt-6 max-w-md border border-dashed border-[#1c1c2a] bg-[#0a0a12]/40 px-4 py-3">
+          <p className="text-[0.82rem] font-medium text-[#9a9ab4]">
+            {noData ? "Streaming unavailable" : `Not available in ${country}`}
           </p>
-        )}
-      </div>
+          <p className="mt-0.5 text-[0.78rem] leading-5 text-[#5e5e78]">
+            {noData
+              ? "We couldn't find streaming sources for this title yet."
+              : "No stream, rent or buy options were found for your region."}
+          </p>
+        </div>
+      )}
     </section>
   );
 }

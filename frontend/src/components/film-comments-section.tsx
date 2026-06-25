@@ -252,9 +252,12 @@ export function FilmCommentsSection({ slug, accent }: Props) {
               Loading comments
             </div>
           ) : comments.length === 0 ? (
-            <div className="border border-[#1e1e30] bg-[#080810] p-5 text-sm text-[#8888a8]">
-              No comments yet.
-            </div>
+            <p className="px-1 py-1.5 text-[0.82rem] leading-6 text-[#6f6f8c]">
+              No comments yet —{" "}
+              {canPost
+                ? "be the first to start the discussion."
+                : "sign in above to start the discussion."}
+            </p>
           ) : (
             comments.map((comment) => (
               <CommentItem

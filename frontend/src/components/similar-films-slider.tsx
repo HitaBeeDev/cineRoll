@@ -110,7 +110,7 @@ export function SimilarFilmsSlider({
         onClick={() => goTo(index - 1)}
         disabled={index === 0}
         aria-label="Previous"
-        className="absolute bottom-0 left-0 top-0 z-10 flex w-12 items-center justify-center bg-gradient-to-r from-[#07070b] via-[#07070b]/60 to-transparent text-[#444458] opacity-0 transition-opacity duration-200 hover:text-[#F5F5F0] group-hover/slider:opacity-100 disabled:!opacity-0"
+        className="absolute bottom-0 left-0 top-0 z-10 flex w-12 items-center justify-center bg-gradient-to-r from-[#07070b] via-[#07070b]/60 to-transparent text-[#6a6a82] opacity-70 transition-opacity duration-200 hover:text-[#F5F5F0] group-hover/slider:opacity-100 disabled:!opacity-0"
       >
         <ChevronLeft className="h-5 w-5" />
       </button>
@@ -162,7 +162,7 @@ export function SimilarFilmsSlider({
         onClick={() => goTo(index + 1)}
         disabled={index >= maxIndex}
         aria-label="Next"
-        className="absolute bottom-0 right-0 top-0 z-10 flex w-12 items-center justify-center bg-gradient-to-l from-[#07070b] via-[#07070b]/60 to-transparent text-[#444458] opacity-0 transition-opacity duration-200 hover:text-[#F5F5F0] group-hover/slider:opacity-100 disabled:!opacity-0"
+        className="absolute bottom-0 right-0 top-0 z-10 flex w-12 items-center justify-center bg-gradient-to-l from-[#07070b] via-[#07070b]/60 to-transparent text-[#6a6a82] opacity-70 transition-opacity duration-200 hover:text-[#F5F5F0] group-hover/slider:opacity-100 disabled:!opacity-0"
       >
         <ChevronRight className="h-5 w-5" />
       </button>
