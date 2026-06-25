@@ -11,6 +11,10 @@ const GATE_COPY: Record<AuthGate, { title: string; body: string }> = {
     title: "Sign in to tune future rolls",
     body: "Your ratings help CineRoll learn your taste.",
   },
+  notInterested: {
+    title: "Sign in to skip this film",
+    body: "We'll keep films you pass out of future rolls.",
+  },
   watchlist: {
     title: "Sign in to save films",
     body: "Keep a watchlist and pick up where you left off.",

@@ -35,8 +35,6 @@ const ONBOARDED_STORAGE_KEY = "cineroll_onboarded";
 const ONBOARDED_COOKIE = "cineroll_onboarded";
 const TASTE_SEED_SYNCED_KEY = "cineroll_taste_seed_synced";
 const PERSONALIZED_ROLL_KEY = "cineroll_personalized_roll";
-const SESSION_HIDDEN_FILMS_KEY = "cineroll_session_hidden_films";
-
 /** Persist the onboarding flag where the server can read it. `page.tsx` reads
  *  this cookie via `cookies()` to decide server-side whether to render
  *  onboarding, so returning visitors never flash the onboarding screen. Mirrors
@@ -47,32 +45,6 @@ function markOnboardedCookie() {
     document.cookie = `${ONBOARDED_COOKIE}=true; path=/; max-age=31536000; samesite=lax`;
   } catch {
     // Cookie write unavailable — the localStorage flag still gates this session.
-  }
-}
-
-function readSessionHiddenFilmIds(): string[] {
-  try {
-    const parsed = JSON.parse(
-      window.sessionStorage.getItem(SESSION_HIDDEN_FILMS_KEY) ?? "[]",
-    ) as unknown;
-    return Array.isArray(parsed)
-      ? parsed.filter((id): id is string => typeof id === "string")
-      : [];
-  } catch {
-    return [];
-  }
-}
-
-function hideFilmForSession(filmId: string) {
-  try {
-    const next = [
-      filmId,
-      ...readSessionHiddenFilmIds().filter((id) => id !== filmId),
-    ].slice(0, 100);
-    window.sessionStorage.setItem(SESSION_HIDDEN_FILMS_KEY, JSON.stringify(next));
-    return next.length;
-  } catch {
-    return 0;
   }
 }
 
@@ -280,10 +252,9 @@ export function HomeClient({
     try {
       // Signed-in users: the backend filters out films they marked "Not Interested".
       // With the taste toggle on, it returns a taste-weighted (ε-greedy) pick.
-      // Guests can hide films for the session; pass those IDs so the backend
-      // excludes them in a single query rather than re-rolling until it misses them.
-      const hiddenIds = userId ? undefined : readSessionHiddenFilmIds();
-      const result = await fetchRandom(filters, userId, isPersonalized, hiddenIds);
+      // Guests can't hide films (Not Interested is gated behind sign-in), so there
+      // are never session-hidden IDs to exclude.
+      const result = await fetchRandom(filters, userId, isPersonalized, undefined);
       setFilm(result.film);
       setFilteredCount(result.total);
       pushRollHistory(result.film);
@@ -327,10 +298,6 @@ export function HomeClient({
     } finally {
       setIsRolling(false);
     }
-  }
-
-  function handleGuestHideForSession(filmId: string) {
-    hideFilmForSession(filmId);
   }
 
   // Keep ref in sync so space-key handler always calls latest version
@@ -706,7 +673,6 @@ export function HomeClient({
                   film={film}
                   isAuthenticated={Boolean(userId)}
                   onNotInterested={() => void handleRoll()}
-                  onGuestHideForSession={handleGuestHideForSession}
                 />
               </motion.div>
             ) : effectiveCount === 0 ? (

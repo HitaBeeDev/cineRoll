@@ -26,12 +26,10 @@ export function FilmCard({
   film,
   isAuthenticated,
   onNotInterested,
-  onGuestHideForSession,
 }: {
   film: RollFilm;
   isAuthenticated: boolean;
   onNotInterested?: () => void;
-  onGuestHideForSession?: (filmId: string) => void;
 }) {
   const { toast } = useToast();
   const shouldReduceMotion = useReducedMotion();
@@ -275,10 +273,7 @@ export function FilmCard({
               tone="dismiss"
               active={action === "not-interested"}
               disabled={pending}
-              onClick={() => {
-                if (!isAuthenticated) onGuestHideForSession?.(film.id);
-                void saveDecision("not-interested", true);
-              }}
+              onClick={() => void saveDecision("not-interested", true)}
               icon={<EyeOff className="h-4 w-4" aria-hidden />}
               label="Not for me"
               activeLabel="Hidden"

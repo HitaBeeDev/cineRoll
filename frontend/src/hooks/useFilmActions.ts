@@ -13,7 +13,7 @@ import { useToast } from "@/components/ui/toast";
 export type FilmActionState = "none" | "watched" | "not-interested";
 export type Sentiment = "like" | "dislike" | null;
 // Which gated action a guest attempted — drives the inline sign-in prompt copy.
-export type AuthGate = "watched" | "watchlist";
+export type AuthGate = "watched" | "notInterested" | "watchlist";
 
 // Guest sign-in nudges carry a CTA, so they linger longer than plain feedback
 // toasts to give the user time to reach the button before auto-dismiss.
@@ -37,6 +37,10 @@ const AUTH_GATE_TOAST: Record<AuthGate, { title: string; description: string }> 
   watched: {
     title: "Sign in to rate this",
     description: "Marking films seen helps CineRoll learn your taste.",
+  },
+  notInterested: {
+    title: "Sign in to skip films",
+    description: "We'll keep films you pass out of future rolls.",
   },
   watchlist: {
     title: "Sign in to save",
@@ -132,30 +136,29 @@ export function useFilmActions({
     doNotSuggest: boolean,
   ) {
     if (pending) return;
-    if (!isAuthenticated && next === "watched") {
-      triggerAuthGate("watched");
+    // Both Watched and Not Interested need an account to persist, so guests get
+    // the inline sign-in prompt instead of a session-only effect.
+    if (!isAuthenticated) {
+      triggerAuthGate(next === "watched" ? "watched" : "notInterested");
       return;
     }
 
     const previous = action;
     setAction(next);
 
-    // Signed-in users persist to their account; guests get a session-only effect.
-    if (isAuthenticated) {
-      setPending(true);
-      try {
-        await markFilmWatched(filmId, doNotSuggest);
-      } catch {
-        setAction(previous);
-        toast({
-          variant: "error",
-          title: "Couldn't save",
-          description: "Check your connection and try again.",
-        });
-        return;
-      } finally {
-        setPending(false);
-      }
+    setPending(true);
+    try {
+      await markFilmWatched(filmId, doNotSuggest);
+    } catch {
+      setAction(previous);
+      toast({
+        variant: "error",
+        title: "Couldn't save",
+        description: "Check your connection and try again.",
+      });
+      return;
+    } finally {
+      setPending(false);
     }
 
     if (next === "watched") {
@@ -168,18 +171,8 @@ export function useFilmActions({
     } else {
       void trackEvent({ type: "not_interested", filmId, context: { source } });
       toast({
-        title: isAuthenticated
-          ? "Hidden from future rolls"
-          : "Hidden for this session",
-        description: isAuthenticated
-          ? "We won't roll this one again."
-          : "Sign in to keep it hidden next time.",
-        ...(isAuthenticated
-          ? {}
-          : {
-              action: { label: "Sign in", href: "/auth/signin" },
-              duration: NUDGE_TOAST_DURATION,
-            }),
+        title: "Hidden from future rolls",
+        description: "We won't roll this one again.",
       });
       onNotInterested?.();
     }
