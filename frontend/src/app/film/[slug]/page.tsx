@@ -660,18 +660,20 @@ export default async function FilmPage({
             </section>
           )}
 
-          {/* ── RATINGS ──────────────────────────────────────────────── */}
-          <section id="rate" className="scroll-mt-24">
-            <SectionLabel>Ratings</SectionLabel>
-            <div className="mt-8">
-              <FilmRatingPanel
-                filmId={film.id}
-                filmTitle={displayTitle(film.title)}
-              />
-            </div>
-          </section>
+          {/* ── RATINGS + COMMENTS — one row, two columns ─────────────── */}
+          <div className="grid items-start gap-x-12 gap-y-16 lg:grid-cols-2">
+            <section id="rate" className="scroll-mt-24">
+              <SectionLabel>Ratings</SectionLabel>
+              <div className="mt-8">
+                <FilmRatingPanel
+                  filmId={film.id}
+                  filmTitle={displayTitle(film.title)}
+                />
+              </div>
+            </section>
 
-          <FilmCommentsSection slug={film.slug} />
+            <FilmCommentsSection slug={film.slug} />
+          </div>
 
           {/* ── TRAILER + META ────────────────────────────────────────── */}
           <div className="grid gap-14 xl:grid-cols-[1fr_240px]">
