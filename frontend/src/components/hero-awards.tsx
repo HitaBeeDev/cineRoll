@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { Fragment, type ReactNode } from "react";
 import { Trophy, Globe, Award } from "lucide-react";
 
 // Awards are CineRoll's core differentiator, so the hero leads with them.
@@ -13,9 +13,9 @@ type HeroCeremony = {
 };
 
 const CEREMONY_ICON: Record<HeroCeremony["icon"], ReactNode> = {
-  oscar: <Trophy className="h-[18px] w-[18px]" aria-hidden />,
-  globe: <Globe className="h-[18px] w-[18px]" aria-hidden />,
-  cannes: <Award className="h-[18px] w-[18px]" aria-hidden />,
+  oscar: <Trophy className="h-5 w-5" aria-hidden />,
+  globe: <Globe className="h-5 w-5" aria-hidden />,
+  cannes: <Award className="h-5 w-5" aria-hidden />,
 };
 
 /**
@@ -31,49 +31,63 @@ export function HeroAwards({ ceremonies }: { ceremonies: HeroCeremony[] }) {
   if (ceremonies.length === 0) return null;
 
   return (
-    <div className="flex flex-wrap items-center gap-x-9 gap-y-5">
-      {ceremonies.map((c) => {
+    <div className="flex flex-wrap items-center gap-x-7 gap-y-6">
+      {ceremonies.map((c, i) => {
         const showWins = c.wins > 0;
         const count = showWins ? c.wins : c.nominations;
         const noun = `${showWins ? "Win" : "Nomination"}${count === 1 ? "" : "s"}`;
 
         return (
-          <div key={c.shortLabel} className="flex items-center gap-3.5">
-            <span
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
-              style={{
-                background: `${GOLD}1c`,
-                color: GOLD,
-                boxShadow: `inset 0 0 0 1px ${GOLD}33`,
-              }}
-            >
-              {CEREMONY_ICON[c.icon]}
-            </span>
+          <Fragment key={c.shortLabel}>
+            {/* Vertical rule between ceremonies, so the band scans as a row of
+                distinct accolades rather than one run-on cluster. */}
+            {i > 0 && (
+              <span
+                aria-hidden
+                className="hidden h-12 w-px self-center sm:block"
+                style={{
+                  background: `linear-gradient(to bottom, transparent, ${GOLD}30, transparent)`,
+                }}
+              />
+            )}
 
-            <div>
-              <div className="flex items-baseline gap-2">
+            <div className="flex items-center gap-4">
+              <span
+                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full"
+                style={{
+                  background: `${GOLD}1c`,
+                  color: GOLD,
+                  boxShadow: `inset 0 0 0 1px ${GOLD}3d, 0 0 24px ${GOLD}1f`,
+                }}
+              >
+                {CEREMONY_ICON[c.icon]}
+              </span>
+
+              <div>
+                <div className="flex items-baseline gap-2">
+                  <span
+                    className="font-[family-name:var(--font-display)] font-bold leading-none tabular-nums"
+                    style={{
+                      fontSize: "clamp(2.5rem,3.9vw,3.5rem)",
+                      color: GOLD,
+                      textShadow: `0 0 34px ${GOLD}4d`,
+                    }}
+                  >
+                    {count}
+                  </span>
+                  <span className="font-[family-name:var(--font-display)] text-lg font-semibold leading-tight text-white/90">
+                    {c.shortLabel}
+                  </span>
+                </div>
                 <span
-                  className="font-[family-name:var(--font-display)] font-bold leading-none tabular-nums"
-                  style={{
-                    fontSize: "clamp(2.25rem,3.4vw,3rem)",
-                    color: GOLD,
-                    textShadow: `0 0 30px ${GOLD}45`,
-                  }}
+                  className="mt-2 block font-[family-name:var(--font-geist-mono)] text-[10px] font-semibold uppercase tracking-[0.36em]"
+                  style={{ color: `${GOLD}cc` }}
                 >
-                  {count}
-                </span>
-                <span className="font-[family-name:var(--font-display)] text-base font-semibold leading-tight text-white/90">
-                  {c.shortLabel}
+                  {noun}
                 </span>
               </div>
-              <span
-                className="mt-1.5 block font-[family-name:var(--font-geist-mono)] text-[10px] font-semibold uppercase tracking-[0.34em]"
-                style={{ color: `${GOLD}cc` }}
-              >
-                {noun}
-              </span>
             </div>
-          </div>
+          </Fragment>
         );
       })}
     </div>

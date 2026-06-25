@@ -23,6 +23,9 @@ const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ??
   (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://cineroll.app");
 const FALLBACK_ACCENT = "#D4AF37";
+// Prestige gold for the hero accolades module — fixed regardless of the film's
+// own poster accent, so awards always read as the universal "honour" cue.
+const HERO_GOLD = "#D4AF37";
 
 function displayTitle(title: string): string {
   return title.replace(/^(.*),\s+(The|A|An)$/i, "$2 $1");
@@ -388,18 +391,40 @@ export default async function FilmPage({
                 )}
 
                 {/* ── ZONE 2 · ACCOLADES ────────────────────────────
-                    How decorated and how rated the film is — CineRoll's award
-                    data leads, third-party scores support. The large zone gap
-                    separates it from the identity block above. */}
+                    CineRoll's differentiator, framed as one confident module:
+                    an eyebrow label, the gold award band, then the supporting
+                    critic scores under a hairline. This reads as the headline
+                    value of the page — the reason someone is here — rather than
+                    as stray badges. Award data leads; third-party scores
+                    support. The large zone gap separates it from the identity
+                    block above. */}
                 {(hasAwards || hasRatings) && (
-                  <div className="mt-12 space-y-7">
-                    {hasAwards && (
-                      <HeroAwards ceremonies={awardSummary.ceremonies} />
-                    )}
-                    <HeroRatings
-                      imdbRating={film.imdbRating}
-                      rtScore={film.rtScore}
-                    />
+                  <div className="mt-12">
+                    <div className="flex items-center gap-3">
+                      <span
+                        aria-hidden
+                        className="h-px w-7"
+                        style={{
+                          background: `linear-gradient(to right, ${HERO_GOLD}, transparent)`,
+                        }}
+                      />
+                      <span className="font-[family-name:var(--font-geist-mono)] text-[10px] font-semibold uppercase tracking-[0.42em] text-white/50">
+                        {hasAwards ? "Accolades" : "Critic Scores"}
+                      </span>
+                    </div>
+
+                    <div className="mt-7 space-y-7">
+                      {hasAwards && (
+                        <HeroAwards ceremonies={awardSummary.ceremonies} />
+                      )}
+                      {hasAwards && hasRatings && (
+                        <div className="h-px w-full max-w-md bg-gradient-to-r from-white/14 via-white/[0.06] to-transparent" />
+                      )}
+                      <HeroRatings
+                        imdbRating={film.imdbRating}
+                        rtScore={film.rtScore}
+                      />
+                    </div>
                   </div>
                 )}
 

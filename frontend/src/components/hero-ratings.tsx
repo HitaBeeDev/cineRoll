@@ -73,12 +73,12 @@ function ScoreStat({
   icon: ReactNode;
 }) {
   return (
-    <div className="flex items-center gap-2.5">
+    <div className="flex items-center gap-3">
       <span className="shrink-0">{icon}</span>
       <div className="min-w-0">
         <div className="flex items-baseline gap-1">
           <span
-            className="font-[family-name:var(--font-display)] text-[1.6rem] font-bold leading-none text-[#F0F0EC]"
+            className="font-[family-name:var(--font-display)] text-[1.8rem] font-bold leading-none text-[#F0F0EC]"
             style={{ textShadow: "0 1px 16px rgba(0,0,0,0.5)" }}
           >
             {value}
