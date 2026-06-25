@@ -37,10 +37,10 @@ export function AuthButton({
         href="/auth/signin"
         className={cn(
           "rounded-full px-4 py-2",
-          "font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.13em]",
-          "border border-[#34344d] bg-transparent text-[#F5F5F0] transition-colors duration-150",
-          "hover:border-[#6a6a85] hover:bg-white/[0.04]",
-          "focus-visible:outline-none focus-visible:ring-2",
+          "font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.13em]",
+          "bg-[#e8453c] text-white shadow-[0_4px_14px_-4px_rgba(232,69,60,0.6)] transition-colors duration-150",
+          "hover:bg-[#ff5247]",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0a14]",
           focusRingClassName,
         )}
       >
