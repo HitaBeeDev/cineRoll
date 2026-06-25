@@ -624,8 +624,8 @@ function QuickActionButton({
       disabled={disabled}
       aria-pressed={active}
       className={cn(
-        "flex h-11 items-center justify-center gap-2 rounded-xl border",
-        "font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.18em]",
+        "flex h-11 items-center justify-center gap-2 rounded-xl border px-3",
+        "font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.12em]",
         "transition-colors",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
         "disabled:cursor-not-allowed disabled:opacity-60",
