@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import type { CSSProperties, ReactNode } from "react";
-import { ChevronDown, ExternalLink, Sparkles } from "lucide-react";
+import { ChevronDown, ExternalLink, Sparkles, Tag } from "lucide-react";
 import type { Film, AwardRecord, CastMember } from "@cineroll/types";
 import { cn, nameToSlug } from "@/lib/utils";
 import { formatRuntime, formatLanguage } from "@/lib/format";
@@ -384,11 +384,15 @@ export default async function FilmPage({
                   )}
                 </div>
 
-                {/* Tags: genres as chips — the only pills, so they read as tags */}
+                {/* Genres: interactive filter facets, NOT achievements. Each
+                    is a link into the filtered browse view and wears a flat,
+                    cool tag treatment with a glyph — deliberately unlike the
+                    round gold award chips below, since they're a different
+                    class of object (navigate-to-filter vs honour earned). */}
                 {film.genres.length > 0 && (
                   <div className="mt-4 flex flex-wrap items-center gap-2">
                     {film.genres.slice(0, 3).map((g) => (
-                      <HeroPill key={g}>{g}</HeroPill>
+                      <HeroGenreTag key={g} genre={g} />
                     ))}
                   </div>
                 )}
@@ -724,20 +728,24 @@ function MetaDot() {
   );
 }
 
-function HeroPill({
-  children,
-  style,
-}: {
-  children: ReactNode;
-  style?: CSSProperties;
-}) {
+/**
+ * A genre as an interactive filter facet: clicking it opens the browse view
+ * pre-filtered to that genre. Flat, cool, tag-shaped with a glyph so it reads
+ * as "navigate / filter" — visually the opposite of the round gold award
+ * chips, which are achievements, not actions.
+ */
+function HeroGenreTag({ genre }: { genre: string }) {
   return (
-    <span
-      className="rounded-full border border-white/20 bg-black/50 px-3 py-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-white/80 backdrop-blur-sm"
-      style={style}
+    <Link
+      href={`/browse?genre=${encodeURIComponent(genre)}`}
+      className="group inline-flex items-center gap-1.5 rounded-[3px] border border-white/12 bg-white/[0.04] px-2.5 py-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em] text-white/55 backdrop-blur-sm transition-colors hover:border-[#e8453c]/45 hover:bg-[#e8453c]/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
     >
-      {children}
-    </span>
+      <Tag
+        className="h-3 w-3 opacity-45 transition-opacity group-hover:opacity-90"
+        aria-hidden
+      />
+      {genre}
+    </Link>
   );
 }
 
