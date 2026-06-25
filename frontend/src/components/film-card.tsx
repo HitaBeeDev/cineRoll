@@ -9,32 +9,20 @@ import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { trackEvent, trackFilmImpression } from "@/lib/analytics";
 
-type AwardBadge = {
-  detail: string;
-  // "marquee" = the rare, heavily-decorated films that get loud emphasis;
-  // "quiet" = everyone else, who still earn a badge but a recessive one.
-  tier: "marquee" | "quiet";
-} | null;
-
-// Every film in the DB is an award film, so a loud badge on each one carries no
-// signal. Browse defaults to awards-descending, so page one is the most-decorated
-// films — keep the marquee threshold high enough that even there the emphatic
-// badge stays rare and doesn't become a wall of accent colour.
-const MARQUEE_WIN_THRESHOLD = 10;
+type AwardBadge = { detail: string } | null;
 
 function getAwardBadge(film: Film): AwardBadge {
   // One combined count across every award body — no single body is named, so
   // the number can't be misread as "11 Oscars" when it's 11 awards in total.
+  // Every card gets the same teal chip regardless of count — every film here is
+  // an award film, so the badge is an identity marker, not a ranking signal.
   const totalWins = film.oscarWins + film.ggWins + film.cannesWins + film.berlinWins;
   const totalNoms = film.oscarNominations + film.ggNominations + film.cannesNominations + film.berlinNominations;
 
   if (totalWins > 0)
-    return {
-      detail: `${totalWins} ${totalWins === 1 ? "award" : "awards"}`,
-      tier: totalWins >= MARQUEE_WIN_THRESHOLD ? "marquee" : "quiet",
-    };
+    return { detail: `${totalWins} ${totalWins === 1 ? "award" : "awards"}` };
   if (totalNoms > 0)
-    return { detail: `${totalNoms} ${totalNoms === 1 ? "nom" : "noms"}`, tier: "quiet" };
+    return { detail: `${totalNoms} ${totalNoms === 1 ? "nom" : "noms"}` };
   return null;
 }
 
@@ -135,21 +123,14 @@ export function FilmCard({ film, className }: FilmCardProps) {
                 <span className="shrink-0 text-[#f8f0b3]">{listBadge.detail}</span>
               </span>
             )}
-            {badge && (badge.tier === "marquee" ? (
+            {badge && (
               <span
                 aria-label={badge.detail}
-                className="inline-flex max-w-full items-center rounded-full border border-[#caa23a] bg-[#e7b23e] px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.14em] text-[#1c1402] shadow-lg shadow-black/30"
+                className="inline-flex max-w-full items-center rounded-full border border-[#2dd4bf]/40 bg-black/75 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] font-semibold uppercase tracking-[0.14em] text-[#5eead4] shadow-lg shadow-black/30 backdrop-blur-sm"
               >
                 <span className="shrink-0">{badge.detail}</span>
               </span>
-            ) : (
-              <span
-                aria-label={badge.detail}
-                className="inline-flex max-w-full items-center rounded-full border border-white/12 bg-black/55 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] font-medium uppercase tracking-[0.14em] text-[#b7b2c4] backdrop-blur-sm"
-              >
-                <span className="shrink-0">{badge.detail}</span>
-              </span>
-            ))}
+            )}
           </div>
         )}
 
