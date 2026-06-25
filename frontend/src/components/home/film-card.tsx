@@ -269,8 +269,8 @@ export function FilmCard({
               disabled={pending}
               onClick={() => void saveDecision("watched", false)}
               icon={<Eye className="h-4 w-4" aria-hidden />}
-              label="Seen it"
-              activeLabel="Seen"
+              label="Watched"
+              activeLabel="Watched"
             />
             <QuickActionButton
               tone="dismiss"
@@ -278,7 +278,7 @@ export function FilmCard({
               disabled={pending}
               onClick={() => void saveDecision("not-interested", true)}
               icon={<EyeOff className="h-4 w-4" aria-hidden />}
-              label="Not for me"
+              label="Not interested"
               activeLabel="Hidden"
             />
             <QuickActionButton
@@ -293,7 +293,7 @@ export function FilmCard({
                   aria-hidden
                 />
               }
-              label="Save"
+              label="Add to Watchlist"
               activeLabel="Saved"
             />
           </div>

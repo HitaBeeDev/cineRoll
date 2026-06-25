@@ -7,9 +7,9 @@ import { cn } from "@/lib/utils";
 import type { AuthGate } from "@/hooks/useFilmActions";
 
 const GATE_COPY: Record<AuthGate, string> = {
-  watched: "Sign in to tune your future rolls",
-  notInterested: "Sign in to hide films you skip",
-  watchlist: "Sign in to start your watchlist",
+  watched: "Sign in to mark as watched",
+  notInterested: "Sign in to hide this title",
+  watchlist: "Sign in to add to your Watchlist",
 };
 
 /**
