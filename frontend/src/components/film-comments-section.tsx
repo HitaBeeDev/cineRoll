@@ -222,7 +222,7 @@ export function FilmCommentsSection({ slug }: Props) {
             value={body}
             onChange={(event) => setBody(event.target.value.slice(0, 1000))}
             rows={2}
-            placeholder="Add your take..."
+            placeholder="Share your thoughts on this film…"
             className="block min-h-[56px] w-full resize-y bg-transparent px-4 pb-2 pt-3.5 text-sm leading-6 text-[#e8e8f0] outline-none placeholder:text-[#555570]"
           />
           <div className="flex items-center justify-between gap-3 border-t border-[#1a1a2c] px-3 py-2.5">
