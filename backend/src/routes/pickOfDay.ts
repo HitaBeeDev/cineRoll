@@ -1,7 +1,8 @@
 import { Router } from "express";
 import { cache, cacheKeys, setPublicCache } from "../lib/cache";
 import { logEvent } from "../lib/events";
-import { getPickOfDay, pickOfDaySelect } from "../lib/pickOfDay";
+import { pickOfDaySelect } from "../lib/pickOfDay/select";
+import { getPickOfDay } from "../lib/pickOfDay/service";
 import { prisma } from "../lib/prisma";
 import { HttpError } from "../middleware/errorHandler";
 
