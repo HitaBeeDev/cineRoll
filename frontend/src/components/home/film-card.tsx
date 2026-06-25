@@ -13,8 +13,8 @@ import {
   ThumbsUp,
   X,
 } from "lucide-react";
-import { useToast } from "@/components/ui/toast";
 import { SignInPrompt } from "@/components/sign-in-prompt";
+import { SharePopover } from "@/components/share-popover";
 import { useFilmActions } from "@/hooks/useFilmActions";
 import { formatRuntime } from "@/lib/format";
 import { trackEvent } from "@/lib/analytics";
@@ -31,7 +31,6 @@ export function FilmCard({
   isAuthenticated: boolean;
   onNotInterested?: () => void;
 }) {
-  const { toast } = useToast();
   const shouldReduceMotion = useReducedMotion();
   // The parent keys this card by film.id, so state resets for each new roll.
   const {
@@ -63,26 +62,6 @@ export function FilmCard({
   const backdropUrl = film.backdropUrl;
   const awardHighlights = getAwardHighlights(film);
   const recognition = getRecognitionRecords(film);
-
-  async function shareFilm() {
-    const path = `/film/${film.slug}?from=roll`;
-    const url = `${window.location.origin}${path}`;
-
-    try {
-      await navigator.clipboard.writeText(url);
-      toast({
-        variant: "success",
-        title: "Link copied!",
-        description: path,
-      });
-    } catch {
-      toast({
-        variant: "error",
-        title: "Could not copy link",
-        description: "Copying is not available in this browser.",
-      });
-    }
-  }
 
   return (
     <div className="flex flex-col">
@@ -357,13 +336,21 @@ export function FilmCard({
           >
             View details
           </Link>
-          <ActionBtn
-            aria-label="Share this film"
-            title="Share this film"
-            onClick={() => void shareFilm()}
+          <SharePopover
+            slug={film.slug}
+            title={film.title}
+            url={`${typeof window !== "undefined" ? window.location.origin : ""}/film/${film.slug}?from=roll`}
+            caption={film.plot ?? undefined}
+            triggerAriaLabel="Share this film"
+            triggerClassName={cn(
+              "flex h-11 items-center justify-center rounded-xl px-3",
+              "border border-[#1e1e2a] text-[#888899]",
+              "transition-colors hover:border-[#2a2a3e] hover:text-[#F5F5F0]",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
+            )}
           >
             <Share2 className="h-4 w-4" aria-hidden />
-          </ActionBtn>
+          </SharePopover>
         </div>
       </div>
     </div>
@@ -736,24 +723,3 @@ function SentimentButton({
   );
 }
 
-function ActionBtn({
-  children,
-  className,
-  ...props
-}: React.ButtonHTMLAttributes<HTMLButtonElement>) {
-  return (
-    <button
-      type="button"
-      className={cn(
-        "flex h-11 items-center justify-center rounded-xl px-3",
-        "border border-[#1e1e2a] text-[#888899]",
-        "transition-colors hover:border-[#2a2a3e] hover:text-[#F5F5F0]",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
-        className,
-      )}
-      {...props}
-    >
-      {children}
-    </button>
-  );
-}
