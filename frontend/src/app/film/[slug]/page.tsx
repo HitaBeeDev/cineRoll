@@ -592,15 +592,6 @@ export default async function FilmPage({
             </section>
           )}
 
-          {/* ── WHERE TO WATCH ────────────────────────────────────────────
-              "Can I watch it, and where" is a primary user need, so it leads
-              the content (just after the synopsis) instead of sitting below
-              awards, cast and comments. */}
-          <WhereToWatch
-            watchProviders={film.watchProviders ?? null}
-            accent={accent}
-          />
-
           {/* ── AWARDS ───────────────────────────────────────────────── */}
           {hasAwards && (
             <section id="awards" className="scroll-mt-24">
@@ -780,6 +771,12 @@ export default async function FilmPage({
               )}
             </div>
           </div>
+
+          {/* ── WHERE TO WATCH ──────────────────────────────────────────── */}
+          <WhereToWatch
+            watchProviders={film.watchProviders ?? null}
+            accent={accent}
+          />
         </div>
       </div>
     </main>
