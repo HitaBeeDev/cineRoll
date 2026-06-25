@@ -312,7 +312,7 @@ export function FilmCard({
               />
               {isAuthenticated
                 ? "Saved to your account"
-                : "Sign in to make Seen it, Not for me & Save work"}
+                : "Sign in to save your choices and tune future rolls"}
             </p>
           )}
 
