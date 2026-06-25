@@ -344,7 +344,7 @@ export default async function FilmPage({
                 {film.director && (
                   <Link
                     href={`/person/${nameToSlug(film.director)}`}
-                    className="mt-5 inline-block font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.36em] text-white/60 transition-colors hover:text-white/90"
+                    className="mt-4 inline-block font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.36em] text-white/60 transition-colors hover:text-white/90"
                   >
                     {film.director}
                   </Link>
@@ -352,7 +352,7 @@ export default async function FilmPage({
 
                 {/* Original title */}
                 {film.originalTitle && film.originalTitle !== film.title && (
-                  <p className="mt-3 font-[family-name:var(--font-display)] text-xl italic text-white/55">
+                  <p className="mt-2 font-[family-name:var(--font-display)] text-xl italic text-white/55">
                     {film.originalTitle}
                   </p>
                 )}
@@ -360,7 +360,7 @@ export default async function FilmPage({
                 {/* Specs: factual metadata as a lightweight dotted text line.
                     Mixed-case (not uppercased) so values read as designed copy
                     — "2h 23m", "English" — rather than raw enum/format codes. */}
-                <div className="mt-6 flex flex-wrap items-center gap-x-2.5 gap-y-1.5 font-[family-name:var(--font-geist-mono)] text-[13px] tracking-[0.02em] text-white/65">
+                <div className="mt-4 flex flex-wrap items-center gap-x-2.5 gap-y-1.5 font-[family-name:var(--font-geist-mono)] text-[13px] tracking-[0.02em] text-white/65">
                   <span>{film.year}</span>
                   {formattedRuntime && (
                     <>
@@ -406,7 +406,7 @@ export default async function FilmPage({
                     support. The large zone gap separates it from the identity
                     block above. */}
                 {(hasAwards || hasRatings) && (
-                  <div className="mt-9">
+                  <div className="mt-10">
                     <div className="flex items-center gap-3">
                       <span
                         aria-hidden
@@ -437,7 +437,7 @@ export default async function FilmPage({
 
                 {/* ── ZONE 3 · ACTIONS ──────────────────────────────
                     What you can do with it. */}
-                <div className="mt-8">
+                <div className="mt-10">
                   <HeroCTAs
                     trailerUrl={film.trailerUrl}
                     filmId={film.id}
