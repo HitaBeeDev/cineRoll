@@ -9,7 +9,7 @@ import type { AuthGate } from "@/hooks/useFilmActions";
 const GATE_COPY: Record<AuthGate, { title: string; body: string }> = {
   watched: {
     title: "Sign in to tune future rolls",
-    body: "Mark films to help CineRoll learn your taste.",
+    body: "Your ratings help CineRoll learn your taste.",
   },
   watchlist: {
     title: "Sign in to save films",
@@ -46,15 +46,17 @@ export function SignInPrompt({
       <div
         role="status"
         className={cn(
+          // Dark purple-black surface with a soft gold border — warm and
+          // cinematic without going bright. Gold reads as "reward / taste",
+          // tying the prompt to the award language used across the app.
           "flex items-start gap-3 px-4 py-2.5",
           surface === "card"
-            ? "mt-2 rounded-xl border border-[#2a2a3e] bg-[#0d0d1a]"
-            : "border border-white/14 bg-white/[0.06] backdrop-blur-sm",
+            ? "mt-2 rounded-xl border border-[#D4AF37]/25 bg-gradient-to-b from-[#16121f] to-[#0c0a12]"
+            : "border border-[#D4AF37]/25 bg-[#14111c]/70 backdrop-blur-sm",
         )}
       >
-        {/* Soft, neutral accent — a tuning glyph, not a red alert badge — so the
-            prompt reads as a helpful nudge rather than an error. */}
-        <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-white/10 bg-white/[0.06] text-[#cfcfda]">
+        {/* Gold tuning glyph — communicates personalization/taste, not an alert. */}
+        <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-[#D4AF37]/30 bg-[#D4AF37]/12 text-[#D4AF37]">
           <SlidersHorizontal className="h-3 w-3" aria-hidden />
         </span>
 
@@ -67,28 +69,28 @@ export function SignInPrompt({
           </p>
 
           <div className="mt-2 flex items-center gap-2">
-            {/* Primary: a clearly filled surface that reads as the next step,
-                with a red accent reserved for hover so it doesn't compete with
-                the always-red primary actions (Roll, Seen it). */}
+            {/* Primary: filled CineRoll red so it ties to the main Roll button
+                and active Seen-it state, and reads as the confident next step. */}
             <Link
               href="/auth/signin"
               className={cn(
-                "inline-flex items-center rounded-lg border border-white/30 bg-white/[0.14] px-4 py-1.5",
+                "inline-flex items-center rounded-lg bg-[#e8453c] px-4 py-1.5",
                 "font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.16em] text-white",
-                "transition-colors hover:border-[#e8453c]/60 hover:bg-white/[0.2]",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
+                "transition-colors hover:bg-[#ff5247]",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0c0a12]",
               )}
             >
               Sign in
             </Link>
-            {/* Ghost button so the secondary choice still reads as clickable. */}
+            {/* Secondary: a quiet dark ghost button that still reads as clickable
+                via a clear border + background + text shift on hover. */}
             <button
               type="button"
               onClick={onDismiss}
               className={cn(
-                "rounded-lg border border-white/12 px-3 py-1.5",
-                "font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.16em] text-[#888899]",
-                "transition-colors hover:border-white/25 hover:text-[#F5F5F0]",
+                "rounded-lg border border-white/15 px-3 py-1.5",
+                "font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.16em] text-[#9a9aa8]",
+                "transition-colors hover:border-white/35 hover:bg-white/[0.06] hover:text-white",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
               )}
             >
