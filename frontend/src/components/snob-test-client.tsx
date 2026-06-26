@@ -42,6 +42,18 @@ function percent(seen: number, total: number) {
   return total === 0 ? 0 : Math.round((seen / total) * 100);
 }
 
+// Mirrors backend titleForScore (snobTestRoute/scoring.ts) for a live preview.
+// The authoritative title still comes from the API on submit.
+function projectedTitleForScore(score: number): string {
+  if (score <= 10) return "Certified Normie";
+  if (score <= 25) return "Casual Watcher";
+  if (score <= 45) return "Film Enthusiast";
+  if (score <= 65) return "Award Season Regular";
+  if (score <= 80) return "Serious Cinephile";
+  if (score <= 95) return "Film School Graduate";
+  return "The Snob";
+}
+
 function getAwardBodies(film: SnobTestFilm): Array<"oscar" | "goldenglobe" | "cannes"> {
   if (film.awardBodies.length > 0) return film.awardBodies;
   const bodies: Array<"oscar" | "goldenglobe" | "cannes"> = [];
@@ -194,7 +206,12 @@ export function SnobTestClient() {
 
   const selectedCount = selectedIds.size;
   const projectedScore = Math.round((selectedCount / 20) * 100);
+  const projectedTitle = projectedTitleForScore(projectedScore);
   const breakdown = useMemo(() => buildBreakdown(films, selectedIds), [films, selectedIds]);
+  const liveDistribution = useMemo(
+    () => [...breakdown.awardBody, ...breakdown.decade.slice(0, 4)].filter(item => item.total > 0),
+    [breakdown],
+  );
   const gapHref = useMemo(() => buildGapHref(films, selectedIds), [films, selectedIds]);
   const resultSentences = useMemo(() => buildResultSentences(breakdown), [breakdown]);
   const saveHref = useMemo(() => buildSaveHref(selectedIds), [selectedIds]);
@@ -392,6 +409,7 @@ export function SnobTestClient() {
 
           <aside className="lg:sticky lg:top-20 lg:col-span-4 lg:h-fit">
             {!score ? (
+              <div className="flex flex-col gap-4">
               <div className="overflow-hidden border border-[#242435] bg-[#101017]">
                 <div className="border-b border-[#242435] bg-[#0b0b12] px-5 py-4">
                   <div className="flex items-center gap-2 text-[#D4AF37]">
@@ -436,6 +454,60 @@ export function SnobTestClient() {
                     </Button>
                   </div>
                 </div>
+              </div>
+
+              <div className="border border-[#242435] bg-[#101017] p-5">
+                <div className="flex items-center justify-between">
+                  <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#555568]">
+                    Projected rank
+                  </span>
+                  <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#D4AF37]">
+                    {projectedScore}%
+                  </span>
+                </div>
+                <h3 className="mt-2 font-[family-name:var(--font-display)] text-2xl font-bold leading-none text-[#F5F5F0]">
+                  {projectedTitle}
+                </h3>
+                <div className="mt-4 h-2 overflow-hidden rounded-full bg-[#242435]">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-[#e8453c] to-[#D4AF37] transition-[width] duration-300"
+                    style={{ width: `${projectedScore}%` }}
+                  />
+                </div>
+                <p className="mt-3 text-xs leading-5 text-[#888899]">
+                  {selectedCount === 0
+                    ? "Tap a poster to start climbing the ranks."
+                    : selectedCount >= 20
+                      ? "You have topped out — full marks, you are The Snob."
+                      : `${20 - selectedCount} more to reach The Snob.`}
+                </p>
+              </div>
+
+              {liveDistribution.length > 0 && (
+                <div className="border border-[#242435] bg-[#101017] p-5">
+                  <h3 className="font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-widest text-[#888899]">
+                    Live distribution
+                  </h3>
+                  <div className="mt-4 space-y-3">
+                    {liveDistribution.map((item) => (
+                      <div key={item.label}>
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-[#F5F5F0]">{item.label}</span>
+                          <span className="text-[#a8a8b6]">
+                            {item.seen}/{item.total}
+                          </span>
+                        </div>
+                        <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-[#242435]">
+                          <div
+                            className="h-full rounded-full bg-[#e8453c] transition-[width] duration-300"
+                            style={{ width: `${item.percent}%` }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
               </div>
             ) : (
               <div className="flex flex-col gap-4">
