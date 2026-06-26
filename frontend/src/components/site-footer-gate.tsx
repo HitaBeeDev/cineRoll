@@ -3,12 +3,12 @@
 import { usePathname } from "next/navigation";
 
 /**
- * Some routes are deliberate single-screen experiences (`h-screen
- * overflow-hidden`) — the home page (`/`), the daily picks page (`/picks`), and
- * the describe page (`/describe`) — so the global footer is hidden there to
- * avoid introducing a page scrollbar. Every other route renders it.
+ * The home page (`/`) is a deliberate single-screen experience (`h-screen
+ * overflow-hidden`), so the global footer is hidden there to avoid introducing a
+ * page scrollbar. Every other route — including daily picks (`/picks`) and
+ * describe / mood match (`/describe`) — renders it.
  */
-const FULL_SCREEN_ROUTES = new Set(["/", "/picks", "/describe"]);
+const FULL_SCREEN_ROUTES = new Set(["/"]);
 
 export function SiteFooterGate({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
