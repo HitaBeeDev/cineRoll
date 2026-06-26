@@ -367,8 +367,8 @@ export default function DescribePage() {
     <div className="flex min-h-screen flex-1 flex-col bg-[#09090f] text-[#F5F5F0] lg:min-h-0 lg:overflow-hidden">
       <AppHeader />
 
-      <main className="min-h-0 flex-1 px-5 py-4 sm:px-8 lg:px-10 lg:py-5 lg:overflow-hidden">
-        <section className="grid min-h-0 gap-4 lg:h-full lg:grid-rows-[auto_minmax(0,1fr)]">
+      <main className="min-h-0 flex-1 px-5 py-4 sm:px-8 lg:flex lg:flex-col lg:px-10 lg:py-5 lg:overflow-hidden">
+        <section className="grid min-h-0 gap-4 lg:flex-1 lg:grid-rows-[auto_minmax(0,1fr)]">
           <div className="shrink-0">
             <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.3em] text-[#e8453c]/70">
               ◈ Natural Language Roll ◈
