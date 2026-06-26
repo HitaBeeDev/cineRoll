@@ -572,7 +572,7 @@ export default function DescribePage() {
                     {/* Demoted to a subtitle so "Describe It" is the page's single
                         serif hero — not two display headlines competing. */}
                     <p className="mt-2 font-[family-name:var(--font-display)] text-2xl leading-tight text-[#b6b6c6]">
-                      Mood in. Movies out.
+                      A sentence is enough.
                     </p>
                   </div>
 
