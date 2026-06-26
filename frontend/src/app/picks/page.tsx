@@ -84,6 +84,14 @@ function topWin(records: AwardRecord[]): AwardRecord | null {
   return wins.find((r) => FLAGSHIP_CATEGORY.test(r.category)) ?? wins[0] ?? null;
 }
 
+/** First sentence of a synopsis, so the fallback rationale stays one line like
+ *  the award-derived ones instead of dumping a full plot paragraph. */
+function firstSentence(text: string): string {
+  const trimmed = text.trim();
+  const end = trimmed.indexOf(". ");
+  return end > 40 ? trimmed.slice(0, end + 1) : trimmed;
+}
+
 /**
  * One editorial sentence explaining *why* this film earned tonight's slot —
  * built from the film's real award + rating data, so the curation logic is
@@ -96,8 +104,14 @@ function rationaleFor(film: RollFilm, slot: Slot): string {
     topWin(film.cannesCategories) ??
     topWin(film.ggCategories);
 
-  if (slot.num === "01" && anyWin) {
-    return `Won ${anyWin.category} at ${AWARD_BODY_LABEL[anyWin.awardBody]}, ${anyWin.awardYear}.`;
+  if (slot.num === "01") {
+    if (anyWin) {
+      return `Won ${anyWin.category} at ${AWARD_BODY_LABEL[anyWin.awardBody]}, ${anyWin.awardYear}.`;
+    }
+    // Detail records may carry only nominations even when the film won — fall
+    // back to the win counts so the headline accolade still shows, never a plot.
+    const wins = film.oscarWins + film.ggWins + film.cannesWins;
+    if (wins > 0) return `${wins} major award win${wins > 1 ? "s" : ""}, including the Academy Awards.`;
   }
   if (slot.num === "02") {
     const cannes = topWin(film.cannesCategories);
@@ -107,7 +121,7 @@ function rationaleFor(film: RollFilm, slot: Slot): string {
   if (slot.num === "03" && film.imdbRating != null) {
     return `Rated ${film.imdbRating.toFixed(1)} on IMDb yet outside the Top 250 — acclaim the canon overlooked.`;
   }
-  if (film.plot) return film.plot;
+  if (film.plot) return firstSentence(film.plot);
   return `Tonight's ${slot.label.toLowerCase()} pick.`;
 }
 
@@ -461,7 +475,7 @@ function PickCard({
           )}
 
           {/* The "why" — curation rationale built from real award/rating data */}
-          <p className="mt-5 max-w-xl font-[family-name:var(--font-display)] text-lg leading-relaxed text-[#cfcfdc] sm:text-xl">
+          <p className="mt-5 line-clamp-2 max-w-xl font-[family-name:var(--font-display)] text-lg leading-relaxed text-[#cfcfdc] sm:text-xl">
             {rationaleFor(film, slot)}
           </p>
 
