@@ -72,6 +72,15 @@ function decadeRange(start: number): Pick<Stage1Filters, "decadeMin" | "decadeMa
   return { decadeMin: start, decadeMax: start + 9 };
 }
 
+// A bare two-digit decade ("the 80s", "the 20s") is century-ambiguous. Resolve
+// to the 2000s only for decades that have already begun — so "20s" is 2020s in
+// 2026 but never a not-yet-started decade — otherwise the 1900s. The boundary
+// tracks the current year rather than a hardcoded cutoff so it doesn't rot (in
+// 2035, "30s" would become 2030s). A historic decade is reachable unambiguously
+// via the full "1920s" form, which is matched before this shorthand.
 function shorthandDecadeRange(value: number): Pick<Stage1Filters, "decadeMin" | "decadeMax"> {
-  return decadeRange(value >= 30 ? 1900 + value : 2000 + value);
+  const currentDecade = Math.floor((new Date().getFullYear() % 100) / 10) * 10;
+  const century = value <= currentDecade ? 2000 : 1900;
+
+  return decadeRange(century + value);
 }
