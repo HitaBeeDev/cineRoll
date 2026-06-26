@@ -552,17 +552,20 @@ export default function DescribePage() {
                       Movies out.
                     </h2>
                   </div>
-                  <div className="grid grid-cols-3 gap-2">
-                    {["Mood", "Awards", "Decade", "Genre", "Director", "Language"].map((label) => (
-                      <div
-                        key={label}
-                        className="border border-[#1e1e2a] bg-[#09090f]/70 px-3 py-4 text-center"
-                      >
-                        <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#66667a]">
+                  {/* A legend of what the parser reads — intentionally NOT cards,
+                      so it doesn't read as a row of clickable filters. */}
+                  <div>
+                    <p className="mb-3 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.24em] text-[#555568]">
+                      Understands
+                    </p>
+                    <p className="font-[family-name:var(--font-geist-mono)] text-xs uppercase leading-7 tracking-[0.18em] text-[#7a7a8c]">
+                      {["Mood", "Awards", "Decade", "Genre", "Director", "Language"].map((label, index) => (
+                        <span key={label}>
+                          {index > 0 && <span className="mx-2 text-[#2f2f3e]">/</span>}
                           {label}
                         </span>
-                      </div>
-                    ))}
+                      ))}
+                    </p>
                   </div>
                 </div>
               )}
