@@ -179,10 +179,10 @@ export default function PicksPage() {
   });
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#09090f] text-[#F5F5F0]">
+    <div className="flex h-screen flex-col overflow-hidden bg-[#09090f] text-[#F5F5F0]">
       <AppHeader />
 
-      <main className="flex flex-1 flex-col">
+      <main className="flex min-h-0 flex-1 flex-col">
         {/* Page header */}
         <div className="border-b border-[#1a1a28] px-6 py-5 sm:px-10">
           <div className="flex items-center justify-between">
@@ -208,7 +208,7 @@ export default function PicksPage() {
         </div>
 
         {/* Cards grid */}
-        <div className="flex flex-1 flex-col lg:flex-row">
+        <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
           <AnimatePresence mode="wait">
             {isLoading ? (
               <motion.div
@@ -243,7 +243,7 @@ export default function PicksPage() {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0, transition: { duration: shouldReduceMotion ? 0 : 0.15, ease: "easeIn" } }}
                 transition={{ duration: shouldReduceMotion ? 0 : 0.25, ease: "easeOut" }}
-                className="flex flex-1 flex-col lg:flex-row"
+                className="flex min-h-0 flex-1 flex-col lg:flex-row"
               >
                 {/* Clear hierarchy: the first slot is the hero (larger, bolder,
                     the only fully-coloured CTA), the rest are quieter supporting
@@ -253,7 +253,7 @@ export default function PicksPage() {
                   <PickCard key={picks[0].film.id} pick={picks[0]} index={0} variant="hero" />
                 )}
                 {picks.length > 1 && (
-                  <div className="flex flex-1 flex-col">
+                  <div className="flex min-h-0 flex-1 flex-col">
                     {picks.slice(1).map((pick, i) => (
                       <PickCard
                         key={pick.film.id}
@@ -364,14 +364,13 @@ function PickCard({
           : { delay: index * 0.1, type: "spring", stiffness: 300, damping: 28 }
       }
       className={cn(
-        // A fixed rem floor guarantees the image always has room for the
-        // overlaid content panel, so they can never collide on short laptops.
-        // `flex-1` still lets cards grow to fill taller viewports; when the
-        // viewport is shorter than the floor, the page scrolls instead.
-        "group relative flex flex-1 flex-col overflow-hidden border-[#1a1a28]",
+        // Cards fill the viewport exactly — the page never scrolls. `min-h-0`
+        // lets them shrink to share the available height, while `flex-[1.5]`
+        // keeps the hero larger than the supporting cards.
+        "group relative flex min-h-0 flex-1 flex-col overflow-hidden border-[#1a1a28]",
         isHero
-          ? "min-h-[34rem] border-b lg:flex-[1.5] lg:border-b-0 lg:border-r"
-          : "min-h-[18rem] border-b last:border-b-0",
+          ? "border-b lg:flex-[1.5] lg:border-b-0 lg:border-r"
+          : "border-b last:border-b-0",
       )}
     >
       {/* Top accent strip — bold on the hero, a hairline on supporting cards so
@@ -382,7 +381,7 @@ function PickCard({
       />
 
       {/* Backdrop */}
-      <div className="relative flex-1">
+      <div className="relative min-h-0 flex-1">
         {imageUrl ? (
           <Image
             src={imageUrl}
