@@ -1,24 +1,21 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { Menu, X, ChevronDown } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AuthButton } from "@/components/AuthButton";
 
-// Core discovery — the only links that stay in the top bar. Home is reached via
-// the logo, so it isn't repeated here.
 const primaryNavItems = [
+  { href: "/", label: "Home" },
   { href: "/browse", label: "Browse" },
   { href: "/picks", label: "Daily Picks" },
   { href: "/describe", label: "Mood Match" },
+  { href: "/stats", label: "Stats" },
 ];
 
-// Everything secondary (stats + the play modes) collapses behind a single
-// "More" entry, so the bar reads as ~4 items instead of nine competing links.
-const moreNavItems = [
-  { href: "/stats", label: "Stats" },
+const gameModeItems = [
   { href: "/snob-test", label: "Snob Test" },
   { href: "/roll-battle", label: "Versus" },
   { href: "/blind-roll", label: "Guess the Film" },
@@ -32,17 +29,13 @@ export function SiteNavigation({
   focusRingClassName = "focus-visible:ring-[#e8453c]",
 }: SiteNavigationProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [moreOpen, setMoreOpen] = useState(false);
-  const moreRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   // Routes are flat (/browse, /picks, …) — compare the pathname directly. The
   // home link matches only the exact root; every other link also matches its
   // sub-routes (e.g. /film detail pages under a section).
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(href + "/");
-  const moreActive = moreNavItems.some((item) => isActive(item.href));
 
-  // Mobile overlay: lock scroll + close on Escape.
   useEffect(() => {
     if (!isOpen) return;
     const onKeyDown = (event: KeyboardEvent) => {
@@ -57,33 +50,10 @@ export function SiteNavigation({
     };
   }, [isOpen]);
 
-  // Desktop "More" dropdown: close on outside click, Escape, or route change.
-  useEffect(() => {
-    if (!moreOpen) return;
-    const onPointerDown = (event: MouseEvent) => {
-      if (moreRef.current && !moreRef.current.contains(event.target as Node)) {
-        setMoreOpen(false);
-      }
-    };
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setMoreOpen(false);
-    };
-    document.addEventListener("mousedown", onPointerDown);
-    window.addEventListener("keydown", onKeyDown);
-    return () => {
-      document.removeEventListener("mousedown", onPointerDown);
-      window.removeEventListener("keydown", onKeyDown);
-    };
-  }, [moreOpen]);
-
-  useEffect(() => {
-    setMoreOpen(false);
-  }, [pathname]);
-
   return (
     <>
       {/* Desktop nav */}
-      <nav className="hidden flex-1 items-center justify-end gap-2 md:flex" aria-label="Primary navigation">
+      <nav className="hidden flex-1 items-center justify-end gap-4 md:flex" aria-label="Primary navigation">
         <div className="flex items-center gap-1">
           {primaryNavItems.map((item) => (
             <Link
@@ -103,62 +73,30 @@ export function SiteNavigation({
               {item.label}
             </Link>
           ))}
+        </div>
 
-          {/* "More" dropdown — collapses stats + the play modes */}
-          <div ref={moreRef} className="relative">
-            <button
-              type="button"
-              aria-haspopup="menu"
-              aria-expanded={moreOpen}
-              onClick={() => setMoreOpen((open) => !open)}
+        <span className="select-none text-[#2a2a3e]" aria-hidden>|</span>
+
+        <div className="hidden items-center gap-1 xl:flex" aria-label="Game modes">
+          {gameModeItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
               className={cn(
-                "flex items-center gap-1 px-3.5 py-2",
+                "px-3.5 py-2",
                 "font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.13em]",
                 "transition-colors duration-150",
                 "focus-visible:outline-none focus-visible:ring-2",
                 focusRingClassName,
-                moreActive || moreOpen ? "text-[#ff554c]" : "text-[#9b96aa] hover:text-[#F5F5F0]",
+                isActive(item.href)
+                  ? "text-[#ff625a]"
+                  : "text-[#8b86a0] hover:text-[#F5F5F0]",
               )}
             >
-              More
-              <ChevronDown
-                className={cn("h-3 w-3 transition-transform duration-150", moreOpen && "rotate-180")}
-                aria-hidden
-              />
-            </button>
-
-            {moreOpen && (
-              <div
-                role="menu"
-                aria-label="More"
-                className="absolute right-0 top-[calc(100%+0.5rem)] z-50 min-w-[11rem] overflow-hidden rounded-xl border border-white/10 bg-[#0d0d15]/95 py-1.5 shadow-[0_12px_40px_rgba(0,0,0,0.55)] backdrop-blur-xl"
-              >
-                {moreNavItems.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    role="menuitem"
-                    onClick={() => setMoreOpen(false)}
-                    className={cn(
-                      "block px-4 py-2.5",
-                      "font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.13em]",
-                      "transition-colors duration-150",
-                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset",
-                      focusRingClassName,
-                      isActive(item.href)
-                        ? "bg-white/[0.04] text-[#ff554c]"
-                        : "text-[#9b96aa] hover:bg-white/[0.04] hover:text-[#F5F5F0]",
-                    )}
-                  >
-                    {item.label}
-                  </Link>
-                ))}
-              </div>
-            )}
-          </div>
+              {item.label}
+            </Link>
+          ))}
         </div>
-
-        <span className="select-none px-1 text-[#2a2a3e]" aria-hidden>|</span>
 
         <AuthButton focusRingClassName={focusRingClassName} />
       </nav>
@@ -231,9 +169,9 @@ export function SiteNavigation({
               ))}
               <div className="mt-2 flex flex-col gap-4 border-t border-[#222232] pt-5">
                 <span className="font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.24em] text-[#e8453c]">
-                  More
+                  Game Modes
                 </span>
-                {moreNavItems.map((item) => (
+                {gameModeItems.map((item) => (
                   <Link
                     key={item.href}
                     href={item.href}
