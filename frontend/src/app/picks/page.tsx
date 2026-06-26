@@ -54,6 +54,55 @@ const PICK_SLOTS: {
 
 type DailyPick = { film: RollFilm; slot: (typeof PICK_SLOTS)[number] };
 
+// How many deterministic seed variants to try per slot while hunting for a
+// decade/genre-diverse pick before settling for the seeded first choice.
+const SEED_VARIANTS = 3;
+
+function decadeOf(year: number): number {
+  return Math.floor(year / 10) * 10;
+}
+
+/**
+ * Resolve one slot's film. `excludeIds` (the films already chosen) guarantees no
+ * duplicate across slots, so the first successful fetch is always a valid
+ * fallback. Beyond that we try a few deterministic seed variants — each
+ * excluding the candidates already seen so they differ — and return the first
+ * whose decade and primary genre aren't already represented. If the curated
+ * pool can't offer a diverse one, we keep the seeded first choice.
+ */
+async function selectPick(
+  slot: (typeof PICK_SLOTS)[number],
+  day: string,
+  usedIds: string[],
+  usedDecades: Set<number>,
+  usedGenres: Set<string>,
+): Promise<DailyPick | null> {
+  let fallback: DailyPick | null = null;
+  const seen: string[] = [];
+
+  for (let v = 0; v < SEED_VARIANTS; v++) {
+    const seed = v === 0 ? `${day}:${slot.num}` : `${day}:${slot.num}:v${v}`;
+    let film: RollFilm;
+    try {
+      ({ film } = await fetchSeededRandom(seed, slot.filters, [...usedIds, ...seen]));
+    } catch {
+      // Pool exhausted for this slot (or a transient error) — try the next seed.
+      continue;
+    }
+
+    const pick: DailyPick = { film, slot };
+    if (!fallback) fallback = pick;
+    seen.push(film.id);
+
+    const genre = film.genres[0];
+    const decadeClash = usedDecades.has(decadeOf(film.year));
+    const genreClash = genre != null && usedGenres.has(genre);
+    if (!decadeClash && !genreClash) return pick;
+  }
+
+  return fallback;
+}
+
 export default function PicksPage() {
   const shouldReduceMotion = useReducedMotion();
   const [picks, setPicks] = useState<DailyPick[]>([]);
@@ -87,18 +136,23 @@ export default function PicksPage() {
       }
     } catch {}
 
-    const results = await Promise.allSettled(
-      PICK_SLOTS.map(async (slot) => {
-        // Each slot draws from its own curated pool (Oscar winners, Cannes
-        // winners, hidden gems) — the labels are real filters, not decoration —
-        // and the per-day+slot seed makes today's choice deterministic.
-        const r = await fetchSeededRandom(`${day}:${slot.num}`, slot.filters);
-        return { film: r.film, slot };
-      }),
-    );
-    const newPicks: DailyPick[] = results
-      .filter((r): r is PromiseFulfilledResult<DailyPick> => r.status === "fulfilled")
-      .map((r) => r.value);
+    // Pick slots in order, each excluding the films already chosen so the same
+    // title can never fill two slots. The per-day+slot seed keeps each choice
+    // deterministic; the diversity nudge inside selectPick spreads the picks
+    // across decades and genres where the curated pools allow it.
+    const newPicks: DailyPick[] = [];
+    const usedIds: string[] = [];
+    const usedDecades = new Set<number>();
+    const usedGenres = new Set<string>();
+    for (const slot of PICK_SLOTS) {
+      const pick = await selectPick(slot, day, usedIds, usedDecades, usedGenres);
+      if (!pick) continue;
+      newPicks.push(pick);
+      usedIds.push(pick.film.id);
+      usedDecades.add(decadeOf(pick.film.year));
+      const primaryGenre = pick.film.genres[0];
+      if (primaryGenre) usedGenres.add(primaryGenre);
+    }
     try {
       localStorage.setItem(key, JSON.stringify(newPicks));
     } catch {}
