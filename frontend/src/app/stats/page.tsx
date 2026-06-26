@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils";
 export const metadata: Metadata = {
   title: "Award Film Stats & Records | CineRoll",
   description:
-    "Discover the most nominated and award-winning films and people across the Oscars, Golden Globes, and Cannes. Explore CineRoll's full award film dataset by the numbers.",
+    "Discover the most nominated and award-winning films and people across the Oscars, Golden Globes, Cannes, and the Berlinale. Explore CineRoll's full award film dataset by the numbers.",
 };
 
 export const dynamic = "force-dynamic";
@@ -43,9 +43,9 @@ type StatsResponse = {
   mostCompetitiveYear: { awardYear: number; totalNominations: number } | null;
   decadeBreakdown: { decade: number; filmCount: number; avgNominations: number }[];
   awardBodyBreakdown: {
-    oscarOnly: number;
-    ggOnly: number;
-    cannesOnly: number;
+    oscar: number;
+    goldenGlobe: number;
+    cannes: number;
     berlin: number;
     total: number;
   } | null;
@@ -86,7 +86,8 @@ export default async function StatsPage() {
     mainEntity: {
       "@type": "Dataset",
       name: "CineRoll Award Film Statistics",
-      description: "Statistics about Oscar, Golden Globe, and Cannes-nominated and winning films.",
+      description:
+        "Statistics about Oscar, Golden Globe, Cannes, and Berlinale-nominated and winning films.",
     },
   };
 
@@ -147,7 +148,7 @@ export default async function StatsPage() {
               </h1>
               <p className="mt-4 max-w-2xl text-sm leading-7 text-[#a7a4b8] sm:text-base">
                 A live view of CineRoll&apos;s award-film archive across the Oscars, Golden Globes,
-                and Cannes.
+                Cannes, and the Berlinale.
               </p>
             </div>
 
@@ -282,36 +283,24 @@ export default async function StatsPage() {
               {stats.awardBodyBreakdown && (
                 <Panel>
                   <SectionHeader eyebrow="Dataset mix" title="Films by award body" compact />
-                  <div className="mt-5 h-2 overflow-hidden rounded-full bg-white/[0.055]">
-                    {[
-                      { key: "oscarOnly", color: "#e8453c" },
-                      { key: "ggOnly", color: "#D4AF37" },
-                      { key: "cannesOnly", color: "#4a9eff" },
-                      { key: "berlin", color: "#a78bfa" },
-                    ].map(({ key, color }) => {
-                      const count = stats.awardBodyBreakdown![key as keyof typeof stats.awardBodyBreakdown] as number;
-                      return (
-                        <div
-                          key={key}
-                          className="inline-block h-full align-top"
-                          style={{ width: `${(count / awardTotal) * 100}%`, backgroundColor: color }}
-                        />
-                      );
-                    })}
-                  </div>
+                  <p className="mt-3 text-sm leading-6 text-[#817c91]">
+                    Films count under every body that recognized them, so shares overlap.
+                  </p>
                   <div className="mt-5 grid gap-2 sm:grid-cols-2">
                     {[
-                      { label: "Oscar only", count: stats.awardBodyBreakdown.oscarOnly, color: "#e8453c", href: "/browse?awardBody=oscar" },
-                      { label: "Golden Globe only", count: stats.awardBodyBreakdown.ggOnly, color: "#D4AF37", href: "/browse?awardBody=goldenglobe" },
-                      { label: "Cannes only", count: stats.awardBodyBreakdown.cannesOnly, color: "#4a9eff", href: "/browse?awardBody=cannes" },
-                      { label: "Berlin only", count: stats.awardBodyBreakdown.berlin, color: "#a78bfa", href: "/browse?awardBody=berlin" },
-                    ].map((item) => (
-                      <BreakdownLink
-                        key={item.label}
-                        {...item}
-                        percent={(item.count / awardTotal) * 100}
-                      />
-                    ))}
+                      { label: "Oscars", count: stats.awardBodyBreakdown.oscar, color: "#e8453c", href: "/browse?awardBody=oscar" },
+                      { label: "Golden Globe", count: stats.awardBodyBreakdown.goldenGlobe, color: "#D4AF37", href: "/browse?awardBody=goldenglobe" },
+                      { label: "Cannes", count: stats.awardBodyBreakdown.cannes, color: "#4a9eff", href: "/browse?awardBody=cannes" },
+                      { label: "Berlinale", count: stats.awardBodyBreakdown.berlin, color: "#a78bfa", href: "/browse?awardBody=berlin" },
+                    ]
+                      .filter((item) => item.count > 0)
+                      .map((item) => (
+                        <BreakdownLink
+                          key={item.label}
+                          {...item}
+                          percent={(item.count / awardTotal) * 100}
+                        />
+                      ))}
                   </div>
                 </Panel>
               )}
@@ -605,8 +594,14 @@ function BreakdownLink({
       <p className="mt-4 font-[family-name:var(--font-display)] text-3xl font-bold leading-none text-[#f4f0f7]">
         {formatNumber(count)}
       </p>
-      <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-[#817c91]">
-        {percent.toFixed(1)}% of total
+      <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/[0.06]">
+        <div
+          className="h-full rounded-full"
+          style={{ width: `${Math.max(2, Math.min(100, percent))}%`, backgroundColor: color }}
+        />
+      </div>
+      <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-[#817c91]">
+        {percent.toFixed(1)}% of catalog
       </p>
     </Link>
   );

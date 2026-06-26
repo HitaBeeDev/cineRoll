@@ -65,9 +65,9 @@ function decadeStat(row: DecadeStatRow): DecadeStat {
 function awardBodyBreakdown(rows: AwardBodyBreakdownRow[]): AwardBodyBreakdown | null {
   return rows[0]
     ? {
-        oscarOnly: toBigIntNumber(rows[0].oscarOnly),
-        ggOnly: toBigIntNumber(rows[0].ggOnly),
-        cannesOnly: toBigIntNumber(rows[0].cannesOnly),
+        oscar: toBigIntNumber(rows[0].oscar),
+        goldenGlobe: toBigIntNumber(rows[0].goldenGlobe),
+        cannes: toBigIntNumber(rows[0].cannes),
         berlin: toBigIntNumber(rows[0].berlin),
         total: toBigIntNumber(rows[0].total),
       }

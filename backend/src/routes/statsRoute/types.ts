@@ -13,9 +13,9 @@ export type YearStat = { awardYear: number; totalNominations: number };
 export type DecadeStat = { decade: number; filmCount: number; avgNominations: number };
 
 export type AwardBodyBreakdown = {
-  oscarOnly: number;
-  ggOnly: number;
-  cannesOnly: number;
+  oscar: number;
+  goldenGlobe: number;
+  cannes: number;
   berlin: number;
   total: number;
 };
@@ -26,9 +26,9 @@ export type YearStatRow = { awardYear: number; totalNominations: bigint };
 export type DecadeStatRow = { decade: number; filmCount: bigint; avgNominations: number };
 
 export type AwardBodyBreakdownRow = {
-  oscarOnly: bigint;
-  ggOnly: bigint;
-  cannesOnly: bigint;
+  oscar: bigint;
+  goldenGlobe: bigint;
+  cannes: bigint;
   berlin: bigint;
   total: bigint;
 };
