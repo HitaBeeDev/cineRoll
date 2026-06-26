@@ -306,7 +306,7 @@ export default async function StatsPage() {
                             style={{ width: `${Math.max(5, (item.filmCount / maxDecadeFilms) * 100)}%` }}
                           />
                         </span>
-                        <span className="text-right font-[family-name:var(--font-geist-mono)] text-[11px] text-[#817c91]">
+                        <span className="text-right font-[family-name:var(--font-geist-mono)] text-[11px] text-[#9e9ab0]">
                           {formatNumber(item.filmCount)}
                         </span>
                       </Link>
@@ -394,7 +394,7 @@ function MetricCard({
       <p className="mt-5 font-[family-name:var(--font-display)] text-4xl font-bold leading-none text-[#f4f0f7]">
         {value}
       </p>
-      <p className="mt-2 text-sm text-[#817c91]">{detail}</p>
+      <p className="mt-2 text-sm text-[#9e9ab0]">{detail}</p>
     </div>
   );
 }
@@ -482,7 +482,7 @@ function RecordFilmCard({
           </h3>
         </div>
         <div className="mt-8 flex items-end justify-between gap-4">
-          <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.16em] text-[#817c91]">
+          <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.16em] text-[#9e9ab0]">
             {film.releaseYear}
           </p>
           <p className={cn("text-right font-[family-name:var(--font-display)] text-2xl font-bold leading-none", accentClass)}>
@@ -531,7 +531,7 @@ function PersonRecordCard({
           <p className={cn("font-[family-name:var(--font-display)] text-5xl font-bold leading-none", accentClass)}>
             {person.count}
           </p>
-          <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.16em] text-[#817c91]">
+          <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.16em] text-[#9e9ab0]">
             {unit}
           </p>
         </div>
@@ -590,12 +590,12 @@ function AwardBodyPanel({ breakdown }: { breakdown: NonNullable<StatsResponse["a
           >
             <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: segment.color }} />
             {segment.label}
-            <span className="text-[#817c91]">{pct(segment.count).toFixed(1)}%</span>
+            <span className="text-[#9e9ab0]">{pct(segment.count).toFixed(1)}%</span>
           </li>
         ))}
       </ul>
 
-      <p className="mt-5 text-sm leading-6 text-[#817c91]">
+      <p className="mt-5 text-sm leading-6 text-[#9e9ab0]">
         Coverage counts a film under every body that honored it, so these shares overlap — the gap
         is the Multiple-bodies share above.
       </p>
@@ -642,7 +642,7 @@ function BreakdownLink({
           style={{ width: `${Math.max(2, Math.min(100, percent))}%`, backgroundColor: color }}
         />
       </div>
-      <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-[#817c91]">
+      <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-[#9e9ab0]">
         {percent.toFixed(1)}% of catalog
       </p>
     </Link>
@@ -697,7 +697,7 @@ function RankingList({
                 <span className="block truncate text-sm font-semibold text-[#eeeaf6] transition-colors group-hover:text-white">
                   {film.title}
                 </span>
-                <span className="mt-0.5 block font-[family-name:var(--font-geist-mono)] text-[11px] text-[#817c91]">
+                <span className="mt-0.5 block font-[family-name:var(--font-geist-mono)] text-[11px] text-[#9e9ab0]">
                   {film.releaseYear}
                 </span>
               </span>
