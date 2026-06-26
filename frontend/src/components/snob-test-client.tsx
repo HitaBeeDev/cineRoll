@@ -193,6 +193,7 @@ export function SnobTestClient() {
   const [shareStatus, setShareStatus] = useState<"idle" | "copied" | "failed">("idle");
 
   const selectedCount = selectedIds.size;
+  const projectedScore = Math.round((selectedCount / 20) * 100);
   const breakdown = useMemo(() => buildBreakdown(films, selectedIds), [films, selectedIds]);
   const gapHref = useMemo(() => buildGapHref(films, selectedIds), [films, selectedIds]);
   const resultSentences = useMemo(() => buildResultSentences(breakdown), [breakdown]);
@@ -412,15 +413,15 @@ export function SnobTestClient() {
                     </div>
                     <div className="border border-[#242435] bg-[#09090f] p-3">
                       <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#555568]">
-                        Max score
+                        Score so far
                       </p>
                       <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-3xl font-bold leading-none text-[#D4AF37]">
-                        100
+                        {projectedScore}%
                       </p>
                     </div>
                   </div>
                   <p className="mt-4 text-sm leading-6 text-[#b8b8c6]">
-                    The score is simple: every poster you tap counts. No wrong answers, no account required.
+                    Your score is the share of these 20 films you have seen. Each poster you tap is worth 5% — no wrong answers, no account required.
                   </p>
                   <div className="mt-5 rounded-2xl border-2 border-dashed border-[#e8453c]/30 p-1.5">
                     <Button
