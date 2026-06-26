@@ -207,7 +207,7 @@ function FilmBattleCard({
       aria-label={`Pick ${film.title}`}
     >
       {/* Poster */}
-      <div className="relative h-[min(46dvh,390px)] w-full overflow-hidden bg-[#07070d]">
+      <div className="relative h-[clamp(220px,34dvh,340px)] w-full overflow-hidden bg-[#07070d]">
         {imageUrl ? (
           <Image
             src={imageUrl}
@@ -379,10 +379,10 @@ export default function RollBattlePage() {
   }
 
   return (
-    <div className="flex h-dvh flex-col overflow-hidden bg-[#09090f]">
+    <div className="flex h-[calc(100dvh-73px)] max-h-[calc(100dvh-73px)] flex-col overflow-hidden bg-[#09090f]">
       <AppHeader />
 
-      <main className="flex min-h-0 flex-1 flex-col items-center justify-center px-4 py-4 sm:px-6">
+      <main className="flex min-h-0 flex-1 flex-col items-center justify-center px-4 py-3 sm:px-6">
         {/* Loading */}
         {phase === "loading" && (
           <div className="flex flex-1 flex-col items-center justify-center gap-4">
@@ -413,7 +413,7 @@ export default function RollBattlePage() {
         {/* Battle */}
         {phase === "battling" && leftFilm != null && rightFilm != null && (
           <div className="grid w-full max-w-5xl grid-cols-1 items-start gap-4 lg:grid-cols-[160px_minmax(0,672px)_160px]">
-            <aside className="hidden pt-32 lg:block">
+            <aside className="hidden pt-28 lg:block">
               <div className="border-l border-[#1e1e2a] pl-4">
                 <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.24em] text-[#555568]">
                   {round === 0 ? "Opening Bout" : "Current Champion"}
@@ -516,7 +516,7 @@ export default function RollBattlePage() {
             </AnimatePresence>
             </div>
 
-            <aside className="hidden pt-32 lg:block">
+            <aside className="hidden pt-28 lg:block">
               <div className="border-r border-[#1e1e2a] pr-4 text-right">
                 <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.24em] text-[#555568]">
                   Bracket
