@@ -211,7 +211,7 @@ export function FilmCommentsSection({ slug }: Props) {
         <div className="h-px flex-1 bg-gradient-to-r from-[#2a2a42] to-transparent" />
       </div>
 
-      <div className="mt-8 space-y-6">
+      <div className="mt-8 space-y-3">
         {/* One surface: the card IS the field — flush textarea + an action bar,
             no box-in-box. Focus lights the whole composer. */}
         <form
