@@ -85,6 +85,15 @@ export type NaturalRollResult = {
   relaxed: boolean;
 };
 
+// Emitted by the streamed endpoint as soon as Stage-1 extraction + candidate
+// selection finish, before the (separate) rerank LLM call returns. Lets the UI
+// show the interpreted filters while the final picks are still being ranked.
+export type NaturalRollInterpreted = {
+  interpretedFilters: NaturalRollFilters;
+  relaxed: boolean;
+  total: number;
+};
+
 export type NaturalRollError = Error & {
   code: string;
   interpretedFilters?: NaturalRollFilters;
@@ -276,25 +285,109 @@ export async function fetchRandomCount(filters?: Partial<FilterState>): Promise<
   return data.total;
 }
 
-export async function fetchNaturalRoll(prompt: string, count = 2): Promise<NaturalRollResult> {
+type NaturalRollEvent =
+  | ({ type: "interpreted" } & NaturalRollInterpreted)
+  | ({ type: "result" } & NaturalRollResult)
+  | {
+      type: "error";
+      error?: string;
+      code?: string;
+      interpretedFilters?: NaturalRollFilters;
+    };
+
+/** Reads a `ReadableStream` of newline-delimited JSON, invoking `onLine` for
+ *  each complete line. A trailing partial line is buffered until its newline
+ *  arrives (or flushed at end-of-stream). */
+async function readNdjson(
+  stream: ReadableStream<Uint8Array>,
+  onLine: (value: unknown) => void,
+): Promise<void> {
+  const reader = stream.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+
+  const flushLines = (final: boolean) => {
+    let newlineIndex = buffer.indexOf("\n");
+    while (newlineIndex !== -1) {
+      const line = buffer.slice(0, newlineIndex).trim();
+      buffer = buffer.slice(newlineIndex + 1);
+      if (line) onLine(JSON.parse(line));
+      newlineIndex = buffer.indexOf("\n");
+    }
+    if (final && buffer.trim()) onLine(JSON.parse(buffer.trim()));
+  };
+
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    flushLines(false);
+  }
+  buffer += decoder.decode();
+  flushLines(true);
+}
+
+/** Streams the natural-roll pipeline. `onInterpreted` fires the moment the
+ *  backend resolves the interpreted filters (Stage 1), before the rerank (Stage
+ *  2) completes; the returned promise resolves once the final picks arrive. */
+export async function fetchNaturalRoll(
+  prompt: string,
+  count = 2,
+  onInterpreted?: (stage: NaturalRollInterpreted) => void,
+): Promise<NaturalRollResult> {
   const res = await fetch(`${API_URL}/api/natural-roll`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ prompt, count }),
   });
-  if (!res.ok) {
+
+  // Pre-stream failures (validation, rate limit) still come back as a single
+  // JSON body with a non-2xx status, never as a stream.
+  if (!res.ok || !res.body) {
     const body = await res.json().catch(() => ({})) as {
       code?: string;
       error?: string;
       interpretedFilters?: NaturalRollFilters;
     };
-    const err = Object.assign(new Error(body.error ?? "Natural roll failed"), {
+    throw Object.assign(new Error(body.error ?? "Natural roll failed"), {
       code: body.code ?? "UNKNOWN",
       interpretedFilters: body.interpretedFilters,
     }) as NaturalRollError;
-    throw err;
   }
-  return res.json() as Promise<NaturalRollResult>;
+
+  let result: NaturalRollResult | null = null;
+  let streamError: NaturalRollError | null = null;
+
+  await readNdjson(res.body, (value) => {
+    const event = value as NaturalRollEvent;
+    if (event.type === "interpreted") {
+      onInterpreted?.({
+        interpretedFilters: event.interpretedFilters,
+        relaxed: event.relaxed,
+        total: event.total,
+      });
+    } else if (event.type === "result") {
+      result = {
+        films: event.films,
+        total: event.total,
+        interpretedFilters: event.interpretedFilters,
+        relaxed: event.relaxed,
+      };
+    } else if (event.type === "error") {
+      streamError = Object.assign(new Error(event.error ?? "Natural roll failed"), {
+        code: event.code ?? "UNKNOWN",
+        interpretedFilters: event.interpretedFilters,
+      }) as NaturalRollError;
+    }
+  });
+
+  if (streamError) throw streamError;
+  if (!result) {
+    throw Object.assign(new Error("Natural roll returned no result"), {
+      code: "EMPTY_STREAM",
+    }) as NaturalRollError;
+  }
+  return result;
 }
 
 // Records a roll decision against the signed-in user's account.

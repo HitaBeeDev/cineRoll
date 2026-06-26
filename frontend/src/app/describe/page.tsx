@@ -9,6 +9,7 @@ import {
   fetchNaturalRoll,
   type NaturalRollError,
   type NaturalRollFilters,
+  type NaturalRollInterpreted,
   type NaturalRollResult,
   type RollFilm,
 } from "@/lib/api";
@@ -221,6 +222,62 @@ function FilmCard({ film }: { film: RollFilm }) {
   );
 }
 
+// Kept in sync with the `count` passed to fetchNaturalRoll so the skeleton grid
+// matches the number of cards that will replace it.
+const ROLL_COUNT = 2;
+
+function SkeletonCard() {
+  return (
+    <div className="relative min-h-0 overflow-hidden rounded-lg border border-[#1e1e2a] bg-[#09090f]/70">
+      <div className="absolute inset-0 bg-gradient-to-br from-[#15151f] to-[#0b0b12] motion-safe:animate-pulse" />
+      <div className="relative z-10 flex h-full flex-col justify-end gap-2 p-3 sm:p-4">
+        <div className="h-6 w-3/4 rounded bg-[#1e1e2a] motion-safe:animate-pulse" />
+        <div className="h-3 w-1/2 rounded bg-[#161622] motion-safe:animate-pulse" />
+        <div className="h-5 w-16 rounded-full bg-[#161622] motion-safe:animate-pulse" />
+      </div>
+    </div>
+  );
+}
+
+/** Loading surface for the two-stage pipeline. Shows the interpreted-filter
+ *  chips the instant Stage 1 streams back, with skeleton cards standing in for
+ *  the picks while the rerank (Stage 2) finishes. */
+function ProcessingPanel({ interpreted }: { interpreted: NaturalRollInterpreted | null }) {
+  const chips = interpreted ? formatFilterChips(interpreted.interpretedFilters) : [];
+
+  return (
+    <div className="flex h-full min-h-0 flex-col p-4">
+      <div className="mb-3 flex shrink-0 flex-wrap items-center gap-2">
+        <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.24em] text-[#e8453c]/80 motion-safe:animate-pulse">
+          {interpreted ? "Ranking picks" : "Reading description"}
+        </p>
+        {interpreted?.relaxed && (
+          <span className="rounded-full border border-[#2a2a3e] px-2 py-0.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#555568]">
+            Relaxed filters
+          </span>
+        )}
+        {chips.length > 0 && (
+          <div className="ml-auto flex flex-wrap gap-1.5">
+            {chips.map((chip) => (
+              <span
+                key={chip}
+                className="rounded-full border border-[#2a2a3e] bg-[#09090f]/70 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-widest text-[#F5F5F0]"
+              >
+                {chip}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+      <div className="grid min-h-0 flex-1 grid-cols-2 gap-3">
+        {Array.from({ length: ROLL_COUNT }).map((_, index) => (
+          <SkeletonCard key={index} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function DescribePage() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [prompt, setPrompt] = useState("");
@@ -229,6 +286,10 @@ export default function DescribePage() {
   const [error, setError] = useState<string | null>(null);
   const [noMatchFilters, setNoMatchFilters] =
     useState<NaturalRollFilters | null>(null);
+  // Interpreted filters arrive mid-stream (after Stage 1) so we can show the
+  // "Searched for" chips while the rerank is still running.
+  const [interpreted, setInterpreted] =
+    useState<NaturalRollInterpreted | null>(null);
 
   async function handleSubmit() {
     if (!prompt.trim() || isProcessing) return;
@@ -236,8 +297,9 @@ export default function DescribePage() {
     setError(null);
     setResult(null);
     setNoMatchFilters(null);
+    setInterpreted(null);
     try {
-      const nextResult = await fetchNaturalRoll(prompt);
+      const nextResult = await fetchNaturalRoll(prompt, 2, setInterpreted);
       setResult(nextResult);
       nextResult.films.forEach((film, index) => {
         trackEvent({
@@ -272,11 +334,29 @@ export default function DescribePage() {
     setResult(null);
     setError(null);
     setNoMatchFilters(null);
+    setInterpreted(null);
     window.setTimeout(() => textareaRef.current?.focus(), 80);
   }
 
   const noMatchChips = noMatchFilters ? formatFilterChips(noMatchFilters) : [];
   const hasOutcome = Boolean(result || error || noMatchFilters);
+
+  // Screen-reader status mirroring the progressive states the panel renders.
+  const statusMessage = isProcessing
+    ? interpreted
+      ? `Interpreted${
+          formatFilterChips(interpreted.interpretedFilters).length > 0
+            ? ` as ${formatFilterChips(interpreted.interpretedFilters).join(", ")}`
+            : ""
+        }. Ranking the best picks…`
+      : "Reading your description…"
+    : error
+      ? `Roll interrupted. ${error}`
+      : noMatchFilters
+        ? "No matching films. Try loosening the description."
+        : result
+          ? `${result.films.length} ${result.films.length === 1 ? "pick" : "picks"} ready.`
+          : "";
 
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-[#09090f] text-[#F5F5F0]">
@@ -395,12 +475,19 @@ export default function DescribePage() {
 
             {/* Right: results panel */}
             <div
+              aria-live="polite"
+              aria-busy={isProcessing}
               className={cn(
                 "min-h-0 rounded-lg border border-[#1a1a28] bg-[#0d0d16] lg:col-span-5",
                 result ? "overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:w-0" : "overflow-hidden",
               )}
             >
-              {error ? (
+              <p className="sr-only" role="status">
+                {statusMessage}
+              </p>
+              {isProcessing ? (
+                <ProcessingPanel interpreted={interpreted} />
+              ) : error ? (
                 <div className="flex h-full flex-col justify-center p-6">
                   <p className="mb-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.24em] text-[#e8453c]/70">
                     Roll interrupted
