@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Star } from "lucide-react";
 import { useSession } from "next-auth/react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { fetchFilmStatus, saveFilmRating } from "@/lib/api";
 import { useToast } from "@/components/ui/toast";
-import { SignInHint } from "@/components/sign-in-hint";
+import { AuthDialog } from "@/components/auth/auth-dialog";
+import { setPendingRating, takePendingRating } from "@/lib/pending-intent";
 import { cn } from "@/lib/utils";
 
 const STAR_GOLD = "#E3B53E";
@@ -26,20 +27,52 @@ export function FilmRatingPanel({ filmId, filmTitle }: RatingPanelProps) {
   const { status } = useSession();
   const isAuthenticated = status === "authenticated";
   const { toast } = useToast();
-  const router = useRouter();
   const pathname = usePathname();
-  const signInHref = `/auth/signin?callbackUrl=${encodeURIComponent(pathname)}`;
+  const callbackUrl = pathname;
   const [userRating, setUserRating] = useState<number | null>(null);
   const [selected, setSelected] = useState<number | null>(null);
   const [hoverRating, setHoverRating] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
+  const [authOpen, setAuthOpen] = useState(false);
+
+  const persistRating = useCallback(
+    async (rating: number, previous: number | null) => {
+      setSaving(true);
+      try {
+        await saveFilmRating(filmId, rating);
+        setUserRating(rating);
+        setSelected(rating);
+        toast({
+          variant: "success",
+          title: "Rating saved",
+          description: `${filmTitle} · ${formatRating(rating)}/10`,
+        });
+      } catch {
+        setUserRating(previous);
+        toast({
+          variant: "error",
+          title: "Couldn't save rating",
+          description: "Check your connection and try again.",
+        });
+      } finally {
+        setSaving(false);
+      }
+    },
+    [filmId, filmTitle, toast],
+  );
 
   useEffect(() => {
     if (!isAuthenticated) return;
     let cancelled = false;
     void fetchFilmStatus(filmId)
       .then((s) => {
-        if (!cancelled) setUserRating(s.rating);
+        if (cancelled) return;
+        setUserRating(s.rating);
+        // Resume a rating the user picked before signing in.
+        const pending = takePendingRating(filmId);
+        if (pending !== null && pending !== s.rating) {
+          void persistRating(pending, s.rating);
+        }
       })
       .catch(() => {
         /* non-blocking */
@@ -47,7 +80,7 @@ export function FilmRatingPanel({ filmId, filmTitle }: RatingPanelProps) {
     return () => {
       cancelled = true;
     };
-  }, [filmId, isAuthenticated]);
+  }, [filmId, isAuthenticated, persistRating]);
 
   const displayValue = hoverRating ?? selected ?? userRating;
   const dirty = selected !== null && selected !== userRating;
@@ -62,13 +95,20 @@ export function FilmRatingPanel({ filmId, filmTitle }: RatingPanelProps) {
         : "Submitted"
       : "Submit";
 
+  function requestSignIn(rating: number | null) {
+    // Show the pick behind the modal, stash it so it survives the round-trip,
+    // then raise the auth modal. On return we replay it automatically.
+    if (rating !== null) {
+      setSelected(rating);
+      setPendingRating(filmId, rating);
+    }
+    setAuthOpen(true);
+  }
+
   function handleStar(rating: number) {
     if (saving) return;
-    // Signed-out users get the anchored hover/focus hint instead. On a click
-    // (the touch path, where there is no hover) we act on the intent and route
-    // them to sign-in rather than letting them rate into a void.
     if (!isAuthenticated) {
-      router.push(signInHref);
+      requestSignIn(rating);
       return;
     }
     setSelected(rating);
@@ -77,39 +117,15 @@ export function FilmRatingPanel({ filmId, filmTitle }: RatingPanelProps) {
   async function handleSubmit() {
     if (saving) return;
     if (!isAuthenticated) {
-      router.push(signInHref);
+      requestSignIn(selected ?? userRating);
       return;
     }
     if (selected === null || !dirty) return;
-    const previous = userRating;
-    setSaving(true);
-    try {
-      await saveFilmRating(filmId, selected);
-      setUserRating(selected);
-      toast({
-        variant: "success",
-        title: "Rating saved",
-        description: `${filmTitle} · ${formatRating(selected)}/10`,
-      });
-    } catch {
-      setUserRating(previous);
-      toast({
-        variant: "error",
-        title: "Couldn't save rating",
-        description: "Check your connection and try again.",
-      });
-    } finally {
-      setSaving(false);
-    }
+    await persistRating(selected, userRating);
   }
 
   return (
-    <SignInHint
-      enabled={!isAuthenticated}
-      message="Sign in to save your rating — changes here won't be kept until you do."
-      signInHref={signInHref}
-      className="inline-block w-fit max-w-full"
-    >
+    <>
     <div className="inline-flex w-fit max-w-full flex-wrap items-center gap-x-6 gap-y-4 border border-[#1e1e30] bg-[#0c0c14] px-5 py-4">
       {/* Stars + live value — the primary interaction, kept as one tight unit. */}
       <div className="flex items-center gap-3.5">
@@ -166,7 +182,13 @@ export function FilmRatingPanel({ filmId, filmTitle }: RatingPanelProps) {
         {buttonLabel}
       </button>
     </div>
-    </SignInHint>
+    <AuthDialog
+      open={authOpen}
+      onOpenChange={setAuthOpen}
+      callbackUrl={callbackUrl}
+      title={`Sign in to rate ${filmTitle}`}
+    />
+    </>
   );
 }
 
