@@ -350,7 +350,9 @@ export function SnobTestClient() {
                           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
                           className={cn(
                             "object-cover transition duration-300 group-hover:scale-[1.03]",
-                            selected && "brightness-75 saturate-125",
+                            selected
+                              ? "brightness-100 saturate-110"
+                              : "brightness-[0.45] saturate-[0.55] group-hover:brightness-[0.7]",
                           )}
                         />
                       ) : (
@@ -369,11 +371,16 @@ export function SnobTestClient() {
                         className={cn(
                           "absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full border backdrop-blur-md transition",
                           selected
-                            ? "border-[#D4AF37] bg-[#D4AF37] text-[#09090f]"
-                            : "border-white/20 bg-black/45 text-white/55 group-hover:border-white/45 group-hover:text-white",
+                            ? "border-[#D4AF37] bg-[#D4AF37] text-[#09090f] shadow-[0_2px_10px_rgba(212,175,55,0.45)]"
+                            : "border-white/35 bg-black/45 text-transparent group-hover:border-white/60",
                         )}
                       >
-                        <Check className="h-4 w-4" />
+                        <Check
+                          className={cn(
+                            "h-4 w-4 transition-opacity",
+                            !selected && "opacity-0 text-white/70 group-hover:opacity-100",
+                          )}
+                        />
                       </span>
                     </button>
                   );
