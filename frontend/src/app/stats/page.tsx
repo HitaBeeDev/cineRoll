@@ -384,15 +384,6 @@ function StatsContent({ stats }: { stats: StatsResponse }) {
           <section>
             <SectionHeader eyebrow="Behind the records" title="The people" compact />
             <div className="mt-6 grid gap-6 lg:grid-cols-2">
-              {stats.topNominatedPeople.length > 0 && (
-                <PersonRecordGroup
-                  heading="Most nominated"
-                  icon={<Users className="h-4 w-4" />}
-                  people={stats.topNominatedPeople}
-                  unit="nominations"
-                  accent="blue"
-                />
-              )}
               {stats.topWinningPeople.length > 0 && (
                 <PersonRecordGroup
                   heading="Most winning"
@@ -400,6 +391,15 @@ function StatsContent({ stats }: { stats: StatsResponse }) {
                   people={stats.topWinningPeople}
                   unit="wins"
                   accent="red"
+                />
+              )}
+              {stats.topNominatedPeople.length > 0 && (
+                <PersonRecordGroup
+                  heading="Most nominated"
+                  icon={<Users className="h-4 w-4" />}
+                  people={stats.topNominatedPeople}
+                  unit="nominations"
+                  accent="blue"
                 />
               )}
             </div>
