@@ -5,7 +5,7 @@ import { DecadeTopFilmRow, FilmStatRow } from "./types";
 export function getTopNominatedFilmRows(): Promise<FilmStatRow[]> {
   return prisma.$queryRaw<FilmStatRow[]>`
     SELECT "id", "slug", "title", "year" AS "releaseYear", "posterUrl",
-      ("oscarNominations" + "ggNominations" + "cannesNominations")::BIGINT AS count
+      ("oscarNominations" + "ggNominations" + "cannesNominations" + "berlinNominations")::BIGINT AS count
     FROM "Film"
     ORDER BY count DESC
     LIMIT 3
@@ -15,7 +15,7 @@ export function getTopNominatedFilmRows(): Promise<FilmStatRow[]> {
 export function getTopWinningFilmRows(): Promise<FilmStatRow[]> {
   return prisma.$queryRaw<FilmStatRow[]>`
     SELECT "id", "slug", "title", "year" AS "releaseYear", "posterUrl",
-      ("oscarWins" + "ggWins" + "cannesWins")::BIGINT AS count
+      ("oscarWins" + "ggWins" + "cannesWins" + "berlinWins")::BIGINT AS count
     FROM "Film"
     ORDER BY count DESC
     LIMIT 3
@@ -29,7 +29,7 @@ export function getDecadeTopFilmRows(): Promise<DecadeTopFilmRow[]> {
       FLOOR("year" / 10) * 10 AS decade,
       "title",
       "slug",
-      ("oscarNominations" + "ggNominations" + "cannesNominations")::BIGINT AS count
+      ("oscarNominations" + "ggNominations" + "cannesNominations" + "berlinNominations")::BIGINT AS count
     FROM "Film"
     WHERE "year" IS NOT NULL AND "year" >= 1920
     ORDER BY FLOOR("year" / 10) * 10, count DESC

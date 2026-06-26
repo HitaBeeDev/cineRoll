@@ -25,6 +25,11 @@ export function getMostCompetitiveYearRows(): Promise<YearStatRow[]> {
       FROM "Film", jsonb_array_elements("cannesCategories") AS award
       WHERE award->>'awardYear' IS NOT NULL
       GROUP BY 1
+      UNION ALL
+      SELECT (award->>'awardYear')::INT, COUNT(*)
+      FROM "Film", jsonb_array_elements("berlinCategories") AS award
+      WHERE award->>'awardYear' IS NOT NULL
+      GROUP BY 1
     ) years
     GROUP BY award_year
     ORDER BY "totalNominations" DESC
@@ -37,7 +42,7 @@ export function getDecadeRows(): Promise<DecadeStatRow[]> {
     SELECT
       FLOOR("year" / 10) * 10 AS decade,
       COUNT(*)::BIGINT AS "filmCount",
-      ROUND(AVG("oscarNominations" + "ggNominations" + "cannesNominations")::NUMERIC, 2)::FLOAT AS "avgNominations"
+      ROUND(AVG("oscarNominations" + "ggNominations" + "cannesNominations" + "berlinNominations")::NUMERIC, 2)::FLOAT AS "avgNominations"
     FROM "Film"
     WHERE "year" IS NOT NULL AND "year" >= 1920
     GROUP BY decade
@@ -89,12 +94,12 @@ export function getTotalFilmsRow(): Promise<SummaryCountRow[]> {
 
 export function getTotalNominationsRow(): Promise<SummaryTotalRow[]> {
   return prisma.$queryRaw<SummaryTotalRow[]>`
-    SELECT SUM("oscarNominations" + "ggNominations" + "cannesNominations")::BIGINT AS total FROM "Film"
+    SELECT SUM("oscarNominations" + "ggNominations" + "cannesNominations" + "berlinNominations")::BIGINT AS total FROM "Film"
   `;
 }
 
 export function getTotalWinsRow(): Promise<SummaryTotalRow[]> {
   return prisma.$queryRaw<SummaryTotalRow[]>`
-    SELECT SUM("oscarWins" + "ggWins" + "cannesWins")::BIGINT AS total FROM "Film"
+    SELECT SUM("oscarWins" + "ggWins" + "cannesWins" + "berlinWins")::BIGINT AS total FROM "Film"
   `;
 }
