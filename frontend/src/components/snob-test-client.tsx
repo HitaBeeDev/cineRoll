@@ -54,6 +54,17 @@ function projectedTitleForScore(score: number): string {
   return "The Snob";
 }
 
+// A bit of personality around the bare number — the score should feel judged.
+function scoreFlavor(score: number): string {
+  if (score === 0) return "No evidence of snobbery detected.";
+  if (score <= 20) return "You know the crowd-pleasers. The archive is unimpressed.";
+  if (score <= 40) return "Solid mainstream range — the deep cuts are still judging you.";
+  if (score <= 60) return "Respectable. You have wandered past the obvious.";
+  if (score <= 80) return "Serious range. The festival circuit nods in approval.";
+  if (score <= 95) return "You have done the homework most people skip.";
+  return "Total command of the canon. Insufferable, in the best way.";
+}
+
 function getAwardBodies(film: SnobTestFilm): Array<"oscar" | "goldenglobe" | "cannes"> {
   if (film.awardBodies.length > 0) return film.awardBodies;
   const bodies: Array<"oscar" | "goldenglobe" | "cannes"> = [];
@@ -148,6 +159,31 @@ function buildResultSentences(breakdown: QuizBreakdown) {
   return sentences;
 }
 
+type DistributionBucket = { label: string; seen: number; total: number; percent: number };
+
+function leanLabel(bucket: DistributionBucket): string {
+  if (bucket.percent >= 60) return `${bucket.label}-heavy`;
+  if (bucket.percent >= 30) return `${bucket.label}-balanced`;
+  return `${bucket.label}-curious`;
+}
+
+// Turns the raw breakdown into a short "taste map": where the user is strongest,
+// which award body they lean toward, and the categories they've fully missed.
+function buildTasteMap(breakdown: QuizBreakdown) {
+  const byStrength = (a: DistributionBucket, b: DistributionBucket) =>
+    b.percent - a.percent || b.seen - a.seen;
+
+  const strongestDecade = breakdown.decade.filter(d => d.seen > 0).sort(byStrength)[0] ?? null;
+  const strongestBody = breakdown.awardBody.filter(b => b.seen > 0).sort(byStrength)[0] ?? null;
+  const blindSpots = [...breakdown.awardBody, ...breakdown.decade]
+    .filter(item => item.total > 0 && item.seen === 0)
+    .sort((a, b) => b.total - a.total)
+    .slice(0, 3)
+    .map(item => item.label);
+
+  return { strongestDecade, strongestBody, blindSpots };
+}
+
 function buildShareUrl(score: SnobTestScore) {
   const url = new URL(window.location.href);
   url.searchParams.set("score", String(score.score));
@@ -214,6 +250,7 @@ export function SnobTestClient() {
   );
   const gapHref = useMemo(() => buildGapHref(films, selectedIds), [films, selectedIds]);
   const resultSentences = useMemo(() => buildResultSentences(breakdown), [breakdown]);
+  const tasteMap = useMemo(() => buildTasteMap(breakdown), [breakdown]);
   const saveHref = useMemo(() => buildSaveHref(selectedIds), [selectedIds]);
 
   const loadFilms = useCallback(async () => {
@@ -281,6 +318,7 @@ export function SnobTestClient() {
 
   return (
     <div className="min-h-screen bg-[#09090f] text-[#F5F5F0]">
+      <style>{`@keyframes snobPop{0%{transform:scale(1)}35%{transform:scale(1.18)}100%{transform:scale(1)}}`}</style>
       <AppHeader />
 
       <main className="px-5 py-4 sm:px-8 lg:px-10 lg:py-5">
@@ -315,11 +353,14 @@ export function SnobTestClient() {
                     disabled={status === "loading" || status === "scoring"}
                   >
                     <RefreshCw className={cn("h-4 w-4", status === "loading" && "animate-spin")} />
-                    Shuffle
+                    Shuffle ballot
                   </button>
                   <div className="flex h-14 min-w-36 items-center justify-center gap-3 border border-[#2a2a3e] bg-[#09090f] px-4">
                     <span className="font-[family-name:var(--font-geist-mono)] text-2xl font-bold leading-none text-[#F5F5F0]">
-                      {selectedCount}/20
+                      <span key={selectedCount} className="inline-block animate-[snobPop_280ms_ease-out]">
+                        {selectedCount}
+                      </span>
+                      /20
                     </span>
                     <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#555568]">
                       Seen
@@ -373,14 +414,14 @@ export function SnobTestClient() {
                           className={cn(
                             "object-cover transition duration-300 group-hover:scale-[1.03]",
                             selected
-                              ? "brightness-105 saturate-110"
-                              : "brightness-[0.8] saturate-[0.88] group-hover:brightness-100",
+                              ? "brightness-110 saturate-110"
+                              : "brightness-[0.92] saturate-[0.97] group-hover:brightness-105",
                           )}
                         />
                       ) : (
                         <PosterFallback title={film.title} color={film.posterColor} />
                       )}
-                      <div className="absolute inset-x-0 bottom-0 bg-[linear-gradient(to_top,#000_0%,#000_38%,rgba(0,0,0,0.72)_64%,transparent_100%)] p-3 pt-16">
+                      <div className="absolute inset-x-0 bottom-0 bg-[linear-gradient(to_top,#000_0%,#000_26%,rgba(0,0,0,0.55)_52%,transparent_100%)] p-3 pt-12">
                         <h2 className="line-clamp-2 font-[family-name:var(--font-display)] text-sm font-semibold leading-tight text-white">
                           {film.title}
                         </h2>
@@ -427,7 +468,10 @@ export function SnobTestClient() {
                   </div>
                   <div className="p-5">
                     <div className="flex items-end justify-between">
-                      <span className="font-[family-name:var(--font-display)] text-[3.25rem] font-bold leading-none text-[#D4AF37] tabular-nums">
+                      <span
+                        key={projectedScore}
+                        className="inline-block animate-[snobPop_280ms_ease-out] font-[family-name:var(--font-display)] text-[3.25rem] font-bold leading-none text-[#D4AF37] tabular-nums"
+                      >
                         {projectedScore}%
                       </span>
                       <span className="pb-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#888899]">
@@ -440,6 +484,9 @@ export function SnobTestClient() {
                         style={{ width: `${projectedScore}%` }}
                       />
                     </div>
+                    <p className="mt-3 text-xs italic leading-5 text-[#a8a8b6]">
+                      {scoreFlavor(projectedScore)}
+                    </p>
                     <div className="mt-4 flex items-baseline justify-between gap-3">
                       <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#555568]">
                         Projected rank
@@ -533,6 +580,9 @@ export function SnobTestClient() {
                   <p className="mt-3 text-sm leading-6 text-[#b8b8c6]">
                     {titleDescriptions[score.title] ?? "Your award-film score is in."}
                   </p>
+                  <p className="mt-2 text-sm italic leading-6 text-[#D4AF37]/90">
+                    {scoreFlavor(score.score)}
+                  </p>
                   <div className="mt-5">
                     <div className="flex items-end justify-between">
                       <span className="text-5xl font-bold text-[#D4AF37]">{score.score}%</span>
@@ -588,8 +638,27 @@ export function SnobTestClient() {
 
                 <div className="border border-[#242435] bg-[#101017] p-5">
                   <h3 className="font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-widest text-[#888899]">
-                    Breakdown
+                    Taste map
                   </h3>
+                  <div className="mt-3 space-y-1 text-sm leading-6 text-[#d4d4df]">
+                    {tasteMap.strongestDecade && (
+                      <p>
+                        Strongest in the{" "}
+                        <span className="font-semibold text-[#F5F5F0]">{tasteMap.strongestDecade.label}</span> —{" "}
+                        {tasteMap.strongestDecade.percent}% seen.
+                      </p>
+                    )}
+                    {tasteMap.strongestBody && (
+                      <p>
+                        You lean <span className="font-semibold text-[#F5F5F0]">{leanLabel(tasteMap.strongestBody)}</span>.
+                      </p>
+                    )}
+                    {tasteMap.blindSpots.length > 0 && (
+                      <p>
+                        Blind spots: <span className="text-[#e8453c]">{tasteMap.blindSpots.join(", ")}</span>.
+                      </p>
+                    )}
+                  </div>
                   <div className="mt-4 space-y-3">
                     {[...breakdown.awardBody.slice(0, 3), ...breakdown.decade.slice(0, 4)].map((item) => (
                       <div key={item.label}>
