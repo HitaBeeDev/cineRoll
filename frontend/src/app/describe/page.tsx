@@ -607,21 +607,12 @@ export default function DescribePage() {
                     </div>
                   </div>
 
-                  {/* A legend of what the parser reads — intentionally NOT cards,
-                      so it doesn't read as a row of clickable filters. */}
-                  <div>
-                    <p className="mb-3 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.24em] text-[#888899]">
-                      Understands
-                    </p>
-                    <p className="font-[family-name:var(--font-geist-mono)] text-xs uppercase leading-7 tracking-[0.18em] text-[#7a7a8c]">
-                      {["Mood", "Awards", "Decade", "Genre", "Director", "Language"].map((label, index) => (
-                        <span key={label}>
-                          {index > 0 && <span className="mx-2 text-[#2f2f3e]">/</span>}
-                          {label}
-                        </span>
-                      ))}
-                    </p>
-                  </div>
+                  {/* The parser's full reach, as one prose line — not a second grid
+                      of category "tiles" competing with the left-hand starter
+                      prompts. Free text is the single input paradigm. */}
+                  <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase leading-5 tracking-[0.18em] text-[#7a7a8c]">
+                    Reads mood, era, awards, genre &amp; director — in any language.
+                  </p>
                 </div>
               )}
             </div>
