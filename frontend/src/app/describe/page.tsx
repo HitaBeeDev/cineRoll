@@ -359,12 +359,16 @@ export default function DescribePage() {
           ? `${result.films.length} ${result.films.length === 1 ? "pick" : "picks"} ready.`
           : "";
 
+  // The fixed full-height "cockpit" (internal panel scrolling) only applies at lg,
+  // where there's room for two side-by-side columns. Below lg the columns stack and
+  // the page scrolls normally, so nothing — especially the CTA — can be clipped on
+  // short laptops or phones.
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-[#09090f] text-[#F5F5F0]">
+    <div className="flex min-h-screen flex-col bg-[#09090f] text-[#F5F5F0] lg:h-screen lg:overflow-hidden">
       <AppHeader />
 
-      <main className="min-h-0 flex-1 overflow-hidden px-5 py-4 sm:px-8 lg:px-10 lg:py-5">
-        <section className="grid h-full min-h-0 grid-rows-[auto_minmax(0,1fr)] gap-4">
+      <main className="min-h-0 flex-1 px-5 py-4 sm:px-8 lg:px-10 lg:py-5 lg:overflow-hidden">
+        <section className="grid min-h-0 gap-4 lg:h-full lg:grid-rows-[auto_minmax(0,1fr)]">
           <div className="shrink-0">
             <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.3em] text-[#e8453c]/70">
               ◈ Natural Language Roll ◈
@@ -396,7 +400,9 @@ export default function DescribePage() {
                   disabled={isProcessing}
                   placeholder={PROMPT_PLACEHOLDER}
                   className={cn(
-                    "min-h-0 flex-1 resize-none bg-transparent px-4 py-4 outline-none sm:px-5 sm:py-5",
+                    // A usable height on mobile (no fixed viewport to fill); shrinks
+                    // to fit inside the lg cockpit.
+                    "min-h-[180px] flex-1 resize-none bg-transparent px-4 py-4 outline-none sm:px-5 sm:py-5 lg:min-h-0",
                     // Mono for the editorial feel, but NOT uppercase/letter-spaced:
                     // forcing those on what the user types hurts legibility and mangles
                     // accented/non-Latin input (e.g. the French/German example prompts).
@@ -482,8 +488,12 @@ export default function DescribePage() {
               aria-live="polite"
               aria-busy={isProcessing}
               className={cn(
-                "min-h-0 rounded-lg border border-[#1a1a28] bg-[#0d0d16] lg:col-span-5",
-                result ? "overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:w-0" : "overflow-hidden",
+                "min-h-[420px] rounded-lg border border-[#1a1a28] bg-[#0d0d16] lg:col-span-5 lg:min-h-0",
+                // Internal scrolling only in the fixed lg cockpit; on mobile the
+                // panel grows with its content and the page scrolls normally.
+                result
+                  ? "lg:overflow-y-auto lg:[scrollbar-width:none] lg:[&::-webkit-scrollbar]:w-0"
+                  : "lg:overflow-hidden",
               )}
             >
               <p className="sr-only" role="status">
