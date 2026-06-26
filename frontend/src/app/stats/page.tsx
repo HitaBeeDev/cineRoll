@@ -152,7 +152,7 @@ export default async function StatsPage() {
       {!stats ? (
         <main className="mx-auto w-full max-w-screen-2xl px-4 py-20 sm:px-6 lg:px-8">
           <div className="flex min-h-[50vh] items-center justify-center rounded-lg border border-white/10 bg-white/[0.025] p-8 text-center">
-            <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.22em] text-[#9e9ab0]">
+            <p className="font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-[0.22em] text-[#9e9ab0]">
               Stats unavailable. Make sure the backend is running.
             </p>
           </div>
@@ -248,15 +248,15 @@ function StatsContent({ stats }: { stats: StatsResponse }) {
       ? `Peaks at ${Math.max(...decadeAvgValues).toFixed(1)} in the ${densestDecade.decade}s`
       : "Average nominations per film";
 
-  // Editorial closer — one synthesized sentence over the supporting insights.
-  const oscarShare =
-    stats.awardBodyBreakdown && stats.awardBodyBreakdown.total > 0
-      ? Math.round((stats.awardBodyBreakdown.coverage.oscar / stats.awardBodyBreakdown.total) * 100)
-      : 0;
-  const conclusion =
+  // Editorial closer — a sharp lead line over short, staccato findings.
+  const conclusionPoints =
     peakDecade > 0
-      ? `The archive is not evenly distributed. The ${peakDecade}s dominate the dataset, the Oscars shape the leaderboard across ${oscarShare}% of all films, and only ${winRate.toFixed(0)}% of nominations ever convert into wins.`
-      : "";
+      ? [
+          `The ${peakDecade}s dominate the dataset.`,
+          `The Oscars shape the leaderboard.`,
+          `And only ${winRate.toFixed(0)}% of nominations ever become wins.`,
+        ]
+      : [];
 
   return (
     <>
@@ -283,7 +283,7 @@ function StatsContent({ stats }: { stats: StatsResponse }) {
           <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(360px,460px)]">
             <div>
               <div className="mb-3 h-px w-10 bg-[#e8453c]" />
-              <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.22em] text-[#e8453c]">
+              <p className="font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-[0.22em] text-[#e8453c]">
                 The CineRoll archive
               </p>
               <h1
@@ -411,8 +411,8 @@ function StatsContent({ stats }: { stats: StatsResponse }) {
           <section className="scroll-mt-24">
             <SectionHeader
               eyebrow="The timeline"
-              title="When was cinema densest?"
-              description="Select a decade to explore its density, share of the archive, and defining film."
+              title="The archive through time"
+              description="Each bar is a decade by film count — it opens on the densest era. Select any decade to explore its share, density, and defining film."
               actionHref="/browse?sort=year"
               actionLabel="Browse by year"
             />
@@ -440,7 +440,7 @@ function StatsContent({ stats }: { stats: StatsResponse }) {
         )}
 
         {/* THE PATTERN — editorial conclusion */}
-        {conclusion && (
+        {conclusionPoints.length > 0 && (
           <section className="border-t border-white/10 pt-12">
             <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-12">
               <div>
@@ -448,9 +448,12 @@ function StatsContent({ stats }: { stats: StatsResponse }) {
                   <Sparkles className="h-3.5 w-3.5" />
                   The pattern
                 </div>
-                <h2 className="mt-4 font-[family-name:var(--font-display)] text-2xl font-bold leading-snug text-[#f4f0f7] sm:text-[2rem]">
-                  {conclusion}
+                <h2 className="mt-4 font-[family-name:var(--font-display)] text-3xl font-bold leading-[1.1] text-[#f4f0f7] sm:text-[2.75rem]">
+                  The archive is not evenly distributed.
                 </h2>
+                <p className="mt-4 font-[family-name:var(--font-display)] text-xl leading-relaxed text-[#b6b2c6] sm:text-2xl">
+                  {conclusionPoints.join(" ")}
+                </p>
               </div>
 
               {insights.length > 0 && (
@@ -527,7 +530,7 @@ function SectionHeader({
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
       <div>
-        <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.22em] text-[#e8453c]">
+        <p className="font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-[0.22em] text-[#e8453c]">
           {eyebrow}
         </p>
         <h2
@@ -543,7 +546,7 @@ function SectionHeader({
       {actionHref && actionLabel && (
         <Link
           href={actionHref}
-          className="inline-flex w-fit items-center gap-2 rounded-md border border-white/10 bg-white/[0.045] px-3.5 py-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-[#c4c1d2] transition-colors hover:border-[#e8453c]/45 hover:text-[#ff766d]"
+          className="inline-flex w-fit items-center gap-2 rounded-md border border-white/10 bg-white/[0.045] px-3.5 py-2 font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-[0.14em] text-[#c4c1d2] transition-colors hover:border-[#e8453c]/45 hover:text-[#ff766d]"
         >
           {actionLabel}
           <ArrowUpRight className="h-3.5 w-3.5" />
@@ -792,7 +795,7 @@ function RunnerUpFilmCard({
             className="object-cover"
           />
         )}
-        <span className="absolute left-1 top-1 flex h-5 w-5 items-center justify-center rounded border border-white/15 bg-black/60 font-[family-name:var(--font-display)] text-[11px] font-bold text-white">
+        <span className="absolute left-1 top-1 flex h-5 w-5 items-center justify-center rounded border border-white/15 bg-black/60 font-[family-name:var(--font-display)] text-xs font-bold text-white">
           {rank}
         </span>
       </div>
@@ -929,7 +932,14 @@ function AwardBodyPanel({
 
   return (
     <Panel className={className}>
-      <div className="flex h-2.5 overflow-hidden rounded-full bg-white/[0.055]">
+      {/* Part 1 — exclusive overlap composition (sums to 100%) */}
+      <h3 className="font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-[0.18em] text-[#c4c1d2]">
+        Distribution by award-body overlap
+      </h3>
+      <p className="mt-1 text-sm text-[#9e9ab0]">
+        Every film in one bucket — its sole body, or “multiple” if more than one honored it.
+      </p>
+      <div className="mt-4 flex h-3 overflow-hidden rounded-full bg-white/[0.055]">
         {composition.map((segment) => (
           <div
             key={segment.label}
@@ -938,27 +948,32 @@ function AwardBodyPanel({
           />
         ))}
       </div>
-      <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-1.5">
+      <ul className="mt-3 flex flex-wrap gap-x-5 gap-y-2">
         {composition.map((segment) => (
           <li
             key={segment.label}
-            className="flex items-center gap-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.12em] text-[#a9a5bc]"
+            className="flex items-center gap-2 font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-[0.1em] text-[#b6b2c6]"
           >
-            <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: segment.color }} />
+            <span className="h-2 w-2 rounded-full" style={{ backgroundColor: segment.color }} />
             {segment.label}
             <span className="text-[#9e9ab0]">{pct(segment.count).toFixed(1)}%</span>
           </li>
         ))}
       </ul>
 
-      <p className="mt-5 text-sm leading-6 text-[#9e9ab0]">
-        Coverage counts a film under every body that honored it, so these shares overlap — the gap
-        is the Multiple-bodies share above.
-      </p>
-      <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-        {coverage.map((item) => (
-          <BreakdownLink key={item.label} {...item} percent={pct(item.count)} />
-        ))}
+      {/* Part 2 — coverage per body (overlapping shares) */}
+      <div className="mt-7 border-t border-white/10 pt-6">
+        <h3 className="font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-[0.18em] text-[#c4c1d2]">
+          Coverage by individual award body
+        </h3>
+        <p className="mt-1 text-sm text-[#9e9ab0]">
+          A film counts under every body that honored it, so these shares overlap.
+        </p>
+        <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+          {coverage.map((item) => (
+            <BreakdownLink key={item.label} {...item} percent={pct(item.count)} />
+          ))}
+        </div>
       </div>
     </Panel>
   );
@@ -983,7 +998,7 @@ function BreakdownLink({
       className="group rounded-md border border-white/10 bg-[#0d0d15] p-4 transition-colors hover:border-white/20 hover:bg-[#12121c]"
     >
       <div className="flex items-center justify-between gap-3">
-        <span className="flex items-center gap-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.16em] text-[#a9a5bc]">
+        <span className="flex items-center gap-2 font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-[0.16em] text-[#a9a5bc]">
           <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: color }} />
           {label}
         </span>
@@ -998,7 +1013,7 @@ function BreakdownLink({
           style={{ width: `${Math.max(2, Math.min(100, percent))}%`, backgroundColor: color }}
         />
       </div>
-      <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-[#9e9ab0]">
+      <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-[0.14em] text-[#9e9ab0]">
         {percent.toFixed(1)}% of catalog
       </p>
     </Link>
@@ -1055,11 +1070,11 @@ function RankingList({
                 <span className="block truncate text-sm font-semibold text-[#eeeaf6] transition-colors group-hover:text-white">
                   {film.title}
                 </span>
-                <span className="mt-0.5 block font-[family-name:var(--font-geist-mono)] text-[11px] text-[#9e9ab0]">
+                <span className="mt-0.5 block font-[family-name:var(--font-geist-mono)] text-xs text-[#9e9ab0]">
                   {film.releaseYear}
                 </span>
               </span>
-              <span className={cn("shrink-0 text-right font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em]", accentClass)}>
+              <span className={cn("shrink-0 text-right font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-[0.14em]", accentClass)}>
                 {formatNumber(film.count)} {unit}
               </span>
             </Link>

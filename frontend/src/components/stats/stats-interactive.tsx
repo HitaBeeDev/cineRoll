@@ -306,7 +306,7 @@ export function DecadeTimeline({ decades, peakDecade }: { decades: DecadeDatum[]
             {current.decade}s
           </p>
           {current.decade === peakDecade && (
-            <span className="rounded-full border border-[#e8453c]/40 bg-[#e8453c]/10 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.16em] text-[#ff766d]">
+            <span className="rounded-full border border-[#e8453c]/40 bg-[#e8453c]/10 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-[0.16em] text-[#ff766d]">
               Peak era
             </span>
           )}
