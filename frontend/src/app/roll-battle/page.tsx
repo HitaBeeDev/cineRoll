@@ -45,6 +45,110 @@ function formatAwardSummary(film: RollFilm): string {
   return "No major award records";
 }
 
+function awardWinCount(film: RollFilm): number {
+  return film.oscarWins + film.ggWins + film.cannesWins;
+}
+
+function primaryGenre(film: RollFilm): string {
+  return film.genres[0] ?? "archive";
+}
+
+function decadeLabel(film: RollFilm): string | null {
+  const year = Number(film.releaseYear ?? film.year);
+  if (!Number.isFinite(year)) return null;
+  return `${Math.floor(year / 10) * 10}s`;
+}
+
+function buildMatchupContext(left: RollFilm, right: RollFilm): string {
+  const leftGenre = primaryGenre(left);
+  const rightGenre = primaryGenre(right);
+  const leftDecade = decadeLabel(left);
+  const rightDecade = decadeLabel(right);
+  const leftIsDoc = left.genres.some((g) => g.toLowerCase() === "documentary");
+  const rightIsDoc = right.genres.some((g) => g.toLowerCase() === "documentary");
+  const leftRating = left.imdbRating;
+  const rightRating = right.imdbRating;
+  const runtimeGap =
+    left.runtime != null && right.runtime != null
+      ? Math.abs(left.runtime - right.runtime)
+      : 0;
+
+  if (leftGenre === rightGenre && leftGenre !== "archive") {
+    return `${leftGenre} duel`;
+  }
+
+  if (leftIsDoc !== rightIsDoc) {
+    return leftIsDoc ? "Documentary vs fiction" : "Fiction vs documentary";
+  }
+
+  if (leftDecade && rightDecade && leftDecade !== rightDecade) {
+    return `${leftDecade} ${leftGenre.toLowerCase()} vs ${rightDecade} ${rightGenre.toLowerCase()}`;
+  }
+
+  if (runtimeGap >= 120) {
+    return "Short watch vs marathon commitment";
+  }
+
+  if (
+    leftRating != null &&
+    rightRating != null &&
+    Math.abs(leftRating - rightRating) >= 1
+  ) {
+    return "Archive underdog vs critical heavyweight";
+  }
+
+  return `${leftGenre} vs ${rightGenre}`;
+}
+
+function buildTasteSummary(picks: RollFilm[]): string {
+  if (picks.length === 0) return "";
+
+  const genreCounts = new Map<string, number>();
+  const decadeCounts = new Map<string, number>();
+  let longRuntime = 0;
+  let highRated = 0;
+  let awardWinners = 0;
+
+  for (const film of picks) {
+    const genre = primaryGenre(film);
+    if (genre !== "archive") {
+      genreCounts.set(genre, (genreCounts.get(genre) ?? 0) + 1);
+    }
+
+    const decade = decadeLabel(film);
+    if (decade) decadeCounts.set(decade, (decadeCounts.get(decade) ?? 0) + 1);
+
+    if ((film.runtime ?? 0) >= 150) longRuntime += 1;
+    if ((film.imdbRating ?? 0) >= 8) highRated += 1;
+    if (awardWinCount(film) > 0) awardWinners += 1;
+  }
+
+  const topEntry = (counts: Map<string, number>): string | null => {
+    const [entry] = [...counts.entries()].sort((a, b) => b[1] - a[1]);
+    return entry?.[0] ?? null;
+  };
+
+  const signals = [
+    topEntry(genreCounts)?.toLowerCase(),
+    topEntry(decadeCounts),
+    highRated >= 3 ? "high-rated picks" : null,
+    longRuntime >= 3 ? "long-form cinema" : null,
+    awardWinners >= 3 ? "award winners" : null,
+  ].filter(Boolean);
+
+  if (signals.length === 0) {
+    return "Your taste stayed balanced across the bracket.";
+  }
+
+  return `Your taste leaned toward ${signals.slice(0, 3).join(", ")}.`;
+}
+
+function nextBoutLabel(round: number, films: RollFilm[]): string {
+  const next = films[round + 2];
+  if (!next) return "Final decision";
+  return `Next: ${primaryGenre(next).toLowerCase()} challenger`;
+}
+
 interface FilmCardProps {
   film: RollFilm;
   onPick: () => void;
@@ -65,7 +169,7 @@ function FilmBattleCard({
   const genre = film.genres[0] ?? "";
   const runtime = formatRuntime(film.runtime);
   const imageUrl = film.posterUrl ?? film.backdropUrl;
-  const totalWins = film.oscarWins + film.ggWins + film.cannesWins;
+  const totalWins = awardWinCount(film);
 
   return (
     <motion.button
@@ -99,18 +203,18 @@ function FilmBattleCard({
         ? { whileHover: { scale: 1.01 } }
         : {})}
       transition={{ type: "spring", stiffness: 260, damping: 24 }}
-      className="group relative flex -mt-3 h-full w-full will-change-transform flex-col overflow-hidden rounded-2xl border border-[#1e1e2a] bg-[#0d0d1a] text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] disabled:cursor-default"
+      className="group relative flex h-full w-full will-change-transform flex-col overflow-hidden rounded-2xl border border-[#1e1e2a] bg-[#0d0d1a] text-left shadow-[0_18px_60px_rgba(0,0,0,0.28)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] disabled:cursor-default enabled:hover:border-[#e8453c]/55 enabled:hover:shadow-[0_0_34px_rgba(232,69,60,0.16)]"
       aria-label={`Pick ${film.title}`}
     >
       {/* Poster */}
-      <div className="relative h-[min(56dvh,480px)] w-full overflow-hidden bg-[#07070d]">
+      <div className="relative h-[min(46dvh,390px)] w-full overflow-hidden bg-[#07070d]">
         {imageUrl ? (
           <Image
             src={imageUrl}
             alt={film.title}
             fill
             sizes="(max-width: 768px) 45vw, 300px"
-            className="object-cover"
+            className="object-cover transition duration-300 group-hover:brightness-110"
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center bg-[#1a1a28]">
@@ -133,11 +237,15 @@ function FilmBattleCard({
         )}
 
         {/* Award wins badge */}
-        {totalWins > 0 && (
-          <div className="absolute left-2 top-2 rounded-full border border-[#D4AF37]/40 bg-[#D4AF37]/15 px-2 py-0.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#D4AF37]">
-            {totalWins === 1 ? "1 Win" : `${totalWins} Wins`}
-          </div>
-        )}
+        <div
+          className={`absolute left-2 top-2 rounded-full border px-2 py-0.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest ${
+            totalWins > 0
+              ? "border-[#D4AF37]/40 bg-[#D4AF37]/15 text-[#D4AF37]"
+              : "border-[#F5F5F0]/10 bg-[#09090f]/45 text-[#F5F5F0]/45"
+          }`}
+        >
+          {totalWins === 1 ? "1 Win" : `${totalWins} Wins`}
+        </div>
 
         {/* IMDb rating */}
         <div className="absolute bottom-2 right-2 rounded-md border border-[#F5F5F0]/10 bg-[#09090f]/80 px-1.5 py-0.5 font-[family-name:var(--font-geist-mono)] text-[11px] backdrop-blur-sm">
@@ -150,7 +258,7 @@ function FilmBattleCard({
       </div>
 
       {/* Info */}
-      <div className="flex flex-col gap-1 p-3">
+      <div className="flex flex-col gap-1 px-3 py-2.5">
         <p className="truncate font-[family-name:var(--font-geist-mono)] text-[11px] font-semibold uppercase tracking-[0.16em] text-[#b6b6c8]">
           {film.year}
           {genre ? ` · ${genre}` : ""}
@@ -160,16 +268,16 @@ function FilmBattleCard({
           {film.title}
         </h3>
         {film.director && (
-          <p className="truncate font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.1em] text-[#555568]">
+          <p className="truncate font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.1em] text-[#77778a]">
             Dir. {film.director}
           </p>
         )}
       </div>
 
       {/* Pick CTA */}
-      <div className="px-3 pb-3">
-        <div className="w-full rounded-xl border border-[#e8453c]/30 bg-[#e8453c]/10 py-2 text-center font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.2em] text-[#e8453c] transition-all group-hover:border-[#e8453c]/60 group-hover:bg-[#e8453c]/20">
-          Pick This
+      <div className="px-3 pb-2.5">
+        <div className="w-full rounded-xl border border-[#e8453c]/30 bg-[#e8453c]/10 py-2 text-center font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.18em] text-[#e8453c] transition-all group-hover:border-[#e8453c]/70 group-hover:bg-[#e8453c]/20 group-hover:text-[#ff635a]">
+          Advance This Film
         </div>
       </div>
     </motion.button>
@@ -184,6 +292,7 @@ export default function RollBattlePage() {
   const [champion, setChampion] = useState<RollFilm | null>(null);
   const [phase, setPhase] = useState<Phase>("loading");
   const [pickedId, setPickedId] = useState<string | null>(null);
+  const [pickedFilms, setPickedFilms] = useState<RollFilm[]>([]);
   const [shareStatus, setShareStatus] = useState<"idle" | "copied">("idle");
 
   const loadFilms = useCallback(async () => {
@@ -191,6 +300,7 @@ export default function RollBattlePage() {
     setRound(0);
     setChampion(null);
     setPickedId(null);
+    setPickedFilms([]);
     setShareStatus("idle");
     try {
       const pool = await fetchBattlePool();
@@ -221,10 +331,19 @@ export default function RollBattlePage() {
 
   const leftFilm: RollFilm | null = round === 0 ? (films[0] ?? null) : champion;
   const rightFilm: RollFilm | null = films[round + 1] ?? null;
+  const selectedFilm =
+    pickedId != null
+      ? leftFilm?.id === pickedId
+        ? leftFilm
+        : rightFilm?.id === pickedId
+          ? rightFilm
+          : null
+      : null;
 
   function handlePick(film: RollFilm) {
     if (pickedId !== null) return;
     setPickedId(film.id);
+    setPickedFilms((current) => [...current, film]);
     const delay = reduced ? 0 : 650;
     setTimeout(() => {
       if (round < TOTAL_ROUNDS - 1) {
@@ -263,7 +382,7 @@ export default function RollBattlePage() {
     <div className="flex h-dvh flex-col overflow-hidden bg-[#09090f]">
       <AppHeader />
 
-      <main className="flex min-h-0 flex-1 flex-col items-center justify-center px-4 py-5 sm:px-6">
+      <main className="flex min-h-0 flex-1 flex-col items-center justify-center px-4 py-4 sm:px-6">
         {/* Loading */}
         {phase === "loading" && (
           <div className="flex flex-1 flex-col items-center justify-center gap-4">
@@ -293,16 +412,39 @@ export default function RollBattlePage() {
 
         {/* Battle */}
         {phase === "battling" && leftFilm != null && rightFilm != null && (
-          <div className="flex w-full max-w-2xl flex-col gap-4">
+          <div className="grid w-full max-w-5xl grid-cols-1 items-start gap-4 lg:grid-cols-[160px_minmax(0,672px)_160px]">
+            <aside className="hidden pt-32 lg:block">
+              <div className="border-l border-[#1e1e2a] pl-4">
+                <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.24em] text-[#555568]">
+                  {round === 0 ? "Opening Bout" : "Current Champion"}
+                </p>
+                <p className="mt-2 line-clamp-2 font-[family-name:var(--font-display)] text-base font-bold leading-tight text-[#F5F5F0]/80">
+                  {round === 0 ? "No champion yet" : leftFilm.title}
+                </p>
+                <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.18em] text-[#77778a]">
+                  {round === 0
+                    ? "First pick sets the bracket"
+                    : `Advanced from round ${round}`}
+                </p>
+              </div>
+            </aside>
+
+            <div className="flex w-full flex-col gap-3">
             {/* Title + progress */}
-            <div className="flex flex-col items-center gap-2 text-center">
-              <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.35em] text-[#555568]">
+            <div className="flex flex-col items-center gap-1.5 text-center">
+              <span className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.35em] text-[#555568]">
                 Roll Battle
               </span>
               <h1 className="font-[family-name:var(--font-display)] text-2xl font-bold text-[#F5F5F0] sm:text-3xl">
                 Which film wins tonight?
               </h1>
-              <div className="flex items-center gap-1.5 pt-1">
+              <p className="max-w-md text-sm leading-5 text-[#F5F5F0]/62">
+                Pick the film you would save for tonight&apos;s screening. Five rounds decide your winner.
+              </p>
+              <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.22em] text-[#D4AF37]/80">
+                {buildMatchupContext(leftFilm, rightFilm)}
+              </p>
+              <div className="flex items-center gap-1.5 pt-0.5">
                 {Array.from({ length: TOTAL_ROUNDS }).map((_, i) => (
                   <div
                     key={i}
@@ -319,6 +461,19 @@ export default function RollBattlePage() {
               <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#555568]">
                 Round {round + 1} of {TOTAL_ROUNDS}
               </p>
+              <AnimatePresence mode="wait">
+                {selectedFilm && (
+                  <motion.p
+                    key={selectedFilm.id}
+                    initial={reduced ? false : { opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={reduced ? {} : { opacity: 0, y: -6 }}
+                    className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em] text-[#e8453c]"
+                  >
+                    {selectedFilm.title} advances.
+                  </motion.p>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* Cards */}
@@ -331,7 +486,7 @@ export default function RollBattlePage() {
                   ? {}
                   : { exit: { opacity: 0, y: -16, scale: 0.98 } })}
                 transition={{ type: "spring", stiffness: 280, damping: 28 }}
-                className="mt-3 grid grid-cols-[1fr_28px_1fr] items-stretch gap-1.5 sm:mt-4 sm:gap-3"
+                className="mt-1 grid grid-cols-[1fr_36px_1fr] items-stretch gap-1.5 sm:mt-2 sm:gap-3"
               >
                 <FilmBattleCard
                   film={leftFilm}
@@ -344,7 +499,7 @@ export default function RollBattlePage() {
 
                 {/* VS divider */}
                 <div className="flex h-full flex-col items-center justify-center">
-                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[#e8453c]/25 bg-[#09090f] font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-widest text-[#e8453c]">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#e8453c]/55 bg-[#120d12] font-[family-name:var(--font-geist-mono)] text-[12px] font-bold uppercase tracking-widest text-[#ff635a] shadow-[0_0_32px_rgba(232,69,60,0.26)] ring-4 ring-[#e8453c]/5">
                     vs
                   </div>
                 </div>
@@ -359,6 +514,23 @@ export default function RollBattlePage() {
                 />
               </motion.div>
             </AnimatePresence>
+            </div>
+
+            <aside className="hidden pt-32 lg:block">
+              <div className="border-r border-[#1e1e2a] pr-4 text-right">
+                <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.24em] text-[#555568]">
+                  Bracket
+                </p>
+                <p className="mt-2 font-[family-name:var(--font-display)] text-base font-bold leading-tight text-[#F5F5F0]/80">
+                  {round === 0
+                    ? `${TOTAL_ROUNDS} rounds total`
+                    : `${TOTAL_ROUNDS - round} fights left`}
+                </p>
+                <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.18em] text-[#77778a]">
+                  {nextBoutLabel(round, films)}
+                </p>
+              </div>
+            </aside>
           </div>
         )}
 
@@ -381,6 +553,9 @@ export default function RollBattlePage() {
               <h1 className="font-[family-name:var(--font-display)] text-3xl font-bold leading-tight text-[#F5F5F0] sm:text-4xl">
                 {champion.title}
               </h1>
+              <p className="max-w-md text-sm leading-6 text-[#F5F5F0]/62">
+                Your winner tonight. {buildTasteSummary(pickedFilms)}
+              </p>
             </div>
 
             <div className="grid gap-5 sm:grid-cols-[220px_1fr] sm:items-start">
