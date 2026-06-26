@@ -120,7 +120,7 @@ function FilterChips({ chips }: { chips: string[] }) {
 
   return (
     <div className="mt-4">
-      <p className="mb-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.22em] text-[#555568]">
+      <p className="mb-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.22em] text-[#888899]">
         Searched for
       </p>
       <div className="flex flex-wrap gap-2">
@@ -211,7 +211,7 @@ function FilmCard({ film }: { film: RollFilm }) {
                 )}
                 {b.wins(film) > 0 && b.noms(film) > b.wins(film) && " "}
                 {b.noms(film) > b.wins(film) && (
-                  <span className="text-[#555568]">{b.noms(film) - b.wins(film)}N</span>
+                  <span className="text-[#888899]">{b.noms(film) - b.wins(film)}N</span>
                 )}
               </span>
             ))}
@@ -253,7 +253,7 @@ function ProcessingPanel({ interpreted }: { interpreted: NaturalRollInterpreted 
           {interpreted ? "Ranking picks" : "Reading description"}
         </p>
         {interpreted?.relaxed && (
-          <span className="rounded-full border border-[#2a2a3e] px-2 py-0.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#555568]">
+          <span className="rounded-full border border-[#2a2a3e] px-2 py-0.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#888899]">
             Relaxed filters
           </span>
         )}
@@ -382,7 +382,7 @@ export default function DescribePage() {
                   <span className="truncate font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-widest text-[#888899]">
                     Describe the mood, era, awards, or people
                   </span>
-                  <span className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#444458]">
+                  <span className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#888899]">
                     {prompt.length}/500
                   </span>
                 </div>
@@ -401,7 +401,7 @@ export default function DescribePage() {
                     // forcing those on what the user types hurts legibility and mangles
                     // accented/non-Latin input (e.g. the French/German example prompts).
                     "font-[family-name:var(--font-geist-mono)] text-[0.8rem] leading-7 tracking-normal text-[#8d8da1] lg:text-[0.8rem] lg:leading-8",
-                    "placeholder:text-[#4f4f63]",
+                    "placeholder:text-[#888899]",
                     "focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#e8453c]",
                   )}
                   aria-label="Describe the kind of film you want"
@@ -508,7 +508,7 @@ export default function DescribePage() {
                   <h2 className="font-[family-name:var(--font-display)] text-4xl font-bold leading-none text-[#F5F5F0]">
                     Try loosening the description.
                   </h2>
-                  <p className="mt-3 max-w-xl font-[family-name:var(--font-geist-mono)] text-[11px] uppercase leading-5 tracking-widest text-[#66667a]">
+                  <p className="mt-3 max-w-xl font-[family-name:var(--font-geist-mono)] text-[11px] uppercase leading-5 tracking-widest text-[#8d8da1]">
                     Gemini understood the request, but the film pool came back
                     empty. Remove a year, award, rating, or exact person and
                     roll again.
@@ -522,7 +522,7 @@ export default function DescribePage() {
                       {result.films.length === 1 ? "Your roll" : `${result.films.length} picks`}
                     </p>
                     {result.relaxed && (
-                      <span className="rounded-full border border-[#2a2a3e] px-2 py-0.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#555568]">
+                      <span className="rounded-full border border-[#2a2a3e] px-2 py-0.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#888899]">
                         Relaxed filters
                       </span>
                     )}
@@ -558,7 +558,7 @@ export default function DescribePage() {
                   {/* A legend of what the parser reads — intentionally NOT cards,
                       so it doesn't read as a row of clickable filters. */}
                   <div>
-                    <p className="mb-3 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.24em] text-[#555568]">
+                    <p className="mb-3 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.24em] text-[#888899]">
                       Understands
                     </p>
                     <p className="font-[family-name:var(--font-geist-mono)] text-xs uppercase leading-7 tracking-[0.18em] text-[#7a7a8c]">
