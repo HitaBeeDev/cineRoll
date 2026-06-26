@@ -416,24 +416,18 @@ function PickCard({
           </p>
         )}
 
-        {isHero ? (
+        {/* Only render scores that exist — absent ratings are omitted, never
+            shown as "No score" placeholders. RT is hero-only. */}
+        {(film.imdbRating != null || (isHero && film.rtScore != null) || totalWins > 0) && (
           <div className="flex items-center gap-3">
-            {film.imdbRating != null ? (
+            {film.imdbRating != null && (
               <span className="font-[family-name:var(--font-geist-mono)] text-[11px] font-bold text-[#c8c8d8]">
                 ★ {film.imdbRating.toFixed(1)}
               </span>
-            ) : (
-              <span className="font-[family-name:var(--font-geist-mono)] text-[11px] font-bold text-[#c8c8d8]/40">
-                No IMDb Score
-              </span>
             )}
-            {film.rtScore != null ? (
+            {isHero && film.rtScore != null && (
               <span className="font-[family-name:var(--font-geist-mono)] text-[11px] font-bold text-[#c8c8d8]">
                 RT {film.rtScore}%
-              </span>
-            ) : (
-              <span className="font-[family-name:var(--font-geist-mono)] text-[11px] font-bold text-[#c8c8d8]/40">
-                No RT Score
               </span>
             )}
             {totalWins > 0 && (
@@ -445,24 +439,6 @@ function PickCard({
               </span>
             )}
           </div>
-        ) : (
-          (film.imdbRating != null || totalWins > 0) && (
-            <div className="flex items-center gap-3">
-              {film.imdbRating != null && (
-                <span className="font-[family-name:var(--font-geist-mono)] text-[11px] font-bold text-[#c8c8d8]">
-                  ★ {film.imdbRating.toFixed(1)}
-                </span>
-              )}
-              {totalWins > 0 && (
-                <span
-                  className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-wide"
-                  style={{ color: slot.accentColor }}
-                >
-                  {totalWins}× Winner
-                </span>
-              )}
-            </div>
-          )
         )}
 
         {/* CTA — the hero gets the single bold, fully-coloured button (plus
