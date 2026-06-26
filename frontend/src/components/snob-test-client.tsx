@@ -283,7 +283,7 @@ export function SnobTestClient() {
         <section className="grid gap-5 lg:grid-cols-12">
           <div className="flex flex-col gap-4 lg:col-span-8">
             <div className="relative overflow-hidden border border-[#1f1f2f] bg-[#0d0d15]">
-              <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#e8453c] via-[#D4AF37] to-[#4a9eff]" />
+              <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#e8453c] to-[#D4AF37]" />
               <div className="grid gap-5 p-5 sm:p-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
                 <div>
                   <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.28em] text-[#D4AF37]">
@@ -311,7 +311,7 @@ export function SnobTestClient() {
                     disabled={status === "loading" || status === "scoring"}
                   >
                     <RefreshCw className={cn("h-4 w-4", status === "loading" && "animate-spin")} />
-                    Again
+                    Shuffle
                   </button>
                   <div className="flex h-14 min-w-36 items-center justify-center gap-3 border border-[#2a2a3e] bg-[#09090f] px-4">
                     <span className="font-[family-name:var(--font-geist-mono)] text-2xl font-bold leading-none text-[#F5F5F0]">
@@ -448,11 +448,15 @@ export function SnobTestClient() {
                       type="button"
                       size="lg"
                       className="h-14 w-full rounded-xl bg-[#e8453c] text-[#F5F5F0] hover:bg-[#d7372f] hover:shadow-[0_0_40px_rgba(232,69,60,0.25)]"
-                      disabled={status !== "ready"}
+                      disabled={status !== "ready" || selectedCount === 0}
                       onClick={() => void submitScore()}
                     >
                       <Trophy className="h-4 w-4" />
-                      {status === "scoring" ? "Scoring..." : "See My Score"}
+                      {status === "scoring"
+                        ? "Scoring..."
+                        : selectedCount === 0
+                          ? "Tap a film to begin"
+                          : "See My Score"}
                     </Button>
                   </div>
                 </div>
