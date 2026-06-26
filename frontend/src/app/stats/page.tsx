@@ -183,7 +183,7 @@ function StatsContent({ stats }: { stats: StatsResponse }) {
       title: `${stats.mostCompetitiveYear.awardYear}`,
       value: formatNumber(stats.mostCompetitiveYear.totalNominations),
       sub: "nominations",
-      href: `/browse?awardYear=${stats.mostCompetitiveYear.awardYear}`,
+      href: `#decade-${Math.floor(stats.mostCompetitiveYear.awardYear / 10) * 10}`,
       accent: "red",
     });
   }
@@ -234,6 +234,29 @@ function StatsContent({ stats }: { stats: StatsResponse }) {
   }));
 
   const insights = buildInsights(stats);
+
+  // Context for the Archive Pulse numbers — a stat means more next to a baseline.
+  const decadeAvgValues = stats.decadeBreakdown.map((d) => d.avgNominations).filter((v) => v > 0);
+  const densestDecade =
+    stats.decadeBreakdown.length > 0
+      ? stats.decadeBreakdown.reduce((a, b) => (b.avgNominations > a.avgNominations ? b : a))
+      : null;
+  const winRateContext =
+    winRate > 0 ? `About 1 in ${(100 / winRate).toFixed(1)} nominations` : "No nominations recorded";
+  const densityContext =
+    decadeAvgValues.length > 0 && densestDecade
+      ? `Peaks at ${Math.max(...decadeAvgValues).toFixed(1)} in the ${densestDecade.decade}s`
+      : "Average nominations per film";
+
+  // Editorial closer — one synthesized sentence over the supporting insights.
+  const oscarShare =
+    stats.awardBodyBreakdown && stats.awardBodyBreakdown.total > 0
+      ? Math.round((stats.awardBodyBreakdown.coverage.oscar / stats.awardBodyBreakdown.total) * 100)
+      : 0;
+  const conclusion =
+    peakDecade > 0
+      ? `The archive is not evenly distributed. The ${peakDecade}s dominate the dataset, the Oscars shape the leaderboard across ${oscarShare}% of all films, and only ${winRate.toFixed(0)}% of nominations ever convert into wins.`
+      : "";
 
   return (
     <>
@@ -304,18 +327,21 @@ function StatsContent({ stats }: { stats: StatsResponse }) {
             <PulseCard
               label="Win conversion"
               detail="Nominations that became wins"
+              context={winRateContext}
               value={<CountUp value={winRate} decimals={1} suffix="%" />}
               visual={<WinRateRing percent={winRate} />}
             />
             <PulseCard
               label="Nomination density"
               detail="Average nominations per film"
+              context={densityContext}
               value={<CountUp value={avgNomsPerFilm} decimals={1} />}
               visual={<DensityBars value={avgNomsPerFilm} max={5} />}
             />
             <PulseCard
               label="Decades covered"
-              detail={decadeSpan}
+              detail="Continuous span of award history"
+              context={decadeSpan}
               value={<CountUp value={decadesSorted.length} />}
               visual={<DecadeTicks covered={decadesSorted} />}
             />
@@ -380,18 +406,28 @@ function StatsContent({ stats }: { stats: StatsResponse }) {
           </section>
         )}
 
-        {/* TIMELINE OF CINEMA */}
+        {/* TIMELINE OF CINEMA — the dominant, interactive centerpiece */}
         {decadeData.length > 0 && (
-          <section>
+          <section className="scroll-mt-24">
             <SectionHeader
-              eyebrow="Coverage"
-              title="Timeline of cinema"
-              description="Hover a decade to see its density and defining film."
-              compact
+              eyebrow="The timeline"
+              title="When was cinema densest?"
+              description="Select a decade to explore its density, share of the archive, and defining film."
+              actionHref="/browse?sort=year"
+              actionLabel="Browse by year"
             />
-            <Panel className="mt-5">
-              <DecadeTimeline decades={decadeData} peakDecade={peakDecade} />
-            </Panel>
+            <div className="relative mt-6 overflow-hidden rounded-2xl border border-white/12 bg-[#0a0a12] p-6 shadow-[0_30px_90px_rgba(0,0,0,0.45)] sm:p-8">
+              <div
+                className="pointer-events-none absolute inset-0"
+                style={{
+                  background:
+                    "radial-gradient(ellipse 60% 90% at 85% 0%, rgba(232,69,60,0.12), transparent 60%)",
+                }}
+              />
+              <div className="relative">
+                <DecadeTimeline decades={decadeData} peakDecade={peakDecade} />
+              </div>
+            </div>
           </section>
         )}
 
@@ -403,29 +439,37 @@ function StatsContent({ stats }: { stats: StatsResponse }) {
           </section>
         )}
 
-        {/* ARCHIVE INSIGHTS */}
-        {insights.length > 0 && (
-          <section>
-            <SectionHeader eyebrow="Patterns" title="Archive insights" compact />
-            <div className="mt-5 grid gap-4 sm:grid-cols-2">
-              {insights.map((insight) => (
-                <div
-                  key={insight.title}
-                  className="rounded-lg border border-white/10 bg-white/[0.03] p-5 transition-colors hover:border-white/20"
-                >
-                  <div className="flex items-start gap-3">
-                    <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-[#e8453c]/30 bg-[#e8453c]/10 text-[#ff766d]">
-                      <Sparkles className="h-4 w-4" />
-                    </span>
-                    <div>
-                      <h3 className="font-[family-name:var(--font-display)] text-lg font-bold leading-tight text-[#f4f0f7]">
-                        {insight.title}
-                      </h3>
-                      <p className="mt-1.5 text-sm leading-6 text-[#9e9ab0]">{insight.body}</p>
-                    </div>
-                  </div>
+        {/* THE PATTERN — editorial conclusion */}
+        {conclusion && (
+          <section className="border-t border-white/10 pt-12">
+            <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-12">
+              <div>
+                <div className="flex items-center gap-2 font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-[0.22em] text-[#e8453c]">
+                  <Sparkles className="h-3.5 w-3.5" />
+                  The pattern
                 </div>
-              ))}
+                <h2 className="mt-4 font-[family-name:var(--font-display)] text-2xl font-bold leading-snug text-[#f4f0f7] sm:text-[2rem]">
+                  {conclusion}
+                </h2>
+              </div>
+
+              {insights.length > 0 && (
+                <ol className="flex flex-col justify-center divide-y divide-white/10">
+                  {insights.map((insight, i) => (
+                    <li key={insight.title} className="flex gap-5 py-4 first:pt-0 last:pb-0">
+                      <span className="font-[family-name:var(--font-display)] text-2xl font-bold tabular-nums text-[#4b4658]">
+                        {String(i + 1).padStart(2, "0")}
+                      </span>
+                      <div>
+                        <h3 className="font-[family-name:var(--font-display)] text-lg font-bold leading-tight text-[#f4f0f7]">
+                          {insight.title}
+                        </h3>
+                        <p className="mt-1 text-sm leading-6 text-[#b6b2c6]">{insight.body}</p>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              )}
             </div>
           </section>
         )}
@@ -527,11 +571,13 @@ function Panel({ children, className }: { children: ReactNode; className?: strin
 function PulseCard({
   label,
   detail,
+  context,
   value,
   visual,
 }: {
   label: string;
   detail: string;
+  context: string;
   value: ReactNode;
   visual: ReactNode;
 }) {
@@ -539,13 +585,16 @@ function PulseCard({
     <div className="flex items-center gap-5 rounded-lg border border-white/10 bg-white/[0.035] p-5 shadow-[0_18px_50px_rgba(0,0,0,0.18)]">
       <div className="shrink-0">{visual}</div>
       <div className="min-w-0">
-        <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em] text-[#9e9ab0]">
+        <p className="font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-[0.18em] text-[#b6b2c6]">
           {label}
         </p>
         <p className="mt-2 font-[family-name:var(--font-display)] text-4xl font-bold leading-none text-[#f4f0f7]">
           {value}
         </p>
-        <p className="mt-2 text-sm text-[#9e9ab0]">{detail}</p>
+        <p className="mt-2 text-sm text-[#c4c1d2]">{detail}</p>
+        <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-xs tracking-[0.02em] text-[#ff8a83]">
+          {context}
+        </p>
       </div>
     </div>
   );
@@ -626,7 +675,7 @@ function FilmRecordGroup({
   const [first, ...rest] = films;
   return (
     <div>
-      <h3 className="mb-3 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.2em] text-[#c4c1d2]">
+      <h3 className="mb-3 font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-[0.2em] text-[#c4c1d2]">
         {heading}
       </h3>
       {first && <FeaturedFilmCard film={first} rank={1} unit={unit} accent={accent} />}
@@ -659,59 +708,54 @@ function FeaturedFilmCard({
   accent: "red" | "blue";
 }) {
   const accentClass = accent === "red" ? "text-[#ff766d]" : "text-[#78b7ff]";
+  const glow = accent === "red" ? "rgba(232,69,60,0.22)" : "rgba(74,158,255,0.20)";
   return (
     <Link
       href={`/film/${film.slug}`}
-      className="group relative grid overflow-hidden rounded-xl border border-white/10 bg-white/[0.035] shadow-[0_20px_60px_rgba(0,0,0,0.28)] transition-colors hover:border-white/25 sm:grid-cols-[150px_minmax(0,1fr)]"
+      className="group relative grid overflow-hidden rounded-2xl border border-white/12 bg-white/[0.04] shadow-[0_28px_80px_rgba(0,0,0,0.4)] transition-colors hover:border-white/30 sm:grid-cols-[210px_minmax(0,1fr)]"
     >
-      <div className="relative min-h-52 bg-[#11111a] sm:min-h-full">
+      <div className="relative min-h-72 bg-[#11111a] sm:min-h-full">
         {film.posterUrl ? (
           <Image
             src={film.posterUrl}
             alt={`${film.title} poster`}
             fill
-            sizes="(max-width: 640px) 100vw, 150px"
+            sizes="(max-width: 640px) 100vw, 210px"
             className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
           />
         ) : (
           <div className="absolute inset-0 bg-[linear-gradient(135deg,#151520,#0b0b12)]" />
         )}
         <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_45%,rgba(8,8,13,0.7)_100%)]" />
-        <span className="absolute left-3 top-3 flex h-8 w-8 items-center justify-center rounded-md border border-white/15 bg-black/55 font-[family-name:var(--font-display)] text-sm font-bold text-white backdrop-blur-sm">
-          {rank}
+        <span className="absolute left-3 top-3 flex h-9 items-center gap-1.5 rounded-md border border-white/15 bg-black/55 px-2.5 font-[family-name:var(--font-geist-mono)] text-xs font-bold uppercase tracking-[0.12em] text-white backdrop-blur-sm">
+          № {rank}
         </span>
       </div>
-      <div className="flex min-w-0 flex-col justify-between p-5">
-        <div className="flex items-start justify-between gap-3">
-          <span
-            className={cn(
-              "font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.18em]",
-              accentClass,
-            )}
-          >
+      <div className="relative flex min-w-0 flex-col justify-between p-6 sm:p-7">
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{ background: `radial-gradient(ellipse 70% 60% at 100% 100%, ${glow}, transparent 62%)` }}
+        />
+        <div className="relative flex items-start justify-between gap-3">
+          <span className={cn("font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-[0.2em]", accentClass)}>
             Record holder
           </span>
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-white/10 bg-white/[0.045] text-[#c4c1d2] transition-colors group-hover:text-white">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-white/10 bg-white/[0.045] text-[#c4c1d2] transition-colors group-hover:bg-white/[0.1] group-hover:text-white">
             <ArrowUpRight className="h-4 w-4" />
           </span>
         </div>
-        <h4 className="mt-4 line-clamp-3 font-[family-name:var(--font-display)] text-2xl font-bold leading-[1.05] text-[#f4f0f7] sm:text-3xl">
+        <h4 className="relative mt-5 line-clamp-3 font-[family-name:var(--font-display)] text-3xl font-bold leading-[1.02] text-[#f4f0f7] sm:text-4xl">
           {film.title}
         </h4>
-        <div className="mt-4 flex items-end justify-between gap-4">
-          <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.16em] text-[#9e9ab0]">
+        <div className="relative mt-6 flex items-end justify-between gap-4">
+          <p className="pb-2 font-[family-name:var(--font-geist-mono)] text-sm uppercase tracking-[0.16em] text-[#b6b2c6]">
             {film.releaseYear}
           </p>
-          <p className="text-right leading-none">
-            <span
-              className={cn(
-                "font-[family-name:var(--font-display)] text-4xl font-bold sm:text-5xl",
-                accentClass,
-              )}
-            >
+          <p className="text-right leading-[0.8]">
+            <span className={cn("font-[family-name:var(--font-display)] text-6xl font-bold sm:text-7xl", accentClass)}>
               {film.count}
             </span>
-            <span className="ml-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-[#9e9ab0]">
+            <span className="mt-1 block font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-[0.18em] text-[#b6b2c6]">
               {unit}
             </span>
           </p>
@@ -756,7 +800,7 @@ function RunnerUpFilmCard({
         <p className="line-clamp-2 text-sm font-semibold leading-snug text-[#eeeaf6] transition-colors group-hover:text-white">
           {film.title}
         </p>
-        <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.12em] text-[#9e9ab0]">
+        <p className="font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-[0.12em] text-[#9e9ab0]">
           {film.releaseYear}
           <span className="mx-1.5 text-white/15">·</span>
           <span className={accentClass}>
@@ -783,72 +827,75 @@ function PersonRecordGroup({
   unit: string;
   accent: "red" | "blue";
 }) {
-  const accentClass = accent === "red" ? "text-[#ff766d]" : "text-[#78b7ff]";
-  const [first, ...rest] = people;
+  const accentColor = accent === "red" ? "#ff766d" : "#78b7ff";
+  const max = Math.max(...people.map((p) => p.count), 1);
+
   return (
     <Panel>
       <div className="mb-5 flex items-center gap-3">
         <span
-          className={cn(
-            "flex h-9 w-9 items-center justify-center rounded-md border border-white/10 bg-white/[0.045]",
-            accentClass,
-          )}
+          className="flex h-9 w-9 items-center justify-center rounded-md border border-white/10 bg-white/[0.045]"
+          style={{ color: accentColor }}
         >
           {icon}
         </span>
-        <h3 className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.2em] text-[#c4c1d2]">
+        <h3 className="font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-[0.2em] text-[#c4c1d2]">
           {heading}
         </h3>
       </div>
 
-      {first && (
-        <Link
-          href={`/person/${personSlug(first.name)}`}
-          className="group flex items-end justify-between gap-4 border-b border-white/10 pb-5"
-        >
-          <div className="min-w-0">
-            <span className="font-[family-name:var(--font-display)] text-sm font-bold text-[#4b4658]">
-              01
-            </span>
-            <h4 className="mt-1 font-[family-name:var(--font-display)] text-2xl font-bold leading-none text-[#f4f0f7] transition-colors group-hover:text-white sm:text-3xl">
-              {first.name}
-            </h4>
-          </div>
-          <p className="shrink-0 text-right leading-none">
-            <span className={cn("font-[family-name:var(--font-display)] text-4xl font-bold sm:text-5xl", accentClass)}>
-              {first.count}
-            </span>
-            <span className="ml-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-[#9e9ab0]">
-              {unit}
-            </span>
-          </p>
-        </Link>
-      )}
-
-      {rest.length > 0 && (
-        <ol className="mt-2 divide-y divide-white/10">
-          {rest.map((person, i) => (
+      <ol className="space-y-4">
+        {people.map((person, i) => {
+          const isFirst = i === 0;
+          return (
             <li key={person.name}>
-              <Link
-                href={`/person/${personSlug(person.name)}`}
-                className="group flex items-center justify-between gap-4 py-3"
-              >
-                <span className="flex min-w-0 items-center gap-3">
-                  <span className="font-[family-name:var(--font-display)] text-base font-bold text-[#4b4658]">
-                    0{i + 2}
+              <Link href={`/person/${personSlug(person.name)}`} className="group block">
+                <div className="flex items-baseline justify-between gap-4">
+                  <span className="flex min-w-0 items-baseline gap-3">
+                    <span
+                      className={cn(
+                        "font-[family-name:var(--font-display)] font-bold tabular-nums text-[#4b4658]",
+                        isFirst ? "text-xl" : "text-base",
+                      )}
+                    >
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <span
+                      className={cn(
+                        "truncate font-[family-name:var(--font-display)] font-bold text-[#f4f0f7] transition-colors group-hover:text-white",
+                        isFirst ? "text-2xl sm:text-3xl" : "text-lg",
+                      )}
+                    >
+                      {person.name}
+                    </span>
                   </span>
-                  <span className="truncate text-sm font-semibold text-[#eeeaf6] transition-colors group-hover:text-white">
-                    {person.name}
+                  <span className="shrink-0 text-right leading-none">
+                    <span
+                      className={cn("font-[family-name:var(--font-display)] font-bold", isFirst ? "text-3xl sm:text-4xl" : "text-xl")}
+                      style={{ color: accentColor }}
+                    >
+                      {person.count}
+                    </span>
+                    <span className="ml-1.5 font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-[0.14em] text-[#9e9ab0]">
+                      {unit}
+                    </span>
                   </span>
-                </span>
-                <span className={cn("shrink-0 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.12em]", accentClass)}>
-                  {person.count} {unit}
-                </span>
+                </div>
+                <div className={cn("mt-2 overflow-hidden rounded-full bg-white/[0.06]", isFirst ? "h-2" : "h-1.5")}>
+                  <div
+                    className="h-full rounded-full transition-[width] duration-500"
+                    style={{
+                      width: `${Math.max(6, (person.count / max) * 100)}%`,
+                      backgroundColor: accentColor,
+                      opacity: isFirst ? 1 : 0.55,
+                    }}
+                  />
+                </div>
               </Link>
             </li>
-          ))}
-        </ol>
-      )}
+          );
+        })}
+      </ol>
     </Panel>
   );
 }

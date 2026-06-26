@@ -33,7 +33,7 @@ export function getTopNominatedPersonRows(): Promise<PersonStatRow[]> {
     ) all_nominees
     WHERE nominee !~* ${NON_PERSON_NOMINEE_PATTERN}
     GROUP BY nominee
-    ORDER BY count DESC
+    ORDER BY count DESC, name ASC
     LIMIT 3
   `;
 }
@@ -68,7 +68,7 @@ export function getTopWinningPersonRows(): Promise<PersonStatRow[]> {
     ) all_winners
     WHERE nominee !~* ${NON_PERSON_NOMINEE_PATTERN}
     GROUP BY nominee
-    ORDER BY count DESC
+    ORDER BY count DESC, name ASC
     LIMIT 3
   `;
 }
