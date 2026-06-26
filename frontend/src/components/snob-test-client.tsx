@@ -245,6 +245,10 @@ export function SnobTestClient() {
     });
   }
 
+  function resetBallot() {
+    setSelectedIds(new Set());
+  }
+
   async function submitScore() {
     setStatus("scoring");
     try {
@@ -293,7 +297,7 @@ export function SnobTestClient() {
                     The Snob <span className="text-[#e8453c]">Test.</span>
                   </h1>
                   <p className="mt-4 max-w-2xl text-sm leading-6 text-[#a8a8b6] sm:text-base">
-                    Tap the films you have seen. Get a title, a score, and a list of gaps worth filling.
+                    Select the films you have seen. Your ballot becomes a score, a rank, and a watchlist of the essentials you missed.
                   </p>
                 </div>
 
@@ -354,10 +358,10 @@ export function SnobTestClient() {
                       onClick={() => toggleFilm(film.id)}
                       className={cn(
                         "group relative aspect-[2/3] overflow-hidden border bg-[#111118] text-left",
-                        "transition duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37]",
+                        "transition duration-200 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
                         selected
-                          ? "border-[#D4AF37] shadow-[0_0_0_2px_rgba(212,175,55,0.18),0_18px_48px_rgba(212,175,55,0.12)]"
-                          : "border-[#20202c] hover:-translate-y-0.5 hover:border-[#D4AF37]/55 hover:shadow-[0_16px_42px_rgba(0,0,0,0.35)]",
+                          ? "-translate-y-0.5 border-[#e8453c] shadow-[0_0_0_2px_rgba(232,69,60,0.3),0_18px_48px_rgba(232,69,60,0.22)]"
+                          : "border-[#20202c] hover:-translate-y-1 hover:border-[#e8453c]/55 hover:shadow-[0_16px_42px_rgba(0,0,0,0.4)]",
                       )}
                     >
                       {film.posterUrl ? (
@@ -369,8 +373,8 @@ export function SnobTestClient() {
                           className={cn(
                             "object-cover transition duration-300 group-hover:scale-[1.03]",
                             selected
-                              ? "brightness-100 saturate-110"
-                              : "brightness-[0.45] saturate-[0.55] group-hover:brightness-[0.7]",
+                              ? "brightness-105 saturate-110"
+                              : "brightness-[0.8] saturate-[0.88] group-hover:brightness-100",
                           )}
                         />
                       ) : (
@@ -389,10 +393,10 @@ export function SnobTestClient() {
                       </div>
                       <span
                         className={cn(
-                          "absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full border backdrop-blur-md transition",
+                          "absolute right-2 top-2 flex h-9 w-9 items-center justify-center rounded-full border-2 backdrop-blur-md transition",
                           selected
-                            ? "border-[#D4AF37] bg-[#D4AF37] text-[#09090f] shadow-[0_0_0_1.5px_rgba(9,9,15,0.6),0_2px_10px_rgba(212,175,55,0.5)]"
-                            : "border-white/70 bg-black/55 text-transparent shadow-[0_1px_6px_rgba(0,0,0,0.6)] group-hover:border-white/90",
+                            ? "scale-110 border-[#e8453c] bg-[#e8453c] text-white shadow-[0_0_0_1.5px_rgba(9,9,15,0.55),0_2px_14px_rgba(232,69,60,0.65)]"
+                            : "border-white/80 bg-black/45 text-transparent shadow-[0_1px_6px_rgba(0,0,0,0.6)] group-hover:border-white group-hover:bg-black/60",
                         )}
                       >
                         <Check
@@ -412,108 +416,107 @@ export function SnobTestClient() {
           <aside className="lg:sticky lg:top-20 lg:col-span-4 lg:h-fit">
             {!score ? (
               <div className="flex flex-col gap-4">
-              <div className="overflow-hidden border border-[#242435] bg-[#101017]">
-                <div className="border-b border-[#242435] bg-[#0b0b12] px-5 py-4">
-                  <div className="flex items-center gap-2 text-[#D4AF37]">
-                    <Clapperboard className="h-4 w-4" />
-                    <span className="font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-widest">
-                      Your ballot
-                    </span>
+                <div className="overflow-hidden border border-[#242435] bg-[#101017]">
+                  <div className="border-b border-[#242435] bg-[#0b0b12] px-5 py-4">
+                    <div className="flex items-center gap-2 text-[#D4AF37]">
+                      <Clapperboard className="h-4 w-4" />
+                      <span className="font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-widest">
+                        Your ballot
+                      </span>
+                    </div>
+                  </div>
+                  <div className="p-5">
+                    <div className="flex items-end justify-between">
+                      <span className="font-[family-name:var(--font-display)] text-[3.25rem] font-bold leading-none text-[#D4AF37] tabular-nums">
+                        {projectedScore}%
+                      </span>
+                      <span className="pb-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#888899]">
+                        {selectedCount}/20 seen
+                      </span>
+                    </div>
+                    <div className="mt-3 h-2.5 overflow-hidden rounded-full bg-[#242435]">
+                      <div
+                        className="h-full rounded-full bg-gradient-to-r from-[#e8453c] to-[#D4AF37] transition-[width] duration-500 ease-out"
+                        style={{ width: `${projectedScore}%` }}
+                      />
+                    </div>
+                    <div className="mt-4 flex items-baseline justify-between gap-3">
+                      <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#555568]">
+                        Projected rank
+                      </span>
+                      <span className="text-right font-[family-name:var(--font-display)] text-lg font-bold leading-tight text-[#F5F5F0]">
+                        {projectedTitle}
+                      </span>
+                    </div>
+                    <p className="mt-2 text-xs leading-5 text-[#888899]">
+                      {selectedCount === 0
+                        ? "Each poster you tap is worth 5%. No wrong answers, no account required."
+                        : selectedCount >= 20
+                          ? "Full marks — you have topped out at The Snob."
+                          : `${20 - selectedCount} more to reach The Snob.`}
+                    </p>
                   </div>
                 </div>
-                <div className="p-5">
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="border border-[#242435] bg-[#09090f] p-3">
-                      <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#555568]">
-                        Selected
+
+                {liveDistribution.length > 0 && (
+                  <div className="border border-[#242435] bg-[#101017] p-5">
+                    <h3 className="font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-widest text-[#888899]">
+                      What you have seen
+                    </h3>
+                    {selectedCount === 0 ? (
+                      <p className="mt-3 text-xs leading-5 text-[#666676]">
+                        Tap posters and your taste map builds here — by award body and by decade.
                       </p>
-                      <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-3xl font-bold leading-none text-[#e8453c]">
-                        {selectedCount}
-                      </p>
-                    </div>
-                    <div className="border border-[#242435] bg-[#09090f] p-3">
-                      <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#555568]">
-                        Score so far
-                      </p>
-                      <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-3xl font-bold leading-none text-[#D4AF37]">
-                        {projectedScore}%
-                      </p>
-                    </div>
+                    ) : (
+                      <div className="mt-4 space-y-3">
+                        {liveDistribution.map((item) => (
+                          <div key={item.label}>
+                            <div className="flex items-center justify-between text-sm">
+                              <span className="text-[#F5F5F0]">{item.label}</span>
+                              <span className="text-[#a8a8b6] tabular-nums">
+                                {item.seen}/{item.total}
+                              </span>
+                            </div>
+                            <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-[#242435]">
+                              <div
+                                className="h-full rounded-full bg-[#e8453c] transition-[width] duration-500 ease-out"
+                                style={{ width: `${item.percent}%` }}
+                              />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                  <p className="mt-4 text-sm leading-6 text-[#b8b8c6]">
-                    Your score is the share of these 20 films you have seen. Each poster you tap is worth 5% — no wrong answers, no account required.
-                  </p>
-                  <div className="mt-5 rounded-2xl border-2 border-dashed border-[#e8453c]/30 p-1.5">
+                )}
+
+                {selectedCount === 0 ? (
+                  <div className="flex items-center gap-3 border border-dashed border-[#2a2a3e] bg-[#0c0c12] px-5 py-4 text-sm text-[#a8a8b6]">
+                    <Clapperboard className="h-4 w-4 shrink-0 text-[#555568]" />
+                    Select any poster to start your ballot.
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-2">
                     <Button
                       type="button"
                       size="lg"
                       className="h-14 w-full rounded-xl bg-[#e8453c] text-[#F5F5F0] hover:bg-[#d7372f] hover:shadow-[0_0_40px_rgba(232,69,60,0.25)]"
-                      disabled={status !== "ready" || selectedCount === 0}
+                      disabled={status !== "ready"}
                       onClick={() => void submitScore()}
                     >
                       <Trophy className="h-4 w-4" />
-                      {status === "scoring"
-                        ? "Scoring..."
-                        : selectedCount === 0
-                          ? "Tap a film to begin"
-                          : "See My Score"}
+                      {status === "scoring" ? "Scoring..." : "See My Score"}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      className="text-[#888899] hover:bg-[#171720] hover:text-[#F5F5F0]"
+                      onClick={resetBallot}
+                    >
+                      Reset ballot
                     </Button>
                   </div>
-                </div>
-              </div>
-
-              <div className="border border-[#242435] bg-[#101017] p-5">
-                <div className="flex items-center justify-between">
-                  <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#555568]">
-                    Projected rank
-                  </span>
-                  <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#D4AF37]">
-                    {projectedScore}%
-                  </span>
-                </div>
-                <h3 className="mt-2 font-[family-name:var(--font-display)] text-2xl font-bold leading-none text-[#F5F5F0]">
-                  {projectedTitle}
-                </h3>
-                <div className="mt-4 h-2 overflow-hidden rounded-full bg-[#242435]">
-                  <div
-                    className="h-full rounded-full bg-gradient-to-r from-[#e8453c] to-[#D4AF37] transition-[width] duration-300"
-                    style={{ width: `${projectedScore}%` }}
-                  />
-                </div>
-                <p className="mt-3 text-xs leading-5 text-[#888899]">
-                  {selectedCount === 0
-                    ? "Tap a poster to start climbing the ranks."
-                    : selectedCount >= 20
-                      ? "You have topped out — full marks, you are The Snob."
-                      : `${20 - selectedCount} more to reach The Snob.`}
-                </p>
-              </div>
-
-              {liveDistribution.length > 0 && (
-                <div className="border border-[#242435] bg-[#101017] p-5">
-                  <h3 className="font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-widest text-[#888899]">
-                    Live distribution
-                  </h3>
-                  <div className="mt-4 space-y-3">
-                    {liveDistribution.map((item) => (
-                      <div key={item.label}>
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="text-[#F5F5F0]">{item.label}</span>
-                          <span className="text-[#a8a8b6]">
-                            {item.seen}/{item.total}
-                          </span>
-                        </div>
-                        <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-[#242435]">
-                          <div
-                            className="h-full rounded-full bg-[#e8453c] transition-[width] duration-300"
-                            style={{ width: `${item.percent}%` }}
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+                )}
               </div>
             ) : (
               <div className="flex flex-col gap-4">
