@@ -2,6 +2,10 @@ import { RandomFilmRow } from "../random";
 import { LOCAL_SEMANTIC_KEYWORDS } from "./patterns";
 import { tokenize } from "./tokenize";
 
+// Deterministic fallback for the rerank step. It must optimize the SAME
+// objective as the Gemini path (see rerankPrompt.ts: relevance, then IMDb
+// rating as a quality prior, then the "underrated" / "avoid gore" preferences)
+// so the ordering doesn't swing depending on whether Gemini is available.
 export function localRerankCandidates(
   prompt: string,
   candidates: RandomFilmRow[],
