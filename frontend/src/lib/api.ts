@@ -332,7 +332,7 @@ async function readNdjson(
  *  2) completes; the returned promise resolves once the final picks arrive. */
 export async function fetchNaturalRoll(
   prompt: string,
-  count = 2,
+  count = 4,
   onInterpreted?: (stage: NaturalRollInterpreted) => void,
 ): Promise<NaturalRollResult> {
   const res = await fetch(`${API_URL}/api/natural-roll`, {

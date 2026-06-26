@@ -222,9 +222,10 @@ function FilmCard({ film }: { film: RollFilm }) {
   );
 }
 
-// Kept in sync with the `count` passed to fetchNaturalRoll so the skeleton grid
-// matches the number of cards that will replace it.
-const ROLL_COUNT = 2;
+// Single source for both the requested pick count and the skeleton grid, so the
+// placeholder always matches the number of cards that replace it. Four fills the
+// two-column results panel as two rows (backend allows up to 6).
+const ROLL_COUNT = 4;
 
 function SkeletonCard() {
   return (
@@ -299,7 +300,7 @@ export default function DescribePage() {
     setNoMatchFilters(null);
     setInterpreted(null);
     try {
-      const nextResult = await fetchNaturalRoll(prompt, 2, setInterpreted);
+      const nextResult = await fetchNaturalRoll(prompt, ROLL_COUNT, setInterpreted);
       setResult(nextResult);
       nextResult.films.forEach((film, index) => {
         trackEvent({
