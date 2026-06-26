@@ -14,8 +14,8 @@ type AuthDialogProps = {
   onOpenChange: (open: boolean) => void;
   /** Where to return after auth — carries the user back to finish their action. */
   callbackUrl: string;
-  title?: string;
-  description?: string;
+  title?: string | undefined;
+  description?: string | undefined;
 };
 
 /**

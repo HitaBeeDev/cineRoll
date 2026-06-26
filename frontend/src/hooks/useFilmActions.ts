@@ -9,44 +9,28 @@ import {
 } from "@/lib/api";
 import { trackEvent } from "@/lib/analytics";
 import { useToast } from "@/components/ui/toast";
+import {
+  clearPendingFilmAction,
+  setPendingFilmAction,
+  takePendingFilmAction,
+} from "@/lib/pending-intent";
 
 export type FilmActionState = "none" | "watched" | "not-interested";
 export type Sentiment = "like" | "dislike" | null;
-// Which gated action a guest attempted — drives the inline sign-in prompt copy.
+// Which gated action a guest attempted — drives the auth modal copy and the
+// action we replay once they come back signed in.
 export type AuthGate = "watched" | "notInterested" | "watchlist";
+
+// Modal title per gated action — shared by both surfaces that raise the gate.
+export const AUTH_GATE_TITLE: Record<AuthGate, string> = {
+  watched: "Sign in to mark films watched",
+  notInterested: "Sign in to skip films",
+  watchlist: "Sign in to save to your watchlist",
+};
 
 // Guest sign-in nudges carry a CTA, so they linger longer than plain feedback
 // toasts to give the user time to reach the button before auto-dismiss.
 const NUDGE_TOAST_DURATION = 10000;
-
-// Once a guest dismisses the inline sign-in prompt, we don't re-open it this
-// session — further gated taps fall back to a quiet toast so the click still
-// gives feedback without re-nagging with the full prompt.
-const AUTH_PROMPT_SUPPRESS_KEY = "cineroll:auth-prompt-dismissed";
-
-function isAuthPromptSuppressed(): boolean {
-  if (typeof window === "undefined") return false;
-  try {
-    return window.sessionStorage.getItem(AUTH_PROMPT_SUPPRESS_KEY) === "1";
-  } catch {
-    return false;
-  }
-}
-
-const AUTH_GATE_TOAST: Record<AuthGate, { title: string; description: string }> = {
-  watched: {
-    title: "Sign in to rate this",
-    description: "Marking films seen helps CineRoll learn your taste.",
-  },
-  notInterested: {
-    title: "Sign in to skip films",
-    description: "We'll keep films you pass out of future rolls.",
-  },
-  watchlist: {
-    title: "Sign in to save",
-    description: "Create a profile to keep a watchlist.",
-  },
-};
 
 /**
  * Shared post-roll / film-detail action set: Watched, Not Interested, the
@@ -80,47 +64,64 @@ export function useFilmActions({
   // Watchlist bookmark: filled/active when the film is saved.
   const [inWatchlist, setInWatchlist] = useState(false);
   const [watchlistPending, setWatchlistPending] = useState(false);
-  // Inline sign-in prompt for guests who tap a gated action (watched/save).
+  // Which gated action a guest just attempted — non-null opens the auth modal.
   const [authPrompt, setAuthPrompt] = useState<AuthGate | null>(null);
 
-  // Open the inline prompt, unless the guest already dismissed it this session —
-  // then just give quiet toast feedback so the tap isn't a silent no-op.
+  // Guest tapped a gated action: stash it so it survives the sign-in round-trip,
+  // then open the auth modal. On return we replay it automatically.
   function triggerAuthGate(gate: AuthGate) {
-    if (isAuthPromptSuppressed()) {
-      toast({
-        ...AUTH_GATE_TOAST[gate],
-        action: { label: "Sign in", href: "/auth/signin" },
-        duration: NUDGE_TOAST_DURATION,
-      });
-      return;
-    }
+    setPendingFilmAction(filmId, gate);
     setAuthPrompt(gate);
   }
 
-  function dismissAuthPrompt() {
+  // Modal dismissed without signing in: drop the stashed intent so it can't
+  // replay unexpectedly the next time the user signs in elsewhere.
+  function closeAuthPrompt() {
     setAuthPrompt(null);
-    try {
-      window.sessionStorage.setItem(AUTH_PROMPT_SUPPRESS_KEY, "1");
-    } catch {
-      // Private mode / storage disabled: prompt simply won't be suppressed.
-    }
+    clearPendingFilmAction(filmId);
   }
 
   // Revisiting a film the user already acted on: reflect its existing
-  // watchlist / watched / sentiment state so the UI matches the account.
+  // watchlist / watched / sentiment state so the UI matches the account, then
+  // replay any action a guest queued before signing in.
   // Non-blocking; a failed read just leaves the default state.
   useEffect(() => {
     if (!isAuthenticated) return;
     let cancelled = false;
 
     void fetchFilmStatus(filmId)
-      .then((status) => {
+      .then(async (status) => {
         if (cancelled) return;
         if (status.watched) {
           setAction(status.doNotSuggest ? "not-interested" : "watched");
           setSentiment(status.sentiment);
         }
         setInWatchlist(status.inWatchlist);
+
+        const pendingAction = takePendingFilmAction(filmId);
+        if (!pendingAction) return;
+        try {
+          if (pendingAction === "watchlist") {
+            if (!status.inWatchlist) {
+              await addFilmToWatchlist(filmId);
+              if (cancelled) return;
+              setInWatchlist(true);
+              toast({ variant: "success", title: "Added to watchlist", description: filmTitle });
+            }
+          } else {
+            const doNotSuggest = pendingAction === "notInterested";
+            await markFilmWatched(filmId, doNotSuggest);
+            if (cancelled) return;
+            setAction(doNotSuggest ? "not-interested" : "watched");
+            toast({
+              variant: doNotSuggest ? "default" : "success",
+              title: doNotSuggest ? "Hidden from future rolls" : "Marked as watched",
+              description: filmTitle,
+            });
+          }
+        } catch {
+          // Non-blocking: the user can simply tap again.
+        }
       })
       .catch(() => {
         // Non-blocking: leave the default state on failure.
@@ -129,7 +130,7 @@ export function useFilmActions({
     return () => {
       cancelled = true;
     };
-  }, [filmId, isAuthenticated]);
+  }, [filmId, isAuthenticated, filmTitle, toast]);
 
   async function saveDecision(
     next: "watched" | "not-interested",
@@ -279,6 +280,6 @@ export function useFilmActions({
     saveSentiment,
     toggleWatchlist,
     authPrompt,
-    dismissAuthPrompt,
+    closeAuthPrompt,
   };
 }

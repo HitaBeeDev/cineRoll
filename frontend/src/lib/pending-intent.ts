@@ -10,6 +10,10 @@
 
 const RATING_KEY = (filmId: string) => `cineroll.pending.rating.${filmId}`;
 const COMMENT_KEY = (slug: string) => `cineroll.pending.comment.${slug}`;
+const ACTION_KEY = (filmId: string) => `cineroll.pending.action.${filmId}`;
+
+/** A gated film action a guest attempted before signing in. */
+export type PendingFilmAction = "watched" | "notInterested" | "watchlist";
 
 function safeGet(key: string): string | null {
   try {
@@ -56,4 +60,21 @@ export function takePendingComment(slug: string): string | null {
   if (raw === null) return null;
   safeRemove(COMMENT_KEY(slug));
   return raw;
+}
+
+const FILM_ACTIONS: readonly PendingFilmAction[] = ["watched", "notInterested", "watchlist"];
+
+export function setPendingFilmAction(filmId: string, action: PendingFilmAction): void {
+  safeSet(ACTION_KEY(filmId), action);
+}
+
+export function clearPendingFilmAction(filmId: string): void {
+  safeRemove(ACTION_KEY(filmId));
+}
+
+export function takePendingFilmAction(filmId: string): PendingFilmAction | null {
+  const raw = safeGet(ACTION_KEY(filmId));
+  if (raw === null) return null;
+  safeRemove(ACTION_KEY(filmId));
+  return FILM_ACTIONS.includes(raw as PendingFilmAction) ? (raw as PendingFilmAction) : null;
 }

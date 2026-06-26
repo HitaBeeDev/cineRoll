@@ -3,9 +3,10 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { Bookmark, Check, ThumbsDown, ThumbsUp, X } from "lucide-react";
 import { useSession } from "next-auth/react";
-import { useFilmActions } from "@/hooks/useFilmActions";
+import { usePathname } from "next/navigation";
+import { useFilmActions, AUTH_GATE_TITLE } from "@/hooks/useFilmActions";
 import { HoverTooltip } from "@/components/hover-tooltip";
-import { SignInPrompt } from "@/components/sign-in-prompt";
+import { AuthDialog } from "@/components/auth/auth-dialog";
 import { cn } from "@/lib/utils";
 
 const HERO_BUTTON_BASE =
@@ -39,6 +40,7 @@ export function FilmDetailActions({
 }) {
   const { status } = useSession();
   const isAuthenticated = status === "authenticated";
+  const pathname = usePathname();
 
   const {
     action,
@@ -53,7 +55,7 @@ export function FilmDetailActions({
     saveSentiment,
     toggleWatchlist,
     authPrompt,
-    dismissAuthPrompt,
+    closeAuthPrompt,
   } = useFilmActions({
     filmId,
     filmTitle,
@@ -135,17 +137,16 @@ export function FilmDetailActions({
         </HoverTooltip>
       </div>
 
-      {/* Guest auth gate: a guest tapping Watched / Watchlist gets this inline
-          prompt on its own full-width row instead of a floating toast. */}
-      <AnimatePresence initial={false}>
-        {authPrompt && (
-          <SignInPrompt
-            gate={authPrompt}
-            surface="hero"
-            onDismiss={dismissAuthPrompt}
-          />
-        )}
-      </AnimatePresence>
+      {/* Guest auth gate: a guest tapping Watched / Watchlist raises the sign-in
+          modal. Their action is stashed and replayed when they return. */}
+      <AuthDialog
+        open={authPrompt !== null}
+        onOpenChange={(open) => {
+          if (!open) closeAuthPrompt();
+        }}
+        callbackUrl={pathname}
+        title={authPrompt ? AUTH_GATE_TITLE[authPrompt] : undefined}
+      />
 
       {/* One-tap 👍 / 👎 prompt, revealed after the film is marked watched. */}
       <AnimatePresence initial={false}>

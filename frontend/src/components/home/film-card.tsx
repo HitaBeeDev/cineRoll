@@ -13,9 +13,10 @@ import {
   ThumbsUp,
   X,
 } from "lucide-react";
-import { SignInPrompt } from "@/components/sign-in-prompt";
+import { usePathname } from "next/navigation";
+import { AuthDialog } from "@/components/auth/auth-dialog";
 import { SharePopover } from "@/components/share-popover";
-import { useFilmActions } from "@/hooks/useFilmActions";
+import { useFilmActions, AUTH_GATE_TITLE } from "@/hooks/useFilmActions";
 import { formatRuntime } from "@/lib/format";
 import { trackEvent } from "@/lib/analytics";
 import { cn } from "@/lib/utils";
@@ -32,6 +33,7 @@ export function FilmCard({
   onNotInterested?: () => void;
 }) {
   const shouldReduceMotion = useReducedMotion();
+  const pathname = usePathname();
   // The parent keys this card by film.id, so state resets for each new roll.
   const {
     action,
@@ -46,7 +48,7 @@ export function FilmCard({
     saveSentiment,
     toggleWatchlist,
     authPrompt,
-    dismissAuthPrompt,
+    closeAuthPrompt,
   } = useFilmActions({
     filmId: film.id,
     filmTitle: film.title,
@@ -285,18 +287,16 @@ export function FilmCard({
             </p>
           )}
 
-          {/* Guest auth gate: appears in-place when a guest taps Seen it / Save,
-              so it reads as a direct response to the tap and never covers the
-              controls above it. */}
-          <AnimatePresence initial={false}>
-            {authPrompt && (
-              <SignInPrompt
-                gate={authPrompt}
-                surface="card"
-                onDismiss={dismissAuthPrompt}
-              />
-            )}
-          </AnimatePresence>
+          {/* Guest auth gate: tapping Seen it / Save raises the sign-in modal;
+              the action is stashed and replayed when the user returns. */}
+          <AuthDialog
+            open={authPrompt !== null}
+            onOpenChange={(open) => {
+              if (!open) closeAuthPrompt();
+            }}
+            callbackUrl={pathname}
+            title={authPrompt ? AUTH_GATE_TITLE[authPrompt] : undefined}
+          />
         </section>
 
         {/* One-tap 👍 / 👎 prompt, revealed after a film is marked watched.
