@@ -43,10 +43,14 @@ type StatsResponse = {
   mostCompetitiveYear: { awardYear: number; totalNominations: number } | null;
   decadeBreakdown: { decade: number; filmCount: number; avgNominations: number }[];
   awardBodyBreakdown: {
-    oscar: number;
-    goldenGlobe: number;
-    cannes: number;
-    berlin: number;
+    coverage: { oscar: number; goldenGlobe: number; cannes: number; berlin: number };
+    composition: {
+      oscarOnly: number;
+      goldenGlobeOnly: number;
+      cannesOnly: number;
+      berlinOnly: number;
+      multiple: number;
+    };
     total: number;
   } | null;
   topRolledFilms: FilmStat[];
@@ -91,7 +95,6 @@ export default async function StatsPage() {
     },
   };
 
-  const awardTotal = stats?.awardBodyBreakdown?.total || 1;
   const maxDecadeFilms = Math.max(...(stats?.decadeBreakdown.map((item) => item.filmCount) ?? [1]));
 
   const summary = stats?.summary;
@@ -281,28 +284,7 @@ export default async function StatsPage() {
 
             <section className="grid gap-4 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
               {stats.awardBodyBreakdown && (
-                <Panel>
-                  <SectionHeader eyebrow="Dataset mix" title="Films by award body" compact />
-                  <p className="mt-3 text-sm leading-6 text-[#817c91]">
-                    Films count under every body that recognized them, so shares overlap.
-                  </p>
-                  <div className="mt-5 grid gap-2 sm:grid-cols-2">
-                    {[
-                      { label: "Oscars", count: stats.awardBodyBreakdown.oscar, color: "#e8453c", href: "/browse?awardBody=oscar" },
-                      { label: "Golden Globe", count: stats.awardBodyBreakdown.goldenGlobe, color: "#D4AF37", href: "/browse?awardBody=goldenglobe" },
-                      { label: "Cannes", count: stats.awardBodyBreakdown.cannes, color: "#4a9eff", href: "/browse?awardBody=cannes" },
-                      { label: "Berlinale", count: stats.awardBodyBreakdown.berlin, color: "#a78bfa", href: "/browse?awardBody=berlin" },
-                    ]
-                      .filter((item) => item.count > 0)
-                      .map((item) => (
-                        <BreakdownLink
-                          key={item.label}
-                          {...item}
-                          percent={(item.count / awardTotal) * 100}
-                        />
-                      ))}
-                  </div>
-                </Panel>
+                <AwardBodyPanel breakdown={stats.awardBodyBreakdown} />
               )}
 
               {stats.decadeBreakdown.length > 0 && (
@@ -563,6 +545,66 @@ function Panel({ children }: { children: ReactNode }) {
     <div className="rounded-lg border border-white/10 bg-white/[0.035] p-5 shadow-[0_18px_50px_rgba(0,0,0,0.18)] sm:p-6">
       {children}
     </div>
+  );
+}
+
+function AwardBodyPanel({ breakdown }: { breakdown: NonNullable<StatsResponse["awardBodyBreakdown"]> }) {
+  const total = breakdown.total || 1;
+  const pct = (count: number) => (count / total) * 100;
+
+  // Composition: every film in exactly one bucket → reconciles to 100%.
+  const composition = [
+    { label: "Oscar only", count: breakdown.composition.oscarOnly, color: "#e8453c" },
+    { label: "Golden Globe only", count: breakdown.composition.goldenGlobeOnly, color: "#D4AF37" },
+    { label: "Cannes only", count: breakdown.composition.cannesOnly, color: "#4a9eff" },
+    { label: "Berlinale only", count: breakdown.composition.berlinOnly, color: "#a78bfa" },
+    { label: "Multiple bodies", count: breakdown.composition.multiple, color: "#8a8597" },
+  ].filter((segment) => segment.count > 0);
+
+  // Coverage: a film counts under every body that honored it → shares overlap.
+  const coverage = [
+    { label: "Oscars", count: breakdown.coverage.oscar, color: "#e8453c", href: "/browse?awardBody=oscar" },
+    { label: "Golden Globe", count: breakdown.coverage.goldenGlobe, color: "#D4AF37", href: "/browse?awardBody=goldenglobe" },
+    { label: "Cannes", count: breakdown.coverage.cannes, color: "#4a9eff", href: "/browse?awardBody=cannes" },
+    { label: "Berlinale", count: breakdown.coverage.berlin, color: "#a78bfa", href: "/browse?awardBody=berlin" },
+  ].filter((item) => item.count > 0);
+
+  return (
+    <Panel>
+      <SectionHeader eyebrow="Dataset mix" title="Films by award body" compact />
+
+      <div className="mt-5 flex h-2.5 overflow-hidden rounded-full bg-white/[0.055]">
+        {composition.map((segment) => (
+          <div
+            key={segment.label}
+            className="h-full"
+            style={{ width: `${pct(segment.count)}%`, backgroundColor: segment.color }}
+          />
+        ))}
+      </div>
+      <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-1.5">
+        {composition.map((segment) => (
+          <li
+            key={segment.label}
+            className="flex items-center gap-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.12em] text-[#a9a5bc]"
+          >
+            <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: segment.color }} />
+            {segment.label}
+            <span className="text-[#817c91]">{pct(segment.count).toFixed(1)}%</span>
+          </li>
+        ))}
+      </ul>
+
+      <p className="mt-5 text-sm leading-6 text-[#817c91]">
+        Coverage counts a film under every body that honored it, so these shares overlap — the gap
+        is the Multiple-bodies share above.
+      </p>
+      <div className="mt-3 grid gap-2 sm:grid-cols-2">
+        {coverage.map((item) => (
+          <BreakdownLink key={item.label} {...item} percent={pct(item.count)} />
+        ))}
+      </div>
+    </Panel>
   );
 }
 

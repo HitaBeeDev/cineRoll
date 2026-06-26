@@ -46,14 +46,37 @@ export function getDecadeRows(): Promise<DecadeStatRow[]> {
 }
 
 export function getAwardBodyRows(): Promise<AwardBodyBreakdownRow[]> {
-  // Coverage per award body: films appearing under each body. A film is counted
-  // under every body that recognized it, so the shares overlap (sum > total).
+  // Two complementary views of the same catalog:
+  //  - coverage: films appearing under each body; a film counts under every body
+  //    that recognized it, so these shares overlap (sum > total).
+  //  - composition: each film assigned to exactly one bucket — its sole body, or
+  //    "multiple" when recognized by 2+ bodies — so these reconcile to total.
   return prisma.$queryRaw<AwardBodyBreakdownRow[]>`
     SELECT
       COUNT(*) FILTER (WHERE "oscarNominations" > 0)::BIGINT AS "oscar",
       COUNT(*) FILTER (WHERE "ggNominations" > 0)::BIGINT AS "goldenGlobe",
       COUNT(*) FILTER (WHERE "cannesNominations" > 0)::BIGINT AS "cannes",
       COUNT(*) FILTER (WHERE "berlinNominations" > 0)::BIGINT AS "berlin",
+      COUNT(*) FILTER (
+        WHERE "oscarNominations" > 0 AND "ggNominations" = 0 AND "cannesNominations" = 0 AND "berlinNominations" = 0
+      )::BIGINT AS "oscarOnly",
+      COUNT(*) FILTER (
+        WHERE "ggNominations" > 0 AND "oscarNominations" = 0 AND "cannesNominations" = 0 AND "berlinNominations" = 0
+      )::BIGINT AS "goldenGlobeOnly",
+      COUNT(*) FILTER (
+        WHERE "cannesNominations" > 0 AND "oscarNominations" = 0 AND "ggNominations" = 0 AND "berlinNominations" = 0
+      )::BIGINT AS "cannesOnly",
+      COUNT(*) FILTER (
+        WHERE "berlinNominations" > 0 AND "oscarNominations" = 0 AND "ggNominations" = 0 AND "cannesNominations" = 0
+      )::BIGINT AS "berlinOnly",
+      COUNT(*) FILTER (
+        WHERE (
+          (CASE WHEN "oscarNominations" > 0 THEN 1 ELSE 0 END)
+          + (CASE WHEN "ggNominations" > 0 THEN 1 ELSE 0 END)
+          + (CASE WHEN "cannesNominations" > 0 THEN 1 ELSE 0 END)
+          + (CASE WHEN "berlinNominations" > 0 THEN 1 ELSE 0 END)
+        ) >= 2
+      )::BIGINT AS "multiple",
       COUNT(*)::BIGINT AS total
     FROM "Film"
     WHERE "oscarNominations" > 0 OR "ggNominations" > 0 OR "cannesNominations" > 0 OR "berlinNominations" > 0

@@ -65,10 +65,19 @@ function decadeStat(row: DecadeStatRow): DecadeStat {
 function awardBodyBreakdown(rows: AwardBodyBreakdownRow[]): AwardBodyBreakdown | null {
   return rows[0]
     ? {
-        oscar: toBigIntNumber(rows[0].oscar),
-        goldenGlobe: toBigIntNumber(rows[0].goldenGlobe),
-        cannes: toBigIntNumber(rows[0].cannes),
-        berlin: toBigIntNumber(rows[0].berlin),
+        coverage: {
+          oscar: toBigIntNumber(rows[0].oscar),
+          goldenGlobe: toBigIntNumber(rows[0].goldenGlobe),
+          cannes: toBigIntNumber(rows[0].cannes),
+          berlin: toBigIntNumber(rows[0].berlin),
+        },
+        composition: {
+          oscarOnly: toBigIntNumber(rows[0].oscarOnly),
+          goldenGlobeOnly: toBigIntNumber(rows[0].goldenGlobeOnly),
+          cannesOnly: toBigIntNumber(rows[0].cannesOnly),
+          berlinOnly: toBigIntNumber(rows[0].berlinOnly),
+          multiple: toBigIntNumber(rows[0].multiple),
+        },
         total: toBigIntNumber(rows[0].total),
       }
     : null;
