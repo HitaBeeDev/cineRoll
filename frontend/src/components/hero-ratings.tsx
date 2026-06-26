@@ -98,7 +98,6 @@ function ScoreStat({
           style={{ color: accent }}
         >
           {source}
-          {caption && <span className="text-white/60"> · {caption}</span>}
         </p>
       </div>
     </div>
