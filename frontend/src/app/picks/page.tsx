@@ -225,31 +225,6 @@ export default function PicksPage() {
       <AppHeader />
 
       <main>
-        {/* Page header */}
-        <div className="border-b border-white/[0.08] px-6 py-7 sm:px-10 sm:py-9">
-          <div className="mx-auto flex max-w-screen-xl items-center gap-4">
-            <div className="flex flex-col gap-[3px]" aria-hidden>
-              <div className="h-[2px] w-6" style={{ backgroundColor: ACCENT }} />
-              <div className="h-[2px] w-3.5" style={{ backgroundColor: `${ACCENT}59` }} />
-            </div>
-            <div>
-              <p
-                className="mb-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.35em]"
-                style={{ color: ACCENT }}
-              >
-                Three Films · One Evening
-              </p>
-              <h1 className="font-[family-name:var(--font-display)] text-2xl font-bold leading-none text-[#F5F5F0] sm:text-[2rem]">
-                Tonight&apos;s Picks
-              </h1>
-            </div>
-            <div className="hidden h-8 w-px bg-white/[0.1] sm:block" />
-            <p className="hidden font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#7a7a90] sm:block">
-              {dateLabel}
-            </p>
-          </div>
-        </div>
-
         <AnimatePresence mode="wait">
           {isLoading ? (
             <motion.div
@@ -288,7 +263,7 @@ export default function PicksPage() {
                   plus leftovers. Identical structure, identical metadata, one
                   restrained CTA each, so the eye reads them as a curated set. */}
               {picks.map((pick, i) => (
-                <PickCard key={pick.film.id} pick={pick} index={i} />
+                <PickCard key={pick.film.id} pick={pick} index={i} dateLabel={dateLabel} />
               ))}
             </motion.div>
           )}
@@ -358,7 +333,15 @@ function PickActions({ film }: { film: RollFilm }) {
   );
 }
 
-function PickCard({ pick, index }: { pick: DailyPick; index: number }) {
+function PickCard({
+  pick,
+  index,
+  dateLabel,
+}: {
+  pick: DailyPick;
+  index: number;
+  dateLabel: string;
+}) {
   const shouldReduceMotion = useReducedMotion();
   const { film, slot } = pick;
   const imageUrl = film.backdropUrl ?? film.posterUrl;
@@ -382,7 +365,7 @@ function PickCard({ pick, index }: { pick: DailyPick; index: number }) {
           ? { duration: 0 }
           : { duration: 0.5, ease: [0.22, 1, 0.36, 1] }
       }
-      className="group relative flex min-h-[62vh] items-end overflow-hidden border-b border-white/[0.08] lg:min-h-[68vh]"
+      className="group relative flex min-h-[100svh] items-end overflow-hidden"
     >
       {/* Backdrop */}
       {imageUrl ? (
@@ -403,6 +386,28 @@ function PickCard({ pick, index }: { pick: DailyPick; index: number }) {
           bright ones included, rather than hoping the image is dark. */}
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#09090f] via-[#09090f]/35 to-[#09090f]/10" />
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#09090f]/85 via-[#09090f]/30 to-transparent" />
+
+      {/* Page context lives on the first film instead of a separate header bar,
+          so you land on one full-bleed pick — the MUBI "one thing today" feel —
+          and scroll through the set. */}
+      {index === 0 && (
+        <div className="absolute left-6 right-6 top-20 z-10 mx-auto flex max-w-screen-xl items-center gap-4 sm:left-10 sm:right-10 sm:top-24">
+          <div className="flex flex-col gap-[3px]" aria-hidden>
+            <div className="h-[2px] w-6" style={{ backgroundColor: ACCENT }} />
+            <div className="h-[2px] w-3.5" style={{ backgroundColor: `${ACCENT}59` }} />
+          </div>
+          <h1
+            className="font-[family-name:var(--font-geist-mono)] text-[11px] font-normal uppercase tracking-[0.35em]"
+            style={{ color: ACCENT }}
+          >
+            Tonight&apos;s Picks
+          </h1>
+          <div className="hidden h-4 w-px bg-white/20 sm:block" />
+          <p className="hidden font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#9a9aae] sm:block">
+            {dateLabel}
+          </p>
+        </div>
+      )}
 
       {/* Content */}
       <div className="relative z-10 mx-auto w-full max-w-screen-xl px-6 pb-12 pt-24 sm:px-10 sm:pb-16">
