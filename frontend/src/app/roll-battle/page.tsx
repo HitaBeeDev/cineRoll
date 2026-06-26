@@ -7,17 +7,23 @@ import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { RefreshCw, Share2, Trophy, Clapperboard } from "lucide-react";
 import { AppHeader } from "@/components/app-header";
 import { fetchRandom, type RollFilm } from "@/lib/api";
+import { buildBattleCluster } from "@/lib/roll-battle-matchmaking";
 
 const TOTAL_ROUNDS = 5;
-const POOL_SIZE = TOTAL_ROUNDS * 2;
+// King-of-the-hill needs one seed plus one challenger per round.
+const BATTLE_SET_SIZE = TOTAL_ROUNDS + 1;
+// Over-fetch so matchmaking has room to pick a comparable cluster rather than
+// being forced to use whatever random films turned up.
+const CANDIDATE_POOL_SIZE = 18;
 
 type Phase = "loading" | "battling" | "result" | "error";
 
 async function fetchBattlePool(): Promise<RollFilm[]> {
   const results = await Promise.all(
-    Array.from({ length: POOL_SIZE }, () => fetchRandom()),
+    Array.from({ length: CANDIDATE_POOL_SIZE }, () => fetchRandom()),
   );
-  return results.map((r) => r.film);
+  const candidates = results.map((r) => r.film);
+  return buildBattleCluster(candidates, BATTLE_SET_SIZE);
 }
 
 function formatRuntime(runtime: number | null): string {
