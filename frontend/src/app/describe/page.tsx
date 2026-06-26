@@ -359,12 +359,12 @@ export default function DescribePage() {
           ? `${result.films.length} ${result.films.length === 1 ? "pick" : "picks"} ready.`
           : "";
 
-  // The fixed full-height "cockpit" (internal panel scrolling) only applies at lg,
-  // where there's room for two side-by-side columns. Below lg the columns stack and
-  // the page scrolls normally, so nothing — especially the CTA — can be clipped on
-  // short laptops or phones.
+  // At lg the cockpit fills the viewport *minus* the global footer (flex-1 inside
+  // PageTransition) and scrolls its panels internally — so the page itself never
+  // scrolls and the footer stays in view. Below lg the columns stack and the page
+  // scrolls normally, so nothing — especially the CTA — gets clipped.
   return (
-    <div className="flex min-h-screen flex-col bg-[#09090f] text-[#F5F5F0] lg:h-screen lg:overflow-hidden">
+    <div className="flex min-h-screen flex-1 flex-col bg-[#09090f] text-[#F5F5F0] lg:min-h-0 lg:overflow-hidden">
       <AppHeader />
 
       <main className="min-h-0 flex-1 px-5 py-4 sm:px-8 lg:px-10 lg:py-5 lg:overflow-hidden">
@@ -373,7 +373,7 @@ export default function DescribePage() {
             <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.3em] text-[#e8453c]/70">
               ◈ Natural Language Roll ◈
             </p>
-            <h1 className="mt-2 font-[family-name:var(--font-display)] text-5xl font-bold leading-none tracking-tight text-[#F5F5F0] lg:text-7xl">
+            <h1 className="mt-2 font-[family-name:var(--font-display)] text-5xl font-bold leading-none tracking-tight text-[#F5F5F0] lg:text-6xl">
               Describe It
             </h1>
           </div>
