@@ -84,7 +84,9 @@ export default function PicksPage() {
     setIsRefreshing(true);
     const results = await Promise.allSettled(
       PICK_SLOTS.map(async (slot) => {
-        const r = await fetchRandom();
+        // Each slot draws from its own curated pool (Oscar winners, Cannes
+        // winners, hidden gems) — the labels are real filters, not decoration.
+        const r = await fetchRandom(slot.filters);
         return { film: r.film, slot };
       }),
     );
