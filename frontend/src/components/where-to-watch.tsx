@@ -102,6 +102,10 @@ export function WhereToWatch({
   const buy = countryData?.buy ?? [];
   const hasAny = flatrate.length > 0 || rent.length > 0 || buy.length > 0;
 
+  // Nothing to stream/rent/buy → render nothing at all, rather than an empty
+  // "Streaming unavailable" placeholder that just adds dead weight to the page.
+  if (!hasAny) return null;
+
   return (
     <section id="where-to-watch" className="scroll-mt-24">
       <div className="flex items-center gap-4">
@@ -114,41 +118,25 @@ export function WhereToWatch({
         <div className="h-px flex-1 bg-gradient-to-r from-[#2a2a42] to-transparent" />
       </div>
 
-      {hasAny ? (
-        <div className="mt-8 border border-[#1e1e30] bg-[#0d0d18] p-6">
-          <div className="flex flex-col gap-7">
-            <ProviderGroup label="Stream" providers={flatrate} accent={accent} />
-            <ProviderGroup label="Rent" providers={rent} accent={accent} />
-            <ProviderGroup label="Buy" providers={buy} accent={accent} />
+      <div className="mt-8 border border-[#1e1e30] bg-[#0d0d18] p-6">
+        <div className="flex flex-col gap-7">
+          <ProviderGroup label="Stream" providers={flatrate} accent={accent} />
+          <ProviderGroup label="Rent" providers={rent} accent={accent} />
+          <ProviderGroup label="Buy" providers={buy} accent={accent} />
 
-            {countryData?.link && (
-              <a
-                href={countryData.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group inline-flex w-fit items-center gap-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.4em] text-[#7878a0] transition-colors hover:text-[#c0c0d8]"
-              >
-                More options on JustWatch
-                <ExternalLink className="h-3 w-3 text-[#7878a0] transition-colors group-hover:text-[#e8453c]" aria-hidden />
-              </a>
-            )}
-          </div>
+          {countryData?.link && (
+            <a
+              href={countryData.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group inline-flex w-fit items-center gap-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.4em] text-[#7878a0] transition-colors hover:text-[#c0c0d8]"
+            >
+              More options on JustWatch
+              <ExternalLink className="h-3 w-3 text-[#7878a0] transition-colors group-hover:text-[#e8453c]" aria-hidden />
+            </a>
+          )}
         </div>
-      ) : (
-        /* Empty state kept deliberately lightweight — a dashed, low-contrast
-           strip so "no streaming" never carries the same visual weight as a
-           real provider list. */
-        <div className="mt-6 max-w-md border border-dashed border-[#1c1c2a] bg-[#0a0a12]/40 px-4 py-3">
-          <p className="text-[0.82rem] font-medium text-[#9a9ab4]">
-            {noData ? "Streaming unavailable" : `Not available in ${country}`}
-          </p>
-          <p className="mt-0.5 text-[0.78rem] leading-5 text-[#5e5e78]">
-            {noData
-              ? "We couldn't find streaming sources for this title yet."
-              : "No stream, rent or buy options were found for your region."}
-          </p>
-        </div>
-      )}
+      </div>
     </section>
   );
 }
