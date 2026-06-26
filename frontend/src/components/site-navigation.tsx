@@ -158,7 +158,7 @@ export function SiteNavigation({
                     "font-[family-name:var(--font-geist-mono)] text-2xl font-bold uppercase tracking-widest",
                     isActive(item.href)
                       ? "text-[#F5F5F0]"
-                      : "text-[#555568] transition-colors hover:text-[#F5F5F0]",
+                      : "text-[#9b96aa] transition-colors hover:text-[#F5F5F0]",
                     "focus-visible:outline-none focus-visible:ring-2",
                     focusRingClassName,
                   )}
@@ -179,7 +179,7 @@ export function SiteNavigation({
                       "font-[family-name:var(--font-geist-mono)] text-2xl font-bold uppercase tracking-widest",
                       isActive(item.href)
                         ? "text-[#F5F5F0]"
-                        : "text-[#555568] transition-colors hover:text-[#F5F5F0]",
+                        : "text-[#9b96aa] transition-colors hover:text-[#F5F5F0]",
                       "focus-visible:outline-none focus-visible:ring-2",
                       focusRingClassName,
                     )}
