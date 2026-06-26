@@ -41,11 +41,14 @@ const PICK_SLOTS: {
   {
     num: "03",
     label: "Hidden Gem",
-    mood: "Surprising & Rare",
+    mood: "Acclaimed & Overlooked",
     icon: <Star className="h-3.5 w-3.5" />,
     accentColor: "#a78bfa",
     borderColor: "border-[#a78bfa]/30",
-    filters: { imdbRatingMin: 7.5, decadeMin: 1960, decadeMax: 2005 },
+    // Genuinely obscure, not just well-rated: highly rated, but outside the
+    // IMDb Top 250 and with no major award win — acclaimed films that flew
+    // under the radar rather than canonical hits.
+    filters: { imdbRatingMin: 7.5, imdbTopExclude: true, winsMax: 0 },
   },
 ];
 

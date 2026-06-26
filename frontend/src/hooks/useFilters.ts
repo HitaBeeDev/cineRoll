@@ -29,6 +29,8 @@ export const DEFAULT_FILTERS: FilterState = {
   certificate: "",
   imdbTopMoviesOnly: false,
   imdbTopTvOnly: false,
+  imdbTopExclude: false,
+  winsMax: null,
   tvType: "",
   sort: "awards",
   sortOrder: "desc",

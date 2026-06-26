@@ -31,6 +31,10 @@ export const listQueryBaseSchema = z.object({
   certificate: z.string().trim().min(1).max(20).optional(),
   imdbTopMoviesOnly: queryBooleanSchema.optional(),
   imdbTopTvOnly: queryBooleanSchema.optional(),
+  // Obscurity filters (hidden gems): exclude the IMDb Top 250, and cap total
+  // major award wins. Mirror of imdbTopMoviesOnly / nominationCount.
+  imdbTopExclude: queryBooleanSchema.optional(),
+  winsMax: z.coerce.number().int().min(0).max(1000).optional(),
   tvType: z.string().trim().min(1).max(60).optional(),
   sort: z.enum(["newest", "title", "rating", "rt", "awards"]).default("newest"),
   sortOrder: z.enum(["asc", "desc"]).default("desc"),

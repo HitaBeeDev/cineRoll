@@ -189,6 +189,8 @@ export function filtersToParams(filters: Partial<FilterState>): URLSearchParams 
   if (filters.imdbRatingMax != null) params.set("imdbRatingMax", String(filters.imdbRatingMax));
   if (filters.imdbTopMoviesOnly) params.set("imdbTopMoviesOnly", "true");
   if (filters.imdbTopTvOnly) params.set("imdbTopTvOnly", "true");
+  if (filters.imdbTopExclude) params.set("imdbTopExclude", "true");
+  if (filters.winsMax != null) params.set("winsMax", String(filters.winsMax));
   if (filters.certificate?.trim()) params.set("certificate", filters.certificate.trim());
   if (filters.tvType?.trim()) params.set("tvType", filters.tvType.trim());
   if (filters.sort && filters.sort !== "newest") params.set("sort", filters.sort);

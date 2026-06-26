@@ -103,6 +103,11 @@ export interface FilterState {
   certificate: string;
   imdbTopMoviesOnly: boolean;
   imdbTopTvOnly: boolean;
+  // Hidden-gem obscurity signals. `imdbTopExclude` drops the IMDb Top 250 (the
+  // famous canon); `winsMax` caps total major award wins (a sweep signals fame,
+  // not obscurity). Together they express "acclaimed but overlooked".
+  imdbTopExclude: boolean;
+  winsMax: number | null;
   tvType: string;
   sort: FilmSort;
   sortOrder: SortOrder;
