@@ -93,6 +93,21 @@ export default async function StatsPage() {
   const awardTotal = stats?.awardBodyBreakdown?.total || 1;
   const maxDecadeFilms = Math.max(...(stats?.decadeBreakdown.map((item) => item.filmCount) ?? [1]));
 
+  const summary = stats?.summary;
+  const winRate =
+    summary && summary.totalNominations > 0
+      ? (summary.totalWins / summary.totalNominations) * 100
+      : 0;
+  const avgNomsPerFilm =
+    summary && summary.totalFilms > 0 ? summary.totalNominations / summary.totalFilms : 0;
+  const decadesSorted = [...(stats?.decadeBreakdown ?? [])]
+    .map((item) => item.decade)
+    .sort((a, b) => a - b);
+  const decadeSpan =
+    decadesSorted.length > 0
+      ? `${decadesSorted[0]}s–${decadesSorted[decadesSorted.length - 1]}s`
+      : "—";
+
   return (
     <div className="min-h-screen overflow-x-hidden bg-[#08080d] text-[#F5F5F0]">
       <script
@@ -164,24 +179,24 @@ export default async function StatsPage() {
             <section className="grid gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)]">
               <div className="grid gap-4 sm:grid-cols-3">
                 <MetricCard
-                  icon={<Clapperboard className="h-4 w-4" />}
-                  label="Films indexed"
-                  value={stats.summary.totalFilms}
-                  detail="Across all award bodies"
+                  icon={<Trophy className="h-4 w-4" />}
+                  label="Win rate"
+                  value={`${winRate.toFixed(1)}%`}
+                  detail="Nominations converted to wins"
+                  accent="gold"
                 />
                 <MetricCard
                   icon={<Award className="h-4 w-4" />}
-                  label="Nominations"
-                  value={stats.summary.totalNominations}
-                  detail="Oscar, Golden Globe, Cannes"
+                  label="Noms per film"
+                  value={avgNomsPerFilm.toFixed(1)}
+                  detail="Average across the archive"
                   accent="red"
                 />
                 <MetricCard
-                  icon={<Trophy className="h-4 w-4" />}
-                  label="Wins"
-                  value={stats.summary.totalWins}
-                  detail="Recorded award wins"
-                  accent="gold"
+                  icon={<Clapperboard className="h-4 w-4" />}
+                  label="Decades covered"
+                  value={formatNumber(decadesSorted.length)}
+                  detail={decadeSpan}
                 />
               </div>
 
@@ -389,7 +404,7 @@ function MetricCard({
 }: {
   icon: ReactNode;
   label: string;
-  value: number;
+  value: string;
   detail: string;
   accent?: "neutral" | "red" | "gold";
 }) {
@@ -406,7 +421,7 @@ function MetricCard({
         </span>
       </div>
       <p className="mt-5 font-[family-name:var(--font-display)] text-4xl font-bold leading-none text-[#f4f0f7]">
-        {formatNumber(value)}
+        {value}
       </p>
       <p className="mt-2 text-sm text-[#817c91]">{detail}</p>
     </div>

@@ -424,7 +424,7 @@ function PickCard({
       )}
 
       {/* Content */}
-      <div className="relative z-10 mx-auto w-full max-w-screen-xl px-6 pb-12 pt-24 sm:px-10 sm:pb-16">
+      <div className="relative z-10 mx-auto w-full max-w-screen-xl px-6 pb-20 pt-24 sm:px-10 sm:pb-28">
         <div className="max-w-2xl">
           {/* Single-axis kicker: the curation category, plus the small brand
               numeral — the only accent colour on the card. */}
