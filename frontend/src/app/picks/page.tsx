@@ -14,44 +14,42 @@ import { fetchSeededRandom, type RollFilm } from "@/lib/api";
 import { useFilmActions, AUTH_GATE_TITLE } from "@/hooks/useFilmActions";
 import { formatRuntime } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import type { FilterState } from "@cineroll/types";
+import type { AwardRecord, FilterState } from "@cineroll/types";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://cineroll.app";
 
-const PICK_SLOTS: {
+/**
+ * One restrained brand accent, used identically on every card (the small index
+ * numeral only). The film stills carry all the colour; the chrome stays near
+ * monochrome so a single accent keeps its meaning instead of three per-slot
+ * colours competing for the eye.
+ */
+const ACCENT = "#e8453c";
+
+type Slot = {
   num: string;
   label: string;
-  mood: string;
   icon: React.ReactNode;
-  accentColor: string;
-  borderColor: string;
   filters: Partial<FilterState>;
-}[] = [
+};
+
+const PICK_SLOTS: Slot[] = [
   {
     num: "01",
     label: "Award Prestige",
-    mood: "Moving & Acclaimed",
-    icon: <Trophy className="h-3.5 w-3.5" />,
-    accentColor: "#e8453c",
-    borderColor: "border-[#e8453c]/30",
+    icon: <Trophy className="h-3.5 w-3.5" aria-hidden />,
     filters: { awardBodies: ["oscar"], winnerOnly: true, imdbRatingMin: 7.5 },
   },
   {
     num: "02",
     label: "World Cinema",
-    mood: "Daring & Original",
-    icon: <Clapperboard className="h-3.5 w-3.5" />,
-    accentColor: "#4a9eff",
-    borderColor: "border-[#4a9eff]/30",
+    icon: <Clapperboard className="h-3.5 w-3.5" aria-hidden />,
     filters: { awardBodies: ["cannes"], winnerOnly: true },
   },
   {
     num: "03",
     label: "Hidden Gem",
-    mood: "Acclaimed & Overlooked",
-    icon: <Star className="h-3.5 w-3.5" />,
-    accentColor: "#a78bfa",
-    borderColor: "border-[#a78bfa]/30",
+    icon: <Star className="h-3.5 w-3.5" aria-hidden />,
     // Genuinely obscure, not just well-rated: highly rated, but outside the
     // IMDb Top 250 and with no major award win — acclaimed films that flew
     // under the radar rather than canonical hits.
@@ -59,7 +57,7 @@ const PICK_SLOTS: {
   },
 ];
 
-type DailyPick = { film: RollFilm; slot: (typeof PICK_SLOTS)[number] };
+type DailyPick = { film: RollFilm; slot: Slot };
 
 // How many deterministic seed variants to try per slot while hunting for a
 // decade/genre-diverse pick before settling for the seeded first choice.
@@ -67,6 +65,50 @@ const SEED_VARIANTS = 3;
 
 function decadeOf(year: number): number {
   return Math.floor(year / 10) * 10;
+}
+
+const AWARD_BODY_LABEL: Record<AwardRecord["awardBody"], string> = {
+  oscar: "the Academy Awards",
+  goldenglobe: "the Golden Globes",
+  cannes: "the Festival de Cannes",
+  berlin: "the Berlinale",
+};
+
+const FLAGSHIP_CATEGORY =
+  /best picture|best motion picture|best film|palme d'?or|grand prix|best director|best foreign/i;
+
+/** The most prestigious win in a set of award records, or null if none won. */
+function topWin(records: AwardRecord[]): AwardRecord | null {
+  const wins = records.filter((r) => r.won);
+  if (wins.length === 0) return null;
+  return wins.find((r) => FLAGSHIP_CATEGORY.test(r.category)) ?? wins[0] ?? null;
+}
+
+/**
+ * One editorial sentence explaining *why* this film earned tonight's slot —
+ * built from the film's real award + rating data, so the curation logic is
+ * visible rather than the picks looking random. Falls back to the real synopsis
+ * when a film carries no headline accolade.
+ */
+function rationaleFor(film: RollFilm, slot: Slot): string {
+  const anyWin =
+    topWin(film.oscarCategories) ??
+    topWin(film.cannesCategories) ??
+    topWin(film.ggCategories);
+
+  if (slot.num === "01" && anyWin) {
+    return `Won ${anyWin.category} at ${AWARD_BODY_LABEL[anyWin.awardBody]}, ${anyWin.awardYear}.`;
+  }
+  if (slot.num === "02") {
+    const cannes = topWin(film.cannesCategories);
+    if (cannes) return `${cannes.category} at ${AWARD_BODY_LABEL.cannes}, ${cannes.awardYear}.`;
+    if (anyWin) return `An international standout — ${anyWin.category}, ${anyWin.awardYear}.`;
+  }
+  if (slot.num === "03" && film.imdbRating != null) {
+    return `Rated ${film.imdbRating.toFixed(1)} on IMDb yet outside the Top 250 — acclaim the canon overlooked.`;
+  }
+  if (film.plot) return film.plot;
+  return `Tonight's ${slot.label.toLowerCase()} pick.`;
 }
 
 /**
@@ -78,7 +120,7 @@ function decadeOf(year: number): number {
  * pool can't offer a diverse one, we keep the seeded first choice.
  */
 async function selectPick(
-  slot: (typeof PICK_SLOTS)[number],
+  slot: Slot,
   day: string,
   usedIds: string[],
   usedDecades: Set<number>,
@@ -179,106 +221,89 @@ export default function PicksPage() {
   });
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-[#09090f] text-[#F5F5F0]">
+    <div className="min-h-screen bg-[#09090f] text-[#F5F5F0]">
       <AppHeader />
 
-      <main className="flex min-h-0 flex-1 flex-col">
+      <main>
         {/* Page header */}
-        <div className="border-b border-[#1a1a28] px-6 py-5 sm:px-10">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="flex flex-col gap-[3px]">
-                <div className="h-[2px] w-6 bg-[#e8453c]" />
-                <div className="h-[2px] w-3.5 bg-[#e8453c]/35" />
-              </div>
-              <div>
-                <p className="mb-0.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.35em] text-[#e8453c]/60">
-                  Three Films · One Evening
-                </p>
-                <h1 className="font-[family-name:var(--font-display)] text-2xl font-bold leading-none text-[#F5F5F0] sm:text-3xl">
-                  Today&apos;s Picks
-                </h1>
-              </div>
-              <div className="hidden h-7 w-px bg-white/[0.07] sm:block" />
-              <p className="hidden font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#2e2e46] sm:block">
-                {dateLabel}
-              </p>
+        <div className="border-b border-white/[0.08] px-6 py-7 sm:px-10 sm:py-9">
+          <div className="mx-auto flex max-w-screen-xl items-center gap-4">
+            <div className="flex flex-col gap-[3px]" aria-hidden>
+              <div className="h-[2px] w-6" style={{ backgroundColor: ACCENT }} />
+              <div className="h-[2px] w-3.5" style={{ backgroundColor: `${ACCENT}59` }} />
             </div>
+            <div>
+              <p
+                className="mb-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.35em]"
+                style={{ color: ACCENT }}
+              >
+                Three Films · One Evening
+              </p>
+              <h1 className="font-[family-name:var(--font-display)] text-2xl font-bold leading-none text-[#F5F5F0] sm:text-[2rem]">
+                Tonight&apos;s Picks
+              </h1>
+            </div>
+            <div className="hidden h-8 w-px bg-white/[0.1] sm:block" />
+            <p className="hidden font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#7a7a90] sm:block">
+              {dateLabel}
+            </p>
           </div>
         </div>
 
-        {/* Cards grid */}
-        <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
-          <AnimatePresence mode="wait">
-            {isLoading ? (
-              <motion.div
-                key="loading"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0, transition: { duration: shouldReduceMotion ? 0 : 0.15, ease: "easeIn" } }}
-                transition={{ duration: shouldReduceMotion ? 0 : 0.2, ease: "easeOut" }}
-                className="flex flex-1 items-center justify-center"
-              >
-                <div className="flex flex-col items-center gap-4">
-                  <div className="flex gap-2">
-                    {(["#e8453c", "#4a9eff", "#a78bfa"] as const).map((color, i) => (
-                      <motion.div
-                        key={color}
-                        className="h-[3px] w-8 rounded-full"
-                        style={{ backgroundColor: color }}
-                        animate={shouldReduceMotion ? {} : { opacity: [0.2, 0.9, 0.2] }}
-                        transition={{ duration: 1.4, repeat: Infinity, delay: i * 0.18, ease: "easeInOut" }}
-                      />
-                    ))}
-                  </div>
-                  <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.3em] text-[#2e2e46]">
-                    Curating today&apos;s selection
-                  </p>
+        <AnimatePresence mode="wait">
+          {isLoading ? (
+            <motion.div
+              key="loading"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0, transition: { duration: shouldReduceMotion ? 0 : 0.15, ease: "easeIn" } }}
+              transition={{ duration: shouldReduceMotion ? 0 : 0.2, ease: "easeOut" }}
+              className="flex min-h-[60vh] items-center justify-center"
+            >
+              <div className="flex flex-col items-center gap-4">
+                <div className="flex gap-2">
+                  {[0, 1, 2].map((i) => (
+                    <motion.div
+                      key={i}
+                      className="h-[3px] w-8 rounded-full bg-white/30"
+                      animate={shouldReduceMotion ? {} : { opacity: [0.15, 0.7, 0.15] }}
+                      transition={{ duration: 1.4, repeat: Infinity, delay: i * 0.18, ease: "easeInOut" }}
+                    />
+                  ))}
                 </div>
-              </motion.div>
-            ) : (
-              <motion.div
-                key="picks"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0, transition: { duration: shouldReduceMotion ? 0 : 0.15, ease: "easeIn" } }}
-                transition={{ duration: shouldReduceMotion ? 0 : 0.25, ease: "easeOut" }}
-                className="flex min-h-0 flex-1 flex-col lg:flex-row"
-              >
-                {/* Clear hierarchy: the first slot is the hero (larger, bolder,
-                    the only fully-coloured CTA), the rest are quieter supporting
-                    cards stacked beside it — so one pick leads the eye instead of
-                    three competing equally. */}
-                {picks[0] && (
-                  <PickCard key={picks[0].film.id} pick={picks[0]} index={0} variant="hero" />
-                )}
-                {picks.length > 1 && (
-                  <div className="flex min-h-0 flex-1 flex-col">
-                    {picks.slice(1).map((pick, i) => (
-                      <PickCard
-                        key={pick.film.id}
-                        pick={pick}
-                        index={i + 1}
-                        variant="supporting"
-                      />
-                    ))}
-                  </div>
-                )}
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+                <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.3em] text-[#7a7a90]">
+                  Curating today&apos;s selection
+                </p>
+              </div>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="picks"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0, transition: { duration: shouldReduceMotion ? 0 : 0.15, ease: "easeIn" } }}
+              transition={{ duration: shouldReduceMotion ? 0 : 0.25, ease: "easeOut" }}
+            >
+              {/* Three equal full-bleed editorial blocks — peers, not a hero
+                  plus leftovers. Identical structure, identical metadata, one
+                  restrained CTA each, so the eye reads them as a curated set. */}
+              {picks.map((pick, i) => (
+                <PickCard key={pick.film.id} pick={pick} index={i} />
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </main>
     </div>
   );
 }
 
 /**
- * The hero card's quick actions: a real watchlist toggle (with the shared
- * auth gate for guests) and a working share button — wired to the same
- * infrastructure as the film detail page, not placeholder buttons.
+ * Per-card quick actions: a real watchlist toggle (with the shared auth gate
+ * for guests) and a working share button — wired to the same infrastructure as
+ * the film detail page, not placeholder buttons.
  */
-function HeroPickActions({ film }: { film: RollFilm }) {
+function PickActions({ film }: { film: RollFilm }) {
   const { status } = useSession();
   const pathname = usePathname();
   const {
@@ -303,17 +328,13 @@ function HeroPickActions({ film }: { film: RollFilm }) {
         disabled={watchlistPending}
         onClick={() => void toggleWatchlist()}
         className={cn(
-          "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border transition-colors disabled:cursor-not-allowed disabled:opacity-60",
+          "flex h-11 w-11 shrink-0 items-center justify-center rounded-full border transition-colors disabled:cursor-not-allowed disabled:opacity-60",
           inWatchlist
-            ? "border-[#e8453c]/50 bg-[#e8453c]/15 text-[#F5F5F0]"
-            : "border-[#1e1e2a] text-[#3d3d58] hover:border-[#2a2a3e] hover:text-[#F5F5F0]",
+            ? "border-white/30 bg-white/15 text-[#F5F5F0]"
+            : "border-white/20 text-[#cfcfdc] hover:border-white/40 hover:text-[#F5F5F0]",
         )}
       >
-        <Bookmark
-          className="h-4 w-4"
-          fill={inWatchlist ? "currentColor" : "none"}
-          aria-hidden
-        />
+        <Bookmark className="h-4 w-4" fill={inWatchlist ? "currentColor" : "none"} aria-hidden />
       </button>
 
       <ShareButton
@@ -322,7 +343,7 @@ function HeroPickActions({ film }: { film: RollFilm }) {
         label=""
         ariaLabel="Share this pick"
         iconClassName="h-4 w-4"
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#1e1e2a] text-[#3d3d58] transition-colors hover:border-[#2a2a3e] hover:text-[#F5F5F0]"
+        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/20 text-[#cfcfdc] transition-colors hover:border-white/40 hover:text-[#F5F5F0]"
       />
 
       <AuthDialog
@@ -337,219 +358,121 @@ function HeroPickActions({ film }: { film: RollFilm }) {
   );
 }
 
-function PickCard({
-  pick,
-  index,
-  variant,
-}: {
-  pick: DailyPick;
-  index: number;
-  variant: "hero" | "supporting";
-}) {
+function PickCard({ pick, index }: { pick: DailyPick; index: number }) {
   const shouldReduceMotion = useReducedMotion();
   const { film, slot } = pick;
   const imageUrl = film.backdropUrl ?? film.posterUrl;
-  const genre = film.genres[0] ?? "";
   const runtime = formatRuntime(film.runtime);
-  const totalWins = film.oscarWins + film.ggWins + film.cannesWins;
-  const isHero = variant === "hero";
+  const genre = film.genres[0];
+
+  // One deterministic metadata row, identical on every card: year, runtime,
+  // genre, then the two critic scores. Absent values are omitted (never shown
+  // as placeholders) but the order never changes.
+  const meta: string[] = [String(film.year)];
+  if (runtime) meta.push(runtime);
+  if (genre) meta.push(genre);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 20 }}
-      animate={{ opacity: 1, y: 0 }}
+    <motion.article
+      initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.25 }}
       transition={
         shouldReduceMotion
           ? { duration: 0 }
-          : { delay: index * 0.1, type: "spring", stiffness: 300, damping: 28 }
+          : { duration: 0.5, ease: [0.22, 1, 0.36, 1] }
       }
-      className={cn(
-        // Cards fill the viewport exactly — the page never scrolls. `min-h-0`
-        // lets them shrink to share the available height, while `flex-[1.5]`
-        // keeps the hero larger than the supporting cards.
-        "group relative flex min-h-0 flex-1 flex-col overflow-hidden border-[#1a1a28]",
-        isHero
-          ? "border-b lg:flex-[1.5] lg:border-b-0 lg:border-r"
-          : "border-b last:border-b-0",
-      )}
+      className="group relative flex min-h-[62vh] items-end overflow-hidden border-b border-white/[0.08] lg:min-h-[68vh]"
     >
-      {/* Top accent strip — bold on the hero, a hairline on supporting cards so
-          only one card's colour leads instead of three competing. */}
-      <div
-        className={cn("absolute inset-x-0 top-0 z-20", isHero ? "h-[3px]" : "h-px")}
-        style={{ backgroundColor: isHero ? slot.accentColor : `${slot.accentColor}66` }}
-      />
-
       {/* Backdrop */}
-      <div className="relative min-h-0 flex-1">
-        {imageUrl ? (
-          <Image
-            src={imageUrl}
-            alt={film.title}
-            fill
-            sizes={isHero ? "(max-width: 1024px) 100vw, 58vw" : "(max-width: 1024px) 100vw, 42vw"}
-            className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
-            priority={isHero}
-          />
-        ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a2e] to-[#09090f]" />
-        )}
+      {imageUrl ? (
+        <Image
+          src={imageUrl}
+          alt={film.title}
+          fill
+          sizes="100vw"
+          className="object-cover transition-transform duration-[1.2s] ease-out group-hover:scale-[1.03]"
+          priority={index === 0}
+        />
+      ) : (
+        <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a2e] to-[#09090f]" />
+      )}
 
-        {/* Legibility scrim. A soft full-height wash keeps the image breathing,
-            and a guaranteed dark floor over the lower portion — where all the
-            text sits — keeps the title readable over ANY backdrop, including
-            bright ones, instead of relying on the image happening to be dark. */}
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#09090f] via-[#09090f]/15 to-transparent" />
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[65%] bg-gradient-to-t from-[#09090f] via-[#09090f]/80 to-transparent" />
-
-        {/* Ghost slot number — large on the hero, modest on supporting cards. */}
-        <div
-          className={cn(
-            "pointer-events-none absolute select-none",
-            isHero ? "right-4 top-5" : "right-3 top-3",
-          )}
-        >
-          <span
-            className="font-[family-name:var(--font-display)] font-black leading-none"
-            style={{
-              fontSize: isHero ? "10rem" : "4.5rem",
-              color: `${slot.accentColor}12`,
-              lineHeight: 1,
-            }}
-          >
-            {slot.num}
-          </span>
-        </div>
-
-        {/* Slot badge */}
-        <div className={cn("absolute z-10", isHero ? "left-5 top-5" : "left-4 top-4")}>
-          <span
-            className={cn(
-              "inline-flex items-center gap-1.5 rounded-full border backdrop-blur-sm",
-              "font-[family-name:var(--font-geist-mono)] uppercase tracking-widest",
-              isHero ? "px-3 py-1.5 text-[11px]" : "px-2.5 py-1 text-[10px]",
-              slot.borderColor,
-            )}
-            style={{ color: slot.accentColor, backgroundColor: `${slot.accentColor}12` }}
-          >
-            {slot.icon}
-            {slot.label}
-          </span>
-        </div>
-      </div>
+      {/* Legibility scrims — a soft full wash plus a guaranteed dark floor and a
+          left-side gradient so the text column stays readable over ANY still,
+          bright ones included, rather than hoping the image is dark. */}
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#09090f] via-[#09090f]/35 to-[#09090f]/10" />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#09090f]/85 via-[#09090f]/30 to-transparent" />
 
       {/* Content */}
-      <div
-        className={cn(
-          "absolute bottom-0 left-0 right-0 z-10 flex flex-col",
-          isHero ? "gap-2.5 p-6 sm:p-8" : "gap-1.5 p-5",
-        )}
-      >
-        <span
-          className={cn(
-            "font-[family-name:var(--font-geist-mono)] uppercase tracking-[0.3em]",
-            isHero ? "text-[11px]" : "text-[10px]",
-          )}
-          style={{ color: `${slot.accentColor}b3` }}
-        >
-          {slot.mood}
-        </span>
+      <div className="relative z-10 mx-auto w-full max-w-screen-xl px-6 pb-12 pt-24 sm:px-10 sm:pb-16">
+        <div className="max-w-2xl">
+          {/* Single-axis kicker: the curation category, plus the small brand
+              numeral — the only accent colour on the card. */}
+          <div className="mb-4 flex items-center gap-2.5">
+            <span
+              className="font-[family-name:var(--font-display)] text-base font-black leading-none"
+              style={{ color: ACCENT }}
+            >
+              {slot.num}
+            </span>
+            <span className="inline-flex items-center gap-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.3em] text-[#d4d4e0]">
+              {slot.icon}
+              {slot.label}
+            </span>
+          </div>
 
-        <h2
-          className={cn(
-            "font-[family-name:var(--font-display)] font-bold leading-[1.05] text-[#F5F5F0]",
-            isHero ? "text-3xl sm:text-5xl" : "text-xl sm:text-2xl",
-          )}
-          style={{ textShadow: "0 1px 14px rgba(0,0,0,0.55)" }}
-        >
-          {film.title}
-        </h2>
+          <h2
+            className="font-[family-name:var(--font-display)] text-4xl font-bold leading-[1.04] text-[#F5F5F0] sm:text-6xl"
+            style={{ textShadow: "0 2px 20px rgba(0,0,0,0.6)" }}
+          >
+            {film.title}
+          </h2>
 
-        <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
-          <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-wider text-[#555570]">
-            {film.year}
-          </span>
-          {isHero && runtime && (
-            <>
-              <span className="text-[#252538]">·</span>
-              <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-wider text-[#555570]">
-                {runtime}
+          {/* Metadata row — identical structure on all three cards */}
+          <div className="mt-4 flex flex-wrap items-center gap-x-2.5 gap-y-1 font-[family-name:var(--font-geist-mono)] text-[12px] uppercase tracking-wider text-[#a6a6ba]">
+            {meta.map((m, i) => (
+              <span key={m} className="flex items-center gap-2.5">
+                {i > 0 && <span className="text-white/20" aria-hidden>·</span>}
+                {m}
               </span>
-            </>
-          )}
-          {genre && (
-            <>
-              <span className="text-[#252538]">·</span>
-              <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-wider text-[#555570]">
-                {genre}
-              </span>
-            </>
-          )}
-        </div>
-
-        {/* Director and the full critic-score row are hero-only, so supporting
-            cards stay quiet and the hero clearly leads. */}
-        {isHero && film.director && (
-          <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-wider text-[#3a3a56]">
-            Dir. {film.director}
-          </p>
-        )}
-
-        {/* Only render scores that exist — absent ratings are omitted, never
-            shown as "No score" placeholders. RT is hero-only. */}
-        {(film.imdbRating != null || (isHero && film.rtScore != null) || totalWins > 0) && (
-          <div className="flex items-center gap-3">
+            ))}
             {film.imdbRating != null && (
-              <span className="font-[family-name:var(--font-geist-mono)] text-[11px] font-bold text-[#c8c8d8]">
-                ★ {film.imdbRating.toFixed(1)}
+              <span className="flex items-center gap-2.5 text-[#d4d4e0]">
+                <span className="text-white/20" aria-hidden>·</span>★ {film.imdbRating.toFixed(1)}
               </span>
             )}
-            {isHero && film.rtScore != null && (
-              <span className="font-[family-name:var(--font-geist-mono)] text-[11px] font-bold text-[#c8c8d8]">
-                RT {film.rtScore}%
-              </span>
-            )}
-            {totalWins > 0 && (
-              <span
-                className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-wide"
-                style={{ color: slot.accentColor }}
-              >
-                {totalWins}× Winner
+            {film.rtScore != null && (
+              <span className="flex items-center gap-2.5 text-[#d4d4e0]">
+                <span className="text-white/20" aria-hidden>·</span>RT {film.rtScore}%
               </span>
             )}
           </div>
-        )}
 
-        {/* CTA — the hero gets the single bold, fully-coloured button (plus
-            quick actions); supporting cards get a restrained outline link, so
-            colour weight reinforces the hierarchy rather than fighting it. */}
-        {isHero ? (
-          <div className="flex items-center gap-2 pt-1">
+          {film.director && (
+            <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-[12px] uppercase tracking-wider text-[#8a8a9e]">
+              Dir. {film.director}
+            </p>
+          )}
+
+          {/* The "why" — curation rationale built from real award/rating data */}
+          <p className="mt-5 max-w-xl font-[family-name:var(--font-display)] text-lg leading-relaxed text-[#cfcfdc] sm:text-xl">
+            {rationaleFor(film, slot)}
+          </p>
+
+          {/* One restrained CTA, identical on every card */}
+          <div className="mt-7 flex items-center gap-2.5">
             <Link
               href={`/film/${film.slug}`}
-              className={cn(
-                "group/btn flex flex-1 items-center justify-between rounded-xl px-4 py-2.5",
-                "font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-widest text-[#F5F5F0]",
-                "transition-all duration-150 hover:brightness-110",
-              )}
-              style={{ backgroundColor: slot.accentColor }}
+              className="group/btn inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/[0.04] px-6 py-3 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.2em] text-[#F5F5F0] backdrop-blur-sm transition-colors duration-150 hover:border-white/50 hover:bg-white/[0.1]"
             >
               <span>Watch Tonight</span>
               <ArrowUpRight className="h-3.5 w-3.5 transition-transform duration-150 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5" />
             </Link>
-            <HeroPickActions film={film} />
+            <PickActions film={film} />
           </div>
-        ) : (
-          <Link
-            href={`/film/${film.slug}`}
-            className="group/btn mt-1 inline-flex w-fit items-center gap-2 rounded-lg border px-3.5 py-2 font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-widest transition-colors duration-150 hover:bg-white/[0.04]"
-            style={{ color: slot.accentColor, borderColor: `${slot.accentColor}40` }}
-          >
-            <span>Watch Tonight</span>
-            <ArrowUpRight className="h-3 w-3 transition-transform duration-150 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5" />
-          </Link>
-        )}
+        </div>
       </div>
-    </motion.div>
+    </motion.article>
   );
 }
