@@ -380,17 +380,19 @@ export function SnobTestClient() {
                         <h2 className="line-clamp-2 font-[family-name:var(--font-display)] text-sm font-semibold leading-tight text-white">
                           {film.title}
                         </h2>
-                        <div className="mt-1 flex items-center gap-2 text-xs text-[#c9c9d4]">
+                        <div className="mt-1 flex items-center gap-2 text-xs font-medium text-[#e6e6ee]">
                           <span>{film.year}</span>
-                          {film.imdbRating != null && <span>{film.imdbRating.toFixed(1)} IMDb</span>}
+                          {film.imdbRating != null && (
+                            <span className="text-[#F0C64A]">{film.imdbRating.toFixed(1)} IMDb</span>
+                          )}
                         </div>
                       </div>
                       <span
                         className={cn(
                           "absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full border backdrop-blur-md transition",
                           selected
-                            ? "border-[#D4AF37] bg-[#D4AF37] text-[#09090f] shadow-[0_2px_10px_rgba(212,175,55,0.45)]"
-                            : "border-white/35 bg-black/45 text-transparent group-hover:border-white/60",
+                            ? "border-[#D4AF37] bg-[#D4AF37] text-[#09090f] shadow-[0_0_0_1.5px_rgba(9,9,15,0.6),0_2px_10px_rgba(212,175,55,0.5)]"
+                            : "border-white/70 bg-black/55 text-transparent shadow-[0_1px_6px_rgba(0,0,0,0.6)] group-hover:border-white/90",
                         )}
                       >
                         <Check
