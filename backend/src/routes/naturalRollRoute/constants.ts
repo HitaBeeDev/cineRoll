@@ -8,6 +8,12 @@ export const NATURAL_ROLL_LIMITS = {
 
 export const GEMINI_MODEL = "gemini-2.5-flash-lite";
 
+// Stage-1 extraction runs near-deterministically (temperature 0.1) so the same
+// prompt maps to the same structural filters. Caching that mapping skips a
+// Gemini round-trip on repeats. A day is plenty: the cache is in-memory and
+// resets on deploy anyway (which is also when the extraction prompt changes).
+export const EXTRACT_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
+
 export const RELAX_PRIORITY = [
   "genre",
   "category",

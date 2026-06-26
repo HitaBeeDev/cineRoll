@@ -83,6 +83,10 @@ export const cache: CacheStore = new InMemoryLruStore(
 export const cacheKeys = {
   filmDetail: (slug: string) => `film:detail:${slug}`,
   pickOfDay: (day: string) => `pickOfDay:${day}`,
+  /** Stage-1 structural filters for a natural-roll prompt, keyed by a hash of
+   *  the normalized prompt (the caller hashes so keys stay bounded and free of
+   *  raw user text). */
+  naturalRollFilters: (promptHash: string) => `nlr:filters:${promptHash}`,
   randomCount: (signature: string) => `random:count:${signature}`,
   /** Prefix covering all of one user's cached recommendations (any limit). */
   recommendationsPrefix: (userId: string) => `recs:${userId}:`,
