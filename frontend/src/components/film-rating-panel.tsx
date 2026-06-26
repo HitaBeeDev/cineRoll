@@ -3,8 +3,10 @@
 import { useEffect, useState } from "react";
 import { Star } from "lucide-react";
 import { useSession } from "next-auth/react";
+import { usePathname, useRouter } from "next/navigation";
 import { fetchFilmStatus, saveFilmRating } from "@/lib/api";
 import { useToast } from "@/components/ui/toast";
+import { SignInHint } from "@/components/sign-in-hint";
 import { cn } from "@/lib/utils";
 
 const STAR_GOLD = "#E3B53E";
@@ -24,6 +26,9 @@ export function FilmRatingPanel({ filmId, filmTitle }: RatingPanelProps) {
   const { status } = useSession();
   const isAuthenticated = status === "authenticated";
   const { toast } = useToast();
+  const router = useRouter();
+  const pathname = usePathname();
+  const signInHref = `/auth/signin?callbackUrl=${encodeURIComponent(pathname)}`;
   const [userRating, setUserRating] = useState<number | null>(null);
   const [selected, setSelected] = useState<number | null>(null);
   const [hoverRating, setHoverRating] = useState<number | null>(null);
@@ -57,24 +62,13 @@ export function FilmRatingPanel({ filmId, filmTitle }: RatingPanelProps) {
         : "Submitted"
       : "Submit";
 
-  function promptSignIn() {
-    toast({
-      variant: "signin",
-      title: `Sign in to rate ${filmTitle}`,
-      action: {
-        label: "Sign in",
-        href: `/auth/signin?callbackUrl=${encodeURIComponent(window.location.pathname)}`,
-      },
-      duration: 7000,
-    });
-  }
-
   function handleStar(rating: number) {
     if (saving) return;
-    // Earliest point of intent: the moment an unauthenticated user reaches for a
-    // star, surface the sign-in prompt instead of letting them rate into a void.
+    // Signed-out users get the anchored hover/focus hint instead. On a click
+    // (the touch path, where there is no hover) we act on the intent and route
+    // them to sign-in rather than letting them rate into a void.
     if (!isAuthenticated) {
-      promptSignIn();
+      router.push(signInHref);
       return;
     }
     setSelected(rating);
@@ -83,7 +77,7 @@ export function FilmRatingPanel({ filmId, filmTitle }: RatingPanelProps) {
   async function handleSubmit() {
     if (saving) return;
     if (!isAuthenticated) {
-      promptSignIn();
+      router.push(signInHref);
       return;
     }
     if (selected === null || !dirty) return;
@@ -110,6 +104,12 @@ export function FilmRatingPanel({ filmId, filmTitle }: RatingPanelProps) {
   }
 
   return (
+    <SignInHint
+      enabled={!isAuthenticated}
+      message="Sign in to save your rating — changes here won't be kept until you do."
+      signInHref={signInHref}
+      className="inline-block w-fit max-w-full"
+    >
     <div className="inline-flex w-fit max-w-full flex-wrap items-center gap-x-6 gap-y-4 border border-[#1e1e30] bg-[#0c0c14] px-5 py-4">
       {/* Stars + live value — the primary interaction, kept as one tight unit. */}
       <div className="flex items-center gap-3.5">
@@ -166,6 +166,7 @@ export function FilmRatingPanel({ filmId, filmTitle }: RatingPanelProps) {
         {buttonLabel}
       </button>
     </div>
+    </SignInHint>
   );
 }
 

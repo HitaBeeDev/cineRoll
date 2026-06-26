@@ -1,11 +1,13 @@
 "use client";
 
 import Image from "next/image";
+import { usePathname, useRouter } from "next/navigation";
 import { Loader2, Trash2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
+import { SignInHint } from "@/components/sign-in-hint";
 import { cn } from "@/lib/utils";
 
 type FilmComment = {
@@ -35,6 +37,9 @@ type Props = {
 export function FilmCommentsSection({ slug }: Props) {
   const { status } = useSession();
   const { toast } = useToast();
+  const router = useRouter();
+  const pathname = usePathname();
+  const signInHref = `/auth/signin?callbackUrl=${encodeURIComponent(pathname)}`;
   const [comments, setComments] = useState<FilmComment[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -105,15 +110,9 @@ export function FilmCommentsSection({ slug }: Props) {
   async function postComment(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!canPost) {
-      toast({
-        variant: "signin",
-        title: "Sign in to comment",
-        action: {
-          label: "Sign in",
-          href: `/auth/signin?callbackUrl=${encodeURIComponent(window.location.pathname)}`,
-        },
-        duration: 7000,
-      });
+      // Signed-out users see the anchored hover/focus hint. A submit click is
+      // the touch path (no hover), so act on the intent and route to sign-in.
+      router.push(signInHref);
       return;
     }
     const trimmed = body.trim();
@@ -214,6 +213,11 @@ export function FilmCommentsSection({ slug }: Props) {
       <div className="mt-5 space-y-2">
         {/* One surface: the card IS the field — flush textarea + an action bar,
             no box-in-box. Focus lights the whole composer. */}
+        <SignInHint
+          enabled={!canPost}
+          message="Sign in to post — your comment won't be saved until you do."
+          signInHref={signInHref}
+        >
         <form
           onSubmit={postComment}
           className="border border-[#22223a] bg-[#0c0c14] transition-colors focus-within:border-[#e8453c]/55 focus-within:ring-1 focus-within:ring-[#e8453c]/35"
@@ -244,6 +248,7 @@ export function FilmCommentsSection({ slug }: Props) {
             </button>
           </div>
         </form>
+        </SignInHint>
 
         <div className="space-y-2">
           {isLoading ? (
