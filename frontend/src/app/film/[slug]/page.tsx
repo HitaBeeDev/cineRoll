@@ -566,13 +566,13 @@ export default async function FilmPage({
         />
         {/* Ambient glow at top of content */}
         <div
-          className="pointer-events-none absolute -top-32 left-1/2 h-80 w-[90vw] max-w-5xl -translate-x-1/2 blur-3xl"
+          className="pointer-events-none absolute -top-32 left-1/2 h-80 w-[90vw] max-w-6xl -translate-x-1/2 blur-3xl"
           style={{
             background: `radial-gradient(ellipse, ${accent}18, transparent 68%)`,
           }}
         />
 
-        <div className="relative mx-auto max-w-5xl space-y-20 px-6 py-20 lg:px-10">
+        <div className="relative mx-auto max-w-6xl space-y-20 px-6 py-20 lg:px-10">
 
           {/* ── SYNOPSIS ─────────────────────────────────────────────── */}
           {film.plot && (
@@ -589,6 +589,70 @@ export default async function FilmPage({
                 <p className="max-w-3xl text-[1.2rem] font-light leading-[1.8] tracking-wide text-[#efedf8] sm:text-[1.3rem]">
                   {film.plot}
                 </p>
+              </div>
+            </section>
+          )}
+
+          {/* ── DETAILS ──────────────────────────────────────────────────
+              Reference facts — genres, rankings, external links — surfaced as
+              a thin horizontal strip right after the synopsis, instead of
+              buried in a sidebar at the foot of the page where nobody scrolls
+              back to them. */}
+          {(film.genres.length > 0 || rankTags.length > 0 || film.imdbId) && (
+            <section id="details">
+              <SectionLabel>Details</SectionLabel>
+              <div className="mt-8 grid gap-x-12 gap-y-8 sm:grid-cols-2 lg:grid-cols-[1fr_auto_auto]">
+                {film.genres.length > 0 && (
+                  <div>
+                    <MetaHeading>Genres</MetaHeading>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {film.genres.map((g) => (
+                        <span
+                          key={g}
+                          className="border border-[#25253a] px-3.5 py-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.35em] text-[#8888a8] transition-colors hover:border-[#e8453c]/40 hover:text-[#d0d0e8]"
+                        >
+                          {g}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {rankTags.length > 0 && (
+                  <div>
+                    <MetaHeading>Rankings</MetaHeading>
+                    <div className="mt-4 flex flex-col gap-2">
+                      {rankTags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="border border-[#25253a] bg-[#0d0d18] px-3.5 py-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.3em] text-[#9898b8]"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {film.imdbId && (
+                  <div>
+                    <MetaHeading>Links</MetaHeading>
+                    <div className="mt-4">
+                      <a
+                        href={`https://www.imdb.com/title/${film.imdbId}/`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group flex items-center justify-between gap-8 border border-[#25253a] bg-[#0d0d18] px-5 py-4 transition-colors hover:border-[#e8453c]/40"
+                      >
+                        <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.4em] text-[#9898b8] transition-colors group-hover:text-[#f4f4f5]">
+                          IMDb
+                        </span>
+                        <ExternalLink
+                          className="h-3.5 w-3.5 text-[#555570] transition-colors group-hover:text-[#e8453c]"
+                          aria-hidden
+                        />
+                      </a>
+                    </div>
+                  </div>
+                )}
               </div>
             </section>
           )}
@@ -675,86 +739,29 @@ export default async function FilmPage({
             <FilmCommentsSection slug={film.slug} />
           </div>
 
-          {/* ── TRAILER + META ────────────────────────────────────────── */}
-          <div className="grid gap-14 xl:grid-cols-[1fr_240px]">
-            {film.trailerUrl ? (
-              <div id="trailer" className="scroll-mt-24">
-                <SectionLabel>Trailer</SectionLabel>
-                <div className="mt-8">
-                  <FilmTrailer
-                    title={film.title}
-                    trailerUrl={film.trailerUrl}
-                    youtubeId={youtubeId}
-                    thumbnailUrl={film.backdropUrl ?? film.posterUrl}
-                  />
-                </div>
+          {/* ── TRAILER ──────────────────────────────────────────────── */}
+          {film.trailerUrl ? (
+            <section id="trailer" className="scroll-mt-24">
+              <SectionLabel>Trailer</SectionLabel>
+              <div className="mt-8">
+                <FilmTrailer
+                  title={film.title}
+                  trailerUrl={film.trailerUrl}
+                  youtubeId={youtubeId}
+                  thumbnailUrl={film.backdropUrl ?? film.posterUrl}
+                />
               </div>
-            ) : (
-              <section id="trailer" className="scroll-mt-24">
-                <SectionLabel>Trailer</SectionLabel>
-                <div className="mt-8 flex aspect-video w-full items-center justify-center border border-[#111118] bg-[#07070c]">
-                  <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.5em] text-[#555570]">
-                    No trailer available
-                  </p>
-                </div>
-              </section>
-            )}
-
-            <div className="flex flex-col gap-10">
-              {rankTags.length > 0 && (
-                <section>
-                  <SectionLabel>Rankings</SectionLabel>
-                  <div className="mt-6 flex flex-col gap-2">
-                    {rankTags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="border border-[#25253a] bg-[#0d0d18] px-3.5 py-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.3em] text-[#9898b8]"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </section>
-              )}
-              {film.genres.length > 0 && (
-                <section>
-                  <SectionLabel>Genres</SectionLabel>
-                  <div className="mt-6 flex flex-wrap gap-2">
-                    {film.genres.map((g) => (
-                      <span
-                        key={g}
-                        className="border border-[#25253a] px-3.5 py-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.35em] text-[#8888a8] transition-colors hover:border-[#e8453c]/40 hover:text-[#d0d0e8]"
-                      >
-                        {g}
-                      </span>
-                    ))}
-                  </div>
-                </section>
-              )}
-
-              {film.imdbId && (
-                <section>
-                  <SectionLabel>Links</SectionLabel>
-                  <div className="mt-6">
-                    <a
-                      href={`https://www.imdb.com/title/${film.imdbId}/`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="group flex items-center justify-between border border-[#25253a] bg-[#0d0d18] px-5 py-4 transition-colors hover:border-[#e8453c]/40"
-                    >
-                      <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.4em] text-[#9898b8] transition-colors group-hover:text-[#f4f4f5]">
-                        IMDb
-                      </span>
-                      <ExternalLink
-                        className="h-3.5 w-3.5 text-[#555570] transition-colors group-hover:text-[#e8453c]"
-                        aria-hidden
-                      />
-                    </a>
-                  </div>
-                </section>
-              )}
-            </div>
-          </div>
+            </section>
+          ) : (
+            <section id="trailer" className="scroll-mt-24">
+              <SectionLabel>Trailer</SectionLabel>
+              <div className="mt-8 flex aspect-video w-full items-center justify-center border border-[#111118] bg-[#07070c]">
+                <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.5em] text-[#555570]">
+                  No trailer available
+                </p>
+              </div>
+            </section>
+          )}
 
           {/* ── WHERE TO WATCH ──────────────────────────────────────────── */}
           <WhereToWatch
@@ -812,6 +819,15 @@ function SectionLabel({ children }: { children: ReactNode }) {
       </h2>
       <div className="h-px flex-1 bg-gradient-to-r from-[#2a2a42] to-transparent" />
     </div>
+  );
+}
+
+/** Lightweight subheading for the grouped facts inside the Details strip. */
+function MetaHeading({ children }: { children: ReactNode }) {
+  return (
+    <p className="font-[family-name:var(--font-geist-mono)] text-[11px] font-semibold uppercase tracking-[0.4em] text-[#7c7ca0]">
+      {children}
+    </p>
   );
 }
 
