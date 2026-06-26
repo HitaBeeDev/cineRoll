@@ -179,10 +179,10 @@ export default function PicksPage() {
   });
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-[#09090f] text-[#F5F5F0]">
+    <div className="flex min-h-screen flex-col bg-[#09090f] text-[#F5F5F0]">
       <AppHeader />
 
-      <main className="flex flex-1 flex-col overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:w-0">
+      <main className="flex flex-1 flex-col">
         {/* Page header */}
         <div className="border-b border-[#1a1a28] px-6 py-5 sm:px-10">
           <div className="flex items-center justify-between">
@@ -364,10 +364,14 @@ function PickCard({
           : { delay: index * 0.1, type: "spring", stiffness: 300, damping: 28 }
       }
       className={cn(
+        // A fixed rem floor guarantees the image always has room for the
+        // overlaid content panel, so they can never collide on short laptops.
+        // `flex-1` still lets cards grow to fill taller viewports; when the
+        // viewport is shorter than the floor, the page scrolls instead.
         "group relative flex flex-1 flex-col overflow-hidden border-[#1a1a28]",
         isHero
-          ? "min-h-[56vh] border-b lg:min-h-0 lg:flex-[1.5] lg:border-b-0 lg:border-r"
-          : "min-h-[34vh] border-b last:border-b-0 lg:min-h-0",
+          ? "min-h-[34rem] border-b lg:flex-[1.5] lg:border-b-0 lg:border-r"
+          : "min-h-[18rem] border-b last:border-b-0",
       )}
     >
       {/* Top accent strip — bold on the hero, a hairline on supporting cards so
