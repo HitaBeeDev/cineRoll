@@ -397,6 +397,13 @@ export default function DescribePage() {
                   onChange={(event) =>
                     setPrompt(event.target.value.slice(0, 500))
                   }
+                  onKeyDown={(event) => {
+                    // ⌘/Ctrl+Enter rolls, matching the "type and roll" flow.
+                    if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
+                      event.preventDefault();
+                      void handleSubmit();
+                    }
+                  }}
                   disabled={isProcessing}
                   placeholder={PROMPT_PLACEHOLDER}
                   className={cn(
@@ -456,6 +463,7 @@ export default function DescribePage() {
 
                     <button
                       type="button"
+                      title="⌘/Ctrl + Enter"
                       onClick={() => void handleSubmit()}
                       disabled={!prompt.trim() || isProcessing}
                       className={cn(
