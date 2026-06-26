@@ -200,10 +200,10 @@ function FilmBattleCard({
         scale: isPicked ? 1.04 : isRejected ? 0.94 : 1,
       }}
       {...(!isPicked && !isRejected && !reduced
-        ? { whileHover: { scale: 1.01 } }
+        ? { whileHover: { y: -4, scale: 1.015 } }
         : {})}
       transition={{ type: "spring", stiffness: 260, damping: 24 }}
-      className="group relative flex h-full w-full will-change-transform flex-col overflow-hidden rounded-2xl border border-[#1e1e2a] bg-[#0d0d1a] text-left shadow-[0_18px_60px_rgba(0,0,0,0.28)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] disabled:cursor-default enabled:hover:border-[#e8453c]/55 enabled:hover:shadow-[0_0_34px_rgba(232,69,60,0.16)]"
+      className="group relative flex h-full w-full cursor-pointer will-change-transform flex-col overflow-hidden rounded-2xl border border-[#1e1e2a] bg-[#0d0d1a] text-left shadow-[0_18px_60px_rgba(0,0,0,0.28)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] disabled:cursor-default enabled:hover:border-[#e8453c]/70 enabled:hover:shadow-[0_0_38px_rgba(232,69,60,0.2)]"
       aria-label={`Pick ${film.title}`}
     >
       {/* Poster */}
@@ -214,21 +214,21 @@ function FilmBattleCard({
             alt={film.title}
             fill
             sizes="(max-width: 768px) 45vw, 300px"
-            className="object-cover transition duration-300 group-hover:brightness-110"
+            className="object-cover transition duration-300 group-hover:brightness-110 group-hover:saturate-110"
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center bg-[#1a1a28]">
             <Clapperboard className="h-10 w-10 text-[#2a2a3e]" />
           </div>
         )}
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#0d0d1a]/80 via-transparent to-transparent" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#0d0d1a]/58 via-[#0d0d1a]/8 to-transparent" />
 
         {/* Winner overlay */}
         {isPicked && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="absolute inset-0 flex items-center justify-center bg-[#e8453c]/15 ring-2 ring-inset ring-[#e8453c]/50"
+            className="absolute inset-0 flex items-center justify-center bg-[#e8453c]/18 shadow-[inset_0_0_60px_rgba(232,69,60,0.18)] ring-2 ring-inset ring-[#e8453c]/60"
           >
             <div className="rounded-full bg-[#e8453c] p-3 shadow-[0_0_20px_rgba(232,69,60,0.5)]">
               <Trophy className="h-5 w-5 text-[#F5F5F0]" />
@@ -276,7 +276,7 @@ function FilmBattleCard({
 
       {/* Pick CTA */}
       <div className="px-3 pb-2.5">
-        <div className="w-full rounded-xl border border-[#e8453c]/30 bg-[#e8453c]/10 py-2 text-center font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.18em] text-[#e8453c] transition-all group-hover:border-[#e8453c]/70 group-hover:bg-[#e8453c]/20 group-hover:text-[#ff635a]">
+        <div className="w-full rounded-xl border border-[#e8453c]/30 bg-[#e8453c]/10 py-2 text-center font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.18em] text-[#e8453c] transition-all group-hover:border-[#e8453c]/80 group-hover:bg-[#e8453c]/20 group-hover:text-[#ff635a] group-hover:shadow-[0_0_22px_rgba(232,69,60,0.18)]">
           Advance This Film
         </div>
       </div>
@@ -339,12 +339,17 @@ export default function RollBattlePage() {
           ? rightFilm
           : null
       : null;
+  const championRailFilm = selectedFilm ?? (round > 0 ? leftFilm : null);
+  const completedRound = selectedFilm ? round + 1 : round;
+  const roundsLeft = selectedFilm
+    ? TOTAL_ROUNDS - round - 1
+    : TOTAL_ROUNDS - round;
 
   function handlePick(film: RollFilm) {
     if (pickedId !== null) return;
     setPickedId(film.id);
     setPickedFilms((current) => [...current, film]);
-    const delay = reduced ? 0 : 650;
+    const delay = reduced ? 0 : 900;
     setTimeout(() => {
       if (round < TOTAL_ROUNDS - 1) {
         setChampion(film);
@@ -416,15 +421,15 @@ export default function RollBattlePage() {
             <aside className="hidden pt-28 lg:block">
               <div className="border-l border-[#1e1e2a] pl-4">
                 <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.24em] text-[#555568]">
-                  {round === 0 ? "Opening Bout" : "Current Champion"}
+                  {championRailFilm == null ? "Opening Bout" : "Current Champion"}
                 </p>
                 <p className="mt-2 line-clamp-2 font-[family-name:var(--font-display)] text-base font-bold leading-tight text-[#F5F5F0]/80">
-                  {round === 0 ? "No champion yet" : leftFilm.title}
+                  {championRailFilm?.title ?? "No champion yet"}
                 </p>
                 <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.18em] text-[#77778a]">
-                  {round === 0
+                  {championRailFilm == null
                     ? "First pick sets the bracket"
-                    : `Advanced from round ${round}`}
+                    : `Won round ${completedRound}`}
                 </p>
               </div>
             </aside>
@@ -439,7 +444,7 @@ export default function RollBattlePage() {
                 Which film wins tonight?
               </h1>
               <p className="max-w-md text-sm leading-5 text-[#F5F5F0]/62">
-                Pick the film you would save for tonight&apos;s screening. Five rounds decide your winner.
+                Pick the film you would save for tonight&apos;s screening. Five rounds crown your winner.
               </p>
               <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.22em] text-[#D4AF37]/80">
                 {buildMatchupContext(leftFilm, rightFilm)}
@@ -522,9 +527,9 @@ export default function RollBattlePage() {
                   Bracket
                 </p>
                 <p className="mt-2 font-[family-name:var(--font-display)] text-base font-bold leading-tight text-[#F5F5F0]/80">
-                  {round === 0
+                  {championRailFilm == null
                     ? `${TOTAL_ROUNDS} rounds total`
-                    : `${TOTAL_ROUNDS - round} fights left`}
+                    : `${roundsLeft} ${roundsLeft === 1 ? "round" : "rounds"} left`}
                 </p>
                 <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.18em] text-[#77778a]">
                   {nextBoutLabel(round, films)}
