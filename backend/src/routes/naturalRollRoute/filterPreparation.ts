@@ -7,12 +7,10 @@ export type PreparedFilters = {
   allowed: Awaited<ReturnType<typeof getAllowedFilterValues>>;
   appliedFilters: Record<string, unknown>;
   droppedFilters: string[];
-  query: RandomQuery;
 };
 
 export async function prepareNaturalRollFilters(
   structuralFilters: Stage1Filters,
-  userId: string | undefined,
 ): Promise<PreparedFilters> {
   const allowed = await getAllowedFilterValues();
   const { filters, dropped } = validateStructuralFilters(structuralFilters, allowed);
@@ -25,7 +23,6 @@ export async function prepareNaturalRollFilters(
     allowed,
     appliedFilters: filters,
     droppedFilters: dropped,
-    query: naturalRollQuery(filters, userId),
   };
 }
 

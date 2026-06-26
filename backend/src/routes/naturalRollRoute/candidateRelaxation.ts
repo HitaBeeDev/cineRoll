@@ -1,16 +1,13 @@
 import { AllowedFilterValues } from "../../lib/allowedFilterValues";
 import { validateStructuralFilters } from "../../lib/validateFilters";
-import { getQualityCandidates, RandomFilmRow } from "../random";
+import { getQualityCandidates, getRandomCount, RandomFilmRow } from "../random";
 import { NATURAL_ROLL_LIMITS, RELAX_PRIORITY } from "./constants";
 import { naturalRollQuery } from "./filterPreparation";
 import { Stage1Filters } from "./schemas";
 
-export type CandidateResult = {
+export type RelaxationResult = {
   films: RandomFilmRow[];
   total: number;
-};
-
-export type RelaxationResult = CandidateResult & {
   appliedFilters: Record<string, unknown>;
   droppedFilters: string[];
   relaxed: boolean;
@@ -23,9 +20,9 @@ export async function loadCandidatesWithRelaxation(
   appliedFilters: Record<string, unknown>,
   droppedFilters: string[],
 ): Promise<RelaxationResult> {
-  const initial = await loadCandidates(naturalRollQuery(appliedFilters, userId));
-  if (initial.films.length > 0) {
-    return { ...initial, appliedFilters, droppedFilters, relaxed: false };
+  const films = await loadCandidateFilms(appliedFilters, userId);
+  if (films.length > 0) {
+    return finalize(films, appliedFilters, userId, droppedFilters, false);
   }
 
   return relaxUntilCandidatesFound(structuralFilters, userId, allowed, appliedFilters, droppedFilters);
@@ -38,25 +35,34 @@ async function relaxUntilCandidatesFound(
   appliedFilters: Record<string, unknown>,
   droppedFilters: string[],
 ): Promise<RelaxationResult> {
-  let latest: CandidateResult = { films: [], total: 0 };
   const removed: string[] = [];
 
   for (const key of relaxableKeys(appliedFilters)) {
     removed.push(key);
     const relaxedFilters = cleanWithRemovedFilters(structuralFilters, removed, allowed);
-    latest = await loadCandidates(naturalRollQuery(relaxedFilters, userId));
+    const films = await loadCandidateFilms(relaxedFilters, userId);
 
-    if (latest.films.length > 0) {
-      return {
-        ...latest,
-        appliedFilters: relaxedFilters,
-        droppedFilters: [...droppedFilters, ...removed],
-        relaxed: true,
-      };
+    if (films.length > 0) {
+      return finalize(films, relaxedFilters, userId, [...droppedFilters, ...removed], true);
     }
   }
 
-  return { ...latest, appliedFilters, droppedFilters, relaxed: false };
+  // Nothing matched even fully relaxed. The caller reports NO_FILMS_FOUND and
+  // never reads `total` here, so skip the count entirely.
+  return { films: [], total: 0, appliedFilters, droppedFilters, relaxed: false };
+}
+
+// Resolve the pool count once — only for the filter set that actually produced
+// films — instead of on every relaxation probe.
+async function finalize(
+  films: RandomFilmRow[],
+  appliedFilters: Record<string, unknown>,
+  userId: string | undefined,
+  droppedFilters: string[],
+  relaxed: boolean,
+): Promise<RelaxationResult> {
+  const total = await getRandomCount(naturalRollQuery(appliedFilters, userId));
+  return { films, total, appliedFilters, droppedFilters, relaxed };
 }
 
 function relaxableKeys(filters: Record<string, unknown>): string[] {
@@ -74,9 +80,12 @@ function cleanWithRemovedFilters(
   return filters;
 }
 
-function loadCandidates(query: Parameters<typeof getQualityCandidates>[0]): Promise<CandidateResult> {
+function loadCandidateFilms(
+  filters: Record<string, unknown>,
+  userId: string | undefined,
+): Promise<RandomFilmRow[]> {
   return getQualityCandidates(
-    query,
+    naturalRollQuery(filters, userId),
     NATURAL_ROLL_LIMITS.candidateTop,
     NATURAL_ROLL_LIMITS.candidateSample,
   );

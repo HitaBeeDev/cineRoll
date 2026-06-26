@@ -14,6 +14,7 @@ import { RandomFilmRow } from "./randomRoute/types";
 
 export {
   getQualityCandidates,
+  getRandomCount,
   getRandomFilm,
   getRandomFilms,
 } from "./randomRoute/randomRepository";

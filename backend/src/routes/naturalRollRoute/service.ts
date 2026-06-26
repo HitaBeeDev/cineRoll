@@ -37,7 +37,7 @@ export type RankPayload = {
 /** Phase 1: extract structural filters and select candidates (with relaxation). */
 export async function interpretNaturalRoll(body: NaturalRollBody): Promise<InterpretOutcome> {
   const structuralFilters = await extractStructuralFilters(body.prompt);
-  const prepared = await prepareNaturalRollFilters(structuralFilters, body.userId);
+  const prepared = await prepareNaturalRollFilters(structuralFilters);
   const candidateResult = await loadCandidatesWithRelaxation(
     structuralFilters,
     body.userId,

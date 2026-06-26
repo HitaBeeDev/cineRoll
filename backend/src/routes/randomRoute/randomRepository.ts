@@ -36,32 +36,32 @@ export async function getRandomFilms(
   return { films, total };
 }
 
+// Returns a quality-biased candidate sample only — no pool count. The caller
+// (natural-roll relaxation) may probe several filter sets before one matches,
+// so the (single) total is computed once, separately, via getRandomCount rather
+// than on every probe.
 export async function getQualityCandidates(
   query: RandomQuery,
   topN: number,
   sampleN: number,
-): Promise<{ films: RandomFilmRow[]; total: number }> {
+): Promise<RandomFilmRow[]> {
   const additionalConditions = await buildExclusionConditions(query);
   const whereSql = buildWhereClause(query, additionalConditions);
-  const [films, total] = await Promise.all([
-    prisma.$queryRaw<RandomFilmRow[]>(
-      Prisma.sql`
-        SELECT top_films.*
-        FROM (
-          SELECT ${randomSelect}
-          FROM "Film"
-          ${whereSql}
-          ORDER BY "Film"."imdbRating" DESC NULLS LAST
-          LIMIT ${topN}
-        ) top_films
-        ORDER BY RANDOM()
-        LIMIT ${sampleN}
-      `,
-    ),
-    countFilms(query, whereSql, additionalConditions.length === 0),
-  ]);
 
-  return { films, total };
+  return prisma.$queryRaw<RandomFilmRow[]>(
+    Prisma.sql`
+      SELECT top_films.*
+      FROM (
+        SELECT ${randomSelect}
+        FROM "Film"
+        ${whereSql}
+        ORDER BY "Film"."imdbRating" DESC NULLS LAST
+        LIMIT ${topN}
+      ) top_films
+      ORDER BY RANDOM()
+      LIMIT ${sampleN}
+    `,
+  );
 }
 
 export async function getRandomCount(query: RandomQuery): Promise<number> {
