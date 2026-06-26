@@ -1,5 +1,6 @@
 import { prisma } from "../../lib/prisma";
 import {
+  NON_PERSON_CATEGORY_PATTERN,
   NON_PERSON_NOMINEE_PATTERN,
   PERSON_ROLE_SUFFIX_PATTERN,
 } from "./constants";
@@ -14,18 +15,21 @@ export function getMostNominatedPersonRows(): Promise<PersonStatRow[]> {
       WHERE award->>'nominee' IS NOT NULL
         AND award->>'nominee' <> ''
         AND award->>'nominee' <> 'NaN'
+        AND award->>'category' !~* ${NON_PERSON_CATEGORY_PATTERN}
       UNION ALL
       SELECT regexp_replace(award->>'nominee', ${PERSON_ROLE_SUFFIX_PATTERN}, '', 'i')
       FROM "Film", jsonb_array_elements("ggCategories") AS award
       WHERE award->>'nominee' IS NOT NULL
         AND award->>'nominee' <> ''
         AND award->>'nominee' <> 'NaN'
+        AND award->>'category' !~* ${NON_PERSON_CATEGORY_PATTERN}
       UNION ALL
       SELECT regexp_replace(award->>'nominee', ${PERSON_ROLE_SUFFIX_PATTERN}, '', 'i')
       FROM "Film", jsonb_array_elements("cannesCategories") AS award
       WHERE award->>'nominee' IS NOT NULL
         AND award->>'nominee' <> ''
         AND award->>'nominee' <> 'NaN'
+        AND award->>'category' !~* ${NON_PERSON_CATEGORY_PATTERN}
     ) all_nominees
     WHERE nominee !~* ${NON_PERSON_NOMINEE_PATTERN}
     GROUP BY nominee
@@ -43,6 +47,7 @@ export function getMostWinningPersonRows(): Promise<PersonStatRow[]> {
       WHERE award->>'nominee' IS NOT NULL
         AND award->>'nominee' <> ''
         AND award->>'nominee' <> 'NaN'
+        AND award->>'category' !~* ${NON_PERSON_CATEGORY_PATTERN}
         AND (award->>'won')::BOOLEAN = true
       UNION ALL
       SELECT regexp_replace(award->>'nominee', ${PERSON_ROLE_SUFFIX_PATTERN}, '', 'i')
@@ -50,6 +55,7 @@ export function getMostWinningPersonRows(): Promise<PersonStatRow[]> {
       WHERE award->>'nominee' IS NOT NULL
         AND award->>'nominee' <> ''
         AND award->>'nominee' <> 'NaN'
+        AND award->>'category' !~* ${NON_PERSON_CATEGORY_PATTERN}
         AND (award->>'won')::BOOLEAN = true
       UNION ALL
       SELECT regexp_replace(award->>'nominee', ${PERSON_ROLE_SUFFIX_PATTERN}, '', 'i')
@@ -57,6 +63,7 @@ export function getMostWinningPersonRows(): Promise<PersonStatRow[]> {
       WHERE award->>'nominee' IS NOT NULL
         AND award->>'nominee' <> ''
         AND award->>'nominee' <> 'NaN'
+        AND award->>'category' !~* ${NON_PERSON_CATEGORY_PATTERN}
         AND (award->>'won')::BOOLEAN = true
     ) all_winners
     WHERE nominee !~* ${NON_PERSON_NOMINEE_PATTERN}
