@@ -14,7 +14,11 @@ import { HttpError } from "./errorHandler";
 
 type Bucket = { count: number; resetAt: number };
 
-class FixedWindowCounter {
+// Shared fixed-window primitive. Used by the global limiter below and by the
+// stricter per-route sub-limiter on the expensive natural-roll path. Keeping a
+// single implementation means there is exactly ONE store to swap for Redis when
+// limits need to hold across a horizontally-scaled fleet.
+export class FixedWindowCounter {
   private readonly buckets = new Map<string, Bucket>();
 
   constructor(
