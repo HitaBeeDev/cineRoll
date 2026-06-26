@@ -376,7 +376,7 @@ export function SnobTestClient() {
                       ) : (
                         <PosterFallback title={film.title} color={film.posterColor} />
                       )}
-                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/78 to-transparent p-3 pt-16">
+                      <div className="absolute inset-x-0 bottom-0 bg-[linear-gradient(to_top,#000_0%,#000_38%,rgba(0,0,0,0.72)_64%,transparent_100%)] p-3 pt-16">
                         <h2 className="line-clamp-2 font-[family-name:var(--font-display)] text-sm font-semibold leading-tight text-white">
                           {film.title}
                         </h2>
