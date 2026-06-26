@@ -238,9 +238,25 @@ export default function PicksPage() {
                 transition={{ duration: shouldReduceMotion ? 0 : 0.25, ease: "easeOut" }}
                 className="flex flex-1 flex-col lg:flex-row"
               >
-                {picks.map((pick, i) => (
-                  <PickCard key={pick.film.id} pick={pick} index={i} />
-                ))}
+                {/* Clear hierarchy: the first slot is the hero (larger, bolder,
+                    the only fully-coloured CTA), the rest are quieter supporting
+                    cards stacked beside it — so one pick leads the eye instead of
+                    three competing equally. */}
+                {picks[0] && (
+                  <PickCard key={picks[0].film.id} pick={picks[0]} index={0} variant="hero" />
+                )}
+                {picks.length > 1 && (
+                  <div className="flex flex-1 flex-col">
+                    {picks.slice(1).map((pick, i) => (
+                      <PickCard
+                        key={pick.film.id}
+                        pick={pick}
+                        index={i + 1}
+                        variant="supporting"
+                      />
+                    ))}
+                  </div>
+                )}
               </motion.div>
             )}
           </AnimatePresence>
@@ -250,13 +266,22 @@ export default function PicksPage() {
   );
 }
 
-function PickCard({ pick, index }: { pick: DailyPick; index: number }) {
+function PickCard({
+  pick,
+  index,
+  variant,
+}: {
+  pick: DailyPick;
+  index: number;
+  variant: "hero" | "supporting";
+}) {
   const shouldReduceMotion = useReducedMotion();
   const { film, slot } = pick;
   const imageUrl = film.backdropUrl ?? film.posterUrl;
   const genre = film.genres[0] ?? "";
   const runtime = formatRuntime(film.runtime);
   const totalWins = film.oscarWins + film.ggWins + film.cannesWins;
+  const isHero = variant === "hero";
 
   return (
     <motion.div
@@ -267,12 +292,18 @@ function PickCard({ pick, index }: { pick: DailyPick; index: number }) {
           ? { duration: 0 }
           : { delay: index * 0.1, type: "spring", stiffness: 300, damping: 28 }
       }
-      className="group relative flex flex-1 flex-col overflow-hidden border-b border-[#1a1a28] lg:border-b-0 lg:border-r last:border-r-0"
+      className={cn(
+        "group relative flex flex-1 flex-col overflow-hidden border-[#1a1a28]",
+        isHero
+          ? "min-h-[56vh] border-b lg:min-h-0 lg:flex-[1.5] lg:border-b-0 lg:border-r"
+          : "min-h-[34vh] border-b last:border-b-0 lg:min-h-0",
+      )}
     >
-      {/* Top accent strip */}
+      {/* Top accent strip — bold on the hero, a hairline on supporting cards so
+          only one card's colour leads instead of three competing. */}
       <div
-        className="absolute inset-x-0 top-0 z-20 h-[2px]"
-        style={{ backgroundColor: slot.accentColor }}
+        className={cn("absolute inset-x-0 top-0 z-20", isHero ? "h-[3px]" : "h-px")}
+        style={{ backgroundColor: isHero ? slot.accentColor : `${slot.accentColor}66` }}
       />
 
       {/* Backdrop */}
@@ -282,9 +313,9 @@ function PickCard({ pick, index }: { pick: DailyPick; index: number }) {
             src={imageUrl}
             alt={film.title}
             fill
-            sizes="(max-width: 1024px) 100vw, 33vw"
+            sizes={isHero ? "(max-width: 1024px) 100vw, 58vw" : "(max-width: 1024px) 100vw, 42vw"}
             className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
-            priority={index === 0}
+            priority={isHero}
           />
         ) : (
           <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a2e] to-[#09090f]" />
@@ -293,22 +324,32 @@ function PickCard({ pick, index }: { pick: DailyPick; index: number }) {
         {/* Gradient — softer so the image breathes */}
         <div className="absolute inset-0 bg-gradient-to-t from-[#09090f] via-[#09090f]/20 to-transparent" />
 
-        {/* Ghost slot number */}
-        <div className="pointer-events-none absolute right-3 top-4 select-none">
+        {/* Ghost slot number — large on the hero, modest on supporting cards. */}
+        <div
+          className={cn(
+            "pointer-events-none absolute select-none",
+            isHero ? "right-4 top-5" : "right-3 top-3",
+          )}
+        >
           <span
             className="font-[family-name:var(--font-display)] font-black leading-none"
-            style={{ fontSize: "7rem", color: `${slot.accentColor}12`, lineHeight: 1 }}
+            style={{
+              fontSize: isHero ? "10rem" : "4.5rem",
+              color: `${slot.accentColor}12`,
+              lineHeight: 1,
+            }}
           >
             {slot.num}
           </span>
         </div>
 
         {/* Slot badge */}
-        <div className="absolute left-4 top-5 z-10">
+        <div className={cn("absolute z-10", isHero ? "left-5 top-5" : "left-4 top-4")}>
           <span
             className={cn(
-              "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-[5px]",
-              "font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest backdrop-blur-sm",
+              "inline-flex items-center gap-1.5 rounded-full border backdrop-blur-sm",
+              "font-[family-name:var(--font-geist-mono)] uppercase tracking-widest",
+              isHero ? "px-3 py-1.5 text-[11px]" : "px-2.5 py-1 text-[10px]",
               slot.borderColor,
             )}
             style={{ color: slot.accentColor, backgroundColor: `${slot.accentColor}12` }}
@@ -320,15 +361,28 @@ function PickCard({ pick, index }: { pick: DailyPick; index: number }) {
       </div>
 
       {/* Content */}
-      <div className="absolute bottom-0 left-0 right-0 z-10 flex flex-col gap-2 p-5">
+      <div
+        className={cn(
+          "absolute bottom-0 left-0 right-0 z-10 flex flex-col",
+          isHero ? "gap-2.5 p-6 sm:p-8" : "gap-1.5 p-5",
+        )}
+      >
         <span
-          className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.3em]"
+          className={cn(
+            "font-[family-name:var(--font-geist-mono)] uppercase tracking-[0.3em]",
+            isHero ? "text-[11px]" : "text-[10px]",
+          )}
           style={{ color: `${slot.accentColor}b3` }}
         >
           {slot.mood}
         </span>
 
-        <h2 className="font-[family-name:var(--font-display)] text-2xl font-bold leading-[1.1] text-[#F5F5F0] sm:text-3xl">
+        <h2
+          className={cn(
+            "font-[family-name:var(--font-display)] font-bold leading-[1.05] text-[#F5F5F0]",
+            isHero ? "text-3xl sm:text-5xl" : "text-xl sm:text-2xl",
+          )}
+        >
           {film.title}
         </h2>
 
@@ -336,7 +390,7 @@ function PickCard({ pick, index }: { pick: DailyPick; index: number }) {
           <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-wider text-[#555570]">
             {film.year}
           </span>
-          {runtime && (
+          {isHero && runtime && (
             <>
               <span className="text-[#252538]">·</span>
               <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-wider text-[#555570]">
@@ -354,69 +408,105 @@ function PickCard({ pick, index }: { pick: DailyPick; index: number }) {
           )}
         </div>
 
-        {film.director && (
+        {/* Director and the full critic-score row are hero-only, so supporting
+            cards stay quiet and the hero clearly leads. */}
+        {isHero && film.director && (
           <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-wider text-[#3a3a56]">
             Dir. {film.director}
           </p>
         )}
 
-        <div className="flex items-center gap-3">
-          {film.imdbRating != null ? (
-            <span className="font-[family-name:var(--font-geist-mono)] text-[11px] font-bold text-[#c8c8d8]">
-              ★ {film.imdbRating.toFixed(1)}
-            </span>
-          ) : (
-            <span className="font-[family-name:var(--font-geist-mono)] text-[11px] font-bold text-[#c8c8d8]/40">
-              No IMDb Score
-            </span>
-          )}
-          {film.rtScore != null ? (
-            <span className="font-[family-name:var(--font-geist-mono)] text-[11px] font-bold text-[#c8c8d8]">
-              RT {film.rtScore}%
-            </span>
-          ) : (
-            <span className="font-[family-name:var(--font-geist-mono)] text-[11px] font-bold text-[#c8c8d8]/40">
-              No RT Score
-            </span>
-          )}
-          {totalWins > 0 && (
-            <span
-              className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-wide"
-              style={{ color: slot.accentColor }}
-            >
-              {totalWins}× Winner
-            </span>
-          )}
-        </div>
+        {isHero ? (
+          <div className="flex items-center gap-3">
+            {film.imdbRating != null ? (
+              <span className="font-[family-name:var(--font-geist-mono)] text-[11px] font-bold text-[#c8c8d8]">
+                ★ {film.imdbRating.toFixed(1)}
+              </span>
+            ) : (
+              <span className="font-[family-name:var(--font-geist-mono)] text-[11px] font-bold text-[#c8c8d8]/40">
+                No IMDb Score
+              </span>
+            )}
+            {film.rtScore != null ? (
+              <span className="font-[family-name:var(--font-geist-mono)] text-[11px] font-bold text-[#c8c8d8]">
+                RT {film.rtScore}%
+              </span>
+            ) : (
+              <span className="font-[family-name:var(--font-geist-mono)] text-[11px] font-bold text-[#c8c8d8]/40">
+                No RT Score
+              </span>
+            )}
+            {totalWins > 0 && (
+              <span
+                className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-wide"
+                style={{ color: slot.accentColor }}
+              >
+                {totalWins}× Winner
+              </span>
+            )}
+          </div>
+        ) : (
+          (film.imdbRating != null || totalWins > 0) && (
+            <div className="flex items-center gap-3">
+              {film.imdbRating != null && (
+                <span className="font-[family-name:var(--font-geist-mono)] text-[11px] font-bold text-[#c8c8d8]">
+                  ★ {film.imdbRating.toFixed(1)}
+                </span>
+              )}
+              {totalWins > 0 && (
+                <span
+                  className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-wide"
+                  style={{ color: slot.accentColor }}
+                >
+                  {totalWins}× Winner
+                </span>
+              )}
+            </div>
+          )
+        )}
 
-        <div className="flex items-center gap-2 pt-1">
+        {/* CTA — the hero gets the single bold, fully-coloured button (plus
+            quick actions); supporting cards get a restrained outline link, so
+            colour weight reinforces the hierarchy rather than fighting it. */}
+        {isHero ? (
+          <div className="flex items-center gap-2 pt-1">
+            <Link
+              href={`/film/${film.slug}`}
+              className={cn(
+                "group/btn flex flex-1 items-center justify-between rounded-xl px-4 py-2.5",
+                "font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-widest text-[#F5F5F0]",
+                "transition-all duration-150 hover:brightness-110",
+              )}
+              style={{ backgroundColor: slot.accentColor }}
+            >
+              <span>Watch Tonight</span>
+              <ArrowUpRight className="h-3.5 w-3.5 transition-transform duration-150 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5" />
+            </Link>
+            <button
+              type="button"
+              aria-label="Add to watchlist"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#1e1e2a] text-[#3d3d58] transition-colors hover:border-[#2a2a3e] hover:text-[#F5F5F0]"
+            >
+              <Bookmark className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              aria-label="Share"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#1e1e2a] text-[#3d3d58] transition-colors hover:border-[#2a2a3e] hover:text-[#F5F5F0]"
+            >
+              <Share2 className="h-4 w-4" />
+            </button>
+          </div>
+        ) : (
           <Link
             href={`/film/${film.slug}`}
-            className={cn(
-              "group/btn flex flex-1 items-center justify-between rounded-xl px-4 py-2.5",
-              "font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-widest text-[#F5F5F0]",
-              "transition-all duration-150 hover:brightness-110",
-            )}
-            style={{ backgroundColor: slot.accentColor }}
+            className="group/btn mt-1 inline-flex w-fit items-center gap-2 rounded-lg border px-3.5 py-2 font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-widest transition-colors duration-150 hover:bg-white/[0.04]"
+            style={{ color: slot.accentColor, borderColor: `${slot.accentColor}40` }}
           >
             <span>Watch Tonight</span>
-            <ArrowUpRight className="h-3.5 w-3.5 transition-transform duration-150 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5" />
+            <ArrowUpRight className="h-3 w-3 transition-transform duration-150 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5" />
           </Link>
-          <button
-            type="button"
-            aria-label="Add to watchlist"
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#1e1e2a] text-[#3d3d58] transition-colors hover:border-[#2a2a3e] hover:text-[#F5F5F0]"
-          >
-            <Bookmark className="h-4 w-4" />
-          </button>
-          <button
-            type="button"
-            aria-label="Share"
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#1e1e2a] text-[#3d3d58] transition-colors hover:border-[#2a2a3e] hover:text-[#F5F5F0]"
-          >
-            <Share2 className="h-4 w-4" />
-          </button>
-        </div>
+        )}
       </div>
     </motion.div>
   );
