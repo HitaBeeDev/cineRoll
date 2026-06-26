@@ -441,14 +441,14 @@ export default function DescribePage() {
                     ))}
                   </div>
 
-                  <div className="flex flex-wrap items-center justify-end gap-3">
+                  <div className="flex items-center gap-3">
                     {hasOutcome && (
                       <button
                         type="button"
                         onClick={handleReset}
                         disabled={isProcessing}
                         className={cn(
-                          "inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-full border border-[#2a2a3e] px-5",
+                          "inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-full border border-[#2a2a3e] px-5",
                           "font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-widest text-[#F5F5F0]",
                           "transition-colors hover:border-[#e8453c]/45 hover:text-[#e8453c]",
                           "disabled:cursor-not-allowed disabled:opacity-40",
@@ -467,8 +467,10 @@ export default function DescribePage() {
                       onClick={() => void handleSubmit()}
                       disabled={!prompt.trim() || isProcessing}
                       className={cn(
-                        "inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-full px-5",
-                        "bg-[#e8453c] font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-widest text-[#F5F5F0]",
+                        // The single primary action: full-width, tall, solid accent —
+                        // the loudest element in the panel, not a corner-floated button.
+                        "inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-full px-5",
+                        "bg-[#e8453c] font-[family-name:var(--font-geist-mono)] text-xs font-bold uppercase tracking-widest text-[#F5F5F0]",
                         "transition-colors hover:bg-[#d5342b]",
                         "disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-[#e8453c]",
                         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
@@ -567,11 +569,11 @@ export default function DescribePage() {
                     <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.24em] text-[#e8453c]/70">
                       Channel 04 · Describe
                     </p>
-                    <h2 className="mt-3 font-[family-name:var(--font-display)] text-5xl font-bold leading-none text-[#F5F5F0]">
-                      Mood in.
-                      <br />
-                      Movies out.
-                    </h2>
+                    {/* Demoted to a subtitle so "Describe It" is the page's single
+                        serif hero — not two display headlines competing. */}
+                    <p className="mt-2 font-[family-name:var(--font-display)] text-2xl leading-tight text-[#b6b6c6]">
+                      Mood in. Movies out.
+                    </p>
                   </div>
 
                   {/* A worked example fills the panel instead of leaving a void, and
