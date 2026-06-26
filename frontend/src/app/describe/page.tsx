@@ -397,7 +397,10 @@ export default function DescribePage() {
                   placeholder={PROMPT_PLACEHOLDER}
                   className={cn(
                     "min-h-0 flex-1 resize-none bg-transparent px-4 py-4 outline-none sm:px-5 sm:py-5",
-                    "font-[family-name:var(--font-geist-mono)] text-[0.8rem] uppercase leading-7 tracking-[0.16em] text-[#8d8da1] lg:text-[0.8rem] lg:leading-8",
+                    // Mono for the editorial feel, but NOT uppercase/letter-spaced:
+                    // forcing those on what the user types hurts legibility and mangles
+                    // accented/non-Latin input (e.g. the French/German example prompts).
+                    "font-[family-name:var(--font-geist-mono)] text-[0.8rem] leading-7 tracking-normal text-[#8d8da1] lg:text-[0.8rem] lg:leading-8",
                     "placeholder:text-[#4f4f63]",
                     "focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#e8453c]",
                   )}
