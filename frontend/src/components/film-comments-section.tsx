@@ -211,7 +211,7 @@ export function FilmCommentsSection({ slug }: Props) {
         <div className="h-px flex-1 bg-gradient-to-r from-[#2a2a42] to-transparent" />
       </div>
 
-      <div className="mt-8 space-y-5">
+      <div className="mt-5 space-y-5">
         {/* One surface: the card IS the field — flush textarea + an action bar,
             no box-in-box. Focus lights the whole composer. */}
         <form
@@ -245,7 +245,7 @@ export function FilmCommentsSection({ slug }: Props) {
           </div>
         </form>
 
-        <div className="space-y-3">
+        <div className="space-y-2">
           {isLoading ? (
             <div className="flex items-center gap-3 border border-[#1e1e30] bg-[#080810] p-5 text-sm text-[#8888a8]">
               <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
