@@ -236,6 +236,27 @@ export async function fetchRandom(
   return res.json() as Promise<RandomResult>;
 }
 
+/** Deterministic counterpart to {@link fetchRandom}: the same `seed` + filters
+ *  always resolves to the same film from an unchanged pool. Used by the daily
+ *  picks page so every visitor sees the same curated set for a given day, and
+ *  it rolls over when the seed (a date key) changes — rather than a fresh
+ *  random roll per visitor. */
+export async function fetchSeededRandom(
+  seed: string,
+  filters?: Partial<FilterState>,
+): Promise<RandomResult> {
+  const params = filtersToParams(filters ?? {});
+  params.set("seed", seed);
+  const res = await fetch(`${API_URL}/api/random?${params.toString()}`, {
+    cache: "no-store",
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({})) as { code?: string };
+    throw Object.assign(new Error("fetch failed"), { code: body.code ?? "UNKNOWN" });
+  }
+  return res.json() as Promise<RandomResult>;
+}
+
 /** Pool count for the given filters, without fetching a film. Use when only the
  *  `total` is needed (e.g. the home page's mount-time catalog count). */
 export async function fetchRandomCount(filters?: Partial<FilterState>): Promise<number> {

@@ -20,9 +20,15 @@ export async function getRandomFilms(
 ): Promise<{ films: RandomFilmRow[]; total: number }> {
   const additionalConditions = await buildExclusionConditions(query);
   const whereSql = buildWhereClause(query, additionalConditions);
+  // A seed makes ordering deterministic: hashing seed+id gives a stable but
+  // well-shuffled order, so the same seed always surfaces the same film(s)
+  // from an unchanged pool. Without a seed we keep true per-request randomness.
+  const orderBy = query.seed
+    ? Prisma.sql`ORDER BY md5(${query.seed} || "Film"."id")`
+    : Prisma.sql`ORDER BY RANDOM()`;
   const [films, total] = await Promise.all([
     prisma.$queryRaw<RandomFilmRow[]>(
-      Prisma.sql`SELECT ${randomSelect} FROM "Film" ${whereSql} ORDER BY RANDOM() LIMIT ${count}`,
+      Prisma.sql`SELECT ${randomSelect} FROM "Film" ${whereSql} ${orderBy} LIMIT ${count}`,
     ),
     countFilms(query, whereSql, additionalConditions.length === 0),
   ]);

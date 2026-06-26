@@ -4,9 +4,9 @@ import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { Bookmark, RefreshCw, Share2, Star, Trophy, Clapperboard, ArrowUpRight } from "lucide-react";
+import { Bookmark, Share2, Star, Trophy, Clapperboard, ArrowUpRight } from "lucide-react";
 import { AppHeader } from "@/components/app-header";
-import { fetchRandom, type RollFilm } from "@/lib/api";
+import { fetchSeededRandom, type RollFilm } from "@/lib/api";
 import { formatRuntime } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { FilterState } from "@cineroll/types";
@@ -51,42 +51,45 @@ const PICK_SLOTS: {
 
 type DailyPick = { film: RollFilm; slot: (typeof PICK_SLOTS)[number] };
 
-function todayKey() {
-  return `cinepicks-${new Date().toISOString().split("T")[0] ?? ""}`;
-}
-
 export default function PicksPage() {
   const shouldReduceMotion = useReducedMotion();
   const [picks, setPicks] = useState<DailyPick[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const loadPicks = useCallback(async (force = false) => {
-    const key = todayKey();
-    if (!force) {
-      try {
-        const cached = localStorage.getItem(key);
-        if (cached) {
-          const parsed = JSON.parse(cached) as Array<{ film: RollFilm; slot: { num: string } }>;
-          const restored = parsed
-            .map(({ film, slot }) => {
-              const fullSlot = PICK_SLOTS.find((s) => s.num === slot.num);
-              if (!fullSlot) return null;
-              return { film, slot: fullSlot };
-            })
-            .filter((p): p is DailyPick => p !== null);
+  const loadPicks = useCallback(async () => {
+    // UTC day, matching the backend's pick-of-day convention. The selection is
+    // deterministic from this key, so every visitor sees the same three films
+    // today and they roll over together at UTC midnight.
+    const day = new Date().toISOString().split("T")[0] ?? "";
+    const key = `cinepicks-${day}`;
+
+    // Same-day revisits restore instantly. Because selection is now
+    // deterministic per day, this cache can never disagree with a fresh
+    // fetch — it only saves the round-trips and the loader flash.
+    try {
+      const cached = localStorage.getItem(key);
+      if (cached) {
+        const parsed = JSON.parse(cached) as Array<{ film: RollFilm; slot: { num: string } }>;
+        const restored = parsed
+          .map(({ film, slot }) => {
+            const fullSlot = PICK_SLOTS.find((s) => s.num === slot.num);
+            return fullSlot ? { film, slot: fullSlot } : null;
+          })
+          .filter((p): p is DailyPick => p !== null);
+        if (restored.length > 0) {
           setPicks(restored);
           setIsLoading(false);
           return;
         }
-      } catch {}
-    }
-    setIsRefreshing(true);
+      }
+    } catch {}
+
     const results = await Promise.allSettled(
       PICK_SLOTS.map(async (slot) => {
         // Each slot draws from its own curated pool (Oscar winners, Cannes
-        // winners, hidden gems) — the labels are real filters, not decoration.
-        const r = await fetchRandom(slot.filters);
+        // winners, hidden gems) — the labels are real filters, not decoration —
+        // and the per-day+slot seed makes today's choice deterministic.
+        const r = await fetchSeededRandom(`${day}:${slot.num}`, slot.filters);
         return { film: r.film, slot };
       }),
     );
@@ -98,7 +101,6 @@ export default function PicksPage() {
     } catch {}
     setPicks(newPicks);
     setIsLoading(false);
-    setIsRefreshing(false);
   }, []);
 
   useEffect(() => {
@@ -138,26 +140,6 @@ export default function PicksPage() {
                 {dateLabel}
               </p>
             </div>
-
-            <button
-              type="button"
-              onClick={() => void loadPicks(true)}
-              disabled={isRefreshing}
-              className={cn(
-                "group flex items-center gap-2 rounded-full border border-[#1e1e2a] px-4 py-2",
-                "font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#444458]",
-                "transition-all duration-200 hover:border-[#e8453c]/40 hover:text-[#F5F5F0]",
-                "disabled:pointer-events-none disabled:opacity-30",
-              )}
-            >
-              <RefreshCw
-                className={cn(
-                  "h-3 w-3 transition-transform duration-500",
-                  isRefreshing ? "animate-spin" : "group-hover:rotate-180",
-                )}
-              />
-              Reshuffle
-            </button>
           </div>
         </div>
 
