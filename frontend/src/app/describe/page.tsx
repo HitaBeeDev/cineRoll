@@ -562,7 +562,7 @@ export default function DescribePage() {
                   </div>
                 </div>
               ) : (
-                <div className="flex h-full flex-col justify-between p-6">
+                <div className="flex h-full flex-col p-6">
                   <div>
                     <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.24em] text-[#e8453c]/70">
                       Channel 04 · Describe
@@ -573,6 +573,38 @@ export default function DescribePage() {
                       Movies out.
                     </h2>
                   </div>
+
+                  {/* A worked example fills the panel instead of leaving a void, and
+                      previews the actual payoff: free text → interpreted filters →
+                      films (the same chip UI a real roll renders above). */}
+                  <div className="flex min-h-0 flex-1 flex-col justify-center gap-4 py-6">
+                    <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.24em] text-[#888899]">
+                      For example, you type
+                    </p>
+                    <p className="font-[family-name:var(--font-geist-mono)] text-sm leading-6 text-[#b6b6c6]">
+                      “A dark French thriller from the 80s”
+                    </p>
+                    <div className="flex items-center gap-3">
+                      <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.24em] text-[#888899]">
+                        We read
+                      </span>
+                      <span className="h-px flex-1 bg-[#1e1e2a]" />
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      {["French", "Thriller", "1980s"].map((chip) => (
+                        <span
+                          key={chip}
+                          className="rounded-full border border-[#2a2a3e] bg-[#09090f]/70 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-widest text-[#F5F5F0]"
+                        >
+                          {chip}
+                        </span>
+                      ))}
+                      <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#888899]">
+                        → four films rolled
+                      </span>
+                    </div>
+                  </div>
+
                   {/* A legend of what the parser reads — intentionally NOT cards,
                       so it doesn't read as a row of clickable filters. */}
                   <div>
