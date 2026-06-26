@@ -1,23 +1,38 @@
 import { prisma } from "../../lib/prisma";
-import { FilmStatRow } from "./types";
+import { DecadeTopFilmRow, FilmStatRow } from "./types";
 
-export function getMostNominatedFilmRows(): Promise<FilmStatRow[]> {
+// Top 3 powers the Hall of Records podium; the hero reel uses the [0] entry.
+export function getTopNominatedFilmRows(): Promise<FilmStatRow[]> {
   return prisma.$queryRaw<FilmStatRow[]>`
     SELECT "id", "slug", "title", "year" AS "releaseYear", "posterUrl",
       ("oscarNominations" + "ggNominations" + "cannesNominations")::BIGINT AS count
     FROM "Film"
     ORDER BY count DESC
-    LIMIT 1
+    LIMIT 3
   `;
 }
 
-export function getMostWinningFilmRows(): Promise<FilmStatRow[]> {
+export function getTopWinningFilmRows(): Promise<FilmStatRow[]> {
   return prisma.$queryRaw<FilmStatRow[]>`
     SELECT "id", "slug", "title", "year" AS "releaseYear", "posterUrl",
       ("oscarWins" + "ggWins" + "cannesWins")::BIGINT AS count
     FROM "Film"
     ORDER BY count DESC
-    LIMIT 1
+    LIMIT 3
+  `;
+}
+
+// Most-nominated film per decade — feeds the timeline hover reveal.
+export function getDecadeTopFilmRows(): Promise<DecadeTopFilmRow[]> {
+  return prisma.$queryRaw<DecadeTopFilmRow[]>`
+    SELECT DISTINCT ON (FLOOR("year" / 10) * 10)
+      FLOOR("year" / 10) * 10 AS decade,
+      "title",
+      "slug",
+      ("oscarNominations" + "ggNominations" + "cannesNominations")::BIGINT AS count
+    FROM "Film"
+    WHERE "year" IS NOT NULL AND "year" >= 1920
+    ORDER BY FLOOR("year" / 10) * 10, count DESC
   `;
 }
 

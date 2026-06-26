@@ -2,17 +2,15 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
-import {
-  ArrowUpRight,
-  Award,
-  BarChart3,
-  Clapperboard,
-  Crown,
-  Film,
-  Trophy,
-  Users,
-} from "lucide-react";
+import { ArrowUpRight, BarChart3, Crown, Film, Sparkles, Users } from "lucide-react";
 import { AppHeader } from "@/components/app-header";
+import {
+  CountUp,
+  DecadeTimeline,
+  HeroRecordReel,
+  type DecadeDatum,
+  type ReelItem,
+} from "@/components/stats/stats-interactive";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
@@ -34,14 +32,20 @@ type FilmStat = {
   posterUrl: string | null;
   count: number;
 };
+type DecadeStat = {
+  decade: number;
+  filmCount: number;
+  avgNominations: number;
+  topFilm: { title: string; slug: string; count: number } | null;
+};
 type StatsResponse = {
   summary: { totalFilms: number; totalNominations: number; totalWins: number };
-  mostNominatedPerson: PersonStat | null;
-  mostWinningPerson: PersonStat | null;
-  mostNominatedFilm: FilmStat | null;
-  mostWinningFilm: FilmStat | null;
+  topNominatedPeople: PersonStat[];
+  topWinningPeople: PersonStat[];
+  topNominatedFilms: FilmStat[];
+  topWinningFilms: FilmStat[];
   mostCompetitiveYear: { awardYear: number; totalNominations: number } | null;
-  decadeBreakdown: { decade: number; filmCount: number; avgNominations: number }[];
+  decadeBreakdown: DecadeStat[];
   awardBodyBreakdown: {
     coverage: { oscar: number; goldenGlobe: number; cannes: number; berlin: number };
     composition: {
@@ -78,6 +82,48 @@ function personSlug(name: string) {
     .replace(/^-|-$/g, "");
 }
 
+type Insight = { title: string; body: string };
+
+function buildInsights(stats: StatsResponse): Insight[] {
+  const out: Insight[] = [];
+  const { summary, decadeBreakdown, awardBodyBreakdown, topWinningFilms } = stats;
+
+  if (decadeBreakdown.length > 0) {
+    const peak = decadeBreakdown.reduce((a, b) => (b.filmCount > a.filmCount ? b : a));
+    out.push({
+      title: `The ${peak.decade}s are the densest era`,
+      body: `${formatNumber(peak.filmCount)} films land in the ${peak.decade}s — more than any other decade in the archive.`,
+    });
+  }
+
+  if (awardBodyBreakdown && awardBodyBreakdown.total > 0) {
+    const { multiple } = awardBodyBreakdown.composition;
+    const pct = Math.round((multiple / awardBodyBreakdown.total) * 100);
+    out.push({
+      title: `${pct}% of films cross award bodies`,
+      body: `${formatNumber(multiple)} films were honored by more than one of the Oscars, Golden Globes, Cannes, or Berlinale.`,
+    });
+  }
+
+  if (summary.totalNominations > 0) {
+    const wr = ((summary.totalWins / summary.totalNominations) * 100).toFixed(1);
+    out.push({
+      title: `Only ${wr}% of nominations become wins`,
+      body: `Across ${formatNumber(summary.totalNominations)} nominations, the archive records just ${formatNumber(summary.totalWins)} wins.`,
+    });
+  }
+
+  if (topWinningFilms[0]) {
+    const f = topWinningFilms[0];
+    out.push({
+      title: `${f.title} tops every win count`,
+      body: `${f.title} (${f.releaseYear}) holds the archive record with ${f.count} wins.`,
+    });
+  }
+
+  return out.slice(0, 4);
+}
+
 export default async function StatsPage() {
   const stats = await fetchStats();
 
@@ -95,23 +141,6 @@ export default async function StatsPage() {
     },
   };
 
-  const maxDecadeFilms = Math.max(...(stats?.decadeBreakdown.map((item) => item.filmCount) ?? [1]));
-
-  const summary = stats?.summary;
-  const winRate =
-    summary && summary.totalNominations > 0
-      ? (summary.totalWins / summary.totalNominations) * 100
-      : 0;
-  const avgNomsPerFilm =
-    summary && summary.totalFilms > 0 ? summary.totalNominations / summary.totalFilms : 0;
-  const decadesSorted = [...(stats?.decadeBreakdown ?? [])]
-    .map((item) => item.decade)
-    .sort((a, b) => a - b);
-  const decadeSpan =
-    decadesSorted.length > 0
-      ? `${decadesSorted[0]}s–${decadesSorted[decadesSorted.length - 1]}s`
-      : "—";
-
   return (
     <div className="min-h-screen overflow-x-hidden bg-[#08080d] text-[#F5F5F0]">
       <script
@@ -120,9 +149,100 @@ export default async function StatsPage() {
       />
       <AppHeader />
 
+      {!stats ? (
+        <main className="mx-auto w-full max-w-screen-2xl px-4 py-20 sm:px-6 lg:px-8">
+          <div className="flex min-h-[50vh] items-center justify-center rounded-lg border border-white/10 bg-white/[0.025] p-8 text-center">
+            <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.22em] text-[#9e9ab0]">
+              Stats unavailable. Make sure the backend is running.
+            </p>
+          </div>
+        </main>
+      ) : (
+        <StatsContent stats={stats} />
+      )}
+    </div>
+  );
+}
+
+function StatsContent({ stats }: { stats: StatsResponse }) {
+  const { summary } = stats;
+  const winRate =
+    summary.totalNominations > 0 ? (summary.totalWins / summary.totalNominations) * 100 : 0;
+  const avgNomsPerFilm =
+    summary.totalFilms > 0 ? summary.totalNominations / summary.totalFilms : 0;
+  const decadesSorted = [...stats.decadeBreakdown].map((d) => d.decade).sort((a, b) => a - b);
+  const decadeSpan =
+    decadesSorted.length > 0
+      ? `${decadesSorted[0]}s – ${decadesSorted[decadesSorted.length - 1]}s`
+      : "—";
+
+  const reelItems: ReelItem[] = [];
+  if (stats.mostCompetitiveYear) {
+    reelItems.push({
+      eyebrow: "Most competitive year",
+      title: `${stats.mostCompetitiveYear.awardYear}`,
+      value: formatNumber(stats.mostCompetitiveYear.totalNominations),
+      sub: "nominations",
+      href: `/browse?awardYear=${stats.mostCompetitiveYear.awardYear}`,
+      accent: "red",
+    });
+  }
+  if (stats.topWinningFilms[0]) {
+    const f = stats.topWinningFilms[0];
+    reelItems.push({
+      eyebrow: "Most awarded film",
+      title: f.title,
+      value: `${f.count}`,
+      sub: "wins",
+      href: `/film/${f.slug}`,
+      accent: "red",
+    });
+  }
+  if (stats.topNominatedFilms[0]) {
+    const f = stats.topNominatedFilms[0];
+    reelItems.push({
+      eyebrow: "Most nominated film",
+      title: f.title,
+      value: `${f.count}`,
+      sub: "nominations",
+      href: `/film/${f.slug}`,
+      accent: "blue",
+    });
+  }
+  if (stats.topNominatedPeople[0]) {
+    const p = stats.topNominatedPeople[0];
+    reelItems.push({
+      eyebrow: "Most nominated person",
+      title: p.name,
+      value: `${p.count}`,
+      sub: "nominations",
+      href: `/person/${personSlug(p.name)}`,
+      accent: "blue",
+    });
+  }
+
+  const peakDecade =
+    stats.decadeBreakdown.length > 0
+      ? stats.decadeBreakdown.reduce((a, b) => (b.filmCount > a.filmCount ? b : a)).decade
+      : 0;
+  const decadeData: DecadeDatum[] = stats.decadeBreakdown.map((d) => ({
+    decade: d.decade,
+    filmCount: d.filmCount,
+    avgNominations: d.avgNominations,
+    topFilm: d.topFilm,
+    href: `/browse?decadeMin=${d.decade}&decadeMax=${d.decade + 9}`,
+  }));
+
+  const insights = buildInsights(stats);
+
+  return (
+    <>
+      {/* ---------------------------------------------------------------- */}
+      {/* HERO — archive command center                                    */}
+      {/* ---------------------------------------------------------------- */}
       <section className="relative overflow-hidden border-b border-[#24202a] bg-[#0a0a10]">
         <div
-          className="pointer-events-none absolute inset-0 opacity-[0.035]"
+          className="pointer-events-none absolute inset-0 opacity-[0.04]"
           style={{
             backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
             backgroundSize: "256px 256px",
@@ -132,282 +252,230 @@ export default async function StatsPage() {
           className="pointer-events-none absolute inset-0"
           style={{
             background:
-              "radial-gradient(ellipse 70% 80% at 82% 15%, rgba(232,69,60,0.12), transparent 58%), linear-gradient(180deg, rgba(255,255,255,0.025), transparent 70%)",
+              "radial-gradient(ellipse 60% 80% at 78% 10%, rgba(232,69,60,0.16), transparent 58%), linear-gradient(180deg, rgba(255,255,255,0.025), transparent 70%)",
           }}
         />
 
-        <div className="relative mx-auto w-full max-w-[100vw] px-4 py-8 sm:max-w-screen-2xl sm:px-6 sm:py-10 lg:px-8 xl:px-12">
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(360px,480px)] lg:items-end">
+        <div className="relative mx-auto w-full max-w-screen-2xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8 xl:px-12">
+          <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(360px,460px)]">
             <div>
               <div className="mb-3 h-px w-10 bg-[#e8453c]" />
               <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.22em] text-[#e8453c]">
-                CineRoll archive
+                The CineRoll archive
               </p>
               <h1
-                className="mt-3 max-w-3xl font-[family-name:var(--font-display)] font-bold leading-none tracking-tight text-[#f4f0f7]"
-                style={{ fontSize: "clamp(2.25rem, 5vw, 5.5rem)" }}
+                className="mt-3 max-w-3xl font-[family-name:var(--font-display)] font-bold leading-[0.95] tracking-tight text-[#f4f0f7]"
+                style={{ fontSize: "clamp(2.5rem, 5.5vw, 5.75rem)" }}
               >
-                Stats & Records
+                Stats &amp; Records
               </h1>
-              <p className="mt-4 max-w-2xl text-sm leading-7 text-[#a7a4b8] sm:text-base">
-                A live view of CineRoll&apos;s award-film archive across the Oscars, Golden Globes,
-                Cannes, and the Berlinale.
+              <p className="mt-5 flex flex-wrap items-baseline gap-x-2 gap-y-1 font-[family-name:var(--font-display)] text-xl font-semibold text-[#d8d4e4] sm:text-2xl">
+                <CountUp value={summary.totalFilms} className="text-[#f4f0f7]" />
+                <span className="text-[#9e9ab0]">films.</span>
+                <CountUp value={summary.totalNominations} className="text-[#f4f0f7]" />
+                <span className="text-[#9e9ab0]">nominations.</span>
+                <CountUp value={summary.totalWins} className="text-[#f4f0f7]" />
+                <span className="text-[#9e9ab0]">wins.</span>
+              </p>
+              <p className="mt-4 max-w-xl text-sm leading-7 text-[#a7a4b8] sm:text-base">
+                Explore the films, people, decades, and award bodies that shaped cinema history —
+                across the Oscars, Golden Globes, Cannes, and the Berlinale.
               </p>
             </div>
 
-            {stats && (
-              <div className="grid min-w-0 grid-cols-1 overflow-hidden rounded-lg border border-white/10 bg-white/[0.035] shadow-[0_18px_50px_rgba(0,0,0,0.24)] min-[520px]:grid-cols-3">
-                <HeroStat label="Films" value={stats.summary.totalFilms} />
-                <HeroStat label="Nominations" value={stats.summary.totalNominations} highlighted />
-                <HeroStat label="Wins" value={stats.summary.totalWins} />
-              </div>
-            )}
+            {reelItems.length > 0 && <HeroRecordReel items={reelItems} />}
           </div>
         </div>
 
         <div
           className="h-px w-full"
-          style={{ background: "linear-gradient(to right, #e8453c99 0%, rgba(212,175,55,0.45) 36%, transparent 78%)" }}
+          style={{
+            background:
+              "linear-gradient(to right, #e8453c99 0%, rgba(212,175,55,0.45) 36%, transparent 78%)",
+          }}
         />
       </section>
 
-      <main className="mx-auto w-full max-w-[100vw] px-4 py-6 sm:max-w-screen-2xl sm:px-6 sm:py-8 lg:px-8 xl:px-12">
-        {!stats ? (
-          <div className="flex min-h-[50vh] items-center justify-center rounded-lg border border-white/10 bg-white/[0.025] p-8 text-center">
-            <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.22em] text-[#8f8a9f]">
-              Stats unavailable. Make sure the backend is running.
-            </p>
+      <main className="mx-auto w-full max-w-screen-2xl space-y-16 px-4 py-12 sm:px-6 sm:py-16 lg:px-8 xl:px-12">
+        {/* ARCHIVE PULSE — compact metric strip, each with its own visual */}
+        <section>
+          <SectionHeader eyebrow="Archive pulse" title="The shape of the archive" compact />
+          <div className="mt-5 grid gap-4 sm:grid-cols-3">
+            <PulseCard
+              label="Win conversion"
+              detail="Nominations that became wins"
+              value={<CountUp value={winRate} decimals={1} suffix="%" />}
+              visual={<WinRateRing percent={winRate} />}
+            />
+            <PulseCard
+              label="Nomination density"
+              detail="Average nominations per film"
+              value={<CountUp value={avgNomsPerFilm} decimals={1} />}
+              visual={<DensityBars value={avgNomsPerFilm} max={5} />}
+            />
+            <PulseCard
+              label="Decades covered"
+              detail={decadeSpan}
+              value={<CountUp value={decadesSorted.length} />}
+              visual={<DecadeTicks covered={decadesSorted} />}
+            />
           </div>
-        ) : (
-          <div className="space-y-8">
-            <section className="grid gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)]">
-              <div className="grid gap-4 sm:grid-cols-3">
-                <MetricCard
-                  icon={<Trophy className="h-4 w-4" />}
-                  label="Win rate"
-                  value={`${winRate.toFixed(1)}%`}
-                  detail="Nominations converted to wins"
-                  accent="gold"
-                />
-                <MetricCard
-                  icon={<Award className="h-4 w-4" />}
-                  label="Noms per film"
-                  value={avgNomsPerFilm.toFixed(1)}
-                  detail="Average across the archive"
+        </section>
+
+        {/* HALL OF RECORDS — the dramatic centerpiece */}
+        {(stats.topWinningFilms.length > 0 || stats.topNominatedFilms.length > 0) && (
+          <section>
+            <SectionHeader
+              eyebrow="Archive records"
+              title="Hall of Records"
+              description="The films and people that dominate the archive."
+              actionHref="/browse?sort=awards"
+              actionLabel="Enter the leaderboard"
+            />
+            <div className="mt-6 grid gap-6 xl:grid-cols-2">
+              {stats.topWinningFilms.length > 0 && (
+                <FilmRecordGroup
+                  heading="Most awarded films"
+                  films={stats.topWinningFilms}
+                  unit="wins"
                   accent="red"
                 />
-                <MetricCard
-                  icon={<Clapperboard className="h-4 w-4" />}
-                  label="Decades covered"
-                  value={formatNumber(decadesSorted.length)}
-                  detail={decadeSpan}
+              )}
+              {stats.topNominatedFilms.length > 0 && (
+                <FilmRecordGroup
+                  heading="Most nominated films"
+                  films={stats.topNominatedFilms}
+                  unit="nominations"
+                  accent="blue"
                 />
-              </div>
+              )}
+            </div>
+          </section>
+        )}
 
-              {stats.mostCompetitiveYear && (
-                <Link
-                  href={`/browse?awardYear=${stats.mostCompetitiveYear.awardYear}`}
-                  className="group flex min-h-44 flex-col justify-between rounded-lg border border-[#e8453c]/25 bg-[#120c10] p-5 shadow-[0_18px_50px_rgba(0,0,0,0.22)] transition-colors hover:border-[#e8453c]/55 hover:bg-[#171017]"
+        {/* THE PEOPLE — person podiums */}
+        {(stats.topNominatedPeople.length > 0 || stats.topWinningPeople.length > 0) && (
+          <section>
+            <SectionHeader eyebrow="Behind the records" title="The people" compact />
+            <div className="mt-6 grid gap-6 lg:grid-cols-2">
+              {stats.topNominatedPeople.length > 0 && (
+                <PersonRecordGroup
+                  heading="Most nominated"
+                  icon={<Users className="h-4 w-4" />}
+                  people={stats.topNominatedPeople}
+                  unit="nominations"
+                  accent="blue"
+                />
+              )}
+              {stats.topWinningPeople.length > 0 && (
+                <PersonRecordGroup
+                  heading="Most winning"
+                  icon={<Crown className="h-4 w-4" />}
+                  people={stats.topWinningPeople}
+                  unit="wins"
+                  accent="red"
+                />
+              )}
+            </div>
+          </section>
+        )}
+
+        {/* TIMELINE OF CINEMA */}
+        {decadeData.length > 0 && (
+          <section>
+            <SectionHeader
+              eyebrow="Coverage"
+              title="Timeline of cinema"
+              description="Hover a decade to see its density and defining film."
+              compact
+            />
+            <Panel className="mt-5">
+              <DecadeTimeline decades={decadeData} peakDecade={peakDecade} />
+            </Panel>
+          </section>
+        )}
+
+        {/* AWARD BODY LANDSCAPE */}
+        {stats.awardBodyBreakdown && (
+          <section>
+            <SectionHeader eyebrow="Dataset mix" title="Award body landscape" compact />
+            <AwardBodyPanel breakdown={stats.awardBodyBreakdown} className="mt-5" />
+          </section>
+        )}
+
+        {/* ARCHIVE INSIGHTS */}
+        {insights.length > 0 && (
+          <section>
+            <SectionHeader eyebrow="Patterns" title="Archive insights" compact />
+            <div className="mt-5 grid gap-4 sm:grid-cols-2">
+              {insights.map((insight) => (
+                <div
+                  key={insight.title}
+                  className="rounded-lg border border-white/10 bg-white/[0.03] p-5 transition-colors hover:border-white/20"
                 >
-                  <div className="flex items-center justify-between gap-4">
-                    <div>
-                      <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.2em] text-[#ff766d]">
-                        Most contested year
-                      </p>
-                      <p className="mt-1 text-sm text-[#9d98ad]">Jump straight into the busiest ceremony year.</p>
-                    </div>
-                    <span className="flex h-9 w-9 items-center justify-center rounded-md border border-white/10 bg-white/[0.045] text-[#ff766d] transition-colors group-hover:bg-[#e8453c] group-hover:text-white">
-                      <ArrowUpRight className="h-4 w-4" />
+                  <div className="flex items-start gap-3">
+                    <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-[#e8453c]/30 bg-[#e8453c]/10 text-[#ff766d]">
+                      <Sparkles className="h-4 w-4" />
                     </span>
+                    <div>
+                      <h3 className="font-[family-name:var(--font-display)] text-lg font-bold leading-tight text-[#f4f0f7]">
+                        {insight.title}
+                      </h3>
+                      <p className="mt-1.5 text-sm leading-6 text-[#9e9ab0]">{insight.body}</p>
+                    </div>
                   </div>
-                  <div className="mt-6 flex items-end justify-between gap-5">
-                    <p className="font-[family-name:var(--font-display)] text-6xl font-bold leading-none text-[#e8453c] sm:text-7xl">
-                      {stats.mostCompetitiveYear.awardYear}
-                    </p>
-                    <p className="pb-2 text-right font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.16em] text-[#c8c3d8]">
-                      {formatNumber(stats.mostCompetitiveYear.totalNominations)} nominations
-                    </p>
-                  </div>
-                </Link>
-              )}
-            </section>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
 
-            {(stats.mostWinningFilm || stats.mostNominatedFilm) && (
-              <section>
-                <SectionHeader
-                  eyebrow="Archive records"
-                  title="Record-holding films"
-                  actionHref="/browse?sort=awards"
-                  actionLabel="Browse award leaders"
+        {/* TRENDING — live CineRoll activity */}
+        {(stats.topRolledFilms.length > 0 || stats.topWatchlistedFilms.length > 0) && (
+          <section>
+            <SectionHeader eyebrow="CineRoll activity" title="Trending now" compact />
+            <div className="mt-5 grid gap-4 lg:grid-cols-2">
+              {stats.topRolledFilms.length > 0 && (
+                <RankingList
+                  icon={<BarChart3 className="h-4 w-4" />}
+                  title="Most rolled"
+                  films={stats.topRolledFilms}
+                  unit="rolls"
+                  accent="red"
                 />
-                <div className="mt-4 grid gap-4 lg:grid-cols-2">
-                  {stats.mostWinningFilm && (
-                    <RecordFilmCard
-                      film={stats.mostWinningFilm}
-                      label="Most awarded film"
-                      value={`${stats.mostWinningFilm.count} wins`}
-                      accent="red"
-                    />
-                  )}
-                  {stats.mostNominatedFilm && (
-                    <RecordFilmCard
-                      film={stats.mostNominatedFilm}
-                      label="Most nominated film"
-                      value={`${stats.mostNominatedFilm.count} nominations`}
-                      accent="blue"
-                    />
-                  )}
-                </div>
-              </section>
-            )}
-
-            {(stats.mostNominatedPerson || stats.mostWinningPerson) && (
-              <section className="grid gap-4 lg:grid-cols-2">
-                {stats.mostNominatedPerson && (
-                  <PersonRecordCard
-                    label="Most nominated person"
-                    person={stats.mostNominatedPerson}
-                    unit="nominations"
-                    accent="blue"
-                  />
-                )}
-                {stats.mostWinningPerson && (
-                  <PersonRecordCard
-                    label="Most winning person"
-                    person={stats.mostWinningPerson}
-                    unit="wins"
-                    accent="red"
-                  />
-                )}
-              </section>
-            )}
-
-            <section className="grid gap-4 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
-              {stats.awardBodyBreakdown && (
-                <AwardBodyPanel breakdown={stats.awardBodyBreakdown} />
               )}
-
-              {stats.decadeBreakdown.length > 0 && (
-                <Panel>
-                  <SectionHeader eyebrow="Coverage" title="Films by decade" compact />
-                  <div className="mt-5 space-y-3">
-                    {stats.decadeBreakdown.slice(-8).map((item) => (
-                      <Link
-                        key={item.decade}
-                        href={`/browse?decadeMin=${item.decade}&decadeMax=${item.decade + 9}`}
-                        className="group grid grid-cols-[52px_minmax(0,1fr)_72px] items-center gap-3"
-                      >
-                        <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-[#a9a5bc]">
-                          {item.decade}s
-                        </span>
-                        <span className="h-2 overflow-hidden rounded-full bg-white/[0.055]">
-                          <span
-                            className="block h-full rounded-full bg-[#e8453c] transition-colors group-hover:bg-[#ff625a]"
-                            style={{ width: `${Math.max(5, (item.filmCount / maxDecadeFilms) * 100)}%` }}
-                          />
-                        </span>
-                        <span className="text-right font-[family-name:var(--font-geist-mono)] text-[11px] text-[#9e9ab0]">
-                          {formatNumber(item.filmCount)}
-                        </span>
-                      </Link>
-                    ))}
-                  </div>
-                </Panel>
+              {stats.topWatchlistedFilms.length > 0 && (
+                <RankingList
+                  icon={<Film className="h-4 w-4" />}
+                  title="Most watchlisted"
+                  films={stats.topWatchlistedFilms}
+                  unit="saves"
+                  accent="blue"
+                />
               )}
-            </section>
-
-            {(stats.topRolledFilms.length > 0 || stats.topWatchlistedFilms.length > 0) && (
-              <section>
-                <SectionHeader eyebrow="CineRoll activity" title="Trending now" />
-                <div className="mt-4 grid gap-4 lg:grid-cols-2">
-                  {stats.topRolledFilms.length > 0 && (
-                    <RankingList
-                      icon={<BarChart3 className="h-4 w-4" />}
-                      title="Most rolled"
-                      films={stats.topRolledFilms}
-                      unit="rolls"
-                      accent="red"
-                    />
-                  )}
-                  {stats.topWatchlistedFilms.length > 0 && (
-                    <RankingList
-                      icon={<Film className="h-4 w-4" />}
-                      title="Most watchlisted"
-                      films={stats.topWatchlistedFilms}
-                      unit="saves"
-                      accent="blue"
-                    />
-                  )}
-                </div>
-              </section>
-            )}
-          </div>
+            </div>
+          </section>
         )}
       </main>
-    </div>
+    </>
   );
 }
 
-function HeroStat({ label, value, highlighted = false }: { label: string; value: number; highlighted?: boolean }) {
-  return (
-    <div className="border-b border-white/10 p-3 last:border-b-0 min-[520px]:border-b-0 min-[520px]:border-r min-[520px]:last:border-r-0 sm:p-4">
-      <p
-        className={cn(
-          "font-[family-name:var(--font-display)] text-2xl font-bold leading-none sm:text-3xl",
-          highlighted ? "text-[#e8453c]" : "text-[#f4f0f7]",
-        )}
-      >
-        {formatNumber(value)}
-      </p>
-      <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.16em] text-[#8f8a9f] sm:text-[11px]">
-        {label}
-      </p>
-    </div>
-  );
-}
-
-function MetricCard({
-  icon,
-  label,
-  value,
-  detail,
-  accent = "neutral",
-}: {
-  icon: ReactNode;
-  label: string;
-  value: string;
-  detail: string;
-  accent?: "neutral" | "red" | "gold";
-}) {
-  const iconClass = accent === "red" ? "text-[#ff766d]" : accent === "gold" ? "text-[#f2d86f]" : "text-[#b8b5c8]";
-
-  return (
-    <div className="rounded-lg border border-white/10 bg-white/[0.035] p-5 shadow-[0_18px_50px_rgba(0,0,0,0.18)]">
-      <div className="flex items-center justify-between gap-4">
-        <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em] text-[#8f8a9f]">
-          {label}
-        </p>
-        <span className={cn("flex h-8 w-8 items-center justify-center rounded-md border border-white/10 bg-white/[0.045]", iconClass)}>
-          {icon}
-        </span>
-      </div>
-      <p className="mt-5 font-[family-name:var(--font-display)] text-4xl font-bold leading-none text-[#f4f0f7]">
-        {value}
-      </p>
-      <p className="mt-2 text-sm text-[#9e9ab0]">{detail}</p>
-    </div>
-  );
-}
+/* ================================================================== */
+/* Presentational helpers (server-rendered)                            */
+/* ================================================================== */
 
 function SectionHeader({
   eyebrow,
   title,
+  description,
   actionHref,
   actionLabel,
   compact = false,
 }: {
   eyebrow: string;
   title: string;
+  description?: string;
   actionHref?: string;
   actionLabel?: string;
   compact?: boolean;
@@ -418,14 +486,20 @@ function SectionHeader({
         <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.22em] text-[#e8453c]">
           {eyebrow}
         </p>
-        <h2 className={cn("mt-2 font-semibold tracking-normal text-[#f2eff8]", compact ? "text-xl" : "text-2xl sm:text-3xl")}>
+        <h2
+          className={cn(
+            "mt-2 font-[family-name:var(--font-display)] font-bold tracking-tight text-[#f2eff8]",
+            compact ? "text-2xl" : "text-3xl sm:text-4xl",
+          )}
+        >
           {title}
         </h2>
+        {description && <p className="mt-2 max-w-xl text-sm text-[#9e9ab0]">{description}</p>}
       </div>
       {actionHref && actionLabel && (
         <Link
           href={actionHref}
-          className="inline-flex w-fit items-center gap-2 rounded-md border border-white/10 bg-white/[0.045] px-3.5 py-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-[#b8b5c8] transition-colors hover:border-[#e8453c]/45 hover:text-[#ff766d]"
+          className="inline-flex w-fit items-center gap-2 rounded-md border border-white/10 bg-white/[0.045] px-3.5 py-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-[#c4c1d2] transition-colors hover:border-[#e8453c]/45 hover:text-[#ff766d]"
         >
           {actionLabel}
           <ArrowUpRight className="h-3.5 w-3.5" />
@@ -435,124 +509,362 @@ function SectionHeader({
   );
 }
 
-function RecordFilmCard({
-  film,
-  label,
-  value,
-  accent,
-}: {
-  film: FilmStat;
-  label: string;
-  value: string;
-  accent: "red" | "blue";
-}) {
-  const accentClass = accent === "red" ? "text-[#ff766d]" : "text-[#78b7ff]";
-
+function Panel({ children, className }: { children: ReactNode; className?: string | undefined }) {
   return (
-    <Link
-      href={`/film/${film.slug}`}
-      className="group grid min-h-72 overflow-hidden rounded-lg border border-white/10 bg-white/[0.035] shadow-[0_18px_50px_rgba(0,0,0,0.2)] transition-colors hover:border-white/20 sm:grid-cols-[180px_minmax(0,1fr)]"
+    <div
+      className={cn(
+        "rounded-lg border border-white/10 bg-white/[0.035] p-5 shadow-[0_18px_50px_rgba(0,0,0,0.18)] sm:p-6",
+        className,
+      )}
     >
-      <div className="relative min-h-56 bg-[#11111a] sm:min-h-full">
-        {film.posterUrl ? (
-          <Image
-            src={film.posterUrl}
-            alt={`${film.title} poster`}
-            fill
-            sizes="(max-width: 640px) 100vw, 180px"
-            className="object-cover transition-transform duration-500 group-hover:scale-[1.035]"
-          />
-        ) : (
-          <div className="absolute inset-0 bg-[linear-gradient(135deg,#151520,#0b0b12)]" />
-        )}
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_45%,rgba(8,8,13,0.7)_100%)]" />
-      </div>
-      <div className="flex min-w-0 flex-col justify-between p-5 sm:p-6">
-        <div>
-          <div className="mb-5 flex items-center justify-between gap-4">
-            <p className={cn("font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em]", accentClass)}>
-              {label}
-            </p>
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-white/10 bg-white/[0.045] text-[#b8b5c8] transition-colors group-hover:border-white/20 group-hover:text-white">
-              <ArrowUpRight className="h-4 w-4" />
-            </span>
-          </div>
-          <h3 className="line-clamp-3 font-[family-name:var(--font-display)] text-3xl font-bold leading-none text-[#f4f0f7] sm:text-4xl">
-            {film.title}
-          </h3>
-        </div>
-        <div className="mt-8 flex items-end justify-between gap-4">
-          <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.16em] text-[#9e9ab0]">
-            {film.releaseYear}
-          </p>
-          <p className={cn("text-right font-[family-name:var(--font-display)] text-2xl font-bold leading-none", accentClass)}>
-            {value}
-          </p>
-        </div>
-      </div>
-    </Link>
-  );
-}
-
-function PersonRecordCard({
-  label,
-  person,
-  unit,
-  accent,
-}: {
-  label: string;
-  person: PersonStat;
-  unit: string;
-  accent: "red" | "blue";
-}) {
-  const accentClass = accent === "red" ? "text-[#ff766d]" : "text-[#78b7ff]";
-
-  return (
-    <Link
-      href={`/person/${personSlug(person.name)}`}
-      className="group rounded-lg border border-white/10 bg-white/[0.035] p-5 shadow-[0_18px_50px_rgba(0,0,0,0.18)] transition-colors hover:border-white/20 hover:bg-white/[0.05] sm:p-6"
-    >
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <span className={cn("flex h-9 w-9 items-center justify-center rounded-md border border-white/10 bg-white/[0.045]", accentClass)}>
-            {accent === "red" ? <Crown className="h-4 w-4" /> : <Users className="h-4 w-4" />}
-          </span>
-          <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em] text-[#8f8a9f]">
-            {label}
-          </p>
-        </div>
-        <ArrowUpRight className="h-4 w-4 text-[#777287] transition-colors group-hover:text-white" />
-      </div>
-      <div className="mt-8 grid gap-5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
-        <h3 className="min-w-0 font-[family-name:var(--font-display)] text-3xl font-bold leading-none text-[#f4f0f7] sm:text-4xl">
-          {person.name}
-        </h3>
-        <div className="sm:text-right">
-          <p className={cn("font-[family-name:var(--font-display)] text-5xl font-bold leading-none", accentClass)}>
-            {person.count}
-          </p>
-          <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.16em] text-[#9e9ab0]">
-            {unit}
-          </p>
-        </div>
-      </div>
-    </Link>
-  );
-}
-
-function Panel({ children }: { children: ReactNode }) {
-  return (
-    <div className="rounded-lg border border-white/10 bg-white/[0.035] p-5 shadow-[0_18px_50px_rgba(0,0,0,0.18)] sm:p-6">
       {children}
     </div>
   );
 }
 
-function AwardBodyPanel({ breakdown }: { breakdown: NonNullable<StatsResponse["awardBodyBreakdown"]> }) {
+/* ---- Archive pulse visuals ---- */
+
+function PulseCard({
+  label,
+  detail,
+  value,
+  visual,
+}: {
+  label: string;
+  detail: string;
+  value: ReactNode;
+  visual: ReactNode;
+}) {
+  return (
+    <div className="flex items-center gap-5 rounded-lg border border-white/10 bg-white/[0.035] p-5 shadow-[0_18px_50px_rgba(0,0,0,0.18)]">
+      <div className="shrink-0">{visual}</div>
+      <div className="min-w-0">
+        <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em] text-[#9e9ab0]">
+          {label}
+        </p>
+        <p className="mt-2 font-[family-name:var(--font-display)] text-4xl font-bold leading-none text-[#f4f0f7]">
+          {value}
+        </p>
+        <p className="mt-2 text-sm text-[#9e9ab0]">{detail}</p>
+      </div>
+    </div>
+  );
+}
+
+function WinRateRing({ percent }: { percent: number }) {
+  const r = 26;
+  const circumference = 2 * Math.PI * r;
+  const offset = circumference * (1 - Math.min(100, Math.max(0, percent)) / 100);
+  return (
+    <svg viewBox="0 0 64 64" className="h-16 w-16 -rotate-90" aria-hidden="true">
+      <circle cx="32" cy="32" r={r} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="6" />
+      <circle
+        cx="32"
+        cy="32"
+        r={r}
+        fill="none"
+        stroke="#e8453c"
+        strokeWidth="6"
+        strokeLinecap="round"
+        strokeDasharray={circumference}
+        strokeDashoffset={offset}
+      />
+    </svg>
+  );
+}
+
+function DensityBars({ value, max }: { value: number; max: number }) {
+  const bars = 8;
+  const lit = Math.round((Math.min(value, max) / max) * bars);
+  return (
+    <div className="flex h-16 w-16 items-end gap-1" aria-hidden="true">
+      {Array.from({ length: bars }).map((_, i) => (
+        <span
+          key={i}
+          className="flex-1 rounded-sm"
+          style={{
+            height: `${30 + (i / (bars - 1)) * 70}%`,
+            backgroundColor: i < lit ? "#e8453c" : "rgba(255,255,255,0.08)",
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+function DecadeTicks({ covered }: { covered: number[] }) {
+  const all = [1920, 1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020];
+  const set = new Set(covered);
+  return (
+    <div className="flex h-16 w-16 flex-col justify-center gap-1.5" aria-hidden="true">
+      <div className="flex items-center gap-[3px]">
+        {all.map((decade) => (
+          <span
+            key={decade}
+            className="h-6 flex-1 rounded-sm"
+            style={{ backgroundColor: set.has(decade) ? "#e8453c" : "rgba(255,255,255,0.08)" }}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ---- Hall of Records ---- */
+
+function FilmRecordGroup({
+  heading,
+  films,
+  unit,
+  accent,
+}: {
+  heading: string;
+  films: FilmStat[];
+  unit: string;
+  accent: "red" | "blue";
+}) {
+  const [first, ...rest] = films;
+  return (
+    <div>
+      <h3 className="mb-3 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.2em] text-[#c4c1d2]">
+        {heading}
+      </h3>
+      {first && <FeaturedFilmCard film={first} rank={1} unit={unit} accent={accent} />}
+      {rest.length > 0 && (
+        <div className="mt-3 grid grid-cols-2 gap-3">
+          {rest.map((film, i) => (
+            <RunnerUpFilmCard
+              key={film.id}
+              film={film}
+              rank={i + 2}
+              unit={unit}
+              accent={accent}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function FeaturedFilmCard({
+  film,
+  rank,
+  unit,
+  accent,
+}: {
+  film: FilmStat;
+  rank: number;
+  unit: string;
+  accent: "red" | "blue";
+}) {
+  const accentClass = accent === "red" ? "text-[#ff766d]" : "text-[#78b7ff]";
+  return (
+    <Link
+      href={`/film/${film.slug}`}
+      className="group relative grid overflow-hidden rounded-xl border border-white/10 bg-white/[0.035] shadow-[0_20px_60px_rgba(0,0,0,0.28)] transition-colors hover:border-white/25 sm:grid-cols-[150px_minmax(0,1fr)]"
+    >
+      <div className="relative min-h-52 bg-[#11111a] sm:min-h-full">
+        {film.posterUrl ? (
+          <Image
+            src={film.posterUrl}
+            alt={`${film.title} poster`}
+            fill
+            sizes="(max-width: 640px) 100vw, 150px"
+            className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+          />
+        ) : (
+          <div className="absolute inset-0 bg-[linear-gradient(135deg,#151520,#0b0b12)]" />
+        )}
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_45%,rgba(8,8,13,0.7)_100%)]" />
+        <span className="absolute left-3 top-3 flex h-8 w-8 items-center justify-center rounded-md border border-white/15 bg-black/55 font-[family-name:var(--font-display)] text-sm font-bold text-white backdrop-blur-sm">
+          {rank}
+        </span>
+      </div>
+      <div className="flex min-w-0 flex-col justify-between p-5">
+        <div className="flex items-start justify-between gap-3">
+          <span
+            className={cn(
+              "font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.18em]",
+              accentClass,
+            )}
+          >
+            Record holder
+          </span>
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-white/10 bg-white/[0.045] text-[#c4c1d2] transition-colors group-hover:text-white">
+            <ArrowUpRight className="h-4 w-4" />
+          </span>
+        </div>
+        <h4 className="mt-4 line-clamp-3 font-[family-name:var(--font-display)] text-2xl font-bold leading-[1.05] text-[#f4f0f7] sm:text-3xl">
+          {film.title}
+        </h4>
+        <div className="mt-4 flex items-end justify-between gap-4">
+          <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.16em] text-[#9e9ab0]">
+            {film.releaseYear}
+          </p>
+          <p className="text-right leading-none">
+            <span
+              className={cn(
+                "font-[family-name:var(--font-display)] text-4xl font-bold sm:text-5xl",
+                accentClass,
+              )}
+            >
+              {film.count}
+            </span>
+            <span className="ml-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-[#9e9ab0]">
+              {unit}
+            </span>
+          </p>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+function RunnerUpFilmCard({
+  film,
+  rank,
+  unit,
+  accent,
+}: {
+  film: FilmStat;
+  rank: number;
+  unit: string;
+  accent: "red" | "blue";
+}) {
+  const accentClass = accent === "red" ? "text-[#ff766d]" : "text-[#78b7ff]";
+  return (
+    <Link
+      href={`/film/${film.slug}`}
+      className="group flex gap-3 rounded-lg border border-white/10 bg-white/[0.025] p-3 transition-colors hover:border-white/20 hover:bg-white/[0.04]"
+    >
+      <div className="relative h-20 w-[54px] shrink-0 overflow-hidden rounded bg-[#11111a]">
+        {film.posterUrl && (
+          <Image
+            src={film.posterUrl}
+            alt={`${film.title} poster`}
+            fill
+            sizes="54px"
+            className="object-cover"
+          />
+        )}
+        <span className="absolute left-1 top-1 flex h-5 w-5 items-center justify-center rounded border border-white/15 bg-black/60 font-[family-name:var(--font-display)] text-[11px] font-bold text-white">
+          {rank}
+        </span>
+      </div>
+      <div className="flex min-w-0 flex-col justify-between py-0.5">
+        <p className="line-clamp-2 text-sm font-semibold leading-snug text-[#eeeaf6] transition-colors group-hover:text-white">
+          {film.title}
+        </p>
+        <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.12em] text-[#9e9ab0]">
+          {film.releaseYear}
+          <span className="mx-1.5 text-white/15">·</span>
+          <span className={accentClass}>
+            {film.count} {unit}
+          </span>
+        </p>
+      </div>
+    </Link>
+  );
+}
+
+/* ---- People records ---- */
+
+function PersonRecordGroup({
+  heading,
+  icon,
+  people,
+  unit,
+  accent,
+}: {
+  heading: string;
+  icon: ReactNode;
+  people: PersonStat[];
+  unit: string;
+  accent: "red" | "blue";
+}) {
+  const accentClass = accent === "red" ? "text-[#ff766d]" : "text-[#78b7ff]";
+  const [first, ...rest] = people;
+  return (
+    <Panel>
+      <div className="mb-5 flex items-center gap-3">
+        <span
+          className={cn(
+            "flex h-9 w-9 items-center justify-center rounded-md border border-white/10 bg-white/[0.045]",
+            accentClass,
+          )}
+        >
+          {icon}
+        </span>
+        <h3 className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.2em] text-[#c4c1d2]">
+          {heading}
+        </h3>
+      </div>
+
+      {first && (
+        <Link
+          href={`/person/${personSlug(first.name)}`}
+          className="group flex items-end justify-between gap-4 border-b border-white/10 pb-5"
+        >
+          <div className="min-w-0">
+            <span className="font-[family-name:var(--font-display)] text-sm font-bold text-[#4b4658]">
+              01
+            </span>
+            <h4 className="mt-1 font-[family-name:var(--font-display)] text-2xl font-bold leading-none text-[#f4f0f7] transition-colors group-hover:text-white sm:text-3xl">
+              {first.name}
+            </h4>
+          </div>
+          <p className="shrink-0 text-right leading-none">
+            <span className={cn("font-[family-name:var(--font-display)] text-4xl font-bold sm:text-5xl", accentClass)}>
+              {first.count}
+            </span>
+            <span className="ml-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-[#9e9ab0]">
+              {unit}
+            </span>
+          </p>
+        </Link>
+      )}
+
+      {rest.length > 0 && (
+        <ol className="mt-2 divide-y divide-white/10">
+          {rest.map((person, i) => (
+            <li key={person.name}>
+              <Link
+                href={`/person/${personSlug(person.name)}`}
+                className="group flex items-center justify-between gap-4 py-3"
+              >
+                <span className="flex min-w-0 items-center gap-3">
+                  <span className="font-[family-name:var(--font-display)] text-base font-bold text-[#4b4658]">
+                    0{i + 2}
+                  </span>
+                  <span className="truncate text-sm font-semibold text-[#eeeaf6] transition-colors group-hover:text-white">
+                    {person.name}
+                  </span>
+                </span>
+                <span className={cn("shrink-0 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.12em]", accentClass)}>
+                  {person.count} {unit}
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ol>
+      )}
+    </Panel>
+  );
+}
+
+/* ---- Award body landscape ---- */
+
+function AwardBodyPanel({
+  breakdown,
+  className,
+}: {
+  breakdown: NonNullable<StatsResponse["awardBodyBreakdown"]>;
+  className?: string;
+}) {
   const total = breakdown.total || 1;
   const pct = (count: number) => (count / total) * 100;
 
-  // Composition: every film in exactly one bucket → reconciles to 100%.
   const composition = [
     { label: "Oscar only", count: breakdown.composition.oscarOnly, color: "#e8453c" },
     { label: "Golden Globe only", count: breakdown.composition.goldenGlobeOnly, color: "#D4AF37" },
@@ -561,7 +873,6 @@ function AwardBodyPanel({ breakdown }: { breakdown: NonNullable<StatsResponse["a
     { label: "Multiple bodies", count: breakdown.composition.multiple, color: "#8a8597" },
   ].filter((segment) => segment.count > 0);
 
-  // Coverage: a film counts under every body that honored it → shares overlap.
   const coverage = [
     { label: "Oscars", count: breakdown.coverage.oscar, color: "#e8453c", href: "/browse?awardBody=oscar" },
     { label: "Golden Globe", count: breakdown.coverage.goldenGlobe, color: "#D4AF37", href: "/browse?awardBody=goldenglobe" },
@@ -570,10 +881,8 @@ function AwardBodyPanel({ breakdown }: { breakdown: NonNullable<StatsResponse["a
   ].filter((item) => item.count > 0);
 
   return (
-    <Panel>
-      <SectionHeader eyebrow="Dataset mix" title="Films by award body" compact />
-
-      <div className="mt-5 flex h-2.5 overflow-hidden rounded-full bg-white/[0.055]">
+    <Panel className={className}>
+      <div className="flex h-2.5 overflow-hidden rounded-full bg-white/[0.055]">
         {composition.map((segment) => (
           <div
             key={segment.label}
@@ -599,7 +908,7 @@ function AwardBodyPanel({ breakdown }: { breakdown: NonNullable<StatsResponse["a
         Coverage counts a film under every body that honored it, so these shares overlap — the gap
         is the Multiple-bodies share above.
       </p>
-      <div className="mt-3 grid gap-2 sm:grid-cols-2">
+      <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
         {coverage.map((item) => (
           <BreakdownLink key={item.label} {...item} percent={pct(item.count)} />
         ))}
@@ -648,6 +957,8 @@ function BreakdownLink({
     </Link>
   );
 }
+
+/* ---- Trending ---- */
 
 function RankingList({
   icon,

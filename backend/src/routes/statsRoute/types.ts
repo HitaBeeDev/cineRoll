@@ -10,7 +10,13 @@ export type FilmStat = {
 };
 
 export type YearStat = { awardYear: number; totalNominations: number };
-export type DecadeStat = { decade: number; filmCount: number; avgNominations: number };
+export type DecadeTopFilm = { title: string; slug: string; count: number };
+export type DecadeStat = {
+  decade: number;
+  filmCount: number;
+  avgNominations: number;
+  topFilm: DecadeTopFilm | null;
+};
 
 export type AwardBodyBreakdown = {
   coverage: { oscar: number; goldenGlobe: number; cannes: number; berlin: number };
@@ -28,6 +34,7 @@ export type PersonStatRow = { name: string; count: bigint };
 export type FilmStatRow = Omit<FilmStat, "count"> & { count: bigint };
 export type YearStatRow = { awardYear: number; totalNominations: bigint };
 export type DecadeStatRow = { decade: number; filmCount: bigint; avgNominations: number };
+export type DecadeTopFilmRow = { decade: number; title: string; slug: string; count: bigint };
 
 export type AwardBodyBreakdownRow = {
   oscar: bigint;
@@ -46,12 +53,13 @@ export type SummaryCountRow = { count: bigint };
 export type SummaryTotalRow = { total: bigint };
 
 export type StatsRows = {
-  mostNominatedPersonRows: PersonStatRow[];
-  mostWinningPersonRows: PersonStatRow[];
-  mostNominatedFilmRows: FilmStatRow[];
-  mostWinningFilmRows: FilmStatRow[];
+  topNominatedPersonRows: PersonStatRow[];
+  topWinningPersonRows: PersonStatRow[];
+  topNominatedFilmRows: FilmStatRow[];
+  topWinningFilmRows: FilmStatRow[];
   mostCompetitiveYearRows: YearStatRow[];
   decadeRows: DecadeStatRow[];
+  decadeTopFilmRows: DecadeTopFilmRow[];
   awardBodyRows: AwardBodyBreakdownRow[];
   topRolledRows: FilmStatRow[];
   topWatchlistedRows: FilmStatRow[];

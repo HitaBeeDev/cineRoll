@@ -7,14 +7,15 @@ import {
   getTotalWinsRow,
 } from "./awardStatsRepository";
 import {
-  getMostNominatedFilmRows,
-  getMostWinningFilmRows,
+  getDecadeTopFilmRows,
+  getTopNominatedFilmRows,
   getTopRolledRows,
   getTopWatchlistedRows,
+  getTopWinningFilmRows,
 } from "./filmStatsRepository";
 import {
-  getMostNominatedPersonRows,
-  getMostWinningPersonRows,
+  getTopNominatedPersonRows,
+  getTopWinningPersonRows,
 } from "./personStatsRepository";
 import { hasWatchlist } from "./tableRepository";
 import { StatsRows } from "./types";
@@ -22,12 +23,13 @@ import { StatsRows } from "./types";
 export async function getStatsRows(): Promise<StatsRows> {
   const useWatchlist = await hasWatchlist();
   const [
-    mostNominatedPersonRows,
-    mostWinningPersonRows,
-    mostNominatedFilmRows,
-    mostWinningFilmRows,
+    topNominatedPersonRows,
+    topWinningPersonRows,
+    topNominatedFilmRows,
+    topWinningFilmRows,
     mostCompetitiveYearRows,
     decadeRows,
+    decadeTopFilmRows,
     awardBodyRows,
     topRolledRows,
     topWatchlistedRows,
@@ -35,12 +37,13 @@ export async function getStatsRows(): Promise<StatsRows> {
     totalNominationsRow,
     totalWinsRow,
   ] = await Promise.all([
-    getMostNominatedPersonRows(),
-    getMostWinningPersonRows(),
-    getMostNominatedFilmRows(),
-    getMostWinningFilmRows(),
+    getTopNominatedPersonRows(),
+    getTopWinningPersonRows(),
+    getTopNominatedFilmRows(),
+    getTopWinningFilmRows(),
     getMostCompetitiveYearRows(),
     getDecadeRows(),
+    getDecadeTopFilmRows(),
     getAwardBodyRows(),
     getTopRolledRows(),
     getTopWatchlistedRows(useWatchlist),
@@ -50,12 +53,13 @@ export async function getStatsRows(): Promise<StatsRows> {
   ]);
 
   return {
-    mostNominatedPersonRows,
-    mostWinningPersonRows,
-    mostNominatedFilmRows,
-    mostWinningFilmRows,
+    topNominatedPersonRows,
+    topWinningPersonRows,
+    topNominatedFilmRows,
+    topWinningFilmRows,
     mostCompetitiveYearRows,
     decadeRows,
+    decadeTopFilmRows,
     awardBodyRows,
     topRolledRows,
     topWatchlistedRows,

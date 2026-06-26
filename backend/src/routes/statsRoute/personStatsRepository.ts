@@ -6,7 +6,7 @@ import {
 } from "./constants";
 import { PersonStatRow } from "./types";
 
-export function getMostNominatedPersonRows(): Promise<PersonStatRow[]> {
+export function getTopNominatedPersonRows(): Promise<PersonStatRow[]> {
   return prisma.$queryRaw<PersonStatRow[]>`
     SELECT nominee AS name, COUNT(*)::BIGINT AS count
     FROM (
@@ -34,11 +34,11 @@ export function getMostNominatedPersonRows(): Promise<PersonStatRow[]> {
     WHERE nominee !~* ${NON_PERSON_NOMINEE_PATTERN}
     GROUP BY nominee
     ORDER BY count DESC
-    LIMIT 1
+    LIMIT 3
   `;
 }
 
-export function getMostWinningPersonRows(): Promise<PersonStatRow[]> {
+export function getTopWinningPersonRows(): Promise<PersonStatRow[]> {
   return prisma.$queryRaw<PersonStatRow[]>`
     SELECT nominee AS name, COUNT(*)::BIGINT AS count
     FROM (
@@ -69,6 +69,6 @@ export function getMostWinningPersonRows(): Promise<PersonStatRow[]> {
     WHERE nominee !~* ${NON_PERSON_NOMINEE_PATTERN}
     GROUP BY nominee
     ORDER BY count DESC
-    LIMIT 1
+    LIMIT 3
   `;
 }
