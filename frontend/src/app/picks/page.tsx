@@ -4,12 +4,19 @@ import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { Bookmark, Share2, Star, Trophy, Clapperboard, ArrowUpRight } from "lucide-react";
+import { Bookmark, Star, Trophy, Clapperboard, ArrowUpRight } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { usePathname } from "next/navigation";
 import { AppHeader } from "@/components/app-header";
+import { AuthDialog } from "@/components/auth/auth-dialog";
+import { ShareButton } from "@/components/share-button";
 import { fetchSeededRandom, type RollFilm } from "@/lib/api";
+import { useFilmActions, AUTH_GATE_TITLE } from "@/hooks/useFilmActions";
 import { formatRuntime } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { FilterState } from "@cineroll/types";
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://cineroll.app";
 
 const PICK_SLOTS: {
   num: string;
@@ -266,6 +273,70 @@ export default function PicksPage() {
   );
 }
 
+/**
+ * The hero card's quick actions: a real watchlist toggle (with the shared
+ * auth gate for guests) and a working share button — wired to the same
+ * infrastructure as the film detail page, not placeholder buttons.
+ */
+function HeroPickActions({ film }: { film: RollFilm }) {
+  const { status } = useSession();
+  const pathname = usePathname();
+  const {
+    inWatchlist,
+    watchlistPending,
+    toggleWatchlist,
+    authPrompt,
+    closeAuthPrompt,
+  } = useFilmActions({
+    filmId: film.id,
+    filmTitle: film.title,
+    isAuthenticated: status === "authenticated",
+    source: "daily_pick",
+  });
+
+  return (
+    <>
+      <button
+        type="button"
+        aria-pressed={inWatchlist}
+        aria-label={inWatchlist ? "Saved to watchlist" : "Add to watchlist"}
+        disabled={watchlistPending}
+        onClick={() => void toggleWatchlist()}
+        className={cn(
+          "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border transition-colors disabled:cursor-not-allowed disabled:opacity-60",
+          inWatchlist
+            ? "border-[#e8453c]/50 bg-[#e8453c]/15 text-[#F5F5F0]"
+            : "border-[#1e1e2a] text-[#3d3d58] hover:border-[#2a2a3e] hover:text-[#F5F5F0]",
+        )}
+      >
+        <Bookmark
+          className="h-4 w-4"
+          fill={inWatchlist ? "currentColor" : "none"}
+          aria-hidden
+        />
+      </button>
+
+      <ShareButton
+        url={`${SITE_URL}/film/${film.slug}`}
+        title={`Watch ${film.title} tonight — CineRoll picked it`}
+        label=""
+        ariaLabel="Share this pick"
+        iconClassName="h-4 w-4"
+        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#1e1e2a] text-[#3d3d58] transition-colors hover:border-[#2a2a3e] hover:text-[#F5F5F0]"
+      />
+
+      <AuthDialog
+        open={authPrompt !== null}
+        onOpenChange={(open) => {
+          if (!open) closeAuthPrompt();
+        }}
+        callbackUrl={pathname}
+        title={authPrompt ? AUTH_GATE_TITLE[authPrompt] : undefined}
+      />
+    </>
+  );
+}
+
 function PickCard({
   pick,
   index,
@@ -321,8 +392,12 @@ function PickCard({
           <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a2e] to-[#09090f]" />
         )}
 
-        {/* Gradient — softer so the image breathes */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#09090f] via-[#09090f]/20 to-transparent" />
+        {/* Legibility scrim. A soft full-height wash keeps the image breathing,
+            and a guaranteed dark floor over the lower portion — where all the
+            text sits — keeps the title readable over ANY backdrop, including
+            bright ones, instead of relying on the image happening to be dark. */}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#09090f] via-[#09090f]/15 to-transparent" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[65%] bg-gradient-to-t from-[#09090f] via-[#09090f]/80 to-transparent" />
 
         {/* Ghost slot number — large on the hero, modest on supporting cards. */}
         <div
@@ -382,6 +457,7 @@ function PickCard({
             "font-[family-name:var(--font-display)] font-bold leading-[1.05] text-[#F5F5F0]",
             isHero ? "text-3xl sm:text-5xl" : "text-xl sm:text-2xl",
           )}
+          style={{ textShadow: "0 1px 14px rgba(0,0,0,0.55)" }}
         >
           {film.title}
         </h2>
@@ -458,20 +534,7 @@ function PickCard({
               <span>Watch Tonight</span>
               <ArrowUpRight className="h-3.5 w-3.5 transition-transform duration-150 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5" />
             </Link>
-            <button
-              type="button"
-              aria-label="Add to watchlist"
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#1e1e2a] text-[#3d3d58] transition-colors hover:border-[#2a2a3e] hover:text-[#F5F5F0]"
-            >
-              <Bookmark className="h-4 w-4" />
-            </button>
-            <button
-              type="button"
-              aria-label="Share"
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#1e1e2a] text-[#3d3d58] transition-colors hover:border-[#2a2a3e] hover:text-[#F5F5F0]"
-            >
-              <Share2 className="h-4 w-4" />
-            </button>
+            <HeroPickActions film={film} />
           </div>
         ) : (
           <Link
