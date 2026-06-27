@@ -62,9 +62,10 @@ export function AuthButton({
         aria-label="Account menu"
         aria-expanded={menuOpen}
         className={cn(
-          "flex h-8 w-8 items-center justify-center rounded-full",
-          "border border-[#34344d] bg-[#1a1a26] font-[family-name:var(--font-geist-mono)] text-xs font-bold text-[#F5F5F0]",
-          "transition hover:border-[#6a6a85]",
+          "flex h-9 w-9 items-center justify-center rounded-full",
+          "bg-gradient-to-br from-[#ff6a5c] to-[#e8453c] ring-1 ring-white/15",
+          "font-[family-name:var(--font-geist-mono)] text-sm font-bold text-white",
+          "shadow-[0_4px_14px_-3px_rgba(232,69,60,0.65)] transition hover:brightness-110 hover:ring-white/30",
           "focus-visible:outline-none focus-visible:ring-2",
           focusRingClassName,
         )}
