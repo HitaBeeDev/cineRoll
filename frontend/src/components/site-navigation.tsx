@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import { createPortal } from "react-dom";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AuthButton } from "@/components/AuthButton";
@@ -29,6 +30,7 @@ export function SiteNavigation({
   focusRingClassName = "focus-visible:ring-[#e8453c]",
 }: SiteNavigationProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
   // Routes are flat (/browse, /picks, …) — compare the pathname directly. The
   // home link matches only the exact root; every other link also matches its
@@ -37,18 +39,108 @@ export function SiteNavigation({
     href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(href + "/");
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
     if (!isOpen) return;
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") setIsOpen(false);
     };
     const previousOverflow = document.body.style.overflow;
+    const previousHtmlOverflow = document.documentElement.style.overflow;
     document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
     window.addEventListener("keydown", onKeyDown);
     return () => {
       document.body.style.overflow = previousOverflow;
+      document.documentElement.style.overflow = previousHtmlOverflow;
       window.removeEventListener("keydown", onKeyDown);
     };
   }, [isOpen]);
+
+  const mobileMenu = (
+    <div
+      className="fixed inset-0 z-[9999] bg-[#050508] text-[#F5F5F0] md:hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Primary navigation"
+      onClick={() => setIsOpen(false)}
+    >
+      <div
+        className="flex h-dvh min-h-0 flex-col overflow-y-auto px-5 py-4"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="flex shrink-0 items-center justify-between border-b border-[#1c1c2a] pb-4">
+          <span className="font-[family-name:var(--font-geist-mono)] text-base font-bold uppercase tracking-[0.15em] text-[#e8453c]">
+            Cine·Roll
+          </span>
+          <button
+            type="button"
+            className={cn(
+              "inline-flex h-10 w-10 items-center justify-center rounded-full",
+              "border border-[#222232] text-[#888899]",
+              "transition-colors hover:text-[#F5F5F0] focus-visible:outline-none focus-visible:ring-2",
+              focusRingClassName,
+            )}
+            aria-label="Close navigation menu"
+            onClick={() => setIsOpen(false)}
+          >
+            <X className="h-4 w-4" aria-hidden />
+          </button>
+        </div>
+
+        <nav className="flex min-h-0 flex-1 flex-col gap-6 py-6" aria-label="Mobile navigation">
+          <div className="flex flex-col gap-1">
+            {primaryNavItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  "rounded-xl px-3 py-3 font-[family-name:var(--font-geist-mono)] text-lg font-bold uppercase tracking-[0.16em]",
+                  isActive(item.href)
+                    ? "bg-[#141421] text-[#F5F5F0]"
+                    : "text-[#9b96aa] transition-colors hover:bg-[#10101a] hover:text-[#F5F5F0]",
+                  "focus-visible:outline-none focus-visible:ring-2",
+                  focusRingClassName,
+                )}
+                onClick={() => setIsOpen(false)}
+              >
+                {item.label}
+              </Link>
+            ))}
+          </div>
+
+          <div className="flex flex-col gap-1 border-t border-[#222232] pt-5">
+            <span className="font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.24em] text-[#e8453c]">
+              Game Modes
+            </span>
+            {gameModeItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  "rounded-xl px-3 py-3 font-[family-name:var(--font-geist-mono)] text-lg font-bold uppercase tracking-[0.16em]",
+                  isActive(item.href)
+                    ? "bg-[#141421] text-[#F5F5F0]"
+                    : "text-[#9b96aa] transition-colors hover:bg-[#10101a] hover:text-[#F5F5F0]",
+                  "focus-visible:outline-none focus-visible:ring-2",
+                  focusRingClassName,
+                )}
+                onClick={() => setIsOpen(false)}
+              >
+                {item.label}
+              </Link>
+            ))}
+          </div>
+
+          <div className="mt-auto border-t border-[#222232] pt-5" onClick={() => setIsOpen(false)}>
+            <AuthButton focusRingClassName={focusRingClassName} />
+          </div>
+        </nav>
+      </div>
+    </div>
+  );
 
   return (
     <>
@@ -117,85 +209,7 @@ export function SiteNavigation({
         <Menu className="h-4 w-4" aria-hidden />
       </button>
 
-      {/* Mobile overlay */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 z-[100] bg-[#050508]/96 backdrop-blur-[20px] md:hidden"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Primary navigation"
-          onClick={() => setIsOpen(false)}
-        >
-          <div
-            className="flex min-h-screen flex-col px-6 py-5"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <div className="flex items-center justify-between">
-              <span className="font-[family-name:var(--font-geist-mono)] text-lg font-bold tracking-[0.15em] text-[#e8453c] uppercase">
-                Cine·Roll
-              </span>
-              <button
-                type="button"
-                className={cn(
-                  "inline-flex h-10 w-10 items-center justify-center rounded-full",
-                  "border border-[#222232] text-[#888899]",
-                  "transition-colors hover:text-[#F5F5F0] focus-visible:outline-none focus-visible:ring-2",
-                  focusRingClassName,
-                )}
-                aria-label="Close navigation menu"
-                onClick={() => setIsOpen(false)}
-              >
-                <X className="h-4 w-4" aria-hidden />
-              </button>
-            </div>
-
-            <nav className="flex flex-1 flex-col justify-center gap-5" aria-label="Mobile navigation">
-              {primaryNavItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={cn(
-                    "font-[family-name:var(--font-geist-mono)] text-2xl font-bold uppercase tracking-widest",
-                    isActive(item.href)
-                      ? "text-[#F5F5F0]"
-                      : "text-[#9b96aa] transition-colors hover:text-[#F5F5F0]",
-                    "focus-visible:outline-none focus-visible:ring-2",
-                    focusRingClassName,
-                  )}
-                  onClick={() => setIsOpen(false)}
-                >
-                  {item.label}
-                </Link>
-              ))}
-              <div className="mt-2 flex flex-col gap-4 border-t border-[#222232] pt-5">
-                <span className="font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.24em] text-[#e8453c]">
-                  Game Modes
-                </span>
-                {gameModeItems.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={cn(
-                      "font-[family-name:var(--font-geist-mono)] text-2xl font-bold uppercase tracking-widest",
-                      isActive(item.href)
-                        ? "text-[#F5F5F0]"
-                        : "text-[#9b96aa] transition-colors hover:text-[#F5F5F0]",
-                      "focus-visible:outline-none focus-visible:ring-2",
-                      focusRingClassName,
-                    )}
-                    onClick={() => setIsOpen(false)}
-                  >
-                    {item.label}
-                  </Link>
-                ))}
-              </div>
-              <div className="mt-4" onClick={() => setIsOpen(false)}>
-                <AuthButton focusRingClassName={focusRingClassName} />
-              </div>
-            </nav>
-          </div>
-        </div>
-      )}
+      {isOpen && mounted ? createPortal(mobileMenu, document.body) : null}
     </>
   );
 }
