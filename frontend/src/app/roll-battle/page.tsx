@@ -231,10 +231,10 @@ function FilmBattleCard({
         ? { whileHover: { y: -6, scale: 1.01 } }
         : {})}
       transition={{ type: "spring", stiffness: 260, damping: 26 }}
-      className="group relative flex min-h-full w-full cursor-pointer flex-col overflow-hidden rounded-2xl border border-[#262633] bg-[#0e0e18] text-left shadow-[0_22px_70px_rgba(0,0,0,0.34)] transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff635a] focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090f] disabled:cursor-default enabled:hover:border-[#e8453c]/75 enabled:hover:shadow-[0_0_46px_rgba(232,69,60,0.18)]"
+      className="group relative flex h-full min-h-0 w-full cursor-pointer flex-col overflow-hidden rounded-xl border border-[#262633] bg-[#0e0e18] text-left shadow-[0_22px_70px_rgba(0,0,0,0.34)] transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff635a] focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090f] disabled:cursor-default enabled:hover:border-[#e8453c]/75 enabled:hover:shadow-[0_0_46px_rgba(232,69,60,0.18)]"
       aria-label={`Choose ${film.title} as the winner`}
     >
-      <div className="relative aspect-[2/3] w-full overflow-hidden bg-[#07070d] sm:aspect-[4/5] lg:aspect-[2/3]">
+      <div className="relative h-[clamp(210px,40dvh,350px)] w-full shrink-0 overflow-hidden bg-[#07070d] sm:h-[clamp(230px,42dvh,360px)] [@media(max-height:760px)]:h-[clamp(190px,37dvh,292px)] [@media(max-height:680px)]:h-[238px]">
         {imageUrl ? (
           <Image
             src={imageUrl}
@@ -249,11 +249,11 @@ function FilmBattleCard({
           </div>
         )}
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#09090f] via-[#09090f]/18 to-transparent" />
-        <div className="absolute left-3 top-3 rounded-full border border-[#F5F5F0]/14 bg-[#09090f]/78 px-3 py-1 font-[family-name:var(--font-geist-mono)] text-xs font-semibold text-[#F5F5F0]/86 backdrop-blur-md">
+        <div className="absolute left-2.5 top-2.5 rounded-full border border-[#F5F5F0]/14 bg-[#09090f]/78 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] font-semibold text-[#F5F5F0]/86 backdrop-blur-md">
           {film.year}
         </div>
         <div
-          className={`absolute right-3 top-3 rounded-full border px-3 py-1 font-[family-name:var(--font-geist-mono)] text-xs font-semibold backdrop-blur-md ${
+          className={`absolute right-2.5 top-2.5 rounded-full border px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] font-semibold backdrop-blur-md ${
             wins > 0
               ? "border-[#D4AF37]/45 bg-[#D4AF37]/16 text-[#f1d77f]"
               : "border-[#F5F5F0]/14 bg-[#09090f]/62 text-[#F5F5F0]/62"
@@ -276,37 +276,37 @@ function FilmBattleCard({
         )}
       </div>
 
-      <div className="flex flex-1 flex-col gap-3 p-4 sm:p-5">
-        <div className="space-y-1.5">
-          <h3 className="font-[family-name:var(--font-display)] text-2xl font-bold leading-tight text-[#F5F5F0] sm:text-[1.7rem]">
+      <div className="flex min-h-0 flex-1 flex-col gap-2.5 p-3 sm:p-3.5 [@media(max-height:720px)]:gap-2 [@media(max-height:720px)]:p-3">
+        <div className="space-y-1">
+          <h3 className="line-clamp-1 font-[family-name:var(--font-display)] text-xl font-bold leading-tight text-[#F5F5F0] sm:text-2xl [@media(max-height:720px)]:text-xl">
             {film.title}
           </h3>
-          <p className="text-sm font-medium leading-5 text-[#c8c8d5]">
+          <p className="truncate text-xs font-medium leading-4 text-[#c8c8d5] sm:text-sm [@media(max-height:720px)]:text-xs">
             {film.director ? `Directed by ${film.director}` : primaryGenre(film)}
           </p>
         </div>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-1.5">
           {runtime && <InfoPill>{runtime}</InfoPill>}
           {film.imdbRating != null && <InfoPill>IMDb {film.imdbRating.toFixed(1)}</InfoPill>}
           {film.rtScore != null && <InfoPill>RT {film.rtScore}%</InfoPill>}
         </div>
 
-        <p className="line-clamp-3 text-sm leading-6 text-[#F5F5F0]/72">{shortPlot(film.plot)}</p>
+        <p className="line-clamp-1 text-xs leading-5 text-[#F5F5F0]/72 sm:text-sm">{shortPlot(film.plot)}</p>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-1.5 overflow-hidden [@media(max-height:700px)]:hidden">
           {tags.map((tag) => (
             <span
               key={tag}
-              className="rounded-full border border-[#e8453c]/24 bg-[#e8453c]/10 px-2.5 py-1 text-xs font-semibold text-[#ff8a82]"
+              className="rounded-full border border-[#e8453c]/24 bg-[#e8453c]/10 px-2 py-0.5 text-[11px] font-semibold text-[#ff8a82]"
             >
               {tag}
             </span>
           ))}
         </div>
 
-        <div className="mt-auto border-t border-[#F5F5F0]/10 pt-3">
-          <div className="flex items-center justify-between gap-3 rounded-xl bg-[#e8453c] px-4 py-3 font-[family-name:var(--font-geist-mono)] text-xs font-bold text-[#fff8f3] transition-colors group-hover:bg-[#ff554b]">
+        <div className="mt-auto border-t border-[#F5F5F0]/10 pt-2">
+          <div className="flex items-center justify-between gap-3 rounded-lg bg-[#e8453c] px-3.5 py-2.5 font-[family-name:var(--font-geist-mono)] text-xs font-bold text-[#fff8f3] transition-colors group-hover:bg-[#ff554b] [@media(max-height:720px)]:py-2">
             <span>This one wins</span>
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
           </div>
@@ -318,7 +318,7 @@ function FilmBattleCard({
 
 function InfoPill({ children }: { children: ReactNode }) {
   return (
-    <span className="rounded-md border border-[#F5F5F0]/12 bg-[#09090f]/72 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-xs font-semibold text-[#F5F5F0]/78">
+    <span className="rounded-md border border-[#F5F5F0]/12 bg-[#09090f]/72 px-2 py-0.5 font-[family-name:var(--font-geist-mono)] text-[11px] font-semibold text-[#F5F5F0]/78">
       {children}
     </span>
   );
@@ -341,44 +341,44 @@ function BattleStatus({
   const roundsLeft = selectedFilm ? TOTAL_ROUNDS - round - 1 : TOTAL_ROUNDS - round;
 
   return (
-    <section className="grid gap-4 rounded-2xl border border-[#242432] bg-[#0c0c15]/88 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.24)] lg:grid-cols-[1fr_auto_1fr] lg:items-center">
-      <div>
-        <p className="font-[family-name:var(--font-geist-mono)] text-xs font-semibold text-[#D4AF37]">
+    <section className="grid shrink-0 gap-3 rounded-xl border border-[#242432] bg-[#0c0c15]/88 p-3 shadow-[0_18px_60px_rgba(0,0,0,0.22)] md:grid-cols-[1fr_auto_1fr] md:items-center">
+      <div className="min-w-0">
+        <p className="font-[family-name:var(--font-geist-mono)] text-[11px] font-semibold text-[#D4AF37]">
           Round {round + 1} of {TOTAL_ROUNDS}
         </p>
-        <h1 className="mt-1 font-[family-name:var(--font-display)] text-3xl font-bold leading-tight text-[#F5F5F0] sm:text-4xl">
+        <h1 className="mt-0.5 font-[family-name:var(--font-display)] text-2xl font-bold leading-tight text-[#F5F5F0] sm:text-3xl [@media(max-height:720px)]:text-2xl">
           Choose the film that survives.
         </h1>
-        <p className="mt-2 max-w-2xl text-sm leading-6 text-[#F5F5F0]/72 sm:text-base">
+        <p className="mt-1 max-w-2xl text-xs leading-5 text-[#F5F5F0]/72 sm:text-sm [@media(max-height:720px)]:hidden">
           Each pick becomes the champion and faces the next challenger. After five rounds,
           your choices crown one film for tonight.
         </p>
       </div>
 
-      <div className="flex items-center gap-2 lg:flex-col">
+      <div className="flex items-center gap-1.5 md:flex-col">
         {Array.from({ length: TOTAL_ROUNDS }).map((_, i) => (
           <span
             key={i}
-            className={`h-2.5 rounded-full transition-all duration-300 lg:w-2.5 ${
+            className={`h-2 rounded-full transition-all duration-300 md:w-2 ${
               i < round || (selectedFilm && i === round)
-                ? "w-9 bg-[#e8453c] shadow-[0_0_16px_rgba(232,69,60,0.42)]"
+                ? "w-8 bg-[#e8453c] shadow-[0_0_16px_rgba(232,69,60,0.42)]"
                 : i === round
-                  ? "w-9 bg-[#D4AF37]"
-                  : "w-5 bg-[#2a2a38]"
+                  ? "w-8 bg-[#D4AF37]"
+                  : "w-4 bg-[#2a2a38]"
             }`}
             aria-hidden="true"
           />
         ))}
       </div>
 
-      <div className="rounded-xl border border-[#F5F5F0]/10 bg-[#09090f]/70 p-3 lg:text-right">
-        <p className="font-[family-name:var(--font-geist-mono)] text-xs font-semibold text-[#ff8a82]">
+      <div className="min-w-0 rounded-lg border border-[#F5F5F0]/10 bg-[#09090f]/70 p-2.5 md:text-right">
+        <p className="truncate font-[family-name:var(--font-geist-mono)] text-[11px] font-semibold text-[#ff8a82]">
           {buildMatchupTitle(leftFilm, rightFilm)}
         </p>
-        <p className="mt-1 text-sm leading-5 text-[#F5F5F0]/68">
+        <p className="mt-0.5 truncate text-xs leading-5 text-[#F5F5F0]/68">
           Matched by {reasons.join(", ")}.
         </p>
-        <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-xs font-semibold text-[#F5F5F0]/58">
+        <p className="mt-0.5 truncate font-[family-name:var(--font-geist-mono)] text-[11px] font-semibold text-[#F5F5F0]/58">
           {champion ? `${champion.title} is defending` : "First choice starts the bracket"} ·{" "}
           {roundsLeft} {roundsLeft === 1 ? "choice" : "choices"} left
         </p>
@@ -389,10 +389,10 @@ function BattleStatus({
 
 function VersusMedallion({ selectedFilm }: { selectedFilm: RollFilm | null }) {
   return (
-    <div className="pointer-events-none absolute left-1/2 top-1/2 z-20 hidden -translate-x-1/2 -translate-y-1/2 md:block">
-      <div className="relative flex h-24 w-24 items-center justify-center rounded-full border border-[#e8453c]/70 bg-[#130d12] shadow-[0_0_60px_rgba(232,69,60,0.34)]">
-        <div className="absolute h-[1px] w-40 bg-gradient-to-r from-transparent via-[#e8453c]/70 to-transparent" />
-        <span className="relative font-[family-name:var(--font-display)] text-3xl font-black text-[#ff635a]">
+    <div className="pointer-events-none absolute left-1/2 top-[43%] z-20 hidden -translate-x-1/2 -translate-y-1/2 md:block">
+      <div className="relative flex h-20 w-20 items-center justify-center rounded-full border border-[#e8453c]/70 bg-[#130d12] shadow-[0_0_60px_rgba(232,69,60,0.34)] [@media(max-height:720px)]:h-16 [@media(max-height:720px)]:w-16">
+        <div className="absolute h-[1px] w-32 bg-gradient-to-r from-transparent via-[#e8453c]/70 to-transparent" />
+        <span className="relative font-[family-name:var(--font-display)] text-2xl font-black text-[#ff635a] [@media(max-height:720px)]:text-xl">
           VS
         </span>
       </div>
@@ -402,7 +402,7 @@ function VersusMedallion({ selectedFilm }: { selectedFilm: RollFilm | null }) {
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
-            className="mt-3 whitespace-nowrap rounded-full border border-[#e8453c]/35 bg-[#09090f]/88 px-3 py-1 text-center font-[family-name:var(--font-geist-mono)] text-xs font-bold text-[#ff8a82]"
+            className="mt-2 whitespace-nowrap rounded-full border border-[#e8453c]/35 bg-[#09090f]/88 px-3 py-1 text-center font-[family-name:var(--font-geist-mono)] text-[11px] font-bold text-[#ff8a82]"
           >
             {selectedFilm.title} advances
           </motion.p>
@@ -619,10 +619,10 @@ export default function RollBattlePage() {
   }
 
   return (
-    <div className="min-h-dvh bg-[#09090f]">
+    <div className="h-dvh overflow-hidden bg-[#09090f]">
       <AppHeader />
 
-      <main className="relative min-h-[calc(100dvh-73px)] overflow-hidden px-4 py-5 sm:px-6 lg:px-8">
+      <main className="relative h-[calc(100dvh-4rem-1px)] overflow-hidden px-4 py-3 sm:px-6 lg:px-8 [@media(max-height:720px)]:py-2">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(232,69,60,0.14),transparent_32%),linear-gradient(90deg,rgba(232,69,60,0.08),transparent_26%,transparent_74%,rgba(212,175,55,0.08))]" />
 
         {phase === "loading" && (
@@ -649,7 +649,7 @@ export default function RollBattlePage() {
         )}
 
         {phase === "battling" && leftFilm != null && rightFilm != null && (
-          <div className="relative mx-auto flex w-full max-w-6xl flex-col gap-5">
+          <div className="relative mx-auto grid h-full w-full max-w-6xl grid-rows-[auto_minmax(0,1fr)_auto] gap-2.5 [@media(max-height:720px)]:gap-2">
             <BattleStatus
               round={round}
               selectedFilm={selectedFilm}
@@ -665,7 +665,7 @@ export default function RollBattlePage() {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={reduced ? {} : { opacity: 0, y: -18, scale: 0.99 }}
                 transition={{ type: "spring", stiffness: 280, damping: 30 }}
-                className="relative grid items-stretch gap-4 md:grid-cols-2 md:gap-6"
+                className="relative grid min-h-0 items-stretch gap-3 md:grid-cols-2 md:gap-5 [@media(max-height:720px)]:gap-4"
               >
                 <FilmBattleCard
                   film={leftFilm}
@@ -677,7 +677,7 @@ export default function RollBattlePage() {
                 />
 
                 <div className="flex items-center justify-center md:hidden">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-full border border-[#e8453c]/60 bg-[#130d12] font-[family-name:var(--font-display)] text-xl font-black text-[#ff635a] shadow-[0_0_36px_rgba(232,69,60,0.28)]">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full border border-[#e8453c]/60 bg-[#130d12] font-[family-name:var(--font-display)] text-base font-black text-[#ff635a] shadow-[0_0_36px_rgba(232,69,60,0.28)]">
                     VS
                   </div>
                 </div>
@@ -695,7 +695,7 @@ export default function RollBattlePage() {
               </motion.section>
             </AnimatePresence>
 
-            <p className="mx-auto max-w-2xl text-center text-sm leading-6 text-[#F5F5F0]/58">
+            <p className="mx-auto max-w-2xl truncate text-center text-xs leading-5 text-[#F5F5F0]/58">
               Choose carefully. Every winner carries your taste into the next round.
             </p>
           </div>
