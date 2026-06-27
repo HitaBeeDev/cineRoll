@@ -84,19 +84,28 @@ export function SignInOptions({ callbackUrl }: SignInOptionsProps) {
       </div>
 
       <form onSubmit={(e) => void handleEmailSubmit(e)} className="flex flex-col gap-3">
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="your@email.com"
-          required
-          className={cn(
-            "h-12 w-full rounded-xl border border-[#1e1e2a] bg-[#0d0d1a] px-4",
-            "font-[family-name:var(--font-geist-mono)] text-sm text-[#F5F5F0]",
-            "placeholder:text-[#444458]",
-            "transition-colors focus:border-[#e8453c]/50 focus:outline-none",
-          )}
-        />
+        <div className="flex flex-col gap-2">
+          <label
+            htmlFor="signin-email"
+            className="font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.18em] text-[#b8b8c6]"
+          >
+            Email address
+          </label>
+          <input
+            id="signin-email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="you@example.com"
+            required
+            className={cn(
+              "h-12 w-full rounded-xl border border-[#2b2b3d] bg-[#10101d] px-4",
+              "font-[family-name:var(--font-geist-mono)] text-sm text-[#F5F5F0]",
+              "placeholder:text-[#777789]",
+              "transition-colors focus:border-[#e8453c]/70 focus:outline-none focus:ring-2 focus:ring-[#e8453c]/15",
+            )}
+          />
+        </div>
         {error !== null && (
           <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#e8453c]">
             {error}
@@ -108,12 +117,12 @@ export function SignInOptions({ callbackUrl }: SignInOptionsProps) {
           className={cn(
             "h-12 w-full rounded-xl bg-[#e8453c]",
             "font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.2em] text-[#F5F5F0]",
-            "transition hover:bg-[#d5342b]",
+            "shadow-[0_16px_38px_rgba(232,69,60,0.22)] transition hover:bg-[#f2554c]",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
-            "disabled:cursor-not-allowed disabled:opacity-50",
+            "disabled:cursor-not-allowed disabled:bg-[#8f302b] disabled:text-[#c9a1a0] disabled:shadow-none",
           )}
         >
-          {isLoading ? "Sending…" : "Send me a code"}
+          {isLoading ? "Sending…" : "Continue with email"}
         </button>
       </form>
     </div>
