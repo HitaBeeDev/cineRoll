@@ -1,10 +1,12 @@
 import Link from "next/link";
+import { AuthAutofillStyle } from "@/components/auth/auth-autofill-style";
 
 /** Shared dark chrome for the auth sub-pages (forgot/reset password) so they
  *  match the sign-in page without duplicating the gradient + header markup. */
 export function AuthShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="relative flex h-dvh flex-col overflow-hidden bg-[#09090f] text-[#F5F5F0]">
+      <AuthAutofillStyle />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_40%,rgba(232,69,60,0.12),transparent_40%)]" />
 
       <header className="relative z-10 flex h-16 shrink-0 items-center px-6">

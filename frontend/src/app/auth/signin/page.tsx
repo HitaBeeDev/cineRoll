@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { SignInOptions } from "@/components/auth/sign-in-options";
+import { AuthAutofillStyle } from "@/components/auth/auth-autofill-style";
 
 export default function SignInPage() {
   // Read ?callbackUrl= once at init (no effect, no Suspense boundary). Server
@@ -16,6 +17,7 @@ export default function SignInPage() {
 
   return (
     <div className="relative flex h-dvh flex-col overflow-hidden bg-[#09090f] text-[#F5F5F0]">
+      <AuthAutofillStyle />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_40%,rgba(232,69,60,0.12),transparent_40%)]" />
       <div className="pointer-events-none absolute inset-x-0 top-20 mx-auto h-[520px] w-[min(720px,90vw)] bg-[radial-gradient(circle,rgba(232,69,60,0.08),transparent_62%)]" />
 
