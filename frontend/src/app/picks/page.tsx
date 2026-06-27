@@ -63,6 +63,24 @@ type DailyPick = { film: RollFilm; slot: Slot };
 // decade/genre-diverse pick before settling for the seeded first choice.
 const SEED_VARIANTS = 3;
 
+const SLOT_FALLBACK_FILTERS: Record<string, Partial<FilterState>[]> = {
+  "01": [
+    { awardBodies: ["oscar"], winnerOnly: true },
+    { awardBodies: ["oscar"] },
+    {},
+  ],
+  "02": [
+    { awardBodies: ["cannes"] },
+    { awardBodies: ["cannes", "berlin"] },
+    {},
+  ],
+  "03": [
+    { imdbRatingMin: 7, imdbTopExclude: true },
+    { imdbRatingMin: 7 },
+    {},
+  ],
+};
+
 function decadeOf(year: number): number {
   return Math.floor(year / 10) * 10;
 }
@@ -163,7 +181,20 @@ async function selectPick(
     if (!decadeClash && !genreClash) return pick;
   }
 
-  return fallback;
+  if (fallback) return fallback;
+
+  const relaxedFilters = SLOT_FALLBACK_FILTERS[slot.num] ?? [{}];
+  for (let i = 0; i < relaxedFilters.length; i++) {
+    const seed = `${day}:${slot.num}:fallback${i}`;
+    try {
+      const { film } = await fetchSeededRandom(seed, relaxedFilters[i], usedIds);
+      return { film, slot };
+    } catch {
+      continue;
+    }
+  }
+
+  return null;
 }
 
 export default function PicksPage() {
@@ -191,11 +222,14 @@ export default function PicksPage() {
             return fullSlot ? { film, slot: fullSlot } : null;
           })
           .filter((p): p is DailyPick => p !== null);
-        if (restored.length > 0) {
+        const restoredSlots = new Set(restored.map((pick) => pick.slot.num));
+        const hasEverySlot = PICK_SLOTS.every((slot) => restoredSlots.has(slot.num));
+        if (restored.length === PICK_SLOTS.length && hasEverySlot) {
           setPicks(restored);
           setIsLoading(false);
           return;
         }
+        localStorage.removeItem(key);
       }
     } catch {}
 
