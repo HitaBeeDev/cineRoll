@@ -142,7 +142,7 @@ export default async function StatsPage() {
   };
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-[#08080d] text-[#F5F5F0]">
+    <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-[#08080d] text-[#F5F5F0]">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
@@ -279,9 +279,9 @@ function StatsContent({ stats }: { stats: StatsResponse }) {
           }}
         />
 
-        <div className="relative mx-auto w-full max-w-screen-2xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8 xl:px-12">
-          <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(360px,460px)]">
-            <div>
+        <div className="relative mx-auto w-full max-w-full px-4 py-12 sm:max-w-screen-2xl sm:px-6 sm:py-16 lg:px-8 xl:px-12">
+          <div className="grid min-w-0 items-center gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(360px,460px)]">
+            <div className="min-w-0">
               <div className="mb-3 h-px w-10 bg-[#e8453c]" />
               <p className="font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-[0.22em] text-[#e8453c]">
                 The CineRoll archive
@@ -319,7 +319,7 @@ function StatsContent({ stats }: { stats: StatsResponse }) {
         />
       </section>
 
-      <main className="mx-auto w-full max-w-screen-2xl space-y-16 px-4 py-12 sm:px-6 sm:py-16 lg:px-8 xl:px-12">
+      <main className="mx-auto w-full max-w-full space-y-16 overflow-x-hidden px-4 py-12 sm:max-w-screen-2xl sm:px-6 sm:py-16 lg:px-8 xl:px-12">
         {/* ARCHIVE PULSE — compact metric strip, each with its own visual */}
         <section>
           <SectionHeader eyebrow="Archive pulse" title="The shape of the archive" compact />
@@ -383,7 +383,7 @@ function StatsContent({ stats }: { stats: StatsResponse }) {
         {(stats.topNominatedPeople.length > 0 || stats.topWinningPeople.length > 0) && (
           <section>
             <SectionHeader eyebrow="Behind the records" title="The people" compact />
-            <div className="mt-6 grid gap-6 lg:grid-cols-2">
+            <div className="mt-6 grid min-w-0 gap-6 lg:grid-cols-2">
               {stats.topWinningPeople.length > 0 && (
                 <PersonRecordGroup
                   heading="Most winning"
@@ -585,7 +585,7 @@ function PulseCard({
   visual: ReactNode;
 }) {
   return (
-    <div className="flex items-center gap-5 rounded-lg border border-white/10 bg-white/[0.035] p-5 shadow-[0_18px_50px_rgba(0,0,0,0.18)]">
+    <div className="flex min-w-0 items-center gap-4 rounded-lg border border-white/10 bg-white/[0.035] p-4 shadow-[0_18px_50px_rgba(0,0,0,0.18)] sm:gap-5 sm:p-5">
       <div className="shrink-0">{visual}</div>
       <div className="min-w-0">
         <p className="font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-[0.18em] text-[#b6b2c6]">
@@ -683,7 +683,7 @@ function FilmRecordGroup({
       </h3>
       {first && <FeaturedFilmCard film={first} rank={1} unit={unit} accent={accent} />}
       {rest.length > 0 && (
-        <div className="mt-3 grid grid-cols-2 gap-3">
+        <div className="mt-3 grid gap-3 sm:grid-cols-2">
           {rest.map((film, i) => (
             <RunnerUpFilmCard
               key={film.id}
@@ -783,7 +783,7 @@ function RunnerUpFilmCard({
   return (
     <Link
       href={`/film/${film.slug}`}
-      className="group flex gap-3 rounded-lg border border-white/10 bg-white/[0.025] p-3 transition-colors hover:border-white/20 hover:bg-white/[0.04]"
+      className="group flex min-w-0 gap-3 rounded-lg border border-white/10 bg-white/[0.025] p-3 transition-colors hover:border-white/20 hover:bg-white/[0.04]"
     >
       <div className="relative h-20 w-[54px] shrink-0 overflow-hidden rounded bg-[#11111a]">
         {film.posterUrl && (
@@ -834,7 +834,7 @@ function PersonRecordGroup({
   const max = Math.max(...people.map((p) => p.count), 1);
 
   return (
-    <Panel>
+    <Panel className="min-w-0 overflow-hidden">
       <div className="mb-5 flex items-center gap-3">
         <span
           className="flex h-9 w-9 items-center justify-center rounded-md border border-white/10 bg-white/[0.045]"
@@ -853,12 +853,12 @@ function PersonRecordGroup({
           return (
             <li key={person.name}>
               <Link href={`/person/${personSlug(person.name)}`} className="group block">
-                <div className="flex items-baseline justify-between gap-4">
-                  <span className="flex min-w-0 items-baseline gap-3">
+                <div className="flex min-w-0 flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
+                  <span className="flex min-w-0 items-baseline gap-2 sm:gap-3">
                     <span
                       className={cn(
                         "font-[family-name:var(--font-display)] font-bold tabular-nums text-[#4b4658]",
-                        isFirst ? "text-xl" : "text-base",
+                        isFirst ? "text-lg sm:text-xl" : "text-base",
                       )}
                     >
                       {String(i + 1).padStart(2, "0")}
@@ -866,20 +866,20 @@ function PersonRecordGroup({
                     <span
                       className={cn(
                         "truncate font-[family-name:var(--font-display)] font-bold text-[#f4f0f7] transition-colors group-hover:text-white",
-                        isFirst ? "text-2xl sm:text-3xl" : "text-lg",
+                        isFirst ? "text-xl sm:text-3xl" : "text-lg",
                       )}
                     >
                       {person.name}
                     </span>
                   </span>
-                  <span className="shrink-0 text-right leading-none">
+                  <span className="shrink-0 pl-8 leading-none sm:pl-0 sm:text-right">
                     <span
-                      className={cn("font-[family-name:var(--font-display)] font-bold", isFirst ? "text-3xl sm:text-4xl" : "text-xl")}
+                      className={cn("font-[family-name:var(--font-display)] font-bold", isFirst ? "text-2xl sm:text-4xl" : "text-xl")}
                       style={{ color: accentColor }}
                     >
                       {person.count}
                     </span>
-                    <span className="ml-1.5 font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-[0.14em] text-[#9e9ab0]">
+                    <span className="ml-1.5 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.1em] text-[#9e9ab0] sm:text-xs sm:tracking-[0.14em]">
                       {unit}
                     </span>
                   </span>
@@ -1038,7 +1038,7 @@ function RankingList({
   const accentClass = accent === "red" ? "text-[#ff766d]" : "text-[#78b7ff]";
 
   return (
-    <Panel>
+    <Panel className="min-w-0 overflow-hidden">
       <div className="mb-2 flex items-center gap-3">
         <span className={cn("flex h-9 w-9 items-center justify-center rounded-md border border-white/10 bg-white/[0.045]", accentClass)}>
           {icon}
@@ -1050,7 +1050,7 @@ function RankingList({
           <li key={film.id}>
             <Link
               href={`/film/${film.slug}`}
-              className="group grid grid-cols-[24px_42px_minmax(0,1fr)_auto] items-center gap-3 py-3 transition-colors hover:bg-white/[0.025]"
+              className="group grid min-w-0 grid-cols-[24px_42px_minmax(0,1fr)] items-center gap-3 py-3 transition-colors hover:bg-white/[0.025] sm:grid-cols-[24px_42px_minmax(0,1fr)_auto]"
             >
               <span className="font-[family-name:var(--font-display)] text-lg font-bold text-[#4b4658]">
                 {index + 1}
@@ -1074,7 +1074,7 @@ function RankingList({
                   {film.releaseYear}
                 </span>
               </span>
-              <span className={cn("shrink-0 text-right font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-[0.14em]", accentClass)}>
+              <span className={cn("col-start-3 -mt-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.1em] sm:col-start-auto sm:mt-0 sm:shrink-0 sm:text-right sm:text-xs sm:tracking-[0.14em]", accentClass)}>
                 {formatNumber(film.count)} {unit}
               </span>
             </Link>
