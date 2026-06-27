@@ -88,7 +88,7 @@ export function VerifyForm() {
   }
 
   return (
-    <div className="relative flex min-h-screen flex-col bg-[#09090f] text-[#F5F5F0]">
+    <div className="relative flex min-h-dvh flex-col overflow-hidden bg-[#09090f] text-[#F5F5F0]">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_40%,rgba(232,69,60,0.12),transparent_40%)]" />
 
       <header className="relative z-10 flex h-16 shrink-0 items-center px-6">
@@ -100,7 +100,7 @@ export function VerifyForm() {
         </Link>
       </header>
 
-      <main className="relative z-10 flex flex-1 items-center justify-center px-4 py-12">
+      <main className="relative z-10 flex min-h-0 flex-1 items-center justify-center px-4 py-8 sm:py-12">
         <div className="w-full max-w-sm">
           <h1 className="font-[family-name:var(--font-display)] text-4xl font-bold leading-tight">
             Check your
