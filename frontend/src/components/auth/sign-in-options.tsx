@@ -96,7 +96,7 @@ export function SignInOptions({ callbackUrl }: SignInOptionsProps) {
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-3">
       <button
         type="button"
         onClick={() => void handleGoogleSignIn()}
