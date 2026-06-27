@@ -1,45 +1,88 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { cn } from "@/lib/utils";
 
 type SignInOptionsProps = {
   /**
    * Relative path to return to after auth. Honoured by both Google (redirect)
-   * and the email magic link, so flows like "rate → sign in → land back on the
+   * and credentials sign-in, so flows like "rate → sign in → land back on the
    * film" resume where they started.
    */
   callbackUrl: string;
 };
 
-/** Shared sign-in controls (Google + email magic link). Used by the full
- *  sign-in page and the inline auth modal so both stay in sync. */
+type Mode = "signin" | "signup";
+
+const inputClass = cn(
+  "h-12 w-full rounded-xl border border-[#2b2b3d] bg-[#10101d] px-4",
+  "text-sm text-[#F5F5F0] placeholder:text-[#777789]",
+  "transition-colors focus:border-[#e8453c]/70 focus:outline-none focus:ring-2 focus:ring-[#e8453c]/15",
+);
+
+const labelClass = "text-xs font-medium text-[#b8b8c6]";
+
+/** Shared sign-in / create-account controls (Google + email & password). Used
+ *  by the full sign-in page and the inline auth modal so both stay in sync. */
 export function SignInOptions({ callbackUrl }: SignInOptionsProps) {
+  const [mode, setMode] = useState<Mode>("signin");
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Only relative paths, to avoid an open-redirect.
   const safeCallbackUrl = callbackUrl.startsWith("/") ? callbackUrl : "/";
+  const busy = isLoading || isGoogleLoading;
 
-  async function handleEmailSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!email.trim()) return;
-    setIsLoading(true);
+  function switchMode(next: Mode) {
+    setMode(next);
     setError(null);
+    setConfirm("");
+  }
+
+  async function completeSignIn() {
+    const result = await signIn("credentials", {
+      email,
+      password,
+      redirect: false,
+    });
+    if (result?.error) {
+      setError("Incorrect email or password.");
+      return;
+    }
+    window.location.href = safeCallbackUrl;
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (busy) return;
+    setError(null);
+
+    if (mode === "signup" && password !== confirm) {
+      setError("Passwords don't match.");
+      return;
+    }
+
+    setIsLoading(true);
     try {
-      const result = await signIn("resend", {
-        email,
-        callbackUrl: safeCallbackUrl,
-        redirect: false,
-      });
-      if (result?.error) {
-        setError("Something went wrong. Please try again.");
-      } else {
-        window.location.href = `/auth/verify?email=${encodeURIComponent(email)}`;
+      if (mode === "signup") {
+        const res = await fetch("/api/auth/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        });
+        if (!res.ok) {
+          const data = (await res.json().catch(() => null)) as { error?: string } | null;
+          setError(data?.error ?? "Could not create your account. Please try again.");
+          return;
+        }
       }
+      await completeSignIn();
     } catch {
       setError("Something went wrong. Please try again.");
     } finally {
@@ -53,11 +96,11 @@ export function SignInOptions({ callbackUrl }: SignInOptionsProps) {
   }
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-4">
       <button
         type="button"
         onClick={() => void handleGoogleSignIn()}
-        disabled={isGoogleLoading || isLoading}
+        disabled={busy}
         className={cn(
           "flex h-12 w-full items-center justify-center gap-3 rounded-xl border border-white/10",
           "text-sm font-semibold text-[#F5F5F0]",
@@ -77,18 +120,13 @@ export function SignInOptions({ callbackUrl }: SignInOptionsProps) {
 
       <div className="flex items-center gap-3">
         <div className="h-px flex-1 bg-[#1e1e2a]" />
-        <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#444458]">
-          or
-        </span>
+        <span className="text-xs text-[#5a5a6e]">or</span>
         <div className="h-px flex-1 bg-[#1e1e2a]" />
       </div>
 
-      <form onSubmit={(e) => void handleEmailSubmit(e)} className="flex flex-col gap-3">
+      <form onSubmit={(e) => void handleSubmit(e)} className="flex flex-col gap-3">
         <div className="flex flex-col gap-2">
-          <label
-            htmlFor="signin-email"
-            className="text-xs font-medium text-[#b8b8c6]"
-          >
+          <label htmlFor="signin-email" className={labelClass}>
             Email address
           </label>
           <input
@@ -97,23 +135,61 @@ export function SignInOptions({ callbackUrl }: SignInOptionsProps) {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@example.com"
+            autoComplete="email"
             required
-            className={cn(
-              "h-12 w-full rounded-xl border border-[#2b2b3d] bg-[#10101d] px-4",
-              "font-[family-name:var(--font-geist-mono)] text-sm text-[#F5F5F0]",
-              "placeholder:text-[#777789]",
-              "transition-colors focus:border-[#e8453c]/70 focus:outline-none focus:ring-2 focus:ring-[#e8453c]/15",
-            )}
+            className={inputClass}
           />
         </div>
-        {error !== null && (
-          <p className="text-xs text-[#ff7068]">
-            {error}
-          </p>
+
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center justify-between">
+            <label htmlFor="signin-password" className={labelClass}>
+              Password
+            </label>
+            {mode === "signin" && (
+              <Link
+                href="/auth/forgot-password"
+                className="text-xs text-[#8f8fa0] underline-offset-2 transition-colors hover:text-[#c8c8d4] hover:underline"
+              >
+                Forgot password?
+              </Link>
+            )}
+          </div>
+          <input
+            id="signin-password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder={mode === "signup" ? "At least 8 characters" : "Your password"}
+            autoComplete={mode === "signup" ? "new-password" : "current-password"}
+            required
+            className={inputClass}
+          />
+        </div>
+
+        {mode === "signup" && (
+          <div className="flex flex-col gap-2">
+            <label htmlFor="signin-confirm" className={labelClass}>
+              Confirm password
+            </label>
+            <input
+              id="signin-confirm"
+              type="password"
+              value={confirm}
+              onChange={(e) => setConfirm(e.target.value)}
+              placeholder="Re-enter your password"
+              autoComplete="new-password"
+              required
+              className={inputClass}
+            />
+          </div>
         )}
+
+        {error !== null && <p className="text-xs text-[#ff7068]">{error}</p>}
+
         <button
           type="submit"
-          disabled={isLoading || isGoogleLoading || !email.trim()}
+          disabled={busy}
           className={cn(
             "h-12 w-full rounded-xl bg-[#e8453c]",
             "text-sm font-semibold text-[#F5F5F0]",
@@ -122,9 +198,41 @@ export function SignInOptions({ callbackUrl }: SignInOptionsProps) {
             "disabled:cursor-not-allowed disabled:bg-[#8f302b] disabled:text-[#c9a1a0] disabled:shadow-none",
           )}
         >
-          {isLoading ? "Sending…" : "Continue with email"}
+          {isLoading
+            ? mode === "signup"
+              ? "Creating account…"
+              : "Signing in…"
+            : mode === "signup"
+              ? "Create account"
+              : "Sign in"}
         </button>
       </form>
+
+      <p className="text-center text-xs text-[#8f8fa0]">
+        {mode === "signin" ? (
+          <>
+            New to CineRoll?{" "}
+            <button
+              type="button"
+              onClick={() => switchMode("signup")}
+              className="font-medium text-[#c8c8d4] underline-offset-2 transition-colors hover:text-[#F5F5F0] hover:underline"
+            >
+              Create an account
+            </button>
+          </>
+        ) : (
+          <>
+            Already have an account?{" "}
+            <button
+              type="button"
+              onClick={() => switchMode("signin")}
+              className="font-medium text-[#c8c8d4] underline-offset-2 transition-colors hover:text-[#F5F5F0] hover:underline"
+            >
+              Sign in
+            </button>
+          </>
+        )}
+      </p>
     </div>
   );
 }

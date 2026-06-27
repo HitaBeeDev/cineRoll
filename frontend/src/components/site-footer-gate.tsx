@@ -8,7 +8,12 @@ import { usePathname } from "next/navigation";
  * page scrollbar. Auth routes are also single-screen flows with their own
  * focused layout, so the global footer stays out of those pages too.
  */
-const FULL_SCREEN_ROUTES = new Set(["/", "/auth/signin", "/auth/verify"]);
+const FULL_SCREEN_ROUTES = new Set([
+  "/",
+  "/auth/signin",
+  "/auth/forgot-password",
+  "/auth/reset-password",
+]);
 
 export function SiteFooterGate({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();

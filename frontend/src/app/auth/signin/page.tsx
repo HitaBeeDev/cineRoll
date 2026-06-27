@@ -44,10 +44,6 @@ export default function SignInPage() {
               <SignInOptions callbackUrl={callbackUrl} />
             </div>
 
-            <p className="mt-4 text-center text-xs leading-5 text-[#8f8fa0]">
-              No password needed — we&apos;ll email you a one-time code.
-            </p>
-
             <p className="mt-5 border-t border-white/10 pt-4 text-center text-xs leading-5 text-[#8f8fa0]">
               By continuing, you agree to CineRoll&apos;s{" "}
               <Link href="/terms" className="text-[#c8c8d4] underline-offset-2 transition-colors hover:text-[#F5F5F0] hover:underline">
