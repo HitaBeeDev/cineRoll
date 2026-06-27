@@ -84,6 +84,37 @@ function formatGenres(genres: string[]): string {
   return genres.slice(0, 2).join(" / ");
 }
 
+function compactCategory(category: string): string {
+  const normalized = category
+    .replace(/\s*[-–—]\s*Motion Picture.*$/i, "")
+    .replace(/\s*\(.*?\)\s*/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  if (/supporting actor/i.test(category)) return "Supporting Actor";
+  if (/supporting actress/i.test(category)) return "Supporting Actress";
+  if (/actor/i.test(category)) return "Actor";
+  if (/actress/i.test(category)) return "Actress";
+  if (/original song|music.*song/i.test(category)) return "Original Song";
+  if (/score|music/i.test(category)) return "Music";
+  if (/director/i.test(category)) return "Director";
+  if (/screenplay|writing/i.test(category)) return "Screenplay";
+  if (/documentary.*short/i.test(category)) return "Documentary Short";
+  if (/short/i.test(category)) return "Short Film";
+  if (/documentary/i.test(category)) return "Documentary";
+  if (/foreign|international/i.test(category)) return "International Film";
+  if (/picture|film/i.test(category)) return "Picture";
+
+  return normalized || category;
+}
+
+function formatYearTrail(years: number[]): string {
+  const uniqueYears = Array.from(new Set(years)).sort((a, b) => a - b);
+  if (uniqueYears.length === 0) return "No year";
+  if (uniqueYears.length === 1) return String(uniqueYears[0]);
+  return `${uniqueYears[0]}-${uniqueYears[uniqueYears.length - 1]}`;
+}
+
 function readSessionScore(): SessionScore {
   if (typeof window === "undefined") return { correct: 0, total: 0 };
 
@@ -144,6 +175,8 @@ function BlindRollContent() {
   const [sessionScore, setSessionScore] = useState<SessionScore>(() => readSessionScore());
   const [difficulty, setDifficulty] = useState<Difficulty>(() => readDifficulty());
   const [shareStatus, setShareStatus] = useState<ShareStatus>("idle");
+  const [expandedAward, setExpandedAward] = useState<number | null>(null);
+  const [examinedAwards, setExaminedAwards] = useState<Set<number>>(() => new Set());
   const challengeSlug = searchParams.get("film")?.trim() ?? "";
 
   const loadFilm = useCallback(async (slug?: string) => {
@@ -152,6 +185,8 @@ function BlindRollContent() {
     setSelectedFilmId(null);
     setCorrect(null);
     setShareStatus("idle");
+    setExpandedAward(null);
+    setExaminedAwards(new Set());
     try {
       const nextRound = await fetchBlindRound(slug || undefined);
       setFilm(nextRound.film);
@@ -182,6 +217,19 @@ function BlindRollContent() {
   }, [challengeSlug]);
 
   const awards = useMemo(() => (film ? getAwards(film) : []), [film]);
+  const awardSummary = useMemo(() => {
+    if (awards.length === 0) return null;
+    const bodies = Array.from(new Set(awards.map((award) => formatAwardBody(award.awardBody))));
+    const wins = awards.filter((award) => award.won).length;
+    const status = wins === 0 ? "Nominated" : wins === awards.length ? "Won" : "Won / Nominated";
+
+    return {
+      bodies: bodies.join(" · "),
+      yearTrail: formatYearTrail(awards.map((award) => award.awardYear)),
+      count: awards.length,
+      status,
+    };
+  }, [awards]);
   const selectedFilm = useMemo(
     () => options.find((option) => option.id === selectedFilmId) ?? null,
     [options, selectedFilmId],
@@ -238,6 +286,16 @@ function BlindRollContent() {
     }
   }
 
+  function handleExamineAward(index: number) {
+    setExpandedAward((prev) => (prev === index ? null : index));
+    setExaminedAwards((prev) => {
+      if (prev.has(index)) return prev;
+      const next = new Set(prev);
+      next.add(index);
+      return next;
+    });
+  }
+
   function handleReveal() {
     if (!film || phase === "revealed") return;
     const isCorrect = selectedFilmId === film.id;
@@ -253,7 +311,7 @@ function BlindRollContent() {
   }
 
   return (
-    <div className="flex h-[calc(100dvh-73px)] min-h-0 flex-col overflow-hidden bg-[#09090f] text-[#F5F5F0]">
+    <div className="flex min-h-[calc(100dvh-73px)] flex-col bg-[#09090f] text-[#F5F5F0] lg:h-[calc(100dvh-73px)] lg:min-h-0 lg:overflow-hidden">
       <AppHeader />
 
       {phase === "revealed" && correct && (
@@ -289,17 +347,17 @@ function BlindRollContent() {
         </div>
       )}
 
-      <main className="relative mx-auto flex min-h-0 w-full max-w-6xl flex-1 flex-col gap-3 overflow-hidden px-4 py-3 sm:px-6">
-        <div className="relative flex shrink-0 flex-col gap-1.5 text-left">
+      <main className="relative mx-auto flex w-full max-w-6xl flex-1 flex-col gap-2 px-4 py-2 sm:px-6 lg:min-h-0 lg:overflow-hidden">
+        <div className="relative flex shrink-0 flex-col gap-1 text-left">
           <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.35em] text-[#e8453c]/70">
             Blind Roll
           </p>
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+          <div className="flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <h1 className="max-w-full text-balance font-[family-name:var(--font-display)] text-3xl font-bold leading-tight sm:max-w-3xl lg:text-[3rem] lg:leading-none">
+              <h1 className="max-w-full text-balance font-[family-name:var(--font-display)] text-3xl font-bold leading-tight sm:max-w-3xl lg:text-[2.6rem] lg:leading-none">
                 Crack the festival case
               </h1>
-              <p className="mt-1.5 max-w-full text-sm leading-5 text-[#c4c4d2] sm:max-w-2xl">
+              <p className="mt-1 max-w-full text-sm leading-5 text-[#c4c4d2] sm:max-w-2xl">
                 Guess the hidden film using its release decade, award records, nominee status, and creators.
               </p>
             </div>
@@ -363,9 +421,9 @@ function BlindRollContent() {
         )}
 
         {film && phase !== "loading" && phase !== "error" && (
-          <div className="relative grid min-h-0 flex-1 items-stretch gap-4 lg:grid-cols-[1fr_380px]">
-            <div className="flex min-w-0 flex-col gap-2">
-              <section className="relative overflow-hidden rounded-2xl border border-[#34344c] bg-[linear-gradient(145deg,rgba(18,18,31,0.98),rgba(8,8,14,0.98))] p-3 shadow-[0_24px_80px_rgba(0,0,0,0.38)]">
+          <div className="relative grid flex-1 items-stretch gap-3 lg:min-h-0 lg:grid-cols-[minmax(0,1fr)_360px]">
+            <div className="flex min-w-0 flex-col gap-2 lg:min-h-0">
+              <section className="relative flex flex-col overflow-hidden rounded-2xl border border-[#34344c] bg-[linear-gradient(145deg,rgba(18,18,31,0.98),rgba(8,8,14,0.98))] p-3 shadow-[0_24px_80px_rgba(0,0,0,0.38)] lg:min-h-0 lg:flex-1">
                 <div className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-[linear-gradient(90deg,#e8453c,#D4AF37,#e8453c)]" />
                 <div className="mb-2.5 flex shrink-0 items-center justify-between gap-4">
                   <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.28em] text-[#e8453c]">
@@ -377,53 +435,108 @@ function BlindRollContent() {
                 </div>
 
                 {clueCards.length > 0 && (
-                  <div className="mb-3 grid shrink-0 gap-2 sm:grid-cols-2">
+                  <div className="mb-3 flex shrink-0 flex-wrap gap-2">
                     {clueCards.map((card) => (
                       <div
                         key={card.label}
-                        className="flex h-20 flex-col justify-between rounded-xl border border-[#2a2a3e] bg-[#09090f]/80 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
+                        className="flex items-center gap-2 rounded-xl border border-[#2a2a3e] bg-[#09090f]/80 px-3 py-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
                       >
-                        <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em] text-[#77778b]">
+                        <span className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.18em] text-[#77778b]">
                           {card.label}
-                        </p>
-                        <p className="line-clamp-2 font-[family-name:var(--font-display)] text-2xl font-bold leading-tight">
+                        </span>
+                        <span className="font-[family-name:var(--font-display)] text-base font-bold leading-none">
                           {card.value}
-                        </p>
+                        </span>
                       </div>
                     ))}
                   </div>
                 )}
 
-                <div className={awards.length > 3 ? "grid gap-2 sm:grid-cols-2" : "space-y-2"}>
-                  {awards.length > 0 ? (
-                    awards.map((award, index) => (
-                      <div
-                        key={`${award.awardBody}-${award.awardYear}-${award.category}-${award.nominee}-${index}`}
-                        className="flex min-h-20 flex-col gap-2 rounded-xl border border-[#2a2a3e] bg-[#09090f]/80 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] sm:flex-row sm:items-center sm:justify-between"
-                      >
+                {awardSummary ? (
+                  <>
+                    <div className="mb-2 flex shrink-0 flex-wrap items-center justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.2em] text-[#77778b]">
+                          Award Trail
+                        </p>
+                        <p className="mt-0.5 truncate font-[family-name:var(--font-display)] text-sm font-bold text-[#F5F5F0]">
+                          {awardSummary.bodies} · {awardSummary.yearTrail} · {awardSummary.count}{" "}
+                          {awardSummary.count === 1 ? "record" : "records"}
+                        </p>
+                      </div>
+                      <span className="w-fit shrink-0 rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/10 px-3 py-1 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.16em] text-[#D4AF37]">
+                        {awardSummary.status}
+                      </span>
+                    </div>
+
+                    <p className="mb-2 shrink-0 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.12em] text-[#555568]">
+                      Tap a record to examine it
+                    </p>
+
+                    <div className="pr-1 lg:min-h-0 lg:flex-1 lg:overflow-y-auto">
+                      <div className="flex flex-wrap gap-2">
+                        {awards.map((award, index) => {
+                          const expanded = expandedAward === index;
+                          const examined = examinedAwards.has(index);
+
+                          return (
+                            <button
+                              key={`${award.awardBody}-${award.awardYear}-${award.category}-${award.nominee}-${index}`}
+                              type="button"
+                              onClick={() => handleExamineAward(index)}
+                              aria-expanded={expanded}
+                              className={[
+                                "inline-flex items-center gap-2 rounded-full border px-3 py-1.5 transition-colors",
+                                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37]",
+                                expanded
+                                  ? "border-[#D4AF37] bg-[#D4AF37]/12"
+                                  : examined
+                                    ? "border-[#3a3a53] bg-[#10101b] hover:border-[#D4AF37]/50"
+                                    : "border-[#2a2a3e] bg-[#09090f] hover:border-[#e8453c]/60 hover:bg-[#141421]",
+                              ].join(" ")}
+                            >
+                              <span
+                                className={[
+                                  "h-1.5 w-1.5 shrink-0 rounded-full",
+                                  award.won ? "bg-[#4ade80]" : "bg-[#D4AF37]",
+                                ].join(" ")}
+                              />
+                              <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.08em] text-[#d4d4df]">
+                                {formatAwardBody(award.awardBody)} {award.awardYear} · {compactCategory(award.category)}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {expandedAward !== null && awards[expandedAward] && (
+                      <div className="mt-3 flex shrink-0 items-start justify-between gap-3 rounded-xl border border-[#D4AF37]/30 bg-[#09090f]/80 p-3">
                         <div className="min-w-0">
                           <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.2em] text-[#e8453c]">
-                            {formatAwardBody(award.awardBody)} · Award Year {award.awardYear}
+                            {formatAwardBody(awards[expandedAward].awardBody)} · Award Year {awards[expandedAward].awardYear}
                           </p>
-                          <p className="mt-1 line-clamp-2 font-[family-name:var(--font-display)] text-base font-bold leading-tight">
-                            {award.category}
+                          <p className="mt-1 font-[family-name:var(--font-display)] text-[15px] font-bold leading-tight">
+                            {awards[expandedAward].category}
                           </p>
-                          <p className="mt-1 truncate text-xs text-[#aaaabc]">{award.nominee}</p>
+                          {awards[expandedAward].nominee && (
+                            <p className="mt-1 text-xs text-[#aaaabc]">{awards[expandedAward].nominee}</p>
+                          )}
                         </div>
                         <span className="w-fit shrink-0 rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/10 px-3 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.16em] text-[#D4AF37]">
-                          {award.won ? "Won" : "Nominated"}
+                          {awards[expandedAward].won ? "Won" : "Nominated"}
                         </span>
                       </div>
-                    ))
-                  ) : (
-                    <div className="rounded-xl border border-[#222232] bg-[#09090f] p-5 text-sm text-[#888899]">
-                      No award records are available for this blind roll.
-                    </div>
-                  )}
-                </div>
+                    )}
+                  </>
+                ) : (
+                  <div className="rounded-xl border border-[#222232] bg-[#09090f] p-5 text-sm text-[#888899]">
+                    No award records are available for this blind roll.
+                  </div>
+                )}
               </section>
 
-              <section className="relative overflow-hidden rounded-2xl border border-[#34344c] bg-[#0d0d1a] p-3 shadow-[0_24px_80px_rgba(0,0,0,0.32)]">
+              <section className="relative shrink-0 overflow-hidden rounded-2xl border border-[#34344c] bg-[#0d0d1a] p-3 shadow-[0_24px_80px_rgba(0,0,0,0.32)]">
                 <div className="mb-2.5">
                   <div>
                     <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.28em] text-[#D4AF37]">
@@ -497,7 +610,7 @@ function BlindRollContent() {
                           if (phase !== "revealed") setSelectedFilmId(option.id);
                         }}
                         className={[
-                          "group flex min-h-20 items-center gap-3 rounded-xl border p-3 text-left transition-all duration-200",
+                          "group flex min-h-16 items-center gap-3 rounded-xl border p-3 text-left transition-all duration-200",
                           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37] focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090f]",
                           optionStateClass,
                         ].join(" ")}
@@ -512,7 +625,7 @@ function BlindRollContent() {
                           {String.fromCharCode(65 + index)}
                         </span>
                         <span className="min-w-0">
-                          <span className="line-clamp-2 font-[family-name:var(--font-display)] text-lg font-bold leading-tight text-[#F5F5F0]">
+                          <span className="line-clamp-2 font-[family-name:var(--font-display)] text-base font-bold leading-tight text-[#F5F5F0]">
                             {option.title}
                           </span>
                           <span
@@ -537,7 +650,7 @@ function BlindRollContent() {
 
             <aside
               className={[
-                "relative flex min-h-[460px] flex-col overflow-hidden rounded-2xl border border-[#34344c] bg-[linear-gradient(160deg,#12121f,#09090f_60%)] p-3 shadow-[0_24px_80px_rgba(0,0,0,0.38)]",
+                "relative flex min-h-[360px] flex-col overflow-hidden rounded-2xl border border-[#34344c] bg-[linear-gradient(160deg,#12121f,#09090f_60%)] p-3 shadow-[0_24px_80px_rgba(0,0,0,0.38)]",
                 "lg:h-full lg:min-h-0 lg:self-stretch",
               ].join(" ")}
             >
@@ -631,6 +744,11 @@ function BlindRollContent() {
                       <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.12em] text-[#a0a0b5]">
                         Title, poster, and plot hidden.
                       </p>
+                      {awards.length > 0 && (
+                        <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.12em] text-[#77778b]">
+                          {examinedAwards.size} of {awards.length} {awards.length === 1 ? "record" : "records"} examined
+                        </p>
+                      )}
                       {selectedFilm ? (
                         <div className="mt-2 w-full rounded-xl border border-[#D4AF37]/35 bg-[#D4AF37]/10 px-4 py-3">
                           <p className="font-[family-name:var(--font-display)] text-2xl font-bold leading-tight text-[#F5F5F0]">
