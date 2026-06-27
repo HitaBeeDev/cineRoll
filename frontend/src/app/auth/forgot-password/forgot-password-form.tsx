@@ -76,6 +76,8 @@ export function ForgotPasswordForm() {
               "h-12 w-full rounded-xl border border-[#2b2b3d] bg-[#10101d] px-4",
               "text-sm text-[#F5F5F0] placeholder:text-[#777789]",
               "transition-colors focus:border-[#e8453c]/70 focus:outline-none focus:ring-2 focus:ring-[#e8453c]/15",
+              // Repaint Chrome's pale autofill background to match the dark field.
+              "autofill:[-webkit-box-shadow:0_0_0_1000px_#10101d_inset] autofill:[-webkit-text-fill-color:#F5F5F0] autofill:[caret-color:#F5F5F0]",
             )}
           />
         </div>
