@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { cn } from "@/lib/utils";
+import { PasswordInput } from "@/components/auth/password-input";
 
 type SignInOptionsProps = {
   /**
@@ -145,15 +146,13 @@ export function SignInOptions({ callbackUrl }: SignInOptionsProps) {
           <label htmlFor="signin-password" className={labelClass}>
             Password
           </label>
-          <input
+          <PasswordInput
             id="signin-password"
-            type="password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={setPassword}
             placeholder={mode === "signup" ? "At least 8 characters" : "Your password"}
             autoComplete={mode === "signup" ? "new-password" : "current-password"}
             required
-            className={inputClass}
           />
           {mode === "signin" && (
             <Link
@@ -170,15 +169,13 @@ export function SignInOptions({ callbackUrl }: SignInOptionsProps) {
             <label htmlFor="signin-confirm" className={labelClass}>
               Confirm password
             </label>
-            <input
+            <PasswordInput
               id="signin-confirm"
-              type="password"
               value={confirm}
-              onChange={(e) => setConfirm(e.target.value)}
+              onChange={setConfirm}
               placeholder="Re-enter your password"
               autoComplete="new-password"
               required
-              className={inputClass}
             />
           </div>
         )}

@@ -4,12 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
-
-const inputClass = cn(
-  "h-12 w-full rounded-xl border border-[#2b2b3d] bg-[#10101d] px-4",
-  "text-sm text-[#F5F5F0] placeholder:text-[#777789]",
-  "transition-colors focus:border-[#e8453c]/70 focus:outline-none focus:ring-2 focus:ring-[#e8453c]/15",
-);
+import { PasswordInput } from "@/components/auth/password-input";
 
 export function ResetPasswordForm() {
   const token = useSearchParams().get("token") ?? "";
@@ -104,30 +99,26 @@ export function ResetPasswordForm() {
           <label htmlFor="reset-password" className="text-xs font-medium text-[#b8b8c6]">
             New password
           </label>
-          <input
+          <PasswordInput
             id="reset-password"
-            type="password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={setPassword}
             placeholder="At least 8 characters"
             autoComplete="new-password"
             required
-            className={inputClass}
           />
         </div>
         <div className="flex flex-col gap-2">
           <label htmlFor="reset-confirm" className="text-xs font-medium text-[#b8b8c6]">
             Confirm new password
           </label>
-          <input
+          <PasswordInput
             id="reset-confirm"
-            type="password"
             value={confirm}
-            onChange={(e) => setConfirm(e.target.value)}
+            onChange={setConfirm}
             placeholder="Re-enter your password"
             autoComplete="new-password"
             required
-            className={inputClass}
           />
         </div>
 
