@@ -253,7 +253,7 @@ function BlindRollContent() {
   }
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-[#09090f] text-[#F5F5F0]">
+    <div className="flex h-[calc(100dvh-73px)] min-h-0 flex-col overflow-hidden bg-[#09090f] text-[#F5F5F0]">
       <AppHeader />
 
       {phase === "revealed" && correct && (
@@ -289,14 +289,14 @@ function BlindRollContent() {
         </div>
       )}
 
-      <main className="relative mx-auto flex min-h-0 w-full max-w-6xl flex-1 flex-col gap-3 overflow-hidden px-4 py-3 sm:px-6 lg:gap-4">
+      <main className="relative mx-auto flex min-h-0 w-full max-w-6xl flex-1 flex-col gap-3 overflow-hidden px-4 py-3 sm:px-6">
         <div className="relative flex shrink-0 flex-col gap-1.5 text-left">
           <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.35em] text-[#e8453c]/70">
             Blind Roll
           </p>
           <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <h1 className="max-w-full text-balance font-[family-name:var(--font-display)] text-3xl font-bold leading-tight sm:max-w-3xl lg:text-5xl lg:leading-none">
+              <h1 className="max-w-full text-balance font-[family-name:var(--font-display)] text-3xl font-bold leading-tight sm:max-w-3xl lg:text-[3rem] lg:leading-none">
                 Crack the festival case
               </h1>
               <p className="mt-1.5 max-w-full text-sm leading-5 text-[#c4c4d2] sm:max-w-2xl">
@@ -364,7 +364,7 @@ function BlindRollContent() {
 
         {film && phase !== "loading" && phase !== "error" && (
           <div className="relative grid min-h-0 flex-1 items-stretch gap-4 lg:grid-cols-[1fr_380px]">
-            <div className="flex min-w-0 flex-col gap-3">
+            <div className="flex min-w-0 flex-col gap-2">
               <section className="relative overflow-hidden rounded-2xl border border-[#34344c] bg-[linear-gradient(145deg,rgba(18,18,31,0.98),rgba(8,8,14,0.98))] p-3 shadow-[0_24px_80px_rgba(0,0,0,0.38)]">
                 <div className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-[linear-gradient(90deg,#e8453c,#D4AF37,#e8453c)]" />
                 <div className="mb-2.5 flex shrink-0 items-center justify-between gap-4">
@@ -381,7 +381,7 @@ function BlindRollContent() {
                     {clueCards.map((card) => (
                       <div
                         key={card.label}
-                        className="flex h-24 flex-col justify-between rounded-xl border border-[#2a2a3e] bg-[#09090f]/80 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
+                        className="flex h-20 flex-col justify-between rounded-xl border border-[#2a2a3e] bg-[#09090f]/80 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
                       >
                         <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em] text-[#77778b]">
                           {card.label}
@@ -533,7 +533,7 @@ function BlindRollContent() {
 
             <aside
               className={[
-                "relative flex min-h-[520px] flex-col overflow-hidden rounded-2xl border border-[#34344c] bg-[linear-gradient(160deg,#12121f,#09090f_60%)] p-4 shadow-[0_24px_80px_rgba(0,0,0,0.38)]",
+                "relative flex min-h-[460px] flex-col overflow-hidden rounded-2xl border border-[#34344c] bg-[linear-gradient(160deg,#12121f,#09090f_60%)] p-3 shadow-[0_24px_80px_rgba(0,0,0,0.38)]",
                 "lg:h-full lg:min-h-0 lg:self-stretch",
               ].join(" ")}
             >
@@ -614,12 +614,12 @@ function BlindRollContent() {
               ) : (
                 <>
                   <div
-                    className="flex min-h-0 flex-1 items-center justify-center rounded-xl border border-dashed border-[#454560] bg-[#09090f]/75 p-5"
+                    className="flex min-h-0 flex-1 items-center justify-center rounded-xl border border-dashed border-[#454560] bg-[#09090f]/75 p-4"
                     aria-live="polite"
                   >
                     <div className="flex max-w-72 flex-col items-center gap-3 text-center">
-                      <div className="flex h-20 w-20 items-center justify-center rounded-full border border-[#e8453c]/35 bg-[#e8453c]/10">
-                        <Eye className="h-10 w-10 text-[#e8453c]" />
+                      <div className="flex h-16 w-16 items-center justify-center rounded-full border border-[#e8453c]/35 bg-[#e8453c]/10">
+                        <Eye className="h-8 w-8 text-[#e8453c]" />
                       </div>
                       <p className="font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.16em] text-[#D4AF37]">
                         {selectedFilm ? "Vault ready" : "Vault locked"}
