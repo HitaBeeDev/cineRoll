@@ -411,13 +411,13 @@ export function HomeClient({
           <div className="lg:flex lg:min-h-0 lg:flex-1 lg:flex-col lg:justify-center">
             <div
               className={cn(
-                "mt-3 max-w-full overflow-hidden transition-all duration-300 sm:mt-2",
+                "mt-3 max-w-full transition-all duration-300 sm:mt-2",
                 hasActiveFilters ? "mb-5 sm:mb-6" : "mb-7 sm:mb-10",
               )}
               style={{
                 fontSize: hasActiveFilters
-                  ? "clamp(3.25rem,18vw,5.75rem)"
-                  : "clamp(3.75rem,20vw,7rem)",
+                  ? "clamp(2.75rem,min(15vw,9.5vh),5.4rem)"
+                  : "clamp(3.15rem,min(16vw,10.5vh),6.4rem)",
               }}
             >
               {hero}
