@@ -416,8 +416,8 @@ export function HomeClient({
               )}
               style={{
                 fontSize: hasActiveFilters
-                  ? "clamp(2.75rem,min(15vw,9.5vh),5.4rem)"
-                  : "clamp(3.15rem,min(16vw,10.5vh),6.4rem)",
+                  ? "clamp(2.9rem,min(15.5vw,9.8vh),5.65rem)"
+                  : "clamp(3.35rem,min(16.5vw,10.9vh),6.65rem)",
               }}
             >
               {hero}
