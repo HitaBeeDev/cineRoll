@@ -28,9 +28,9 @@ export default function SignInPage() {
         </Link>
       </header>
 
-      <main className="relative z-10 flex min-h-0 flex-1 items-center justify-center px-4 py-8 sm:py-12">
-        <div className="w-full max-w-md">
-          <section className="border border-white/10 bg-[#0d0d16]/72 p-5 shadow-[0_24px_90px_rgba(0,0,0,0.36),0_0_80px_rgba(232,69,60,0.06)] backdrop-blur sm:p-7">
+      <main className="relative z-10 flex min-h-0 flex-1 items-center justify-center overflow-hidden px-4 py-8 sm:py-12">
+        <div className="w-full min-w-0 max-w-md">
+          <section className="min-w-0 overflow-hidden border border-white/10 bg-[#0d0d16]/72 p-5 shadow-[0_24px_90px_rgba(0,0,0,0.36),0_0_80px_rgba(232,69,60,0.06)] backdrop-blur sm:p-7">
             <div>
               <p className="font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.26em] text-[#e8453c]">
                 CineRoll account
@@ -49,7 +49,7 @@ export default function SignInPage() {
               <SignInOptions callbackUrl={callbackUrl} />
             </div>
 
-            <p className="mt-4 text-center font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.16em] text-[#8f8fa0]">
+            <p className="mx-auto mt-4 max-w-xs text-center font-[family-name:var(--font-geist-mono)] text-[10px] uppercase leading-5 tracking-[0.14em] text-[#8f8fa0]">
               No password needed. We&apos;ll email you a one-time code.
             </p>
 
@@ -57,7 +57,7 @@ export default function SignInPage() {
               {["Save picks", "Track taste", "Keep history"].map((benefit) => (
                 <div
                   key={benefit}
-                  className="border border-white/8 bg-white/[0.03] px-2 py-2 text-center font-[family-name:var(--font-geist-mono)] text-[9px] font-bold uppercase tracking-[0.12em] text-[#a9a9b8]"
+                  className="min-w-0 border border-white/8 bg-white/[0.03] px-1 py-2 text-center font-[family-name:var(--font-geist-mono)] text-[8px] font-bold uppercase tracking-[0.08em] text-[#a9a9b8] sm:px-2 sm:text-[9px] sm:tracking-[0.12em]"
                 >
                   {benefit}
                 </div>
