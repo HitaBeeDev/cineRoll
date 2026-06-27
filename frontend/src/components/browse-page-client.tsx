@@ -41,10 +41,9 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 
-// 24 tiles cleanly across the grid's column counts (sm:3 / lg:4 / 2xl:6) so the
-// skeleton — which always renders a full PAGE_SIZE — never leaves a ragged last
-// row. (25 was only divisible by the 5-col xl breakpoint.)
-const PAGE_SIZE = 24;
+// 25 tiles fill the 5-column desktop browse grid cleanly, so the last row does
+// not end one card short on the common laptop/desktop layout.
+const PAGE_SIZE = 25;
 // The decade bounds live in DEFAULT_FILTERS (the model); alias them here rather
 // than re-typing 1900/2030 across the options list, panel, chips, and count.
 const DECADE_MIN = DEFAULT_FILTERS.decadeMin;
