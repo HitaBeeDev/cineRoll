@@ -432,7 +432,7 @@ export function BrowsePageClient() {
 
   const activeChips = buildActiveChips(filters, setFilters);
   const advancedCount = countAdvancedFilters(filters);
-  const gridClassName = "grid min-w-0 grid-cols-1 gap-x-4 gap-y-8 [&>*]:min-w-0 sm:grid-cols-3 sm:gap-x-5 sm:gap-y-9 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6";
+  const gridClassName = "grid min-w-0 grid-cols-2 gap-x-3 gap-y-6 [&>*]:min-w-0 sm:grid-cols-3 sm:gap-x-5 sm:gap-y-9 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6";
 
   return (
     <div
