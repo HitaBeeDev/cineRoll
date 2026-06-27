@@ -142,19 +142,9 @@ export function SignInOptions({ callbackUrl }: SignInOptionsProps) {
         </div>
 
         <div className="flex flex-col gap-2">
-          <div className="flex items-center justify-between">
-            <label htmlFor="signin-password" className={labelClass}>
-              Password
-            </label>
-            {mode === "signin" && (
-              <Link
-                href="/auth/forgot-password"
-                className="text-xs text-[#8f8fa0] underline-offset-2 transition-colors hover:text-[#c8c8d4] hover:underline"
-              >
-                Forgot password?
-              </Link>
-            )}
-          </div>
+          <label htmlFor="signin-password" className={labelClass}>
+            Password
+          </label>
           <input
             id="signin-password"
             type="password"
@@ -165,6 +155,14 @@ export function SignInOptions({ callbackUrl }: SignInOptionsProps) {
             required
             className={inputClass}
           />
+          {mode === "signin" && (
+            <Link
+              href="/auth/forgot-password"
+              className="self-end text-xs text-[#8f8fa0] underline-offset-2 transition-colors hover:text-[#c8c8d4] hover:underline"
+            >
+              Forgot password?
+            </Link>
+          )}
         </div>
 
         {mode === "signup" && (
