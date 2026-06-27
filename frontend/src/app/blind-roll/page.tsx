@@ -253,7 +253,7 @@ function BlindRollContent() {
   }
 
   return (
-    <div className="flex min-h-dvh flex-col overflow-x-hidden bg-[#09090f] text-[#F5F5F0]">
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-[#09090f] text-[#F5F5F0]">
       <AppHeader />
 
       {phase === "revealed" && correct && (
@@ -289,7 +289,7 @@ function BlindRollContent() {
         </div>
       )}
 
-      <main className="relative mx-auto flex min-h-0 w-full max-w-6xl flex-1 flex-col gap-4 px-4 py-3 sm:px-6 lg:gap-5 lg:py-4">
+      <main className="relative mx-auto flex min-h-0 w-full max-w-6xl flex-1 flex-col gap-3 overflow-hidden px-4 py-3 sm:px-6 lg:gap-4">
         <div className="relative flex shrink-0 flex-col gap-1.5 text-left">
           <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.35em] text-[#e8453c]/70">
             Blind Roll
@@ -363,7 +363,7 @@ function BlindRollContent() {
         )}
 
         {film && phase !== "loading" && phase !== "error" && (
-          <div className="relative grid min-h-0 items-stretch gap-4 lg:grid-cols-[1fr_380px]">
+          <div className="relative grid min-h-0 flex-1 items-stretch gap-4 lg:grid-cols-[1fr_380px]">
             <div className="flex min-w-0 flex-col gap-3">
               <section className="relative overflow-hidden rounded-2xl border border-[#34344c] bg-[linear-gradient(145deg,rgba(18,18,31,0.98),rgba(8,8,14,0.98))] p-3 shadow-[0_24px_80px_rgba(0,0,0,0.38)]">
                 <div className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-[linear-gradient(90deg,#e8453c,#D4AF37,#e8453c)]" />
@@ -686,7 +686,7 @@ function BlindRollContent() {
 
 function BlindRollFallback() {
   return (
-    <div className="flex min-h-dvh flex-col overflow-x-hidden bg-[#09090f] text-[#F5F5F0]">
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-[#09090f] text-[#F5F5F0]">
       <AppHeader />
       <main className="relative mx-auto flex w-full max-w-6xl flex-1 flex-col items-center justify-center gap-4 px-4 py-20 sm:px-6">
         <div className="h-7 w-7 animate-spin rounded-full border-2 border-[#e8453c]/30 border-t-[#e8453c]" />
