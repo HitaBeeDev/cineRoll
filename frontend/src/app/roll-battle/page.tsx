@@ -213,7 +213,7 @@ function FilmBattleCard({
             src={imageUrl}
             alt={film.title}
             fill
-            sizes="(max-width: 768px) 45vw, 300px"
+            sizes="(max-width: 639px) 100vw, (max-width: 768px) 45vw, 300px"
             className="object-cover transition duration-300 group-hover:brightness-110 group-hover:saturate-110"
           />
         ) : (
@@ -384,10 +384,10 @@ export default function RollBattlePage() {
   }
 
   return (
-    <div className="flex h-[calc(100dvh-73px)] max-h-[calc(100dvh-73px)] flex-col overflow-hidden bg-[#09090f]">
+    <div className="flex min-h-[calc(100dvh-73px)] flex-col overflow-y-auto overflow-x-hidden bg-[#09090f] sm:h-[calc(100dvh-73px)] sm:max-h-[calc(100dvh-73px)] sm:overflow-hidden">
       <AppHeader />
 
-      <main className="flex min-h-0 flex-1 flex-col items-center justify-center px-4 py-3 sm:px-6">
+      <main className="flex min-h-0 flex-1 flex-col items-center justify-start px-4 py-3 sm:justify-center sm:px-6">
         {/* Loading */}
         {phase === "loading" && (
           <div className="flex flex-1 flex-col items-center justify-center gap-4">
@@ -491,7 +491,7 @@ export default function RollBattlePage() {
                   ? {}
                   : { exit: { opacity: 0, y: -16, scale: 0.98 } })}
                 transition={{ type: "spring", stiffness: 280, damping: 28 }}
-                className="mt-1 grid grid-cols-[1fr_36px_1fr] items-stretch gap-1.5 sm:mt-2 sm:gap-3"
+                className="mt-1 grid grid-cols-1 items-stretch gap-3 sm:mt-2 sm:grid-cols-[1fr_36px_1fr]"
               >
                 <FilmBattleCard
                   film={leftFilm}
@@ -503,7 +503,7 @@ export default function RollBattlePage() {
                 />
 
                 {/* VS divider */}
-                <div className="flex h-full flex-col items-center justify-center">
+                <div className="flex h-auto flex-col items-center justify-center py-1 sm:h-full sm:py-0">
                   <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#e8453c]/55 bg-[#120d12] font-[family-name:var(--font-geist-mono)] text-[12px] font-bold uppercase tracking-widest text-[#ff635a] shadow-[0_0_32px_rgba(232,69,60,0.26)] ring-4 ring-[#e8453c]/5">
                     vs
                   </div>
