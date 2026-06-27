@@ -28,19 +28,14 @@ export default function SignInPage() {
         </Link>
       </header>
 
-      <main className="relative z-10 flex min-h-0 flex-1 items-center justify-center overflow-hidden px-4 py-8 sm:py-12">
-        <div className="w-full min-w-0 max-w-md">
-          <section className="min-w-0 overflow-hidden border border-white/10 bg-[#0d0d16]/72 p-5 shadow-[0_24px_90px_rgba(0,0,0,0.36),0_0_80px_rgba(232,69,60,0.06)] backdrop-blur sm:p-7">
+      <main className="relative z-10 flex min-h-0 flex-1 items-center justify-center overflow-hidden px-4 py-6 sm:py-10">
+        <div className="w-full min-w-0 max-w-sm">
+          <section className="min-w-0 overflow-hidden rounded-2xl border border-white/10 bg-[#0d0d16]/72 p-5 shadow-[0_24px_90px_rgba(0,0,0,0.36)] backdrop-blur sm:p-7">
             <div>
-              <p className="font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.26em] text-[#e8453c]">
-                CineRoll account
-              </p>
-              <h1 className="mt-4 font-[family-name:var(--font-display)] text-4xl font-bold leading-tight sm:text-5xl">
-                Welcome
-                <br />
-                <span className="text-[#e8453c]">back.</span>
+              <h1 className="font-[family-name:var(--font-display)] text-3xl font-bold leading-tight sm:text-4xl">
+                Welcome <span className="text-[#e8453c]">back</span>
               </h1>
-              <p className="mt-4 text-sm leading-6 text-[#c8c8d4]">
+              <p className="mt-3 text-sm leading-6 text-[#c8c8d4]">
                 Sign in to save your rolls, picks, watchlist, and film history.
               </p>
             </div>
@@ -49,21 +44,36 @@ export default function SignInPage() {
               <SignInOptions callbackUrl={callbackUrl} />
             </div>
 
-            <p className="mx-auto mt-4 max-w-xs text-center font-[family-name:var(--font-geist-mono)] text-[10px] uppercase leading-5 tracking-[0.14em] text-[#8f8fa0]">
-              No password needed. We&apos;ll email you a one-time code.
+            <p className="mt-4 text-center text-xs leading-5 text-[#8f8fa0]">
+              No password needed — we&apos;ll email you a one-time code.
             </p>
 
-            <div className="mt-6 grid grid-cols-3 gap-2 border-t border-white/10 pt-5">
-              {["Save picks", "Track taste", "Keep history"].map((benefit) => (
-                <div
-                  key={benefit}
-                  className="min-w-0 border border-white/8 bg-white/[0.03] px-1 py-2 text-center font-[family-name:var(--font-geist-mono)] text-[8px] font-bold uppercase tracking-[0.08em] text-[#a9a9b8] sm:px-2 sm:text-[9px] sm:tracking-[0.12em]"
-                >
-                  {benefit}
-                </div>
-              ))}
-            </div>
+            <p className="mt-5 border-t border-white/10 pt-4 text-center text-xs leading-5 text-[#8f8fa0]">
+              By continuing, you agree to CineRoll&apos;s{" "}
+              <Link href="/terms" className="text-[#c8c8d4] underline-offset-2 transition-colors hover:text-[#F5F5F0] hover:underline">
+                Terms
+              </Link>{" "}
+              and{" "}
+              <Link href="/privacy" className="text-[#c8c8d4] underline-offset-2 transition-colors hover:text-[#F5F5F0] hover:underline">
+                Privacy Policy
+              </Link>
+              .
+            </p>
           </section>
+
+          <nav className="mt-5 flex items-center justify-center gap-4 text-xs text-[#777789]">
+            <Link href="/privacy" className="transition-colors hover:text-[#c8c8d4]">
+              Privacy
+            </Link>
+            <span aria-hidden className="text-[#3a3a4a]">·</span>
+            <Link href="/terms" className="transition-colors hover:text-[#c8c8d4]">
+              Terms
+            </Link>
+            <span aria-hidden className="text-[#3a3a4a]">·</span>
+            <Link href="/help" className="transition-colors hover:text-[#c8c8d4]">
+              Need help?
+            </Link>
+          </nav>
         </div>
       </main>
     </div>

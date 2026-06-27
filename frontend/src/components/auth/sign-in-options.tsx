@@ -60,7 +60,7 @@ export function SignInOptions({ callbackUrl }: SignInOptionsProps) {
         disabled={isGoogleLoading || isLoading}
         className={cn(
           "flex h-12 w-full items-center justify-center gap-3 rounded-xl border border-white/10",
-          "font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.18em] text-[#F5F5F0]",
+          "text-sm font-semibold text-[#F5F5F0]",
           "transition hover:border-white/20 hover:bg-white/5",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
           "disabled:cursor-not-allowed disabled:opacity-50",
@@ -87,7 +87,7 @@ export function SignInOptions({ callbackUrl }: SignInOptionsProps) {
         <div className="flex flex-col gap-2">
           <label
             htmlFor="signin-email"
-            className="font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.18em] text-[#b8b8c6]"
+            className="text-xs font-medium text-[#b8b8c6]"
           >
             Email address
           </label>
@@ -107,7 +107,7 @@ export function SignInOptions({ callbackUrl }: SignInOptionsProps) {
           />
         </div>
         {error !== null && (
-          <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#e8453c]">
+          <p className="text-xs text-[#ff7068]">
             {error}
           </p>
         )}
@@ -116,8 +116,8 @@ export function SignInOptions({ callbackUrl }: SignInOptionsProps) {
           disabled={isLoading || isGoogleLoading || !email.trim()}
           className={cn(
             "h-12 w-full rounded-xl bg-[#e8453c]",
-            "font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.2em] text-[#F5F5F0]",
-            "shadow-[0_16px_38px_rgba(232,69,60,0.22)] transition hover:bg-[#f2554c]",
+            "text-sm font-semibold text-[#F5F5F0]",
+            "shadow-[0_10px_28px_rgba(232,69,60,0.16)] transition hover:bg-[#f2554c]",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
             "disabled:cursor-not-allowed disabled:bg-[#8f302b] disabled:text-[#c9a1a0] disabled:shadow-none",
           )}
