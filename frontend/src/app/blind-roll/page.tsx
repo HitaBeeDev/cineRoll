@@ -472,7 +472,7 @@ function BlindRollContent() {
                       : revealedWrong
                         ? "border-[#e8453c] bg-[#e8453c]/10 shadow-[0_0_34px_rgba(232,69,60,0.12)]"
                         : selected
-                          ? "border-[#D4AF37] bg-[#D4AF37]/10 shadow-[0_0_30px_rgba(212,175,55,0.12)]"
+                          ? "border-[#D4AF37] bg-[linear-gradient(135deg,rgba(212,175,55,0.18),rgba(232,69,60,0.08))] shadow-[0_0_42px_rgba(212,175,55,0.22)]"
                       : "border-[#2a2a3e] bg-[#09090f] hover:border-[#e8453c]/60 hover:bg-[#141421]";
                     const markerStateClass = revealedCorrect
                       ? "border-[#4ade80] bg-[#4ade80] text-[#07110b]"
@@ -486,7 +486,7 @@ function BlindRollContent() {
                       : revealedWrong
                         ? "Your pick"
                         : selected
-                          ? "Selected"
+                          ? "Selected suspect"
                           : "Candidate";
 
                     return (
@@ -517,8 +517,12 @@ function BlindRollContent() {
                           </span>
                           <span
                             className={[
-                              "mt-1 inline-flex font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.12em]",
-                              selected || revealedCorrect || revealedWrong ? "text-[#D4AF37]" : "text-[#a0a0b5]",
+                              "mt-1 inline-flex rounded-full font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.1em]",
+                              selected
+                                ? "border border-[#D4AF37]/40 bg-[#D4AF37]/12 px-2 py-0.5 text-[#f3d76a]"
+                                : revealedCorrect || revealedWrong
+                                  ? "text-[#D4AF37]"
+                                  : "text-[#a0a0b5]",
                             ].join(" ")}
                           >
                             {statusLabel}
@@ -622,17 +626,14 @@ function BlindRollContent() {
                         <Eye className="h-8 w-8 text-[#e8453c]" />
                       </div>
                       <p className="font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.16em] text-[#D4AF37]">
-                        {selectedFilm ? "Vault ready" : "Vault locked"}
+                        {selectedFilm ? "Suspect selected" : "Vault locked"}
                       </p>
                       <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.12em] text-[#a0a0b5]">
                         Title, poster, and plot hidden.
                       </p>
                       {selectedFilm ? (
                         <div className="mt-2 w-full rounded-xl border border-[#D4AF37]/35 bg-[#D4AF37]/10 px-4 py-3">
-                          <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.12em] text-[#D4AF37]">
-                            Suspect selected
-                          </p>
-                          <p className="mt-1 font-[family-name:var(--font-display)] text-2xl font-bold leading-tight text-[#F5F5F0]">
+                          <p className="font-[family-name:var(--font-display)] text-2xl font-bold leading-tight text-[#F5F5F0]">
                             {selectedFilm.title}
                           </p>
                           <p className="mt-2 text-sm leading-5 text-[#c4c4d2]">
@@ -651,27 +652,20 @@ function BlindRollContent() {
                       {selectedFilm ? "Ready to reveal the hidden film." : "Select a suspect to reveal the answer."}
                     </p>
                   </div>
-                  <div className="mt-4 grid gap-2">
-                    <button
-                      type="button"
-                      onClick={() => void handleChallengeFriend()}
-                      className="flex h-11 items-center justify-center gap-2 rounded-xl border border-[#D4AF37]/35 bg-[#D4AF37]/10 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.18em] text-[#D4AF37] transition-colors hover:bg-[#D4AF37]/15 hover:text-[#f3d76a]"
-                    >
-                      <Link2 className="h-3.5 w-3.5" />
-                      {shareStatus === "copied"
-                        ? "Link Copied"
-                        : shareStatus === "failed"
-                          ? "Could Not Share"
-                          : "Challenge A Friend"}
-                    </button>
+                  <div className="mt-3 grid gap-2">
                     <button
                       type="button"
                       onClick={handleReveal}
                       disabled={!selectedFilmId}
-                      className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#e8453c] font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.16em] text-[#F5F5F0] transition hover:bg-[#d7372f] hover:shadow-[0_0_40px_rgba(232,69,60,0.25)] disabled:cursor-not-allowed disabled:bg-[#34344c] disabled:text-[#b8b8c7] disabled:shadow-none"
+                      className={[
+                        "flex h-12 w-full items-center justify-center gap-2 rounded-xl font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.12em] transition",
+                        selectedFilmId
+                          ? "bg-[#e8453c] text-[#F5F5F0] shadow-[0_0_44px_rgba(232,69,60,0.24)] hover:bg-[#d7372f]"
+                          : "border border-[#34344c] bg-[#171722] text-[#8b8ba0] shadow-none",
+                      ].join(" ")}
                     >
                       <Trophy className="h-3.5 w-3.5" />
-                      Reveal
+                      {selectedFilmId ? "Open the Vault" : "Vault Locked"}
                     </button>
                   </div>
                 </>

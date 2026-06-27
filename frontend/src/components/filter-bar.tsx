@@ -78,7 +78,7 @@ export function FilterBar({
   return (
     <div
       aria-label="Filter films"
-      className={cn("flex flex-col gap-3", className)}
+      className={cn("flex min-w-0 flex-col gap-3", className)}
     >
       <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.3em] text-[#686880]">
         Build Your Roll
@@ -209,9 +209,9 @@ export function FilterBar({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="flex items-start gap-2 -mt-1 mb-1"
+            className="-mt-1 mb-1 flex min-w-0 items-start gap-2"
           >
-            <div className="relative flex flex-1 flex-wrap items-center gap-1.5">
+            <div className="relative flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
               <AnimatePresence mode="popLayout">
                 {activeChips.map((chip) => (
                   <motion.div
@@ -266,8 +266,8 @@ export function FilterBar({
 
       {/* Roll Recipe + share */}
       {recipe && (
-        <p className="flex items-center gap-2 font-[family-name:var(--font-geist-mono)] text-[11px] tracking-wide text-[#686880]">
-          <span className="min-w-0">
+        <p className="flex min-w-0 items-center gap-2 font-[family-name:var(--font-geist-mono)] text-[11px] tracking-wide text-[#686880]">
+          <span className="min-w-0 break-words">
             <span className="text-[#444458]">Rolling from:</span>{" "}{recipe}
           </span>
           <button
@@ -371,11 +371,11 @@ function FilterRow({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex items-start gap-3">
-      <span className="w-[42px] shrink-0 pt-[7px] font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#a2a2bb]">
+    <div className="flex min-w-0 items-start gap-2 sm:gap-3">
+      <span className="w-[40px] shrink-0 pt-[7px] font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.12em] text-[#a2a2bb] sm:w-[42px] sm:text-[11px] sm:tracking-widest">
         {label}
       </span>
-      <div className="flex flex-wrap gap-1.5">{children}</div>
+      <div className="flex min-w-0 flex-1 flex-wrap gap-1.5">{children}</div>
     </div>
   );
 }
@@ -397,8 +397,8 @@ function PillToggle({
       aria-pressed={active}
       onClick={onClick}
       className={cn(
-        "rounded-full border px-3 py-1.5 transition-colors duration-150",
-        "font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest",
+        "max-w-full rounded-full border px-2.5 py-1.5 transition-colors duration-150 sm:px-3",
+        "font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.1em] sm:text-[11px] sm:tracking-widest",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] focus-visible:ring-offset-1 focus-visible:ring-offset-[#09090f]",
         active
           ? (activeClassName ?? "border-[#d8d8e2] bg-[#d8d8e2] text-[#0c0c14]")

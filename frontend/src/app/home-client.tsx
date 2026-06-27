@@ -365,20 +365,20 @@ export function HomeClient({
   }
 
   return (
-    <div className="isolate flex flex-col h-screen overflow-hidden bg-[#09090f] text-[#F5F5F0]">
+    <div className="isolate flex min-h-dvh flex-col overflow-x-hidden bg-[#09090f] text-[#F5F5F0] lg:h-screen lg:overflow-hidden">
       <AppHeader />
 
       {/* ── Two-column body ─────────────────────────────────────────── */}
-      <div className="flex flex-1 flex-col lg:grid lg:grid-cols-12 lg:h-[calc(100vh-4rem)] lg:overflow-hidden">
+      <div className="flex min-w-0 flex-1 flex-col lg:grid lg:h-[calc(100vh-4rem)] lg:grid-cols-12 lg:overflow-hidden">
         {/* LEFT: hero + filters + roll ──────────────────────────────── */}
-        <div className="flex flex-col overflow-y-auto lg:overflow-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:w-0 px-5 py-4 sm:px-8 lg:px-10 lg:py-5 lg:col-span-7">
+        <div className="flex min-w-0 flex-col overflow-visible px-4 py-4 sm:px-8 lg:col-span-7 lg:overflow-hidden lg:px-10 lg:py-5 [scrollbar-width:none] [&::-webkit-scrollbar]:w-0">
           {/* Scroll region: hero + filters. The hero wrapper absorbs the slack
               (lg:flex-1) and centers the headline; filters sit at the bottom near
               ROLL. When filters grow, the hero wrapper collapses first so ROLL
               never moves. */}
-          <div className="flex flex-col lg:flex-1 lg:min-h-0 lg:overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:w-0">
+          <div className="flex min-w-0 flex-col lg:min-h-0 lg:flex-1 lg:overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:w-0">
           {/* Channel label */}
-          <div className="flex items-center justify-between gap-3">
+          <div className="flex min-w-0 items-center justify-between gap-3">
             <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.25em] text-[#888899]">
               {"// CHANNEL 03 · TONIGHT"}
             </p>
@@ -408,16 +408,16 @@ export function HomeClient({
               That keeps the default state from being top-and-bottom heavy with a
               dead gap in the middle, while filters stay anchored at the bottom
               near ROLL and ROLL itself never moves. */}
-          <div className="lg:flex-1 lg:min-h-0 lg:flex lg:flex-col lg:justify-center">
+          <div className="lg:flex lg:min-h-0 lg:flex-1 lg:flex-col lg:justify-center">
             <div
               className={cn(
-                "mt-2 transition-all duration-300",
-                hasActiveFilters ? "mb-6" : "mb-10",
+                "mt-3 max-w-full overflow-hidden transition-all duration-300 sm:mt-2",
+                hasActiveFilters ? "mb-5 sm:mb-6" : "mb-7 sm:mb-10",
               )}
               style={{
                 fontSize: hasActiveFilters
-                  ? "clamp(3.75rem,5.4vw,5.75rem)"
-                  : "clamp(4.5rem,6.5vw,7rem)",
+                  ? "clamp(3.25rem,18vw,5.75rem)"
+                  : "clamp(3.75rem,20vw,7rem)",
               }}
             >
               {hero}
@@ -452,11 +452,11 @@ export function HomeClient({
           </div>
 
           {/* ROLL button + pool count + natural language CTA */}
-          <div className="mt-6 shrink-0 flex flex-col gap-1.5">
-          <div className="flex flex-wrap items-center gap-4">
+          <div className="mt-5 flex shrink-0 flex-col gap-2 sm:mt-6">
+          <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
             {/* Marquee-border ROLL box */}
             <motion.div
-              className="w-[185px] shrink-0 rounded-2xl border-2 border-dashed border-[#e8453c]/30 p-1.5"
+              className="w-full shrink-0 rounded-2xl border-2 border-dashed border-[#e8453c]/30 p-1.5 sm:w-[185px]"
               animate={shouldPulse ? {
                 boxShadow: [
                   "0 0 0px rgba(232,69,60,0)",
@@ -503,9 +503,9 @@ export function HomeClient({
             </motion.div>
 
             {/* Pool counter — to the right of the ROLL box */}
-            <div className="flex shrink-0 flex-col items-start gap-0.5">
+            <div className="flex min-w-0 shrink-0 flex-col items-start gap-0.5">
               {effectiveCount === 0 ? (
-                <p className="font-[family-name:var(--font-geist-mono)] text-[11px] leading-relaxed tracking-wide text-[#9090a8] max-w-[180px]">
+                <p className="max-w-full font-[family-name:var(--font-geist-mono)] text-[11px] leading-relaxed tracking-wide text-[#9090a8] sm:max-w-[180px]">
                   No films match —<br />
                   even we couldn&apos;t find that.<br />
                   Try relaxing a filter.
@@ -538,7 +538,7 @@ export function HomeClient({
             <Link
               href="/describe"
               className={cn(
-                "inline-flex shrink-0 self-end items-center gap-1.5 rounded-full border border-[#2a2a3e] px-3 py-1.5",
+                "inline-flex w-fit shrink-0 items-center gap-1.5 rounded-full border border-[#2a2a3e] px-3 py-1.5 sm:self-end",
                 "font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-widest text-[#F5F5F0]",
                 "transition-colors hover:border-[#6a6a85] hover:text-[#F5F5F0]",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
@@ -608,8 +608,8 @@ export function HomeClient({
             "relative z-0",
             "border-t border-[#1a1a28] lg:border-t-0 lg:border-l",
             "lg:col-span-5",
-            "min-h-[400px] lg:min-h-0 lg:flex lg:flex-col lg:overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:w-0",
-            "p-4",
+            "min-h-[360px] lg:min-h-0 lg:flex lg:flex-col lg:overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:w-0",
+            "p-4 sm:p-5 lg:p-4",
           )}
         >
           {/* Polite live region: announces the rolled film to screen readers. */}
