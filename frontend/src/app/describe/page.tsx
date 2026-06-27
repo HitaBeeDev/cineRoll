@@ -364,11 +364,11 @@ export default function DescribePage() {
   // scrolls and the footer stays in view. Below lg the columns stack and the page
   // scrolls normally, so nothing — especially the CTA — gets clipped.
   return (
-    <div className="flex min-h-screen min-w-0 flex-1 flex-col overflow-x-hidden bg-[#09090f] text-[#F5F5F0] lg:min-h-0 lg:overflow-hidden">
+    <div className="flex min-h-screen w-full min-w-0 max-w-full flex-1 flex-col overflow-x-hidden bg-[#09090f] text-[#F5F5F0] lg:min-h-0 lg:overflow-hidden">
       <AppHeader />
 
-      <main className="min-h-0 min-w-0 flex-1 px-4 py-4 sm:px-8 lg:flex lg:flex-col lg:overflow-hidden lg:px-10 lg:py-5">
-        <section className="grid min-h-0 min-w-0 gap-4 lg:flex-1 lg:grid-rows-[auto_minmax(0,1fr)]">
+      <main className="min-h-0 w-full min-w-0 max-w-full flex-1 overflow-x-hidden px-4 py-4 sm:px-8 lg:flex lg:flex-col lg:overflow-hidden lg:px-10 lg:py-5">
+        <section className="grid min-h-0 w-full min-w-0 max-w-full gap-4 lg:flex-1 lg:grid-rows-[auto_minmax(0,1fr)]">
           <div className="shrink-0">
             <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.18em] text-[#e8453c]/70 sm:text-[11px] sm:tracking-[0.3em]">
               ◈ Natural Language Roll ◈
@@ -378,10 +378,10 @@ export default function DescribePage() {
             </h1>
           </div>
 
-          <div className="grid min-h-0 min-w-0 gap-5 lg:grid-cols-12">
+          <div className="grid min-h-0 w-full min-w-0 max-w-full gap-5 lg:grid-cols-12">
             {/* Left: input panel */}
-            <div className="flex min-h-0 min-w-0 flex-col lg:col-span-7">
-              <div className="flex min-h-0 min-w-0 flex-1 flex-col rounded-lg border border-[#1e1e2a] bg-[#0d0d16] shadow-[0_18px_70px_rgba(0,0,0,0.28)]">
+            <div className="flex min-h-0 w-full min-w-0 max-w-full flex-col lg:col-span-7">
+              <div className="flex min-h-0 w-full min-w-0 max-w-full flex-1 flex-col rounded-lg border border-[#1e1e2a] bg-[#0d0d16] shadow-[0_18px_70px_rgba(0,0,0,0.28)]">
                 <div className="flex shrink-0 items-center justify-between gap-3 border-b border-[#1e1e2a] px-4 py-3 sm:gap-4 sm:px-5">
                   <span className="min-w-0 truncate font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.14em] text-[#888899] sm:text-[11px] sm:tracking-widest">
                     Describe the mood, era, awards, or people
