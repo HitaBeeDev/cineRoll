@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -23,6 +23,12 @@ const DIFFICULTIES: Array<{ value: Difficulty; label: string }> = [
   { value: "medium", label: "Medium" },
   { value: "hard", label: "Hard" },
 ];
+
+const DIFFICULTY_DESCRIPTIONS: Record<Difficulty, string> = {
+  easy: "Easy · 4 suspects · decade and genre clues",
+  medium: "Medium · 4 suspects · award trail and decade clue",
+  hard: "Hard · 4 suspects · award trail only",
+};
 
 async function fetchBlindFilm(): Promise<RollFilm> {
   const result = await fetchRandom();
@@ -127,7 +133,7 @@ function writeDifficulty(difficulty: Difficulty) {
   } catch {}
 }
 
-export default function BlindRollPage() {
+function BlindRollContent() {
   const searchParams = useSearchParams();
   const reduced = useReducedMotion() ?? false;
   const [film, setFilm] = useState<RollFilm | null>(null);
@@ -176,12 +182,16 @@ export default function BlindRollPage() {
   }, [challengeSlug]);
 
   const awards = useMemo(() => (film ? getAwards(film) : []), [film]);
+  const selectedFilm = useMemo(
+    () => options.find((option) => option.id === selectedFilmId) ?? null,
+    [options, selectedFilmId],
+  );
   const clueCards = useMemo(() => {
     if (!film || difficulty === "hard") return [];
 
     const cards = [
       {
-        label: "Release Decade",
+        label: "Film Release Decade",
         value: getDecade(film.year),
       },
     ];
@@ -289,36 +299,42 @@ export default function BlindRollPage() {
               <h1 className="max-w-full text-balance font-[family-name:var(--font-display)] text-3xl font-bold leading-tight sm:max-w-3xl lg:text-5xl lg:leading-none">
                 Crack the festival case
               </h1>
-              <p className="mt-1.5 max-w-full text-sm leading-5 text-[#aaaabc] sm:max-w-2xl">
-                Use the award trail, pick a suspect title, then open the vault.
+              <p className="mt-1.5 max-w-full text-sm leading-5 text-[#c4c4d2] sm:max-w-2xl">
+                Guess the hidden film using its release decade, award records, nominee status, and creators.
               </p>
             </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <div className="flex rounded-full border border-[#2a2a3e] bg-[#0d0d1a] p-1">
-                {DIFFICULTIES.map((item) => {
-                  const active = difficulty === item.value;
+            <div className="flex flex-col items-start gap-2 lg:items-end">
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="flex rounded-full border border-[#2a2a3e] bg-[#0d0d1a] p-1" aria-label="Difficulty">
+                  {DIFFICULTIES.map((item) => {
+                    const active = difficulty === item.value;
 
-                  return (
-                    <button
-                      key={item.value}
-                      type="button"
-                      aria-pressed={active}
-                      onClick={() => handleDifficultyChange(item.value)}
-                      className={[
-                        "rounded-full px-3 py-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.16em] transition-colors",
-                        active
-                          ? "bg-[#D4AF37] text-[#09090f]"
-                          : "text-[#77778b] hover:text-[#F5F5F0]",
-                      ].join(" ")}
-                    >
-                      {item.label}
-                    </button>
-                  );
-                })}
+                    return (
+                      <button
+                        key={item.value}
+                        type="button"
+                        aria-pressed={active}
+                        title={DIFFICULTY_DESCRIPTIONS[item.value]}
+                        onClick={() => handleDifficultyChange(item.value)}
+                        className={[
+                          "rounded-full px-3 py-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.12em] transition-colors",
+                          active
+                            ? "bg-[#D4AF37] text-[#09090f]"
+                            : "text-[#a0a0b5] hover:text-[#F5F5F0]",
+                        ].join(" ")}
+                      >
+                        {item.label}
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="w-fit rounded-full border border-[#D4AF37]/35 bg-[#D4AF37]/10 px-4 py-2 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.12em] text-[#D4AF37]">
+                  {sessionScore.correct} solved · {sessionScore.total} attempted
+                </div>
               </div>
-              <div className="w-fit rounded-full border border-[#D4AF37]/35 bg-[#D4AF37]/10 px-4 py-2 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.18em] text-[#D4AF37]">
-                {sessionScore.correct}/{sessionScore.total} correct
-              </div>
+              <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.12em] text-[#a0a0b5]">
+                {DIFFICULTY_DESCRIPTIONS[difficulty]}
+              </p>
             </div>
           </div>
         </div>
@@ -387,7 +403,7 @@ export default function BlindRollPage() {
                       >
                         <div className="min-w-0">
                           <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.2em] text-[#e8453c]">
-                            {formatAwardBody(award.awardBody)} · {award.awardYear}
+                            {formatAwardBody(award.awardBody)} · Award Year {award.awardYear}
                           </p>
                           <p className="mt-1 line-clamp-2 font-[family-name:var(--font-display)] text-base font-bold leading-tight">
                             {award.category}
@@ -413,7 +429,9 @@ export default function BlindRollPage() {
                     <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.28em] text-[#D4AF37]">
                       Suspect Lineup
                     </p>
-                    <p className="mt-1 text-sm text-[#888899]">Choose the title that matches the clues.</p>
+                    <p className="mt-1 text-sm text-[#c4c4d2]">
+                      Choose one title, then reveal the answer in the vault.
+                    </p>
                   </div>
                 </div>
 
@@ -455,12 +473,21 @@ export default function BlindRollPage() {
                         ? "border-[#e8453c] bg-[#e8453c]/10 shadow-[0_0_34px_rgba(232,69,60,0.12)]"
                         : selected
                           ? "border-[#D4AF37] bg-[#D4AF37]/10 shadow-[0_0_30px_rgba(212,175,55,0.12)]"
-                          : "border-[#2a2a3e] bg-[#09090f] hover:border-[#e8453c]/60 hover:bg-[#141421]";
+                      : "border-[#2a2a3e] bg-[#09090f] hover:border-[#e8453c]/60 hover:bg-[#141421]";
                     const markerStateClass = revealedCorrect
                       ? "border-[#4ade80] bg-[#4ade80] text-[#07110b]"
                       : revealedWrong
                         ? "border-[#e8453c] bg-[#e8453c] text-[#F5F5F0]"
-                        : "border-[#2a2a3e] bg-[#10101b] text-[#D4AF37] group-hover:border-[#D4AF37]/60";
+                        : selected
+                          ? "border-[#D4AF37] bg-[#D4AF37] text-[#09090f]"
+                          : "border-[#3a3a53] bg-[#10101b] text-[#D4AF37] group-hover:border-[#D4AF37]/60";
+                    const statusLabel = revealedCorrect
+                      ? "Correct"
+                      : revealedWrong
+                        ? "Your pick"
+                        : selected
+                          ? "Selected"
+                          : "Candidate";
 
                     return (
                       <button
@@ -488,8 +515,13 @@ export default function BlindRollPage() {
                           <span className="line-clamp-2 font-[family-name:var(--font-display)] text-lg font-bold leading-tight text-[#F5F5F0]">
                             {option.title}
                           </span>
-                          <span className="mt-1 block font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em] text-[#66667a]">
-                            Candidate
+                          <span
+                            className={[
+                              "mt-1 inline-flex font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.12em]",
+                              selected || revealedCorrect || revealedWrong ? "text-[#D4AF37]" : "text-[#a0a0b5]",
+                            ].join(" ")}
+                          >
+                            {statusLabel}
                           </span>
                         </span>
                       </button>
@@ -581,15 +613,43 @@ export default function BlindRollPage() {
                 </motion.div>
               ) : (
                 <>
-                  <div className="flex min-h-0 flex-1 items-center justify-center rounded-xl border border-dashed border-[#393950] bg-[#09090f]/75">
-                    <div className="flex flex-col items-center gap-3 text-center">
-                      <div className="flex h-20 w-20 items-center justify-center rounded-full border border-[#e8453c]/30 bg-[#e8453c]/10">
+                  <div
+                    className="flex min-h-0 flex-1 items-center justify-center rounded-xl border border-dashed border-[#454560] bg-[#09090f]/75 p-5"
+                    aria-live="polite"
+                  >
+                    <div className="flex max-w-72 flex-col items-center gap-3 text-center">
+                      <div className="flex h-20 w-20 items-center justify-center rounded-full border border-[#e8453c]/35 bg-[#e8453c]/10">
                         <Eye className="h-10 w-10 text-[#e8453c]" />
                       </div>
-                      <p className="max-w-48 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em] text-[#555568]">
-                        Title, poster, and plot hidden
+                      <p className="font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.16em] text-[#D4AF37]">
+                        {selectedFilm ? "Vault ready" : "Vault locked"}
                       </p>
+                      <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.12em] text-[#a0a0b5]">
+                        Title, poster, and plot hidden.
+                      </p>
+                      {selectedFilm ? (
+                        <div className="mt-2 w-full rounded-xl border border-[#D4AF37]/35 bg-[#D4AF37]/10 px-4 py-3">
+                          <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.12em] text-[#D4AF37]">
+                            Suspect selected
+                          </p>
+                          <p className="mt-1 font-[family-name:var(--font-display)] text-2xl font-bold leading-tight text-[#F5F5F0]">
+                            {selectedFilm.title}
+                          </p>
+                          <p className="mt-2 text-sm leading-5 text-[#c4c4d2]">
+                            Open the vault to check this pick against the hidden film.
+                          </p>
+                        </div>
+                      ) : (
+                        <p className="mt-2 text-sm leading-5 text-[#c4c4d2]">
+                          Select one suspect title to unlock the reveal.
+                        </p>
+                      )}
                     </div>
+                  </div>
+                  <div className="mt-3 min-h-5 text-center">
+                    <p className="text-xs text-[#c4c4d2]">
+                      {selectedFilm ? "Ready to reveal the hidden film." : "Select a suspect to reveal the answer."}
+                    </p>
                   </div>
                   <div className="mt-4 grid gap-2">
                     <button
@@ -608,7 +668,7 @@ export default function BlindRollPage() {
                       type="button"
                       onClick={handleReveal}
                       disabled={!selectedFilmId}
-                      className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#e8453c] font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.2em] text-[#F5F5F0] transition hover:bg-[#d7372f] hover:shadow-[0_0_40px_rgba(232,69,60,0.25)] disabled:cursor-not-allowed disabled:bg-[#2a2a3e] disabled:text-[#77778b] disabled:shadow-none"
+                      className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#e8453c] font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.16em] text-[#F5F5F0] transition hover:bg-[#d7372f] hover:shadow-[0_0_40px_rgba(232,69,60,0.25)] disabled:cursor-not-allowed disabled:bg-[#34344c] disabled:text-[#b8b8c7] disabled:shadow-none"
                     >
                       <Trophy className="h-3.5 w-3.5" />
                       Reveal
@@ -621,5 +681,27 @@ export default function BlindRollPage() {
         )}
       </main>
     </div>
+  );
+}
+
+function BlindRollFallback() {
+  return (
+    <div className="flex min-h-dvh flex-col overflow-x-hidden bg-[#09090f] text-[#F5F5F0]">
+      <AppHeader />
+      <main className="relative mx-auto flex w-full max-w-6xl flex-1 flex-col items-center justify-center gap-4 px-4 py-20 sm:px-6">
+        <div className="h-7 w-7 animate-spin rounded-full border-2 border-[#e8453c]/30 border-t-[#e8453c]" />
+        <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#a0a0b5]">
+          Loading blind roll...
+        </p>
+      </main>
+    </div>
+  );
+}
+
+export default function BlindRollPage() {
+  return (
+    <Suspense fallback={<BlindRollFallback />}>
+      <BlindRollContent />
+    </Suspense>
   );
 }
