@@ -229,7 +229,7 @@ export async function generateMetadata({
   const { slug } = await params;
   const film = await fetchFilm(slug);
   if (!film) return { title: "Film Not Found" };
-  const title = `${film.title} (${film.year})`;
+  const title = `${film.title} (${formatFilmYear(film)})`;
   const awardSummary = getAwardSummary(film);
   const rawDescription = film.plot
     ? `${film.plot} ${awardSummary}`
@@ -249,13 +249,13 @@ export async function generateMetadata({
       description,
       type: "video.movie",
       url: pageUrl,
-      images: [{ url: socialImage, width: 1200, height: 630, alt: `${film.title} (${film.year})` }],
+      images: [{ url: socialImage, width: 1200, height: 630, alt: `${film.title} (${formatFilmYear(film)})` }],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: [{ url: socialImage, width: 1200, height: 630, alt: `${film.title} (${film.year})` }],
+      images: [{ url: socialImage, width: 1200, height: 630, alt: `${film.title} (${formatFilmYear(film)})` }],
     },
   };
 }

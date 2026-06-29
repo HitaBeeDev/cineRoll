@@ -89,7 +89,7 @@ export function FilmCard({ film, className }: FilmCardProps) {
           },
         });
       }}
-      aria-label={`${film.title} (${film.year})`}
+      aria-label={`${film.title} (${formatFilmYear(film)})`}
       className={cn("group block w-full min-w-0 rounded-md outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/50 focus-visible:ring-offset-4 focus-visible:ring-offset-[#08080d]", className)}
     >
       {/* Poster */}
