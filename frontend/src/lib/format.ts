@@ -1,3 +1,26 @@
+/**
+ * Year label for a title. Movies show a single year; TV series show their run as
+ * a start–end range ("1966–1973"). An ongoing series (no end year) shows
+ * "1966–present". Falls back to the single year when range data is absent.
+ */
+export function formatFilmYear(film: {
+  contentType?: string | null;
+  year?: number | null;
+  releaseYear?: number | null;
+  tvStartYear?: number | null;
+  tvEndYear?: number | null;
+}): string {
+  const single = film.year ?? film.releaseYear ?? null;
+  const isSeries = film.contentType === "tv-series" || film.contentType === "tv-mini-series";
+  if (!isSeries) return single != null ? String(single) : "";
+
+  const start = film.tvStartYear ?? single;
+  if (start == null) return "";
+  const end = film.tvEndYear;
+  if (end == null) return film.contentType === "tv-mini-series" ? String(start) : `${start}–present`;
+  return end === start ? String(start) : `${start}–${end}`;
+}
+
 export function formatRuntime(minutes: number | null): string {
   if (minutes == null) return "";
 

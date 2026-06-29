@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import type { AwardBodyFilter, FilterState, PaginatedFilms } from "@cineroll/types";
 import { FilmCard, FilmCardSkeleton } from "@/components/film-card";
+import { formatFilmYear } from "@/lib/format";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { AppHeader } from "@/components/app-header";
 import { DEFAULT_FILTERS } from "@/hooks/useFilters";
@@ -524,7 +525,7 @@ export function BrowsePageClient() {
                             {film.title}
                           </span>
                           <span className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[11px] text-[#555064]">
-                            {film.year}
+                            {formatFilmYear(film)}
                           </span>
                         </button>
                       ))}

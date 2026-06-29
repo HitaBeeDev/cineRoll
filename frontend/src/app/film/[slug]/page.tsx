@@ -5,7 +5,7 @@ import type { CSSProperties, ReactNode } from "react";
 import { ChevronDown, ExternalLink, Sparkles, Tag } from "lucide-react";
 import type { Film, AwardRecord, CastMember } from "@cineroll/types";
 import { cn, nameToSlug } from "@/lib/utils";
-import { formatRuntime, formatLanguage } from "@/lib/format";
+import { formatRuntime, formatLanguage, formatFilmYear } from "@/lib/format";
 import { AppHeader } from "@/components/app-header";
 import { FilmTrailer } from "@/components/film-trailer";
 import { WhereToWatch } from "@/components/where-to-watch";
@@ -414,7 +414,7 @@ export default async function FilmPage({
                     Mixed-case (not uppercased) so values read as designed copy
                     — "2h 23m", "English" — rather than raw enum/format codes. */}
                 <div className="mt-4 flex flex-wrap items-center gap-x-2.5 gap-y-1.5 font-[family-name:var(--font-geist-mono)] text-[13px] tracking-[0.02em] text-white/65">
-                  <span>{film.year}</span>
+                  <span>{formatFilmYear(film)}</span>
                   {formattedRuntime && (
                     <>
                       <MetaDot />
