@@ -97,12 +97,6 @@ export default async function ProfilePage() {
   const { name, email } = session.user;
   const [summary, recs] = await Promise.all([fetchSummary(), fetchRecommendations()]);
 
-  const stats = [
-    { label: "in watchlist", value: summary.watchlist },
-    { label: "watched", value: summary.watched },
-    { label: "hidden from rolls", value: summary.hidden },
-  ];
-
   return (
     <main className="min-h-screen bg-[#07070b] text-[#f4f4f5]">
       <AppHeader />
@@ -122,15 +116,6 @@ export default async function ProfilePage() {
             )}
           </div>
         </div>
-
-        <p className="mt-6 font-[family-name:var(--font-geist-mono)] text-[12px] text-[#888899]">
-          {stats.map((stat, i) => (
-            <span key={stat.label}>
-              {i > 0 && <span className="px-2 text-[#444458]">·</span>}
-              <span className="font-bold text-[#F5F5F0]">{stat.value}</span> {stat.label}
-            </span>
-          ))}
-        </p>
 
         <div className="mt-12 grid gap-4 sm:grid-cols-3">
           {SECTIONS.map((section) => {
