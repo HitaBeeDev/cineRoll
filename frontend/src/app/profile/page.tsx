@@ -115,7 +115,7 @@ export default async function ProfilePage() {
               {name ?? "Your Profile"}
             </h1>
             {email && (
-              <p className="mt-1 truncate font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.2em] text-[#888899]">
+              <p className="mt-1 truncate font-[family-name:var(--font-geist-mono)] text-[12px] normal-case tracking-[0.06em] text-[#888899]">
                 {email}
               </p>
             )}
