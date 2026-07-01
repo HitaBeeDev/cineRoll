@@ -54,8 +54,9 @@ export default async function WatchlistPage() {
         <div className="mt-10">
           {watchlist.length === 0 ? (
             <div className="flex flex-col items-center gap-5 rounded-xl border border-[#1e1e2a] bg-[#0d0d1a] px-6 py-20 text-center">
-              <p className="font-[family-name:var(--font-geist-mono)] text-sm text-[#888899]">
-                Your watchlist is empty — roll some films to get started
+              <p className="max-w-sm font-[family-name:var(--font-geist-mono)] text-sm leading-relaxed text-[#888899]">
+                Your watchlist is empty. Hit save on any roll or film page and it
+                lands here to watch later.
               </p>
               <Link
                 href={`/`}

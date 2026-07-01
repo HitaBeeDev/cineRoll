@@ -60,8 +60,9 @@ export default async function HistoryPage() {
         <div className="mt-10">
           {watched.length === 0 ? (
             <div className="flex flex-col items-center gap-5 rounded-xl border border-[#1e1e2a] bg-[#0d0d1a] px-6 py-20 text-center">
-              <p className="font-[family-name:var(--font-geist-mono)] text-sm text-[#888899]">
-                No watched films yet — roll something and mark it watched
+              <p className="max-w-sm font-[family-name:var(--font-geist-mono)] text-sm leading-relaxed text-[#888899]">
+                No watched films yet. Mark anything watched from a roll or film
+                page — with a rating — and it builds your history here.
               </p>
               <Link
                 href={`/`}
