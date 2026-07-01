@@ -46,11 +46,11 @@ export function HistoryGrid({
       const res = await fetch(`/api/user/watched?cursor=${encodeURIComponent(nextCursor)}&limit=${PAGE_SIZE}`);
       if (!res.ok) throw new Error("failed");
       const data = (await res.json()) as {
-        watched?: (WatchedEntry & { doNotSuggest?: boolean })[];
+        watched?: WatchedEntry[];
         nextCursor?: string | null;
       };
-      // Exclude "Not Interested" (doNotSuggest) rows — those are hidden, not watched.
-      const page = (data.watched ?? []).filter((e) => !e.doNotSuggest);
+      // "Not interested" rows are already excluded server-side.
+      const page = data.watched ?? [];
       setItems((prev) => [...prev, ...page]);
       setNextCursor(data.nextCursor ?? null);
     } catch {

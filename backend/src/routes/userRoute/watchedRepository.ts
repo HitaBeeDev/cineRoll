@@ -3,7 +3,10 @@ import { filmSummarySelect } from "./selects";
 
 export function findWatchedPage(userId: string, limit: number, cursor?: string) {
   return prisma.watchedFilm.findMany({
-    where: { userId },
+    // Exclude "not interested" (doNotSuggest) rows at the source — those are
+    // hidden, not watched. Filtering here (rather than on the client) keeps the
+    // page size honest and the cursor aligned with what's rendered.
+    where: { userId, doNotSuggest: false },
     orderBy: [{ watchedAt: "desc" }, { id: "desc" }],
     include: { film: { select: filmSummarySelect } },
     take: limit + 1,

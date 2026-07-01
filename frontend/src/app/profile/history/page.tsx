@@ -14,8 +14,6 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
-type RawWatchedEntry = WatchedEntry & { doNotSuggest: boolean };
-
 // A failed load must be distinguishable from a genuinely empty history —
 // otherwise a 500 / dropped connection renders the same "nothing watched yet"
 // screen. The discriminated result lets the page show an error + retry instead.
@@ -33,16 +31,16 @@ async function fetchWatched(): Promise<WatchedResult> {
   if (!res.ok) return { status: "error" };
 
   const data = (await res.json().catch(() => null)) as {
-    watched?: RawWatchedEntry[];
+    watched?: WatchedEntry[];
     nextCursor?: string | null;
     total?: number | null;
   } | null;
   if (!data) return { status: "error" };
 
-  // Exclude "Not Interested" entries (doNotSuggest) — those are hidden, not watched.
+  // "Not interested" rows are already excluded server-side.
   return {
     status: "ok",
-    entries: (data.watched ?? []).filter((e) => !e.doNotSuggest),
+    entries: data.watched ?? [],
     nextCursor: data.nextCursor ?? null,
     total: data.total ?? null,
   };
