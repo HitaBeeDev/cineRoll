@@ -55,21 +55,38 @@ function initialsFrom(name?: string | null, email?: string | null): string {
   return source.slice(0, 2).toUpperCase();
 }
 
-const SECTIONS = [
+type SectionDef = {
+  href: string;
+  title: string;
+  blurb: string;
+  // Name of the summary metric this card counts, or null for a card (Settings)
+  // that has no meaningful count.
+  metric: keyof ProfileSummary | null;
+  // Noun shown after the count, e.g. "3 films saved".
+  countNoun: string;
+};
+
+const SECTIONS: readonly SectionDef[] = [
   {
     href: "watchlist",
     title: "View Watchlist",
     blurb: "Films you’ve saved to watch later.",
+    metric: "watchlist",
+    countNoun: "saved",
   },
   {
     href: "history",
     title: "Watched History",
     blurb: "Everything you’ve marked watched, with your ratings.",
+    metric: "watched",
+    countNoun: "watched",
   },
   {
     href: "settings",
     title: "Settings",
     blurb: "Your account and preferences.",
+    metric: null,
+    countNoun: "",
   },
 ] as const;
 
@@ -116,20 +133,46 @@ export default async function ProfilePage() {
         </p>
 
         <div className="mt-12 grid gap-4 sm:grid-cols-3">
-          {SECTIONS.map((section) => (
-            <Link
-              key={section.href}
-              href={`/profile/${section.href}`}
-              className="group rounded-xl border border-[#1e1e2a] bg-[#0d0d1a] px-6 py-7 transition-colors hover:border-[#e8453c]/60 hover:bg-[#111120] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
-            >
-              <h2 className="font-[family-name:var(--font-display)] text-lg font-bold text-[#F5F5F0]">
-                {section.title}
-              </h2>
-              <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-[11px] leading-relaxed text-[#888899]">
-                {section.blurb}
-              </p>
-            </Link>
-          ))}
+          {SECTIONS.map((section) => {
+            const count = section.metric ? summary[section.metric] : null;
+            // A data section with nothing in it is a dead end, so route the card
+            // to the roll instead and invite the user to fill it.
+            const isEmptyData = count === 0;
+            const href = isEmptyData ? `/` : `/profile/${section.href}`;
+
+            return (
+              <Link
+                key={section.href}
+                href={href}
+                className="group flex flex-col rounded-xl border border-[#1e1e2a] bg-[#0d0d1a] px-6 py-7 transition-colors hover:border-[#e8453c]/60 hover:bg-[#111120] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
+              >
+                <h2 className="font-[family-name:var(--font-display)] text-lg font-bold text-[#F5F5F0]">
+                  {section.title}
+                </h2>
+                <p className="mt-2 flex-1 font-[family-name:var(--font-geist-mono)] text-[11px] leading-relaxed text-[#888899]">
+                  {section.blurb}
+                </p>
+                <div className="mt-5 flex items-center justify-between font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.15em]">
+                  {isEmptyData ? (
+                    <span className="font-bold text-[#e8453c]">Start rolling</span>
+                  ) : count != null ? (
+                    <span className="text-[#888899]">
+                      <span className="font-bold text-[#F5F5F0]">{count}</span>{" "}
+                      film{count === 1 ? "" : "s"} {section.countNoun}
+                    </span>
+                  ) : (
+                    <span className="text-[#888899]">Open</span>
+                  )}
+                  <span
+                    aria-hidden
+                    className="text-[#666677] transition-all duration-200 group-hover:translate-x-0.5 group-hover:text-[#e8453c]"
+                  >
+                    {isEmptyData ? "→" : "↗"}
+                  </span>
+                </div>
+              </Link>
+            );
+          })}
         </div>
 
         {recs.recommendations.length > 0 ? (
