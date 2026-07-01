@@ -20,7 +20,12 @@ type RawWatchedEntry = WatchedEntry & { doNotSuggest: boolean };
 // otherwise a 500 / dropped connection renders the same "nothing watched yet"
 // screen. The discriminated result lets the page show an error + retry instead.
 type WatchedResult =
-  | { status: "ok"; entries: WatchedEntry[]; nextCursor: string | null }
+  | {
+      status: "ok";
+      entries: WatchedEntry[];
+      nextCursor: string | null;
+      total: number | null;
+    }
   | { status: "error" };
 
 async function fetchWatched(): Promise<WatchedResult> {
@@ -30,6 +35,7 @@ async function fetchWatched(): Promise<WatchedResult> {
   const data = (await res.json().catch(() => null)) as {
     watched?: RawWatchedEntry[];
     nextCursor?: string | null;
+    total?: number | null;
   } | null;
   if (!data) return { status: "error" };
 
@@ -38,26 +44,17 @@ async function fetchWatched(): Promise<WatchedResult> {
     status: "ok",
     entries: (data.watched ?? []).filter((e) => !e.doNotSuggest),
     nextCursor: data.nextCursor ?? null,
+    total: data.total ?? null,
   };
-}
-
-async function fetchWatchedCount(): Promise<number | null> {
-  const res = await apiFetch("/api/user/summary");
-  if (!res.ok) return null;
-  const data = (await res.json().catch(() => ({}))) as { watched?: number };
-  return data.watched ?? null;
 }
 
 export default async function HistoryPage() {
   const session = await auth();
   if (!session?.user) redirect(`/auth/signin`);
 
-  const [result, watchedCount] = await Promise.all([
-    fetchWatched(),
-    fetchWatchedCount(),
-  ]);
+  const result = await fetchWatched();
   const total =
-    result.status === "ok" ? watchedCount ?? result.entries.length : null;
+    result.status === "ok" ? result.total ?? result.entries.length : null;
 
   return (
     <main className="flex flex-1 flex-col bg-[#07070b] text-[#f4f4f5]">

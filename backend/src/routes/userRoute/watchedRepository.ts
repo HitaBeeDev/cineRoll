@@ -11,6 +11,12 @@ export function findWatchedPage(userId: string, limit: number, cursor?: string) 
   });
 }
 
+// Excludes "not interested" (doNotSuggest) entries — those are hidden, not
+// watched — so the header total matches the list the page actually renders.
+export function countWatched(userId: string) {
+  return prisma.watchedFilm.count({ where: { userId, doNotSuggest: false } });
+}
+
 export function upsertWatchedFilm(
   userId: string,
   filmId: string,
