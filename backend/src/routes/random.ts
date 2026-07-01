@@ -6,10 +6,8 @@ import { HttpError } from "../middleware/errorHandler";
 import { getValidated, validate } from "../middleware/validate";
 import { logRollEvent } from "./randomRoute/eventLogger";
 import { getPersonalizedRandomFilm } from "./randomRoute/personalizedService";
-import {
-  getRandomCount,
-  getRandomFilm,
-} from "./randomRoute/randomRepository";
+import { getRandomCount } from "./randomRoute/randomRepository";
+import { getSessionRoll } from "./randomRoute/sessionRollService";
 import { RandomFilmRow } from "./randomRoute/types";
 
 export {
@@ -28,7 +26,7 @@ randomRouter.get("/", validate(randomQuerySchema), async (req, res) => {
   const usePersonalized = query.personalized === true && query.userId != null;
   const { film, total, exploration } = usePersonalized
     ? await getPersonalizedRandomFilm(query)
-    : { ...(await getRandomFilm(query)), exploration: false };
+    : { ...(await getSessionRoll(query)), exploration: false };
 
   if (!film) {
     throw new HttpError(404, "No films match the given filters", "NO_FILMS_FOUND");
