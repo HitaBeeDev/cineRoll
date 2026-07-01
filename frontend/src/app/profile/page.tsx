@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 import { auth } from "@/auth";
 import { apiFetch } from "@/lib/apiWithAuth";
 import { AppHeader } from "@/components/app-header";
@@ -124,7 +125,12 @@ export default async function ProfilePage() {
   if (!session?.user) redirect(`/auth/signin`);
 
   const { name, email } = session.user;
-  const [summary, recs] = await Promise.all([fetchSummary(), fetchRecommendations()]);
+  // Kick off both fetches in parallel, but only block the shell on the fast
+  // summary. Recommendations run a ~1s recommender query (remote DB, 300-film
+  // candidate scan), so they stream in behind a skeleton via Suspense instead
+  // of holding the whole page blank until they resolve.
+  const recsPromise = fetchRecommendations();
+  const summary = await fetchSummary();
 
   // A profile with no saved, watched, or hidden films hasn't touched the core
   // loop yet — lead with onboarding instead of a wall of empty destinations.
@@ -240,30 +246,75 @@ export default async function ProfilePage() {
           ))}
         </div>
 
-        {recs.recommendations.length > 0 ? (
-          <RecommendationsSection
-            recommendations={recs.recommendations}
-            coldStart={recs.coldStart}
-          />
-        ) : recs.notEnoughData ? (
-          <section className="mt-16">
-            <h2 className="font-[family-name:var(--font-display)] text-2xl font-bold text-[#F5F5F0]">
-              Recommended for you
-            </h2>
-            <div className="mt-6 flex flex-col items-center gap-5 rounded-xl border border-dashed border-[#1e1e2a] bg-[#0d0d1a] px-6 py-16 text-center">
-              <p className="max-w-sm font-[family-name:var(--font-geist-mono)] text-sm leading-relaxed text-[#888899]">
-                Roll and rate a few more films to unlock your picks
-              </p>
-              <Link
-                href={`/`}
-                className="inline-flex items-center rounded-xl bg-[#e8453c] px-6 py-3 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.2em] text-[#F5F5F0] transition-colors hover:bg-[#d5342b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
-              >
-                Roll a film
-              </Link>
-            </div>
-          </section>
-        ) : null}
+        <Suspense fallback={<RecommendationsSkeleton />}>
+          <ProfileRecommendations recsPromise={recsPromise} />
+        </Suspense>
       </div>
     </main>
+  );
+}
+
+/**
+ * Streamed recommendations: awaits the slow recommender promise inside its own
+ * Suspense boundary so the rest of the profile paints immediately. Renders the
+ * grid, the not-enough-data prompt, or nothing.
+ */
+async function ProfileRecommendations({
+  recsPromise,
+}: {
+  recsPromise: ReturnType<typeof fetchRecommendations>;
+}) {
+  const recs = await recsPromise;
+
+  if (recs.recommendations.length > 0) {
+    return (
+      <RecommendationsSection
+        recommendations={recs.recommendations}
+        coldStart={recs.coldStart}
+      />
+    );
+  }
+
+  if (recs.notEnoughData) {
+    return (
+      <section className="mt-16">
+        <h2 className="font-[family-name:var(--font-display)] text-2xl font-bold text-[#F5F5F0]">
+          Recommended for you
+        </h2>
+        <div className="mt-6 flex flex-col items-center gap-5 rounded-xl border border-dashed border-[#1e1e2a] bg-[#0d0d1a] px-6 py-16 text-center">
+          <p className="max-w-sm font-[family-name:var(--font-geist-mono)] text-sm leading-relaxed text-[#9a9aac]">
+            Roll and rate a few more films to unlock your picks
+          </p>
+          <Link
+            href={`/`}
+            className="inline-flex items-center rounded-xl bg-[#e8453c] px-6 py-3 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.2em] text-[#F5F5F0] transition-colors hover:bg-[#d5342b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
+          >
+            Roll a film
+          </Link>
+        </div>
+      </section>
+    );
+  }
+
+  return null;
+}
+
+/** Placeholder poster grid shown while recommendations stream in. */
+function RecommendationsSkeleton() {
+  return (
+    <section className="mt-16">
+      <h2 className="font-[family-name:var(--font-display)] text-2xl font-bold text-[#F5F5F0]">
+        Recommended for you
+      </h2>
+      <div className="mt-8 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <div key={i} className="flex flex-col">
+            <div className="aspect-[2/3] w-full animate-pulse rounded-lg bg-[#111120]" />
+            <div className="mt-3 h-3 w-3/4 animate-pulse rounded bg-[#111120]" />
+            <div className="mt-2 h-2.5 w-1/3 animate-pulse rounded bg-[#0f0f18]" />
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }
