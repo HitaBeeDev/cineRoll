@@ -163,6 +163,15 @@ export default async function ProfilePage() {
             <Stat label="Watched" value={summary.watched} />
           </div>
 
+          {summary.rated === 0 &&
+            summary.watchlist === 0 &&
+            summary.watched === 0 && (
+              <p className="mt-5 font-[family-name:var(--font-geist-mono)] text-[11px] leading-relaxed text-[#9a9aac]">
+                Your stats fill in as you go — roll films to rate them, save some
+                to your watchlist, and mark what you’ve watched.
+              </p>
+            )}
+
           {/* Only surface genres once they reflect real rating behavior — a
               brand-new profile shows just the three activity counts, so an
               onboarding preference never looks like a stat next to the zeros. */}
