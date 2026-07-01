@@ -20,7 +20,8 @@ import {
   type HeadlineAccolade,
 } from "@/components/hero-headline-accolade";
 import { FilmRatingPanel } from "@/components/film-rating-panel";
-import { FilmCommentsSection } from "@/components/film-comments-section";
+// Comments feature disabled for now.
+// import { FilmCommentsSection } from "@/components/film-comments-section";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 const SITE_URL =
@@ -736,7 +737,8 @@ export default async function FilmPage({
               </div>
             </section>
 
-            <FilmCommentsSection slug={film.slug} />
+            {/* Comments hidden for now — feature disabled by request. */}
+            {/* <FilmCommentsSection slug={film.slug} /> */}
           </div>
 
           {/* ── TRAILER ──────────────────────────────────────────────── */}
