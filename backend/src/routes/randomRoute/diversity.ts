@@ -95,3 +95,37 @@ export function diversityMultiplier(
     dimensionFactor(film.director, recent, r => r.director, DIRECTOR_DECAY, pinned.director)
   );
 }
+
+// Reroll learning (§6): the *opposite sign* of the cooldown but the same
+// "recent-session memory" mechanism. When the user rerolls a title without
+// engaging, its genre/type earns a weak negative that the client accumulates and
+// decays over the next few rolls (a manual "not tonight" earns a stronger one).
+// A reroll is treated as "not in the mood", NOT a permanent dislike — that lives
+// in the long-term taste profile, not here. We receive the accumulated weights
+// and turn them into a soft multiplier; the strength curve keeps a single weak
+// skip gentle (~0.7) and a hard reject sharper, saturating rather than zeroing.
+export type RerollPenalty = {
+  genre: Record<string, number>;
+  contentType: Record<string, number>;
+};
+
+const REROLL_PENALTY_STRENGTH = 0.35;
+
+export function hasRerollPenalty(penalty: RerollPenalty): boolean {
+  return Object.keys(penalty.genre).length > 0 || Object.keys(penalty.contentType).length > 0;
+}
+
+export function rerollMultiplier(
+  film: RandomFilmRow,
+  penalty: RerollPenalty,
+  pinned: PinnedDimensions,
+): number {
+  let weight = 0;
+  const genre = mainGenre(film.genres);
+  // §8: don't penalize a dimension the user pinned — they can't reroll away from
+  // a genre/type they explicitly filtered to, so a penalty there is just noise.
+  if (!pinned.genre && genre) weight += penalty.genre[genre] ?? 0;
+  if (!pinned.contentType) weight += penalty.contentType[film.contentType] ?? 0;
+
+  return weight > 0 ? Math.exp(-REROLL_PENALTY_STRENGTH * weight) : 1;
+}

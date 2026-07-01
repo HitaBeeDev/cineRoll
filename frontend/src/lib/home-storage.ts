@@ -3,7 +3,7 @@
 // home page so each consumer imports only what it needs and these stay
 // independently unit-testable. All access window/sessionStorage at call time and
 // is only invoked from client components.
-import type { RollFilm, TasteCardFilm } from "@/lib/api";
+import type { RerollPenalty, RollFilm, TasteCardFilm } from "@/lib/api";
 
 export const PENDING_WATCHED_STORAGE_KEY = "cineroll_pending_watched_films";
 export const TASTE_SEED_STORAGE_KEY = "cineroll_taste_seed";
@@ -146,6 +146,99 @@ export function addToRolledBag(filmId: string): void {
 export function resetRolledBag(): void {
   try {
     window.sessionStorage.removeItem(ROLL_SEEN_STORAGE_KEY);
+  } catch {
+    // non-critical
+  }
+}
+
+// Reroll-learning session state (docs/smart-roll-engine.md §6). Accumulated
+// weak-negative weights per main-genre / content-type from titles the user
+// skipped this session. Held in sessionStorage (fresh per tab), decayed once per
+// roll so a skipped kind is avoided for "the next few rolls" then recovers — a
+// mood signal, not a permanent dislike. Sent to the backend each roll.
+export const REROLL_PENALTY_STORAGE_KEY = "cineroll_reroll_penalty";
+// A plain reroll (skipped without engaging) vs a manual "Not interested" reject.
+export const REROLL_WEAK_PENALTY = 1;
+export const REROLL_STRONG_PENALTY = 2.5;
+// Per-roll decay + the floor below which a penalty is dropped, and a cap so a
+// repeatedly-skipped kind can't accumulate unbounded weight.
+export const REROLL_DECAY = 0.5;
+export const REROLL_MIN_PENALTY = 0.15;
+export const REROLL_MAX_PENALTY = 6;
+
+function emptyRerollPenalty(): RerollPenalty {
+  return { genre: {}, contentType: {} };
+}
+
+export function getRerollPenalty(): RerollPenalty {
+  try {
+    const raw = window.sessionStorage.getItem(REROLL_PENALTY_STORAGE_KEY);
+    const parsed = raw ? (JSON.parse(raw) as Partial<RerollPenalty>) : null;
+    return {
+      genre: sanitizeWeights(parsed?.genre),
+      contentType: sanitizeWeights(parsed?.contentType),
+    };
+  } catch {
+    return emptyRerollPenalty();
+  }
+}
+
+function sanitizeWeights(value: unknown): Record<string, number> {
+  if (!value || typeof value !== "object") return {};
+  const out: Record<string, number> = {};
+  for (const [key, weight] of Object.entries(value as Record<string, unknown>)) {
+    if (typeof weight === "number" && Number.isFinite(weight) && weight > 0) out[key] = weight;
+  }
+  return out;
+}
+
+function writeRerollPenalty(penalty: RerollPenalty): void {
+  try {
+    window.sessionStorage.setItem(REROLL_PENALTY_STORAGE_KEY, JSON.stringify(penalty));
+  } catch {
+    // Reroll learning is a nicety; rolling must keep working if storage is blocked.
+  }
+}
+
+function decayMap(weights: Record<string, number>): Record<string, number> {
+  const out: Record<string, number> = {};
+  for (const [key, weight] of Object.entries(weights)) {
+    const next = weight * REROLL_DECAY;
+    if (next >= REROLL_MIN_PENALTY) out[key] = next;
+  }
+  return out;
+}
+
+/** Fade every accumulated penalty by one roll; drop those that reach the floor. */
+export function decayRerollPenalties(): void {
+  const penalty = getRerollPenalty();
+  writeRerollPenalty({
+    genre: decayMap(penalty.genre),
+    contentType: decayMap(penalty.contentType),
+  });
+}
+
+function bump(weights: Record<string, number>, key: string, amount: number): void {
+  weights[key] = Math.min((weights[key] ?? 0) + amount, REROLL_MAX_PENALTY);
+}
+
+/**
+ * Record a skip against a film's main genre + content type. `strength` is
+ * "weak" for a plain reroll (maybe just not in the mood) or "strong" for an
+ * explicit "Not interested" reject.
+ */
+export function addRerollPenalty(film: RollFilm, strength: "weak" | "strong"): void {
+  const amount = strength === "strong" ? REROLL_STRONG_PENALTY : REROLL_WEAK_PENALTY;
+  const penalty = getRerollPenalty();
+  const genre = film.genres[0];
+  if (genre) bump(penalty.genre, genre, amount);
+  if (film.contentType) bump(penalty.contentType, film.contentType, amount);
+  writeRerollPenalty(penalty);
+}
+
+export function resetRerollPenalty(): void {
+  try {
+    window.sessionStorage.removeItem(REROLL_PENALTY_STORAGE_KEY);
   } catch {
     // non-critical
   }

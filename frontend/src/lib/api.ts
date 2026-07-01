@@ -15,6 +15,7 @@ export type RollFilm = Pick<
   | "releaseYear"
   | "runtime"
   | "genres"
+  | "contentType"
   | "plot"
   | "director"
   | "posterUrl"
@@ -223,11 +224,17 @@ export async function fetchMarathon(
   return res.json() as Promise<MarathonResult>;
 }
 
+export type RerollPenalty = {
+  genre: Record<string, number>;
+  contentType: Record<string, number>;
+};
+
 export async function fetchRandom(
   filters?: Partial<FilterState>,
   userId?: string,
   personalized?: boolean,
   excludeIds?: string[],
+  rerollPenalty?: RerollPenalty,
 ): Promise<RandomResult> {
   const params = filtersToParams(filters ?? {});
   // When signed in, the backend excludes films the user marked "Not Interested".
@@ -237,6 +244,16 @@ export async function fetchRandom(
   // Films to exclude server-side (e.g. a guest's session-hidden films), so the
   // roll never returns one instead of relying on the client to re-roll past it.
   if (excludeIds && excludeIds.length > 0) params.set("excludeIds", excludeIds.join(","));
+  // Reroll-learning signal (§6): accumulated genre / content-type penalties from
+  // titles skipped this session, so recently-skipped kinds are softly avoided.
+  if (rerollPenalty) {
+    if (Object.keys(rerollPenalty.genre).length > 0) {
+      params.set("rerollGenre", JSON.stringify(rerollPenalty.genre));
+    }
+    if (Object.keys(rerollPenalty.contentType).length > 0) {
+      params.set("rerollType", JSON.stringify(rerollPenalty.contentType));
+    }
+  }
   const qs = params.toString();
   const res = await fetch(`${API_URL}/api/random${qs ? `?${qs}` : ""}`, { cache: "no-store" });
   if (!res.ok) {

@@ -22,7 +22,10 @@ import { trackEvent } from "@/lib/analytics";
 import { useFilters } from "@/hooks/useFilters";
 import { cn } from "@/lib/utils";
 import {
+  addRerollPenalty,
   addToRolledBag,
+  decayRerollPenalties,
+  getRerollPenalty,
   getRolledBag,
   pushRollHistory,
   resetRolledBag,
@@ -139,6 +142,16 @@ export function HomeClient({
 
   const handleRollRef = useRef<() => Promise<void>>(async () => {});
   const filmCardRef = useRef<HTMLDivElement>(null);
+  // The currently-shown roll and how the user treated it, for reroll learning
+  // (§6). `engaged` flips true when they open details / save / mark watched;
+  // `rejected` flips true on an explicit "Not interested". When the next roll
+  // fires we read this to decide the penalty: none if engaged, strong if
+  // rejected, otherwise a weak "just wasn't in the mood" skip.
+  const currentRollRef = useRef<{
+    film: RollFilm;
+    engaged: boolean;
+    rejected: boolean;
+  } | null>(null);
 
   // Migration bridge for visitors who onboarded before it moved to a cookie:
   // they still carry the localStorage flag but no cookie, so the server would
@@ -242,6 +255,16 @@ export function HomeClient({
   async function handleRoll() {
     setIsRolling(true);
     setFilm(null);
+    // Reroll learning (§6): the film we're leaving becomes a session signal.
+    // Fade older penalties by one roll, then record this skip against the
+    // outgoing film's genre/type — weak for a plain reroll, strong if the user
+    // hit "Not interested", nothing at all if they engaged with it.
+    const outgoing = currentRollRef.current;
+    currentRollRef.current = null;
+    decayRerollPenalties();
+    if (outgoing && !outgoing.engaged) {
+      addRerollPenalty(outgoing.film, outgoing.rejected ? "strong" : "weak");
+    }
     const isPersonalized = personalizedRoll && !!userId;
     void trackEvent({
       type: isPersonalized ? "roll_personalized" : "roll",
@@ -261,9 +284,12 @@ export function HomeClient({
       // users additionally get server-side "Not Interested" exclusion + taste
       // weighting when the toggle is on.)
       const seen = getRolledBag();
+      // Accumulated genre/type penalties from titles skipped this session, so
+      // the backend softly steers away from recently-rerolled kinds.
+      const rerollPenalty = getRerollPenalty();
       let result;
       try {
-        result = await fetchRandom(filters, userId, isPersonalized, seen);
+        result = await fetchRandom(filters, userId, isPersonalized, seen, rerollPenalty);
       } catch (err) {
         // Exhausted the reachable pool this session → the backend returns
         // NO_FILMS_FOUND. Reset the bag and roll once more so we never dead-end
@@ -275,12 +301,14 @@ export function HomeClient({
             : undefined;
         if (code === "NO_FILMS_FOUND" && seen.length > 0) {
           resetRolledBag();
-          result = await fetchRandom(filters, userId, isPersonalized, []);
+          result = await fetchRandom(filters, userId, isPersonalized, [], rerollPenalty);
         } else {
           throw err;
         }
       }
       addToRolledBag(result.film.id);
+      // Start tracking engagement for the film we're about to show.
+      currentRollRef.current = { film: result.film, engaged: false, rejected: false };
       setFilm(result.film);
       setFilteredCount(result.total);
       pushRollHistory(result.film);
@@ -324,6 +352,17 @@ export function HomeClient({
     } finally {
       setIsRolling(false);
     }
+  }
+
+  // Reroll learning signals for the shown film. Opening details / saving /
+  // marking watched counts as engagement, so the next roll won't penalize its
+  // genre/type. "Not interested" is a strong negative and rolls onward.
+  function markCurrentEngaged() {
+    if (currentRollRef.current) currentRollRef.current.engaged = true;
+  }
+  function handleNotInterested() {
+    if (currentRollRef.current) currentRollRef.current.rejected = true;
+    void handleRoll();
   }
 
   // Keep ref in sync so space-key handler always calls latest version
@@ -691,7 +730,8 @@ export function HomeClient({
                 <FilmCard
                   film={film}
                   isAuthenticated={Boolean(userId)}
-                  onNotInterested={() => void handleRoll()}
+                  onNotInterested={handleNotInterested}
+                  onEngage={markCurrentEngaged}
                 />
               </motion.div>
             ) : effectiveCount === 0 ? (

@@ -27,10 +27,14 @@ export function FilmCard({
   film,
   isAuthenticated,
   onNotInterested,
+  onEngage,
 }: {
   film: RollFilm;
   isAuthenticated: boolean;
   onNotInterested?: () => void;
+  // Fired when the user engages with this roll (opens details / saves / marks
+  // watched), so reroll learning won't penalize its genre/type. See §6.
+  onEngage?: () => void;
 }) {
   const shouldReduceMotion = useReducedMotion();
   const pathname = usePathname();
@@ -107,6 +111,7 @@ export function FilmCard({
           <Link
             href={`/film/${film.slug}`}
             onClick={() => {
+              onEngage?.();
               trackEvent({
                 type: "film_click",
                 filmId: film.id,
@@ -248,7 +253,10 @@ export function FilmCard({
               tone="confirm"
               active={action === "watched"}
               disabled={pending}
-              onClick={() => void saveDecision("watched", false)}
+              onClick={() => {
+                onEngage?.();
+                void saveDecision("watched", false);
+              }}
               icon={<Eye className="h-4 w-4" aria-hidden />}
               label="Watched"
               activeLabel="Watched"
@@ -266,7 +274,10 @@ export function FilmCard({
               tone="save"
               active={inWatchlist}
               disabled={watchlistPending}
-              onClick={() => void toggleWatchlist()}
+              onClick={() => {
+                onEngage?.();
+                void toggleWatchlist();
+              }}
               icon={
                 <Bookmark
                   className="h-4 w-4"
@@ -317,6 +328,7 @@ export function FilmCard({
           <Link
             href={`/film/${film.slug}`}
             onClick={() => {
+              onEngage?.();
               trackEvent({
                 type: "film_click",
                 filmId: film.id,

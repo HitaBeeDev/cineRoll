@@ -51,3 +51,23 @@ export const excludedFilmIdsParam = z
     z.array(z.string().min(1).max(180)).max(100),
   )
   .optional();
+
+// Reroll-learning signal (docs/smart-roll-engine.md §6): a compact JSON map of
+// genre/type → accumulated penalty weight, built and decayed client-side and
+// sent per roll. Parsed leniently — a malformed value is dropped rather than
+// failing the whole roll, since it's an optional adaptive nicety.
+export const rerollPenaltyParam = z
+  .preprocess(
+    value => {
+      if (typeof value !== "string") return value;
+      try {
+        return JSON.parse(value);
+      } catch {
+        return undefined;
+      }
+    },
+    z
+      .record(z.string().min(1).max(80), z.number().min(0).max(20))
+      .refine(record => Object.keys(record).length <= 40, "too many penalty keys"),
+  )
+  .optional();

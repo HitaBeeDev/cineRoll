@@ -6,10 +6,13 @@ import { DIVERSITY_SAMPLE_SIZE } from "./constants";
 import {
   RECENT_ROLL_WINDOW,
   RecentRoll,
+  RerollPenalty,
   decadeOf,
   diversityMultiplier,
+  hasRerollPenalty,
   mainGenre,
   pinnedDimensions,
+  rerollMultiplier,
 } from "./diversity";
 import { getRandomFilm, getRandomFilms } from "./randomRepository";
 import { RandomFilmResult } from "./types";
@@ -27,16 +30,29 @@ import { weightedSample } from "./weightedSample";
 export async function getSessionRoll(query: RandomQuery): Promise<RandomFilmResult> {
   if (query.seed) return getRandomFilm(query);
 
+  const penalty = rerollPenaltyFrom(query);
   const recent = await getRecentRolls(query.excludeIds ?? []);
-  if (recent.length === 0) return getRandomFilm(query);
+  // Nothing to diversify against and no reroll feedback → a plain uniform pick.
+  if (recent.length === 0 && !hasRerollPenalty(penalty)) return getRandomFilm(query);
 
   const { films, total } = await getRandomFilms(query, DIVERSITY_SAMPLE_SIZE);
   if (films.length <= 1) return { film: films[0] ?? null, total };
 
   const pinned = pinnedDimensions(query);
-  const weights = films.map(film => diversityMultiplier(film, recent, pinned));
+  // Two session signals compound into one weight: the cooldown (avoid what just
+  // showed) and reroll learning (avoid what the user skipped). Both are soft.
+  const weights = films.map(
+    film => diversityMultiplier(film, recent, pinned) * rerollMultiplier(film, penalty, pinned),
+  );
 
   return { film: weightedSample(films, weights), total };
+}
+
+function rerollPenaltyFrom(query: RandomQuery): RerollPenalty {
+  return {
+    genre: query.rerollGenre ?? {},
+    contentType: query.rerollType ?? {},
+  };
 }
 
 type RecentRollRow = {
