@@ -364,6 +364,12 @@ export function HomeClient({
     if (currentRollRef.current) currentRollRef.current.rejected = true;
     void handleRoll();
   }
+  // "Not tonight": a session-only skip. We just roll — the outgoing film is
+  // neither engaged nor rejected, so handleRoll already records it as the weak
+  // "not in the mood" reroll signal. No account, no permanent hide.
+  function handleNotTonight() {
+    void handleRoll();
+  }
 
   // Keep ref in sync so space-key handler always calls latest version
   useEffect(() => {
@@ -731,6 +737,7 @@ export function HomeClient({
                   film={film}
                   isAuthenticated={Boolean(userId)}
                   onNotInterested={handleNotInterested}
+                  onNotTonight={handleNotTonight}
                   onEngage={markCurrentEngaged}
                 />
               </motion.div>

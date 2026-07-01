@@ -8,6 +8,7 @@ import {
   Bookmark,
   Eye,
   EyeOff,
+  Moon,
   Share2,
   ThumbsDown,
   ThumbsUp,
@@ -27,13 +28,17 @@ export function FilmCard({
   film,
   isAuthenticated,
   onNotInterested,
+  onNotTonight,
   onEngage,
 }: {
   film: RollFilm;
   isAuthenticated: boolean;
   onNotInterested?: () => void;
+  // Session-only "skip this one for now" — rolls onward with a weak, decaying
+  // penalty (no account, no permanent hide). The counterpart to onNotInterested.
+  onNotTonight?: () => void;
   // Fired when the user engages with this roll (opens details / saves / marks
-  // watched), so reroll learning won't penalize its genre/type. See §6.
+  // seen), so reroll learning won't penalize its genre/type. See §6.
   onEngage?: () => void;
 }) {
   const shouldReduceMotion = useReducedMotion();
@@ -248,18 +253,33 @@ export function FilmCard({
               {isAuthenticated ? "Account signal" : "Session signal"}
             </span>
           </div>
-          <div className="grid grid-cols-3 gap-2">
+          {/* Four distinct signals, each teaching the roll differently:
+              • Not tonight   — session-only weak skip (guest-friendly, no hide)
+              • Already seen  — hide + 👍/👎 taste (strong-positive if liked)
+              • Not interested — permanent hide + strong session penalty
+              • Save for later — watchlist, strong-positive signal */}
+          <div className="grid grid-cols-2 gap-2">
+            <QuickActionButton
+              tone="skip"
+              active={false}
+              onClick={() => onNotTonight?.()}
+              icon={<Moon className="h-4 w-4" aria-hidden />}
+              label="Not tonight"
+              activeLabel="Not tonight"
+            />
             <QuickActionButton
               tone="confirm"
               active={action === "watched"}
               disabled={pending}
               onClick={() => {
                 onEngage?.();
-                void saveDecision("watched", false);
+                // doNotSuggest=true → "do not show again"; the 👍/👎 prompt below
+                // still feeds taste, so a liked title boosts similar picks.
+                void saveDecision("watched", true);
               }}
               icon={<Eye className="h-4 w-4" aria-hidden />}
-              label="Watched"
-              activeLabel="Watched"
+              label="Already seen"
+              activeLabel="Seen"
             />
             <QuickActionButton
               tone="dismiss"
@@ -285,7 +305,7 @@ export function FilmCard({
                   aria-hidden
                 />
               }
-              label="Add to Watchlist"
+              label="Save for later"
               activeLabel="Saved"
             />
           </div>
@@ -595,7 +615,7 @@ function QuickActionButton({
   label,
   activeLabel,
 }: {
-  tone: "confirm" | "dismiss" | "save";
+  tone: "confirm" | "dismiss" | "save" | "skip";
   active: boolean;
   disabled?: boolean;
   onClick: () => void;
@@ -603,18 +623,18 @@ function QuickActionButton({
   label: string;
   activeLabel: string;
 }) {
-  const toneClasses =
-    tone === "confirm"
-      ? active
-        ? "border-[#3fb950]/45 bg-[#3fb950]/12 text-[#7ee787]"
-        : "border-[#1e1e2a] text-[#888899] hover:border-[#3fb950]/45 hover:text-[#7ee787]"
-      : tone === "dismiss"
-        ? active
-          ? "border-[#46465e] bg-white/[0.06] text-[#F5F5F0]"
-          : "border-[#1e1e2a] text-[#888899] hover:border-[#6a6a85] hover:text-[#F5F5F0]"
-        : active
-          ? "border-[#46465e] bg-white/[0.06] text-[#F5F5F0]"
-          : "border-[#1e1e2a] text-[#888899] hover:border-[#6a6a85] hover:text-[#F5F5F0]";
+  const idle = "border-[#1e1e2a] text-[#888899]";
+  const neutralActive = "border-[#46465e] bg-white/[0.06] text-[#F5F5F0]";
+  const toneClasses = {
+    confirm: active
+      ? "border-[#3fb950]/45 bg-[#3fb950]/12 text-[#7ee787]"
+      : `${idle} hover:border-[#3fb950]/45 hover:text-[#7ee787]`,
+    dismiss: active ? neutralActive : `${idle} hover:border-[#6a6a85] hover:text-[#F5F5F0]`,
+    save: active ? neutralActive : `${idle} hover:border-[#6a6a85] hover:text-[#F5F5F0]`,
+    // Session-only, low-commitment: a cool, muted hover that doesn't compete
+    // with the account-signal actions.
+    skip: `${idle} hover:border-[#3a4a6a] hover:text-[#9db4d0]`,
+  }[tone];
 
   return (
     <button
