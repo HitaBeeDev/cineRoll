@@ -41,7 +41,7 @@ export default async function WatchlistPage() {
   const total = savedCount ?? watchlist.length;
 
   return (
-    <main className="min-h-screen bg-[#07070b] text-[#f4f4f5]">
+    <main className="flex flex-1 flex-col bg-[#07070b] text-[#f4f4f5]">
       <AppHeader />
       <div className="mx-auto max-w-5xl px-6 py-16 lg:px-10">
         <h1 className="font-[family-name:var(--font-display)] text-3xl font-bold text-[#F5F5F0]">

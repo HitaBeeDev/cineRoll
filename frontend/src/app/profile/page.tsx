@@ -138,7 +138,7 @@ export default async function ProfilePage() {
     summary.watchlist === 0 && summary.watched === 0 && summary.hidden === 0;
 
   return (
-    <main className="min-h-screen bg-[#07070b] text-[#f4f4f5]">
+    <main className="flex flex-1 flex-col bg-[#07070b] text-[#f4f4f5]">
       <AppHeader />
       <div className="mx-auto max-w-5xl px-6 py-16 lg:px-10">
         <div className="flex items-center gap-5">
