@@ -96,9 +96,13 @@ async function HistoryBody({
 
   return (
     <>
-      <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.2em] text-[#888899]">
-        {total} {total === 1 ? "film" : "films"} watched
-      </p>
+      {/* The empty state already says "nothing watched yet", so the count only
+          appears once there's actually something to count. */}
+      {total > 0 && (
+        <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.2em] text-[#888899]">
+          {total} {total === 1 ? "film" : "films"} watched
+        </p>
+      )}
 
       <div className="mt-10">
         {result.entries.length === 0 ? (
