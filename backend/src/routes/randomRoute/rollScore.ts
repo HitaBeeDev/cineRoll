@@ -95,8 +95,8 @@ function laneAffinity(b: ScoreBreakdown, lane: RollLane): number {
   }
 }
 
-// Combined IMDb + RT in [0, 1]. Averages when both exist, else uses whichever is
-// present — the eligibility gate guarantees at least one, so the 0 is unreachable.
+// Combined IMDb + RT in [0, 1]. The eligibility gate now requires BOTH, so the
+// average branch always runs; the fallbacks are defensive only.
 function normalizedRating(film: RandomFilmRow): number {
   const imdb = film.imdbRating != null ? film.imdbRating / 10 : null;
   const rt = film.rtScore != null ? film.rtScore / 100 : null;

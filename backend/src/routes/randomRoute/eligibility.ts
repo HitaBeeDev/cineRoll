@@ -10,10 +10,11 @@ import { Prisma } from "@prisma/client";
 // gate — the meaningful checks are rating, poster, and a non-empty genre list.
 export function eligibilityConditions(): Prisma.Sql[] {
   return [
-    // Must carry external validation — at least one of IMDb / RT. "At least one"
-    // (not both) on purpose: shorts, documentaries and older films often lack RT,
-    // and requiring both would gut those pools.
-    Prisma.sql`("Film"."imdbRating" IS NOT NULL OR "Film"."rtScore" IS NOT NULL)`,
+    // Must carry BOTH external ratings. A film with only one score (IMDb or RT,
+    // but not the other) is not rollable — a single rating reads as incomplete,
+    // so "tonight's film" always has two independent signals behind it.
+    Prisma.sql`"Film"."imdbRating" IS NOT NULL`,
+    Prisma.sql`"Film"."rtScore" IS NOT NULL`,
     // Enough metadata to render a real result card.
     Prisma.sql`"Film"."posterUrl" IS NOT NULL AND "Film"."posterUrl" <> ''`,
     // array_length returns NULL for an empty array, so `>= 1` excludes both.
