@@ -60,7 +60,7 @@ export default async function HistoryPage() {
   return (
     <main className="flex flex-1 flex-col bg-[#07070b] text-[#f4f4f5]">
       <AppHeader />
-      <div className="mx-auto max-w-5xl px-6 py-16 lg:px-10">
+      <div className="mx-auto max-w-5xl px-6 py-12 lg:px-10">
         <Link
           href="/profile"
           className="inline-flex items-center gap-1.5 rounded font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em] text-[#9a9aac] underline-offset-4 transition-colors hover:text-[#e8453c] hover:underline focus-visible:text-[#e8453c] focus-visible:underline focus-visible:outline-none"
@@ -110,25 +110,25 @@ async function HistoryBody({
         </p>
       )}
 
-      <div className="mt-10">
+      <div className="mt-8">
         {result.entries.length === 0 ? (
-          <div className="flex flex-col items-center gap-6 rounded-xl border border-dashed border-[#1e1e2a] bg-[#0d0d1a] px-6 py-14 text-center">
+          <div className="flex flex-col items-center gap-5 rounded-xl border border-dashed border-[#1e1e2a] bg-[#0d0d1a] px-6 py-10 text-center">
             {/* Ghost posters: a visual cue that watched films land in this grid,
                 with the "mark watched" (check) affordance called out on the
                 center slot so the empty state reads as intentional, not hollow. */}
-            <div className="flex items-end gap-3" aria-hidden>
-              <div className="aspect-[2/3] w-14 rounded-md border border-dashed border-[#2a2a3c] bg-[#0b0b14]" />
-              <div className="flex aspect-[2/3] w-[68px] items-center justify-center rounded-md border border-dashed border-[#3a3a50] bg-[#0b0b14]">
-                <Check className="h-6 w-6 text-[#7a7a8c]" />
+            <div className="flex items-end gap-2.5" aria-hidden>
+              <div className="aspect-[2/3] w-12 rounded-md border border-dashed border-[#2a2a3c] bg-[#0b0b14]" />
+              <div className="flex aspect-[2/3] w-14 items-center justify-center rounded-md border border-dashed border-[#3a3a50] bg-[#0b0b14]">
+                <Check className="h-5 w-5 text-[#7a7a8c]" />
               </div>
-              <div className="aspect-[2/3] w-14 rounded-md border border-dashed border-[#2a2a3c] bg-[#0b0b14]" />
+              <div className="aspect-[2/3] w-12 rounded-md border border-dashed border-[#2a2a3c] bg-[#0b0b14]" />
             </div>
 
             <div className="space-y-1.5">
               <h2 className="font-[family-name:var(--font-display)] text-xl font-bold text-[#F5F5F0]">
                 Nothing watched yet
               </h2>
-              <p className="mx-auto max-w-sm font-[family-name:var(--font-geist-mono)] text-[13px] leading-relaxed text-[#9a9aac]">
+              <p className="mx-auto max-w-md font-[family-name:var(--font-geist-mono)] text-[13px] leading-relaxed text-[#9a9aac]">
                 Mark films watched from a roll or film page — with a rating — and
                 they’ll build your history here.
               </p>
