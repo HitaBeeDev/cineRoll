@@ -2,11 +2,7 @@ import { Prisma } from "@prisma/client";
 
 import { RandomQuery } from "../../lib/filmFilters/randomQuerySchema";
 import { prisma } from "../../lib/prisma";
-import {
-  DIVERSITY_SAMPLE_SIZE,
-  EXPLORATION_EPSILON,
-  ROLL_SCORE_TEMPERATURE,
-} from "./constants";
+import { DIVERSITY_SAMPLE_SIZE } from "./constants";
 import {
   RECENT_ROLL_WINDOW,
   RecentRoll,
@@ -16,15 +12,15 @@ import {
   pinnedDimensions,
 } from "./diversity";
 import { getRandomFilm, getRandomFilms } from "./randomRepository";
-import { ScoreContext, scoreCandidate } from "./rollScore";
+import { ScoreContext, laneWeight, pickLane, scoreBreakdown } from "./rollScore";
 import { RandomFilmResult, RandomFilmRow } from "./types";
-import { uniformSample, weightedSample } from "./weightedSample";
+import { weightedSample } from "./weightedSample";
 
 // The non-personalized ("base") roll — §7 weighted scoring instead of a pure
-// uniform pick. We draw a random candidate sample, score each (quality, novelty,
-// hidden-gem, §6 diversity cooldown, reroll learning), and do a weighted random
-// pick so better titles win more often but the result is never fully
-// predictable. An ε-greedy explore draw keeps in the occasional wildcard.
+// uniform pick. We draw a random candidate sample, then pick one via the 70/20/10
+// lane blend: mostly Safe (trusted quality), a steady share of Hidden Gems
+// (underrated), and the occasional Wild Card. Better titles win more often, the
+// result stays unpredictable, and the roll never fixates on obvious classics.
 //
 // The only path that stays a plain pick is a deterministic seed roll (daily
 // picks), which must resolve the same film for everyone on a given day.
@@ -43,19 +39,15 @@ export async function getSessionRoll(query: RandomQuery): Promise<RandomFilmResu
     pinned: pinnedDimensions(query),
   };
 
-  return { film: pickByScore(films, ctx), total };
+  return { film: pickByLane(films, ctx), total };
 }
 
-// Score → weight → weighted random pick, with an ε-greedy explore branch. The
-// softmax turns raw scores into probabilities; `weightedSample`'s own guard
-// falls back to uniform if every weight collapses to ~0, so a heavily-penalized
-// pool self-heals rather than dead-ending (§10).
-function pickByScore(films: RandomFilmRow[], ctx: ScoreContext): RandomFilmRow {
-  if (Math.random() < EXPLORATION_EPSILON) return uniformSample(films);
-
-  const scores = films.map(film => scoreCandidate(film, ctx));
-  const maxScore = Math.max(...scores);
-  const weights = scores.map(score => Math.exp((score - maxScore) / ROLL_SCORE_TEMPERATURE));
+// Draw a lane, weight the pool by what that lane rewards, and sample one.
+// `weightedSample`'s own guard falls back to uniform if every weight collapses
+// to ~0, so a heavily-penalized/thin pool self-heals rather than dead-ending (§10).
+function pickByLane(films: RandomFilmRow[], ctx: ScoreContext): RandomFilmRow {
+  const lane = pickLane();
+  const weights = films.map(film => laneWeight(scoreBreakdown(film, ctx), lane));
 
   return weightedSample(films, weights);
 }
