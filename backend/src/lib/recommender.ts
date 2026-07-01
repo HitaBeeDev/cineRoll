@@ -41,7 +41,7 @@ export async function recommend(
     limit,
     new Date().getFullYear(),
     params,
-  ).map(scored => toRecommendation(scored, taste, likedByGenre));
+  ).map((scored, index) => toRecommendation(scored, taste, likedByGenre, coldStart, index));
 
   return { modelVersion: MODEL_VERSION, coldStart, variant, recommendations };
 }
