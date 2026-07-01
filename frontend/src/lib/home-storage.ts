@@ -10,6 +10,17 @@ export const TASTE_SEED_STORAGE_KEY = "cineroll_taste_seed";
 export const ROLL_HISTORY_STORAGE_KEY = "roll_history";
 export const MAX_ROLL_HISTORY_ITEMS = 10;
 
+// Shuffle-bag anti-repeat: film ids served this session. The roll excludes these
+// so it doesn't repeat a title until the reachable pool is exhausted, then the
+// bag resets. Kept in sessionStorage so a fresh tab/session starts clean.
+export const ROLL_SEEN_STORAGE_KEY = "cineroll_roll_seen";
+// Cap the bag: it rides in the request query string, so an unbounded list over a
+// multi-thousand-film pool would blow past URL limits. For narrow filter sets
+// (pool < cap) this still covers the whole pool — true shuffle-bag behavior with
+// a reset; for the broad pool it degrades to a sliding "don't repeat recently"
+// window, which captures nearly all of the perceived benefit.
+export const MAX_ROLL_SEEN_IDS = 100;
+
 export type PendingWatchedFilm = {
   filmId: string;
   watchedAt: string;
@@ -103,6 +114,40 @@ export function saveTasteSeed(seed: TasteSeed | null) {
     window.localStorage.setItem(TASTE_SEED_STORAGE_KEY, JSON.stringify(seed));
   } catch {
     // If storage is unavailable, onboarding should still be completable.
+  }
+}
+
+/** Film ids already served this session (most-recent last), for anti-repeat. */
+export function getRolledBag(): string[] {
+  try {
+    const raw = window.sessionStorage.getItem(ROLL_SEEN_STORAGE_KEY);
+    const parsed = raw ? (JSON.parse(raw) as unknown) : [];
+    return Array.isArray(parsed)
+      ? parsed.filter((id): id is string => typeof id === "string")
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+/** Record a served film, keeping the bag de-duped and capped to the most recent. */
+export function addToRolledBag(filmId: string): void {
+  try {
+    const bag = getRolledBag().filter((id) => id !== filmId);
+    bag.push(filmId);
+    const capped = bag.slice(-MAX_ROLL_SEEN_IDS);
+    window.sessionStorage.setItem(ROLL_SEEN_STORAGE_KEY, JSON.stringify(capped));
+  } catch {
+    // Anti-repeat is a nicety; rolling must keep working if storage is blocked.
+  }
+}
+
+/** Empty the bag — used when the session has exhausted the reachable pool. */
+export function resetRolledBag(): void {
+  try {
+    window.sessionStorage.removeItem(ROLL_SEEN_STORAGE_KEY);
+  } catch {
+    // non-critical
   }
 }
 

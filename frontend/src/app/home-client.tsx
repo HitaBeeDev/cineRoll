@@ -21,7 +21,13 @@ import {
 import { trackEvent } from "@/lib/analytics";
 import { useFilters } from "@/hooks/useFilters";
 import { cn } from "@/lib/utils";
-import { pushRollHistory, TASTE_SEED_STORAGE_KEY } from "@/lib/home-storage";
+import {
+  addToRolledBag,
+  getRolledBag,
+  pushRollHistory,
+  resetRolledBag,
+  TASTE_SEED_STORAGE_KEY,
+} from "@/lib/home-storage";
 import { FilmCard } from "@/components/home/film-card";
 import { RollHistoryDrawer } from "@/components/home/roll-history-drawer";
 import { FirstVisitOnboarding } from "@/components/home/first-visit-onboarding";
@@ -250,11 +256,31 @@ export function HomeClient({
       window.setTimeout(() => setIsSearching(false), 150);
     }
     try {
-      // Signed-in users: the backend filters out films they marked "Not Interested".
-      // With the taste toggle on, it returns a taste-weighted (ε-greedy) pick.
-      // Guests can't hide films (Not Interested is gated behind sign-in), so there
-      // are never session-hidden IDs to exclude.
-      const result = await fetchRandom(filters, userId, isPersonalized, undefined);
+      // Anti-repeat shuffle-bag: exclude films already served this session so the
+      // roll doesn't repeat until the reachable pool is exhausted. (Signed-in
+      // users additionally get server-side "Not Interested" exclusion + taste
+      // weighting when the toggle is on.)
+      const seen = getRolledBag();
+      let result;
+      try {
+        result = await fetchRandom(filters, userId, isPersonalized, seen);
+      } catch (err) {
+        // Exhausted the reachable pool this session → the backend returns
+        // NO_FILMS_FOUND. Reset the bag and roll once more so we never dead-end
+        // just because the session has seen everything. A genuinely empty filter
+        // set still throws on the retry and falls through to the outer handler.
+        const code =
+          err instanceof Error
+            ? (err as Error & { code?: string }).code
+            : undefined;
+        if (code === "NO_FILMS_FOUND" && seen.length > 0) {
+          resetRolledBag();
+          result = await fetchRandom(filters, userId, isPersonalized, []);
+        } else {
+          throw err;
+        }
+      }
+      addToRolledBag(result.film.id);
       setFilm(result.film);
       setFilteredCount(result.total);
       pushRollHistory(result.film);

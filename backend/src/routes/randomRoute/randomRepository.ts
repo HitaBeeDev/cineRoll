@@ -4,9 +4,24 @@ import { buildWhereClause } from "../../lib/filmFilters/whereClause";
 import { RandomQuery } from "../../lib/filmFilters/randomQuerySchema";
 import { prisma } from "../../lib/prisma";
 import { countFilms } from "./countRepository";
+import { eligibilityConditions } from "./eligibility";
 import { buildExclusionConditions } from "./exclusions";
 import { randomSelect } from "./selects";
 import { RandomFilmRow, RandomFilmResult } from "./types";
+
+// Every roll path shares the same WHERE add-ons: the constant eligibility gate
+// plus any user-specific exclusions. `cacheable` tracks only the user-specific
+// part — the pool count stays cacheable per filter set even though the (constant)
+// eligibility gate is always applied.
+async function rollConditions(
+  query: RandomQuery,
+): Promise<{ conditions: Prisma.Sql[]; cacheable: boolean }> {
+  const exclusions = await buildExclusionConditions(query);
+  return {
+    conditions: [...eligibilityConditions(), ...exclusions],
+    cacheable: exclusions.length === 0,
+  };
+}
 
 export async function getRandomFilm(query: RandomQuery): Promise<RandomFilmResult> {
   const { films, total } = await getRandomFilms(query, 1);
@@ -18,8 +33,8 @@ export async function getRandomFilms(
   query: RandomQuery,
   count: number,
 ): Promise<{ films: RandomFilmRow[]; total: number }> {
-  const additionalConditions = await buildExclusionConditions(query);
-  const whereSql = buildWhereClause(query, additionalConditions);
+  const { conditions, cacheable } = await rollConditions(query);
+  const whereSql = buildWhereClause(query, conditions);
   // A seed makes ordering deterministic: hashing seed+id gives a stable but
   // well-shuffled order, so the same seed always surfaces the same film(s)
   // from an unchanged pool. Without a seed we keep true per-request randomness.
@@ -30,7 +45,7 @@ export async function getRandomFilms(
     prisma.$queryRaw<RandomFilmRow[]>(
       Prisma.sql`SELECT ${randomSelect} FROM "Film" ${whereSql} ${orderBy} LIMIT ${count}`,
     ),
-    countFilms(query, whereSql, additionalConditions.length === 0),
+    countFilms(query, whereSql, cacheable),
   ]);
 
   return { films, total };
@@ -45,8 +60,8 @@ export async function getQualityCandidates(
   topN: number,
   sampleN: number,
 ): Promise<RandomFilmRow[]> {
-  const additionalConditions = await buildExclusionConditions(query);
-  const whereSql = buildWhereClause(query, additionalConditions);
+  const { conditions } = await rollConditions(query);
+  const whereSql = buildWhereClause(query, conditions);
 
   return prisma.$queryRaw<RandomFilmRow[]>(
     Prisma.sql`
@@ -65,15 +80,15 @@ export async function getQualityCandidates(
 }
 
 export async function getRandomCount(query: RandomQuery): Promise<number> {
-  const additionalConditions = await buildExclusionConditions(query);
-  const whereSql = buildWhereClause(query, additionalConditions);
+  const { conditions, cacheable } = await rollConditions(query);
+  const whereSql = buildWhereClause(query, conditions);
 
-  return countFilms(query, whereSql, additionalConditions.length === 0);
+  return countFilms(query, whereSql, cacheable);
 }
 
 export async function getPersonalizedPool(query: RandomQuery, limit: number) {
-  const additionalConditions = await buildExclusionConditions(query);
-  const whereSql = buildWhereClause(query, additionalConditions);
+  const { conditions, cacheable } = await rollConditions(query);
+  const whereSql = buildWhereClause(query, conditions);
   const [pool, total] = await Promise.all([
     prisma.$queryRaw<RandomFilmRow[]>(
       Prisma.sql`
@@ -84,7 +99,7 @@ export async function getPersonalizedPool(query: RandomQuery, limit: number) {
         LIMIT ${limit}
       `,
     ),
-    countFilms(query, whereSql, additionalConditions.length === 0),
+    countFilms(query, whereSql, cacheable),
   ]);
 
   return { pool, total };
