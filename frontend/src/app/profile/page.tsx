@@ -9,16 +9,32 @@ import {
   type Recommendation,
 } from "@/components/recommendations-section";
 
-type ProfileSummary = { watchlist: number; watched: number; hidden: number };
+type ProfileSummary = {
+  watchlist: number;
+  watched: number;
+  hidden: number;
+  rated: number;
+  favoriteGenres: string[];
+};
+
+const EMPTY_SUMMARY: ProfileSummary = {
+  watchlist: 0,
+  watched: 0,
+  hidden: 0,
+  rated: 0,
+  favoriteGenres: [],
+};
 
 async function fetchSummary(): Promise<ProfileSummary> {
   const res = await apiFetch("/api/user/summary");
-  if (!res.ok) return { watchlist: 0, watched: 0, hidden: 0 };
+  if (!res.ok) return EMPTY_SUMMARY;
   const data = (await res.json().catch(() => ({}))) as Partial<ProfileSummary>;
   return {
     watchlist: data.watchlist ?? 0,
     watched: data.watched ?? 0,
     hidden: data.hidden ?? 0,
+    rated: data.rated ?? 0,
+    favoriteGenres: data.favoriteGenres ?? [],
   };
 }
 
@@ -59,36 +75,46 @@ type SectionDef = {
   href: string;
   title: string;
   blurb: string;
-  // Name of the summary metric this card counts, or null for a card (Settings)
-  // that has no meaningful count.
-  metric: keyof ProfileSummary | null;
-  // Noun shown after the count, e.g. "3 films saved".
-  countNoun: string;
+  // The specific action this card performs — kept distinct per card so no two
+  // read the same, and always naming the destination.
+  action: string;
 };
 
 const SECTIONS: readonly SectionDef[] = [
   {
     href: "watchlist",
-    title: "View Watchlist",
+    title: "Watchlist",
     blurb: "Films you’ve saved to watch later.",
-    metric: "watchlist",
-    countNoun: "saved",
+    action: "Open watchlist",
   },
   {
     href: "history",
-    title: "Watched History",
+    title: "Watch History",
     blurb: "Everything you’ve marked watched, with your ratings.",
-    metric: "watched",
-    countNoun: "watched",
+    action: "View history",
   },
   {
     href: "settings",
     title: "Settings",
     blurb: "Your account and preferences.",
-    metric: null,
-    countNoun: "",
+    action: "Edit preferences",
   },
 ] as const;
+
+function Stat({ label, value }: { label: string; value: number }) {
+  return (
+    <div>
+      <div className="flex h-8 items-end">
+        <span className="font-[family-name:var(--font-display)] text-2xl font-bold leading-none text-[#F5F5F0]">
+          {value}
+        </span>
+      </div>
+      <p className="mt-1.5 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.18em] text-[#9a9aac]">
+        {label}
+      </p>
+    </div>
+  );
+}
 
 export default async function ProfilePage() {
   const session = await auth();
@@ -107,7 +133,9 @@ export default async function ProfilePage() {
       <AppHeader />
       <div className="mx-auto max-w-5xl px-6 py-16 lg:px-10">
         <div className="flex items-center gap-5">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#e8453c] font-[family-name:var(--font-geist-mono)] text-xl font-bold text-[#F5F5F0]">
+          {/* Calm avatar: a dark disc with a thin red accent ring, so red stays
+              reserved for primary actions rather than a large filled circle. */}
+          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-[#e8453c]/35 bg-[#12121c] font-[family-name:var(--font-geist-mono)] text-base font-bold tracking-wide text-[#e9e9ee]">
             {initialsFrom(name, email)}
           </div>
           <div className="min-w-0">
@@ -115,10 +143,35 @@ export default async function ProfilePage() {
               {name ?? "Your Profile"}
             </h1>
             {email && (
-              <p className="mt-1 truncate font-[family-name:var(--font-geist-mono)] text-[12px] normal-case tracking-[0.06em] text-[#888899]">
+              <p className="mt-1 truncate font-[family-name:var(--font-geist-mono)] text-[12px] normal-case tracking-[0.06em] text-[#9a9aac]">
                 {email}
               </p>
             )}
+          </div>
+        </div>
+
+        {/* Compact stats row: gives the page a real dashboard footing and stays
+            useful for new users, where favorite genres reads "not enough data
+            yet" until real signals exist. */}
+        <div className="mt-8 grid grid-cols-2 gap-x-6 gap-y-5 border-t border-[#1e1e2a] pt-7 sm:flex sm:flex-wrap sm:items-start sm:gap-x-12">
+          <Stat label="Films rated" value={summary.rated} />
+          <Stat label="Watchlist" value={summary.watchlist} />
+          <Stat label="Watched" value={summary.watched} />
+          <div className="col-span-2 min-w-0 sm:col-auto">
+            <div className="flex h-8 items-end">
+              {summary.favoriteGenres.length > 0 ? (
+                <span className="truncate font-[family-name:var(--font-display)] text-lg font-bold leading-none text-[#F5F5F0]">
+                  {summary.favoriteGenres.join(" · ")}
+                </span>
+              ) : (
+                <span className="font-[family-name:var(--font-geist-mono)] text-[12px] leading-none text-[#7a7a8c]">
+                  Not enough data yet
+                </span>
+              )}
+            </div>
+            <p className="mt-1.5 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.18em] text-[#9a9aac]">
+              Favorite genres
+            </p>
           </div>
         </div>
 
@@ -128,9 +181,9 @@ export default async function ProfilePage() {
               <h2 className="font-[family-name:var(--font-display)] text-xl font-bold text-[#F5F5F0]">
                 Roll your first film
               </h2>
-              <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-[12px] leading-relaxed text-[#888899]">
-                CineRoll spins award-winning films at you. Rate the ones you know
-                and skip the rest — every roll sharpens what comes next.
+              <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-[12px] leading-relaxed text-[#9a9aac]">
+                Your reel pool is ready — start with award-winning films from your
+                selected genres. Rate a few and every roll sharpens what comes next.
               </p>
             </div>
             <Link
@@ -143,46 +196,29 @@ export default async function ProfilePage() {
         )}
 
         <div className="mt-12 grid gap-4 sm:grid-cols-3">
-          {SECTIONS.map((section) => {
-            const count = section.metric ? summary[section.metric] : null;
-            // A data section with nothing in it is a dead end, so route the card
-            // to the roll instead and invite the user to fill it.
-            const isEmptyData = count === 0;
-            const href = isEmptyData ? `/` : `/profile/${section.href}`;
-
-            return (
-              <Link
-                key={section.href}
-                href={href}
-                className="group flex flex-col rounded-xl border border-[#1e1e2a] bg-[#0d0d1a] px-6 py-7 transition-colors hover:border-[#e8453c]/60 hover:bg-[#111120] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
-              >
-                <h2 className="font-[family-name:var(--font-display)] text-lg font-bold text-[#F5F5F0]">
-                  {section.title}
-                </h2>
-                <p className="mt-2 flex-1 font-[family-name:var(--font-geist-mono)] text-[11px] leading-relaxed text-[#888899]">
-                  {section.blurb}
-                </p>
-                <div className="mt-5 flex items-center justify-between font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.15em]">
-                  {isEmptyData ? (
-                    <span className="font-bold text-[#e8453c]">Start rolling</span>
-                  ) : count != null ? (
-                    <span className="text-[#888899]">
-                      <span className="font-bold text-[#F5F5F0]">{count}</span>{" "}
-                      film{count === 1 ? "" : "s"} {section.countNoun}
-                    </span>
-                  ) : (
-                    <span className="text-[#888899]">Open</span>
-                  )}
-                  <span
-                    aria-hidden
-                    className="text-[#7a7a8c] transition-all duration-200 group-hover:translate-x-0.5 group-hover:text-[#e8453c]"
-                  >
-                    {isEmptyData ? "→" : "↗"}
-                  </span>
-                </div>
-              </Link>
-            );
-          })}
+          {SECTIONS.map((section) => (
+            <Link
+              key={section.href}
+              href={`/profile/${section.href}`}
+              className="group flex flex-col rounded-xl border border-[#1e1e2a] bg-[#0d0d1a] px-6 py-7 transition-colors hover:border-[#e8453c]/60 hover:bg-[#111120] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
+            >
+              <h2 className="font-[family-name:var(--font-display)] text-lg font-bold text-[#F5F5F0]">
+                {section.title}
+              </h2>
+              <p className="mt-2 flex-1 font-[family-name:var(--font-geist-mono)] text-[11px] leading-relaxed text-[#9a9aac]">
+                {section.blurb}
+              </p>
+              <div className="mt-5 flex items-center justify-between font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.15em] text-[#b9b9c6] transition-colors group-hover:text-[#e8453c]">
+                <span>{section.action}</span>
+                <span
+                  aria-hidden
+                  className="transition-transform duration-200 group-hover:translate-x-0.5"
+                >
+                  →
+                </span>
+              </div>
+            </Link>
+          ))}
         </div>
 
         {recs.recommendations.length > 0 ? (

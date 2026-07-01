@@ -52,9 +52,9 @@ export function RecommendationsSection({
       <h2 className="font-[family-name:var(--font-display)] text-2xl font-bold text-[#F5F5F0]">
         Recommended for you
       </h2>
-      <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.2em] text-[#888899]">
+      <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.2em] text-[#9a9aac]">
         {coldStart
-          ? "Based on your starting genres — roll and rate to sharpen these"
+          ? "Early recommendations — rate more films to improve your picks"
           : "Picked from your taste · not the global Pick of the Day"}
       </p>
 
