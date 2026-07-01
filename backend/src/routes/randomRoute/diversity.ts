@@ -111,10 +111,6 @@ export type RerollPenalty = {
 
 const REROLL_PENALTY_STRENGTH = 0.35;
 
-export function hasRerollPenalty(penalty: RerollPenalty): boolean {
-  return Object.keys(penalty.genre).length > 0 || Object.keys(penalty.contentType).length > 0;
-}
-
 export function rerollMultiplier(
   film: RandomFilmRow,
   penalty: RerollPenalty,
