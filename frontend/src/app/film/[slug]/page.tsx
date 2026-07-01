@@ -725,21 +725,24 @@ export default async function FilmPage({
             </section>
           )}
 
-          {/* ── RATINGS + COMMENTS — one row, two columns ─────────────── */}
-          <div className="grid items-start gap-x-12 gap-y-16 lg:grid-cols-2">
-            <section id="rate" className="scroll-mt-24">
-              <SectionLabel>Ratings</SectionLabel>
-              <div className="mt-8">
+          {/* ── RATINGS ──────────────────────────────────────────────── */}
+          <section id="rate" className="scroll-mt-24">
+            <SectionLabel>Ratings</SectionLabel>
+            <div className="mt-8 flex flex-col items-center text-center">
+              <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.22em] text-[#7c7ca0]">
+                Rate this film out of 10
+              </p>
+              <div className="mt-6">
                 <FilmRatingPanel
                   filmId={film.id}
                   filmTitle={displayTitle(film.title)}
                 />
               </div>
-            </section>
+            </div>
+          </section>
 
-            {/* Comments hidden for now — feature disabled by request. */}
-            {/* <FilmCommentsSection slug={film.slug} /> */}
-          </div>
+          {/* Comments hidden for now — feature disabled by request. */}
+          {/* <FilmCommentsSection slug={film.slug} /> */}
 
           {/* ── TRAILER ──────────────────────────────────────────────── */}
           {film.trailerUrl ? (
