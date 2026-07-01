@@ -15,15 +15,15 @@ export async function getUserSummary(userId: string) {
     getTasteProfile(userId),
   ]);
 
-  // Only report favorite genres once real signals exist — before that the
-  // taste vector is just onboarding seeds, so the profile shows "not enough
-  // data yet" instead of implying we've learned the user's taste.
-  const favoriteGenres =
-    taste.positiveCount >= TASTE_PROFILE_CONFIG.coldStartThreshold
-      ? topGenres(taste.genreWeights, FAVORITE_GENRE_COUNT)
-      : [];
+  // Always surface the strongest genres we know — onboarding seeds the taste
+  // vector, so even a brand-new user has selected genres to show. The flag lets
+  // the UI label them honestly ("favorite" once ratings exist, "selected"
+  // before that) instead of a dead-end "not enough data" message.
+  const favoriteGenres = topGenres(taste.genreWeights, FAVORITE_GENRE_COUNT);
+  const genresFromRatings =
+    taste.positiveCount >= TASTE_PROFILE_CONFIG.coldStartThreshold;
 
-  return { watchlist, watched, hidden, rated, favoriteGenres };
+  return { watchlist, watched, hidden, rated, favoriteGenres, genresFromRatings };
 }
 
 function topGenres(weights: Vector, limit: number): string[] {

@@ -15,6 +15,7 @@ type ProfileSummary = {
   hidden: number;
   rated: number;
   favoriteGenres: string[];
+  genresFromRatings: boolean;
 };
 
 const EMPTY_SUMMARY: ProfileSummary = {
@@ -23,6 +24,7 @@ const EMPTY_SUMMARY: ProfileSummary = {
   hidden: 0,
   rated: 0,
   favoriteGenres: [],
+  genresFromRatings: false,
 };
 
 async function fetchSummary(): Promise<ProfileSummary> {
@@ -35,6 +37,7 @@ async function fetchSummary(): Promise<ProfileSummary> {
     hidden: data.hidden ?? 0,
     rated: data.rated ?? 0,
     favoriteGenres: data.favoriteGenres ?? [],
+    genresFromRatings: data.genresFromRatings ?? false,
   };
 }
 
@@ -150,29 +153,33 @@ export default async function ProfilePage() {
           </div>
         </div>
 
-        {/* Compact stats row: gives the page a real dashboard footing and stays
-            useful for new users, where favorite genres reads "not enough data
-            yet" until real signals exist. */}
-        <div className="mt-8 grid grid-cols-2 gap-x-6 gap-y-5 border-t border-[#1e1e2a] pt-7 sm:flex sm:flex-wrap sm:items-start sm:gap-x-12">
-          <Stat label="Films rated" value={summary.rated} />
-          <Stat label="Watchlist" value={summary.watchlist} />
-          <Stat label="Watched" value={summary.watched} />
-          <div className="col-span-2 min-w-0 sm:col-auto">
-            <div className="flex h-8 items-end">
-              {summary.favoriteGenres.length > 0 ? (
-                <span className="truncate font-[family-name:var(--font-display)] text-lg font-bold leading-none text-[#F5F5F0]">
-                  {summary.favoriteGenres.join(" · ")}
-                </span>
-              ) : (
-                <span className="font-[family-name:var(--font-geist-mono)] text-[12px] leading-none text-[#7a7a8c]">
-                  Not enough data yet
-                </span>
-              )}
-            </div>
-            <p className="mt-1.5 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.18em] text-[#9a9aac]">
-              Favorite genres
-            </p>
+        {/* Dashboard footing: the three activity counts read as one consistent
+            quantitative row. Genres are a preference, not a count, so they live
+            below as tags — never dressed up as a stat next to the zeros. */}
+        <div className="mt-8 border-t border-[#1e1e2a] pt-7">
+          <div className="flex flex-wrap gap-x-12 gap-y-5">
+            <Stat label="Films rated" value={summary.rated} />
+            <Stat label="Watchlist" value={summary.watchlist} />
+            <Stat label="Watched" value={summary.watched} />
           </div>
+
+          {summary.favoriteGenres.length > 0 && (
+            <div className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-2">
+              <span className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.18em] text-[#9a9aac]">
+                {summary.genresFromRatings ? "Favorite genres" : "Selected genres"}
+              </span>
+              <span className="flex flex-wrap gap-2">
+                {summary.favoriteGenres.map((genre) => (
+                  <span
+                    key={genre}
+                    className="rounded-full border border-[#26263a] bg-[#0d0d1a] px-3 py-1 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.12em] text-[#b9b9c6]"
+                  >
+                    {genre}
+                  </span>
+                ))}
+              </span>
+            </div>
+          )}
         </div>
 
         {isNewUser && (
