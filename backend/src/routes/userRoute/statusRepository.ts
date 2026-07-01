@@ -7,23 +7,46 @@ import { Vector } from "../../lib/tasteProfile/types";
 const FAVORITE_GENRE_COUNT = 3;
 
 export async function getUserSummary(userId: string) {
-  const [watchlist, watched, hidden, rated, taste] = await Promise.all([
+  const [watchlist, watched, hidden, rated] = await Promise.all([
     prisma.watchlist.count({ where: { userId } }),
     prisma.watchedFilm.count({ where: { userId, doNotSuggest: false } }),
     prisma.watchedFilm.count({ where: { userId, doNotSuggest: true } }),
     prisma.userRating.count({ where: { userId } }),
-    getTasteProfile(userId),
   ]);
 
-  // Always surface the strongest genres we know — onboarding seeds the taste
-  // vector, so even a brand-new user has selected genres to show. The flag lets
-  // the UI label them honestly ("favorite" once ratings exist, "selected"
-  // before that) instead of a dead-end "not enough data" message.
-  const favoriteGenres = topGenres(taste.genreWeights, FAVORITE_GENRE_COUNT);
+  const { favoriteGenres, genresFromRatings } = await deriveFavoriteGenres(
+    userId,
+    rated + watched,
+  );
+
+  return { watchlist, watched, hidden, rated, favoriteGenres, genresFromRatings };
+}
+
+/**
+ * Favorite genres only appear once real rating behavior exists, so skip the
+ * taste-profile build entirely below that bar. `rated + watched` is an upper
+ * bound on positive signals: if it can't reach the cold-start threshold, the
+ * genres would be hidden anyway — and this endpoint (hit by profile, watchlist,
+ * and history) stays a handful of cheap counts for new users.
+ */
+async function deriveFavoriteGenres(
+  userId: string,
+  positiveSignalCeiling: number,
+): Promise<{ favoriteGenres: string[]; genresFromRatings: boolean }> {
+  if (positiveSignalCeiling < TASTE_PROFILE_CONFIG.coldStartThreshold) {
+    return { favoriteGenres: [], genresFromRatings: false };
+  }
+
+  const taste = await getTasteProfile(userId);
   const genresFromRatings =
     taste.positiveCount >= TASTE_PROFILE_CONFIG.coldStartThreshold;
 
-  return { watchlist, watched, hidden, rated, favoriteGenres, genresFromRatings };
+  return {
+    favoriteGenres: genresFromRatings
+      ? topGenres(taste.genreWeights, FAVORITE_GENRE_COUNT)
+      : [],
+    genresFromRatings,
+  };
 }
 
 function topGenres(weights: Vector, limit: number): string[] {
