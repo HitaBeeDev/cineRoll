@@ -175,7 +175,7 @@ export default async function ProfilePage() {
                   )}
                   <span
                     aria-hidden
-                    className="text-[#666677] transition-all duration-200 group-hover:translate-x-0.5 group-hover:text-[#e8453c]"
+                    className="text-[#7a7a8c] transition-all duration-200 group-hover:translate-x-0.5 group-hover:text-[#e8453c]"
                   >
                     {isEmptyData ? "→" : "↗"}
                   </span>
