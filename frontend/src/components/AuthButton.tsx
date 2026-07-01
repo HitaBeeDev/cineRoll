@@ -62,32 +62,17 @@ export function AuthButton({
         aria-label="Account menu"
         aria-expanded={menuOpen}
         className={cn(
-          "group flex items-center gap-1.5",
-          "rounded-full transition-opacity duration-150 hover:opacity-90",
+          "flex h-9 w-9 items-center justify-center rounded-full",
+          "border border-[#2a2a38] bg-[#14141f]",
+          "transition-colors duration-150 hover:border-[#3a3a4a] hover:bg-[#1a1a26]",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0a14]",
+          menuOpen && "border-[#3a3a4a] bg-[#1a1a26]",
           focusRingClassName,
         )}
       >
-        <span className="flex h-9 w-9 items-center justify-center rounded-full border border-[#2a2a38] bg-[#14141f] transition-colors duration-150 group-hover:border-[#3a3a4a]">
-          <span className="font-[family-name:var(--font-geist-mono)] text-[13px] font-semibold text-[#F5F5F0]">
-            {initials}
-          </span>
+        <span className="font-[family-name:var(--font-geist-mono)] text-[13px] font-semibold text-[#F5F5F0]">
+          {initials}
         </span>
-        <svg
-          aria-hidden
-          viewBox="0 0 12 12"
-          className={cn(
-            "h-2.5 w-2.5 text-[#666676] transition-transform duration-200 group-hover:text-[#9a9aab]",
-            menuOpen && "rotate-180",
-          )}
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.75"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M2.5 4.5 6 8l3.5-3.5" />
-        </svg>
       </button>
 
       {menuOpen && (
