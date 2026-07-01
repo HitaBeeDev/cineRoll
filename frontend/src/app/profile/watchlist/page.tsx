@@ -60,7 +60,13 @@ export default async function WatchlistPage() {
     <main className="flex flex-1 flex-col bg-[#07070b] text-[#f4f4f5]">
       <AppHeader />
       <div className="mx-auto max-w-5xl px-6 py-16 lg:px-10">
-        <h1 className="font-[family-name:var(--font-display)] text-3xl font-bold text-[#F5F5F0]">
+        <Link
+          href="/profile"
+          className="inline-flex items-center gap-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em] text-[#9a9aac] transition-colors hover:text-[#e8453c] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
+        >
+          <span aria-hidden>←</span> Back to profile
+        </Link>
+        <h1 className="mt-4 font-[family-name:var(--font-display)] text-3xl font-bold text-[#F5F5F0]">
           Your Watchlist
         </h1>
 
@@ -95,9 +101,13 @@ async function WatchlistBody({
 
   return (
     <>
-      <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.2em] text-[#9a9aac]">
-        {total} {total === 1 ? "film" : "films"} saved
-      </p>
+      {/* The empty state already says "nothing saved yet", so the count only
+          appears once there's actually something to count. */}
+      {total > 0 && (
+        <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.2em] text-[#9a9aac]">
+          {total} {total === 1 ? "film" : "films"} saved
+        </p>
+      )}
 
       <div className="mt-10">
         {result.entries.length === 0 ? (
