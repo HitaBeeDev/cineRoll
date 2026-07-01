@@ -163,10 +163,13 @@ export default async function ProfilePage() {
             <Stat label="Watched" value={summary.watched} />
           </div>
 
-          {summary.favoriteGenres.length > 0 && (
+          {/* Only surface genres once they reflect real rating behavior — a
+              brand-new profile shows just the three activity counts, so an
+              onboarding preference never looks like a stat next to the zeros. */}
+          {summary.genresFromRatings && summary.favoriteGenres.length > 0 && (
             <div className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-2">
               <span className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.18em] text-[#9a9aac]">
-                {summary.genresFromRatings ? "Favorite genres" : "Selected genres"}
+                Favorite genres
               </span>
               <span className="flex flex-wrap gap-2">
                 {summary.favoriteGenres.map((genre) => (
