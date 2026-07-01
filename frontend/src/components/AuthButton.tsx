@@ -62,15 +62,37 @@ export function AuthButton({
         aria-label="Account menu"
         aria-expanded={menuOpen}
         className={cn(
-          "flex h-9 w-9 items-center justify-center rounded-full",
-          "bg-gradient-to-br from-[#ff6a5c] to-[#e8453c] ring-1 ring-white/15",
-          "font-[family-name:var(--font-geist-mono)] text-sm font-bold text-white",
-          "shadow-[0_4px_14px_-3px_rgba(232,69,60,0.65)] transition hover:brightness-110 hover:ring-white/30",
-          "focus-visible:outline-none focus-visible:ring-2",
+          "group flex items-center gap-2 rounded-full py-1 pl-1 pr-2.5",
+          "border border-[#22222e] bg-[#101019]/80 backdrop-blur",
+          "transition-colors duration-150 hover:border-[#33333f] hover:bg-[#14141f]",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0a14]",
           focusRingClassName,
         )}
       >
-        {initials}
+        <span className="relative flex h-7 w-7 items-center justify-center rounded-full bg-[#1a1a26] ring-1 ring-inset ring-white/10">
+          <span className="font-[family-name:var(--font-geist-mono)] text-[13px] font-semibold text-[#F5F5F0]">
+            {initials}
+          </span>
+          <span
+            aria-hidden
+            className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-[#101019] bg-[#e8453c]"
+          />
+        </span>
+        <svg
+          aria-hidden
+          viewBox="0 0 12 12"
+          className={cn(
+            "h-2.5 w-2.5 text-[#666676] transition-transform duration-200 group-hover:text-[#9a9aab]",
+            menuOpen && "rotate-180",
+          )}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.75"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M2.5 4.5 6 8l3.5-3.5" />
+        </svg>
       </button>
 
       {menuOpen && (
