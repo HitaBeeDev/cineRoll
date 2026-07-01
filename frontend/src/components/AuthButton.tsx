@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
+import { UserAvatar } from "@/components/user-avatar";
 import { cn } from "@/lib/utils";
 
 type AuthButtonProps = {
@@ -49,11 +50,6 @@ export function AuthButton({
     );
   }
 
-  const initials =
-    session?.user?.name?.slice(0, 1).toUpperCase() ??
-    session?.user?.email?.slice(0, 1).toUpperCase() ??
-    "?";
-
   return (
     <div ref={menuRef} className="relative">
       <button
@@ -62,7 +58,7 @@ export function AuthButton({
         aria-label="Account menu"
         aria-expanded={menuOpen}
         className={cn(
-          "group flex items-center gap-1.5 rounded-full py-1.5 pl-2.5 pr-2",
+          "group flex items-center gap-1.5 rounded-full py-1 pl-1 pr-2",
           "border bg-[#101019]",
           "font-[family-name:var(--font-geist-mono)] text-[12px] font-semibold uppercase tracking-[0.08em] text-[#c9c9d4]",
           "transition-colors duration-200",
@@ -74,7 +70,12 @@ export function AuthButton({
           focusRingClassName,
         )}
       >
-        <span className="leading-none">{initials}</span>
+        <UserAvatar
+          image={session?.user?.image}
+          name={session?.user?.name}
+          email={session?.user?.email}
+          size={26}
+        />
         <svg
           aria-hidden
           viewBox="0 0 12 12"

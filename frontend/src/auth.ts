@@ -48,12 +48,22 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   callbacks: {
-    jwt({ token, user }) {
-      if (user?.id) token.sub = user.id;
+    jwt({ token, user, trigger, session }) {
+      if (user?.id) {
+        token.sub = user.id;
+        token.picture = user.image ?? null;
+      }
+      // `update({ image })` from the settings avatar picker flows through here so
+      // the new avatar is reflected without a full re-login.
+      if (trigger === "update") {
+        const next = (session as { image?: unknown } | undefined)?.image;
+        if (typeof next === "string") token.picture = next;
+      }
       return token;
     },
     session({ session, token }) {
       if (token.sub) session.user.id = token.sub;
+      session.user.image = typeof token.picture === "string" ? token.picture : null;
       return session;
     },
   },
