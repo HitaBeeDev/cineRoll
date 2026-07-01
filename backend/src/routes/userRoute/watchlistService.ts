@@ -5,18 +5,26 @@ import { assertFilmExists } from "./filmRepository";
 import { mapEntryFilm, paginatedFilmEntries } from "./filmMapper";
 import { staleTasteProfile } from "./taste";
 import {
+  countWatchlist,
   createWatchlistEntry,
   deleteWatchlistEntry,
   findWatchlistPage,
 } from "./watchlistRepository";
 
 export async function listWatchlist(userId: string, limit: number, cursor?: string) {
-  const entries = await findWatchlistPage(userId, limit, cursor);
+  // Only the first page needs the authoritative total (for the header count);
+  // "load more" pages skip the count query. This lets the client render the
+  // total from one round-trip instead of a second call to /summary.
+  const [entries, total] = await Promise.all([
+    findWatchlistPage(userId, limit, cursor),
+    cursor ? Promise.resolve<number | null>(null) : countWatchlist(userId),
+  ]);
   const { page, nextCursor } = paginatedFilmEntries(entries, limit);
 
   return {
     watchlist: page.map(mapEntryFilm),
     nextCursor,
+    total,
   };
 }
 

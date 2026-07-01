@@ -18,7 +18,12 @@ export const dynamic = "force-dynamic";
 // otherwise a 500 / dropped connection renders the same "you saved nothing"
 // screen. The discriminated result lets the page show an error + retry instead.
 type WatchlistResult =
-  | { status: "ok"; entries: WatchlistEntry[]; nextCursor: string | null }
+  | {
+      status: "ok";
+      entries: WatchlistEntry[];
+      nextCursor: string | null;
+      total: number | null;
+    }
   | { status: "error" };
 
 async function fetchWatchlist(): Promise<WatchlistResult> {
@@ -28,6 +33,7 @@ async function fetchWatchlist(): Promise<WatchlistResult> {
   const data = (await res.json().catch(() => null)) as {
     watchlist?: WatchlistEntry[];
     nextCursor?: string | null;
+    total?: number | null;
   } | null;
   if (!data) return { status: "error" };
 
@@ -35,26 +41,17 @@ async function fetchWatchlist(): Promise<WatchlistResult> {
     status: "ok",
     entries: data.watchlist ?? [],
     nextCursor: data.nextCursor ?? null,
+    total: data.total ?? null,
   };
-}
-
-async function fetchSavedCount(): Promise<number | null> {
-  const res = await apiFetch("/api/user/summary");
-  if (!res.ok) return null;
-  const data = (await res.json().catch(() => ({}))) as { watchlist?: number };
-  return data.watchlist ?? null;
 }
 
 export default async function WatchlistPage() {
   const session = await auth();
   if (!session?.user) redirect(`/auth/signin`);
 
-  const [result, savedCount] = await Promise.all([
-    fetchWatchlist(),
-    fetchSavedCount(),
-  ]);
+  const result = await fetchWatchlist();
   const total =
-    result.status === "ok" ? savedCount ?? result.entries.length : null;
+    result.status === "ok" ? result.total ?? result.entries.length : null;
 
   return (
     <main className="flex flex-1 flex-col bg-[#07070b] text-[#f4f4f5]">

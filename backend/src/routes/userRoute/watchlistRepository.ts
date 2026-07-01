@@ -11,6 +11,10 @@ export function findWatchlistPage(userId: string, limit: number, cursor?: string
   });
 }
 
+export function countWatchlist(userId: string) {
+  return prisma.watchlist.count({ where: { userId } });
+}
+
 export function createWatchlistEntry(userId: string, filmId: string) {
   return prisma.watchlist.create({
     data: { userId, filmId },
