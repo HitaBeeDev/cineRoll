@@ -1,3 +1,4 @@
+import { Check } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -101,11 +102,28 @@ async function HistoryBody({
 
       <div className="mt-10">
         {result.entries.length === 0 ? (
-          <div className="flex flex-col items-center gap-5 rounded-xl border border-[#1e1e2a] bg-[#0d0d1a] px-6 py-20 text-center">
-            <p className="max-w-sm font-[family-name:var(--font-geist-mono)] text-sm leading-relaxed text-[#9a9aac]">
-              No watched films yet. Mark anything watched from a roll or film
-              page — with a rating — and it builds your history here.
-            </p>
+          <div className="flex flex-col items-center gap-6 rounded-xl border border-dashed border-[#1e1e2a] bg-[#0d0d1a] px-6 py-14 text-center">
+            {/* Ghost posters: a visual cue that watched films land in this grid,
+                with the "mark watched" (check) affordance called out on the
+                center slot so the empty state reads as intentional, not hollow. */}
+            <div className="flex items-end gap-3" aria-hidden>
+              <div className="aspect-[2/3] w-14 rounded-md border border-dashed border-[#2a2a3c] bg-[#0b0b14]" />
+              <div className="flex aspect-[2/3] w-[68px] items-center justify-center rounded-md border border-dashed border-[#3a3a50] bg-[#0b0b14]">
+                <Check className="h-6 w-6 text-[#7a7a8c]" />
+              </div>
+              <div className="aspect-[2/3] w-14 rounded-md border border-dashed border-[#2a2a3c] bg-[#0b0b14]" />
+            </div>
+
+            <div className="space-y-1.5">
+              <h2 className="font-[family-name:var(--font-display)] text-xl font-bold text-[#F5F5F0]">
+                Nothing watched yet
+              </h2>
+              <p className="mx-auto max-w-sm font-[family-name:var(--font-geist-mono)] text-[13px] leading-relaxed text-[#9a9aac]">
+                Mark films watched from a roll or film page — with a rating — and
+                they’ll build your history here.
+              </p>
+            </div>
+
             <Link
               href={`/`}
               className="inline-flex items-center rounded-xl bg-[#e8453c] px-6 py-3 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.2em] text-[#F5F5F0] transition-colors hover:bg-[#d5342b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
