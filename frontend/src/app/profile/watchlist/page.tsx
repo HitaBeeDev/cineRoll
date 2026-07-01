@@ -95,13 +95,13 @@ async function WatchlistBody({
 
   return (
     <>
-      <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.2em] text-[#888899]">
+      <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.2em] text-[#9a9aac]">
         {total} {total === 1 ? "film" : "films"} saved
       </p>
 
       <div className="mt-10">
         {result.entries.length === 0 ? (
-          <div className="flex flex-col items-center gap-6 rounded-xl border border-[#1e1e2a] bg-[#0d0d1a] px-6 py-14 text-center">
+          <div className="flex flex-col items-center gap-6 rounded-xl border border-dashed border-[#1e1e2a] bg-[#0d0d1a] px-6 py-14 text-center">
             {/* Ghost posters: a visual cue that saved films land in this grid,
                 with the save (bookmark) affordance called out on the center
                 slot so the empty state reads as intentional, not hollow. */}
