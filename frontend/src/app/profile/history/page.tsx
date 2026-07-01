@@ -61,7 +61,13 @@ export default async function HistoryPage() {
     <main className="flex flex-1 flex-col bg-[#07070b] text-[#f4f4f5]">
       <AppHeader />
       <div className="mx-auto max-w-5xl px-6 py-16 lg:px-10">
-        <h1 className="font-[family-name:var(--font-display)] text-3xl font-bold text-[#F5F5F0]">
+        <Link
+          href="/profile"
+          className="inline-flex items-center gap-1.5 rounded font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em] text-[#9a9aac] underline-offset-4 transition-colors hover:text-[#e8453c] hover:underline focus-visible:text-[#e8453c] focus-visible:underline focus-visible:outline-none"
+        >
+          <span aria-hidden>←</span> Back to profile
+        </Link>
+        <h1 className="mt-4 font-[family-name:var(--font-display)] text-3xl font-bold text-[#F5F5F0]">
           Watch History
         </h1>
 
@@ -99,7 +105,7 @@ async function HistoryBody({
       {/* The empty state already says "nothing watched yet", so the count only
           appears once there's actually something to count. */}
       {total > 0 && (
-        <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.2em] text-[#888899]">
+        <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.2em] text-[#9a9aac]">
           {total} {total === 1 ? "film" : "films"} watched
         </p>
       )}
@@ -128,12 +134,22 @@ async function HistoryBody({
               </p>
             </div>
 
-            <Link
-              href={`/`}
-              className="inline-flex items-center rounded-xl bg-[#e8453c] px-6 py-3 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.2em] text-[#F5F5F0] transition-colors hover:bg-[#d5342b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
-            >
-              Roll a film
-            </Link>
+            {/* Primary = random discovery (roll); secondary = manual discovery
+                (browse), so an empty history offers both ways to fill it. */}
+            <div className="flex flex-col items-center gap-3">
+              <Link
+                href={`/`}
+                className="inline-flex items-center rounded-xl bg-[#e8453c] px-6 py-3 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.2em] text-[#F5F5F0] transition-colors hover:bg-[#d5342b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
+              >
+                Roll a film
+              </Link>
+              <Link
+                href="/browse"
+                className="inline-flex items-center rounded font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.2em] text-[#9a9aac] underline-offset-4 transition-colors hover:text-[#e8453c] hover:underline focus-visible:text-[#e8453c] focus-visible:underline focus-visible:outline-none"
+              >
+                Browse films
+              </Link>
+            </div>
           </div>
         ) : (
           <HistoryGrid
