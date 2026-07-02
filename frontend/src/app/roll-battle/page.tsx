@@ -1,12 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { RefreshCw, Share2, Trophy, Clapperboard } from "lucide-react";
 import { AppHeader } from "@/components/app-header";
-import { fetchRandom, type RollFilm } from "@/lib/api";
+import { fetchRandom, submitBattleResults, type BattleMatchResult, type RollFilm } from "@/lib/api";
 import { buildBattleCluster } from "@/lib/roll-battle-matchmaking";
 
 const TOTAL_ROUNDS = 5;
@@ -294,6 +294,10 @@ export default function RollBattlePage() {
   const [pickedId, setPickedId] = useState<string | null>(null);
   const [pickedFilms, setPickedFilms] = useState<RollFilm[]>([]);
   const [shareStatus, setShareStatus] = useState<"idle" | "copied">("idle");
+  // Each round's winner/loser, accumulated for the Elo leaderboard and submitted
+  // once the bracket ends. A ref (not state) because it's write-only telemetry
+  // that must not trigger re-renders.
+  const matchLogRef = useRef<BattleMatchResult[]>([]);
 
   const loadFilms = useCallback(async () => {
     setPhase("loading");
@@ -302,6 +306,7 @@ export default function RollBattlePage() {
     setPickedId(null);
     setPickedFilms([]);
     setShareStatus("idle");
+    matchLogRef.current = [];
     try {
       const pool = await fetchBattlePool();
       setFilms(pool);
@@ -349,6 +354,13 @@ export default function RollBattlePage() {
     if (pickedId !== null) return;
     setPickedId(film.id);
     setPickedFilms((current) => [...current, film]);
+
+    // Log the duel: the picked film beat the other side of this round's pair.
+    const opponent = film.id === leftFilm?.id ? rightFilm : leftFilm;
+    if (opponent) {
+      matchLogRef.current.push({ winnerId: film.id, loserId: opponent.id });
+    }
+
     const delay = reduced ? 0 : 900;
     setTimeout(() => {
       if (round < TOTAL_ROUNDS - 1) {
@@ -358,6 +370,7 @@ export default function RollBattlePage() {
       } else {
         setChampion(film);
         setPhase("result");
+        void submitBattleResults(matchLogRef.current);
       }
     }, delay);
   }

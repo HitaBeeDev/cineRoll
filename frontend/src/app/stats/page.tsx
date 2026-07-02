@@ -71,6 +71,38 @@ async function fetchStats(): Promise<StatsResponse | null> {
   }
 }
 
+// Head-to-head Elo leaderboard from Roll Battle. Mapped into FilmStat (count =
+// Elo rating) so it reuses the existing record-group UI. Best-effort — an empty
+// list just hides the section.
+async function fetchBattleLeaderboard(): Promise<FilmStat[]> {
+  try {
+    const res = await fetch(`${API_URL}/api/roll-battle/leaderboard?limit=7`, {
+      cache: "no-store",
+    });
+    if (!res.ok) return [];
+    const data = (await res.json()) as {
+      films: Array<{
+        id: string;
+        slug: string;
+        title: string;
+        releaseYear: number;
+        posterUrl: string | null;
+        rating: number;
+      }>;
+    };
+    return data.films.map((film) => ({
+      id: film.id,
+      slug: film.slug,
+      title: film.title,
+      releaseYear: film.releaseYear,
+      posterUrl: film.posterUrl,
+      count: film.rating,
+    }));
+  } catch {
+    return [];
+  }
+}
+
 const formatNumber = (value: number) => value.toLocaleString();
 
 function personSlug(name: string) {
@@ -125,7 +157,7 @@ function buildInsights(stats: StatsResponse): Insight[] {
 }
 
 export default async function StatsPage() {
-  const stats = await fetchStats();
+  const [stats, battleLeaderboard] = await Promise.all([fetchStats(), fetchBattleLeaderboard()]);
 
   const structuredData = {
     "@context": "https://schema.org",
@@ -158,13 +190,19 @@ export default async function StatsPage() {
           </div>
         </main>
       ) : (
-        <StatsContent stats={stats} />
+        <StatsContent stats={stats} battleLeaderboard={battleLeaderboard} />
       )}
     </div>
   );
 }
 
-function StatsContent({ stats }: { stats: StatsResponse }) {
+function StatsContent({
+  stats,
+  battleLeaderboard,
+}: {
+  stats: StatsResponse;
+  battleLeaderboard: FilmStat[];
+}) {
   const { summary } = stats;
   const winRate =
     summary.totalNominations > 0 ? (summary.totalWins / summary.totalNominations) * 100 : 0;
@@ -375,6 +413,27 @@ function StatsContent({ stats }: { stats: StatsResponse }) {
                   accent="blue"
                 />
               )}
+            </div>
+          </section>
+        )}
+
+        {/* HEAD-TO-HEAD — Roll Battle Elo leaderboard */}
+        {battleLeaderboard.length > 0 && (
+          <section>
+            <SectionHeader
+              eyebrow="Roll Battle"
+              title="Head-to-head champions"
+              description="Ranked by an Elo rating earned from every Versus duel players vote on — not awards, but which film wins the room."
+              actionHref="/roll-battle"
+              actionLabel="Enter the arena"
+            />
+            <div className="mt-6">
+              <FilmRecordGroup
+                heading="Highest Elo in head-to-head play"
+                films={battleLeaderboard}
+                unit="Elo"
+                accent="red"
+              />
             </div>
           </section>
         )}
