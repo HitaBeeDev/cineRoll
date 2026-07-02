@@ -36,6 +36,19 @@ function displayTitle(title: string): string {
   return title.replace(/^(.*),\s+(The|A|An)$/i, "$2 $1");
 }
 
+// Scale the hero title down as it gets longer so a very long name (e.g. a
+// documentary's full subtitle) still fits within the hero's height instead of
+// wrapping to six giant lines and pushing the metadata off-screen. Each tier is
+// a `clamp(min, vw, max)` so it stays responsive within its length band.
+function titleFontSize(title: string): string {
+  const length = title.length;
+  if (length <= 20) return "clamp(2.75rem, 6vw, 6rem)";
+  if (length <= 35) return "clamp(2.5rem, 5.2vw, 5rem)";
+  if (length <= 50) return "clamp(2.25rem, 4.4vw, 4.25rem)";
+  if (length <= 68) return "clamp(2rem, 3.6vw, 3.5rem)";
+  return "clamp(1.75rem, 3vw, 2.9rem)";
+}
+
 function buildShareCaption(film: Film): string {
   const parts: string[] = [];
   if (film.oscarWins > 0)
@@ -388,7 +401,10 @@ export default async function FilmPage({
                     block. */}
                 <h1
                   className="font-[family-name:var(--font-display)] font-bold leading-[0.87] tracking-tight text-[#F8F8F4]"
-                  style={{ fontSize: "clamp(2.75rem,6vw,6rem)", textShadow: "0 2px 40px rgba(0,0,0,0.6)" }}
+                  style={{
+                    fontSize: titleFontSize(displayTitle(film.title)),
+                    textShadow: "0 2px 40px rgba(0,0,0,0.6)",
+                  }}
                 >
                   {displayTitle(film.title)}
                 </h1>
