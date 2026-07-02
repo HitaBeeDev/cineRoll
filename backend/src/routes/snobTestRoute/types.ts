@@ -30,6 +30,17 @@ export type ScoreFilmRow = {
   releaseYear: number;
   decade: number;
   awardBodies: AwardBody[];
+  // Difficulty signals for the IRT score (irt.ts / docs/algorithms.md §7).
+  imdbRating: number | null;
+  imdbTopMovieRank: number | null;
+  imdbTopTvRank: number | null;
+  oscarWins: number;
+  ggWins: number;
+  cannesWins: number;
+  oscarNominations: number;
+  ggNominations: number;
+  cannesNominations: number;
+  posterUrl: string | null;
 };
 
 export type BreakdownBucket = {

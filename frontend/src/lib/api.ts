@@ -610,11 +610,14 @@ export async function fetchSnobTestFilms(excludeFilmIds: string[] = []): Promise
   return data.films;
 }
 
-export async function scoreSnobTest(seenFilmIds: string[]): Promise<SnobTestScore> {
+export async function scoreSnobTest(
+  seenFilmIds: string[],
+  ballotFilmIds: string[] = [],
+): Promise<SnobTestScore> {
   const res = await fetch(`${API_URL}/api/snob-test/score`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ seenFilmIds }),
+    body: JSON.stringify({ seenFilmIds, ballotFilmIds }),
   });
   if (!res.ok) throw new Error("Failed to score Snob Test");
   return res.json() as Promise<SnobTestScore>;

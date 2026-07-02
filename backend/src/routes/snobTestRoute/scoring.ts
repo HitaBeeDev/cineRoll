@@ -1,18 +1,36 @@
 import { SNOB_TEST_FILM_COUNT } from "./constants";
+import { abilityPercentile, BallotItem, estimateAbility, filmDifficulty } from "./irt";
 import { AwardBody, BreakdownBucket, ScoreFilmRow } from "./types";
 
-export function scoreSnobTest(films: ScoreFilmRow[]) {
+// The score is an IRT ability percentile, not a raw seen/total ratio: because
+// each ballot is randomized, having seen the *hard* (obscure) films counts for
+// more than having seen an equal number of easy ones. See irt.ts /
+// docs/algorithms.md §7.
+export function scoreSnobTest(ballot: ScoreFilmRow[], seenIds: Set<string>) {
   const total = SNOB_TEST_FILM_COUNT;
-  const seen = Math.min(new Set(films.map(film => film.id)).size, total);
-  const score = Math.round((seen / total) * 100);
+  const seenFilms = ballot.filter(film => seenIds.has(film.id));
+  const seen = Math.min(seenFilms.length, total);
+  const score = irtScore(ballot, seenIds);
 
   return {
     score,
     title: titleForScore(score),
     seen,
     total,
-    breakdown: buildBreakdown(films),
+    breakdown: buildBreakdown(seenFilms),
   };
+}
+
+// Latent ability -> 0..100 percentile. Seeing nothing is floored to 0: with no
+// evidence there is no snobbery to measure, and it keeps the headline honest.
+function irtScore(ballot: ScoreFilmRow[], seenIds: Set<string>): number {
+  const items: BallotItem[] = ballot.map(film => ({
+    difficulty: filmDifficulty(film),
+    seen: seenIds.has(film.id),
+  }));
+  if (!items.some(item => item.seen)) return 0;
+
+  return Math.round(abilityPercentile(estimateAbility(items)) * 100);
 }
 
 function titleForScore(score: number): string {

@@ -289,7 +289,7 @@ export function SnobTestClient() {
   async function submitScore() {
     setStatus("scoring");
     try {
-      const result = await scoreSnobTest([...selectedIds]);
+      const result = await scoreSnobTest([...selectedIds], films.map(film => film.id));
       setScore(result);
       setStatus("ready");
     } catch {

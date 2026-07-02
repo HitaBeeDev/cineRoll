@@ -19,8 +19,12 @@ snobTestRouter.get("/films", validate(filmsQuerySchema), async (req, res) => {
 });
 
 snobTestRouter.post("/score", validate(scoreBodySchema, "body"), async (req, res) => {
-  const { seenFilmIds } = getValidated<ScoreBody>(req, "body");
-  const films = await getScoreFilms(seenFilmIds);
+  const { seenFilmIds, ballotFilmIds } = getValidated<ScoreBody>(req, "body");
+  // IRT needs the whole administered ballot; older clients only send the seen
+  // subset, so fall back to that (score then degrades to a difficulty-agnostic
+  // estimate rather than breaking).
+  const ballotIds = ballotFilmIds.length > 0 ? ballotFilmIds : seenFilmIds;
+  const ballot = await getScoreFilms(ballotIds);
 
-  res.json(scoreSnobTest(films));
+  res.json(scoreSnobTest(ballot, new Set(seenFilmIds)));
 });
