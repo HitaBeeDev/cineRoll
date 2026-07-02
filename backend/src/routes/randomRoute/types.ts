@@ -1,5 +1,7 @@
 import { Prisma } from "@prisma/client";
 
+import { LanePosteriors } from "./bandit";
+
 export type RandomFilmRow = {
   id: string;
   slug: string;
@@ -40,6 +42,9 @@ export type RandomFilmResult = {
   // can credit engagement back to the right arm. Absent on deterministic seed
   // rolls, which don't draw a lane.
   lane?: "safe" | "gem" | "wild";
+  // The authoritative posteriors after this roll — set only for signed-in users
+  // (whose state lives in the DB), so the client can sync its local copy.
+  posteriors?: LanePosteriors | undefined;
 };
 
 export type PersonalizedRandomFilmResult = RandomFilmResult & {

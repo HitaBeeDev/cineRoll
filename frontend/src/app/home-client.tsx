@@ -30,6 +30,7 @@ import {
   getRolledBag,
   pushRollHistory,
   resetRolledBag,
+  setLaneBandit,
   updateLaneBandit,
   TASTE_SEED_STORAGE_KEY,
 } from "@/lib/home-storage";
@@ -272,9 +273,13 @@ export function HomeClient({
     }
     // Lane bandit (§6b): credit the outgoing film's lane — reward 1 if the user
     // engaged with it, 0 if they skipped — so Thompson sampling learns which
-    // lane earns this user's attention.
-    if (outgoing?.lane) {
-      updateLaneBandit(outgoing.lane, outgoing.engaged ? 1 : 0);
+    // lane earns this user's attention. Updated locally (guests) and sent to the
+    // backend, which owns the authoritative DB posteriors for signed-in users.
+    const banditFeedback = outgoing?.lane
+      ? { lane: outgoing.lane, reward: outgoing.engaged ? 1 : 0 }
+      : undefined;
+    if (banditFeedback) {
+      updateLaneBandit(banditFeedback.lane, banditFeedback.reward);
     }
     const isPersonalized = personalizedRoll && !!userId;
     void trackEvent({
@@ -303,7 +308,15 @@ export function HomeClient({
       const bandit = getLaneBandit();
       let result;
       try {
-        result = await fetchRandom(filters, userId, isPersonalized, seen, rerollPenalty, bandit);
+        result = await fetchRandom(
+          filters,
+          userId,
+          isPersonalized,
+          seen,
+          rerollPenalty,
+          bandit,
+          banditFeedback,
+        );
       } catch (err) {
         // Exhausted the reachable pool this session → the backend returns
         // NO_FILMS_FOUND. Reset the bag and roll once more so we never dead-end
@@ -315,13 +328,24 @@ export function HomeClient({
             : undefined;
         if (code === "NO_FILMS_FOUND" && seen.length > 0) {
           resetRolledBag();
-          result = await fetchRandom(filters, userId, isPersonalized, [], rerollPenalty, bandit);
+          result = await fetchRandom(
+            filters,
+            userId,
+            isPersonalized,
+            [],
+            rerollPenalty,
+            bandit,
+            banditFeedback,
+          );
         } else {
           throw err;
         }
       }
       addToRolledBag(result.film.id);
       // Start tracking engagement for the film we're about to show.
+      // Signed-in users' posteriors are owned by the DB; sync the authoritative
+      // copy the backend returned so local state doesn't drift (§6b).
+      if (result.bandit) setLaneBandit(result.bandit);
       currentRollRef.current = {
         film: result.film,
         engaged: false,

@@ -299,6 +299,24 @@ export function getLaneBandit(): LaneBandit {
 }
 
 /**
+ * Overwrite the local posteriors with an authoritative copy — used to sync from
+ * the DB-stored state the backend returns for signed-in users, so their learned
+ * bandit follows them across devices instead of diverging per browser.
+ */
+export function setLaneBandit(bandit: LaneBandit): void {
+  const safe = sanitizeArm(bandit?.safe);
+  const gem = sanitizeArm(bandit?.gem);
+  const wild = sanitizeArm(bandit?.wild);
+  if (!safe || !gem || !wild) return;
+
+  try {
+    window.localStorage.setItem(LANE_BANDIT_STORAGE_KEY, JSON.stringify({ safe, gem, wild }));
+  } catch {
+    // Non-critical sync; rolling keeps working if storage is blocked.
+  }
+}
+
+/**
  * Fold a reward for the lane that was served into its posterior — `1` when the
  * user engaged (opened / saved / watched), `0` on a skip. Same update rule as
  * backend `updateArm`: α += reward, β += (1 − reward), then shrink toward the

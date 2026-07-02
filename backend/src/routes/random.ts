@@ -8,7 +8,7 @@ import { logRollEvent } from "./randomRoute/eventLogger";
 import { getPersonalizedRandomFilm } from "./randomRoute/personalizedService";
 import { getRandomCount } from "./randomRoute/randomRepository";
 import { getSessionRoll } from "./randomRoute/sessionRollService";
-import { RandomFilmRow } from "./randomRoute/types";
+import { RandomFilmResult, RandomFilmRow } from "./randomRoute/types";
 
 export {
   getQualityCandidates,
@@ -24,8 +24,8 @@ export const randomRouter = Router();
 randomRouter.get("/", validate(randomQuerySchema), async (req, res) => {
   const query = getValidated<RandomQuery>(req, "query");
   const usePersonalized = query.personalized === true && query.userId != null;
-  const { film, total, exploration, lane } = usePersonalized
-    ? { ...(await getPersonalizedRandomFilm(query)), lane: undefined }
+  const { film, total, exploration, lane, posteriors } = usePersonalized
+    ? { ...(await getPersonalizedRandomFilm(query)), lane: undefined, posteriors: undefined }
     : { ...(await getSessionRoll(query)), exploration: false };
 
   if (!film) {
@@ -33,7 +33,7 @@ randomRouter.get("/", validate(randomQuerySchema), async (req, res) => {
   }
 
   await logRollEvent(query, film, total, usePersonalized, exploration);
-  sendRandomFilmResponse(res, film, total, usePersonalized, exploration, lane);
+  sendRandomFilmResponse(res, film, total, usePersonalized, exploration, lane, posteriors);
 });
 
 randomRouter.get("/count", validate(randomQuerySchema), async (req, res) => {
@@ -51,6 +51,7 @@ function sendRandomFilmResponse(
   usePersonalized: boolean,
   exploration: boolean,
   lane: "safe" | "gem" | "wild" | undefined,
+  posteriors: RandomFilmResult["posteriors"],
 ): void {
   if (usePersonalized) {
     res.set("Cache-Control", "private, no-store");
@@ -58,8 +59,16 @@ function sendRandomFilmResponse(
     return;
   }
 
-  // The lane depends on the client's bandit state (sent in the query), so the
-  // cache key already varies with it — safe to keep the short public cache.
+  // A signed-in base roll read/wrote the user's DB posteriors and echoes them
+  // back — that response is per-user, so it must not be publicly cached.
+  if (posteriors) {
+    res.set("Cache-Control", "private, no-store");
+    res.json({ film, total, lane, bandit: posteriors });
+    return;
+  }
+
+  // Guest base roll: the lane depends on the client's own bandit state (sent in
+  // the query), so the cache key already varies with it — safe to keep caching.
   setPublicCache(res, 60);
   res.json({ film, total, lane });
 }

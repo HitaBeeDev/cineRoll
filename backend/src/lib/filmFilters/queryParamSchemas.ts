@@ -99,3 +99,24 @@ export const laneBanditParam = z
     }),
   )
   .optional();
+
+// Reward for the lane served on the *previous* roll (§6b): which lane, and 1 if
+// the user engaged with that pick or 0 if they skipped it. For signed-in users
+// the backend folds this into their stored posteriors before drawing the next
+// lane. Parsed leniently — a malformed value is dropped.
+export const laneBanditFeedbackParam = z
+  .preprocess(
+    value => {
+      if (typeof value !== "string") return value;
+      try {
+        return JSON.parse(value);
+      } catch {
+        return undefined;
+      }
+    },
+    z.object({
+      lane: z.enum(["safe", "gem", "wild"]),
+      reward: z.number().min(0).max(1),
+    }),
+  )
+  .optional();

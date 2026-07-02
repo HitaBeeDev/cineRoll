@@ -11,7 +11,8 @@ import {
   mainGenre,
   pinnedDimensions,
 } from "./diversity";
-import { initialPosteriors, thompsonPickLane } from "./bandit";
+import { initialPosteriors, LanePosteriors, thompsonPickLane, updateArm } from "./bandit";
+import { loadLanePosteriors, persistLanePosteriors } from "./banditRepository";
 import { getRandomFilm, getRandomFilms } from "./randomRepository";
 import { RollLane, ScoreContext, laneWeight, scoreBreakdown } from "./rollScore";
 import { RandomFilmResult, RandomFilmRow } from "./types";
@@ -28,9 +29,10 @@ import { weightedSample } from "./weightedSample";
 export async function getSessionRoll(query: RandomQuery): Promise<RandomFilmResult> {
   if (query.seed) return getRandomFilm(query);
 
-  const [{ films, total }, recent] = await Promise.all([
+  const [{ films, total }, recent, posteriors] = await Promise.all([
     getRandomFilms(query, DIVERSITY_SAMPLE_SIZE),
     getRecentRolls(query.excludeIds ?? []),
+    resolvePosteriors(query),
   ]);
   if (films.length <= 1) return { film: films[0] ?? null, total };
 
@@ -40,10 +42,32 @@ export async function getSessionRoll(query: RandomQuery): Promise<RandomFilmResu
     pinned: pinnedDimensions(query),
   };
 
-  // Thompson-sample the lane from the user's learned posteriors (or cold-start
-  // priors when the client hasn't sent any yet), then weight + sample within it.
-  const lane = thompsonPickLane(query.bandit ?? initialPosteriors());
-  return { film: pickByLane(films, ctx, lane), total, lane };
+  // Thompson-sample the lane from the resolved posteriors, then weight + sample
+  // within it. For signed-in users we echo the posteriors back so their client
+  // can sync the DB-authoritative state.
+  const lane = thompsonPickLane(posteriors);
+  return {
+    film: pickByLane(films, ctx, lane),
+    total,
+    lane,
+    posteriors: query.userId ? posteriors : undefined,
+  };
+}
+
+// Where the lane posteriors come from: for signed-in users, the DB is the source
+// of truth — we load them, fold in the previous roll's engagement reward, and
+// persist before drawing. Guests carry their own state in the `bandit` query
+// param (localStorage), falling back to the cold-start priors on a first roll.
+async function resolvePosteriors(query: RandomQuery): Promise<LanePosteriors> {
+  if (!query.userId) return query.bandit ?? initialPosteriors();
+
+  let posteriors = await loadLanePosteriors(query.userId);
+  if (query.banditFeedback) {
+    posteriors = updateArm(posteriors, query.banditFeedback.lane, query.banditFeedback.reward);
+    await persistLanePosteriors(query.userId, posteriors);
+  }
+
+  return posteriors;
 }
 
 // Weight the pool by what the drawn lane rewards, and sample one.

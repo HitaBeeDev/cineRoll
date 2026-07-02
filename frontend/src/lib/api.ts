@@ -53,6 +53,9 @@ export type RandomResult = {
   // The bandit lane drawn for this base roll, so the client can credit the
   // user's engagement back to the right arm. Absent on personalized/seed rolls.
   lane?: BanditLane;
+  // Authoritative posteriors returned for signed-in users (whose bandit state
+  // lives in the DB), so the client can overwrite its local copy.
+  bandit?: LaneBandit;
 };
 
 export type MarathonResult = { films: RollFilm[]; totalRuntime: number; total: number };
@@ -243,6 +246,7 @@ export async function fetchRandom(
   excludeIds?: string[],
   rerollPenalty?: RerollPenalty,
   bandit?: LaneBandit,
+  banditFeedback?: { lane: BanditLane; reward: number },
 ): Promise<RandomResult> {
   const params = filtersToParams(filters ?? {});
   // When signed in, the backend excludes films the user marked "Not Interested".
@@ -265,6 +269,9 @@ export async function fetchRandom(
   // Lane-bandit posteriors (§6b): the backend Thompson-samples the roll's lane
   // from these, so the split adapts to what this user engages with.
   if (bandit) params.set("bandit", JSON.stringify(bandit));
+  // Engagement reward for the previous roll's lane — signed-in users only; the
+  // backend folds it into their DB posteriors before drawing the next lane.
+  if (banditFeedback) params.set("banditFeedback", JSON.stringify(banditFeedback));
   const qs = params.toString();
   const res = await fetch(`${API_URL}/api/random${qs ? `?${qs}` : ""}`, { cache: "no-store" });
   if (!res.ok) {
