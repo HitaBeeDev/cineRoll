@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -8,7 +8,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { CheckCircle2, Clapperboard, Eye, Link2, RefreshCw, Sparkles, Star, Trophy, XCircle } from "lucide-react";
 import type { AwardRecord } from "@cineroll/types";
 import { AppHeader } from "@/components/app-header";
-import { fetchFilmBySlug, fetchRandom, type RollFilm } from "@/lib/api";
+import { fetchBlindRoll, type RollFilm } from "@/lib/api";
 
 type Phase = "loading" | "ready" | "revealed" | "error";
 type BlindRound = { film: RollFilm; options: RollFilm[] };
@@ -30,38 +30,17 @@ const DIFFICULTY_DESCRIPTIONS: Record<Difficulty, string> = {
   hard: "Hard · 4 suspects · award trail only",
 };
 
-async function fetchBlindFilm(): Promise<RollFilm> {
-  const result = await fetchRandom();
-  return result.film;
-}
-
-function shuffleFilms(films: RollFilm[]): RollFilm[] {
-  return [...films].sort(() => Math.random() - 0.5);
-}
-
-async function fetchDistractors(targetFilm: RollFilm): Promise<RollFilm[]> {
-  const distractors: RollFilm[] = [];
-  const seen = new Set<string>([targetFilm.id]);
-
-  while (distractors.length < 3) {
-    const nextFilm = await fetchBlindFilm();
-    if (seen.has(nextFilm.id)) continue;
-    seen.add(nextFilm.id);
-    distractors.push(nextFilm);
-  }
-
-  return distractors;
-}
-
-async function fetchBlindRound(challengeSlug?: string): Promise<BlindRound> {
-  const film = challengeSlug ? await fetchFilmBySlug(challengeSlug) : await fetchBlindFilm();
-  if (!film) throw new Error("No blind roll film found");
-  const distractors = await fetchDistractors(film);
-
-  return {
-    film,
-    options: shuffleFilms([film, ...distractors]),
-  };
+// Distractors are now chosen server-side by TF-IDF-cosine confusability
+// (see backend/src/routes/blindRollRoute) so the wrong answers are actually
+// plausible given the clues, and difficulty controls how close they sit to the
+// answer — not just how many clues are shown.
+async function fetchBlindRound(
+  difficulty: Difficulty,
+  challengeSlug?: string,
+): Promise<BlindRound> {
+  const round = await fetchBlindRoll(difficulty, challengeSlug);
+  if (!round.film) throw new Error("No blind roll film found");
+  return round;
 }
 
 function getAwards(film: RollFilm): AwardRecord[] {
@@ -178,6 +157,9 @@ function BlindRollContent() {
   const [expandedAward, setExpandedAward] = useState<number | null>(null);
   const [examinedAwards, setExaminedAwards] = useState<Set<number>>(() => new Set());
   const challengeSlug = searchParams.get("film")?.trim() ?? "";
+  // Distractors now depend on difficulty, so the loader (a stable callback) reads
+  // the current difficulty from a ref rather than through its closure.
+  const difficultyRef = useRef(difficulty);
 
   const loadFilm = useCallback(async (slug?: string) => {
     setPhase("loading");
@@ -188,7 +170,7 @@ function BlindRollContent() {
     setExpandedAward(null);
     setExaminedAwards(new Set());
     try {
-      const nextRound = await fetchBlindRound(slug || undefined);
+      const nextRound = await fetchBlindRound(difficultyRef.current, slug || undefined);
       setFilm(nextRound.film);
       setOptions(nextRound.options);
       setPhase("ready");
@@ -200,7 +182,7 @@ function BlindRollContent() {
   useEffect(() => {
     let ignore = false;
 
-    fetchBlindRound(challengeSlug || undefined)
+    fetchBlindRound(difficultyRef.current, challengeSlug || undefined)
       .then((nextRound) => {
         if (ignore) return;
         setFilm(nextRound.film);
@@ -255,8 +237,13 @@ function BlindRollContent() {
   }, [difficulty, film]);
 
   function handleDifficultyChange(nextDifficulty: Difficulty) {
+    if (nextDifficulty === difficulty) return;
     setDifficulty(nextDifficulty);
     writeDifficulty(nextDifficulty);
+    difficultyRef.current = nextDifficulty;
+    // Keep the same hidden film but re-select decoys for the new difficulty, so
+    // the toggle actually changes how hard the suspects are — not just the clues.
+    void loadFilm(film?.slug);
   }
 
   async function handleChallengeFriend() {

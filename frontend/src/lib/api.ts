@@ -653,6 +653,23 @@ export async function submitBattleResults(results: BattleMatchResult[]): Promise
   }
 }
 
+export type BlindRollDifficulty = "easy" | "medium" | "hard";
+export type BlindRollRound = { film: RollFilm; options: RollFilm[] };
+
+// One puzzle round: a hidden target film plus difficulty-tuned decoys, chosen
+// server-side by TF-IDF-cosine confusability. `filmSlug` fixes the answer (shared
+// challenge links) while the decoys still follow the requested difficulty.
+export async function fetchBlindRoll(
+  difficulty: BlindRollDifficulty,
+  filmSlug?: string,
+): Promise<BlindRollRound> {
+  const params = new URLSearchParams({ difficulty });
+  if (filmSlug) params.set("film", filmSlug);
+  const res = await fetch(`${API_URL}/api/blind-roll?${params.toString()}`, { cache: "no-store" });
+  if (!res.ok) throw new Error("Failed to fetch blind roll round");
+  return res.json() as Promise<BlindRollRound>;
+}
+
 export async function fetchBattleLeaderboard(limit = 10): Promise<BattleLeaderboardFilm[]> {
   const res = await fetch(`${API_URL}/api/roll-battle/leaderboard?limit=${limit}`, {
     cache: "no-store",

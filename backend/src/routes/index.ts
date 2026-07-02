@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { autocompleteRouter } from "./autocomplete";
+import { blindRollRouter } from "./blindRoll";
 import { eventsRouter } from "./events";
 import { feedbackRouter } from "./feedback";
 import { filmsRouter } from "./films";
@@ -19,6 +20,7 @@ import { userRouter } from "./user";
 export const router = Router();
 
 router.use("/autocomplete", autocompleteRouter);
+router.use("/blind-roll", blindRollRouter);
 router.use("/events", eventsRouter);
 router.use("/feedback", feedbackRouter);
 router.use("/films", filmsRouter);
