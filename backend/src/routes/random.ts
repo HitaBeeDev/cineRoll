@@ -24,8 +24,8 @@ export const randomRouter = Router();
 randomRouter.get("/", validate(randomQuerySchema), async (req, res) => {
   const query = getValidated<RandomQuery>(req, "query");
   const usePersonalized = query.personalized === true && query.userId != null;
-  const { film, total, exploration } = usePersonalized
-    ? await getPersonalizedRandomFilm(query)
+  const { film, total, exploration, lane } = usePersonalized
+    ? { ...(await getPersonalizedRandomFilm(query)), lane: undefined }
     : { ...(await getSessionRoll(query)), exploration: false };
 
   if (!film) {
@@ -33,7 +33,7 @@ randomRouter.get("/", validate(randomQuerySchema), async (req, res) => {
   }
 
   await logRollEvent(query, film, total, usePersonalized, exploration);
-  sendRandomFilmResponse(res, film, total, usePersonalized, exploration);
+  sendRandomFilmResponse(res, film, total, usePersonalized, exploration, lane);
 });
 
 randomRouter.get("/count", validate(randomQuerySchema), async (req, res) => {
@@ -50,6 +50,7 @@ function sendRandomFilmResponse(
   total: number,
   usePersonalized: boolean,
   exploration: boolean,
+  lane: "safe" | "gem" | "wild" | undefined,
 ): void {
   if (usePersonalized) {
     res.set("Cache-Control", "private, no-store");
@@ -57,6 +58,8 @@ function sendRandomFilmResponse(
     return;
   }
 
+  // The lane depends on the client's bandit state (sent in the query), so the
+  // cache key already varies with it — safe to keep the short public cache.
   setPublicCache(res, 60);
-  res.json({ film, total });
+  res.json({ film, total, lane });
 }

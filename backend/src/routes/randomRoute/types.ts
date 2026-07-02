@@ -36,6 +36,10 @@ export type RandomFilmRow = {
 export type RandomFilmResult = {
   film: RandomFilmRow | null;
   total: number;
+  // Which bandit lane was drawn for this roll (Safe / Gem / Wild), so the client
+  // can credit engagement back to the right arm. Absent on deterministic seed
+  // rolls, which don't draw a lane.
+  lane?: "safe" | "gem" | "wild";
 };
 
 export type PersonalizedRandomFilmResult = RandomFilmResult & {

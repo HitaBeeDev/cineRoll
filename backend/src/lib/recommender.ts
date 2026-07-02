@@ -5,6 +5,7 @@ import {
 import { getTasteProfile } from "./tasteProfile";
 import { generateCandidates } from "./recommender/candidateRepository";
 import { MODEL_VERSION, RECOMMENDER_LIMITS } from "./recommender/constants";
+import { getCatalogIdf } from "./recommender/idf";
 import { likedFilmsByGenre } from "./recommender/likedFilmsRepository";
 import { toRecommendation } from "./recommender/mapper";
 import { rankCandidates } from "./recommender/ranking";
@@ -30,9 +31,10 @@ export async function recommend(
   const coldStart = totalSignals < RECOMMENDER_LIMITS.coldStartMinSignals;
   const variant = assignVariant(userId);
   const params = recommenderParams(variant);
-  const [candidates, likedByGenre] = await Promise.all([
+  const [candidates, likedByGenre, idf] = await Promise.all([
     generateCandidates(userId, taste),
     coldStart ? Promise.resolve(new Map<string, string>()) : likedFilmsByGenre(userId),
+    getCatalogIdf(),
   ]);
 
   const recommendations: Recommendation[] = rankCandidates(
@@ -41,6 +43,7 @@ export async function recommend(
     limit,
     new Date().getFullYear(),
     params,
+    idf,
   ).map((scored, index) => toRecommendation(scored, taste, likedByGenre, coldStart, index));
 
   return { modelVersion: MODEL_VERSION, coldStart, variant, recommendations };

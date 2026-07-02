@@ -40,12 +40,19 @@ export type RollFilm = Pick<
   cannesCategories: AwardRecord[];
 };
 
+export type BanditLane = "safe" | "gem" | "wild";
+export type BetaArm = { alpha: number; beta: number };
+export type LaneBandit = Record<BanditLane, BetaArm>;
+
 export type RandomResult = {
   film: RollFilm;
   total: number;
   // Present only on personalized rolls; `exploration` flags an ε-greedy explore draw.
   personalized?: boolean;
   exploration?: boolean;
+  // The bandit lane drawn for this base roll, so the client can credit the
+  // user's engagement back to the right arm. Absent on personalized/seed rolls.
+  lane?: BanditLane;
 };
 
 export type MarathonResult = { films: RollFilm[]; totalRuntime: number; total: number };
@@ -235,6 +242,7 @@ export async function fetchRandom(
   personalized?: boolean,
   excludeIds?: string[],
   rerollPenalty?: RerollPenalty,
+  bandit?: LaneBandit,
 ): Promise<RandomResult> {
   const params = filtersToParams(filters ?? {});
   // When signed in, the backend excludes films the user marked "Not Interested".
@@ -254,6 +262,9 @@ export async function fetchRandom(
       params.set("rerollType", JSON.stringify(rerollPenalty.contentType));
     }
   }
+  // Lane-bandit posteriors (§6b): the backend Thompson-samples the roll's lane
+  // from these, so the split adapts to what this user engages with.
+  if (bandit) params.set("bandit", JSON.stringify(bandit));
   const qs = params.toString();
   const res = await fetch(`${API_URL}/api/random${qs ? `?${qs}` : ""}`, { cache: "no-store" });
   if (!res.ok) {

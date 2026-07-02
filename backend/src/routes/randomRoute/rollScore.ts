@@ -29,8 +29,11 @@ const WILD_FLOOR = 0.3;
 // >1 tilts each lane toward its best candidates without going deterministic.
 const LANE_SHARPNESS = 2;
 
-// The 70 / 20 / 10 blend (§7). Even the normal roll mixes these; the future Roll
-// Modes UI (§11, deferred) will just pin a single lane instead of drawing one.
+// The original 70 / 20 / 10 blend (§7). The lane is no longer drawn from this
+// fixed split — a Thompson-sampling bandit (`bandit.ts`) now learns the split
+// per user — but the ratios are preserved here as the belief its cold-start
+// priors (PRIOR_POSTERIORS) encode, and the future Roll Modes UI (§11) will pin
+// a single lane instead of drawing one.
 export const LANE_SPLIT = { safe: 0.7, gem: 0.2, wild: 0.1 } as const;
 export type RollLane = "safe" | "gem" | "wild";
 
@@ -65,13 +68,6 @@ export function scoreBreakdown(film: RandomFilmRow, ctx: ScoreContext): ScoreBre
       diversityMultiplier(film, ctx.recent, ctx.pinned) *
       rerollMultiplier(film, ctx.penalty, ctx.pinned),
   };
-}
-
-// Draw one lane per roll from the 70/20/10 split. Injectable RNG for testing.
-export function pickLane(r: number = Math.random()): RollLane {
-  if (r < LANE_SPLIT.safe) return "safe";
-  if (r < LANE_SPLIT.safe + LANE_SPLIT.gem) return "gem";
-  return "wild";
 }
 
 // A candidate's pick weight within the drawn lane: the lane's affinity signal,

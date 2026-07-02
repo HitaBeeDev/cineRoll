@@ -25,10 +25,12 @@ import {
   addRerollPenalty,
   addToRolledBag,
   decayRerollPenalties,
+  getLaneBandit,
   getRerollPenalty,
   getRolledBag,
   pushRollHistory,
   resetRolledBag,
+  updateLaneBandit,
   TASTE_SEED_STORAGE_KEY,
 } from "@/lib/home-storage";
 import { FilmCard } from "@/components/home/film-card";
@@ -151,6 +153,9 @@ export function HomeClient({
     film: RollFilm;
     engaged: boolean;
     rejected: boolean;
+    // The bandit lane this film was drawn from, credited on the next roll:
+    // reward 1 if the user engaged, 0 if they skipped it (§6b).
+    lane?: "safe" | "gem" | "wild" | undefined;
   } | null>(null);
 
   // Migration bridge for visitors who onboarded before it moved to a cookie:
@@ -265,6 +270,12 @@ export function HomeClient({
     if (outgoing && !outgoing.engaged) {
       addRerollPenalty(outgoing.film, outgoing.rejected ? "strong" : "weak");
     }
+    // Lane bandit (§6b): credit the outgoing film's lane — reward 1 if the user
+    // engaged with it, 0 if they skipped — so Thompson sampling learns which
+    // lane earns this user's attention.
+    if (outgoing?.lane) {
+      updateLaneBandit(outgoing.lane, outgoing.engaged ? 1 : 0);
+    }
     const isPersonalized = personalizedRoll && !!userId;
     void trackEvent({
       type: isPersonalized ? "roll_personalized" : "roll",
@@ -287,9 +298,12 @@ export function HomeClient({
       // Accumulated genre/type penalties from titles skipped this session, so
       // the backend softly steers away from recently-rerolled kinds.
       const rerollPenalty = getRerollPenalty();
+      // Learned lane posteriors — the backend Thompson-samples the roll's lane
+      // from these so the split adapts to this user (§6b).
+      const bandit = getLaneBandit();
       let result;
       try {
-        result = await fetchRandom(filters, userId, isPersonalized, seen, rerollPenalty);
+        result = await fetchRandom(filters, userId, isPersonalized, seen, rerollPenalty, bandit);
       } catch (err) {
         // Exhausted the reachable pool this session → the backend returns
         // NO_FILMS_FOUND. Reset the bag and roll once more so we never dead-end
@@ -301,14 +315,19 @@ export function HomeClient({
             : undefined;
         if (code === "NO_FILMS_FOUND" && seen.length > 0) {
           resetRolledBag();
-          result = await fetchRandom(filters, userId, isPersonalized, [], rerollPenalty);
+          result = await fetchRandom(filters, userId, isPersonalized, [], rerollPenalty, bandit);
         } else {
           throw err;
         }
       }
       addToRolledBag(result.film.id);
       // Start tracking engagement for the film we're about to show.
-      currentRollRef.current = { film: result.film, engaged: false, rejected: false };
+      currentRollRef.current = {
+        film: result.film,
+        engaged: false,
+        rejected: false,
+        lane: result.lane,
+      };
       setFilm(result.film);
       setFilteredCount(result.total);
       pushRollHistory(result.film);

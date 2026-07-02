@@ -11,8 +11,9 @@ import {
   mainGenre,
   pinnedDimensions,
 } from "./diversity";
+import { initialPosteriors, thompsonPickLane } from "./bandit";
 import { getRandomFilm, getRandomFilms } from "./randomRepository";
-import { ScoreContext, laneWeight, pickLane, scoreBreakdown } from "./rollScore";
+import { RollLane, ScoreContext, laneWeight, scoreBreakdown } from "./rollScore";
 import { RandomFilmResult, RandomFilmRow } from "./types";
 import { weightedSample } from "./weightedSample";
 
@@ -39,14 +40,16 @@ export async function getSessionRoll(query: RandomQuery): Promise<RandomFilmResu
     pinned: pinnedDimensions(query),
   };
 
-  return { film: pickByLane(films, ctx), total };
+  // Thompson-sample the lane from the user's learned posteriors (or cold-start
+  // priors when the client hasn't sent any yet), then weight + sample within it.
+  const lane = thompsonPickLane(query.bandit ?? initialPosteriors());
+  return { film: pickByLane(films, ctx, lane), total, lane };
 }
 
-// Draw a lane, weight the pool by what that lane rewards, and sample one.
+// Weight the pool by what the drawn lane rewards, and sample one.
 // `weightedSample`'s own guard falls back to uniform if every weight collapses
 // to ~0, so a heavily-penalized/thin pool self-heals rather than dead-ending (§10).
-function pickByLane(films: RandomFilmRow[], ctx: ScoreContext): RandomFilmRow {
-  const lane = pickLane();
+function pickByLane(films: RandomFilmRow[], ctx: ScoreContext, lane: RollLane): RandomFilmRow {
   const weights = films.map(film => laneWeight(scoreBreakdown(film, ctx), lane));
 
   return weightedSample(films, weights);

@@ -71,3 +71,31 @@ export const rerollPenaltyParam = z
       .refine(record => Object.keys(record).length <= 40, "too many penalty keys"),
   )
   .optional();
+
+// Lane-bandit posteriors (docs/smart-roll-engine.md §6b): the Beta(α, β) state
+// for the three roll lanes, learned client-side and sent per roll so Thompson
+// sampling can adapt the lane split to the user. Parsed leniently — a malformed
+// or out-of-range value is dropped and the roll falls back to the cold-start
+// priors, exactly like an anonymous first roll.
+const betaArmSchema = z.object({
+  alpha: z.number().gt(0).max(1000),
+  beta: z.number().gt(0).max(1000),
+});
+
+export const laneBanditParam = z
+  .preprocess(
+    value => {
+      if (typeof value !== "string") return value;
+      try {
+        return JSON.parse(value);
+      } catch {
+        return undefined;
+      }
+    },
+    z.object({
+      safe: betaArmSchema,
+      gem: betaArmSchema,
+      wild: betaArmSchema,
+    }),
+  )
+  .optional();

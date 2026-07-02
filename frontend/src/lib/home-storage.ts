@@ -244,6 +244,88 @@ export function resetRerollPenalty(): void {
   }
 }
 
+// Lane-bandit posteriors (docs/smart-roll-engine.md §6b). The Beta(α, β) state
+// for the roll's three lanes (Safe / Gem / Wild), learned from whether the user
+// engaged with each lane's picks. Sent to the backend each roll, where Thompson
+// sampling uses it to choose the lane; updated here on engagement/skip. Held in
+// localStorage (NOT sessionStorage) so the roll keeps learning the user across
+// visits. Mirrors backend `randomRoute/bandit.ts` — keep the constants in sync.
+export const LANE_BANDIT_STORAGE_KEY = "cineroll_lane_bandit";
+export type BanditLane = "safe" | "gem" | "wild";
+export type BetaArm = { alpha: number; beta: number };
+export type LaneBandit = Record<BanditLane, BetaArm>;
+
+// Cold-start priors reproduce the old fixed 70/20/10 lean; modest strength lets
+// real engagement move them. Must match backend PRIOR_POSTERIORS.
+const LANE_BANDIT_PRIORS: LaneBandit = {
+  safe: { alpha: 4, beta: 2 },
+  gem: { alpha: 2, beta: 4 },
+  wild: { alpha: 1, beta: 3 },
+};
+// Sliding-memory cap on an arm's evidence, so the bandit keeps adapting. Must
+// match backend MAX_ARM_STRENGTH.
+const LANE_BANDIT_MAX_STRENGTH = 60;
+const LANE_BANDIT_LANES: BanditLane[] = ["safe", "gem", "wild"];
+
+function clonePriors(): LaneBandit {
+  return {
+    safe: { ...LANE_BANDIT_PRIORS.safe },
+    gem: { ...LANE_BANDIT_PRIORS.gem },
+    wild: { ...LANE_BANDIT_PRIORS.wild },
+  };
+}
+
+function sanitizeArm(value: unknown): BetaArm | null {
+  if (!value || typeof value !== "object") return null;
+  const { alpha, beta } = value as Record<string, unknown>;
+  if (typeof alpha !== "number" || typeof beta !== "number") return null;
+  if (!Number.isFinite(alpha) || !Number.isFinite(beta) || alpha <= 0 || beta <= 0) return null;
+  return { alpha, beta };
+}
+
+export function getLaneBandit(): LaneBandit {
+  try {
+    const raw = window.localStorage.getItem(LANE_BANDIT_STORAGE_KEY);
+    const parsed = raw ? (JSON.parse(raw) as Partial<Record<BanditLane, unknown>>) : null;
+    const bandit = clonePriors();
+    for (const lane of LANE_BANDIT_LANES) {
+      const arm = sanitizeArm(parsed?.[lane]);
+      if (arm) bandit[lane] = arm;
+    }
+    return bandit;
+  } catch {
+    return clonePriors();
+  }
+}
+
+/**
+ * Fold a reward for the lane that was served into its posterior — `1` when the
+ * user engaged (opened / saved / watched), `0` on a skip. Same update rule as
+ * backend `updateArm`: α += reward, β += (1 − reward), then shrink toward the
+ * cap so the posterior keeps a sliding memory.
+ */
+export function updateLaneBandit(lane: BanditLane, reward: number): void {
+  const clamped = reward < 0 ? 0 : reward > 1 ? 1 : reward;
+  const bandit = getLaneBandit();
+  const arm = bandit[lane];
+  let alpha = arm.alpha + clamped;
+  let beta = arm.beta + (1 - clamped);
+
+  const strength = alpha + beta;
+  if (strength > LANE_BANDIT_MAX_STRENGTH) {
+    const scale = LANE_BANDIT_MAX_STRENGTH / strength;
+    alpha *= scale;
+    beta *= scale;
+  }
+
+  bandit[lane] = { alpha, beta };
+  try {
+    window.localStorage.setItem(LANE_BANDIT_STORAGE_KEY, JSON.stringify(bandit));
+  } catch {
+    // Lane learning is a nicety; rolling must keep working if storage is blocked.
+  }
+}
+
 export function pushRollHistory(film: RollFilm) {
   try {
     const existing = JSON.parse(
