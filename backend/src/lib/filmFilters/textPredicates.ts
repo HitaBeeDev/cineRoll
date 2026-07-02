@@ -16,13 +16,12 @@ export function textPredicates(query: ListQuery): Prisma.Sql[] {
 function titleSearchPredicate(query: ListQuery): Prisma.Sql | undefined {
   if (!query.search) return undefined;
 
-  const searchLike = `%${query.search}%`;
-  return Prisma.sql`
-    (
-      "Film"."title" ILIKE ${searchLike}
-      OR "Film"."title" % ${query.search}
-    )
-  `;
+  // Substring match only. The pg_trgm fuzzy operator (`title % search`) was
+  // dropped deliberately: it pulled in loose look-alikes ("Lethal Weapon" for
+  // "Weapons") that read as noise. A title now matches only if it actually
+  // contains the query; relevance ordering (see orderBy.ts) then floats exact
+  // and prefix hits above mid-string ones. Trade-off: no typo tolerance here.
+  return Prisma.sql`"Film"."title" ILIKE ${`%${query.search}%`}`;
 }
 
 function personPredicate(query: ListQuery): Prisma.Sql | undefined {

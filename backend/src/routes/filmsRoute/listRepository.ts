@@ -104,7 +104,7 @@ async function getPagedFilmList(query: ListQuery): Promise<FilmListPayload> {
       SELECT ${filmListSelect}
       FROM "Film"
       ${whereSql}
-      ORDER BY ${filmListOrderBy(query.sort, query.sortOrder)}
+      ORDER BY ${filmListOrderBy(query.sort, query.sortOrder, query.search)}
       LIMIT ${query.limit}
       OFFSET ${offset}
     `,
