@@ -58,7 +58,7 @@ export async function loadPool(excludeIds: string[]): Promise<PoolRow[]> {
       AND (
         f."oscarWins" + f."ggWins" + f."cannesWins" + f."berlinWins"
         + f."oscarNominations" + f."ggNominations" + f."cannesNominations" + f."berlinNominations" > 0
-        OR f."imdbRating" >= 7.5
+        OR (f."imdbRating" >= 7 AND f."rtScore" >= 70)
       )
       ${excludeSql}
     ORDER BY "prestige" DESC
