@@ -13,7 +13,7 @@
     "lint": "npm run lint --workspace=backend && npm run lint --workspace=frontend",
     "type-check": "npm run type-check --workspace=packages/types && npm run type-check --workspace=backend && npm run type-check --workspace=frontend",
     "prepare": "husky || true",
-    "postinstall": "prisma generate --schema=backend/prisma/schema.prisma"
+    "postinstall": "prisma generate --schema=$([ -f backend/prisma/schema.prisma ] && echo backend/prisma/schema.prisma || echo frontend/prisma/schema.prisma)"
   },
   "keywords": [],
   "author": "",

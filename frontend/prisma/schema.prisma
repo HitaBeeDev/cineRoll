@@ -1,0 +1,375 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Film {
+  id                String             @id @default(cuid())
+  slug              String             @unique
+  // TMDB ids are only unique WITHIN a media namespace (/movie vs /tv), so the
+  // same number can be a movie AND a series (e.g. 453 = "A Beautiful Mind" the
+  // film and "Mister Ed" the series). Uniqueness is scoped by contentType below.
+  tmdbId            Int?
+  imdbId            String?            @unique
+  title             String
+  originalTitle     String?
+  releaseYear       Int                @map("year")
+  runtime           Int?
+  genres            String[]
+  countries         String[]
+  contentType       String             @default("movie")
+  plot              String?
+  director          String?
+  cast              Json               @default("[]")
+  language          String?
+  posterUrl         String?
+  posterColor       String?
+  backdropUrl       String?
+  trailerUrl        String?
+  imdbRating        Float?
+  rtScore           Int?
+  imdbTopMovieRank  Int?
+  imdbTopTvRank     Int?
+  certificate       String?
+  tvType            String?
+  tvStartYear       Int?
+  tvEndYear         Int?
+  oscarNominations  Int                @default(0)
+  oscarWins         Int                @default(0)
+  oscarCategories   Json               @default("[]")
+  ggNominations     Int                @default(0)
+  ggWins            Int                @default(0)
+  ggCategories      Json               @default("[]")
+  cannesNominations Int                @default(0)
+  cannesWins        Int                @default(0)
+  cannesCategories  Json               @default("[]")
+  berlinNominations Int                @default(0)
+  berlinWins        Int                @default(0)
+  berlinCategories  Json               @default("[]")
+  watchProviders    Json?
+  isPickOfDay       Boolean            @default(false)
+  pickOfDayDate     DateTime?
+  rollEvents        RollEvent[]
+  events            Event[]
+  watchlistEntries  Watchlist[]
+  watchedFilms      WatchedFilm[]
+  ratings           UserRating[]
+  comments          FilmComment[]
+  pickOfDayHistory  PickOfDayHistory[]
+  filmRating        FilmRating?
+  battlesWon        BattleMatch[]      @relation("BattleWinner")
+  battlesLost       BattleMatch[]      @relation("BattleLoser")
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  // tmdbId is unique only within a media namespace — scope it by contentType so a
+  // movie and a series can share the same TMDB number. (NULL tmdbIds stay exempt.)
+  @@unique([tmdbId, contentType], map: "Film_tmdbId_contentType_key")
+  @@index([title], map: "Film_title_idx")
+  @@index([releaseYear], map: "Film_year_idx")
+  @@index([genres], type: Gin, map: "Film_genres_gin_idx")
+  @@index([countries], type: Gin, map: "Film_countries_gin_idx")
+  @@index([title(ops: raw("gin_trgm_ops"))], type: Gin, map: "Film_title_trgm_idx")
+  // Sort/range filters on quality scores (browse sort + quality candidate pools).
+  @@index([imdbRating], map: "Film_imdbRating_idx")
+  @@index([rtScore], map: "Film_rtScore_idx")
+  // Low-cardinality equality filters — enable bitmap AND with the genres GIN.
+  @@index([contentType], map: "Film_contentType_idx")
+  @@index([language], map: "Film_language_idx")
+  // Substring (ILIKE '%name%') director/person search.
+  @@index([director(ops: raw("gin_trgm_ops"))], type: Gin, map: "Film_director_trgm_idx")
+}
+
+model Person {
+  id           String   @id @default(cuid())
+  slug         String   @unique
+  name         String
+  tmdbPersonId Int?     @unique
+  role         String   @default("nominee")
+  photoUrl     String?
+  bio          String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([name], map: "Person_name_idx")
+  @@index([name(ops: raw("gin_trgm_ops"))], type: Gin, map: "Person_name_trgm_idx")
+}
+
+model RollEvent {
+  id        String   @id @default(cuid())
+  filmId    String
+  film      Film     @relation(fields: [filmId], references: [id])
+  timestamp DateTime @default(now()) @map("rolledAt")
+
+  @@index([filmId, timestamp], map: "RollEvent_filmId_rolledAt_idx")
+}
+
+model User {
+  id               String            @id @default(cuid())
+  email            String            @unique
+  name             String?
+  image            String?
+  emailVerified    DateTime?
+  // bcrypt hash for email+password sign-in. Null for accounts created via
+  // Google (OAuth-only) until/unless they set a password.
+  passwordHash     String?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  // Genres captured from the first-visit onboarding taste cards, ranked
+  // most-preferred first. Used to seed the taste profile on cold-start.
+  onboardingGenres String[]          @default([])
+  accounts         Account[]
+  events           Event[]
+  sessions         Session[]
+  tasteProfile     UserTasteProfile?
+  watchlistEntries Watchlist[]
+  watchedFilms     WatchedFilm[]
+  ratings          UserRating[]
+  comments         FilmComment[]
+  passwordResets   PasswordResetToken[]
+  laneBandit       RollLaneBandit?
+
+  @@index([email], map: "User_email_idx")
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  userId    String
+  // SHA-256 of the token mailed to the user; the raw token is never stored, so
+  // a DB leak can't be replayed against the reset endpoint.
+  tokenHash String   @unique
+  expires   DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId], map: "PasswordResetToken_userId_idx")
+}
+
+enum EventType {
+  roll
+  roll_personalized
+  impression
+  film_click
+  watchlist_add
+  watchlist_remove
+  watched
+  not_interested
+  rating_set
+  sentiment_set
+  recommendation_served
+  recommendation_click
+  search
+  filter_apply
+  pick_of_day_click
+}
+
+model Event {
+  id        String    @id @default(cuid())
+  userId    String?
+  user      User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  anonId    String?
+  sessionId String
+  type      EventType
+  filmId    String?
+  film      Film?     @relation(fields: [filmId], references: [id], onDelete: SetNull)
+  context   Json
+  variant   String?
+  createdAt DateTime  @default(now())
+
+  @@index([userId, type, createdAt], map: "Event_userId_type_createdAt_idx")
+  @@index([anonId, createdAt], map: "Event_anonId_createdAt_idx")
+  @@index([filmId, type], map: "Event_filmId_type_idx")
+  @@index([type, createdAt], map: "Event_type_createdAt_idx")
+  @@index([sessionId], map: "Event_sessionId_idx")
+}
+
+model Account {
+  id                String   @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId], map: "Account_userId_idx")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId], map: "Session_userId_idx")
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Watchlist {
+  id      String   @id @default(cuid())
+  userId  String
+  filmId  String
+  addedAt DateTime @default(now())
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  film    Film     @relation(fields: [filmId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, filmId])
+  @@index([userId], map: "Watchlist_userId_idx")
+}
+
+enum WatchedSentiment {
+  like
+  dislike
+}
+
+model WatchedFilm {
+  id           String            @id @default(cuid())
+  userId       String
+  filmId       String
+  watchedAt    DateTime          @default(now())
+  doNotSuggest Boolean           @default(false)
+  sentiment    WatchedSentiment?
+  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  film         Film              @relation(fields: [filmId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, filmId])
+  @@index([userId], map: "WatchedFilm_userId_idx")
+}
+
+// Explicit numeric rating (half-star widget, 1.0–10.0 step 0.5). The richer
+// signal that complements WatchedFilm.sentiment; the taste profile consumes it.
+// Step is enforced in the API layer (Postgres can't express it).
+model UserRating {
+  id        String   @id @default(cuid())
+  userId    String
+  filmId    String
+  rating    Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  film      Film     @relation(fields: [filmId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, filmId])
+  @@index([userId], map: "UserRating_userId_idx")
+  @@index([filmId], map: "UserRating_filmId_idx")
+}
+
+model FilmComment {
+  id        String   @id @default(cuid())
+  userId    String
+  filmId    String
+  body      String   @db.Text
+  hidden    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  film      Film     @relation(fields: [filmId], references: [id], onDelete: Cascade)
+
+  @@index([filmId, hidden, createdAt], map: "FilmComment_filmId_hidden_createdAt_idx")
+  @@index([userId], map: "FilmComment_userId_idx")
+}
+
+// One row per day recording the deterministically-selected Pick of the Day, so
+// the algorithm can avoid recently-featured films and the choice is auditable.
+model PickOfDayHistory {
+  id        String   @id @default(cuid())
+  filmId    String
+  date      DateTime @unique @db.Date
+  createdAt DateTime @default(now())
+  film      Film     @relation(fields: [filmId], references: [id], onDelete: Cascade)
+
+  @@index([filmId], map: "PickOfDayHistory_filmId_idx")
+}
+
+model UserTasteProfile {
+  id                 String    @id @default(cuid())
+  userId             String    @unique
+  user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  genreWeights       Json      @default("{}")
+  directorWeights    Json      @default("{}")
+  decadeWeights      Json      @default("{}")
+  runtimeBandWeights Json      @default("{}")
+  awardAffinity      Json      @default("{}")
+  ratingTier         Json      @default("{}")
+  positiveCount      Int       @default(0)
+  negativeCount      Int       @default(0)
+  staleAt            DateTime?
+  updatedAt          DateTime  @updatedAt
+
+  @@index([staleAt], map: "UserTasteProfile_staleAt_idx")
+}
+
+// Per-user Beta(α, β) posteriors for the roll's lane bandit (Safe / Gem / Wild).
+// Thompson sampling draws the roll's lane from these; engagement updates them.
+// See backend/src/routes/randomRoute/bandit.ts. Guests keep the same state in
+// localStorage; this table is the source of truth for signed-in users so the
+// roll keeps learning them across devices. Default = the cold-start priors
+// (PRIOR_POSTERIORS), which reproduce the old fixed 70/20/10 lane split.
+model RollLaneBandit {
+  id         String   @id @default(cuid())
+  userId     String   @unique
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  posteriors Json     @default("{\"safe\":{\"alpha\":4,\"beta\":2},\"gem\":{\"alpha\":2,\"beta\":4},\"wild\":{\"alpha\":1,\"beta\":3}}")
+  updatedAt  DateTime @updatedAt
+}
+
+model SiteFeedback {
+  id        String   @id @default(cuid())
+  email     String?
+  body      String   @db.Text
+  createdAt DateTime @default(now())
+
+  @@index([createdAt], map: "SiteFeedback_createdAt_idx")
+}
+
+// Persistent Elo rating per film, aggregated from Roll Battle (Versus) duels.
+// One row per film that has ever fought; absent films are treated as the default
+// INITIAL_RATING (1500). See backend/src/routes/rollBattleRoute/elo.ts and
+// docs/algorithms.md §10.
+model FilmRating {
+  id        String   @id @default(cuid())
+  filmId    String   @unique
+  film      Film     @relation(fields: [filmId], references: [id], onDelete: Cascade)
+  rating    Float    @default(1500)
+  games     Int      @default(0)
+  wins      Int      @default(0)
+  updatedAt DateTime @updatedAt
+
+  @@index([rating], map: "FilmRating_rating_idx")
+}
+
+// Append-only log of every pairwise Versus outcome. Kept so the Elo table can be
+// recomputed / audited and so a Bradley–Terry batch fit is possible later.
+model BattleMatch {
+  id        String   @id @default(cuid())
+  winnerId  String
+  loserId   String
+  winner    Film     @relation("BattleWinner", fields: [winnerId], references: [id], onDelete: Cascade)
+  loser     Film     @relation("BattleLoser", fields: [loserId], references: [id], onDelete: Cascade)
+  userId    String?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt], map: "BattleMatch_createdAt_idx")
+}
