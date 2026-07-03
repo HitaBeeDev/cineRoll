@@ -1,7 +1,9 @@
 import { ImageResponse } from "next/og";
 import type { Film } from "@cineroll/types";
 
-export const runtime = "edge";
+// Node runtime (not "edge"): Vercel's multi-service deployments don't support
+// Edge Function output. next/og's ImageResponse runs fine on Node.
+export const runtime = "nodejs";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 const SITE_URL =
