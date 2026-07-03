@@ -1,0 +1,26 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="CineRoll">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="38%" r="75%">
+      <stop offset="0%" stop-color="#15121b"/>
+      <stop offset="100%" stop-color="#09090f"/>
+    </radialGradient>
+    <linearGradient id="ring" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff635a"/>
+      <stop offset="100%" stop-color="#e8453c"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <!-- film reel -->
+  <circle cx="256" cy="256" r="150" fill="none" stroke="url(#ring)" stroke-width="26"/>
+  <circle cx="256" cy="256" r="46" fill="#e8453c"/>
+  <g fill="#f4f0f7">
+    <circle cx="256" cy="140" r="24"/>
+    <circle cx="256" cy="372" r="24"/>
+    <circle cx="140" cy="256" r="24"/>
+    <circle cx="372" cy="256" r="24"/>
+    <circle cx="174" cy="174" r="20"/>
+    <circle cx="338" cy="174" r="20"/>
+    <circle cx="174" cy="338" r="20"/>
+    <circle cx="338" cy="338" r="20"/>
+  </g>
+</svg>
