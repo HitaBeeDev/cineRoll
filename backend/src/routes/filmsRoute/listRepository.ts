@@ -36,15 +36,35 @@ async function getOnboardingSample(query: ListQuery): Promise<FilmListPayload> {
         SELECT
           ${filmListSelect},
           (FLOOR("Film"."year" / 10) * 10)::INT AS "decade",
-          COALESCE(("Film"."genres")[1], 'Other') AS "primaryGenre"
+          COALESCE(("Film"."genres")[1], 'Other') AS "primaryGenre",
+          -- Recognizability weight: how likely the median user has HEARD OF this
+          -- film. The catalogue is award-skewed (many obscure prestige titles), so
+          -- onboarding must bias toward culturally famous films or it collects no
+          -- signal. Best available proxies: IMDb Top-250 membership, Oscar wins/
+          -- noms, and above-average IMDb rating. A floor keeps every film possible.
+          GREATEST(
+            0.15
+            + CASE WHEN "Film"."imdbTopMovieRank" IS NOT NULL THEN 3.0 ELSE 0 END
+            + LEAST(COALESCE("Film"."oscarWins", 0), 4) * 0.6
+            + LEAST(COALESCE("Film"."oscarNominations", 0), 8) * 0.15
+            + GREATEST(COALESCE("Film"."imdbRating", 0) - 6.0, 0) * 0.35,
+            0.15
+          ) AS "recog"
         FROM "Film"
         ${whereSql}
       ),
       ranked AS (
         SELECT
           candidates.*,
-          ROW_NUMBER() OVER (PARTITION BY "decade" ORDER BY RANDOM()) AS "decadeRank",
-          ROW_NUMBER() OVER (PARTITION BY "primaryGenre" ORDER BY RANDOM()) AS "genreRank"
+          -- Weighted-random key (Efraimidis-Spirakis): POWER(RANDOM(), 1/weight)
+          -- makes higher-weight rows tend to sort first while staying stochastic,
+          -- so famous films dominate each bucket but the set varies across visits.
+          ROW_NUMBER() OVER (
+            PARTITION BY "decade" ORDER BY POWER(RANDOM(), 1.0 / "recog") DESC
+          ) AS "decadeRank",
+          ROW_NUMBER() OVER (
+            PARTITION BY "primaryGenre" ORDER BY POWER(RANDOM(), 1.0 / "recog") DESC
+          ) AS "genreRank"
         FROM candidates
       ),
       spread_pool AS (
@@ -55,7 +75,7 @@ async function getOnboardingSample(query: ListQuery): Promise<FilmListPayload> {
       sampled AS (
         SELECT *
         FROM spread_pool
-        ORDER BY RANDOM()
+        ORDER BY POWER(RANDOM(), 1.0 / "recog") DESC
         LIMIT ${query.limit}
       )
       SELECT

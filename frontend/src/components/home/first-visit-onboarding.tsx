@@ -93,42 +93,36 @@ export function FirstVisitOnboarding({
             shape better rolls after you enter.
           </p>
 
-          <div className="mt-8 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
+          <div className="mt-8 flex w-full sm:w-auto">
+            {/* One adaptive primary action: proceed with no picks reads as a soft
+                "Continue" (same effect as Skip); once the user marks films it
+                becomes an emphasised "Done · N" that commits the taste seed.
+                The header "Skip" remains the single explicit skip affordance. */}
             <button
               type="button"
-              onClick={handleDone}
+              onClick={selectedSeenCount > 0 ? handleDone : handleSkip}
               className={cn(
-                "min-w-[180px] bg-[#F5F5F0] px-7 py-4 text-[#09090f]",
-                "font-[family-name:var(--font-geist-mono)] text-sm font-bold uppercase tracking-[0.2em]",
-                "transition hover:bg-white hover:shadow-[0_18px_50px_rgba(245,245,240,0.16)]",
+                "min-w-[220px] px-7 py-4",
+                "font-[family-name:var(--font-geist-mono)] text-sm font-bold uppercase tracking-[0.2em] transition",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090f]",
+                selectedSeenCount > 0
+                  ? "bg-[#F5F5F0] text-[#09090f] hover:bg-white hover:shadow-[0_18px_50px_rgba(245,245,240,0.16)]"
+                  : "border border-[#2a2a3e] bg-[#11111b]/70 text-[#a6a6b5] hover:border-[#4b4b60] hover:text-[#F5F5F0]",
               )}
             >
-              Done{selectedSeenCount > 0 ? ` (${selectedSeenCount})` : ""}
-            </button>
-            <button
-              type="button"
-              onClick={handleSkip}
-              className={cn(
-                "min-w-[180px] border border-[#2a2a3e] bg-[#11111b]/70 px-7 py-4 text-[#888899]",
-                "font-[family-name:var(--font-geist-mono)] text-sm font-bold uppercase tracking-[0.2em]",
-                "transition hover:border-[#4b4b60] hover:text-[#F5F5F0]",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090f]",
-              )}
-            >
-              Skip
+              {selectedSeenCount > 0 ? `Done · ${selectedSeenCount}` : "Continue"}
             </button>
           </div>
 
-          <div className="mt-6 flex items-center gap-3 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.22em] text-[#888899]">
+          <div className="mt-5 flex items-center gap-3 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.22em] text-[#888899]">
             <span className="h-px w-9 bg-[#e8453c]/55" />
             {selectedSeenCount === 0
-              ? "Tap any poster"
+              ? "Tap any poster you've seen"
               : `${selectedSeenCount} selected`}
           </div>
         </section>
 
-        <section className="min-h-0">
+        <section className="min-h-0 min-w-0">
           <div className="mx-auto grid w-full max-w-5xl grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
             {tasteCardsStatus === "error" ? (
               <div className="col-span-2 flex min-h-[420px] items-center justify-center border border-dashed border-[#2a2a3e] bg-[#080810]/80 sm:col-span-4">
@@ -195,12 +189,16 @@ export function FirstVisitOnboarding({
                         {film.title}
                       </p>
                     </div>
+                    {/* Always-visible toggle. Unselected reads as an empty
+                        checkbox (solid ring, no reliance on hover — critical on
+                        touch); selected fills red with a check. The drop shadow
+                        keeps it legible over bright posters. */}
                     <span
                       className={cn(
-                        "absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full border backdrop-blur transition",
+                        "absolute right-2.5 top-2.5 flex h-8 w-8 items-center justify-center rounded-full border-2 shadow-[0_2px_10px_rgba(0,0,0,0.6)] backdrop-blur transition",
                         selected
-                          ? "border-[#e8453c] bg-[#e8453c] text-white"
-                          : "border-white/25 bg-black/35 text-white/0 group-hover:text-white/80",
+                          ? "border-[#e8453c] bg-[#e8453c] text-white scale-110"
+                          : "border-white/85 bg-black/30 text-transparent",
                       )}
                     >
                       <Check className="h-4 w-4" aria-hidden />
