@@ -1,6 +1,14 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Construct the client lazily. Resend throws in its constructor when the API
+// key is missing, and Next evaluates route modules at build time ("collecting
+// page data") where env vars may be absent — a module-level `new Resend()`
+// would fail the build. Building on first send keeps the build env-free.
+let resendClient: Resend | null = null;
+function getResend(): Resend {
+  if (!resendClient) resendClient = new Resend(process.env.RESEND_API_KEY);
+  return resendClient;
+}
 
 const FROM = process.env.EMAIL_FROM ?? "onboarding@resend.dev";
 
@@ -11,7 +19,7 @@ export async function sendPasswordResetEmail(to: string, resetUrl: string) {
     console.log(`[dev] password reset link for ${to}: ${resetUrl}`);
   }
 
-  const { error } = await resend.emails.send({
+  const { error } = await getResend().emails.send({
     from: FROM,
     to,
     subject: "Reset your CineRoll password",
