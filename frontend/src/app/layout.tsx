@@ -44,8 +44,8 @@ export const metadata: Metadata = {
     statusBarStyle: "black-translucent",
   },
   icons: {
-    icon: [{ url: "/favicon.png?v=00d1cfbbbb", type: "image/png" }],
-    shortcut: [{ url: "/favicon.png?v=00d1cfbbbb", type: "image/png" }],
+    icon: [{ url: "/favicon.png?v=20260704", type: "image/png" }],
+    shortcut: [{ url: "/favicon.png?v=20260704", type: "image/png" }],
     apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
   },
   openGraph: {
