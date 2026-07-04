@@ -40,8 +40,19 @@ async function tasteWeightedPick(pool: RandomFilmRow[], userId: string): Promise
   const taste = await getTasteProfile(userId);
   const currentYear = new Date().getFullYear();
   const scores = pool.map(film => scoreFilm(film, taste, currentYear));
-  const maxScore = Math.max(...scores);
-  const weights = scores.map(score => Math.exp((score - maxScore) / SOFTMAX_TEMPERATURE));
 
-  return weightedSample(pool, weights);
+  return weightedSample(pool, softmaxWeights(scores));
+}
+
+// Softmax over raw scores → sampling weights. Subtracting the max keeps exp()
+// numerically stable (no overflow) while leaving the relative weights unchanged.
+// A lower temperature sharpens the distribution toward the top score; a higher
+// one flattens it toward uniform.
+export function softmaxWeights(
+  scores: number[],
+  temperature: number = SOFTMAX_TEMPERATURE,
+): number[] {
+  const maxScore = Math.max(...scores);
+
+  return scores.map(score => Math.exp((score - maxScore) / temperature));
 }
