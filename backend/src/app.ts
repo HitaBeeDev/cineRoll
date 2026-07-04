@@ -1,4 +1,5 @@
 import express from "express";
+import * as Sentry from "@sentry/node";
 import cors from "cors";
 import compression from "compression";
 import helmet from "helmet";
@@ -47,4 +48,19 @@ app.get("/health", async (_req, res) => {
 // their own requireAuth guard; this pass is best-effort and never rejects.
 app.use("/api", optionalAuth, globalRateLimit);
 app.use("/api", router);
+
+// Opt-in verification endpoint: throws so a deliberate 500 flows through the
+// Sentry error handler below. Guarded by SENTRY_DEBUG so it never exists in
+// normal operation — set SENTRY_DEBUG=true, hit /debug-sentry to confirm the
+// event lands in Sentry, then unset it.
+if (config.sentryDebug) {
+  app.get("/debug-sentry", () => {
+    throw new Error("Sentry backend verification error");
+  });
+}
+
+// Must run after all routes and before any other error middleware: it reports
+// unhandled errors to Sentry, then hands off to our JSON errorHandler. A no-op
+// when Sentry was not initialized (no SENTRY_DSN).
+Sentry.setupExpressErrorHandler(app);
 app.use(errorHandler);

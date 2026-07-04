@@ -28,6 +28,14 @@ const envSchema = z.object({
   // Feedback notifications — feedback still persists if unset
   RESEND_API_KEY: optionalNonEmptyString,
   OWNER_EMAIL: optionalEmail,
+  // Error tracking — Sentry is disabled (no-op) when unset. Init lives in
+  // instrument.ts, which reads SENTRY_DSN from the environment directly.
+  SENTRY_DSN: optionalNonEmptyString,
+  // Opt-in: mounts GET /debug-sentry to verify a deliberate 500 reaches Sentry.
+  SENTRY_DEBUG: z
+    .enum(["true", "false"])
+    .default("false")
+    .transform((v) => v === "true"),
   // Global API rate limiting (per-IP and per-user fixed windows)
   RATE_LIMIT_WINDOW_MS: z.coerce.number().int().positive().default(60_000),
   RATE_LIMIT_MAX_PER_IP: z.coerce.number().int().positive().default(300),
@@ -53,6 +61,8 @@ export const config = {
   metricsToken: env.METRICS_TOKEN ?? "",
   resendApiKey: env.RESEND_API_KEY ?? "",
   ownerEmail: env.OWNER_EMAIL ?? "",
+  sentryDsn: env.SENTRY_DSN ?? "",
+  sentryDebug: env.SENTRY_DEBUG,
   rateLimit: {
     windowMs: env.RATE_LIMIT_WINDOW_MS,
     maxPerIp: env.RATE_LIMIT_MAX_PER_IP,

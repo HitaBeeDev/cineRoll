@@ -1,3 +1,5 @@
+// Must be first: initializes Sentry before the app and its dependencies load.
+import "./instrument";
 import { app } from "./app";
 import { config } from "./config";
 
