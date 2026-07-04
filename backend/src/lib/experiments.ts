@@ -70,12 +70,26 @@ export const BASELINE_PARAMS: RecommenderParams = {
   mmrLambda: envNumber("REC_MMR_LAMBDA", 0.7),
 };
 
+// The single knob this experiment tests. MMR lambda trades relevance (high λ)
+// against intra-list diversity (low λ): 1.0 = pure taste-score ordering, 0.0 =
+// pure novelty. We hold qualityWeight/recencyWeight fixed and move only λ so any
+// metric delta is attributable to the diversity setting alone.
+//
+// Hypothesis: lowering λ from 0.70 (control) to 0.55 (treatment) widens catalog
+// coverage without a meaningful drop in recall@6 / precision@6.
+export const EXPERIMENT_KNOB = "mmrLambda" as const;
+const CONTROL_MMR_LAMBDA = 0.7; // = BASELINE_PARAMS.mmrLambda default
+const TREATMENT_MMR_LAMBDA = 0.55;
+
 // Per-variant overrides keyed by the full variant tag from assignVariant().
+// Control intentionally overrides nothing so it tracks the (env-tunable) baseline.
 const VARIANT_OVERRIDES: Record<string, Partial<RecommenderParams>> = {
   "rec_ranker_v1:control": {},
-  // Treatment: weaker MMR penalty → more diverse top-N.
-  "rec_ranker_v1:treatment": { mmrLambda: 0.55 },
+  "rec_ranker_v1:treatment": { mmrLambda: TREATMENT_MMR_LAMBDA },
 };
+
+// The λ arms the offline A/B sweep evaluates (evalRecommender/abSweep.ts).
+export const SWEEP_LAMBDAS = [CONTROL_MMR_LAMBDA, TREATMENT_MMR_LAMBDA] as const;
 
 export function recommenderParams(variant: string): RecommenderParams {
   return { ...BASELINE_PARAMS, ...(VARIANT_OVERRIDES[variant] ?? {}) };
