@@ -8,6 +8,7 @@ export function getRecommendationMetricRows(since: Date | null): Promise<Surface
         COALESCE(e."userId", e."anonId") AS actor,
         e."filmId" AS film_id,
         COALESCE(e.context->>'source', 'recommender') AS surface,
+        COALESCE(e."variant", 'unassigned') AS variant,
         e."createdAt" AS served_at
       FROM "Event" e
       WHERE e.type = 'recommendation_served'
@@ -20,6 +21,7 @@ export function getRecommendationMetricRows(since: Date | null): Promise<Surface
         COALESCE(e."userId", e."anonId") AS actor,
         fid AS film_id,
         COALESCE(e.context->>'source', 'recommender') AS surface,
+        COALESCE(e."variant", 'unassigned') AS variant,
         e."createdAt" AS served_at
       FROM "Event" e,
         jsonb_array_elements_text(e.context->'filmIds') AS fid
@@ -29,13 +31,14 @@ export function getRecommendationMetricRows(since: Date | null): Promise<Surface
         AND (${since}::timestamptz IS NULL OR e."createdAt" >= ${since})
     ),
     imp AS (
-      SELECT actor, film_id, surface, MIN(served_at) AS served_at
+      SELECT actor, film_id, surface, variant, MIN(served_at) AS served_at
       FROM served
       WHERE actor IS NOT NULL AND film_id IS NOT NULL
-      GROUP BY actor, film_id, surface
+      GROUP BY actor, film_id, surface, variant
     )
     SELECT
       i.surface,
+      i.variant,
       COUNT(*)::bigint AS served,
       COUNT(*) FILTER (WHERE EXISTS (
         SELECT 1 FROM "Event" e WHERE e.type = 'recommendation_click'
@@ -58,7 +61,7 @@ export function getRecommendationMetricRows(since: Date | null): Promise<Surface
           AND e."filmId" = i.film_id AND e."createdAt" >= i.served_at
       ))::bigint AS disliked
     FROM imp i
-    GROUP BY i.surface
+    GROUP BY i.surface, i.variant
     ORDER BY served DESC
   `;
 }

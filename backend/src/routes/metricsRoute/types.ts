@@ -1,5 +1,6 @@
 export type SurfaceRow = {
   surface: string;
+  variant: string;
   served: bigint;
   clicked: bigint;
   saved: bigint;
