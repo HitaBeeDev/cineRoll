@@ -14,6 +14,13 @@ export function formatFilmYear(film: {
   const isSeries = film.contentType === "tv-series" || film.contentType === "tv-mini-series";
   if (!isSeries) return single != null ? String(single) : "";
 
+  // A "tv-series" with neither a start nor an end year isn't really an ongoing
+  // run — it's usually a TV movie TMDB catalogs under /tv (e.g. "Hope" 1997). Show
+  // the single year rather than falsely claiming "1997–present".
+  if (film.tvStartYear == null && film.tvEndYear == null) {
+    return single != null ? String(single) : "";
+  }
+
   const start = film.tvStartYear ?? single;
   if (start == null) return "";
   const end = film.tvEndYear;
