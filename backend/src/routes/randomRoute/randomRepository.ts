@@ -86,6 +86,22 @@ export async function getRandomCount(query: RandomQuery): Promise<number> {
   return countFilms(query, whereSql, cacheable);
 }
 
+// The number the UI shows as the "Reel Pool". Counts the FULL catalog for the
+// given filters — no eligibility gate, no user exclusions — so the pool always
+// reads the real total X even though the roll draws from the narrower eligible
+// set. The one exception: when nothing is actually rollable we report 0, so an
+// all-ineligible filter set surfaces as "No matches" instead of a non-zero count
+// you can't roll from.
+export async function getDisplayCount(query: RandomQuery): Promise<number> {
+  const { conditions, cacheable } = await rollConditions(query);
+  const [catalog, rollable] = await Promise.all([
+    countFilms(query, buildWhereClause(query, []), true, "catalog"),
+    countFilms(query, buildWhereClause(query, conditions), cacheable),
+  ]);
+
+  return rollable === 0 ? 0 : catalog;
+}
+
 export async function getPersonalizedPool(query: RandomQuery, limit: number) {
   const { conditions, cacheable } = await rollConditions(query);
   const whereSql = buildWhereClause(query, conditions);

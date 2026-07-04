@@ -6,7 +6,7 @@ import { HttpError } from "../middleware/errorHandler";
 import { getValidated, validate } from "../middleware/validate";
 import { logRollEvent } from "./randomRoute/eventLogger";
 import { getPersonalizedRandomFilm } from "./randomRoute/personalizedService";
-import { getRandomCount } from "./randomRoute/randomRepository";
+import { getDisplayCount } from "./randomRoute/randomRepository";
 import { getSessionRoll } from "./randomRoute/sessionRollService";
 import { RandomFilmResult, RandomFilmRow } from "./randomRoute/types";
 
@@ -24,7 +24,7 @@ export const randomRouter = Router();
 randomRouter.get("/", validate(randomQuerySchema), async (req, res) => {
   const query = getValidated<RandomQuery>(req, "query");
   const usePersonalized = query.personalized === true && query.userId != null;
-  const { film, total, exploration, lane, posteriors } = usePersonalized
+  const { film, exploration, lane, posteriors } = usePersonalized
     ? { ...(await getPersonalizedRandomFilm(query)), lane: undefined, posteriors: undefined }
     : { ...(await getSessionRoll(query)), exploration: false };
 
@@ -32,13 +32,18 @@ randomRouter.get("/", validate(randomQuerySchema), async (req, res) => {
     throw new HttpError(404, "No films match the given filters", "NO_FILMS_FOUND");
   }
 
+  // The pool count reported to the client is the full catalog for these filters,
+  // not the eligibility-gated roll pool (see getDisplayCount). A film exists here,
+  // so the rollable pool is non-empty and this resolves to the real total X.
+  const total = await getDisplayCount(query);
+
   await logRollEvent(query, film, total, usePersonalized, exploration);
   sendRandomFilmResponse(res, film, total, usePersonalized, exploration, lane, posteriors);
 });
 
 randomRouter.get("/count", validate(randomQuerySchema), async (req, res) => {
   const query = getValidated<RandomQuery>(req, "query");
-  const total = await getRandomCount(query);
+  const total = await getDisplayCount(query);
 
   setPublicCache(res, 60);
   res.json({ total });

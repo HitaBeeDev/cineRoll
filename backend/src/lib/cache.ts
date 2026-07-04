@@ -88,6 +88,10 @@ export const cacheKeys = {
    *  raw user text). */
   naturalRollFilters: (promptHash: string) => `nlr:filters:${promptHash}`,
   randomCount: (signature: string) => `random:count:${signature}`,
+  /** Full-catalog count for a filter set — the "reel pool" number the UI shows.
+   *  Kept on a distinct key from randomCount so the eligibility-gated roll count
+   *  and the ungated display count never collide under the same filter signature. */
+  catalogCount: (signature: string) => `catalog:count:${signature}`,
   /** Prefix covering all of one user's cached recommendations (any limit). */
   recommendationsPrefix: (userId: string) => `recs:${userId}:`,
   recommendations: (userId: string, limit: number) => `recs:${userId}:${limit}`,

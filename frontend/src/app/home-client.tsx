@@ -11,7 +11,6 @@ import { useSession } from "next-auth/react";
 import {
   fetchRandom,
   fetchRandomCount,
-  fetchFilms,
   fetchGenres,
   fetchOnboardingTasteCards,
   saveOnboardingGenres,
@@ -232,9 +231,13 @@ export function HomeClient({
     let cancelled = false;
     const timer = setTimeout(() => {
       setIsCountLoading(true);
-      void fetchFilms(filters, 1)
-        .then((r) => {
-          if (!cancelled) setFilteredCount(r.total);
+      // The reel-pool count reflects the full catalog for these filters (not the
+      // eligibility-gated roll pool), except it reads 0 when nothing is rollable —
+      // see the backend's getDisplayCount. Using the same endpoint keeps the
+      // pre-roll number and the post-roll number in agreement.
+      void fetchRandomCount(filters)
+        .then((total) => {
+          if (!cancelled) setFilteredCount(total);
         })
         .catch(() => {
           if (!cancelled) setFilteredCount(null);
