@@ -4,7 +4,7 @@ import { BadgeCheck, CalendarDays, KeyRound } from "lucide-react";
 import { auth } from "@/auth";
 import { AppHeader } from "@/components/app-header";
 import { AvatarPicker } from "@/components/settings/avatar-picker";
-import { PasswordDisclosure } from "@/components/settings/password-disclosure";
+import { PasswordForm } from "@/components/settings/password-form";
 import { SignOutButton } from "@/components/sign-out-button";
 import { UserAvatar } from "@/components/user-avatar";
 import { prisma } from "@/lib/prisma";
@@ -51,7 +51,7 @@ export default async function SettingsPage() {
   return (
     <main className="min-h-screen bg-[#07070b] text-[#f4f4f5]">
       <AppHeader />
-      <div className="mx-auto max-w-5xl px-6 py-16 lg:px-10">
+      <div className="mx-auto max-w-5xl px-6 py-12 lg:px-10">
         <h1 className="font-[family-name:var(--font-display)] text-3xl font-bold text-[#F5F5F0]">
           Settings
         </h1>
@@ -134,7 +134,7 @@ export default async function SettingsPage() {
                   ? "Update the password you use to sign in."
                   : "Add a password so you can sign in without Google."}
               </p>
-              <PasswordDisclosure hasPassword={hasPassword} />
+              <PasswordForm hasPassword={hasPassword} />
             </section>
           </div>
         </div>
