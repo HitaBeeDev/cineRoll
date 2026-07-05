@@ -51,6 +51,11 @@ export const metadata: Metadata = {
   openGraph: {
     siteName: "CineRoll",
     type: "website",
+    images: [{ url: "/api/og", width: 1200, height: 630, alt: "CineRoll — award-winning films" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    images: [{ url: "/api/og", width: 1200, height: 630, alt: "CineRoll — award-winning films" }],
   },
 };
 

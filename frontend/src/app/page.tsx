@@ -19,6 +19,14 @@ export const metadata: Metadata = {
       "One spin, one film. Roll a random award-winning film to watch tonight.",
     url: "/",
     type: "website",
+    images: [{ url: "/api/og", width: 1200, height: 630, alt: "CineRoll — award-winning films" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "CineRoll — Roll the dice on award-winning films",
+    description:
+      "One spin, one film. Roll a random award-winning film to watch tonight.",
+    images: [{ url: "/api/og", width: 1200, height: 630, alt: "CineRoll — award-winning films" }],
   },
 };
 
