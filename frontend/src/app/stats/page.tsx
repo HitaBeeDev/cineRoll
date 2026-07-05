@@ -14,7 +14,7 @@ import {
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  title: "Award Film Stats & Records | CineRoll",
+  title: "Award Film Stats & Records",
   description:
     "Discover the most nominated and award-winning films and people across the Oscars, Golden Globes, Cannes, and the Berlinale. Explore CineRoll's full award film dataset by the numbers.",
 };

@@ -10,7 +10,7 @@ import { HistoryGrid, type WatchedEntry } from "@/components/history-grid";
 import { RetryButton } from "@/components/retry-button";
 
 export const metadata: Metadata = {
-  title: "Watch History | CineRoll",
+  title: "Watch History",
   robots: { index: false, follow: false },
 };
 

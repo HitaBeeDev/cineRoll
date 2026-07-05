@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { AppHeader } from "@/components/app-header";
 
 export const metadata: Metadata = {
-  title: "Terms of Service | CineRoll",
+  title: "Terms of Service",
   description:
     "CineRoll terms of service covering acceptable use, accounts, user content ownership, moderation and removal rights, third-party film data, and disclaimers.",
 };

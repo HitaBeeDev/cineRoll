@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { AppHeader } from "@/components/app-header";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | CineRoll",
+  title: "Privacy Policy",
   description:
     "CineRoll privacy policy covering account data, film activity, comments, analytics, cookies and local storage, service providers, retention, and deletion.",
 };

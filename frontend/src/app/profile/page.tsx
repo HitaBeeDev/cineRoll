@@ -61,7 +61,7 @@ async function fetchRecommendations(): Promise<{
 }
 
 export const metadata: Metadata = {
-  title: "Your Profile | CineRoll",
+  title: "Your Profile",
   robots: { index: false, follow: false },
 };
 

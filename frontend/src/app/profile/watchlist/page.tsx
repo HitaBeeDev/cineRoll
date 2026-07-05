@@ -10,7 +10,7 @@ import { RetryButton } from "@/components/retry-button";
 import { WatchlistGrid, type WatchlistEntry } from "@/components/watchlist-grid";
 
 export const metadata: Metadata = {
-  title: "Your Watchlist | CineRoll",
+  title: "Your Watchlist",
   robots: { index: false, follow: false },
 };
 

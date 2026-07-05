@@ -9,7 +9,7 @@ import { UserAvatar } from "@/components/user-avatar";
 import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
-  title: "Settings | CineRoll",
+  title: "Settings",
   robots: { index: false, follow: false },
 };
 
