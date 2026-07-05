@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import type { CSSProperties, ReactNode } from "react";
+import { Suspense, type CSSProperties, type ReactNode } from "react";
 import { ChevronDown, ExternalLink, Sparkles, Tag } from "lucide-react";
 import type { Film, AwardRecord, CastMember } from "@cineroll/types";
 import { cn, nameToSlug } from "@/lib/utils";
@@ -28,6 +28,12 @@ const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ??
   (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://cineroll.app");
 const FALLBACK_ACCENT = "#D4AF37";
+
+// Incremental Static Regeneration: film detail pages are statically rendered
+// and revalidated hourly. Slugs not built up front are generated on first
+// request and then cached (dynamicParams defaults to true), so the whole
+// catalogue is covered without prebuilding thousands of pages at build time.
+export const revalidate = 3600;
 // Prestige gold for the hero accolades module — fixed regardless of the film's
 // own poster accent, so awards always read as the universal "honour" cue.
 const HERO_GOLD = "#D4AF37";
@@ -74,7 +80,7 @@ function extractYouTubeId(url: string): string | null {
 
 async function fetchFilm(slug: string): Promise<Film | null> {
   const res = await fetch(`${API_URL}/api/films/${encodeURIComponent(slug)}`, {
-    next: { revalidate: 300 },
+    next: { revalidate: 3600 },
   });
   if (res.status === 404) return null;
   if (!res.ok) throw new Error(`Failed to fetch film: ${res.status}`);
@@ -276,12 +282,10 @@ export async function generateMetadata({
 
 export default async function FilmPage({
   params,
-  searchParams,
 }: {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ from?: string }>;
 }) {
-  const [{ slug }, { from }] = await Promise.all([params, searchParams]);
+  const { slug } = await params;
   const [film, similarFilms] = await Promise.all([
     fetchFilm(slug),
     fetchSimilarFilms(slug),
@@ -333,7 +337,11 @@ export default async function FilmPage({
       className="min-h-screen bg-[#07070b] text-[#f4f4f5]"
       style={accentStyle}
     >
-      {from === "share" && <ShareBanner />}
+      {/* Client-only; reads `?from=share` via useSearchParams, so it must sit
+          inside a Suspense boundary to keep the page statically renderable. */}
+      <Suspense fallback={null}>
+        <ShareBanner />
+      </Suspense>
       <AppHeader />
 
       {/* ── CINEMATIC HERO ─────────────────────────────────────────── */}

@@ -1,12 +1,17 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { X } from "lucide-react";
 
 export function ShareBanner() {
+  // Read the `?from=share` flag client-side so the film page itself never has
+  // to await `searchParams` — that dynamic API would opt the whole route out of
+  // static rendering / ISR. Must be rendered inside a <Suspense> boundary.
+  const isShare = useSearchParams().get("from") === "share";
   const [dismissed, setDismissed] = useState(false);
-  if (dismissed) return null;
+  if (!isShare || dismissed) return null;
 
   return (
     <div className="relative z-50 flex items-center justify-between gap-4 border-b border-[#e8453c]/20 bg-[#e8453c]/8 px-4 py-2.5 backdrop-blur-sm sm:px-6">
