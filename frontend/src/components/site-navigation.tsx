@@ -19,7 +19,7 @@ const primaryNavItems = [
 const gameModeItems = [
   { href: "/snob-test", label: "Snob Test" },
   { href: "/roll-battle", label: "Versus" },
-  { href: "/blind-roll", label: "Guess the Film" },
+  // Temporarily removed: "Guess the Film" (/blind-roll) — route kept, hidden from nav.
 ];
 
 type SiteNavigationProps = {

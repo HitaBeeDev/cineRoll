@@ -11,6 +11,8 @@ const BLIND_ROLL_OG = `/api/og?title=${encodeURIComponent("Blind Roll")}&subtitl
 export const metadata: Metadata = {
   title: BLIND_ROLL_TITLE,
   description: BLIND_ROLL_DESC,
+  // Temporarily hidden from nav — don't index while the feature is off.
+  robots: { index: false, follow: false },
   openGraph: {
     title: BLIND_ROLL_TITLE,
     description: BLIND_ROLL_DESC,
