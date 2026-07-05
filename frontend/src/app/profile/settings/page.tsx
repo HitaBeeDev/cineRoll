@@ -23,7 +23,7 @@ const CARD =
   "hover:-translate-y-px hover:border-[#2b2b3d] hover:shadow-[0_16px_44px_-28px_rgba(0,0,0,0.9)]";
 
 const KICKER =
-  "font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.2em] text-[#7a7a8c]";
+  "font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.2em] text-[#9494a6]";
 
 export default async function SettingsPage() {
   const session = await auth();
