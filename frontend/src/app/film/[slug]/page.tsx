@@ -280,6 +280,48 @@ export async function generateMetadata({
   };
 }
 
+// schema.org Movie/TVSeries structured data for rich results (title, poster,
+// year, director, cast, genre, runtime, awards, IMDb link). Ratings are omitted
+// deliberately — an aggregateRating without a ratingCount is invalid to Google.
+function buildFilmJsonLd(film: Film) {
+  const pageUrl = new URL(`/film/${film.slug}`, SITE_URL).toString();
+  const isTv = film.contentType.includes("tv");
+
+  const awards: string[] = [];
+  if (film.oscarWins > 0) awards.push(`${film.oscarWins} Academy Award${film.oscarWins > 1 ? "s" : ""}`);
+  if (film.ggWins > 0) awards.push(`${film.ggWins} Golden Globe${film.ggWins > 1 ? "s" : ""}`);
+  if (film.cannesWins > 0) awards.push(`${film.cannesWins} Cannes award${film.cannesWins > 1 ? "s" : ""}`);
+  if (film.berlinWins > 0) awards.push(`${film.berlinWins} Berlinale award${film.berlinWins > 1 ? "s" : ""}`);
+
+  const dateFields = isTv
+    ? {
+        startDate: String(film.tvStartYear ?? film.releaseYear),
+        ...(film.tvEndYear ? { endDate: String(film.tvEndYear) } : {}),
+      }
+    : { datePublished: String(film.releaseYear) };
+
+  return {
+    "@context": "https://schema.org",
+    "@type": isTv ? "TVSeries" : "Movie",
+    name: film.title,
+    ...(film.originalTitle && film.originalTitle !== film.title
+      ? { alternateName: film.originalTitle }
+      : {}),
+    url: pageUrl,
+    ...(film.posterUrl ? { image: film.posterUrl } : {}),
+    ...(film.plot ? { description: film.plot } : {}),
+    ...(film.genres.length ? { genre: film.genres } : {}),
+    ...dateFields,
+    ...(film.runtime ? { duration: `PT${film.runtime}M` } : {}),
+    ...(film.director ? { director: { "@type": "Person", name: film.director } } : {}),
+    ...(film.cast.length
+      ? { actor: film.cast.slice(0, 15).map((c) => ({ "@type": "Person", name: c.name })) }
+      : {}),
+    ...(film.imdbId ? { sameAs: `https://www.imdb.com/title/${film.imdbId}/` } : {}),
+    ...(awards.length ? { award: awards } : {}),
+  };
+}
+
 export default async function FilmPage({
   params,
 }: {
@@ -337,6 +379,10 @@ export default async function FilmPage({
       className="min-h-screen bg-[#07070b] text-[#f4f4f5]"
       style={accentStyle}
     >
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(buildFilmJsonLd(film)) }}
+      />
       {/* Client-only; reads `?from=share` via useSearchParams, so it must sit
           inside a Suspense boundary to keep the page statically renderable. */}
       <Suspense fallback={null}>
