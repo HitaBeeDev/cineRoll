@@ -56,7 +56,7 @@ export default async function SettingsPage() {
           Settings
         </h1>
 
-        <div className="mt-8 grid items-start gap-6 lg:grid-cols-2">
+        <div className="mt-8 grid gap-6 lg:grid-cols-2 lg:items-stretch">
           {/* Left column — account + avatar */}
           <div className="flex flex-col gap-6">
         {/* Account — a compact profile summary */}
@@ -105,8 +105,8 @@ export default async function SettingsPage() {
           </div>
         </section>
 
-        {/* Avatar — the playful one */}
-        <section className={`bg-[#0d0d16] px-6 py-6 ${CARD} hover:border-[#3a2f2c]`}>
+        {/* Avatar — the playful one; grows to keep both columns equal height */}
+        <section className={`flex-1 bg-[#0d0d16] px-6 py-6 ${CARD} hover:border-[#3a2f2c]`}>
           <div className="flex items-baseline justify-between gap-3">
             <h2 className={KICKER}>Avatar</h2>
             <span className="text-[11px] text-[#5a5a6c]">tap to change</span>
@@ -126,8 +126,8 @@ export default async function SettingsPage() {
 
           {/* Right column — password */}
           <div className="flex flex-col gap-6">
-            {/* Password — full form; fills the right column */}
-            <section className={`bg-[#0d0d16] px-6 py-6 ${CARD}`}>
+            {/* Password — full form; grows to keep both columns equal height */}
+            <section className={`flex-1 bg-[#0d0d16] px-6 py-6 ${CARD}`}>
               <h2 className={KICKER}>{hasPassword ? "Password" : "Set a password"}</h2>
               <p className="mt-2 text-sm text-[#888899]">
                 {hasPassword
