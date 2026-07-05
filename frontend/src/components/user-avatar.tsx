@@ -1,19 +1,10 @@
-import { Clapperboard, Film, Star, Ticket, type LucideIcon } from "lucide-react";
 import { avatarInitials, resolveAvatar } from "@/lib/avatars";
 import { cn } from "@/lib/utils";
 
-const GLYPH_ICONS: Record<string, LucideIcon> = {
-  "glyph:reel": Film,
-  "glyph:clap": Clapperboard,
-  "glyph:ticket": Ticket,
-  "glyph:star": Star,
-};
-
 /**
- * Renders a user's chosen avatar: a calm dark disc with a thin accent ring,
- * holding either a colored initials monogram or a film-motif glyph. Presentational
- * and hook-free, so it works in both server and client components. Sizing (and
- * the accent color) are inline because they're per-instance/runtime values.
+ * Renders a user's chosen avatar: a static same-origin SVG (from /public/avatars)
+ * when they've picked one, or an initials monogram on a dark disc otherwise.
+ * Presentational and hook-free, so it works in both server and client components.
  */
 export function UserAvatar({
   image,
@@ -29,26 +20,33 @@ export function UserAvatar({
   className?: string;
 }) {
   const option = resolveAvatar(image);
-  const Icon = GLYPH_ICONS[option.id];
 
+  if (option) {
+    return (
+      <div
+        role="img"
+        aria-label={option.label}
+        className={cn("shrink-0 rounded-full bg-cover bg-center", className)}
+        style={{ width: size, height: size, backgroundImage: `url(${option.file})` }}
+      />
+    );
+  }
+
+  // No avatar chosen yet → calm initials monogram.
   return (
     <div
       className={cn(
         "flex shrink-0 items-center justify-center rounded-full border bg-[#12121c]",
         className,
       )}
-      style={{ width: size, height: size, borderColor: `${option.accent}59` }}
+      style={{ width: size, height: size, borderColor: "#e8453c59" }}
     >
-      {option.kind === "glyph" && Icon ? (
-        <Icon size={Math.round(size * 0.42)} style={{ color: option.accent }} aria-hidden />
-      ) : (
-        <span
-          className="font-[family-name:var(--font-geist-mono)] font-bold tracking-wide"
-          style={{ color: option.accent, fontSize: Math.round(size * 0.32) }}
-        >
-          {avatarInitials(name, email)}
-        </span>
-      )}
+      <span
+        className="font-[family-name:var(--font-geist-mono)] font-bold tracking-wide"
+        style={{ color: "#e8453c", fontSize: Math.round(size * 0.32) }}
+      >
+        {avatarInitials(name, email)}
+      </span>
     </div>
   );
 }
