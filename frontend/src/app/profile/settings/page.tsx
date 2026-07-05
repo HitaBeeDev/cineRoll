@@ -49,14 +49,14 @@ export default async function SettingsPage() {
   const emailVerified = Boolean(user?.emailVerified);
 
   return (
-    <main className="min-h-screen bg-[#07070b] text-[#f4f4f5]">
+    <main className="flex-1 bg-[#07070b] text-[#f4f4f5]">
       <AppHeader />
-      <div className="mx-auto max-w-5xl px-6 py-12 lg:px-10">
+      <div className="mx-auto max-w-5xl px-6 py-10 lg:px-10">
         <h1 className="font-[family-name:var(--font-display)] text-3xl font-bold text-[#F5F5F0]">
           Settings
         </h1>
 
-        <div className="mt-10 grid items-start gap-6 lg:grid-cols-2">
+        <div className="mt-8 grid items-start gap-6 lg:grid-cols-2">
           {/* Left column — account + avatar */}
           <div className="flex flex-col gap-6">
         {/* Account — a compact profile summary */}
@@ -126,7 +126,7 @@ export default async function SettingsPage() {
 
           {/* Right column — password */}
           <div className="flex flex-col gap-6">
-            {/* Password — the form, tucked away until needed */}
+            {/* Password — full form; fills the right column */}
             <section className={`bg-[#0d0d16] px-6 py-6 ${CARD}`}>
               <h2 className={KICKER}>{hasPassword ? "Password" : "Set a password"}</h2>
               <p className="mt-2 text-sm text-[#888899]">

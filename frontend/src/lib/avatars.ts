@@ -62,7 +62,7 @@ export const AVATAR_OPTIONS: readonly AvatarOption[] = [
 ] as const;
 
 /** How many to show before the "View more" button in the picker. */
-export const AVATAR_PREVIEW_COUNT = 9;
+export const AVATAR_PREVIEW_COUNT = 7;
 
 export const DEFAULT_AVATAR: AvatarOption = AVATAR_OPTIONS[0]!;
 
