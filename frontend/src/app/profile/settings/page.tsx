@@ -51,14 +51,17 @@ export default async function SettingsPage() {
   return (
     <main className="min-h-screen bg-[#07070b] text-[#f4f4f5]">
       <AppHeader />
-      <div className="mx-auto max-w-2xl px-6 py-16 lg:px-10">
+      <div className="mx-auto max-w-5xl px-6 py-16 lg:px-10">
         <h1 className="font-[family-name:var(--font-display)] text-3xl font-bold text-[#F5F5F0]">
           Settings
         </h1>
 
+        <div className="mt-10 grid items-start gap-6 lg:grid-cols-2">
+          {/* Left column — account + avatar */}
+          <div className="flex flex-col gap-6">
         {/* Account — a compact profile summary */}
         <section
-          className={`mt-10 bg-gradient-to-b from-[#101020] to-[#0c0c15] px-6 py-5 ${CARD}`}
+          className={`bg-gradient-to-b from-[#101020] to-[#0c0c15] px-6 py-5 ${CARD}`}
         >
           <h2 className={KICKER}>Account</h2>
           <div className="mt-4 flex items-center gap-4">
@@ -103,7 +106,7 @@ export default async function SettingsPage() {
         </section>
 
         {/* Avatar — the playful one */}
-        <section className={`mt-6 bg-[#0d0d16] px-6 py-6 ${CARD} hover:border-[#3a2f2c]`}>
+        <section className={`bg-[#0d0d16] px-6 py-6 ${CARD} hover:border-[#3a2f2c]`}>
           <div className="flex items-baseline justify-between gap-3">
             <h2 className={KICKER}>Avatar</h2>
             <span className="text-[11px] text-[#5a5a6c]">tap to change</span>
@@ -119,17 +122,22 @@ export default async function SettingsPage() {
             />
           </div>
         </section>
+          </div>
 
-        {/* Password — the form, tucked away until needed */}
-        <section className={`mt-6 bg-[#0d0d16] px-6 py-6 ${CARD}`}>
-          <h2 className={KICKER}>{hasPassword ? "Password" : "Set a password"}</h2>
-          <p className="mt-2 text-sm text-[#888899]">
-            {hasPassword
-              ? "Update the password you use to sign in."
-              : "Add a password so you can sign in without Google."}
-          </p>
-          <PasswordDisclosure hasPassword={hasPassword} />
-        </section>
+          {/* Right column — password */}
+          <div className="flex flex-col gap-6">
+            {/* Password — the form, tucked away until needed */}
+            <section className={`bg-[#0d0d16] px-6 py-6 ${CARD}`}>
+              <h2 className={KICKER}>{hasPassword ? "Password" : "Set a password"}</h2>
+              <p className="mt-2 text-sm text-[#888899]">
+                {hasPassword
+                  ? "Update the password you use to sign in."
+                  : "Add a password so you can sign in without Google."}
+              </p>
+              <PasswordDisclosure hasPassword={hasPassword} />
+            </section>
+          </div>
+        </div>
       </div>
     </main>
   );
