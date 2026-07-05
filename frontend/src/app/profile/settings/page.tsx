@@ -127,7 +127,7 @@ export default async function SettingsPage() {
           {/* Right column — password */}
           <div className="flex flex-col gap-6">
             {/* Password — full form; grows to keep both columns equal height */}
-            <section className={`flex-1 bg-[#0d0d16] px-6 py-6 ${CARD}`}>
+            <section className={`flex flex-1 flex-col bg-[#0d0d16] px-6 py-6 ${CARD}`}>
               <h2 className={KICKER}>{hasPassword ? "Password" : "Set a password"}</h2>
               <p className="mt-2 text-sm text-[#888899]">
                 {hasPassword
