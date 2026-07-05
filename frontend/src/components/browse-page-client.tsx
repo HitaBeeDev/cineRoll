@@ -585,19 +585,20 @@ export function BrowsePageClient() {
                   active: filters.awardBodies.includes(opt.value),
                   onToggle: () => setFilters({ awardBodies: toggleValue(filters.awardBodies, opt.value), page: 1 }),
                 })),
-                {
-                  key: "imdb-films",
-                  label: "IMDb Top 250 Films",
-                  active: filters.imdbTopMoviesOnly,
-                  groupStart: true,
-                  onToggle: () => setFilters({ imdbTopMoviesOnly: !filters.imdbTopMoviesOnly, imdbTopTvOnly: false, page: 1 }),
-                },
-                {
-                  key: "imdb-tv",
-                  label: "IMDb Top 250 TV",
-                  active: filters.imdbTopTvOnly,
-                  onToggle: () => setFilters({ imdbTopTvOnly: !filters.imdbTopTvOnly, imdbTopMoviesOnly: false, page: 1 }),
-                },
+                // TODO(imdb): IMDb Top 250 lists hidden for now — re-enable when the data is added.
+                // {
+                //   key: "imdb-films",
+                //   label: "IMDb Top 250 Films",
+                //   active: filters.imdbTopMoviesOnly,
+                //   groupStart: true,
+                //   onToggle: () => setFilters({ imdbTopMoviesOnly: !filters.imdbTopMoviesOnly, imdbTopTvOnly: false, page: 1 }),
+                // },
+                // {
+                //   key: "imdb-tv",
+                //   label: "IMDb Top 250 TV",
+                //   active: filters.imdbTopTvOnly,
+                //   onToggle: () => setFilters({ imdbTopTvOnly: !filters.imdbTopTvOnly, imdbTopMoviesOnly: false, page: 1 }),
+                // },
               ]}
             />
 

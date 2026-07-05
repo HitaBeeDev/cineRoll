@@ -110,6 +110,7 @@ export function FilterBar({
             </span>
           </PillToggle>
         ))}
+        {/* TODO(imdb): IMDb Top 250 lists hidden for now — re-enable when the data is added.
         <PillToggle
           active={filters.imdbTopMoviesOnly}
           onClick={() =>
@@ -134,6 +135,7 @@ export function FilterBar({
         >
           IMDb Top 250 Shows
         </PillToggle>
+        */}
       </FilterRow>
 
       {/* STATUS */}
