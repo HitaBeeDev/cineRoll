@@ -16,7 +16,7 @@ export function SiteFeedbackDialog() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.28em] text-[#9a9aac] transition-colors hover:text-[#e8453c] focus-visible:outline-none focus-visible:text-[#e8453c]">
+      <DialogTrigger className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.24em] text-[#9a9aac] transition-colors hover:text-[#e8453c] focus-visible:outline-none focus-visible:text-[#e8453c]">
         Feedback
       </DialogTrigger>
       <DialogContent className="border-[#242438] bg-[#0b0b14]">
