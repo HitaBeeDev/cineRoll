@@ -4,6 +4,7 @@ import { BadgeCheck, CalendarDays, KeyRound } from "lucide-react";
 import { auth } from "@/auth";
 import { AppHeader } from "@/components/app-header";
 import { AvatarPicker } from "@/components/settings/avatar-picker";
+import { DeleteAccountCard } from "@/components/settings/delete-account-card";
 import { PasswordForm } from "@/components/settings/password-form";
 import { SignOutButton } from "@/components/sign-out-button";
 import { UserAvatar } from "@/components/user-avatar";
@@ -136,6 +137,7 @@ export default async function SettingsPage() {
               </p>
               <PasswordForm hasPassword={hasPassword} />
             </section>
+            <DeleteAccountCard />
           </div>
         </div>
       </div>
