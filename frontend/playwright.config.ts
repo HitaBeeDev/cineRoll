@@ -21,7 +21,7 @@ export default defineConfig({
   // Fail CI if a stray test.only is committed.
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  ...(process.env.CI ? { workers: 1 } : {}),
   reporter: [['list'], ['html', { open: 'never' }]],
   use: {
     baseURL,
@@ -33,12 +33,14 @@ export default defineConfig({
   ],
   // Start the local app for the run; reuse one already running (not on CI).
   // Skipped when PLAYWRIGHT_BASE_URL points at an external origin.
-  webServer: process.env.PLAYWRIGHT_BASE_URL
-    ? undefined
+  ...(process.env.PLAYWRIGHT_BASE_URL
+    ? {}
     : {
-        command: 'npm run dev',
+      webServer: {
+        command: 'NEXT_PUBLIC_API_URL=http://127.0.0.1:4010 npm run dev',
         url: baseURL,
         reuseExistingServer: !process.env.CI,
         timeout: 120_000,
       },
+    }),
 });
