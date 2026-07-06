@@ -2,10 +2,11 @@
 
 import type { RollFilm } from "@/lib/api";
 import { CaseCrackedBanner } from "./case-cracked-banner";
+import { ChallengeButton } from "./challenge-button";
+import { NextFilmButton } from "./next-film-button";
 import { PosterReveal } from "./poster-reveal";
 import { RevealedVaultMotion } from "./revealed-vault-motion";
 import type { ShareStatus } from "./types";
-import { ChallengeButton, NextFilmButton } from "./vault-actions";
 import { ViewFilmLink } from "./view-film-link";
 
 type RevealedVaultProps = {
