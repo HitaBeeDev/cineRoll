@@ -1,8 +1,9 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
+import { InvalidResetLink } from "./invalid-reset-link";
 import { ResetPasswordFields } from "./reset-password-fields";
-import { InvalidResetLink, ResetPasswordSuccess } from "./reset-password-status";
+import { ResetPasswordSuccess } from "./reset-password-success";
 import { useResetPassword } from "./use-reset-password";
 
 export function ResetPasswordForm() {
