@@ -1,5 +1,5 @@
 import { ClueCardItem } from "./clue-card-item";
-import type { ClueCard } from "./types";
+import type { ClueCard } from "../types";
 
 type ClueCardsProps = {
   cards: ClueCard[];

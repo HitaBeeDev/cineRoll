@@ -1,5 +1,5 @@
 import type { RollFilm } from "@/lib/api";
-import type { AwardSummary, BlindRollAward, ClueCard, Difficulty } from "./types";
+import type { AwardSummary, BlindRollAward, ClueCard, Difficulty } from "../types";
 
 export function getAwards(film: RollFilm): BlindRollAward[] {
   return [...film.oscarCategories, ...film.ggCategories, ...film.cannesCategories].sort(

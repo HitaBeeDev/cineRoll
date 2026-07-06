@@ -1,5 +1,5 @@
-import { formatAwardBody } from "./award-formatters";
-import type { BlindRollAward } from "./types";
+import { formatAwardBody } from "../lib/award-formatters";
+import type { BlindRollAward } from "../types";
 
 type ExpandedAwardProps = {
   award: BlindRollAward | undefined;

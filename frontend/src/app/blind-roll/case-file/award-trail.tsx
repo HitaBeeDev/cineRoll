@@ -2,7 +2,7 @@ import { AwardButtons } from "./award-buttons";
 import { AwardSummaryRow } from "./award-summary-row";
 import { EmptyAwardTrail } from "./empty-award-trail";
 import { ExpandedAward } from "./expanded-award";
-import type { AwardSummary, BlindRollAward } from "./types";
+import type { AwardSummary, BlindRollAward } from "../types";
 
 type AwardTrailProps = {
   awards: BlindRollAward[];

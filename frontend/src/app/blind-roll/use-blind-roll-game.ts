@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { RollFilm } from "@/lib/api";
-import { getAwardSummary, getAwards, getClueCards } from "./award-formatters";
+import { getAwardSummary, getAwards, getClueCards } from "./lib/award-formatters";
 import { fetchBlindRound } from "./blind-roll-api";
 import {
   readDifficulty,
@@ -10,7 +10,7 @@ import {
   writeDifficulty,
   writeSessionScore,
 } from "./blind-roll-storage";
-import { resetShareStatusLater, shareBlindRollChallenge } from "./share-challenge";
+import { resetShareStatusLater, shareBlindRollChallenge } from "./lib/share-challenge";
 import type { Difficulty, Phase, SessionScore, ShareStatus } from "./types";
 
 export function useBlindRollGame(challengeSlug: string) {

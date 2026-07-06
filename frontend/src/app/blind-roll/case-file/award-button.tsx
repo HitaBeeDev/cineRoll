@@ -1,6 +1,6 @@
-import { compactCategory, formatAwardBody } from "./award-formatters";
+import { compactCategory, formatAwardBody } from "../lib/award-formatters";
 import { getAwardButtonClass } from "./get-award-button-class";
-import type { BlindRollAward } from "./types";
+import type { BlindRollAward } from "../types";
 
 type AwardButtonProps = {
   award: BlindRollAward;

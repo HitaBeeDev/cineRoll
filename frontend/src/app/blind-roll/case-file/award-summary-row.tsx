@@ -1,4 +1,4 @@
-import type { AwardSummary } from "./types";
+import type { AwardSummary } from "../types";
 
 type AwardSummaryRowProps = {
   summary: AwardSummary;

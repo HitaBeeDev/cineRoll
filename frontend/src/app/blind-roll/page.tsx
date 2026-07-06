@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { BlindRollContent } from "./blind-roll-content";
-import { BlindRollFallback } from "./blind-roll-fallback";
+import { BlindRollFallback } from "./states/blind-roll-fallback";
 
 const BLIND_ROLL_TITLE = "Blind Roll — Guess the Award-Winning Film";
 const BLIND_ROLL_DESC =

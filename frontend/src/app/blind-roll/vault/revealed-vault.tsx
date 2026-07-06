@@ -6,7 +6,7 @@ import { ChallengeButton } from "./challenge-button";
 import { NextFilmButton } from "./next-film-button";
 import { PosterReveal } from "./poster-reveal";
 import { RevealedVaultMotion } from "./revealed-vault-motion";
-import type { ShareStatus } from "./types";
+import type { ShareStatus } from "../types";
 import { ViewFilmLink } from "./view-film-link";
 
 type RevealedVaultProps = {

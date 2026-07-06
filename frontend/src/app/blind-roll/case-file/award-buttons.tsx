@@ -1,6 +1,6 @@
 import { AwardButton } from "./award-button";
 import { getAwardKey } from "./get-award-key";
-import type { BlindRollAward } from "./types";
+import type { BlindRollAward } from "../types";
 
 type AwardButtonsProps = {
   awards: BlindRollAward[];

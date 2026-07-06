@@ -1,4 +1,4 @@
-import type { SessionScore } from "./types";
+import type { SessionScore } from "../types";
 
 type ScoreBadgeProps = {
   score: SessionScore;

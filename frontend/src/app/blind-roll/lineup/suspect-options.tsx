@@ -1,6 +1,6 @@
 import type { RollFilm } from "@/lib/api";
 import { SuspectOption } from "./suspect-option";
-import type { Phase } from "./types";
+import type { Phase } from "../types";
 
 type SuspectOptionsProps = {
   answerId: string;

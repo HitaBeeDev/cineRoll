@@ -1,7 +1,7 @@
 import type { RollFilm } from "@/lib/api";
 import { getOptionMarker } from "./get-option-marker";
 import { getOptionState } from "./get-option-state";
-import type { Phase } from "./types";
+import type { Phase } from "../types";
 
 type SuspectOptionProps = {
   index: number;

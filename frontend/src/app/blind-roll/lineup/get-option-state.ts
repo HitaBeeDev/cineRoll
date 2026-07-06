@@ -1,4 +1,4 @@
-import type { Phase } from "./types";
+import type { Phase } from "../types";
 
 type OptionStateInput = {
   phase: Phase;

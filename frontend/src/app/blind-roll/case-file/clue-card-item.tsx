@@ -1,4 +1,4 @@
-import type { ClueCard } from "./types";
+import type { ClueCard } from "../types";
 
 type ClueCardItemProps = {
   card: ClueCard;

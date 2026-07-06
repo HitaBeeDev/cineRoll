@@ -1,6 +1,6 @@
 import { Link2 } from "lucide-react";
 import { getShareLabel } from "./get-share-label";
-import type { ShareStatus } from "./types";
+import type { ShareStatus } from "../types";
 
 type ChallengeButtonProps = {
   shareStatus: ShareStatus;

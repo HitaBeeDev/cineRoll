@@ -1,7 +1,7 @@
-import { DIFFICULTY_DESCRIPTIONS } from "./constants";
+import { DIFFICULTY_DESCRIPTIONS } from "../constants";
 import { DifficultyPicker } from "./difficulty-picker";
 import { ScoreBadge } from "./score-badge";
-import type { Difficulty, SessionScore } from "./types";
+import type { Difficulty, SessionScore } from "../types";
 
 type BlindRollHeaderProps = {
   difficulty: Difficulty;

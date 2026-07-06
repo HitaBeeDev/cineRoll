@@ -4,7 +4,7 @@ import type { RollFilm } from "@/lib/api";
 import { LineupHeader } from "./lineup-header";
 import { SuspectOptions } from "./suspect-options";
 import { SuspectRevealBanner } from "./suspect-reveal-banner";
-import type { Phase } from "./types";
+import type { Phase } from "../types";
 
 type SuspectLineupProps = {
   film: RollFilm;

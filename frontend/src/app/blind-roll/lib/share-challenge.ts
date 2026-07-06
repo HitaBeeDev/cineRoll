@@ -1,4 +1,4 @@
-import type { Difficulty } from "./types";
+import type { Difficulty } from "../types";
 
 const SHARE_RESET_DELAY_MS = 2200;
 

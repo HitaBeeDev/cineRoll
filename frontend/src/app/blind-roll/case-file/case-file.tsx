@@ -1,7 +1,7 @@
 import { AwardTrail } from "./award-trail";
 import { CaseFileHeader } from "./case-file-header";
 import { ClueCards } from "./clue-cards";
-import type { AwardSummary, BlindRollAward, ClueCard } from "./types";
+import type { AwardSummary, BlindRollAward, ClueCard } from "../types";
 
 type CaseFileProps = {
   awards: BlindRollAward[];

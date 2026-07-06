@@ -1,5 +1,5 @@
-import { DIFFICULTIES, DIFFICULTY_DESCRIPTIONS } from "./constants";
-import type { Difficulty } from "./types";
+import { DIFFICULTIES, DIFFICULTY_DESCRIPTIONS } from "../constants";
+import type { Difficulty } from "../types";
 
 type DifficultyPickerProps = {
   difficulty: Difficulty;

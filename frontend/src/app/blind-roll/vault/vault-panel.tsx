@@ -1,7 +1,7 @@
 import type { RollFilm } from "@/lib/api";
 import { LockedVault } from "./locked-vault";
 import { RevealedVault } from "./revealed-vault";
-import type { Phase, ShareStatus } from "./types";
+import type { Phase, ShareStatus } from "../types";
 
 type VaultPanelProps = {
   film: RollFilm;
