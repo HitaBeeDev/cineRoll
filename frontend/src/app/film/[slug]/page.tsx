@@ -19,7 +19,7 @@ import {
   HeroHeadlineAccolade,
   type HeadlineAccolade,
 } from "@/components/hero-headline-accolade";
-import { FilmRatingPanel } from "@/components/film-rating-panel";
+// import { FilmRatingPanel } from "@/components/film-rating-panel"; // user ratings hidden for now
 // Comments feature disabled for now.
 // import { FilmCommentsSection } from "@/components/film-comments-section";
 
@@ -796,7 +796,8 @@ export default async function FilmPage({
           )}
 
           {/* ── RATINGS ──────────────────────────────────────────────── */}
-          <section id="rate" className="scroll-mt-24">
+          {/* User ratings hidden for now — feature disabled by request. */}
+          {/* <section id="rate" className="scroll-mt-24">
             <SectionLabel>Ratings</SectionLabel>
             <div className="mt-8 flex flex-col items-center text-center">
               <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.22em] text-[#7c7ca0]">
@@ -809,7 +810,7 @@ export default async function FilmPage({
                 />
               </div>
             </div>
-          </section>
+          </section> */}
 
           {/* Comments hidden for now — feature disabled by request. */}
           {/* <FilmCommentsSection slug={film.slug} /> */}

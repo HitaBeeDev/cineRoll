@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Star } from "lucide-react";
+// import { Star } from "lucide-react"; // user ratings hidden for now
 import type { Film } from "@cineroll/types";
 import { cn } from "@/lib/utils";
 import { formatFilmYear } from "@/lib/format";
@@ -50,9 +50,10 @@ export function FilmCard({ film, className }: FilmCardProps) {
   const badge = getAwardBadge(film);
   const listBadge = getListBadge(film);
   const primaryGenre = film.genres[0] ?? film.contentType;
-  const averageRating = film.averageRating ?? null;
-  const ratingCount = film.ratingCount ?? 0;
-  const showAverageRating = averageRating !== null && ratingCount > 0;
+  // User ratings hidden for now — feature disabled by request.
+  // const averageRating = film.averageRating ?? null;
+  // const ratingCount = film.ratingCount ?? 0;
+  // const showAverageRating = averageRating !== null && ratingCount > 0;
 
   useEffect(() => {
     const node = cardRef.current;
@@ -135,7 +136,8 @@ export function FilmCard({ film, className }: FilmCardProps) {
           </div>
         )}
 
-        {showAverageRating && (
+        {/* User ratings hidden for now — feature disabled by request. */}
+        {/* {showAverageRating && (
           <span
             aria-label={`CineRoll average rating ${averageRating.toFixed(1)} from ${ratingCount} ${ratingCount === 1 ? "rating" : "ratings"}`}
             title={`CineRoll average ${averageRating.toFixed(1)}/10`}
@@ -144,7 +146,7 @@ export function FilmCard({ film, className }: FilmCardProps) {
             <Star className="h-3 w-3 fill-current" aria-hidden />
             {averageRating.toFixed(1)}
           </span>
-        )}
+        )} */}
 
         <div className="absolute inset-x-2.5 bottom-2.5 flex translate-y-2 items-center justify-end gap-2 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
           <div className="flex items-center gap-1.5">
