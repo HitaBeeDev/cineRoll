@@ -36,7 +36,9 @@
     "move-to-recall": "npx tsx data/scripts/move-to-recall.ts",
     "recall-find": "npx tsx data/scripts/recall-find.ts",
     "recall-lookup": "npx tsx data/scripts/recall-lookup.ts",
-    "recall-apply": "npx tsx data/scripts/recall-apply.ts"
+    "recall-apply": "npx tsx data/scripts/recall-apply.ts",
+    "missing-find": "npx tsx data/scripts/missing-find.ts",
+    "missing-apply": "npx tsx data/scripts/missing-apply.ts"
   },
   "keywords": [],
   "author": "",
