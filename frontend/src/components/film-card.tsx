@@ -146,10 +146,7 @@ export function FilmCard({ film, className }: FilmCardProps) {
           </span>
         )}
 
-        <div className="absolute inset-x-2.5 bottom-2.5 flex translate-y-2 items-center justify-between gap-2 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-          <span className="rounded-full border border-white/15 bg-black/55 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-white backdrop-blur-md">
-            Open
-          </span>
+        <div className="absolute inset-x-2.5 bottom-2.5 flex translate-y-2 items-center justify-end gap-2 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
           <div className="flex items-center gap-1.5">
             <span className="inline-flex items-center gap-1 rounded-full border border-[#f5c518]/30 bg-black/60 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] font-semibold tracking-[0.08em] text-[#f5c518] backdrop-blur-md">
               <ImdbIcon />
