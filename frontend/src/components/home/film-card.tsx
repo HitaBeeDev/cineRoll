@@ -17,6 +17,7 @@ import {
 import { usePathname } from "next/navigation";
 import { AuthDialog } from "@/components/auth/auth-dialog";
 import { SharePopover } from "@/components/share-popover";
+import { SaveToListButton } from "@/components/save-to-list-dialog";
 import { useFilmActions, AUTH_GATE_TITLE } from "@/hooks/useFilmActions";
 import { formatRuntime } from "@/lib/format";
 import { trackEvent } from "@/lib/analytics";
@@ -376,6 +377,19 @@ export function FilmCard({
           >
             View details
           </Link>
+          <SaveToListButton
+            filmId={film.id}
+            filmTitle={film.title}
+            isAuthenticated={isAuthenticated}
+            iconOnly
+            label="Add to list"
+            className={cn(
+              "flex h-11 items-center justify-center rounded-xl px-3",
+              "border border-[#1e1e2a] text-[#888899]",
+              "transition-colors hover:border-[#2a2a3e] hover:text-[#F5F5F0]",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
+            )}
+          />
           <SharePopover
             slug={film.slug}
             title={film.title}

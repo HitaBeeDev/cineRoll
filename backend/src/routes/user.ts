@@ -2,6 +2,7 @@ import { Router } from "express";
 
 import { requireAuth } from "../middleware/auth";
 import { accountRouter } from "./userRoute/accountRoutes";
+import { listsRouter } from "./userRoute/listsRoutes";
 import { onboardingRouter } from "./userRoute/onboardingRoutes";
 import { ratingsRouter } from "./userRoute/ratingRoutes";
 import { statusRouter } from "./userRoute/statusRoutes";
@@ -14,6 +15,7 @@ userRouter.use(requireAuth);
 userRouter.use(accountRouter);
 userRouter.use(onboardingRouter);
 userRouter.use(watchlistRouter);
+userRouter.use(listsRouter);
 userRouter.use(watchedRouter);
 userRouter.use(statusRouter);
 userRouter.use(ratingsRouter);

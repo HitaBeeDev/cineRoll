@@ -150,6 +150,29 @@ export interface WatchedEntry {
   doNotSuggest: boolean;
 }
 
+// A user-authored custom list, as returned by the lists overview endpoint.
+export interface UserListSummary {
+  id: string;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+  filmCount: number;
+  // A handful of recent poster URLs for the cover stack (may be empty).
+  previewPosters: string[];
+  // Only meaningful when the list was fetched with a filmId (save popover);
+  // false otherwise.
+  containsFilm: boolean;
+}
+
+// The lighter list shape returned by create/rename (no posters/membership).
+export interface UserListMeta {
+  id: string;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+  filmCount: number;
+}
+
 export interface UserRating {
   id: string;
   userId: string;

@@ -1,4 +1,11 @@
-import type { AwardRecord, Film, FilterState, PaginatedFilms } from "@cineroll/types";
+import type {
+  AwardRecord,
+  Film,
+  FilterState,
+  PaginatedFilms,
+  UserListMeta,
+  UserListSummary,
+} from "@cineroll/types";
 import { trackEvent } from "@/lib/analytics";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
@@ -565,6 +572,73 @@ export async function removeFilmFromWatchlist(filmId: string): Promise<void> {
     filmId,
     context: { source: "watchlist_api" },
   });
+}
+
+// ─── Custom lists ────────────────────────────────────────────────────────────
+
+async function throwApiError(res: Response, fallback: string): Promise<never> {
+  const body = (await res.json().catch(() => ({}))) as { code?: string; error?: string };
+  throw Object.assign(new Error(body.error ?? fallback), {
+    code: body.code ?? "UNKNOWN",
+    status: res.status,
+  });
+}
+
+export type UserListsResponse = {
+  lists: UserListSummary[];
+  total: number;
+  maxLists: number;
+};
+
+export async function fetchUserLists(filmId?: string): Promise<UserListsResponse> {
+  const qs = filmId ? `?filmId=${encodeURIComponent(filmId)}` : "";
+  const res = await fetch(`/api/user/lists${qs}`);
+  if (!res.ok) await throwApiError(res, "Failed to load lists");
+  return res.json() as Promise<UserListsResponse>;
+}
+
+export async function createUserList(name: string): Promise<UserListMeta> {
+  const res = await fetch(`/api/user/lists`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name }),
+  });
+  if (!res.ok) await throwApiError(res, "Failed to create list");
+  return res.json() as Promise<UserListMeta>;
+}
+
+export async function renameUserList(listId: string, name: string): Promise<UserListMeta> {
+  const res = await fetch(`/api/user/lists/${encodeURIComponent(listId)}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name }),
+  });
+  if (!res.ok) await throwApiError(res, "Failed to rename list");
+  return res.json() as Promise<UserListMeta>;
+}
+
+export async function deleteUserList(listId: string): Promise<void> {
+  const res = await fetch(`/api/user/lists/${encodeURIComponent(listId)}`, {
+    method: "DELETE",
+  });
+  if (!res.ok && res.status !== 204) await throwApiError(res, "Failed to delete list");
+}
+
+export async function addFilmToList(listId: string, filmId: string): Promise<void> {
+  const res = await fetch(`/api/user/lists/${encodeURIComponent(listId)}/films`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ filmId }),
+  });
+  if (!res.ok) await throwApiError(res, "Failed to add to list");
+}
+
+export async function removeFilmFromList(listId: string, filmId: string): Promise<void> {
+  const res = await fetch(
+    `/api/user/lists/${encodeURIComponent(listId)}/films/${encodeURIComponent(filmId)}`,
+    { method: "DELETE" },
+  );
+  if (!res.ok && res.status !== 204) await throwApiError(res, "Failed to remove from list");
 }
 
 export async function fetchFilmBySlug(slug: string): Promise<RollFilm> {

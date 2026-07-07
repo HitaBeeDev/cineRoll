@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import { useFilmActions, AUTH_GATE_TITLE } from "@/hooks/useFilmActions";
 import { HoverTooltip } from "@/components/hover-tooltip";
 import { AuthDialog } from "@/components/auth/auth-dialog";
+import { SaveToListButton } from "@/components/save-to-list-dialog";
 import { cn } from "@/lib/utils";
 
 const HERO_BUTTON_BASE =
@@ -85,6 +86,14 @@ export function FilmDetailActions({
         />
         {inWatchlist ? "Saved" : "Watchlist"}
       </button>
+
+      {/* Save to a custom list — same secondary weight as the watchlist button. */}
+      <SaveToListButton
+        filmId={filmId}
+        filmTitle={filmTitle}
+        isAuthenticated={isAuthenticated}
+        className={cn(SECONDARY_BUTTON, SECONDARY_IDLE)}
+      />
 
       {/* Divider: the visual boundary between the two action groups — labelled
           primary CTAs (Watch Trailer / Watchlist) on the left, quiet utility
