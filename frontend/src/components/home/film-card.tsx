@@ -20,6 +20,7 @@ import { SharePopover } from "@/components/share-popover";
 import { useFilmActions, AUTH_GATE_TITLE } from "@/hooks/useFilmActions";
 import { formatRuntime } from "@/lib/format";
 import { trackEvent } from "@/lib/analytics";
+import { blurDataUrl, tmdbImageUrl } from "@/lib/images";
 import { cn } from "@/lib/utils";
 import type { RollFilm } from "@/lib/api";
 import type { AwardRecord } from "@cineroll/types";
@@ -71,6 +72,7 @@ export function FilmCard({
   const runtime = formatRuntime(film.runtime);
   const posterUrl = film.posterUrl;
   const backdropUrl = film.backdropUrl;
+  const posterBlur = blurDataUrl(film.posterColor);
   const awardHighlights = getAwardHighlights(film);
   const recognition = getRecognitionRecords(film);
 
@@ -96,11 +98,13 @@ export function FilmCard({
         <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-xl">
           {backdropUrl ? (
             <Image
-              src={backdropUrl}
+              src={tmdbImageUrl(backdropUrl, "w780") ?? backdropUrl}
               alt=""
               aria-hidden
               fill
               sizes="(max-width: 1024px) 100vw, 500px"
+              placeholder="blur"
+              blurDataURL={posterBlur}
               className="scale-110 object-cover opacity-25 blur-2xl"
             />
           ) : (
@@ -152,19 +156,23 @@ export function FilmCard({
             >
               {posterUrl ? (
                 <Image
-                  src={posterUrl}
+                  src={tmdbImageUrl(posterUrl, "w500") ?? posterUrl}
                   alt={film.title}
                   fill
                   sizes="(max-width: 1024px) 45vw, 200px"
+                  placeholder="blur"
+                  blurDataURL={posterBlur}
                   className="object-cover"
                   priority
                 />
               ) : backdropUrl ? (
                 <Image
-                  src={backdropUrl}
+                  src={tmdbImageUrl(backdropUrl, "w780") ?? backdropUrl}
                   alt={film.title}
                   fill
                   sizes="(max-width: 1024px) 45vw, 200px"
+                  placeholder="blur"
+                  blurDataURL={posterBlur}
                   className="object-cover"
                   priority
                 />
@@ -754,4 +762,3 @@ function SentimentButton({
     </button>
   );
 }
-

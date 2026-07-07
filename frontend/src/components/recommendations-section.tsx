@@ -8,6 +8,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { AuthDialog } from "@/components/auth/auth-dialog";
 import { AUTH_GATE_TITLE, useFilmActions } from "@/hooks/useFilmActions";
+import { blurDataUrl, tmdbImageUrl } from "@/lib/images";
 import { cn } from "@/lib/utils";
 
 export type Recommendation = {
@@ -108,10 +109,12 @@ function RecommendationCard({
       <div className="group relative aspect-[2/3] w-full overflow-hidden rounded-lg border border-[#1e1e2a] bg-[#111120] transition-colors hover:border-[#e8453c]/60">
         {rec.posterUrl ? (
           <Image
-            src={rec.posterUrl}
+            src={tmdbImageUrl(rec.posterUrl, "w342") ?? rec.posterUrl}
             alt={rec.title}
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            placeholder="blur"
+            blurDataURL={blurDataUrl(null)}
             onLoad={() => setPosterLoaded(true)}
             // A cache-hit can finish before React attaches onLoad; catch that
             // here so the poster never gets stuck invisible.

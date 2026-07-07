@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { ArrowUpRight } from "lucide-react";
 import { AppHeader } from "@/components/app-header";
+import { blurDataUrl, tmdbImageUrl } from "@/lib/images";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 const SITE_URL =
@@ -460,10 +461,12 @@ function FilmPosterCard({ film }: { film: FilmRow }) {
       <div className="relative overflow-hidden" style={{ aspectRatio: "2/3" }}>
         {film.posterUrl ? (
           <Image
-            src={film.posterUrl}
+            src={tmdbImageUrl(film.posterUrl, "w342") ?? film.posterUrl}
             alt={film.title}
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+            placeholder="blur"
+            blurDataURL={blurDataUrl(null)}
             className="object-cover object-center transition-transform duration-500 group-hover:scale-[1.04]"
           />
         ) : (

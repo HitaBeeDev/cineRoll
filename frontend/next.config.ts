@@ -81,6 +81,8 @@ const nextConfig: NextConfig = {
     // correctly-scaled posters (w500 etc.), so skip optimization and let next/image
     // emit plain <img> tags pointing straight at the source.
     unoptimized: true,
+    deviceSizes: [360, 390, 640, 768, 1024, 1280, 1536],
+    imageSizes: [38, 42, 44, 54, 92, 128, 144, 185, 200, 220, 307, 342, 500],
     remotePatterns: [
       {
         protocol: "https",

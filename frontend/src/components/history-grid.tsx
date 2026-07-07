@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ThumbsDown, ThumbsUp, Trash2 } from "lucide-react";
 import { markFilmWatched, removeFilmWatched } from "@/lib/api";
 import { useToast } from "@/components/ui/toast";
+import { blurDataUrl, tmdbImageUrl } from "@/lib/images";
 import { cn } from "@/lib/utils";
 
 export type WatchedFilm = {
@@ -135,10 +136,12 @@ export function HistoryGrid({
               <div className="relative aspect-[2/3] overflow-hidden rounded-md border border-white/[0.08] bg-[#11111a] shadow-[0_18px_40px_rgba(0,0,0,0.34)] transition-all duration-300 group-hover:-translate-y-1 group-hover:border-white/[0.18]">
                 {film.posterUrl ? (
                   <Image
-                    src={film.posterUrl}
+                    src={tmdbImageUrl(film.posterUrl, "w342") ?? film.posterUrl}
                     alt={`${film.title} poster`}
                     fill
                     sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 25vw, 20vw"
+                    placeholder="blur"
+                    blurDataURL={blurDataUrl(null)}
                     className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.035]"
                   />
                 ) : (

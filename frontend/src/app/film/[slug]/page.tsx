@@ -6,6 +6,7 @@ import { ChevronDown, ExternalLink, Sparkles, Tag } from "lucide-react";
 import type { Film, AwardRecord, CastMember } from "@cineroll/types";
 import { cn, nameToSlug } from "@/lib/utils";
 import { formatRuntime, formatLanguage, formatFilmYear } from "@/lib/format";
+import { blurDataUrl, tmdbImageUrl } from "@/lib/images";
 import { AppHeader } from "@/components/app-header";
 import { FilmTrailer } from "@/components/film-trailer";
 import { WhereToWatch } from "@/components/where-to-watch";
@@ -360,6 +361,7 @@ export default async function FilmPage({
   // Blur it hard so it reads as an ambient wash rather than a duplicate of the
   // crisp poster card on the right.
   const heroImageIsPoster = !film.backdropUrl && film.posterUrl != null;
+  const heroImageSize = heroImageIsPoster ? "w780" : "w1280";
 
   // Scrim strategy is source-aware. A real backdrop is the film's most
   // emotional asset, so we keep the dark concentrated over the left (text
@@ -395,11 +397,13 @@ export default async function FilmPage({
         {/* Full-bleed backdrop */}
         {heroImageUrl && (
           <Image
-            src={heroImageUrl}
+            src={tmdbImageUrl(heroImageUrl, heroImageSize) ?? heroImageUrl}
             alt=""
             fill
             priority
             sizes="100vw"
+            placeholder="blur"
+            blurDataURL={blurDataUrl(film.posterColor)}
             className={cn(
               "object-cover object-center",
               heroImageIsPoster

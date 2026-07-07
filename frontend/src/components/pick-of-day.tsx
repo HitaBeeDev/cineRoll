@@ -19,6 +19,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { fetchPickOfDay, type PickOfDayFilm } from "@/lib/api";
 import { trackEvent } from "@/lib/analytics";
 import { formatRuntime } from "@/lib/format";
+import { blurDataUrl, tmdbImageUrl } from "@/lib/images";
 import { cn } from "@/lib/utils";
 
 type Status = "loading" | "success" | "empty" | "error";
@@ -106,6 +107,7 @@ function PickOfDayCard({ film }: { film: PickOfDayFilm }) {
   const hasBackdrop = Boolean(film.backdropUrl);
   const whyPicked = getWhyPicked(film);
   const runtime = formatRuntime(film.runtime);
+  const imageBlur = blurDataUrl(film.posterColor);
 
   return (
     <div
@@ -118,10 +120,12 @@ function PickOfDayCard({ film }: { film: PickOfDayFilm }) {
       {hasBackdrop && (
         <div className="relative h-28 sm:h-36 w-full overflow-hidden" aria-hidden>
           <Image
-            src={film.backdropUrl!}
+            src={tmdbImageUrl(film.backdropUrl, "w780") ?? film.backdropUrl!}
             alt=""
             fill
             sizes="100vw"
+            placeholder="blur"
+            blurDataURL={imageBlur}
             className="object-cover object-center brightness-50"
             priority
           />
@@ -145,10 +149,12 @@ function PickOfDayCard({ film }: { film: PickOfDayFilm }) {
         >
           {film.posterUrl ? (
             <Image
-              src={film.posterUrl}
+              src={tmdbImageUrl(film.posterUrl, "w342") ?? film.posterUrl}
               alt={`${film.title} poster`}
               fill
               sizes="(max-width: 640px) 128px, 144px"
+              placeholder="blur"
+              blurDataURL={imageBlur}
               className="object-cover"
               priority
             />

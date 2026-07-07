@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { blurDataUrl, tmdbImageUrl } from "@/lib/images";
 
 /**
  * The framed poster that floats on the right of the film detail hero
@@ -23,10 +24,12 @@ export function PosterCard({
         }}
       >
         <Image
-          src={posterUrl}
+          src={tmdbImageUrl(posterUrl, "w500") ?? posterUrl}
           alt={`${title} poster`}
           fill
           sizes="307px"
+          placeholder="blur"
+          blurDataURL={blurDataUrl(accent)}
           className="object-cover"
           priority
         />

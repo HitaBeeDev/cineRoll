@@ -7,6 +7,7 @@ import Image from "next/image";
 import type { Film } from "@cineroll/types";
 import { cn } from "@/lib/utils";
 import { formatFilmYear } from "@/lib/format";
+import { blurDataUrl, tmdbImageUrl } from "@/lib/images";
 import { Skeleton } from "@/components/ui/skeleton";
 import { trackEvent, trackFilmImpression } from "@/lib/analytics";
 
@@ -97,11 +98,14 @@ export function FilmCard({ film, className }: FilmCardProps) {
       <div className="relative aspect-[2/3] overflow-hidden rounded-md border border-white/[0.08] bg-[#11111a] shadow-[0_18px_40px_rgba(0,0,0,0.34)] transition-all duration-300 group-hover:-translate-y-1 group-hover:border-white/[0.18] group-hover:shadow-[0_26px_60px_rgba(0,0,0,0.48)]">
         {film.posterUrl ? (
           <Image
-            src={film.posterUrl}
+            src={tmdbImageUrl(film.posterUrl, "w342") ?? film.posterUrl}
             alt={`${film.title} poster`}
-            fill
+            width={342}
+            height={513}
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 25vw, 20vw"
-            className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.035]"
+            placeholder="blur"
+            blurDataURL={blurDataUrl(film.posterColor)}
+            className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.035]"
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center bg-[linear-gradient(135deg,#151520,#0b0b12)]">

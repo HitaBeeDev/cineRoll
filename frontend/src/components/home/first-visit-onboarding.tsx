@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Check } from "lucide-react";
+import { blurDataUrl, tmdbImageUrl } from "@/lib/images";
 import { cn } from "@/lib/utils";
 import type { TasteCardFilm } from "@/lib/api";
 import {
@@ -160,10 +161,12 @@ export function FirstVisitOnboarding({
                   >
                     {film.posterUrl ? (
                       <Image
-                        src={film.posterUrl}
+                        src={tmdbImageUrl(film.posterUrl, "w342") ?? film.posterUrl}
                         alt={`${film.title} poster`}
                         fill
                         sizes="(max-width: 640px) 45vw, 18vw"
+                        placeholder="blur"
+                        blurDataURL={blurDataUrl(film.posterColor)}
                         className={cn(
                           "object-cover transition duration-300",
                           selected
