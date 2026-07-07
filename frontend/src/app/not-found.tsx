@@ -15,7 +15,7 @@ export default function NotFound() {
         <div className="flex flex-col gap-3 sm:flex-row">
           <Link
             href="/"
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#e8453c] px-5 py-2.5 text-sm font-semibold text-[#F5F5F0] transition-colors hover:bg-[#d5342b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#e8453c] px-5 py-2.5 text-sm font-semibold text-[#09090f] transition-colors hover:bg-[#d5342b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
           >
             Roll a random film
           </Link>

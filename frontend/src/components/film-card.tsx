@@ -173,7 +173,7 @@ export function FilmCard({ film, className }: FilmCardProps) {
         </h3>
         <p className="mt-1 line-clamp-1 font-[family-name:var(--font-geist-mono)] text-[11px] text-[#9d98ad]">
           {formatFilmYear(film)}
-          <span className="text-[#6f6a80]"> · {primaryGenre}</span>
+          <span className="text-[#8d879d]"> · {primaryGenre}</span>
         </p>
       </div>
     </Link>

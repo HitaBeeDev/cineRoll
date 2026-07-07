@@ -175,7 +175,7 @@ export function FilmRatingPanel({ filmId, filmTitle }: RatingPanelProps) {
         className={cn(
           "px-5 py-2.5 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.2em] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] disabled:cursor-not-allowed",
           intent
-            ? "bg-[#e8453c] text-white hover:bg-[#d5342b] disabled:opacity-40"
+            ? "bg-[#e8453c] text-[#09090f] hover:bg-[#d5342b] disabled:opacity-40"
             : "border border-[#26263c] text-[#6a6a84] hover:border-[#33334d] hover:text-[#8a8aa6]",
         )}
       >

@@ -80,7 +80,7 @@ export function FilterBar({
       aria-label="Filter films"
       className={cn("flex min-w-0 flex-col gap-3", className)}
     >
-      <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.3em] text-[#686880]">
+      <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.3em] text-[#9a9aac]">
         Build Your Roll
       </p>
 

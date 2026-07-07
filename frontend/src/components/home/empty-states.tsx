@@ -119,12 +119,10 @@ export function ZeroResultsEmpty({
         </motion.p>
 
         <motion.div variants={itemVariants} className="flex flex-col gap-0.5">
-          <h3 className="font-[family-name:var(--font-display)] text-[2.4rem] font-bold leading-tight text-[#F5F5F0]">
-            Nothing in
-          </h3>
-          <h3 className="font-[family-name:var(--font-display)] text-[2.4rem] font-bold leading-tight text-[#e8453c]">
-            the reel.
-          </h3>
+          <h2 className="font-[family-name:var(--font-display)] text-[2.4rem] font-bold leading-tight">
+            <span className="block text-[#F5F5F0]">Nothing in</span>
+            <span className="block text-[#e8453c]">the reel.</span>
+          </h2>
         </motion.div>
 
         <motion.p
@@ -176,14 +174,8 @@ const STANDBY_LINEUP = [
   "Nomadland",
 ];
 
-/** Slow horizontal ticker of award-winner titles — the "tonight's lineup" feel.
- *  Loops seamlessly (two copies, translate −50%); static when reduced motion. */
-function StandbyMarquee() {
-  const prefersReduced = useReducedMotion();
-  const fade =
-    "linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)";
-
-  const Row = ({ ariaHidden = false }: { ariaHidden?: boolean }) => (
+function StandbyMarqueeRow({ ariaHidden = false }: { ariaHidden?: boolean }) {
+  return (
     <div
       className="flex shrink-0 items-center gap-6 pr-6 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em] text-[#9a9aad]"
       aria-hidden={ariaHidden || undefined}
@@ -196,6 +188,14 @@ function StandbyMarquee() {
       ))}
     </div>
   );
+}
+
+/** Slow horizontal ticker of award-winner titles — the "tonight's lineup" feel.
+ *  Loops seamlessly (two copies, translate −50%); static when reduced motion. */
+function StandbyMarquee() {
+  const prefersReduced = useReducedMotion();
+  const fade =
+    "linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)";
 
   if (prefersReduced) {
     return (
@@ -204,7 +204,7 @@ function StandbyMarquee() {
         style={{ maskImage: fade, WebkitMaskImage: fade }}
       >
         <div className="flex justify-center">
-          <Row />
+          <StandbyMarqueeRow />
         </div>
       </div>
     );
@@ -220,8 +220,8 @@ function StandbyMarquee() {
         animate={{ x: ["0%", "-50%"] }}
         transition={{ duration: 30, ease: "linear", repeat: Infinity }}
       >
-        <Row />
-        <Row ariaHidden />
+        <StandbyMarqueeRow />
+        <StandbyMarqueeRow ariaHidden />
       </motion.div>
     </div>
   );
@@ -243,12 +243,10 @@ export function FilmCardEmpty() {
       </div>
 
       <div className="flex flex-col gap-0.5">
-        <h3 className="font-[family-name:var(--font-display)] text-[2.4rem] font-bold leading-tight text-[#F5F5F0]">
-          What&apos;s playing
-        </h3>
-        <h3 className="font-[family-name:var(--font-display)] text-[2.4rem] font-bold leading-tight text-[#e8453c]">
-          tonight?
-        </h3>
+        <h2 className="font-[family-name:var(--font-display)] text-[2.4rem] font-bold leading-tight">
+          <span className="block text-[#F5F5F0]">What&apos;s playing</span>
+          <span className="block text-[#e8453c]">tonight?</span>
+        </h2>
       </div>
 
       <p className="max-w-[19rem] font-[family-name:var(--font-geist-mono)] text-[11px] uppercase leading-relaxed tracking-[0.16em] text-[#888899]">

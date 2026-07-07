@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { motion, useReducedMotion } from "framer-motion";
 import {
@@ -211,6 +211,7 @@ export function BrowsePageClient() {
   const [acResults, setAcResults] = useState<AutocompleteResult | null>(null);
   const [acOpen, setAcOpen] = useState(false);
   const [acIdx, setAcIdx] = useState(-1);
+  const acListboxId = useId();
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const resultsTopRef = useRef<HTMLDivElement>(null);
 
@@ -443,6 +444,7 @@ export function BrowsePageClient() {
       style={{ "--browse-scroll-offset": "8rem" } as React.CSSProperties}
     >
       <AppHeader />
+      <main className="flex flex-1 flex-col">
 
       {/* ── HERO ────────────────────────────────────────────────────────── */}
       {/* Browse is a utility page — the title earns one compact line, not a
@@ -488,17 +490,21 @@ export function BrowsePageClient() {
               <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#6f6b80]" />
               <input
                 type="text"
+                role="combobox"
                 placeholder="Search films or people…"
                 value={searchDraft}
                 onChange={(e) => { setSearchDraft(e.target.value); setFilters({ search: e.target.value, page: 1 }); }}
                 onKeyDown={handleSearchKeyDown}
                 onFocus={() => { if (acResults && acResults.films.length + acResults.people.length > 0) setAcOpen(true); }}
                 aria-autocomplete="list"
+                aria-controls={acListboxId}
                 aria-expanded={acOpen}
+                aria-activedescendant={acIdx >= 0 ? `${acListboxId}-option-${acIdx}` : undefined}
                 className="h-10 w-full rounded-md border border-white/10 bg-white/[0.045] pl-9 pr-3 text-[13px] text-[#f1eff8] outline-none transition-colors placeholder:text-[#857f95] hover:border-white/18 focus:border-[#e8453c]/70 focus:ring-2 focus:ring-[#e8453c]/15"
               />
               {acOpen && acResults && (acResults.films.length + acResults.people.length) > 0 && (
                 <div
+                  id={acListboxId}
                   role="listbox"
                   className="absolute left-0 top-full z-50 mt-1 w-full overflow-hidden rounded-lg border border-white/12 bg-[#0e0d18] shadow-[0_16px_48px_rgba(0,0,0,0.6)]"
                 >
@@ -510,6 +516,7 @@ export function BrowsePageClient() {
                       {acResults.films.map((film, i) => (
                         <button
                           key={film.slug}
+                          id={`${acListboxId}-option-${i}`}
                           role="option"
                           aria-selected={acIdx === i}
                           type="button"
@@ -544,6 +551,7 @@ export function BrowsePageClient() {
                         return (
                           <button
                             key={person.name}
+                            id={`${acListboxId}-option-${flatIdx}`}
                             role="option"
                             aria-selected={acIdx === flatIdx}
                             type="button"
@@ -829,6 +837,7 @@ export function BrowsePageClient() {
                     value={filters.awardYear != null ? String(filters.awardYear) : "_any"}
                     onValueChange={(val) => setFilters({ awardYear: val === "_any" ? null : Number(val), page: 1 })}
                     placeholder="Any year"
+                    ariaLabel="Ceremony year"
                     className="w-full text-[#b8b5c8]"
                     options={[{ value: "_any", label: "Any year" }, ...awardYears.map((y) => ({ value: String(y), label: String(y) }))]}
                   />
@@ -862,7 +871,7 @@ export function BrowsePageClient() {
       </div>
 
       {/* ── MAIN GRID ───────────────────────────────────────────────────── */}
-      <main className="mx-auto w-full max-w-[100vw] flex-1 px-4 py-6 sm:max-w-screen-2xl sm:px-6 sm:py-8 lg:px-8 xl:px-12">
+      <section className="mx-auto w-full max-w-[100vw] flex-1 px-4 py-6 sm:max-w-screen-2xl sm:px-6 sm:py-8 lg:px-8 xl:px-12">
         <div
           ref={resultsTopRef}
           className="mb-6 flex scroll-mt-[var(--browse-scroll-offset)] flex-col gap-4 border-b border-white/10 pb-5 lg:flex-row lg:items-center lg:justify-between"
@@ -920,6 +929,7 @@ export function BrowsePageClient() {
             <FilterSelect
               value={filters.sort}
               onValueChange={(val) => setFilters({ sort: val as FilterState["sort"], page: 1 })}
+              ariaLabel="Sort films"
               className="w-full min-w-[150px] text-[12px] text-[#e8e5f4] lg:w-[150px]"
               options={SORT_OPTIONS}
             />
@@ -1001,6 +1011,7 @@ export function BrowsePageClient() {
             <Pagination page={page} totalPages={totalPages} onChange={goToPage} />
           </div>
         )}
+      </section>
       </main>
     </div>
   );
@@ -1066,7 +1077,7 @@ function SegmentedControl<T extends string>({
               className={cn(
                 "h-8 shrink-0 rounded px-3 font-[family-name:var(--font-geist-mono)] text-[12px] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40",
                 active
-                  ? "bg-[#e8453c] text-white shadow-[0_0_24px_rgba(232,69,60,0.24)]"
+                  ? "bg-[#e8453c] text-[#09090f] shadow-[0_0_24px_rgba(232,69,60,0.24)]"
                   : "text-[#7f7a91] hover:bg-white/[0.055] hover:text-[#f1eff8]",
               )}
             >
@@ -1116,7 +1127,7 @@ function ToggleStrip({
               className={cn(
                 "h-8 shrink-0 rounded px-3 font-[family-name:var(--font-geist-mono)] text-[12px] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40",
                 item.active
-                  ? "bg-[#e8453c] text-white shadow-[0_0_24px_rgba(232,69,60,0.24)]"
+                  ? "bg-[#e8453c] text-[#09090f] shadow-[0_0_24px_rgba(232,69,60,0.24)]"
                   : "text-[#7f7a91] hover:bg-white/[0.055] hover:text-[#f1eff8]",
               )}
             >
@@ -1181,7 +1192,7 @@ function FilterChip({
       className={cn(
         "h-8 rounded-md border px-3 font-[family-name:var(--font-geist-mono)] text-[12px] tabular-nums transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/35",
         active
-          ? "border-[#e8453c] bg-[#e8453c] text-white"
+          ? "border-[#e8453c] bg-[#e8453c] text-[#09090f]"
           : "border-white/10 bg-white/[0.035] text-[#a9a5bc] hover:border-white/20 hover:text-white",
       )}
     >

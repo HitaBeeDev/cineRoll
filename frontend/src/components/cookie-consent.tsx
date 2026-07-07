@@ -93,7 +93,7 @@ export function CookieConsent() {
               <Button
                 type="button"
                 size="sm"
-                className="bg-[#e8453c] text-white hover:brightness-110"
+                className="bg-[#e8453c] text-[#09090f] hover:brightness-110"
                 onClick={() => saveChoice("granted")}
               >
                 Allow Analytics

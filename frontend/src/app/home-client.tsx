@@ -486,7 +486,7 @@ export function HomeClient({
       <AppHeader />
 
       {/* ── Two-column body ─────────────────────────────────────────── */}
-      <div className="flex min-w-0 flex-1 flex-col lg:grid lg:h-[calc(100vh-4rem)] lg:grid-cols-12 lg:overflow-hidden">
+      <main className="flex min-w-0 flex-1 flex-col lg:grid lg:h-[calc(100vh-4rem)] lg:grid-cols-12 lg:overflow-hidden">
         {/* LEFT: hero + filters + roll ──────────────────────────────── */}
         <div className="flex min-w-0 flex-col overflow-visible px-4 py-4 sm:px-8 lg:col-span-7 lg:overflow-hidden lg:px-10 lg:py-5 [scrollbar-width:none] [&::-webkit-scrollbar]:w-0">
           {/* Scroll region: hero + filters. The hero wrapper absorbs the slack
@@ -599,7 +599,7 @@ export function HomeClient({
                 }
                 className={cn(
                   "flex h-[64px] w-full items-center justify-center rounded-xl",
-                  "bg-[#e8453c] text-[#F5F5F0]",
+                  "bg-[#e8453c] text-[#09090f]",
                   "font-[family-name:var(--font-geist-mono)] font-bold uppercase",
                   "select-none transition-all duration-150",
                   "hover:bg-[#d5342b] hover:shadow-[0_0_40px_rgba(232,69,60,0.28)]",
@@ -838,7 +838,7 @@ export function HomeClient({
             )}
           </AnimatePresence>
         </div>
-      </div>
+      </main>
       <RollHistoryDrawer
         open={isHistoryOpen}
         onClose={() => setIsHistoryOpen(false)}
