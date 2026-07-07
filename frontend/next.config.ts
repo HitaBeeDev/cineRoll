@@ -42,6 +42,19 @@ const securityHeaders = [
     ].join("; "),
   },
   {
+    // HSTS — force HTTPS for two years incl. subdomains. Ignored by browsers
+    // over plain HTTP (localhost), so it's a no-op in dev and only binds in prod.
+    key: "Strict-Transport-Security",
+    value: "max-age=63072000; includeSubDomains; preload",
+  },
+  {
+    // Isolate our browsing context from cross-origin openers (Spectre / tabnabbing
+    // mitigation Lighthouse checks for). `allow-popups` keeps redirect/popup OAuth
+    // flows working while still severing opener access from unrelated origins.
+    key: "Cross-Origin-Opener-Policy",
+    value: "same-origin-allow-popups",
+  },
+  {
     key: "X-Frame-Options",
     value: "DENY",
   },

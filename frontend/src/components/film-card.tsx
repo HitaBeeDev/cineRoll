@@ -11,20 +11,27 @@ import { blurDataUrl, tmdbImageUrl } from "@/lib/images";
 import { Skeleton } from "@/components/ui/skeleton";
 import { trackEvent, trackFilmImpression } from "@/lib/analytics";
 
-type AwardBadge = { detail: string } | null;
+type AwardBadge = { detail: string; label: string } | null;
 
 function getAwardBadge(film: Film): AwardBadge {
-  // One combined count across every award body — no single body is named, so
-  // the number can't be misread as "11 Oscars" when it's 11 awards in total.
-  // Every card gets the same teal chip regardless of count — every film here is
-  // an award film, so the badge is an identity marker, not a ranking signal.
+  // Combined across every award body — no single body is named, so the numbers
+  // can't be misread as "11 Oscars" when it's 11 across all ceremonies. Shows
+  // wins and total nominations, mirroring the detail hero's "X Wins · Y
+  // Nominations" (nominations is the full record count, so it includes the
+  // wins) — the card and the detail page stay consistent.
   const totalWins = film.oscarWins + film.ggWins + film.cannesWins + film.berlinWins;
   const totalNoms = film.oscarNominations + film.ggNominations + film.cannesNominations + film.berlinNominations;
 
   if (totalWins > 0)
-    return { detail: `${totalWins} ${totalWins === 1 ? "award" : "awards"}` };
+    return {
+      detail: `${totalWins} win ${totalNoms} nominated`,
+      label: `${totalWins} ${totalWins === 1 ? "win" : "wins"}, ${totalNoms} ${totalNoms === 1 ? "nomination" : "nominations"}`,
+    };
   if (totalNoms > 0)
-    return { detail: `${totalNoms} ${totalNoms === 1 ? "nom" : "noms"}` };
+    return {
+      detail: `${totalNoms} nominated`,
+      label: `${totalNoms} ${totalNoms === 1 ? "nomination" : "nominations"}`,
+    };
   return null;
 }
 
@@ -131,7 +138,7 @@ export function FilmCard({ film, className }: FilmCardProps) {
             )}
             {badge && (
               <span
-                aria-label={badge.detail}
+                aria-label={badge.label}
                 className="inline-flex max-w-full items-center rounded-full border border-[#2dd4bf]/40 bg-black/75 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] font-semibold uppercase tracking-[0.14em] text-[#5eead4] shadow-lg shadow-black/30 backdrop-blur-sm"
               >
                 <span className="shrink-0">{badge.detail}</span>
