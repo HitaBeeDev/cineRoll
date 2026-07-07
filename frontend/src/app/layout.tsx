@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
 import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
 import { AnalyticsPageView } from "@/components/analytics-page-view";
+import { CookieConsent } from "@/components/cookie-consent";
 import { PageTransition } from "@/components/page-transition";
 import { Providers } from "@/components/providers";
 import { PwaInstallPrompt } from "@/components/pwa-install-prompt";
@@ -85,6 +86,7 @@ export default function RootLayout({
           <SiteFooterGate>
             <SiteFooter />
           </SiteFooterGate>
+          <CookieConsent />
           <PwaInstallPrompt />
         </Providers>
       </body>

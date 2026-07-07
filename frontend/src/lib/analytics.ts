@@ -30,8 +30,12 @@ const SESSION_ID_KEY = "cineroll_session_id";
 const IMPRESSED_FILM_IDS_KEY = "cineroll_impressed_film_ids";
 export const COOKIE_CONSENT_KEY = "cineroll_cookie_consent";
 const CONSENT_GRANTED_VALUES = new Set(["accepted", "granted", "analytics"]);
+const CONSENT_DECLINED_VALUE = "declined";
+export const COOKIE_CONSENT_CHANGED_EVENT = "cineroll:cookie-consent-changed";
 const FLUSH_INTERVAL_MS = 5_000;
 const MAX_BATCH_SIZE = 25;
+
+export type CookieConsentChoice = "granted" | "declined";
 
 type QueuedEvent = Required<Pick<TrackEventInput, "type">> & {
   anonId: string;
@@ -68,6 +72,37 @@ export function hasAnalyticsConsent(): boolean {
   if (typeof window === "undefined") return false;
   return CONSENT_GRANTED_VALUES.has(
     window.localStorage.getItem(COOKIE_CONSENT_KEY) ?? "",
+  );
+}
+
+export function getCookieConsentChoice(): CookieConsentChoice | null {
+  if (typeof window === "undefined") return null;
+  const value = window.localStorage.getItem(COOKIE_CONSENT_KEY);
+  if (CONSENT_GRANTED_VALUES.has(value ?? "")) return "granted";
+  if (value === CONSENT_DECLINED_VALUE) return "declined";
+  return null;
+}
+
+export function setCookieConsentChoice(choice: CookieConsentChoice): void {
+  if (typeof window === "undefined") return;
+
+  window.localStorage.setItem(
+    COOKIE_CONSENT_KEY,
+    choice === "granted" ? "granted" : CONSENT_DECLINED_VALUE,
+  );
+
+  if (choice === "declined") {
+    queue = [];
+    window.localStorage.removeItem(ANON_ID_KEY);
+    window.sessionStorage.removeItem(SESSION_ID_KEY);
+    window.sessionStorage.removeItem(IMPRESSED_FILM_IDS_KEY);
+    impressedFilmIds = null;
+  }
+
+  window.dispatchEvent(
+    new CustomEvent<CookieConsentChoice>(COOKIE_CONSENT_CHANGED_EVENT, {
+      detail: choice,
+    }),
   );
 }
 

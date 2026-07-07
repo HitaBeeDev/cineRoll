@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CookiePreferencesLink } from "@/components/cookie-preferences-link";
 import { SiteFeedbackDialog } from "@/components/site-feedback-dialog";
 
 export function SiteFooter() {
@@ -30,6 +31,7 @@ export function SiteFooter() {
           >
             Terms
           </Link>
+          <CookiePreferencesLink />
           <SiteFeedbackDialog />
         </nav>
       </div>

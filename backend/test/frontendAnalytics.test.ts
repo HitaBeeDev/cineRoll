@@ -45,10 +45,22 @@ beforeEach(() => {
   });
   vi.stubGlobal("window", {
     addEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
     localStorage: storage({ cineroll_cookie_consent: "granted" }),
     sessionStorage: storage(),
     setTimeout: globalThis.setTimeout,
   });
+  vi.stubGlobal(
+    "CustomEvent",
+    class CustomEvent<T> extends Event {
+      detail: T;
+
+      constructor(type: string, eventInitDict?: CustomEventInit<T>) {
+        super(type, eventInitDict);
+        this.detail = eventInitDict?.detail as T;
+      }
+    },
+  );
 });
 
 afterEach(() => {
@@ -57,6 +69,43 @@ afterEach(() => {
 });
 
 describe("frontend analytics event logger", () => {
+  it("does not create identifiers or queue events before analytics consent", async () => {
+    vi.stubGlobal("window", {
+      addEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+      localStorage: storage(),
+      sessionStorage: storage(),
+      setTimeout: globalThis.setTimeout,
+    });
+
+    const { hasAnalyticsConsent, trackEvent } = await loadAnalytics();
+
+    expect(hasAnalyticsConsent()).toBe(false);
+
+    trackEvent({ type: "search", context: { query: "kurosawa" } });
+    await vi.advanceTimersByTimeAsync(5_000);
+
+    expect(fetch).not.toHaveBeenCalled();
+    expect(window.localStorage.setItem).not.toHaveBeenCalled();
+    expect(window.sessionStorage.setItem).not.toHaveBeenCalled();
+  });
+
+  it("stores consent choice and clears analytics identifiers when declined", async () => {
+    const { setCookieConsentChoice, getCookieConsentChoice } = await loadAnalytics();
+
+    window.localStorage.setItem("cineroll_anon_id", "anon-id");
+    window.sessionStorage.setItem("cineroll_session_id", "session-id");
+    window.sessionStorage.setItem("cineroll_impressed_film_ids", "[\"film-1\"]");
+
+    setCookieConsentChoice("declined");
+
+    expect(getCookieConsentChoice()).toBe("declined");
+    expect(window.localStorage.removeItem).toHaveBeenCalledWith("cineroll_anon_id");
+    expect(window.sessionStorage.removeItem).toHaveBeenCalledWith("cineroll_session_id");
+    expect(window.sessionStorage.removeItem).toHaveBeenCalledWith("cineroll_impressed_film_ids");
+    expect(window.dispatchEvent).toHaveBeenCalledWith(expect.any(Event));
+  });
+
   it("sends queued events in 25-event batches and flushes the remainder", async () => {
     const { flushEvents, trackEvent } = await loadAnalytics();
 
