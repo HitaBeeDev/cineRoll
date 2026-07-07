@@ -1,8 +1,80 @@
 import type { NextConfig } from "next";
 
+function getApiOrigin() {
+  try {
+    return new URL(process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000").origin;
+  } catch {
+    return "http://localhost:4000";
+  }
+}
+
+const connectSrc = [
+  "'self'",
+  getApiOrigin(),
+  "https://image.tmdb.org",
+  "https://*.tmdb.org",
+];
+
+const securityHeaders = [
+  {
+    key: "Content-Security-Policy",
+    value: [
+      "default-src 'self'",
+      "base-uri 'self'",
+      "object-src 'none'",
+      "frame-ancestors 'none'",
+      "form-action 'self'",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+      "style-src 'self' 'unsafe-inline'",
+      "img-src 'self' data: blob: https://image.tmdb.org https://*.tmdb.org https://img.youtube.com https://i.ytimg.com",
+      "font-src 'self' data:",
+      `connect-src ${connectSrc.join(" ")}`,
+      "media-src 'self' blob:",
+      "frame-src https://www.youtube-nocookie.com",
+      "worker-src 'self' blob:",
+      "manifest-src 'self'",
+      "upgrade-insecure-requests",
+    ].join("; "),
+  },
+  {
+    key: "X-Frame-Options",
+    value: "DENY",
+  },
+  {
+    key: "X-Content-Type-Options",
+    value: "nosniff",
+  },
+  {
+    key: "Referrer-Policy",
+    value: "strict-origin-when-cross-origin",
+  },
+  {
+    key: "Permissions-Policy",
+    value: [
+      "camera=()",
+      "microphone=()",
+      "geolocation=()",
+      "payment=()",
+      "usb=()",
+      "magnetometer=()",
+      "gyroscope=()",
+      "accelerometer=()",
+    ].join(", "),
+  },
+];
+
 const nextConfig: NextConfig = {
   // Hide the dev-only Next.js indicator badge (the floating "N").
   devIndicators: false,
+  poweredByHeader: false,
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: securityHeaders,
+      },
+    ];
+  },
   images: {
     // Vercel's image optimizer (/_next/image) isn't served in this multi-service
     // deployment, so optimized <Image> URLs 404. TMDB already delivers CDN-sized,

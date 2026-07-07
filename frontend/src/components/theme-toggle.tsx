@@ -1,10 +1,11 @@
 "use client";
 
 import { Moon, Sun } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import { cn } from "@/lib/utils";
 
 const STORAGE_KEY = "cineroll-theme";
+const THEME_CHANGED_EVENT = "cineroll:theme-changed";
 type Theme = "dark" | "light";
 
 function currentTheme(): Theme {
@@ -17,10 +18,21 @@ function currentTheme(): Theme {
 function applyTheme(theme: Theme) {
   document.documentElement.dataset.theme = theme;
   window.localStorage.setItem(STORAGE_KEY, theme);
+  window.dispatchEvent(new Event(THEME_CHANGED_EVENT));
+}
+
+function subscribeToTheme(onChange: () => void) {
+  window.addEventListener(THEME_CHANGED_EVENT, onChange);
+  window.addEventListener("storage", onChange);
+
+  return () => {
+    window.removeEventListener(THEME_CHANGED_EVENT, onChange);
+    window.removeEventListener("storage", onChange);
+  };
 }
 
 export function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme>(() => currentTheme());
+  const theme = useSyncExternalStore(subscribeToTheme, currentTheme, () => "dark");
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -35,7 +47,6 @@ export function ThemeToggle() {
       aria-pressed={theme === "light"}
       onClick={() => {
         applyTheme(nextTheme);
-        setTheme(nextTheme);
       }}
       className={cn(
         "hidden h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#222232] bg-[#101019]",
