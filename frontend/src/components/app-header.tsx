@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { SiteNavigation } from "@/components/site-navigation";
-import { ThemeToggle } from "@/components/theme-toggle";
 
 export function AppHeader() {
   return (
@@ -14,7 +13,6 @@ export function AppHeader() {
           Cine·Roll
         </Link>
         <div className="flex items-center gap-3">
-          <ThemeToggle />
           <SiteNavigation />
         </div>
       </div>
