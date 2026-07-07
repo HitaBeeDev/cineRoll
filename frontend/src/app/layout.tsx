@@ -3,9 +3,9 @@ import { Suspense } from "react";
 import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
 import { AnalyticsPageView } from "@/components/analytics-page-view";
 import { CookieConsent } from "@/components/cookie-consent";
+import { DeferredPwaInstallPrompt } from "@/components/deferred-pwa-install-prompt";
 import { PageTransition } from "@/components/page-transition";
 import { Providers } from "@/components/providers";
-import { PwaInstallPrompt } from "@/components/pwa-install-prompt";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteFooterGate } from "@/components/site-footer-gate";
 import "./globals.css";
@@ -87,7 +87,7 @@ export default function RootLayout({
             <SiteFooter />
           </SiteFooterGate>
           <CookieConsent />
-          <PwaInstallPrompt />
+          <DeferredPwaInstallPrompt />
         </Providers>
       </body>
     </html>

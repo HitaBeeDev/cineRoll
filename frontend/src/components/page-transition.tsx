@@ -1,5 +1,3 @@
-"use client";
-
 export function PageTransition({ children }: { children: React.ReactNode }) {
   // flex-1 (not min-h-screen) so the content area fills the viewport *minus* the
   // footer — the canonical sticky-footer pattern. min-h-0 lets a child page run
