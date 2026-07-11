@@ -67,11 +67,11 @@ const AWARD_BODY_OPTIONS: { value: AwardBodyFilter; label: string }[] = [
 ];
 
 const CONTENT_TYPE_OPTIONS: { value: string; label: string }[] = [
-  { value: "movie",       label: "Movie"     },
-  { value: "short",       label: "Short"     },
-  { value: "animation",   label: "Animation" },
-  { value: "documentary", label: "Doc"       },
-  { value: "tv-series",   label: "TV Series" },
+  { value: "movie",       label: "Movie"       },
+  { value: "short",       label: "Short"       },
+  { value: "animation",   label: "Animation"   },
+  { value: "documentary", label: "Documentary" },
+  { value: "tv-series",   label: "TV Series"   },
 ];
 
 /** Add/remove `value` in a multi-select facet array. */
