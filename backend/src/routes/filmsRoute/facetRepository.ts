@@ -45,10 +45,12 @@ export async function listGenres(): Promise<string[]> {
 }
 
 export async function listCountries(): Promise<string[]> {
+  // The dropdown must offer exactly what the filter matches on — originCountries — or it
+  // would list co-financing countries that now return nothing.
   const rows = await prisma.$queryRaw<{ country: string }[]>`
-    SELECT DISTINCT unnest("Film"."countries") AS country
+    SELECT DISTINCT unnest("Film"."originCountries") AS country
     FROM "Film"
-    WHERE array_length("Film"."countries", 1) > 0
+    WHERE array_length("Film"."originCountries", 1) > 0
     ORDER BY country ASC
   `;
 

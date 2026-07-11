@@ -8,7 +8,9 @@ export function facetPredicates(query: ListQuery): Prisma.Sql[] {
     // rather than compares — selecting Short returns short docs and short fiction alike.
     arrayOverlapPredicate("types", query.contentType),
     equalsAnyPredicate("language", query.language),
-    arrayOverlapPredicate("countries", query.country),
+    // Origin, not co-financing: `countries` holds every country that put money in, which
+    // filed Norwegian "Sentimental Value" under Turkey. That list stays for display.
+    arrayOverlapPredicate("originCountries", query.country),
     arrayOverlapPredicate("genres", query.genre),
     exactValuePredicate("certificate", query.certificate),
     tvTypePredicate(query),
