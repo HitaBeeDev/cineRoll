@@ -36,7 +36,7 @@ async function build(): Promise<AllowedFilterValues> {
         SELECT DISTINCT "language" AS value FROM "Film" WHERE "language" IS NOT NULL
       `,
       prisma.$queryRaw<{ value: string }[]>`
-        SELECT DISTINCT "contentType" AS value FROM "Film" WHERE "contentType" IS NOT NULL
+        SELECT DISTINCT UNNEST("types") AS value FROM "Film"
       `,
       // Award categories live inside the four *Categories JSON arrays.
       prisma.$queryRaw<{ value: string }[]>`

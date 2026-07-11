@@ -4,7 +4,9 @@ import { ListQuery } from "./listQuerySchema";
 
 export function facetPredicates(query: ListQuery): Prisma.Sql[] {
   return [
-    equalsAnyPredicate("contentType", query.contentType),
+    // A film carries a SET of types ("documentary" + "short"), so this overlaps
+    // rather than compares — selecting Short returns short docs and short fiction alike.
+    arrayOverlapPredicate("types", query.contentType),
     equalsAnyPredicate("language", query.language),
     arrayOverlapPredicate("countries", query.country),
     arrayOverlapPredicate("genres", query.genre),
