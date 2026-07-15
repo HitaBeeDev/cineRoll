@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Check, ListPlus, Loader2, Plus } from "lucide-react";
+import Image from "next/image";
+import { Check, Film, ListPlus, Loader2, Plus } from "lucide-react";
 import type { UserListSummary } from "@cineroll/types";
 import {
   addFilmToList,
@@ -10,6 +11,7 @@ import {
   removeFilmFromList,
 } from "@/lib/api";
 import { useToast } from "@/components/ui/toast";
+import { tmdbImageUrl } from "@/lib/images";
 import {
   Dialog,
   DialogContent,
@@ -197,6 +199,7 @@ export function SaveToListDialog({
               <ul className="flex max-h-64 flex-col gap-1.5 overflow-y-auto pr-1">
                 {state.lists.map((list) => {
                   const busy = busyIds.has(list.id);
+                  const cover = list.previewPosters[0];
                   return (
                     <li key={list.id}>
                       <button
@@ -205,26 +208,24 @@ export function SaveToListDialog({
                         aria-pressed={list.containsFilm}
                         onClick={() => void toggleList(list)}
                         className={cn(
-                          "flex w-full items-center gap-3 rounded-lg border px-3 py-2.5 text-left transition-colors",
+                          "flex w-full items-center gap-3 rounded-lg border px-2.5 py-2 text-left transition-colors",
                           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] disabled:opacity-60",
                           list.containsFilm
                             ? "border-[#e8453c]/45 bg-[#e8453c]/10"
                             : "border-[#1e1e2a] bg-[#0d0d16] hover:border-[#2a2a3c] hover:bg-[#11111c]",
                         )}
                       >
-                        <span
-                          className={cn(
-                            "flex h-5 w-5 shrink-0 items-center justify-center rounded border",
-                            list.containsFilm
-                              ? "border-[#e8453c] bg-[#e8453c] text-white"
-                              : "border-[#33334a] text-transparent",
-                          )}
-                          aria-hidden
-                        >
-                          {busy ? (
-                            <Loader2 className="h-3 w-3 animate-spin text-[#888899]" />
+                        <span className="relative flex h-11 w-8 shrink-0 items-center justify-center overflow-hidden rounded bg-[#08080d] ring-1 ring-black/50">
+                          {cover ? (
+                            <Image
+                              src={tmdbImageUrl(cover, "w185") ?? cover}
+                              alt=""
+                              fill
+                              sizes="32px"
+                              className="object-cover"
+                            />
                           ) : (
-                            <Check className="h-3.5 w-3.5" />
+                            <Film className="h-4 w-4 text-[#3a3a4c]" aria-hidden />
                           )}
                         </span>
                         <span className="min-w-0 flex-1">
@@ -234,6 +235,21 @@ export function SaveToListDialog({
                           <span className="block font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.16em] text-[#7a7a8c]">
                             {list.filmCount} {list.filmCount === 1 ? "film" : "films"}
                           </span>
+                        </span>
+                        <span
+                          className={cn(
+                            "flex h-6 w-6 shrink-0 items-center justify-center rounded-full border transition-colors",
+                            list.containsFilm
+                              ? "border-[#e8453c] bg-[#e8453c] text-white"
+                              : "border-[#33334a] text-transparent",
+                          )}
+                          aria-hidden
+                        >
+                          {busy ? (
+                            <Loader2 className="h-3.5 w-3.5 animate-spin text-[#888899]" />
+                          ) : (
+                            <Check className="h-3.5 w-3.5" />
+                          )}
                         </span>
                       </button>
                     </li>

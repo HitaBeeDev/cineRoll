@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Check, Loader2, Pencil, Plus, Trash2, X } from "lucide-react";
+import { ArrowUpRight, Check, Loader2, Pencil, Plus, Trash2, X } from "lucide-react";
 import type { UserListSummary } from "@cineroll/types";
 import { createUserList, deleteUserList, renameUserList } from "@/lib/api";
 import { useToast } from "@/components/ui/toast";
@@ -250,6 +250,13 @@ function ListCard({
               </>
             ) : (
               <>
+                <Link
+                  href={`/profile/lists/${list.id}`}
+                  aria-label={`Open ${list.name}`}
+                  className="inline-flex h-7 w-7 items-center justify-center rounded text-[#7a7a8c] transition-colors hover:bg-[#e8453c]/10 hover:text-[#e8453c] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/60"
+                >
+                  <ArrowUpRight className="h-4 w-4" aria-hidden />
+                </Link>
                 <button
                   type="button"
                   aria-label={`Rename ${list.name}`}
