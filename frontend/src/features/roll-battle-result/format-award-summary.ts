@@ -1,6 +1,9 @@
-import type { Film } from "@cineroll/types";
+import type { RollFilm } from "@/lib/api";
 
-export function formatRollBattleAwardSummary(film: Film): string {
+export function formatRollBattleAwardSummary(
+  film: RollFilm,
+  emptyLabel = "CineRoll winner",
+): string {
   const nominations =
     film.oscarNominations + film.ggNominations + film.cannesNominations;
   const wins = film.oscarWins + film.ggWins + film.cannesWins;
@@ -12,5 +15,5 @@ export function formatRollBattleAwardSummary(film: Film): string {
   if (nominations > 0) {
     return nominations === 1 ? "1 nomination" : `${nominations} nominations`;
   }
-  return "CineRoll winner";
+  return emptyLabel;
 }

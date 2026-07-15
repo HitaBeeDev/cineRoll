@@ -1,7 +1,10 @@
 import type { RollBattleWinnerProps } from "../component-props";
 import { formatRollBattleAwardSummary } from "../format-award-summary";
 
-export function RollBattleWinnerCredit({ film }: RollBattleWinnerProps) {
+export function RollBattleWinnerCredit({
+  film,
+  emptyAwardsLabel,
+}: RollBattleWinnerProps) {
   return (
     <div className="space-y-2">
       {film.director && (
@@ -11,7 +14,7 @@ export function RollBattleWinnerCredit({ film }: RollBattleWinnerProps) {
         </p>
       )}
       <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em] text-[#D4AF37]">
-        {formatRollBattleAwardSummary(film)}
+        {formatRollBattleAwardSummary(film, emptyAwardsLabel)}
       </p>
     </div>
   );

@@ -2,10 +2,10 @@ import Link from "next/link";
 import { ShareButton } from "@/components/share-button";
 import { buildRollBattleCaption } from "../build-roll-caption";
 import { ROLL_BATTLE_SECONDARY_ACTION_CLASS } from "../component-class-names";
-import type { RollBattleWinnerProps } from "../component-props";
+import type { RollBattleResultActionsProps } from "../component-props";
 import { ROLL_BATTLE_RESULT_SITE_URL } from "../config";
 
-export function RollBattleResultActions({ film }: RollBattleWinnerProps) {
+export function RollBattleResultActions({ film }: RollBattleResultActionsProps) {
   return (
     <div className="flex flex-col gap-3 sm:flex-row">
       <Link

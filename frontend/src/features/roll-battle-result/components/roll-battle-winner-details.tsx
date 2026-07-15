@@ -4,12 +4,18 @@ import { RollBattleResultBadges } from "./roll-battle-result-badges";
 import { RollBattleWinnerCredit } from "./roll-battle-winner-credit";
 import { RollBattleWinnerPlot } from "./roll-battle-winner-plot";
 
-export function RollBattleWinnerDetails({ film }: RollBattleWinnerProps) {
+export function RollBattleWinnerDetails({
+  film,
+  emptyAwardsLabel,
+}: RollBattleWinnerProps) {
   return (
     <div className="flex flex-col gap-4">
       <RollBattleResultBadges film={film} />
       <RollBattleGenres genres={film.genres} />
-      <RollBattleWinnerCredit film={film} />
+      <RollBattleWinnerCredit
+        film={film}
+        {...(emptyAwardsLabel ? { emptyAwardsLabel } : {})}
+      />
       <RollBattleWinnerPlot film={film} />
     </div>
   );
