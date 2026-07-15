@@ -1,0 +1,33 @@
+export const AWARD_LABELS: Readonly<Record<string, string>> = {
+  oscar: "Oscar",
+  goldenglobe: "Golden Globe",
+  cannes: "Cannes",
+  all: "Award",
+};
+
+export const LANGUAGE_LABELS: Readonly<Record<string, string>> = {
+  fr: "French",
+  it: "Italian",
+  de: "German",
+  ja: "Japanese",
+  es: "Spanish",
+  ko: "Korean",
+  pt: "Portuguese",
+  zh: "Chinese",
+  ru: "Russian",
+  sv: "Swedish",
+  pl: "Polish",
+  da: "Danish",
+  nl: "Dutch",
+  hi: "Hindi",
+  ar: "Arabic",
+  he: "Hebrew",
+  tr: "Turkish",
+  el: "Greek",
+  cs: "Czech",
+  hu: "Hungarian",
+  fi: "Finnish",
+  no: "Norwegian",
+  ro: "Romanian",
+  fa: "Persian",
+};
