@@ -46,19 +46,13 @@ export default async function ListsPage() {
   return (
     <main className="flex flex-1 flex-col bg-[#07070b] text-[#f4f4f5]">
       <AppHeader />
-      <div className="mx-auto w-full max-w-5xl px-6 py-12 lg:px-10">
+      <div className="mx-auto w-full max-w-6xl px-6 py-12 lg:px-10">
         <Link
           href="/profile"
-          className="inline-flex items-center gap-1.5 rounded font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em] text-[#9a9aac] underline-offset-4 transition-colors hover:text-[#e8453c] hover:underline focus-visible:text-[#e8453c] focus-visible:underline focus-visible:outline-none"
+          className="inline-flex items-center gap-1.5 rounded font-[family-name:var(--font-geist-sans)] text-[13px] text-[#b4b4c4] underline-offset-4 transition-colors hover:text-[#e8453c] hover:underline focus-visible:text-[#e8453c] focus-visible:underline focus-visible:outline-none"
         >
           <span aria-hidden>←</span> Back to profile
         </Link>
-        <h1 className="mt-4 font-[family-name:var(--font-display)] text-3xl font-bold text-[#F5F5F0]">
-          Your Lists
-        </h1>
-        <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.2em] text-[#9a9aac]">
-          Custom collections of award-winning films
-        </p>
 
         <Suspense fallback={<ListsSkeleton />}>
           <ListsBody resultPromise={resultPromise} />
@@ -73,8 +67,8 @@ async function ListsBody({ resultPromise }: { resultPromise: Promise<ListsResult
 
   if (result.status === "error") {
     return (
-      <div className="mt-10 flex flex-col items-center gap-5 rounded-xl border border-[#e8453c]/25 bg-[#0d0d1a] px-6 py-20 text-center">
-        <p className="max-w-sm font-[family-name:var(--font-geist-mono)] text-sm leading-relaxed text-[#9a9aac]">
+      <div className="mt-10 flex flex-col items-center gap-5 rounded-2xl border border-[#e8453c]/25 bg-[#0d0d1a] px-6 py-20 text-center">
+        <p className="max-w-sm font-[family-name:var(--font-geist-sans)] text-[15px] leading-relaxed text-[#c2c2ce]">
           We couldn’t load your lists. This is usually a hiccup on our end — check
           your connection and try again.
         </p>
@@ -88,11 +82,14 @@ async function ListsBody({ resultPromise }: { resultPromise: Promise<ListsResult
 
 function ListsSkeleton() {
   return (
-    <div className="mt-8">
-      <div className="h-[50px] w-full animate-pulse rounded-xl bg-[#111120]" />
-      <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="h-44 animate-pulse rounded-xl border border-white/[0.08] bg-[#11111a]" />
+    <div className="mt-6">
+      <div className="flex items-center justify-between gap-4">
+        <div className="h-9 w-48 animate-pulse rounded-lg bg-[#14141c]" />
+        <div className="h-11 w-32 animate-pulse rounded-xl bg-[#14141c]" />
+      </div>
+      <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div key={i} className="h-72 animate-pulse rounded-2xl border border-white/[0.06] bg-[#101019]" />
         ))}
       </div>
     </div>
