@@ -365,7 +365,7 @@ function ResultPanel({
   onShare: () => void;
   reduceMotion: boolean | null;
 }) {
-  const { archetype, traits, hero, recommendations } = result;
+  const { archetype, traits, recommendations } = result;
   return (
     <motion.section
       initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 16 }}
@@ -425,14 +425,11 @@ function ResultPanel({
         </div>
       </div>
 
-      {/* Watch next — the headline recommendation */}
-      {hero && <WatchNext film={hero} />}
-
-      {/* One pick per type */}
+      {/* One pick per type — the payoff: what to watch, across every kind. */}
       {recommendations.length > 0 && (
-        <div className="mt-10">
-          <h2 className="font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.24em] text-[#888899]">
-            More for your taste — every kind
+        <div className="mt-12">
+          <h2 className="text-center font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.24em] text-[#888899]">
+            What to watch — every kind
           </h2>
           <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5 lg:grid-cols-5">
             {recommendations.map((film) => (
@@ -442,65 +439,6 @@ function ResultPanel({
         </div>
       )}
     </motion.section>
-  );
-}
-
-function WatchNext({ film }: { film: TasteRecFilm }) {
-  const backdrop = tmdbImageUrl(film.backdropUrl, "w780");
-  const poster = tmdbImageUrl(film.posterUrl, "w342");
-  return (
-    <Link
-      href={`/film/${film.slug}`}
-      onClick={() =>
-        trackEvent({
-          type: "recommendation_click",
-          filmId: film.id,
-          context: { source: "taste_test_hero", slug: film.slug },
-        })
-      }
-      className="group relative mt-10 flex overflow-hidden rounded-2xl border border-[#1e1e2a] transition-colors hover:border-[#e8453c]/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
-    >
-      <div className="pointer-events-none absolute inset-0">
-        {backdrop ? (
-          <Image src={backdrop} alt="" fill sizes="100vw" className="object-cover opacity-30 blur-[1px]" />
-        ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-[#15151f] to-[#0a0a14]" />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#09090f] via-[#09090f]/85 to-[#09090f]/40" />
-      </div>
-      <div className="relative flex items-center gap-5 p-5 sm:gap-7 sm:p-7">
-        {poster && (
-          <div className="relative aspect-[2/3] w-24 shrink-0 overflow-hidden rounded-lg shadow-[0_16px_40px_rgba(0,0,0,0.6)] ring-1 ring-white/10 sm:w-32">
-            <Image
-              src={poster}
-              alt={film.title}
-              fill
-              sizes="128px"
-              placeholder="blur"
-              blurDataURL={blurDataUrl(film.posterColor)}
-              className="object-cover"
-            />
-          </div>
-        )}
-        <div className="min-w-0">
-          <p className="font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.24em] text-[#e8453c]">
-            Watch next
-          </p>
-          <h3 className="mt-2 font-[family-name:var(--font-display)] text-2xl font-bold leading-tight sm:text-4xl">
-            {film.title}
-          </h3>
-          <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.2em] text-[#b6b6c6]">
-            {film.year}
-            {film.director ? ` · ${film.director}` : ""}
-            {film.imdbRating != null ? ` · IMDb ${film.imdbRating.toFixed(1)}` : ""}
-          </p>
-          <span className="mt-4 inline-flex items-center gap-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.18em] text-[#F5F5F0] transition-colors group-hover:text-[#e8453c]">
-            View film
-            <ArrowRight className="h-3.5 w-3.5" aria-hidden />
-          </span>
-        </div>
-      </div>
-    </Link>
   );
 }
 

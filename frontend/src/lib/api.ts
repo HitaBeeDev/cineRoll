@@ -172,7 +172,6 @@ export type TasteResult = {
   archetype: { key: string; label: string; emoji: string; blurb: string };
   traits: string[];
   profile: { origin: number; mood: number; lane: number };
-  hero: TasteRecFilm | null;
   recommendations: TasteRecFilm[];
 };
 

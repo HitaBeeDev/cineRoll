@@ -47,7 +47,7 @@ tasteTestRouter.post("/result", validate(resultBodySchema, "body"), async (req, 
   const archetype = matchArchetype(profile);
 
   const pool = await getCandidatePool();
-  const { hero, byType } = recommend(profile, pool, new Set(involvedIds));
+  const { byType } = recommend(profile, pool, new Set(involvedIds));
 
   res.json({
     archetype: {
@@ -58,7 +58,6 @@ tasteTestRouter.post("/result", validate(resultBodySchema, "body"), async (req, 
     },
     traits: archetype.tags,
     profile,
-    hero,
     recommendations: byType,
   });
 });

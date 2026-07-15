@@ -17,13 +17,12 @@ export interface RecommendedFilm {
 }
 
 export interface Recommendations {
-  hero: RecommendedFilm | null;
   byType: RecommendedFilm[];
 }
 
-// One recommendation per type, in the order they're shown. Movies anchor the
-// hero, so the row leads with the other types the user asked to see.
-const RECOMMEND_TYPES = ["documentary", "animation", "tv-series", "short", "movie"] as const;
+// One recommendation per content type, in the order they're shown — a film leads,
+// then the other kinds the user asked to see.
+const RECOMMEND_TYPES = ["movie", "documentary", "animation", "tv-series", "short"] as const;
 
 // Fit is dominated by taste distance; a small quality nudge only breaks near
 // ties (so two equally-on-taste films resolve toward the better-regarded one).
@@ -55,11 +54,9 @@ function fitCost(film: CandidateFilm, profile: TasteVector): number {
 }
 
 /**
- * Rank the pool by fit to the taste profile and pick a spread of picks:
- *  - `hero` — the best-fitting movie ("watch next"), the broad, safe headline.
- *  - `byType` — the single best-fitting film of each remaining content type, so
- *    the result covers documentary/animation/TV/short as well.
- * Quiz films (and the hero) are excluded so nothing repeats.
+ * Rank the pool by fit to the taste profile and return the single best-fitting
+ * film of each content type, so the result covers a film plus a
+ * documentary/animation/TV/short. Quiz films are excluded so nothing repeats.
  */
 export function recommend(
   profile: TasteVector,
@@ -71,16 +68,11 @@ export function recommend(
     .map((film) => ({ film, cost: fitCost(film, profile) }))
     .sort((a, b) => a.cost - b.cost);
 
-  const hero = ranked.find((r) => r.film.contentType === "movie") ?? ranked[0];
-  const heroId = hero?.film.id;
-
   const byType: RecommendedFilm[] = [];
   for (const type of RECOMMEND_TYPES) {
-    const pick = ranked.find(
-      (r) => r.film.contentType === type && r.film.id !== heroId,
-    );
+    const pick = ranked.find((r) => r.film.contentType === type);
     if (pick) byType.push(toCard(pick.film));
   }
 
-  return { hero: hero ? toCard(hero.film) : null, byType };
+  return { byType };
 }
