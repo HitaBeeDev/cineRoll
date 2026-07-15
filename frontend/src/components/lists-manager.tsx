@@ -111,16 +111,31 @@ export function ListsManager({
           </p>
         </div>
       ) : (
-        <ul className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {lists.map((list) => (
-            <ListCard
-              key={list.id}
-              list={list}
-              onRename={handleRename}
-              onDelete={handleDelete}
-            />
-          ))}
-        </ul>
+        <>
+          <div className="mt-10 flex items-baseline justify-between border-b border-[#15151f] pb-3">
+            <h2 className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.22em] text-[#7a7a8c]">
+              Collections
+            </h2>
+            <p
+              className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em] text-[#5a5a6c]"
+              aria-label={`${lists.length} of ${maxLists} lists used`}
+            >
+              <span className={atLimit ? "text-[#e8453c]" : "text-[#9a9aac]"}>{lists.length}</span>
+              {" / "}
+              {maxLists}
+            </p>
+          </div>
+          <ul className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {lists.map((list) => (
+              <ListCard
+                key={list.id}
+                list={list}
+                onRename={handleRename}
+                onDelete={handleDelete}
+              />
+            ))}
+          </ul>
+        </>
       )}
     </div>
   );
@@ -148,22 +163,31 @@ function ListCard({
   }
 
   return (
-    <li className="group relative overflow-hidden rounded-xl border border-[#1e1e2a] bg-[#0d0d16] transition-colors hover:border-[#2a2a3c]">
-      <Link href={`/profile/lists/${list.id}`} className="block focus:outline-none">
-        {/* Cover: up to four recent posters, or a placeholder band. */}
-        <div className="flex h-28 gap-px overflow-hidden bg-[#08080d]">
+    <li className="group relative overflow-hidden rounded-xl border border-[#1e1e2a] bg-[#0d0d16] transition-all duration-300 hover:-translate-y-1 hover:border-[#2a2a3c] hover:shadow-[0_16px_40px_-24px_rgba(0,0,0,0.9)] motion-reduce:transform-none motion-reduce:transition-colors">
+      <Link
+        href={`/profile/lists/${list.id}`}
+        className="block rounded-t-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#e8453c]/70"
+      >
+        {/* Cover: recent posters standing on a shelf, fanned and lifting on hover. */}
+        <div className="relative h-40 overflow-hidden bg-[radial-gradient(120%_100%_at_50%_0%,#14141f_0%,#08080d_70%)]">
           {list.previewPosters.length > 0 ? (
-            list.previewPosters.slice(0, 4).map((poster, i) => (
-              <div key={i} className="relative h-full flex-1">
-                <Image
-                  src={tmdbImageUrl(poster, "w185") ?? poster}
-                  alt=""
-                  fill
-                  sizes="120px"
-                  className="object-cover"
-                />
-              </div>
-            ))
+            <div className="flex h-full items-end px-4 pt-6">
+              {list.previewPosters.slice(0, 4).map((poster, i) => (
+                <div
+                  key={i}
+                  style={{ zIndex: 4 - i, transitionDelay: `${i * 35}ms` }}
+                  className={`relative h-[120px] w-[80px] shrink-0 overflow-hidden rounded-md ring-1 ring-black/60 shadow-[0_6px_14px_-6px_rgba(0,0,0,0.9)] transition-transform duration-300 group-hover:-translate-y-1.5 motion-reduce:transform-none ${i > 0 ? "-ml-7" : ""}`}
+                >
+                  <Image
+                    src={tmdbImageUrl(poster, "w185") ?? poster}
+                    alt=""
+                    fill
+                    sizes="80px"
+                    className="object-cover"
+                  />
+                </div>
+              ))}
+            </div>
           ) : (
             <div className="flex h-full w-full items-center justify-center">
               <span className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.3em] text-[#4a4a5c]">
@@ -171,6 +195,10 @@ function ListCard({
               </span>
             </div>
           )}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-[#0d0d16] to-transparent"
+          />
         </div>
       </Link>
 
