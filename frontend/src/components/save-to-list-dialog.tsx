@@ -178,133 +178,142 @@ export function SaveToListDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[calc(100vw-2rem)] max-w-sm border-[#1e1e2a] bg-[#09090f]">
-        <DialogHeader>
-          <DialogTitle className="font-[family-name:var(--font-display)] text-2xl font-bold text-[#F5F5F0]">
+      <DialogContent className="w-[calc(100vw-2rem)] max-w-[500px] rounded-[20px] border-[#2a2a35] bg-[#0f0f16] p-[30px] shadow-[0_32px_80px_-24px_rgba(0,0,0,0.85)]">
+        <DialogHeader className="mb-6">
+          <DialogTitle className="font-[family-name:var(--font-display)] text-[26px] font-bold leading-tight text-[#F7F7F2]">
             Add to a list
           </DialogTitle>
-          <DialogDescription className="truncate font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-[#b4b4c4]">
+          <DialogDescription className="mt-1.5 truncate font-[family-name:var(--font-geist-sans)] text-[14px] text-[#c2c2ce]">
             {filmTitle}
           </DialogDescription>
         </DialogHeader>
 
         {state.status === "loading" && (
-          <div className="flex items-center justify-center py-10 text-[#888899]">
+          <div className="flex items-center justify-center py-12 text-[#9a9aac]">
             <Loader2 className="h-5 w-5 animate-spin" aria-hidden />
           </div>
         )}
 
         {state.status === "error" && (
-          <p className="py-8 text-center font-[family-name:var(--font-geist-mono)] text-[12px] text-[#9a9aac]">
-            Couldn’t load your lists. Close this and try again.
+          <p className="py-10 text-center font-[family-name:var(--font-geist-sans)] text-[14px] text-[#c2c2ce]">
+            We couldn’t load your lists. Close this and try again.
           </p>
         )}
 
         {state.status === "ready" && (
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col">
             {state.lists.length > 0 ? (
-              <ul className="flex max-h-64 flex-col gap-2.5 overflow-y-auto pr-1">
-                {state.lists.map((list) => {
-                  const busy = busyIds.has(list.id);
-                  const cover = list.previewPosters[0];
-                  return (
-                    <li key={list.id} className="flex flex-col">
-                      <button
-                        type="button"
-                        disabled={busy}
-                        aria-pressed={list.containsFilm}
-                        onClick={() => void toggleList(list)}
+              <>
+                <p className="mb-3 font-[family-name:var(--font-geist-sans)] text-[11px] font-semibold uppercase tracking-[0.14em] text-[#8a8a9c]">
+                  Your lists
+                </p>
+                <ul className="flex max-h-[300px] flex-col gap-2.5 overflow-y-auto">
+                  {state.lists.map((list) => {
+                    const busy = busyIds.has(list.id);
+                    const cover = list.previewPosters[0];
+                    return (
+                      <li
+                        key={list.id}
                         className={cn(
-                          "flex min-h-[44px] w-full items-center gap-3 rounded-lg border px-2.5 py-2 text-left transition-colors",
-                          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] disabled:opacity-60",
+                          "group flex items-stretch overflow-hidden rounded-xl border transition-colors",
                           list.containsFilm
-                            ? "border-[#e8453c]/40 bg-[#e8453c]/[0.07]"
-                            : "border-[#1e1e2a] bg-[#0d0d16] hover:border-[#2a2a3c] hover:bg-[#11111c]",
+                            ? "border-[#e8453c]/35 bg-[#15131a]"
+                            : "border-[#22222e] bg-[#14141c] hover:border-[#2f2f3d] hover:bg-[#17171f]",
                         )}
                       >
-                        <span className="relative flex h-11 w-8 shrink-0 items-center justify-center overflow-hidden rounded bg-[#08080d] ring-1 ring-black/50">
-                          {cover ? (
-                            <Image
-                              src={tmdbImageUrl(cover, "w185") ?? cover}
-                              alt=""
-                              fill
-                              sizes="32px"
-                              className="object-cover"
-                            />
-                          ) : (
-                            <Film className="h-4 w-4 text-[#4a4a5c]" aria-hidden />
-                          )}
-                        </span>
-                        <span className="min-w-0 flex-1">
-                          <span className="block truncate text-[13px] font-medium text-[#F5F5F0]">
-                            {list.name}
-                          </span>
-                          <span className="block font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.16em] text-[#9a9aac]">
-                            {list.filmCount} {list.filmCount === 1 ? "film" : "films"}
-                            {list.containsFilm && (
-                              <> · <span className="text-[#f0857d]">Saved</span></>
+                        <button
+                          type="button"
+                          disabled={busy}
+                          aria-pressed={list.containsFilm}
+                          onClick={() => void toggleList(list)}
+                          className="flex min-w-0 flex-1 items-center gap-3.5 p-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#e8453c] disabled:opacity-60"
+                        >
+                          <span className="relative flex h-[68px] w-[48px] shrink-0 items-center justify-center overflow-hidden rounded-md bg-[#08080d] ring-1 ring-black/40">
+                            {cover ? (
+                              <Image
+                                src={tmdbImageUrl(cover, "w185") ?? cover}
+                                alt=""
+                                fill
+                                sizes="48px"
+                                className="object-cover"
+                              />
+                            ) : (
+                              <Film className="h-5 w-5 text-[#4a4a5c]" aria-hidden />
                             )}
                           </span>
-                        </span>
-                        <span
-                          className={cn(
-                            "flex h-6 w-6 shrink-0 items-center justify-center rounded-full border transition-colors",
-                            list.containsFilm
-                              ? "border-[#e8453c] bg-[#e8453c] text-white"
-                              : "border-[#3a3a4c] text-transparent",
-                          )}
-                          aria-hidden
+                          <span className="min-w-0 flex-1">
+                            <span className="block truncate font-[family-name:var(--font-geist-sans)] text-[15px] font-medium text-[#F7F7F2]">
+                              {list.name}
+                            </span>
+                            <span className="mt-1 block font-[family-name:var(--font-geist-sans)] text-[13px] text-[#9a9aac]">
+                              {list.filmCount} {list.filmCount === 1 ? "film" : "films"}
+                              {list.containsFilm && (
+                                <span className="text-[#c2c2ce]"> · Saved</span>
+                              )}
+                            </span>
+                          </span>
+                          <span
+                            className={cn(
+                              "flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition-colors",
+                              list.containsFilm
+                                ? "border-[#e8453c] bg-[#e8453c] text-white"
+                                : "border-[#3a3a4c] text-transparent group-hover:border-[#4a4a5c]",
+                            )}
+                            aria-hidden
+                          >
+                            {busy ? (
+                              <Loader2 className="h-3 w-3 animate-spin text-[#9a9aac]" />
+                            ) : (
+                              <Check className="h-3 w-3" />
+                            )}
+                          </span>
+                        </button>
+                        <Link
+                          href={`/profile/lists/${list.id}`}
+                          aria-label={`Open ${list.name}`}
+                          title="Open list"
+                          className="flex w-12 shrink-0 items-center justify-center border-l border-[#22222e] text-[#8a8a9c] transition-colors hover:bg-[#e8453c]/10 hover:text-[#e8453c] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#e8453c]"
                         >
-                          {busy ? (
-                            <Loader2 className="h-3.5 w-3.5 animate-spin text-[#9a9aac]" />
-                          ) : (
-                            <Check className="h-3.5 w-3.5" />
-                          )}
-                        </span>
-                      </button>
-                      <Link
-                        href={`/profile/lists/${list.id}`}
-                        className="mt-1 inline-flex w-fit items-center gap-1 self-start rounded pl-[3px] font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.16em] text-[#9a9aac] underline-offset-2 transition-colors hover:text-[#e8453c] hover:underline focus-visible:text-[#e8453c] focus-visible:underline focus-visible:outline-none"
-                      >
-                        Open list <ArrowUpRight className="h-3 w-3" aria-hidden />
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
+                          <ArrowUpRight className="h-[18px] w-[18px]" aria-hidden />
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </>
             ) : (
-              <div className="rounded-lg border border-dashed border-[#22222e] bg-[#0b0b12] px-4 py-6 text-center">
-                <p className="font-[family-name:var(--font-geist-mono)] text-[12px] leading-relaxed text-[#b4b4c4]">
-                  You don’t have any lists yet.
+              <div className="rounded-xl border border-dashed border-[#2a2a35] bg-[#14141c] px-5 py-7 text-center">
+                <p className="font-[family-name:var(--font-geist-sans)] text-[15px] font-medium text-[#F7F7F2]">
+                  No lists yet
                 </p>
-                <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[11px] leading-relaxed text-[#9a9aac]">
+                <p className="mt-1.5 font-[family-name:var(--font-geist-sans)] text-[13px] leading-relaxed text-[#9a9aac]">
                   Create your first list to save this film.
                 </p>
               </div>
             )}
 
-            {/* Create — collapsed behind a link, revealed on demand. Creating a
-                list also drops this film into it. */}
-            <div className="border-t border-[#1e1e2a] pt-4">
+            {/* Create — collapsed behind a full-width action, revealed on demand.
+                Creating a list also drops this film into it. */}
+            <div className="mt-5 border-t border-[#22222e] pt-5">
               {!showCreate && state.lists.length > 0 ? (
                 <button
                   type="button"
                   disabled={atLimit}
                   onClick={() => setShowCreate(true)}
-                  className="inline-flex min-h-[44px] items-center gap-2 rounded-lg px-1 font-[family-name:var(--font-geist-mono)] text-[11px] font-semibold uppercase tracking-[0.16em] text-[#c8c8d4] transition-colors hover:text-[#e8453c] focus-visible:text-[#e8453c] focus-visible:outline-none disabled:cursor-not-allowed disabled:text-[#5a5a6c]"
+                  className="flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl border border-[#2a2a35] bg-[#14141c] font-[family-name:var(--font-geist-sans)] text-[14px] font-medium text-[#d0d0da] transition-colors hover:border-[#e8453c]/45 hover:text-[#F7F7F2] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/60 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  <Plus className="h-4 w-4" aria-hidden />
+                  <Plus className="h-[18px] w-[18px]" aria-hidden />
                   Create a new list
                 </button>
               ) : (
-                <form onSubmit={handleCreate} className="flex flex-col gap-2">
+                <form onSubmit={handleCreate} className="flex flex-col gap-2.5">
                   <label
                     htmlFor="new-list-name"
-                    className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.18em] text-[#9a9aac]"
+                    className="font-[family-name:var(--font-geist-sans)] text-[13px] font-medium text-[#c2c2ce]"
                   >
                     Create a new list
                   </label>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2.5">
                     <input
                       ref={inputRef}
                       id="new-list-name"
@@ -314,16 +323,16 @@ export function SaveToListDialog({
                       disabled={atLimit || creating}
                       maxLength={MAX_NAME}
                       placeholder="e.g. Weekend watchlist"
-                      className="min-h-[44px] min-w-0 flex-1 rounded-lg border border-[#1e1e2a] bg-[#0d0d16] px-3 py-2.5 text-[13px] text-[#F5F5F0] placeholder:text-[#6f6f82] focus:border-[#e8453c]/60 focus:outline-none disabled:opacity-50"
+                      className="min-h-[48px] min-w-0 flex-1 rounded-xl border border-[#2a2a35] bg-[#16161f] px-3.5 font-[family-name:var(--font-geist-sans)] text-[14px] text-[#F7F7F2] placeholder:text-[#6f6f82] focus:border-[#e8453c]/60 focus:outline-none disabled:opacity-50"
                     />
                     <button
                       type="submit"
                       disabled={!newName.trim() || atLimit || creating}
-                      className="inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-lg bg-[#e8453c] px-4 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.14em] text-white transition-colors hover:bg-[#d5342b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] disabled:cursor-not-allowed disabled:bg-[#2a2a3c] disabled:text-[#7a7a8c]"
+                      className="inline-flex min-h-[48px] shrink-0 items-center gap-1.5 rounded-xl bg-[#e8453c] px-5 font-[family-name:var(--font-geist-sans)] text-[14px] font-semibold text-white transition-colors hover:bg-[#d5342b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] disabled:cursor-not-allowed disabled:bg-[#26262f] disabled:text-[#7a7a8c]"
                     >
                       {creating ? (
                         <>
-                          <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
+                          <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
                           Creating…
                         </>
                       ) : (
@@ -332,7 +341,7 @@ export function SaveToListDialog({
                     </button>
                   </div>
                   {atLimit && (
-                    <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.14em] text-[#9a9aac]">
+                    <p className="font-[family-name:var(--font-geist-sans)] text-[12px] text-[#9a9aac]">
                       List limit reached ({state.maxLists}). Delete one to add more.
                     </p>
                   )}
