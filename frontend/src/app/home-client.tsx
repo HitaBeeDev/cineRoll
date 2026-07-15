@@ -525,7 +525,13 @@ export function HomeClient({
               That keeps the default state from being top-and-bottom heavy with a
               dead gap in the middle, while filters stay anchored at the bottom
               near ROLL and ROLL itself never moves. */}
-          <div className="lg:flex lg:min-h-0 lg:flex-1 lg:flex-col lg:justify-center">
+          {/* grow-only (never shrink below the headline's height): the wrapper
+              still absorbs vertical slack and centers the headline on tall
+              viewports, but on short ones — or when filters grow — it keeps the
+              hero at full height so the text can't overflow its box and collide
+              with the channel label / filters. The parent scroll region then
+              scrolls instead, and ROLL (outside it) stays pinned. */}
+          <div className="lg:flex lg:grow lg:shrink-0 lg:flex-col lg:justify-center">
             <div
               className={cn(
                 "mt-3 max-w-full transition-all duration-300 sm:mt-2",
