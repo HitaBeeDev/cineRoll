@@ -1,10 +1,19 @@
 import { z } from "zod";
 
-// The result request carries the film ids the user picked, one per question.
-// Bounded to a sane range so a malformed or malicious payload can't ask us to
-// look up thousands of ids.
+// The result request carries, per answered question, the film the user chose and
+// the film they rejected — so the model can read each pick as a vote on the axis
+// that actually separated the pair. Bounded so a malformed payload can't ask us
+// to look up an unbounded number of ids.
 export const resultBodySchema = z.object({
-  choiceFilmIds: z.array(z.string().min(1)).min(1).max(20),
+  comparisons: z
+    .array(
+      z.object({
+        chosenId: z.string().min(1),
+        otherId: z.string().min(1),
+      }),
+    )
+    .min(1)
+    .max(20),
 });
 
 export type ResultBody = z.infer<typeof resultBodySchema>;

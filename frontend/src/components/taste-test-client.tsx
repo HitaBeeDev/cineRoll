@@ -9,7 +9,8 @@ import { AppHeader } from "@/components/app-header";
 import { useToast } from "@/components/ui/toast";
 import {
   fetchTasteQuestions,
-  submitTasteChoices,
+  submitTasteResult,
+  type TasteComparison,
   type TasteQuestion,
   type TasteQuestionOption,
   type TasteRecFilm,
@@ -36,7 +37,7 @@ export function TasteTestClient() {
   const [phase, setPhase] = useState<Phase>("intro");
   const [questions, setQuestions] = useState<TasteQuestion[]>([]);
   const [index, setIndex] = useState(0);
-  const [choices, setChoices] = useState<string[]>([]);
+  const [comparisons, setComparisons] = useState<TasteComparison[]>([]);
   const [result, setResult] = useState<TasteResult | null>(null);
 
   // Prefetch the questions on mount so "Begin" is instant. A failure surfaces
@@ -66,14 +67,19 @@ export function TasteTestClient() {
         return;
       }
     }
-    setChoices([]);
+    setComparisons([]);
     setIndex(0);
     setPhase("quiz");
   }
 
   async function choose(option: TasteQuestionOption) {
-    const nextChoices = [...choices, option.id];
-    setChoices(nextChoices);
+    const question = questions[index];
+    if (!question) return;
+    // Record both sides of the fork: the model reads the pick as a vote on the
+    // axis where the chosen and rejected films actually differ.
+    const otherId = question.a.id === option.id ? question.b.id : question.a.id;
+    const next = [...comparisons, { chosenId: option.id, otherId }];
+    setComparisons(next);
 
     if (index + 1 < questions.length) {
       setIndex(index + 1);
@@ -83,7 +89,7 @@ export function TasteTestClient() {
     // Last pick — read the taste.
     setPhase("scoring");
     try {
-      const res = await submitTasteChoices(nextChoices);
+      const res = await submitTasteResult(next);
       setResult(res);
       setPhase("result");
     } catch {
@@ -93,7 +99,7 @@ export function TasteTestClient() {
 
   function retake() {
     setResult(null);
-    setChoices([]);
+    setComparisons([]);
     setIndex(0);
     setPhase("intro");
     void fetchTasteQuestions()

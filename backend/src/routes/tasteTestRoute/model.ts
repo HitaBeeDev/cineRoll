@@ -1,20 +1,28 @@
 /**
  * Taste Test model — the pure, DB-free core of the feature.
  *
- * Every film is projected onto four interpretable taste axes (see `AXES`). A
- * user's picks are averaged into a taste profile, which is matched to the
- * nearest archetype and used to rank recommendations. Keeping this layer pure
- * (no Prisma, no Express) makes the scoring deterministic and unit-testable, and
- * lets the repository/route stay thin.
+ * Every film is projected onto three interpretable taste axes (origin, mood,
+ * lane — see `filmToVector`). A user answers ten *comparable* this-or-that pairs
+ * (same content type, similar acclaim, close in time); each pick is read as a
+ * vote on whichever axis actually separated the two films
+ * (`profileFromComparisons`), which is matched to the nearest archetype and used
+ * to rank recommendations.
  *
- * Design note: the axis mappings and archetype anchors are curated (they encode
- * domain judgement about award cinema), but the profiling, matching and ranking
- * on top of them are fully algorithmic. That is the intended split — hand-tuned
- * features, computed decisions — and it avoids training/serving an ML model for
- * a problem that a small, legible vector space solves just as well.
+ * Why no "era" axis: forking on era forces a big time gap between the two
+ * posters (1950 vs 2023), which reads as an unfair, obvious choice rather than a
+ * taste dilemma. Time-of-release is "when", not "what kind" — so we keep pairs
+ * close in era and profile people on style instead. Easy to add back later if we
+ * want an explicit "classic vs modern" dimension.
+ *
+ * Design note: axis mappings and archetype anchors are curated (they encode
+ * domain judgement about award cinema); the profiling, matching and ranking on
+ * top are fully algorithmic. No ML model — a small, legible vector space is
+ * reliable, testable, and easy to extend.
  */
 
-export type TasteAxis = "era" | "origin" | "mood" | "lane";
+export type TasteAxis = "origin" | "mood" | "lane";
+
+export const AXIS_LIST: TasteAxis[] = ["origin", "mood", "lane"];
 
 export type TasteVector = Record<TasteAxis, number>;
 
@@ -32,17 +40,6 @@ export interface FilmFeatures {
   berlinWins: number;
 }
 
-/** Human-facing description of each axis, used for the result-screen trait chips. */
-export const AXES: Record<
-  TasteAxis,
-  { low: string; high: string }
-> = {
-  era:    { low: "Classic era",     high: "Modern era" },
-  origin: { low: "World cinema",    high: "Hollywood" },
-  mood:   { low: "Heavy & serious", high: "Light & fun" },
-  lane:   { low: "Arthouse",        high: "Crowd-pleaser" },
-};
-
 // Genre → mood weight in [-1, 1]: heavy/serious is negative, light/fun positive.
 // A film's mood is the mean of its genres' weights (unlisted genres are neutral).
 const GENRE_MOOD: Record<string, number> = {
@@ -54,11 +51,8 @@ const GENRE_MOOD: Record<string, number> = {
 
 const clamp = (n: number, lo = -1, hi = 1) => Math.max(lo, Math.min(hi, n));
 
-/** Project a film onto the four taste axes. All outputs are clamped to [-1, 1]. */
+/** Project a film onto the three taste axes. All outputs are clamped to [-1, 1]. */
 export function filmToVector(film: FilmFeatures): TasteVector {
-  // Era: pivots at the mid-90s; ~30 years of spread reaches the extremes.
-  const era = clamp((film.releaseYear - 1995) / 30);
-
   // Origin: English-language reads as Hollywood, anything else as world cinema.
   const origin = film.language && film.language !== "en" ? -1 : 1;
 
@@ -84,33 +78,45 @@ export function filmToVector(film: FilmFeatures): TasteVector {
     (film.language && film.language !== "en" ? 1.2 : 0);
   const lane = clamp((crowd - festival) / 4);
 
-  return { era, origin, mood, lane };
-}
-
-/** Mean of a set of taste vectors — a user's profile is the mean of their picks. */
-export function averageVectors(vectors: TasteVector[]): TasteVector {
-  if (vectors.length === 0) return { era: 0, origin: 0, mood: 0, lane: 0 };
-  const sum = vectors.reduce(
-    (acc, v) => ({
-      era: acc.era + v.era,
-      origin: acc.origin + v.origin,
-      mood: acc.mood + v.mood,
-      lane: acc.lane + v.lane,
-    }),
-    { era: 0, origin: 0, mood: 0, lane: 0 },
-  );
-  const n = vectors.length;
-  return { era: sum.era / n, origin: sum.origin / n, mood: sum.mood / n, lane: sum.lane / n };
+  return { origin, mood, lane };
 }
 
 /** Squared Euclidean distance between two taste vectors (equal axis weights). */
 export function distance(a: TasteVector, b: TasteVector): number {
   return (
-    (a.era - b.era) ** 2 +
     (a.origin - b.origin) ** 2 +
     (a.mood - b.mood) ** 2 +
     (a.lane - b.lane) ** 2
   );
+}
+
+/** One answered question: the vector of the film chosen, and of the one rejected. */
+export interface Comparison {
+  chosen: TasteVector;
+  other: TasteVector;
+}
+
+/**
+ * Turn the answered pairs into a taste profile by *differentiation-weighted
+ * voting*: on each axis, average the chosen films' values, but weight each vote
+ * by how far apart the two films were on that axis. A question that forked on
+ * mood barely moves your `origin` score, so the axis a pair actually tested is
+ * the one it teaches — the result reflects the real choices, not incidental
+ * similarities. Axes no pair separated stay at 0 (neutral).
+ */
+export function profileFromComparisons(comparisons: Comparison[]): TasteVector {
+  const profile: TasteVector = { origin: 0, mood: 0, lane: 0 };
+  for (const axis of AXIS_LIST) {
+    let weighted = 0;
+    let weight = 0;
+    for (const { chosen, other } of comparisons) {
+      const w = Math.abs(chosen[axis] - other[axis]);
+      weighted += chosen[axis] * w;
+      weight += w;
+    }
+    profile[axis] = weight > 0 ? clamp(weighted / weight) : 0;
+  }
+  return profile;
 }
 
 export interface Archetype {
@@ -118,56 +124,64 @@ export interface Archetype {
   label: string;
   emoji: string;
   blurb: string;
+  /** Curated tags shown as chips — always coherent with the label. */
+  tags: string[];
   vector: TasteVector;
 }
 
 /**
- * The six archetypes as anchor points in taste space. Chosen to spread across
- * the axes so every plausible profile has a clear, distinct nearest neighbour
- * (no dead zones, no two anchors closer to each other than to the corners).
+ * Six archetypes as anchor points in (origin, mood, lane) space, spread so every
+ * plausible profile has a distinct nearest neighbour. Tags are hand-written to
+ * match each label's voice.
  */
 export const ARCHETYPES: Archetype[] = [
   {
     key: "festival-purist",
     label: "Festival Purist",
     emoji: "🎬",
-    blurb: "Slow-burn, subtitled, festival darlings — you like a film that makes you work for it.",
-    vector: { era: -0.4, origin: -0.9, mood: -0.6, lane: -0.8 },
+    blurb: "Slow-burn, subtitled festival darlings — you like a film that makes you work for it.",
+    tags: ["Subtitles-friendly", "Auteur cinema", "Slow-burn"],
+    vector: { origin: -0.9, mood: -0.5, lane: -0.9 },
   },
   {
-    key: "awards-regular",
-    label: "Awards Season Regular",
-    emoji: "🏆",
-    blurb: "Prestige Best-Picture dramas — the ones everyone argues about on the night.",
-    vector: { era: 0.6, origin: 0.6, mood: -0.7, lane: 0.5 },
-  },
-  {
-    key: "new-hollywood-romantic",
-    label: "New Hollywood Romantic",
-    emoji: "🎞️",
-    blurb: "Character-driven American classics with heart, grain, and a great third act.",
-    vector: { era: -0.6, origin: 0.8, mood: -0.2, lane: 0.2 },
-  },
-  {
-    key: "comfort-classicist",
-    label: "Comfort Classicist",
-    emoji: "🍿",
-    blurb: "Timeless crowd-pleasers you could happily rewatch forever.",
-    vector: { era: -0.5, origin: 0.6, mood: 0.7, lane: 0.8 },
-  },
-  {
-    key: "global-explorer",
-    label: "Global Explorer",
+    key: "world-wanderer",
+    label: "World Wanderer",
     emoji: "🌍",
-    blurb: "Recent world cinema — you'll gladly read subtitles for a story worth telling.",
-    vector: { era: 0.7, origin: -0.8, mood: 0.1, lane: -0.3 },
+    blurb: "Global stories you'll gladly read subtitles for — but you like one with a pulse.",
+    tags: ["World cinema", "Story-first", "Adventurous"],
+    vector: { origin: -0.8, mood: 0.4, lane: 0.1 },
   },
   {
-    key: "popcorn-optimist",
-    label: "Popcorn Optimist",
+    key: "indie-soul",
+    label: "Indie Soul",
+    emoji: "🎭",
+    blurb: "Small, aching, character-first — the quiet ones that sneak up on you.",
+    tags: ["Indie", "Character-driven", "Understated"],
+    vector: { origin: 0.4, mood: -0.4, lane: -0.7 },
+  },
+  {
+    key: "prestige-seeker",
+    label: "Prestige Seeker",
+    emoji: "🏆",
+    blurb: "Heavyweight, awards-night dramas — the ones everyone argues about on the night.",
+    tags: ["Best Picture bait", "Heavyweight drama", "Prestige"],
+    vector: { origin: 0.7, mood: -0.8, lane: 0.5 },
+  },
+  {
+    key: "feel-good-fan",
+    label: "Feel-Good Fan",
+    emoji: "🍿",
+    blurb: "Warm, funny, endlessly rewatchable — cinema should send you home smiling.",
+    tags: ["Feel-good", "Warm & funny", "Rewatchable"],
+    vector: { origin: 0.7, mood: 0.9, lane: 0.7 },
+  },
+  {
+    key: "blockbuster-heart",
+    label: "Blockbuster Heart",
     emoji: "✨",
-    blurb: "Bright, fun, and broadly loved — cinema should send you home smiling.",
-    vector: { era: 0.7, origin: 0.7, mood: 0.9, lane: 0.7 },
+    blurb: "Big, beloved, made-for-the-big-screen — the crowd-pleasers everyone's seen.",
+    tags: ["Broadly loved", "Big-screen", "Spectacle"],
+    vector: { origin: 0.5, mood: 0.2, lane: 0.95 },
   },
 ];
 
@@ -176,17 +190,4 @@ export function matchArchetype(profile: TasteVector): Archetype {
   return ARCHETYPES.reduce((best, a) =>
     distance(profile, a.vector) < distance(profile, best.vector) ? a : best,
   );
-}
-
-/**
- * Short human-readable trait chips for the result screen — only axes the user
- * leans on clearly (|value| ≥ 0.25) are surfaced, strongest first, so the
- * summary reads as a few confident labels rather than four hedged ones.
- */
-export function profileTraits(profile: TasteVector): string[] {
-  return (Object.keys(AXES) as TasteAxis[])
-    .map((axis) => ({ axis, value: profile[axis] }))
-    .filter((t) => Math.abs(t.value) >= 0.25)
-    .sort((a, b) => Math.abs(b.value) - Math.abs(a.value))
-    .map((t) => (t.value < 0 ? AXES[t.axis].low : AXES[t.axis].high));
 }

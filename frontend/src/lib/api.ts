@@ -171,7 +171,7 @@ export type TasteRecFilm = Pick<
 export type TasteResult = {
   archetype: { key: string; label: string; emoji: string; blurb: string };
   traits: string[];
-  profile: { era: number; origin: number; mood: number; lane: number };
+  profile: { origin: number; mood: number; lane: number };
   hero: TasteRecFilm | null;
   recommendations: TasteRecFilm[];
 };
@@ -683,11 +683,13 @@ export async function fetchTasteQuestions(): Promise<TasteQuestion[]> {
   return data.questions;
 }
 
-export async function submitTasteChoices(choiceFilmIds: string[]): Promise<TasteResult> {
+export type TasteComparison = { chosenId: string; otherId: string };
+
+export async function submitTasteResult(comparisons: TasteComparison[]): Promise<TasteResult> {
   const res = await fetch(`${API_URL}/api/taste-test/result`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ choiceFilmIds }),
+    body: JSON.stringify({ comparisons }),
   });
   if (!res.ok) throw new Error("Failed to read your taste");
   return res.json() as Promise<TasteResult>;
