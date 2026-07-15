@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState, useSyncExternalStore } from "react";
-import { Cookie, Settings2 } from "lucide-react";
 import {
   COOKIE_CONSENT_CHANGED_EVENT,
   type CookieConsentChoice,
@@ -53,51 +52,46 @@ export function CookieConsent() {
       {choice === null ? (
         <section
           aria-label="Cookie consent"
-          className="fixed inset-x-0 bottom-0 z-40 border-t border-[#2a2a3d] bg-[#08080f]/95 px-4 py-4 shadow-2xl shadow-black/70 backdrop-blur-md sm:px-6"
+          className="fixed inset-x-0 bottom-0 z-40 border-t border-[#1e1e2a] bg-[#08080f]/95 backdrop-blur-md"
         >
-          <div className="mx-auto flex max-w-screen-xl flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex min-w-0 gap-3">
-              <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-[#35354c] bg-[#10101a] text-[#d4af37]">
-                <Cookie className="h-4 w-4" aria-hidden="true" />
-              </div>
-              <div className="min-w-0">
-                <h2 className="font-[family-name:var(--font-geist-mono)] text-[11px] font-semibold uppercase tracking-[0.28em] text-[#f5f5f0]">
-                  Cookie Preferences
-                </h2>
-                <p className="mt-1 max-w-2xl text-sm leading-6 text-[#b7b7c8]">
-                  CineRoll uses essential storage for core features. Analytics
-                  only runs if you allow it.
-                </p>
-              </div>
+          <div className="mx-auto flex max-w-screen-xl flex-col gap-3.5 px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:px-6">
+            <div className="min-w-0">
+              <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.28em] text-[#6a6a80]">
+                {"// cookies"}
+              </p>
+              <p className="mt-1.5 max-w-2xl text-[13px] leading-6 text-[#b7b7c8]">
+                A couple of essential cookies keep CineRoll running. Analytics
+                stays off until you turn it on.{" "}
+                <a
+                  href="/privacy"
+                  className="text-[#d7d7e4] underline decoration-[#3a3a4e] underline-offset-[3px] transition-colors hover:decoration-[#e8453c]"
+                >
+                  Privacy policy
+                </a>
+              </p>
             </div>
-            <div className="flex shrink-0 flex-col gap-2 sm:flex-row sm:items-center">
-              <Button
+            <div className="flex shrink-0 items-center gap-2">
+              <button
                 type="button"
-                variant="ghost"
-                size="sm"
-                className="border border-[#303047] text-[#d7d7e4] hover:bg-[#161622]"
                 onClick={() => setPreferencesOpen(true)}
+                className="inline-flex h-9 items-center rounded-full px-3 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.18em] text-[#888899] transition-colors hover:text-[#f5f5f0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] focus-visible:ring-offset-2 focus-visible:ring-offset-[#08080f]"
               >
-                <Settings2 className="h-3.5 w-3.5" aria-hidden="true" />
-                Preferences
-              </Button>
-              <Button
+                Manage
+              </button>
+              <button
                 type="button"
-                variant="secondary"
-                size="sm"
-                className="border-[#45455d] text-[#f5f5f0] hover:bg-[#171722]"
                 onClick={() => saveChoice("declined")}
+                className="inline-flex h-9 items-center rounded-full border border-[#2a2a3e] bg-[#11111b] px-4 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.18em] text-[#d7d7e4] transition-colors hover:border-[#6a6a85] hover:text-[#f5f5f0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] focus-visible:ring-offset-2 focus-visible:ring-offset-[#08080f]"
               >
                 Decline
-              </Button>
-              <Button
+              </button>
+              <button
                 type="button"
-                size="sm"
-                className="bg-[#e8453c] text-[#09090f] hover:brightness-110"
                 onClick={() => saveChoice("granted")}
+                className="inline-flex h-9 items-center rounded-full bg-[#e8453c] px-4 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.18em] text-[#09090f] transition-colors hover:bg-[#d5342b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] focus-visible:ring-offset-2 focus-visible:ring-offset-[#08080f]"
               >
-                Allow Analytics
-              </Button>
+                Allow analytics
+              </button>
             </div>
           </div>
         </section>
@@ -128,8 +122,15 @@ export function CookieConsent() {
                 Optional product analytics helps measure film impressions,
                 searches, rolls, and feature usage.
               </p>
-              <p className="mt-3 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.22em] text-[#d4af37]">
-                Current: {choice === "granted" ? "Allowed" : "Declined"}
+              <p className="mt-3 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.22em] text-[#8a8aa0]">
+                Current:{" "}
+                <span
+                  className={
+                    choice === "granted" ? "text-[#e8453c]" : "text-[#c9c9d8]"
+                  }
+                >
+                  {choice === "granted" ? "Allowed" : "Declined"}
+                </span>
               </p>
             </div>
           </div>
@@ -138,12 +139,17 @@ export function CookieConsent() {
             <Button
               type="button"
               variant="secondary"
+              className="border-[#2a2a3e] bg-[#11111b] text-[#d7d7e4] hover:border-[#6a6a85] hover:bg-[#161622] hover:text-[#f5f5f0]"
               onClick={() => saveChoice("declined")}
             >
-              Decline Analytics
+              Decline analytics
             </Button>
-            <Button type="button" onClick={() => saveChoice("granted")}>
-              Allow Analytics
+            <Button
+              type="button"
+              className="bg-[#e8453c] text-[#09090f] hover:bg-[#d5342b]"
+              onClick={() => saveChoice("granted")}
+            >
+              Allow analytics
             </Button>
           </DialogFooter>
         </DialogContent>
