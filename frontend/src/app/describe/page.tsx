@@ -3,7 +3,8 @@
 import { useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, RotateCcw } from "lucide-react";
+import { motion, AnimatePresence, useReducedMotion, type Variants } from "framer-motion";
+import { ArrowRight, ChevronLeft, ChevronRight, RotateCcw } from "lucide-react";
 import { AppHeader } from "@/components/app-header";
 import {
   fetchNaturalRoll,
@@ -143,7 +144,16 @@ const AWARD_BODIES = [
   { key: "cannes", label: "Cannes", wins: (f: RollFilm) => f.cannesWins, noms: (f: RollFilm) => f.cannesNominations },
 ] as const;
 
-function FilmCard({ film }: { film: RollFilm }) {
+function FilmCard({
+  film,
+  // In the carousel a pointer that dragged shouldn't also navigate; the parent
+  // reports whether the last pointer sequence was a drag so the click is
+  // swallowed. Omitted (plain grid usage) → always navigate.
+  onClickGuard,
+}: {
+  film: RollFilm;
+  onClickGuard?: () => boolean;
+}) {
   const imageUrl = film.posterUrl ?? film.backdropUrl;
   const awardBodies = AWARD_BODIES.filter(b => b.noms(film) > 0);
   const genre = film.genres[0];
@@ -151,7 +161,13 @@ function FilmCard({ film }: { film: RollFilm }) {
   return (
     <Link
       href={`/film/${film.slug}`}
-      onClick={() => {
+      draggable={false}
+      onDragStart={(e) => e.preventDefault()}
+      onClick={(e) => {
+        if (onClickGuard?.()) {
+          e.preventDefault();
+          return;
+        }
         trackEvent({
           type: "recommendation_click",
           filmId: film.id,
@@ -161,15 +177,16 @@ function FilmCard({ film }: { film: RollFilm }) {
           },
         });
       }}
-      className="group relative flex min-h-[260px] overflow-hidden rounded-lg border border-[#1e1e2a] bg-[#09090f]/70 transition-colors hover:border-[#e8453c]/40 sm:min-h-0"
+      className="group relative flex h-full min-h-[260px] overflow-hidden rounded-lg border border-[#1e1e2a] bg-[#09090f]/70 transition-colors hover:border-[#e8453c]/40 sm:min-h-0"
     >
       {imageUrl ? (
         <Image
           src={imageUrl}
           alt={`${film.title} poster`}
           fill
+          draggable={false}
           sizes="(min-width: 1024px) 20vw, 50vw"
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
+          className="pointer-events-none object-cover transition-transform duration-500 group-hover:scale-105"
         />
       ) : (
         <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a2e] to-[#09090f]" />
@@ -222,10 +239,186 @@ function FilmCard({ film }: { film: RollFilm }) {
   );
 }
 
-// Single source for both the requested pick count and the skeleton grid, so the
-// placeholder always matches the number of cards that replace it. Four fills the
-// two-column results panel as two rows (backend allows up to 6).
-const ROLL_COUNT = 4;
+// Single source for both the requested pick count and the loading placeholders,
+// so the skeletons always match the number of cards that replace them. Five feed
+// the results carousel (two visible, the rest flip in — backend allows up to 6).
+const ROLL_COUNT = 5;
+
+// How many cards the carousel shows at once.
+const CAROUSEL_VISIBLE = 2;
+
+// Card flip: the outgoing film rotates away and the incoming one flips in from
+// the same side you're heading, so paging reads as cards turning over. `custom`
+// carries the direction (+1 next / -1 prev) into the variants.
+const FLIP_VARIANTS: Variants = {
+  enter: (dir: number) => ({ rotateY: dir >= 0 ? 78 : -78, opacity: 0 }),
+  center: { rotateY: 0, opacity: 1 },
+  exit: (dir: number) => ({ rotateY: dir >= 0 ? -78 : 78, opacity: 0 }),
+};
+
+// Reduced-motion fallback: cross-fade, no rotation.
+const FADE_VARIANTS: Variants = {
+  enter: { opacity: 0 },
+  center: { opacity: 1 },
+  exit: { opacity: 0 },
+};
+
+/**
+ * Results carousel: shows two picks at a time and pages through the rest with a
+ * card-flip transition. Advance by dragging (mouse or touch) or the arrow
+ * buttons; a drag past the threshold moves one card and is suppressed from
+ * triggering the card's link.
+ */
+function FilmCarousel({ films }: { films: RollFilm[] }) {
+  const reduceMotion = useReducedMotion();
+  const [page, setPage] = useState(0);
+  const [dir, setDir] = useState(1);
+  const maxPage = Math.max(0, films.length - CAROUSEL_VISIBLE);
+
+  const startX = useRef(0);
+  const dragging = useRef(false);
+  const movedRef = useRef(false);
+
+  function goTo(next: number) {
+    const clamped = Math.min(Math.max(next, 0), maxPage);
+    if (clamped === page) return;
+    setDir(clamped > page ? 1 : -1);
+    setPage(clamped);
+  }
+
+  function onPointerDown(e: React.PointerEvent) {
+    dragging.current = true;
+    movedRef.current = false;
+    startX.current = e.clientX;
+  }
+  function onPointerMove(e: React.PointerEvent) {
+    if (!dragging.current) return;
+    if (Math.abs(e.clientX - startX.current) > 8) movedRef.current = true;
+  }
+  function onPointerUp(e: React.PointerEvent) {
+    if (!dragging.current) return;
+    dragging.current = false;
+    const dx = e.clientX - startX.current;
+    const threshold = 48;
+    if (dx <= -threshold) goTo(page + 1);
+    else if (dx >= threshold) goTo(page - 1);
+  }
+
+  const slots = Array.from(
+    { length: CAROUSEL_VISIBLE },
+    (_, k) => films[page + k],
+  ).filter((f): f is RollFilm => Boolean(f));
+
+  return (
+    <div className="flex min-h-0 flex-1 flex-col gap-3">
+      <div
+        role="group"
+        aria-roledescription="carousel"
+        aria-label="Film picks"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === "ArrowRight") { e.preventDefault(); goTo(page + 1); }
+          else if (e.key === "ArrowLeft") { e.preventDefault(); goTo(page - 1); }
+        }}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onPointerCancel={onPointerUp}
+        className="relative flex min-h-0 flex-1 cursor-grab touch-pan-y select-none gap-3 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40 active:cursor-grabbing"
+        style={{ perspective: "1600px" }}
+      >
+        {slots.map((film, k) => (
+          <div
+            key={k}
+            className="relative min-h-0 flex-1"
+            style={{ transformStyle: "preserve-3d" }}
+          >
+            <AnimatePresence initial={false} custom={dir} mode="popLayout">
+              <motion.div
+                key={film.id}
+                custom={dir}
+                variants={reduceMotion ? FADE_VARIANTS : FLIP_VARIANTS}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{
+                  duration: reduceMotion ? 0.2 : 0.45,
+                  ease: [0.22, 1, 0.36, 1],
+                  delay: reduceMotion ? 0 : k * 0.06,
+                }}
+                className="absolute inset-0"
+                style={{ transformOrigin: "center", backfaceVisibility: "hidden" }}
+              >
+                <FilmCard film={film} onClickGuard={() => movedRef.current} />
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        ))}
+      </div>
+
+      {/* Controls — arrow buttons flank position dots; each dot is one page. */}
+      {maxPage > 0 && (
+        <div className="flex shrink-0 items-center justify-center gap-4">
+          <CarouselArrow
+            direction="prev"
+            disabled={page === 0}
+            onClick={() => goTo(page - 1)}
+          />
+          <div className="flex items-center gap-1.5" role="tablist" aria-label="Carousel position">
+            {Array.from({ length: maxPage + 1 }).map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                role="tab"
+                aria-selected={i === page}
+                aria-label={`Show picks ${i + 1}–${i + CAROUSEL_VISIBLE}`}
+                onClick={() => goTo(i)}
+                className={cn(
+                  "h-1.5 rounded-full transition-all",
+                  i === page ? "w-5 bg-[#e8453c]" : "w-1.5 bg-[#3a3a48] hover:bg-[#55556a]",
+                )}
+              />
+            ))}
+          </div>
+          <CarouselArrow
+            direction="next"
+            disabled={page === maxPage}
+            onClick={() => goTo(page + 1)}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CarouselArrow({
+  direction,
+  disabled,
+  onClick,
+}: {
+  direction: "prev" | "next";
+  disabled: boolean;
+  onClick: () => void;
+}) {
+  const Icon = direction === "prev" ? ChevronLeft : ChevronRight;
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      aria-label={direction === "prev" ? "Previous picks" : "Next picks"}
+      className={cn(
+        "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border transition-colors",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40",
+        disabled
+          ? "cursor-not-allowed border-[#1a1a24] text-[#3a3a48]"
+          : "border-[#2a2a3e] text-[#b6b6c6] hover:border-[#e8453c]/50 hover:text-[#F5F5F0]",
+      )}
+    >
+      <Icon className="h-4 w-4" aria-hidden />
+    </button>
+  );
+}
 
 function SkeletonCard() {
   return (
@@ -270,8 +463,9 @@ function ProcessingPanel({ interpreted }: { interpreted: NaturalRollInterpreted 
           </div>
         )}
       </div>
-      <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 sm:grid-cols-2">
-        {Array.from({ length: ROLL_COUNT }).map((_, index) => (
+      {/* Two skeletons stand in for the carousel's two visible picks. */}
+      <div className="grid min-h-0 flex-1 grid-cols-2 gap-3">
+        {Array.from({ length: CAROUSEL_VISIBLE }).map((_, index) => (
           <SkeletonCard key={index} />
         ))}
       </div>
@@ -557,11 +751,7 @@ export default function DescribePage() {
                       ))}
                     </div>
                   </div>
-                  <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 sm:grid-cols-2">
-                    {result.films.map((film) => (
-                      <FilmCard key={film.id} film={film} />
-                    ))}
-                  </div>
+                  <FilmCarousel films={result.films} />
                 </div>
               ) : (
                 <div className="flex h-full min-w-0 flex-col p-5 sm:p-6">
@@ -602,7 +792,7 @@ export default function DescribePage() {
                         </span>
                       ))}
                       <span className="max-w-full break-words font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.12em] text-[#888899] sm:text-[11px] sm:tracking-widest">
-                        → four films rolled
+                        → five films rolled
                       </span>
                     </div>
                   </div>
