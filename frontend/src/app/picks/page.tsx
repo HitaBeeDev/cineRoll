@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { Bookmark, Star, Trophy, Clapperboard, ArrowUpRight } from "lucide-react";
+import { Bookmark, Eye, Star, Trophy, Clapperboard, ArrowUpRight } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import { AppHeader } from "@/components/app-header";
@@ -157,6 +157,7 @@ async function selectPick(
   usedIds: string[],
   usedDecades: Set<number>,
   usedGenres: Set<string>,
+  userId: string | undefined,
 ): Promise<DailyPick | null> {
   let fallback: DailyPick | null = null;
   const seen: string[] = [];
@@ -165,7 +166,7 @@ async function selectPick(
     const seed = v === 0 ? `${day}:${slot.num}` : `${day}:${slot.num}:v${v}`;
     let film: RollFilm;
     try {
-      ({ film } = await fetchSeededRandom(seed, slot.filters, [...usedIds, ...seen]));
+      ({ film } = await fetchSeededRandom(seed, slot.filters, [...usedIds, ...seen], userId));
     } catch {
       // Pool exhausted for this slot (or a transient error) — try the next seed.
       continue;
@@ -187,7 +188,7 @@ async function selectPick(
   for (let i = 0; i < relaxedFilters.length; i++) {
     const seed = `${day}:${slot.num}:fallback${i}`;
     try {
-      const { film } = await fetchSeededRandom(seed, relaxedFilters[i], usedIds);
+      const { film } = await fetchSeededRandom(seed, relaxedFilters[i], usedIds, userId);
       return { film, slot };
     } catch {
       continue;
@@ -199,15 +200,18 @@ async function selectPick(
 
 export default function PicksPage() {
   const shouldReduceMotion = useReducedMotion();
+  const { data: session } = useSession();
+  const userId = session?.user?.id;
   const [picks, setPicks] = useState<DailyPick[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const loadPicks = useCallback(async () => {
     // UTC day, matching the backend's pick-of-day convention. The selection is
     // deterministic from this key, so every visitor sees the same three films
-    // today and they roll over together at UTC midnight.
+    // today and they roll over together at UTC midnight — except a signed-in
+    // user's "seen" films are dropped server-side, so the cache is per-user.
     const day = new Date().toISOString().split("T")[0] ?? "";
-    const key = `cinepicks-${day}`;
+    const key = `cinepicks-${day}-${userId ?? "guest"}`;
 
     // Same-day revisits restore instantly. Because selection is now
     // deterministic per day, this cache can never disagree with a fresh
@@ -242,7 +246,7 @@ export default function PicksPage() {
     const usedDecades = new Set<number>();
     const usedGenres = new Set<string>();
     for (const slot of PICK_SLOTS) {
-      const pick = await selectPick(slot, day, usedIds, usedDecades, usedGenres);
+      const pick = await selectPick(slot, day, usedIds, usedDecades, usedGenres, userId);
       if (!pick) continue;
       newPicks.push(pick);
       usedIds.push(pick.film.id);
@@ -255,7 +259,7 @@ export default function PicksPage() {
     } catch {}
     setPicks(newPicks);
     setIsLoading(false);
-  }, []);
+  }, [userId]);
 
   useEffect(() => {
     const id = window.setTimeout(() => void loadPicks(), 0);
@@ -330,8 +334,11 @@ function PickActions({ film }: { film: RollFilm }) {
   const { status } = useSession();
   const pathname = usePathname();
   const {
+    action,
+    pending,
     inWatchlist,
     watchlistPending,
+    saveDecision,
     toggleWatchlist,
     authPrompt,
     closeAuthPrompt,
@@ -342,8 +349,29 @@ function PickActions({ film }: { film: RollFilm }) {
     source: "daily_pick",
   });
 
+  const seen = action === "watched";
+
   return (
     <>
+      {/* Seen — marks the film watched and hidden, so it won't return in a
+          future daily pick or the home roll. Guests get the sign-in gate. */}
+      <button
+        type="button"
+        aria-pressed={seen}
+        aria-label={seen ? "Marked as seen" : "Mark as seen"}
+        title={seen ? "Seen — hidden from future picks" : "Mark as seen"}
+        disabled={pending}
+        onClick={() => void saveDecision("watched", true)}
+        className={cn(
+          "flex h-11 w-11 shrink-0 items-center justify-center rounded-full border transition-colors disabled:cursor-not-allowed disabled:opacity-60",
+          seen
+            ? "border-white/30 bg-white/15 text-[#F5F5F0]"
+            : "border-white/20 text-[#cfcfdc] hover:border-white/40 hover:text-[#F5F5F0]",
+        )}
+      >
+        <Eye className="h-4 w-4" aria-hidden />
+      </button>
+
       <button
         type="button"
         aria-pressed={inWatchlist}

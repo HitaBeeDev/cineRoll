@@ -135,6 +135,30 @@ export interface User {
   image: string | null;
 }
 
+export type CompletionCategoryKey =
+  | "oscar"
+  | "goldenglobe"
+  | "cannes"
+  | "berlin"
+  | "imdb-movies"
+  | "imdb-tv";
+
+export interface CompletionProgressCount {
+  watched: number;
+  total: number;
+  percentage: number;
+}
+
+export interface CompletionCategoryProgress extends CompletionProgressCount {
+  key: CompletionCategoryKey;
+  label: string;
+}
+
+export interface CompletionProgress {
+  overall: CompletionProgressCount;
+  categories: CompletionCategoryProgress[];
+}
+
 export interface WatchlistEntry {
   id: string;
   userId: string;

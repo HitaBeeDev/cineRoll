@@ -5,10 +5,12 @@ import { Suspense } from "react";
 import { auth } from "@/auth";
 import { apiFetch } from "@/lib/apiWithAuth";
 import { AppHeader } from "@/components/app-header";
+import { CompletionistTracker } from "@/components/completionist-tracker";
 import {
   RecommendationsSection,
   type Recommendation,
 } from "@/components/recommendations-section";
+import type { CompletionProgress } from "@cineroll/types";
 
 type ProfileSummary = {
   watchlist: number;
@@ -28,6 +30,11 @@ const EMPTY_SUMMARY: ProfileSummary = {
   genresFromRatings: false,
 };
 
+const EMPTY_PROGRESS: CompletionProgress = {
+  overall: { watched: 0, total: 0, percentage: 0 },
+  categories: [],
+};
+
 async function fetchSummary(): Promise<ProfileSummary> {
   const res = await apiFetch("/api/user/summary");
   if (!res.ok) return EMPTY_SUMMARY;
@@ -40,6 +47,12 @@ async function fetchSummary(): Promise<ProfileSummary> {
     favoriteGenres: data.favoriteGenres ?? [],
     genresFromRatings: data.genresFromRatings ?? false,
   };
+}
+
+async function fetchProgress(): Promise<CompletionProgress> {
+  const res = await apiFetch("/api/user/progress");
+  if (!res.ok) return EMPTY_PROGRESS;
+  return (await res.json().catch(() => EMPTY_PROGRESS)) as CompletionProgress;
 }
 
 type RecommendationsResponse =
@@ -125,12 +138,12 @@ export default async function ProfilePage() {
   if (!session?.user) redirect(`/auth/signin`);
 
   const { name, email } = session.user;
-  // Kick off both fetches in parallel, but only block the shell on the fast
-  // summary. Recommendations run a ~1s recommender query (remote DB, 300-film
-  // candidate scan), so they stream in behind a skeleton via Suspense instead
+  // Start all dashboard data together, but only await the two fast aggregate
+  // endpoints here. Recommendations run a ~1s recommender query (remote DB,
+  // 300-film candidate scan), so they stream behind a Suspense skeleton instead
   // of holding the whole page blank until they resolve.
   const recsPromise = fetchRecommendations();
-  const summary = await fetchSummary();
+  const [summary, progress] = await Promise.all([fetchSummary(), fetchProgress()]);
 
   // A profile with no saved, watched, or hidden films hasn't touched the core
   // loop yet — lead with onboarding instead of a wall of empty destinations.
@@ -245,6 +258,8 @@ export default async function ProfilePage() {
             </Link>
           ))}
         </div>
+
+        <CompletionistTracker progress={progress} />
 
         <Suspense fallback={<RecommendationsSkeleton />}>
           <ProfileRecommendations recsPromise={recsPromise} />

@@ -299,12 +299,16 @@ export async function fetchSeededRandom(
   seed: string,
   filters?: Partial<FilterState>,
   excludeIds?: string[],
+  userId?: string,
 ): Promise<RandomResult> {
   const params = filtersToParams(filters ?? {});
   params.set("seed", seed);
   // Films to exclude server-side — used to dedupe across daily-pick slots so
   // the same film never fills two of them.
   if (excludeIds && excludeIds.length > 0) params.set("excludeIds", excludeIds.join(","));
+  // Signed-in: also drops the user's "seen / not interested" films server-side,
+  // so a film they marked seen never returns in a future daily pick.
+  if (userId) params.set("userId", userId);
   const res = await fetch(`${API_URL}/api/random?${params.toString()}`, {
     cache: "no-store",
   });

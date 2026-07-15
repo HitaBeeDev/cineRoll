@@ -35,6 +35,27 @@ export default function Loading() {
           ))}
         </div>
 
+        {/* Completionist tracker */}
+        <div className="mt-16">
+          <div className="flex items-end justify-between border-b border-[#1e1e2a] pb-6">
+            <div className="space-y-3">
+              <div className="h-2.5 w-24 animate-pulse rounded bg-[#171722]" />
+              <div className="h-6 w-56 animate-pulse rounded bg-[#111120]" />
+              <div className="h-3 w-72 max-w-full animate-pulse rounded bg-[#0f0f18]" />
+            </div>
+            <div className="h-9 w-20 animate-pulse rounded bg-[#111120]" />
+          </div>
+          <div className="mt-5 h-2 animate-pulse rounded-full bg-[#171722]" />
+          <div className="mt-7 grid gap-x-8 gap-y-6 sm:grid-cols-2">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="space-y-2.5">
+                <div className="h-3 w-2/3 animate-pulse rounded bg-[#0f0f18]" />
+                <div className="h-1.5 animate-pulse rounded-full bg-[#171722]" />
+              </div>
+            ))}
+          </div>
+        </div>
+
         {/* Recommendations */}
         <div className="mt-16">
           <div className="h-6 w-56 animate-pulse rounded bg-[#111120]" />
