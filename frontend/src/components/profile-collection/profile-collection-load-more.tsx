@@ -1,9 +1,9 @@
-import type { LoadMoreButtonProps } from "../component-props";
+import type { ProfileCollectionLoadMoreProps } from "./profile-collection-props";
 
-export function LoadMoreButton({
+export function ProfileCollectionLoadMore({
   isLoading,
   onClick,
-}: LoadMoreButtonProps) {
+}: ProfileCollectionLoadMoreProps) {
   return (
     <div className="mt-10 flex justify-center">
       <button

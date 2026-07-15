@@ -1,4 +1,4 @@
-export function HistorySkeleton() {
+export function ProfileCollectionSkeleton() {
   return (
     <>
       <div className="mt-2 h-3 w-28 animate-pulse rounded bg-[#111120]" />

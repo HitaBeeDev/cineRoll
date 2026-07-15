@@ -10,7 +10,6 @@ export type HistoryBodyProps = {
   resultPromise: Promise<WatchedResult>;
 };
 export type HistoryLoadedProps = { result: WatchedSuccess };
-export type HistoryCountProps = { total: number };
 export type HistoryGridProps = {
   entries: WatchedEntry[];
   initialNextCursor?: string | null;
@@ -28,8 +27,4 @@ export type ReRateButtonProps = {
   label: string;
   onClick: () => void;
   tone: "like" | "dislike";
-};
-export type LoadMoreButtonProps = {
-  isLoading: boolean;
-  onClick: () => void;
 };

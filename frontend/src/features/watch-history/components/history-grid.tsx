@@ -1,9 +1,9 @@
 "use client";
 
 import type { HistoryGridProps } from "../component-props";
+import { ProfileCollectionLoadMore } from "@/components/profile-collection/profile-collection-load-more";
 import { useHistoryGrid } from "../use-history-grid";
 import { HistoryCard } from "./history-card";
-import { LoadMoreButton } from "./load-more-button";
 
 export function HistoryGrid({
   entries,
@@ -29,7 +29,7 @@ export function HistoryGrid({
         ))}
       </div>
       {history.hasMore && (
-        <LoadMoreButton
+        <ProfileCollectionLoadMore
           isLoading={history.isLoadingMore}
           onClick={() => void history.loadMore()}
         />

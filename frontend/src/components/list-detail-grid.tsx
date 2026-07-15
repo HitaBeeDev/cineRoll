@@ -8,12 +8,12 @@ import { removeFilmFromList } from "@/lib/api";
 import { useToast } from "@/components/ui/toast";
 import { blurDataUrl, tmdbImageUrl } from "@/lib/images";
 import { cn } from "@/lib/utils";
-import type { WatchlistEntry, WatchlistFilm } from "@/components/watchlist-grid";
+import type { SavedFilmEntry, SavedFilm } from "@/types/saved-film";
 
 // A list entry carries the same film summary shape as a watchlist entry.
-export type ListEntry = WatchlistEntry;
+export type ListEntry = SavedFilmEntry;
 
-function awardSummary(film: WatchlistFilm): string | null {
+function awardSummary(film: SavedFilm): string | null {
   const wins = film.oscarWins + film.ggWins + film.cannesWins + film.berlinWins;
   const noms =
     film.oscarNominations + film.ggNominations + film.cannesNominations + film.berlinNominations;
@@ -57,7 +57,7 @@ export function ListDetailGrid({
     }
   }
 
-  async function remove(film: WatchlistFilm) {
+  async function remove(film: SavedFilm) {
     if (removing.has(film.id)) return;
     setRemoving((prev) => new Set(prev).add(film.id));
 
