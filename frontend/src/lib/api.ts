@@ -138,40 +138,42 @@ export type PickOfDayFilm = Pick<
   | "pickOfDayDate"
 >;
 
-export type SnobTestFilm = Pick<
+// ── Taste Test ──────────────────────────────────────────────────────────────
+export type TasteQuestionOption = {
+  id: string;
+  title: string;
+  year: number;
+  posterUrl: string | null;
+  posterColor: string | null;
+};
+
+export type TasteQuestion = {
+  id: string;
+  a: TasteQuestionOption;
+  b: TasteQuestionOption;
+};
+
+export type TasteRecFilm = Pick<
   Film,
   | "id"
   | "slug"
   | "title"
-  | "originalTitle"
   | "year"
-  | "releaseYear"
-  | "genres"
+  | "contentType"
   | "posterUrl"
   | "posterColor"
+  | "backdropUrl"
   | "imdbRating"
-  | "imdbTopMovieRank"
-  | "imdbTopTvRank"
-  | "oscarNominations"
-  | "oscarWins"
-  | "ggNominations"
-  | "ggWins"
-  | "cannesNominations"
-  | "cannesWins"
-> & {
-  decade: number;
-  awardBodies: Array<"oscar" | "goldenglobe" | "cannes">;
-};
+  | "genres"
+  | "director"
+>;
 
-export type SnobTestScore = {
-  score: number;
-  title: string;
-  seen: number;
-  total: number;
-  breakdown: {
-    byDecade: Record<string, { seen: number; total: number }>;
-    byAwardBody: Record<"oscar" | "goldenglobe" | "cannes", { seen: number; total: number }>;
-  };
+export type TasteResult = {
+  archetype: { key: string; label: string; emoji: string; blurb: string };
+  traits: string[];
+  profile: { era: number; origin: number; mood: number; lane: number };
+  hero: TasteRecFilm | null;
+  recommendations: TasteRecFilm[];
 };
 
 export type PersonSuggestion = {
@@ -674,27 +676,21 @@ export async function fetchPickOfDay(): Promise<PickOfDayFilm | null> {
   return res.json() as Promise<PickOfDayFilm>;
 }
 
-export async function fetchSnobTestFilms(excludeFilmIds: string[] = []): Promise<SnobTestFilm[]> {
-  const params = new URLSearchParams();
-  if (excludeFilmIds.length > 0) params.set("excludeFilmIds", excludeFilmIds.join(","));
-  const qs = params.toString();
-  const res = await fetch(`${API_URL}/api/snob-test/films${qs ? `?${qs}` : ""}`, { cache: "no-store" });
-  if (!res.ok) throw new Error("Failed to fetch Snob Test films");
-  const data = await res.json() as { films: SnobTestFilm[] };
-  return data.films;
+export async function fetchTasteQuestions(): Promise<TasteQuestion[]> {
+  const res = await fetch(`${API_URL}/api/taste-test/questions`, { cache: "no-store" });
+  if (!res.ok) throw new Error("Failed to load the Taste Test");
+  const data = (await res.json()) as { questions: TasteQuestion[] };
+  return data.questions;
 }
 
-export async function scoreSnobTest(
-  seenFilmIds: string[],
-  ballotFilmIds: string[] = [],
-): Promise<SnobTestScore> {
-  const res = await fetch(`${API_URL}/api/snob-test/score`, {
+export async function submitTasteChoices(choiceFilmIds: string[]): Promise<TasteResult> {
+  const res = await fetch(`${API_URL}/api/taste-test/result`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ seenFilmIds, ballotFilmIds }),
+    body: JSON.stringify({ choiceFilmIds }),
   });
-  if (!res.ok) throw new Error("Failed to score Snob Test");
-  return res.json() as Promise<SnobTestScore>;
+  if (!res.ok) throw new Error("Failed to read your taste");
+  return res.json() as Promise<TasteResult>;
 }
 
 export type BattleMatchResult = { winnerId: string; loserId: string };

@@ -13,8 +13,8 @@ import { randomRouter } from "./random";
 import { recommendationsRouter } from "./recommendations";
 import { rollRouter } from "./roll";
 import { rollBattleRouter } from "./rollBattle";
-import { snobTestRouter } from "./snobTest";
 import { statsRouter } from "./stats";
+import { tasteTestRouter } from "./tasteTest";
 import { userRouter } from "./user";
 
 export const router = Router();
@@ -33,6 +33,6 @@ router.use("/recommendations", recommendationsRouter);
 router.use("/roll", rollRouter);
 router.use("/roll-battle", rollBattleRouter);
 router.use("/pick-of-day", pickOfDayRouter);
-router.use("/snob-test", snobTestRouter);
 router.use("/stats", statsRouter);
+router.use("/taste-test", tasteTestRouter);
 router.use("/user", userRouter);

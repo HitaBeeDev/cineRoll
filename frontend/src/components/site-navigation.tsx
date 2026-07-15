@@ -17,7 +17,7 @@ const primaryNavItems = [
 ];
 
 const gameModeItems = [
-  { href: "/snob-test", label: "Snob Test" },
+  { href: "/taste-test", label: "Taste Test" },
   { href: "/roll-battle", label: "Versus" },
   // Temporarily removed: "Guess the Film" (/blind-roll) — route kept, hidden from nav.
 ];
