@@ -1003,7 +1003,11 @@ export function BrowsePageClient() {
                     ease: "easeOut",
                   }}
                 >
-                  <FilmCard film={film} />
+                  <FilmCard
+                    film={film}
+                    awardBodies={filters.awardBodies}
+                    awardStatus={awardStatus}
+                  />
                 </motion.div>
               ))}
             </div>

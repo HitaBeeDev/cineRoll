@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 // import { Star } from "lucide-react"; // user ratings hidden for now
-import type { Film } from "@cineroll/types";
+import type { AwardBodyFilter, Film } from "@cineroll/types";
 import { cn } from "@/lib/utils";
 import { formatFilmYear } from "@/lib/format";
 import { blurDataUrl, tmdbImageUrl } from "@/lib/images";
@@ -13,19 +13,53 @@ import { trackEvent, trackFilmImpression } from "@/lib/analytics";
 
 type AwardBadge = { detail: string } | null;
 
-function getAwardBadge(film: Film): AwardBadge {
-  // One combined count across every award body — no single body is named, so
-  // the number can't be misread as "11 Oscars" when it's 11 awards in total.
-  // Every card gets the same teal chip regardless of count — every film here is
-  // an award film, so the badge is an identity marker, not a ranking signal.
-  const totalWins = film.oscarWins + film.ggWins + film.cannesWins + film.berlinWins;
-  const totalNoms = film.oscarNominations + film.ggNominations + film.cannesNominations + film.berlinNominations;
+/** Award status the browse filter can be scoped to. */
+export type AwardBadgeStatus = "any" | "won" | "nom";
 
-  if (totalWins > 0)
-    return { detail: `${totalWins} ${totalWins === 1 ? "award" : "awards"}` };
-  if (totalNoms > 0)
-    return { detail: `${totalNoms} ${totalNoms === 1 ? "nom" : "noms"}` };
-  return null;
+// Per-body win/nomination field pairs, so the badge can be summed over whichever
+// bodies the browse scope currently selects.
+const AWARD_BODY_FIELDS: Record<
+  AwardBodyFilter,
+  { wins: keyof Film; noms: keyof Film }
+> = {
+  oscar:       { wins: "oscarWins",  noms: "oscarNominations" },
+  goldenglobe: { wins: "ggWins",     noms: "ggNominations" },
+  cannes:      { wins: "cannesWins", noms: "cannesNominations" },
+  berlin:      { wins: "berlinWins", noms: "berlinNominations" },
+};
+
+const ALL_AWARD_BODIES: AwardBodyFilter[] = ["oscar", "goldenglobe", "cannes", "berlin"];
+
+/**
+ * Award count for the poster badge, scoped to the active browse filter:
+ *  - `bodies` empty → sum across every award body (the default "all awards").
+ *  - `bodies` non-empty → sum only the selected bodies, so filtering Oscar shows
+ *    the film's Oscar count, Cannes shows its Cannes count, etc.
+ *  - `status` picks which number: "won" → wins, "nom" → nominations, "any" →
+ *    wins when it has any, otherwise nominations.
+ * No single body is named on the chip, so the number reads as "N awards" for the
+ * current scope rather than being misread as "N Oscars".
+ */
+function getAwardBadge(
+  film: Film,
+  bodies: AwardBodyFilter[],
+  status: AwardBadgeStatus,
+): AwardBadge {
+  const scope = bodies.length > 0 ? bodies : ALL_AWARD_BODIES;
+  let wins = 0;
+  let noms = 0;
+  for (const body of scope) {
+    const fields = AWARD_BODY_FIELDS[body];
+    wins += film[fields.wins] as number;
+    noms += film[fields.noms] as number;
+  }
+
+  const winsBadge = wins > 0 ? { detail: `${wins} ${wins === 1 ? "award" : "awards"}` } : null;
+  const nomsBadge = noms > 0 ? { detail: `${noms} ${noms === 1 ? "nom" : "noms"}` } : null;
+
+  if (status === "won") return winsBadge;
+  if (status === "nom") return nomsBadge;
+  return winsBadge ?? nomsBadge;
 }
 
 function getListBadge(film: Film) {
@@ -44,11 +78,16 @@ interface FilmCardProps {
     ratingCount?: number;
   };
   className?: string | undefined;
+  // Award bodies the badge count is scoped to (from the browse filter). Empty or
+  // omitted → count across all bodies.
+  awardBodies?: AwardBodyFilter[];
+  // Won / nominated / any — mirrors the browse award-status control.
+  awardStatus?: AwardBadgeStatus;
 }
 
-export function FilmCard({ film, className }: FilmCardProps) {
+export function FilmCard({ film, className, awardBodies, awardStatus = "any" }: FilmCardProps) {
   const cardRef = useRef<HTMLAnchorElement | null>(null);
-  const badge = getAwardBadge(film);
+  const badge = getAwardBadge(film, awardBodies ?? [], awardStatus);
   const listBadge = getListBadge(film);
   const primaryGenre = film.genres[0] ?? film.contentType;
   // User ratings hidden for now — feature disabled by request.
