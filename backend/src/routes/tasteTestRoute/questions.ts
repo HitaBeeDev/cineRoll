@@ -1,5 +1,5 @@
 import { CandidateFilm } from "./repository";
-import { AXIS_LIST, filmToVector, TasteAxis, TasteVector } from "./model";
+import { filmToVector, TasteAxis, TasteVector } from "./model";
 
 /** A poster the user chooses between — minimal card payload. */
 export interface QuestionOption {
@@ -24,13 +24,14 @@ const TYPE_PLAN: string[] = [
   "movie", "animation", "movie", "tv-series", "movie",
 ];
 
-// A pair is only a real choice if it forks clearly on ONE axis…
-const MIN_PRIMARY_GAP = 0.7;
-// …while staying comparable in acclaim (no "obvious better film")…
-const MAX_RATING_DIFF = 1.1;
-// …and close enough in time that neither is "the old one" (a genuine dilemma is
-// two films you'd actually weigh, not 1950 vs 2023).
-const MAX_YEAR_DIFF = 18;
+// A good pair is two films from the *same world* — you'd genuinely weigh them
+// against each other — so it must be same genre, same era, comparable acclaim.
+// The fork is then a subtle one (origin / prestige within that genre), never a
+// jarring "war epic vs sitcom".
+const MAX_YEAR_DIFF = 10;          // close in time (Oppenheimer ↔ Imitation Game ≈ 9y)
+const MAX_RATING_DIFF = 1.0;       // comparable acclaim, no obvious better film
+const MIN_GENRE_JACCARD = 0.34;    // real genre overlap, not just a shared "Drama"
+const MAX_MOOD_DIFF = 0.5;         // same tonal family (no heavy-vs-light mismatch)
 
 interface Scored {
   film: CandidateFilm;
@@ -51,42 +52,61 @@ const toOption = (f: CandidateFilm): QuestionOption => ({
   posterColor: f.posterColor,
 });
 
+/** Genre-set overlap in [0, 1] — how much two films belong to the same world. */
+function genreJaccard(a: string[], b: string[]): number {
+  if (a.length === 0 || b.length === 0) return 0;
+  const setB = new Set(b);
+  const shared = a.filter((g) => setB.has(g)).length;
+  const union = new Set([...a, ...b]).size;
+  return union === 0 ? 0 : shared / union;
+}
+
 /**
- * Rate a candidate same-type pair as a quiz question. A good question forks
- * hard on one axis (the "primary") while staying similar on the others, similar
- * in acclaim, and — off the era axis — similar in era. `coverage` gently steers
- * successive questions toward axes we haven't tested yet.
+ * Rate a candidate same-type pair as a quiz question. The two films must be from
+ * the same world — real genre overlap, close in time, comparable acclaim, same
+ * tonal family — so the choice is a genuine "which of these tonight?". Within
+ * that, we prefer pairs that still differ on origin or prestige (lane), because
+ * that subtle fork is what the pick actually teaches; but a near-tie between two
+ * kindred films is allowed (it just carries little signal). `coverage` steers
+ * successive questions toward the axis we've tested least.
  */
 function evaluatePair(
   x: Scored,
   y: Scored,
   coverage: Record<TasteAxis, number>,
 ): PairEval | null {
-  // Time gap is a hard filter, not a fork axis — every pair stays close in era.
+  // ── Same-world hard filters ──────────────────────────────────────────────
   const yearDiff = Math.abs(x.film.releaseYear - y.film.releaseYear);
   if (yearDiff > MAX_YEAR_DIFF) return null;
-
-  const gaps: Record<TasteAxis, number> = {
-    origin: Math.abs(x.vec.origin - y.vec.origin),
-    mood: Math.abs(x.vec.mood - y.vec.mood),
-    lane: Math.abs(x.vec.lane - y.vec.lane),
-  };
-
-  let primary: TasteAxis = "mood";
-  for (const axis of AXIS_LIST) if (gaps[axis] > gaps[primary]) primary = axis;
-  const primaryGap = gaps[primary];
-  if (primaryGap < MIN_PRIMARY_GAP) return null;
 
   const ratingDiff = Math.abs((x.film.imdbRating ?? 7) - (y.film.imdbRating ?? 7));
   if (ratingDiff > MAX_RATING_DIFF) return null;
 
-  const otherDist = AXIS_LIST.reduce((s, a) => (a === primary ? s : s + gaps[a]), 0);
-  // Reward a clean fork; punish muddiness (other axes) and an acclaim gap; nudge
-  // toward under-tested axes so all three get sampled.
+  // Never mix an animated film with a live-action one, even inside the same
+  // contentType (some animated features are stored as "movie").
+  const xAnim = x.film.genres.includes("Animation");
+  const yAnim = y.film.genres.includes("Animation");
+  if (xAnim !== yAnim) return null;
+
+  const jaccard = genreJaccard(x.film.genres, y.film.genres);
+  if (jaccard < MIN_GENRE_JACCARD) return null;
+
+  const moodGap = Math.abs(x.vec.mood - y.vec.mood);
+  if (moodGap > MAX_MOOD_DIFF) return null;
+
+  // ── The fork we read: origin (Hollywood vs world) or prestige (lane) ──────
+  const originGap = Math.abs(x.vec.origin - y.vec.origin);
+  const laneGap = Math.abs(x.vec.lane - y.vec.lane);
+  const primary: TasteAxis = originGap >= laneGap ? "origin" : "lane";
+  const primaryGap = Math.max(originGap, laneGap);
+
+  // Reward genre kinship and a readable fork; punish a time or acclaim gap;
+  // nudge toward the less-tested axis.
   const score =
-    primaryGap -
-    0.5 * otherDist -
-    0.4 * ratingDiff -
+    1.4 * jaccard +
+    (originGap + laneGap) -
+    0.6 * (yearDiff / MAX_YEAR_DIFF) -
+    0.5 * ratingDiff -
     0.25 * coverage[primary];
 
   return { primary, primaryGap, score };
