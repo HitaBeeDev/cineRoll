@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { Share, SquarePlus, X } from "lucide-react";
+import { Clapperboard, Maximize2, Share, SquarePlus, X, Zap } from "lucide-react";
 
 // Real-world "Add to Home Screen" prompt.
 //
@@ -145,7 +145,7 @@ export function PwaInstallPrompt() {
           animate={reduced ? { opacity: 1 } : { opacity: 1, y: 0 }}
           exit={reduced ? { opacity: 0 } : { opacity: 0, y: 24 }}
           transition={{ duration: 0.28, ease: "easeOut" }}
-          className="fixed inset-x-3 bottom-3 z-[95] mx-auto max-w-md rounded-2xl border border-[#2a2a3e] bg-[#0d0d1a]/95 p-4 shadow-[0_20px_60px_rgba(0,0,0,0.55)] backdrop-blur-md"
+          className="fixed inset-x-3 bottom-3 z-[95] mx-auto max-w-md rounded-2xl border border-[#2a2a3e] bg-[#0d0d1a]/97 p-5 shadow-[0_20px_60px_rgba(0,0,0,0.6)] backdrop-blur-md"
           style={{ marginBottom: "env(safe-area-inset-bottom)" }}
         >
           <button
@@ -157,58 +157,85 @@ export function PwaInstallPrompt() {
             <X className="h-4 w-4" />
           </button>
 
-          <div className="flex items-start gap-3.5 pr-6">
-            <div className="shrink-0 overflow-hidden rounded-xl border border-[#1e1e2a] bg-[#09090f]">
-              <Image src="/icon-192.png" alt="CineRoll" width={48} height={48} className="h-12 w-12" />
+          {/* Header — app icon + branded kicker + title */}
+          <div className="flex items-center gap-4 pr-6">
+            <div className="shrink-0 overflow-hidden rounded-2xl border border-[#1e1e2a] bg-[#09090f] shadow-[0_8px_24px_rgba(0,0,0,0.5)]">
+              <Image src="/icon-192.png" alt="CineRoll" width={56} height={56} className="h-14 w-14" />
             </div>
             <div className="min-w-0">
-              <h2 className="font-[family-name:var(--font-display)] text-lg font-bold leading-tight text-[#F5F5F0]">
+              <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.28em] text-[#e8453c]/80">
+                {"// install"}
+              </p>
+              <h2 className="mt-1 font-[family-name:var(--font-display)] text-xl font-bold leading-tight text-[#F5F5F0]">
                 Add CineRoll to your home screen
               </h2>
-              <p className="mt-0.5 text-sm leading-5 text-[#a0a0b5]">
-                One tap to tonight&apos;s film — full-screen, no browser bar.
-              </p>
             </div>
           </div>
 
+          {/* Why — value props, taught with icons (real-app onboarding). */}
+          <ul className="mt-4 space-y-2">
+            {[
+              { icon: Zap, text: "Launches instantly — no address bar" },
+              { icon: Maximize2, text: "Full-screen, just like a real app" },
+              { icon: Clapperboard, text: "Tonight's roll, one tap from home" },
+            ].map(({ icon: Icon, text }) => (
+              <li key={text} className="flex items-center gap-3">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[#242438] bg-[#11111b] text-[#e8453c]">
+                  <Icon className="h-4 w-4" aria-hidden />
+                </span>
+                <span className="text-[13px] leading-5 text-[#c4c4d2]">{text}</span>
+              </li>
+            ))}
+          </ul>
+
           {platform === "android" ? (
-            <div className="mt-4 flex items-center gap-2">
+            <div className="mt-5 flex items-center gap-2">
               <button
                 type="button"
                 onClick={() => void install()}
-                className="flex-1 rounded-xl bg-[#e8453c] px-4 py-2.5 text-center font-[family-name:var(--font-geist-mono)] text-[12px] font-bold uppercase tracking-[0.14em] text-[#F5F5F0] transition-colors hover:bg-[#d5342b]"
+                className="flex-1 rounded-xl bg-[#e8453c] px-4 py-3 text-center font-[family-name:var(--font-geist-mono)] text-[12px] font-bold uppercase tracking-[0.14em] text-[#F5F5F0] transition-colors hover:bg-[#d5342b]"
               >
                 Add to home screen
               </button>
               <button
                 type="button"
                 onClick={dismiss}
-                className="rounded-xl border border-[#2a2a3e] px-4 py-2.5 font-[family-name:var(--font-geist-mono)] text-[12px] font-bold uppercase tracking-[0.14em] text-[#a0a0b5] transition-colors hover:text-[#F5F5F0]"
+                className="rounded-xl border border-[#2a2a3e] px-4 py-3 font-[family-name:var(--font-geist-mono)] text-[12px] font-bold uppercase tracking-[0.14em] text-[#a0a0b5] transition-colors hover:text-[#F5F5F0]"
               >
                 Not now
               </button>
             </div>
           ) : (
-            <div className="mt-4 rounded-xl border border-[#1e1e2a] bg-[#09090f]/60 p-3">
-              <ol className="space-y-2 font-[family-name:var(--font-geist-mono)] text-[12px] leading-5 text-[#c4c4d2]">
-                <li className="flex items-center gap-2">
-                  <span className="text-[#8a8a9e]">1.</span>
-                  <span className="flex items-center gap-1.5">
-                    Tap the Share button
-                    <Share className="h-4 w-4 text-[#4a9eff]" />
+            <div className="mt-5">
+              <p className="mb-2 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.22em] text-[#7a7a8c]">
+                Two steps to add it
+              </p>
+              <div className="space-y-2.5 rounded-xl border border-[#1e1e2a] bg-[#09090f]/60 p-3.5">
+                <div className="flex items-center gap-3">
+                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#e8453c] font-[family-name:var(--font-geist-mono)] text-[10px] font-bold text-[#09090f]">
+                    1
                   </span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="text-[#8a8a9e]">2.</span>
-                  <span className="flex items-center gap-1.5">
+                  <span className="flex items-center gap-1.5 text-[13px] leading-5 text-[#c4c4d2]">
+                    Tap
+                    <span className="inline-flex h-6 w-6 items-center justify-center rounded-md border border-[#2a3550] bg-[#0e1526] text-[#4a9eff]">
+                      <Share className="h-3.5 w-3.5" aria-hidden />
+                    </span>
+                    in the toolbar
+                  </span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#e8453c] font-[family-name:var(--font-geist-mono)] text-[10px] font-bold text-[#09090f]">
+                    2
+                  </span>
+                  <span className="flex flex-wrap items-center gap-1.5 text-[13px] leading-5 text-[#c4c4d2]">
                     Choose
-                    <span className="inline-flex items-center gap-1 font-bold text-[#F5F5F0]">
+                    <span className="inline-flex items-center gap-1.5 rounded-md border border-[#242438] bg-[#11111b] px-2 py-0.5 font-medium text-[#F5F5F0]">
                       Add to Home Screen
-                      <SquarePlus className="h-4 w-4" />
+                      <SquarePlus className="h-3.5 w-3.5" aria-hidden />
                     </span>
                   </span>
-                </li>
-              </ol>
+                </div>
+              </div>
             </div>
           )}
         </motion.div>
