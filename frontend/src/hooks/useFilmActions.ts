@@ -47,12 +47,22 @@ export function useFilmActions({
   isAuthenticated,
   source,
   onNotInterested,
+  onWatched,
+  onSaved,
 }: {
   filmId: string;
   filmTitle: string;
   isAuthenticated: boolean;
   source: string;
   onNotInterested?: (() => void) | undefined;
+  // Fired after a successful "mark watched" save, so a host surface (the roll
+  // card) can advance to the next roll — the positive-engagement counterpart to
+  // onNotInterested. Only runs on the signed-in success path, never when a guest
+  // is redirected to the auth gate.
+  onWatched?: (() => void) | undefined;
+  // Fired after a film is newly added to the watchlist (not on removal), so the
+  // roll card can advance after "Save for later". Signed-in success path only.
+  onSaved?: (() => void) | undefined;
 }) {
   const { toast } = useToast();
   const [action, setAction] = useState<FilmActionState>("none");
@@ -169,6 +179,7 @@ export function useFilmActions({
         title: "Marked as watched",
         description: filmTitle,
       });
+      onWatched?.();
     } else {
       void trackEvent({ type: "not_interested", filmId, context: { source } });
       toast({
@@ -243,6 +254,8 @@ export function useFilmActions({
           title: "Added to watchlist",
           description: filmTitle,
         });
+        // Newly saved → advance to the next roll (host surface decides how).
+        onSaved?.();
       } else {
         await removeFilmFromWatchlist(filmId);
         toast({ title: "Removed from watchlist", description: filmTitle });
@@ -254,6 +267,7 @@ export function useFilmActions({
       // Adding something already saved is a success, not an error: keep it active.
       if (code === "WATCHLIST_ALREADY_EXISTS") {
         toast({ title: "Already saved", description: filmTitle });
+        onSaved?.();
       } else {
         setInWatchlist(!next);
         toast({

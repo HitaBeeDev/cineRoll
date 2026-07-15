@@ -31,6 +31,8 @@ export function FilmCard({
   isAuthenticated,
   onNotInterested,
   onNotTonight,
+  onWatched,
+  onSaved,
   onEngage,
 }: {
   film: RollFilm;
@@ -39,6 +41,10 @@ export function FilmCard({
   // Session-only "skip this one for now" — rolls onward with a weak, decaying
   // penalty (no account, no permanent hide). The counterpart to onNotInterested.
   onNotTonight?: () => void;
+  // Advance to the next roll after "Already seen" succeeds (signed-in only).
+  onWatched?: () => void;
+  // Advance to the next roll after "Save for later" adds the film (signed-in only).
+  onSaved?: () => void;
   // Fired when the user engages with this roll (opens details / saves / marks
   // seen), so reroll learning won't penalize its genre/type. See §6.
   onEngage?: () => void;
@@ -66,6 +72,8 @@ export function FilmCard({
     isAuthenticated,
     source: "roll_card",
     onNotInterested,
+    onWatched,
+    onSaved,
   });
 
   const channelLabel = `REEL // ${film.title.toUpperCase().slice(0, 11)}`;

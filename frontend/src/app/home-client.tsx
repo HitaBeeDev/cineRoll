@@ -416,6 +416,14 @@ export function HomeClient({
   function handleNotTonight() {
     void handleRoll();
   }
+  // Positive terminal actions ("Already seen", "Save for later") advance to the
+  // next roll just like "Not tonight". Their buttons call markCurrentEngaged
+  // first, so the outgoing film is credited (bandit reward, no penalty) when
+  // handleRoll reads it. Fires only on the signed-in success path (guests are
+  // sent to the auth gate instead), so the roll never advances behind a modal.
+  function handleAdvanceAfterEngage() {
+    void handleRoll();
+  }
 
   // Keep ref in sync so space-key handler always calls latest version
   useEffect(() => {
@@ -790,6 +798,8 @@ export function HomeClient({
                   isAuthenticated={Boolean(userId)}
                   onNotInterested={handleNotInterested}
                   onNotTonight={handleNotTonight}
+                  onWatched={handleAdvanceAfterEngage}
+                  onSaved={handleAdvanceAfterEngage}
                   onEngage={markCurrentEngaged}
                 />
               </motion.div>
