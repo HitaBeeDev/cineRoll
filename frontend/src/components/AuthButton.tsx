@@ -8,10 +8,26 @@ import { cn } from "@/lib/utils";
 
 type AuthButtonProps = {
   focusRingClassName?: string;
+  // "menu" (default) → compact avatar + dropdown, for the desktop header.
+  // "inline" → account links rendered directly in a list, for the mobile menu
+  // (a dropdown anchored to the bottom of a full-screen sheet opens off-screen).
+  variant?: "menu" | "inline";
+  // Called when a link/sign-out is tapped, so the host can close the mobile menu.
+  onNavigate?: () => void;
 };
+
+const ACCOUNT_LINKS = [
+  { href: "/profile", label: "Profile" },
+  { href: "/profile/watchlist", label: "Watchlist" },
+  { href: "/profile/lists", label: "My Lists" },
+  { href: "/profile/history", label: "Watch History" },
+  { href: "/profile/settings", label: "Settings" },
+];
 
 export function AuthButton({
   focusRingClassName = "focus-visible:ring-[#e8453c]",
+  variant = "menu",
+  onNavigate,
 }: AuthButtonProps) {
   const { data: session, status } = useSession();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -28,20 +44,28 @@ export function AuthButton({
     return () => document.removeEventListener("mousedown", handler);
   }, [menuOpen]);
 
+  const isInline = variant === "inline";
+
   if (status === "loading") {
-    return <div className="h-8 w-20 animate-pulse rounded-full bg-[#1e1e2a]" />;
+    return isInline ? (
+      <div className="h-10 w-full animate-pulse rounded-xl bg-[#141421]" />
+    ) : (
+      <div className="h-8 w-20 animate-pulse rounded-full bg-[#1e1e2a]" />
+    );
   }
 
   if (status === "unauthenticated") {
     return (
       <Link
         href="/auth/signin"
+        onClick={() => onNavigate?.()}
         className={cn(
-          "rounded-full px-4 py-2",
-          "font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.13em]",
-          "bg-[#e8453c] text-white shadow-[0_4px_14px_-4px_rgba(232,69,60,0.6)] transition-colors duration-150",
-          "hover:bg-[#ff5247]",
+          "font-[family-name:var(--font-geist-mono)] font-bold uppercase tracking-[0.13em]",
+          "bg-[#e8453c] text-white transition-colors duration-150 hover:bg-[#ff5247]",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0a14]",
+          isInline
+            ? "flex items-center justify-center rounded-xl px-4 py-3 text-sm shadow-none"
+            : "rounded-full px-4 py-2 text-[11px] shadow-[0_4px_14px_-4px_rgba(232,69,60,0.6)]",
           focusRingClassName,
         )}
       >
@@ -50,6 +74,61 @@ export function AuthButton({
     );
   }
 
+  // ── Mobile: account links laid out directly (no dropdown to open off-screen)
+  if (isInline) {
+    return (
+      <div className="flex flex-col gap-1">
+        <div className="mb-1 flex items-center gap-3 px-3">
+          <UserAvatar
+            image={session?.user?.image}
+            name={session?.user?.name}
+            email={session?.user?.email}
+            size={34}
+          />
+          <div className="min-w-0">
+            <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.22em] text-[#5a5a6c]">
+              Signed in as
+            </p>
+            <p className="truncate font-[family-name:var(--font-geist-mono)] text-[12px] text-[#c9c9d4]">
+              {session?.user?.email ?? session?.user?.name ?? "Your account"}
+            </p>
+          </div>
+        </div>
+        {ACCOUNT_LINKS.map((link) => (
+          <Link
+            key={link.href}
+            href={link.href}
+            onClick={() => onNavigate?.()}
+            className={cn(
+              "rounded-xl px-3 py-3 font-[family-name:var(--font-geist-mono)] text-base font-bold uppercase tracking-[0.16em]",
+              "text-[#9b96aa] transition-colors hover:bg-[#10101a] hover:text-[#F5F5F0]",
+              "focus-visible:outline-none focus-visible:ring-2",
+              focusRingClassName,
+            )}
+          >
+            {link.label}
+          </Link>
+        ))}
+        <button
+          type="button"
+          onClick={() => {
+            onNavigate?.();
+            void signOut({ callbackUrl: "/" });
+          }}
+          className={cn(
+            "rounded-xl px-3 py-3 text-left font-[family-name:var(--font-geist-mono)] text-base font-bold uppercase tracking-[0.16em]",
+            "text-[#e8453c]/80 transition-colors hover:bg-[#1a1013] hover:text-[#ff5247]",
+            "focus-visible:outline-none focus-visible:ring-2",
+            focusRingClassName,
+          )}
+        >
+          Sign Out
+        </button>
+      </div>
+    );
+  }
+
+  // ── Desktop: compact avatar with a dropdown
   return (
     <div ref={menuRef} className="relative">
       <button
@@ -64,9 +143,7 @@ export function AuthButton({
           "transition-colors duration-200",
           "hover:border-[#e8453c]/60 hover:text-[#F5F5F0]",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0a14]",
-          menuOpen
-            ? "border-[#e8453c]/60 text-[#F5F5F0]"
-            : "border-[#22222e]",
+          menuOpen ? "border-[#e8453c]/60 text-[#F5F5F0]" : "border-[#22222e]",
           focusRingClassName,
         )}
       >
@@ -105,41 +182,19 @@ export function AuthButton({
               </p>
             </div>
           )}
-          <Link
-            href="/profile"
-            onClick={() => setMenuOpen(false)}
-            className="flex w-full items-center px-4 py-3 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#888899] transition hover:bg-[#111120] hover:text-[#F5F5F0]"
-          >
-            Profile
-          </Link>
-          <Link
-            href="/profile/watchlist"
-            onClick={() => setMenuOpen(false)}
-            className="flex w-full items-center px-4 py-3 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#888899] transition hover:bg-[#111120] hover:text-[#F5F5F0]"
-          >
-            Watchlist
-          </Link>
-          <Link
-            href="/profile/lists"
-            onClick={() => setMenuOpen(false)}
-            className="flex w-full items-center px-4 py-3 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#888899] transition hover:bg-[#111120] hover:text-[#F5F5F0]"
-          >
-            My Lists
-          </Link>
-          <Link
-            href="/profile/history"
-            onClick={() => setMenuOpen(false)}
-            className="flex w-full items-center px-4 py-3 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#888899] transition hover:bg-[#111120] hover:text-[#F5F5F0]"
-          >
-            Watch History
-          </Link>
-          <Link
-            href="/profile/settings"
-            onClick={() => setMenuOpen(false)}
-            className="flex w-full items-center border-b border-[#1e1e2a] px-4 py-3 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#888899] transition hover:bg-[#111120] hover:text-[#F5F5F0]"
-          >
-            Settings
-          </Link>
+          {ACCOUNT_LINKS.map((link, i) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              onClick={() => setMenuOpen(false)}
+              className={cn(
+                "flex w-full items-center px-4 py-3 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#888899] transition hover:bg-[#111120] hover:text-[#F5F5F0]",
+                i === ACCOUNT_LINKS.length - 1 && "border-b border-[#1e1e2a]",
+              )}
+            >
+              {link.label}
+            </Link>
+          ))}
           <button
             type="button"
             onClick={() => void signOut({ callbackUrl: "/" })}

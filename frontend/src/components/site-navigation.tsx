@@ -134,8 +134,12 @@ export function SiteNavigation({
             ))}
           </div>
 
-          <div className="mt-auto border-t border-[#222232] pt-5" onClick={() => setIsOpen(false)}>
-            <AuthButton focusRingClassName={focusRingClassName} />
+          <div className="mt-auto border-t border-[#222232] pt-5">
+            <AuthButton
+              variant="inline"
+              onNavigate={() => setIsOpen(false)}
+              focusRingClassName={focusRingClassName}
+            />
           </div>
         </nav>
       </div>
