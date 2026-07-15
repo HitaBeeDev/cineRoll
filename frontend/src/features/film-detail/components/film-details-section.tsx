@@ -1,7 +1,7 @@
 import { ExternalLink } from "lucide-react";
 import type { FilmDetailsSectionProps } from "../component-props";
+import { EditorialSectionLabel } from "@/components/editorial-section-label";
 import { MetaHeading } from "./meta-heading";
-import { SectionLabel } from "./section-label";
 
 export function FilmDetailsSection({
   film,
@@ -13,7 +13,7 @@ export function FilmDetailsSection({
 
   return (
     <section id="details">
-      <SectionLabel>Details</SectionLabel>
+      <EditorialSectionLabel>Details</EditorialSectionLabel>
       <div className="mt-8 grid gap-x-12 gap-y-8 sm:grid-cols-2 lg:grid-cols-[1fr_auto_auto]">
         {film.genres.length > 0 && (
           <div>

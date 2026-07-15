@@ -1,7 +1,7 @@
 import { normalizeCast } from "../normalize-cast";
 import type { CastSectionProps } from "../component-props";
+import { EditorialSectionLabel } from "@/components/editorial-section-label";
 import { CastCard } from "./cast-card";
-import { SectionLabel } from "./section-label";
 
 export function CastSection({
   cast,
@@ -14,7 +14,7 @@ export function CastSection({
 
   return (
     <section id="cast" className="scroll-mt-24">
-      <SectionLabel>Cast</SectionLabel>
+      <EditorialSectionLabel>Cast</EditorialSectionLabel>
       <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
         {visibleCast.map((member, index) => (
           <CastCard

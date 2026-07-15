@@ -1,12 +1,12 @@
 import { FilmTrailer } from "@/components/film-trailer";
+import { EditorialSectionLabel } from "@/components/editorial-section-label";
 import { extractYouTubeId } from "../youtube-id";
 import type { FilmProps } from "../component-props";
-import { SectionLabel } from "./section-label";
 
 export function TrailerSection({ film }: FilmProps) {
   return (
     <section id="trailer" className="scroll-mt-24">
-      <SectionLabel>Trailer</SectionLabel>
+      <EditorialSectionLabel>Trailer</EditorialSectionLabel>
       {film.trailerUrl ? (
         <div className="mt-8">
           <FilmTrailer

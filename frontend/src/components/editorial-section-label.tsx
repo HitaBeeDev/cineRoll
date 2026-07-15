@@ -1,6 +1,8 @@
-import type { ChildrenProps } from "../component-props";
+import type { EditorialSectionLabelProps } from "./editorial-section-label-props";
 
-export function SectionLabel({ children }: ChildrenProps) {
+export function EditorialSectionLabel({
+  children,
+}: EditorialSectionLabelProps) {
   return (
     <div className="flex items-center gap-4">
       <span className="font-[family-name:var(--font-geist-mono)] text-[11px] text-[#e8453c]">
