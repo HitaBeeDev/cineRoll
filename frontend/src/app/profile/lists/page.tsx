@@ -46,7 +46,7 @@ export default async function ListsPage() {
   return (
     <main className="flex flex-1 flex-col bg-[#07070b] text-[#f4f4f5]">
       <AppHeader />
-      <div className="mx-auto w-full max-w-6xl px-6 py-12 lg:px-10">
+      <div className="mx-auto w-full max-w-[1120px] px-6 py-12 lg:px-10">
         <Link
           href="/profile"
           className="inline-flex items-center gap-1.5 rounded font-[family-name:var(--font-geist-sans)] text-[13px] text-[#b4b4c4] underline-offset-4 transition-colors hover:text-[#e8453c] hover:underline focus-visible:text-[#e8453c] focus-visible:underline focus-visible:outline-none"

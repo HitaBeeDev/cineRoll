@@ -107,21 +107,13 @@ export function ListsManager({
             type="button"
             onClick={openForm}
             disabled={atLimit}
-            className="inline-flex min-h-[48px] shrink-0 items-center gap-2 rounded-xl bg-[#e8453c] px-5 font-[family-name:var(--font-geist-sans)] text-[15px] font-semibold text-white shadow-[0_8px_24px_-10px_rgba(232,69,60,0.7)] transition-colors hover:bg-[#d5342b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] focus-visible:ring-offset-2 focus-visible:ring-offset-[#07070b] disabled:cursor-not-allowed disabled:bg-[#26262f] disabled:text-[#7a7a8c] disabled:shadow-none"
+            className="inline-flex min-h-[44px] shrink-0 items-center gap-2 rounded-xl bg-[#e8453c] px-5 font-[family-name:var(--font-geist-sans)] text-[15px] font-semibold text-white transition-colors hover:bg-[#d5342b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] focus-visible:ring-offset-2 focus-visible:ring-offset-[#07070b] disabled:cursor-not-allowed disabled:bg-[#26262f] disabled:text-[#7a7a8c]"
           >
             <Plus className="h-[18px] w-[18px]" aria-hidden />
             New list
           </button>
         )}
       </div>
-
-      <p className="mt-4 font-[family-name:var(--font-geist-sans)] text-[13px] text-[#8a8a9c]">
-        {lists.length === 0
-          ? "No collections yet"
-          : `${lists.length} ${lists.length === 1 ? "collection" : "collections"}${
-              atLimit ? ` · limit reached (${maxLists})` : ""
-            }`}
-      </p>
 
       {formOpen && (
         <form
@@ -187,7 +179,17 @@ export function ListsManager({
         </div>
       ) : (
         lists.length > 0 && (
-          <ul className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <>
+            <div className="mt-8 flex items-baseline gap-2 border-b border-[#1a1a24] pb-3">
+              <h2 className="font-[family-name:var(--font-geist-sans)] text-[13px] font-semibold text-[#c2c2ce]">
+                Collections
+              </h2>
+              <span className="font-[family-name:var(--font-geist-sans)] text-[13px] text-[#7a7a8c]">
+                · {lists.length}
+                {atLimit && ` of ${maxLists}`}
+              </span>
+            </div>
+            <ul className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {lists.map((list) => (
               <ListCard
                 key={list.id}
@@ -196,7 +198,8 @@ export function ListsManager({
                 onDelete={handleDelete}
               />
             ))}
-          </ul>
+            </ul>
+          </>
         )
       )}
     </div>
@@ -248,13 +251,16 @@ function ListCard({
             </span>
           </div>
         )}
+        {/* One overlay + one gradient across the whole collage, so mixed poster
+            brightness reads as a single cover rather than three images. */}
+        <div aria-hidden className="pointer-events-none absolute inset-0 bg-black/20" />
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[#101019] to-transparent"
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-[#101019] to-transparent"
         />
       </div>
 
-      <div className="flex items-end justify-between gap-2 p-4">
+      <div className="flex items-start justify-between gap-2 px-5 pb-5 pt-4">
         {editing ? (
           <form onSubmit={commitRename} className="relative z-20 flex flex-1 items-center gap-2">
             <input
@@ -279,7 +285,7 @@ function ListCard({
             <h3 className="truncate font-[family-name:var(--font-geist-sans)] text-[16px] font-semibold text-[#F7F7F2]">
               {list.name}
             </h3>
-            <p className="mt-1 font-[family-name:var(--font-geist-sans)] text-[13px] text-[#9a9aac]">
+            <p className="mt-1.5 font-[family-name:var(--font-geist-sans)] text-[13px] text-[#9a9aac]">
               {list.filmCount} {list.filmCount === 1 ? "film" : "films"}
             </p>
           </div>
@@ -358,9 +364,9 @@ function CardMenu({
         aria-expanded={open}
         onClick={() => (open ? close() : setOpen(true))}
         className={cn(
-          "flex h-9 w-9 items-center justify-center rounded-lg text-[#9a9aac] transition-colors",
-          "hover:bg-white/[0.07] hover:text-[#F7F7F2] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
-          open && "bg-white/[0.07] text-[#F7F7F2]",
+          "flex h-9 w-9 items-center justify-center rounded-lg border border-[#2a2a35] bg-white/[0.03] text-[#b4b4c4] transition-colors",
+          "hover:border-[#3a3a4c] hover:bg-white/[0.08] hover:text-[#F7F7F2] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
+          open && "border-[#3a3a4c] bg-white/[0.08] text-[#F7F7F2]",
         )}
       >
         <MoreHorizontal className="h-[18px] w-[18px]" aria-hidden />
