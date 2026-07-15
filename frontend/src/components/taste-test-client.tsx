@@ -118,7 +118,11 @@ export function TasteTestClient() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#09090f] text-[#F5F5F0]">
+    // flex-1 (not min-h-screen) so the page fills the viewport *minus* the global
+    // footer — using min-h-screen here would stack a full 100vh on top of the
+    // footer and force a page scrollbar even when the content fits (e.g. the
+    // intro). Tall states like the result simply grow and scroll naturally.
+    <div className="flex min-h-0 flex-1 flex-col bg-[#09090f] text-[#F5F5F0]">
       <AppHeader />
       <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col px-4 py-6 sm:px-8 sm:py-10">
         <AnimatePresence mode="wait">
