@@ -240,11 +240,11 @@ function FilmCard({
 }
 
 // Single source for both the requested pick count and the loading placeholders,
-// so the skeletons always match the number of cards that replace them. Five feed
-// the results carousel (two visible, the rest flip in — backend allows up to 6).
-const ROLL_COUNT = 5;
+// so the skeletons always match the number of cards that replace them. Six feed
+// the results carousel as three pages of two (backend allows up to 6).
+const ROLL_COUNT = 6;
 
-// How many cards the carousel shows at once.
+// How many cards the carousel shows per page. Six picks ÷ two = three pages.
 const CAROUSEL_VISIBLE = 2;
 
 // Card flip: the outgoing film rotates away and the incoming one flips in from
@@ -273,7 +273,9 @@ function FilmCarousel({ films }: { films: RollFilm[] }) {
   const reduceMotion = useReducedMotion();
   const [page, setPage] = useState(0);
   const [dir, setDir] = useState(1);
-  const maxPage = Math.max(0, films.length - CAROUSEL_VISIBLE);
+  // Paged in non-overlapping groups of CAROUSEL_VISIBLE: six picks → three pages
+  // of two, so each slide shows a fresh pair rather than sliding one at a time.
+  const maxPage = Math.max(0, Math.ceil(films.length / CAROUSEL_VISIBLE) - 1);
 
   const startX = useRef(0);
   const dragging = useRef(false);
@@ -304,10 +306,10 @@ function FilmCarousel({ films }: { films: RollFilm[] }) {
     else if (dx >= threshold) goTo(page - 1);
   }
 
-  const slots = Array.from(
-    { length: CAROUSEL_VISIBLE },
-    (_, k) => films[page + k],
-  ).filter((f): f is RollFilm => Boolean(f));
+  const slots = films.slice(
+    page * CAROUSEL_VISIBLE,
+    page * CAROUSEL_VISIBLE + CAROUSEL_VISIBLE,
+  );
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-3">
@@ -371,7 +373,7 @@ function FilmCarousel({ films }: { films: RollFilm[] }) {
                 type="button"
                 role="tab"
                 aria-selected={i === page}
-                aria-label={`Show picks ${i + 1}–${i + CAROUSEL_VISIBLE}`}
+                aria-label={`Show picks ${i * CAROUSEL_VISIBLE + 1}–${i * CAROUSEL_VISIBLE + CAROUSEL_VISIBLE}`}
                 onClick={() => goTo(i)}
                 className={cn(
                   "h-1.5 rounded-full transition-all",
@@ -792,7 +794,7 @@ export default function DescribePage() {
                         </span>
                       ))}
                       <span className="max-w-full break-words font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.12em] text-[#888899] sm:text-[11px] sm:tracking-widest">
-                        → five films rolled
+                        → six films rolled
                       </span>
                     </div>
                   </div>
