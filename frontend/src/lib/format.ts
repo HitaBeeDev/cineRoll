@@ -3,6 +3,10 @@
  * a start–end range ("1966–1973"). An ongoing series (no end year) shows
  * "1966–present". Falls back to the single year when range data is absent.
  */
+export function isSeriesContentType(contentType: string | null | undefined): boolean {
+  return contentType === "tv-series" || contentType === "tv-mini-series";
+}
+
 export function formatFilmYear(film: {
   contentType?: string | null;
   year?: number | null;
@@ -11,7 +15,7 @@ export function formatFilmYear(film: {
   tvEndYear?: number | null;
 }): string {
   const single = film.year ?? film.releaseYear ?? null;
-  const isSeries = film.contentType === "tv-series" || film.contentType === "tv-mini-series";
+  const isSeries = isSeriesContentType(film.contentType);
   if (!isSeries) return single != null ? String(single) : "";
 
   // A "tv-series" with neither a start nor an end year isn't really an ongoing
@@ -38,6 +42,31 @@ export function formatRuntime(minutes: number | null): string {
   if (remainingMinutes === 0) return `${hours}h`;
 
   return `${hours}h ${remainingMinutes}m`;
+}
+
+/**
+ * Length label for a title: movies show runtime ("2h 45m"), series show their
+ * season count ("11 seasons") — a series' runtime is per-episode noise, never
+ * shown anywhere in the product. A series without season data shows nothing.
+ */
+export function formatFilmLength(film: {
+  contentType?: string | null;
+  runtime?: number | null;
+  tvSeasons?: number | null;
+}): string {
+  if (!isSeriesContentType(film.contentType)) return formatRuntime(film.runtime ?? null);
+  if (film.tvSeasons == null || film.tvSeasons < 1) return "";
+  return film.tvSeasons === 1 ? "1 season" : `${film.tvSeasons} seasons`;
+}
+
+/** Total-episode label for a series ("269 episodes"); empty for movies. */
+export function formatSeriesEpisodes(film: {
+  contentType?: string | null;
+  tvEpisodes?: number | null;
+}): string {
+  if (!isSeriesContentType(film.contentType)) return "";
+  if (film.tvEpisodes == null || film.tvEpisodes < 1) return "";
+  return film.tvEpisodes === 1 ? "1 episode" : `${film.tvEpisodes} episodes`;
 }
 
 const LANGUAGE_DISPLAY =

@@ -18,6 +18,8 @@ export const filmSummarySelect = {
   tvType: true,
   tvStartYear: true,
   tvEndYear: true,
+  tvSeasons: true,
+  tvEpisodes: true,
   oscarNominations: true,
   oscarWins: true,
   ggNominations: true,

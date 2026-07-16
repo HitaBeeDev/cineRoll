@@ -12,6 +12,8 @@ export type RandomFilmRow = {
   runtime: number | null;
   genres: string[];
   contentType: string;
+  tvSeasons: number | null;
+  tvEpisodes: number | null;
   moodTags: string[];
   keywords: string[];
   plot: string | null;

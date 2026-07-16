@@ -97,6 +97,8 @@ async function getOnboardingSample(query: ListQuery): Promise<FilmListPayload> {
         "tvType",
         "tvStartYear",
         "tvEndYear",
+        "tvSeasons",
+        "tvEpisodes",
         "oscarNominations",
         "oscarWins",
         "ggNominations",

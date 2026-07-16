@@ -18,7 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { fetchPickOfDay, type PickOfDayFilm } from "@/lib/api";
 import { trackEvent } from "@/lib/analytics";
-import { formatRuntime } from "@/lib/format";
+import { formatFilmLength } from "@/lib/format";
 import { blurDataUrl, tmdbImageUrl } from "@/lib/images";
 import { cn } from "@/lib/utils";
 
@@ -106,7 +106,7 @@ function PickOfDayCard({ film }: { film: PickOfDayFilm }) {
 
   const hasBackdrop = Boolean(film.backdropUrl);
   const whyPicked = getWhyPicked(film);
-  const runtime = formatRuntime(film.runtime);
+  const runtime = formatFilmLength(film);
   const imageBlur = blurDataUrl(film.posterColor);
 
   return (

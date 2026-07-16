@@ -46,6 +46,8 @@ export interface Film {
   tvType: string | null;
   tvStartYear: number | null;
   tvEndYear: number | null;
+  tvSeasons: number | null;
+  tvEpisodes: number | null;
   oscarNominations: number;
   oscarWins: number;
   oscarCategories: AwardRecord[];

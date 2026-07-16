@@ -138,6 +138,8 @@ function querySimilarRows(excludedFilmId: string, similarity: SimilaritySql) {
       "Film"."tvType",
       "Film"."tvStartYear",
       "Film"."tvEndYear",
+      "Film"."tvSeasons",
+      "Film"."tvEpisodes",
       "Film"."oscarNominations",
       "Film"."oscarWins",
       "Film"."ggNominations",
@@ -173,6 +175,8 @@ type SimilarRow = {
   tvType: string | null;
   tvStartYear: number | null;
   tvEndYear: number | null;
+  tvSeasons: number | null;
+  tvEpisodes: number | null;
   oscarNominations: number;
   oscarWins: number;
   ggNominations: number;

@@ -1,10 +1,11 @@
 import type { Film } from "@cineroll/types";
+import { formatFilmLength } from "@/lib/format";
 
 export function getFilmMetaLine(film: Film): string {
   return [
     film.year ? String(film.year) : null,
     film.director,
-    film.runtime ? `${film.runtime} min` : null,
+    formatFilmLength(film) || null,
   ]
     .filter((part): part is string => Boolean(part))
     .join("   ·   ");

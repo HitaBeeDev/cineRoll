@@ -19,7 +19,7 @@ import { AuthDialog } from "@/components/auth/auth-dialog";
 import { SharePopover } from "@/components/share-popover";
 import { SaveToListButton } from "@/components/save-to-list-dialog";
 import { useFilmActions, AUTH_GATE_TITLE } from "@/hooks/useFilmActions";
-import { formatRuntime } from "@/lib/format";
+import { formatFilmLength } from "@/lib/format";
 import { trackEvent } from "@/lib/analytics";
 import { blurDataUrl, tmdbImageUrl } from "@/lib/images";
 import { cn } from "@/lib/utils";
@@ -78,7 +78,7 @@ export function FilmCard({
 
   const channelLabel = `REEL // ${film.title.toUpperCase().slice(0, 11)}`;
   const genre = film.genres[0] ?? "";
-  const runtime = formatRuntime(film.runtime);
+  const runtime = formatFilmLength(film);
   const posterUrl = film.posterUrl;
   const backdropUrl = film.backdropUrl;
   const posterBlur = blurDataUrl(film.posterColor);

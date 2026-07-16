@@ -1,9 +1,9 @@
-import { formatRuntime } from "@/lib/format";
+import { formatFilmLength } from "@/lib/format";
 import type { BattleFilmProps } from "../component-props";
 
 export function BattleCardInfo({ film }: BattleFilmProps) {
   const genre = film.genres[0] ?? "";
-  const runtime = formatRuntime(film.runtime);
+  const runtime = formatFilmLength(film);
 
   return (
     <div className="flex flex-col gap-1 px-3 py-2.5">

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Sparkles } from "lucide-react";
-import { formatLanguage, formatRuntime } from "@/lib/format";
+import { formatFilmLength, formatLanguage, formatSeriesEpisodes } from "@/lib/format";
 import { nameToSlug } from "@/lib/utils";
 import { displayTitle } from "../display-title";
 import { getTitleFontSize } from "../title-font-size";
@@ -50,7 +50,9 @@ export function HeroFilmIdentity({
       <HeroMetaLine
         film={film}
         accent={accent}
-        runtime={formatRuntime(film.runtime)}
+        runtime={[formatFilmLength(film), formatSeriesEpisodes(film)]
+          .filter(Boolean)
+          .join(" · ")}
         language={formatLanguage(film.language)}
       />
       {film.genres.length > 0 && (

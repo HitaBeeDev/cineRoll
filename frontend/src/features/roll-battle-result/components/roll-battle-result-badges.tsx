@@ -1,9 +1,9 @@
-import { formatRuntime } from "@/lib/format";
+import { formatFilmLength } from "@/lib/format";
 import { ROLL_BATTLE_BADGE_CLASS } from "../component-class-names";
 import type { RollBattleWinnerProps } from "../component-props";
 
 export function RollBattleResultBadges({ film }: RollBattleWinnerProps) {
-  const runtime = formatRuntime(film.runtime);
+  const runtime = formatFilmLength(film);
 
   return (
     <div className="flex flex-wrap items-center gap-2">
