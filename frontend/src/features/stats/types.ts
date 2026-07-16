@@ -33,12 +33,25 @@ export type AwardBodyBreakdown = {
   total: number;
 };
 
+export type FilmRecordType =
+  | "movie"
+  | "series"
+  | "animation"
+  | "documentary"
+  | "short";
+
+export type FilmRecordGroupStats = {
+  topWinning: FilmStat[];
+  topNominated: FilmStat[];
+};
+
 export type StatsResponse = {
   summary: { totalFilms: number; totalNominations: number; totalWins: number };
   topNominatedPeople: PersonStat[];
   topWinningPeople: PersonStat[];
   topNominatedFilms: FilmStat[];
   topWinningFilms: FilmStat[];
+  filmRecordsByType?: Record<FilmRecordType, FilmRecordGroupStats>;
   mostCompetitiveYear: { awardYear: number; totalNominations: number } | null;
   decadeBreakdown: DecadeStat[];
   awardBodyBreakdown: AwardBodyBreakdown | null;

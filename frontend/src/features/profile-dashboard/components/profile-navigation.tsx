@@ -3,7 +3,7 @@ import { ProfileNavigationCard } from "./profile-navigation-card";
 
 export function ProfileNavigation() {
   return (
-    <div className="mt-12 grid gap-4 sm:grid-cols-3">
+    <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {PROFILE_NAVIGATION_ITEMS.map((item) => (
         <ProfileNavigationCard key={item.href} item={item} />
       ))}

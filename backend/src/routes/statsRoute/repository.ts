@@ -8,6 +8,7 @@ import {
 } from "./awardStatsRepository";
 import {
   getDecadeTopFilmRows,
+  getFilmRecordRowsByType,
   getTopNominatedFilmRows,
   getTopRolledRows,
   getTopWatchlistedRows,
@@ -27,6 +28,7 @@ export async function getStatsRows(): Promise<StatsRows> {
     topWinningPersonRows,
     topNominatedFilmRows,
     topWinningFilmRows,
+    filmRecordRowsByType,
     mostCompetitiveYearRows,
     decadeRows,
     decadeTopFilmRows,
@@ -41,6 +43,7 @@ export async function getStatsRows(): Promise<StatsRows> {
     getTopWinningPersonRows(),
     getTopNominatedFilmRows(),
     getTopWinningFilmRows(),
+    getFilmRecordRowsByType(),
     getMostCompetitiveYearRows(),
     getDecadeRows(),
     getDecadeTopFilmRows(),
@@ -57,6 +60,7 @@ export async function getStatsRows(): Promise<StatsRows> {
     topWinningPersonRows,
     topNominatedFilmRows,
     topWinningFilmRows,
+    filmRecordRowsByType,
     mostCompetitiveYearRows,
     decadeRows,
     decadeTopFilmRows,

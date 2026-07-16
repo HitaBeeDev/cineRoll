@@ -4,6 +4,9 @@ import {
   DecadeStat,
   DecadeStatRow,
   DecadeTopFilmRow,
+  FILM_RECORD_TYPES,
+  FilmRecordRowsByType,
+  FilmRecordsByType,
   FilmStat,
   FilmStatRow,
   PersonStat,
@@ -28,6 +31,7 @@ export function statsPayload(rows: StatsRows) {
     topWinningPeople: rows.topWinningPersonRows.map(personStat),
     topNominatedFilms: rows.topNominatedFilmRows.map(filmStatRow),
     topWinningFilms: rows.topWinningFilmRows.map(filmStatRow),
+    filmRecordsByType: filmRecordsByType(rows.filmRecordRowsByType),
     mostCompetitiveYear: yearStat(rows.mostCompetitiveYearRows),
     decadeBreakdown: rows.decadeRows.map((row) => decadeStat(row, decadeTopFilms)),
     awardBodyBreakdown: awardBodyBreakdown(rows.awardBodyRows),
@@ -42,6 +46,18 @@ function personStat(row: PersonStatRow): PersonStat {
 
 function filmStatRow(row: FilmStatRow): FilmStat {
   return { ...row, count: toBigIntNumber(row.count) };
+}
+
+function filmRecordsByType(rows: FilmRecordRowsByType): FilmRecordsByType {
+  return Object.fromEntries(
+    FILM_RECORD_TYPES.map(type => [
+      type,
+      {
+        topWinning: rows[type].winning.map(filmStatRow),
+        topNominated: rows[type].nominated.map(filmStatRow),
+      },
+    ]),
+  ) as FilmRecordsByType;
 }
 
 function yearStat(rows: YearStatRow[]): YearStat | null {

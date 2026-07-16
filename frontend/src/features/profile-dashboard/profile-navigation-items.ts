@@ -8,6 +8,12 @@ export const PROFILE_NAVIGATION_ITEMS: readonly ProfileNavigationItem[] = [
     action: "Open watchlist",
   },
   {
+    href: "/profile/lists",
+    title: "Lists",
+    blurb: "Custom lists you’ve curated, film by film.",
+    action: "Open lists",
+  },
+  {
     href: "/profile/history",
     title: "Watch History",
     blurb: "Everything you’ve marked watched.",

@@ -1,5 +1,13 @@
+import { Prisma } from "@prisma/client";
+
 import { prisma } from "../../lib/prisma";
-import { DecadeTopFilmRow, FilmStatRow } from "./types";
+import {
+  DecadeTopFilmRow,
+  FILM_RECORD_TYPES,
+  FilmRecordRowsByType,
+  FilmRecordType,
+  FilmStatRow,
+} from "./types";
 
 // Top 3 powers the Hall of Records podium; the hero reel uses the [0] entry.
 // Tie-breaks mirror the /browse "awards" sort so the two pages stay consistent.
@@ -27,6 +35,65 @@ export function getTopWinningFilmRows(): Promise<FilmStatRow[]> {
       "title" ASC
     LIMIT 3
   `;
+}
+
+// Bucket conditions for the per-type Hall of Records. `types` is the derived
+// facet set from deriveFilmTypes() (a film can be documentary AND short);
+// series stay on contentType, the single-valued media namespace.
+const FILM_RECORD_TYPE_CONDITIONS: Record<FilmRecordType, Prisma.Sql> = {
+  movie: Prisma.sql`"types" @> ARRAY['movie']::TEXT[]`,
+  series: Prisma.sql`"contentType" IN ('tv-series', 'tv-mini-series')`,
+  documentary: Prisma.sql`"types" @> ARRAY['documentary']::TEXT[]`,
+  animation: Prisma.sql`"types" @> ARRAY['animation']::TEXT[]`,
+  short: Prisma.sql`"types" @> ARRAY['short']::TEXT[]`,
+};
+
+// Same podium queries as the global Hall of Records, scoped to one type bucket.
+// Zero-count rows are excluded so a sparse bucket shows fewer cards, not
+// meaningless "0 wins" record holders.
+function topWinningRowsFor(condition: Prisma.Sql): Promise<FilmStatRow[]> {
+  return prisma.$queryRaw<FilmStatRow[]>`
+    SELECT "id", "slug", "title", "year" AS "releaseYear", "posterUrl",
+      ("oscarWins" + "ggWins" + "cannesWins" + "berlinWins")::BIGINT AS count
+    FROM "Film"
+    WHERE ${condition}
+      AND ("oscarWins" + "ggWins" + "cannesWins" + "berlinWins") > 0
+    ORDER BY
+      count DESC,
+      ("oscarNominations" + "ggNominations" + "cannesNominations" + "berlinNominations") DESC,
+      "title" ASC
+    LIMIT 3
+  `;
+}
+
+function topNominatedRowsFor(condition: Prisma.Sql): Promise<FilmStatRow[]> {
+  return prisma.$queryRaw<FilmStatRow[]>`
+    SELECT "id", "slug", "title", "year" AS "releaseYear", "posterUrl",
+      ("oscarNominations" + "ggNominations" + "cannesNominations" + "berlinNominations")::BIGINT AS count
+    FROM "Film"
+    WHERE ${condition}
+      AND ("oscarNominations" + "ggNominations" + "cannesNominations" + "berlinNominations") > 0
+    ORDER BY
+      count DESC,
+      ("oscarWins" + "ggWins" + "cannesWins" + "berlinWins") DESC,
+      "title" ASC
+    LIMIT 3
+  `;
+}
+
+export async function getFilmRecordRowsByType(): Promise<FilmRecordRowsByType> {
+  const entries = await Promise.all(
+    FILM_RECORD_TYPES.map(async type => {
+      const condition = FILM_RECORD_TYPE_CONDITIONS[type];
+      const [winning, nominated] = await Promise.all([
+        topWinningRowsFor(condition),
+        topNominatedRowsFor(condition),
+      ]);
+      return [type, { winning, nominated }] as const;
+    }),
+  );
+
+  return Object.fromEntries(entries) as FilmRecordRowsByType;
 }
 
 // Most-nominated film per decade — feeds the timeline hover reveal.
