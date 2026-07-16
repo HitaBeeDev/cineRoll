@@ -44,9 +44,9 @@ export default async function ProfilePage() {
           image={session.user.image}
         />
         <ProfileStats summary={summary} />
+        <CompletionistTracker progress={progress} />
         {isNewProfile(summary) && <NewUserCallout />}
         <ProfileNavigation />
-        <CompletionistTracker progress={progress} />
         <Suspense fallback={<RecommendationsSkeleton />}>
           <ProfileRecommendations
             recommendationsPromise={recommendationsPromise}
