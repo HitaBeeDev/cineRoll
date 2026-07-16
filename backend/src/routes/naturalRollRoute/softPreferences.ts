@@ -65,14 +65,12 @@ function canonicalGenres(
   return Array.isArray(resolved) ? (resolved as string[]) : raw;
 }
 
-/** The user's explicit count ("suggest only one movie") beats the client's
- *  requested count, which beats the server default. Always clamped to the
- *  API's 1..6 range. */
-export function resolveResultCount(
-  stage1: Stage1Filters,
-  bodyCount: number | undefined,
-): number {
-  const requested = stage1.resultCount ?? bodyCount ?? NATURAL_ROLL_LIMITS.defaultCount;
+/** The client's requested count (the UI always asks for 6), clamped to the
+ *  API's 1..6 range. The count extracted from the prompt (`resultCount`) is
+ *  deliberately NOT honored — product decision: Ask AI always returns a full
+ *  set of picks; "suggest one movie" narrows the ranking, not the count. */
+export function resolveResultCount(bodyCount: number | undefined): number {
+  const requested = bodyCount ?? NATURAL_ROLL_LIMITS.defaultCount;
 
   return Math.min(6, Math.max(1, Math.round(requested)));
 }

@@ -29,12 +29,12 @@ export function DescribeIntroPanel() {
         <div className="flex min-w-0 flex-wrap items-center gap-2">
           <FilterChipList chips={EXAMPLE_FILTERS} />
           <span className="max-w-full break-words font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.12em] text-[#888899] sm:text-[11px] sm:tracking-widest">
-            → films rolled
+            → six films rolled
           </span>
         </div>
       </div>
       <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase leading-5 tracking-[0.18em] text-[#7a7a8c]">
-        Reads mood, era, awards, genre, director &amp; how many picks you want — in any language.
+        Reads mood, era, awards, genre &amp; director — in any language.
       </p>
     </div>
   );

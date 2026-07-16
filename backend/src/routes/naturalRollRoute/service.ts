@@ -88,7 +88,7 @@ export async function interpretNaturalRoll(body: NaturalRollBody): Promise<Inter
     // Preferences read the pre-relaxation filters: even when a filter was
     // relaxed away to fill the pool, the ranking should still honor it.
     preferences: softPreferencesFrom(structuralFilters, prepared.appliedFilters, prepared.allowed),
-    resultCount: resolveResultCount(structuralFilters, body.count),
+    resultCount: resolveResultCount(body.count),
   };
 }
 
