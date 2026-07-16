@@ -1,4 +1,4 @@
-import { PolicySection } from "./policy-section";
+import { PolicySection } from "@/features/legal/components/policy-section";
 
 export function PrivacyPolicyContent() {
   return (

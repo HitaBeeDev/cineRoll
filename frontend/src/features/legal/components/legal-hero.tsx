@@ -1,6 +1,6 @@
-import type { PrivacyHeroProps } from "../component-props";
+import type { LegalHeroProps } from "../component-props";
 
-export function PrivacyHero({ updatedAt }: PrivacyHeroProps) {
+export function LegalHero({ title, updatedAt }: LegalHeroProps) {
   return (
     <section className="border-b border-white/10 bg-[#0b0b12]">
       <div className="mx-auto max-w-4xl px-6 py-16 lg:px-10">
@@ -8,11 +8,9 @@ export function PrivacyHero({ updatedAt }: PrivacyHeroProps) {
           Legal
         </p>
         <h1 className="mt-5 font-[family-name:var(--font-display)] text-4xl font-bold tracking-tight text-[#f8f8f4] sm:text-5xl">
-          Privacy Policy
+          {title}
         </h1>
-        <p className="mt-4 text-sm leading-7 text-[#a8a8bd]">
-          Last updated: {updatedAt}
-        </p>
+        <p className="mt-4 text-sm leading-7 text-[#a8a8bd]">Last updated: {updatedAt}</p>
       </div>
     </section>
   );
