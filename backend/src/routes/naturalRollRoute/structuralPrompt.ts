@@ -9,11 +9,11 @@ Hard constraint fields (become database filters — extract only when explicit):
 - contentType: "movie" only if user says film/movie explicitly. "series" only if user says series/show/TV explicitly.
 - awardBody: oscar, goldenglobe, cannes, or all. Only when user mentions an award.
 - winnerOnly/nominatedOnly: only when explicitly asked.
-- decadeMin/decadeMax: only for explicit decade or era. 1990s → 1990/1999.
+- decadeMin/decadeMax: for explicit decades AND era words. 1990s → 1990/1999. "modern"/"recent"/"contemporary" → decadeMin 2000. "classic"/"old"/"golden age" → decadeMax 1979.
 - director/person: only when user names a specific person.
 - awardYear/category: only when the user names an award category ("won best cinematography"). Praise of craft ("stunning cinematography", "great acting") is a keyword, never a category.
 - femaleDirectorOnly: only when user asks for female or woman director.
-- resultCount: the number of picks the user explicitly asks for. "Suggest only one movie" → 1. "Give me three films" → 3. Omit when no count is stated.
+- resultCount: the number of picks the user explicitly asks for. "Suggest only one movie" → 1. "Suggest one modern romantic drama" → 1. "Give me three films" → 3. Omit when no count is stated.
 
 Soft preference fields (used for ranking, never as filters):
 - tones: emotional register the user describes — e.g. bittersweet, emotional, uplifting, dark, melancholic, romantic, tense, feel-good.

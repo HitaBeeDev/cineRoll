@@ -16,6 +16,9 @@ export const listQueryBaseSchema = z.object({
   contentType: csvParam(60),
   language: csvParam(10),
   genre: csvParam(80),
+  // AND-semantics genre filter: the film must carry EVERY listed genre
+  // ("romantic musical drama" → Romance ∧ Music ∧ Drama). `genre` stays OR.
+  genreAll: csvParam(80),
   country: csvParam(80),
   runtimeMax: z.coerce.number().int().min(1).max(1000).optional(),
   decadeMin: z.coerce.number().int().min(1800).max(2200).optional(),

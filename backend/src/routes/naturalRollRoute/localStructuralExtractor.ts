@@ -67,13 +67,15 @@ const COUNT_WORDS: Record<string, number> = {
   one: 1, single: 1, two: 2, three: 3, four: 4, five: 5, six: 6,
 };
 
-// "Suggest only one movie", "one romantic drama movie", "give me three picks".
-// The quantity word may be separated from its noun by adjectives ("one romantic
-// drama movie") but never by "of" — "one of the best films" is not a count.
-// Bare "a movie" stays unset: an article is a way of speaking, not a count.
+// "Suggest only one movie", "one romantic drama movie", "give me three picks",
+// "suggest one modern romantic musical drama". The counted noun can be a
+// media word OR a genre noun — people say "one drama", not "one drama movie".
+// The quantity word may be separated from its noun by adjectives but never by
+// "of" — "one of the best films" is not a count. Bare "a movie" stays unset:
+// an article is a way of speaking, not a count.
 function applyResultCount(prompt: string, filters: Stage1Filters): void {
   const quantified = prompt.match(
-    /\b(one|single|two|three|four|five|six|[1-6])\s+(?:(?!of\b)[a-z'-]+\s+){0,4}?(?:movie|film|series|show|pick|title|recommendation)s?\b/i,
+    /\b(one|single|two|three|four|five|six|[1-6])\s+(?:(?!of\b)[a-z'-]+\s+){0,4}?(?:movie|film|series|show|pick|title|recommendation|drama|comedy|thriller|romance|musical|documentary|western|biopic|story|gem|flick|masterpiece)s?\b/i,
   );
   const word = quantified?.[1]?.toLowerCase();
   if (!word) return;
@@ -98,6 +100,11 @@ function applyAwardYear(prompt: string, filters: Stage1Filters): void {
 function extractDecadeFilters(prompt: string): Pick<Stage1Filters, "decadeMin" | "decadeMax"> {
   const lastYears = prompt.match(/\blast\s+(\d{1,2})\s+years?\b/i);
   if (lastYears) return lastYearsRange(Number(lastYears[1]));
+
+  // "modern"/"recent"/"contemporary" is an era statement, not a mood — treat
+  // it as 2000-onward so a "modern romance" can't resolve to Casablanca.
+  if (/\b(modern|recent|contemporary|new(er)?)\b/i.test(prompt)) return { decadeMin: 2000 };
+  if (/\b(classic|old|golden age|vintage)\b/i.test(prompt)) return { decadeMax: 1979 };
 
   const decade = prompt.match(/\b(18|19|20)(\d)0s\b/i);
   if (decade) return decadeRange(Number(`${decade[1]}${decade[2]}0`));

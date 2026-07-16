@@ -15,9 +15,11 @@ export const GEMINI_MODEL = "gemini-2.5-flash-lite";
 export const EXTRACT_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 
 // Structural (Stage-1) filter keys, in the order they're dropped when the
-// filtered pool comes back empty. contentType is deliberately absent: movie vs
-// series is a hard constraint and must never be relaxed away.
+// filtered pool comes back empty. genresAll relaxes first (require-ALL-genres
+// → require-any), then genres entirely. contentType is deliberately absent:
+// movie vs series is a hard constraint and must never be relaxed away.
 export const RELAX_PRIORITY = [
+  "genresAll",
   "genres",
   "category",
   "language",

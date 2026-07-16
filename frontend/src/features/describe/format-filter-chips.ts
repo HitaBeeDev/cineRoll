@@ -49,6 +49,9 @@ export function formatFilterChips(filters: NaturalRollFilters): string[] {
   if (filters.language) {
     chips.push(LANGUAGE_LABELS[filters.language] ?? filters.language.toUpperCase());
   }
+  // genreAll (required, AND) and genre (OR) usually repeat the same values;
+  // the Set at the end dedupes them into one chip each.
+  addGenreChips(chips, filters.genreAll);
   addGenreChips(chips, filters.genre);
   addStringChip(chips, filters.contentType);
   addStringChip(chips, filters.person);

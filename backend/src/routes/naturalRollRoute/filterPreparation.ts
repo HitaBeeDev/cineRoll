@@ -4,11 +4,14 @@ import { validateStructuralFilters } from "../../lib/validateFilters";
 import { Stage1Filters } from "./schemas";
 import { stripSoftFields } from "./softPreferences";
 
-/** Stage-1 filters with the genre split already folded into the single
- *  effective `genres` filter the query layer understands. This is the shape
- *  relaxation works on, so dropping "genres" relaxes whichever list was
- *  actually filtering. */
-export type EffectiveStructuralFilters = Stage1Filters & { genres?: string[] | undefined };
+/** Stage-1 filters with the genre split folded into the query layer's shape:
+ *  `genresAll` (AND — the film must be ALL required genres) plus `genres`
+ *  (OR fallback). Relaxation drops `genresAll` first (AND → OR), then
+ *  `genres` (no genre filter at all). */
+export type EffectiveStructuralFilters = Stage1Filters & {
+  genres?: string[] | undefined;
+  genresAll?: string[] | undefined;
+};
 
 export type PreparedFilters = {
   allowed: Awaited<ReturnType<typeof getAllowedFilterValues>>;
@@ -38,15 +41,24 @@ export async function prepareNaturalRollFilters(
   };
 }
 
-// Required genres are what the film must BE — when present, they alone form
-// the SQL genre filter. With none, preferred genres still narrow the pool
-// (OR-overlap) so "with music" isn't searched against the whole catalog.
+// Required genres are what the film must BE — the candidate pool demands ALL
+// of them (`genresAll`, AND), because "romantic musical drama" means one film
+// carrying all three, not any drama. The OR form (`genres`) rides along as the
+// relaxation fallback. With no required genres, preferred genres still narrow
+// the pool (OR) so "with music" isn't searched against the whole catalog.
 function withEffectiveGenres(structuralFilters: Stage1Filters): EffectiveStructuralFilters {
   const required = structuralFilters.requiredGenres ?? [];
   const preferred = structuralFilters.preferredGenres ?? [];
-  const genres = required.length > 0 ? required : preferred;
 
-  return { ...structuralFilters, genres: genres.length > 0 ? genres : undefined };
+  if (required.length > 0) {
+    return {
+      ...structuralFilters,
+      genresAll: required,
+      genres: required,
+    };
+  }
+
+  return { ...structuralFilters, genres: preferred.length > 0 ? preferred : undefined };
 }
 
 export function naturalRollQuery(filters: Record<string, unknown>, userId: string | undefined): RandomQuery {

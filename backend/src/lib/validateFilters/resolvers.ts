@@ -15,6 +15,7 @@ export type ValidatedFilterKey =
   | "decadeMax"
   | "decadeMin"
   | "genres"
+  | "genresAll"
   | "language";
 
 export const VALIDATED_KEYS = new Set<string>([
@@ -25,13 +26,16 @@ export const VALIDATED_KEYS = new Set<string>([
   "decadeMax",
   "decadeMin",
   "genres",
+  "genresAll",
   "language",
 ]);
 
 // Extraction keys that differ from the query-schema keys they feed
-// (`genres` is extracted as a list but queried through the CSV `genre` param).
+// (`genres` is extracted as a list but queried through the CSV `genre` param;
+// `genresAll` feeds the AND-semantics `genreAll` param).
 export const FILTER_OUTPUT_KEYS: Partial<Record<ValidatedFilterKey, string>> = {
   genres: "genre",
+  genresAll: "genreAll",
 };
 
 export function resolveValidatedFilter(
@@ -52,6 +56,7 @@ export function resolveValidatedFilter(
     case "decadeMin":
       return resolveDecade(value, allowed);
     case "genres":
+    case "genresAll":
       return resolveGenres(value, allowed);
     case "language":
       return resolveLanguage(String(value), allowed.languages);

@@ -83,8 +83,10 @@ export type NaturalRollFilters = {
   awardYear?: number;
   language?: string;
   // The backend extracts every named genre; older cached responses may still
-  // carry a single string.
+  // carry a single string. `genreAll` is the AND-semantics filter (the film
+  // must be ALL of these) used for required genres.
   genre?: string | string[];
+  genreAll?: string[];
   country?: string;
   contentType?: string;
   decadeMin?: number;

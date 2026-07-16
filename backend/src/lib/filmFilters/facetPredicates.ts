@@ -12,6 +12,7 @@ export function facetPredicates(query: ListQuery): Prisma.Sql[] {
     // filed Norwegian "Sentimental Value" under Turkey. That list stays for display.
     arrayOverlapPredicate("originCountries", query.country),
     arrayOverlapPredicate("genres", query.genre),
+    arrayContainsPredicate("genres", query.genreAll),
     exactValuePredicate("certificate", query.certificate),
     tvTypePredicate(query),
   ].filter((predicate): predicate is Prisma.Sql => predicate !== undefined);
@@ -27,6 +28,13 @@ function arrayOverlapPredicate(column: string, values: string[] | undefined): Pr
   if (!values || values.length === 0) return undefined;
 
   return Prisma.sql`${filmColumn(column)} && ARRAY[${Prisma.join(values)}]::TEXT[]`;
+}
+
+// AND semantics: the film's array must contain every requested value.
+function arrayContainsPredicate(column: string, values: string[] | undefined): Prisma.Sql | undefined {
+  if (!values || values.length === 0) return undefined;
+
+  return Prisma.sql`${filmColumn(column)} @> ARRAY[${Prisma.join(values)}]::TEXT[]`;
 }
 
 function exactValuePredicate(column: string, value: string | undefined): Prisma.Sql | undefined {

@@ -33,18 +33,18 @@ export async function extractStructuralFilters(prompt: string): Promise<Stage1Fi
 
 // Anything the user stated in plain words must never depend on the LLM's
 // recall — the deterministic regex extraction backfills whatever the model
-// omitted. (This bit in production: Gemini returned no genres for "a beautiful,
-// emotional romance…" and the whole catalog became eligible.) The model's own
-// value wins where both exist — it sees context regexes can't ("not a movie").
+// omitted, field by field (this bit in production twice: first Gemini dropped
+// "romance" entirely, then the merge lost the locally-extracted "modern" →
+// decadeMin). The model's own value wins wherever it answered — it sees
+// context regexes can't ("not a movie") — and the local pass fills every gap.
 export function withLocalBackstop(prompt: string, filters: Stage1Filters): Stage1Filters {
   const local = extractLocalStructuralFilters(prompt);
   const geminiSawGenres =
     (filters.requiredGenres?.length ?? 0) + (filters.preferredGenres?.length ?? 0) > 0;
 
   return {
-    ...filters,
-    contentType: filters.contentType ?? local.contentType,
-    resultCount: filters.resultCount ?? local.resultCount,
+    ...local,
+    ...answeredFields(filters),
     // No genres from the model → trust the local required/preferred split
     // wholesale. Otherwise keep the model's split (it understands negation and
     // phrasing) and only add locally-found genres it missed as preferred.
@@ -55,6 +55,14 @@ export function withLocalBackstop(prompt: string, filters: Stage1Filters): Stage
     tones: mergeLists(filters.tones, local.tones),
     keywords: mergeLists(filters.keywords, local.keywords),
   };
+}
+
+// The fields the model actually answered — its explicit nulls ("no constraint
+// here") must not clobber a value the deterministic pass found.
+function answeredFields(filters: Stage1Filters): Partial<Stage1Filters> {
+  return Object.fromEntries(
+    Object.entries(filters).filter(([, value]) => value !== null && value !== undefined),
+  ) as Partial<Stage1Filters>;
 }
 
 function missingLocalGenres(filters: Stage1Filters, local: Stage1Filters): string[] {

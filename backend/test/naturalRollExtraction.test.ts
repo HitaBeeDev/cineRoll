@@ -54,6 +54,17 @@ describe("natural roll extraction — required vs preferred genres", () => {
     expect(extractLocalStructuralFilters("one of the best movies ever").resultCount).toBeUndefined();
   });
 
+  it("counts genre nouns too — 'one modern romantic musical drama'", () => {
+    const filters = extractLocalStructuralFilters(
+      "Suggest one modern romantic musical drama with jazz music and a bittersweet ending.",
+    );
+
+    expect(filters.resultCount).toBe(1);
+    expect(filters.requiredGenres).toEqual(expect.arrayContaining(["Romance", "Music", "Drama"]));
+    // "modern" is an era, not a mood.
+    expect(filters.decadeMin).toBe(2000);
+  });
+
   it("keeps series vs movie as a deterministic constraint", () => {
     expect(extractLocalStructuralFilters("a gripping tv series").contentType).toBe("series");
     expect(extractLocalStructuralFilters("some movie with jazz").contentType).toBe("movie");
@@ -106,5 +117,14 @@ describe("natural roll extraction — filter validation", () => {
 
     expect(filters.genre).toBeUndefined();
     expect(dropped).toContain("genres");
+  });
+
+  it("resolves genresAll to the AND-semantics genreAll query key", () => {
+    const { filters } = validateStructuralFilters(
+      { genresAll: ["romance", "musical", "drama"] },
+      allowed,
+    );
+
+    expect(filters.genreAll).toEqual(["Romance", "Music", "Drama"]);
   });
 });
