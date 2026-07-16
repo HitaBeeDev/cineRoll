@@ -41,6 +41,7 @@ export default async function ProfilePage() {
         <ProfileIdentity
           name={session.user.name}
           email={session.user.email}
+          image={session.user.image}
         />
         <ProfileStats summary={summary} />
         {isNewProfile(summary) && <NewUserCallout />}

@@ -10,7 +10,7 @@ export const PROFILE_NAVIGATION_ITEMS: readonly ProfileNavigationItem[] = [
   {
     href: "/profile/history",
     title: "Watch History",
-    blurb: "Everything you’ve marked watched, with your ratings.",
+    blurb: "Everything you’ve marked watched.",
     action: "View history",
   },
   {

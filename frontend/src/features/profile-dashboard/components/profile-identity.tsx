@@ -1,12 +1,10 @@
-import { getProfileInitials } from "../get-profile-initials";
+import { UserAvatar } from "@/components/user-avatar";
 import type { ProfileIdentityProps } from "../profile-component-types";
 
-export function ProfileIdentity({ name, email }: ProfileIdentityProps) {
+export function ProfileIdentity({ name, email, image }: ProfileIdentityProps) {
   return (
     <div className="flex items-center gap-5">
-      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-[#e8453c]/35 bg-[#12121c] font-[family-name:var(--font-geist-mono)] text-base font-bold tracking-wide text-[#e9e9ee]">
-        {getProfileInitials(name, email)}
-      </div>
+      <UserAvatar image={image} name={name} email={email} size={56} />
       <div className="min-w-0">
         <h1 className="font-[family-name:var(--font-display)] text-3xl font-bold text-[#F5F5F0]">
           {name ?? "Your Profile"}

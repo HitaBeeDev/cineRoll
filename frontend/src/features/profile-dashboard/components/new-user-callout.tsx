@@ -8,8 +8,8 @@ export function NewUserCallout() {
           Start building your taste profile
         </h2>
         <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-[13px] leading-relaxed text-[#b4b4c4]">
-          Two ways in: roll a random award-winner, or rate a few films you
-          already know. Every rating sharpens what comes next.
+          Two ways in: roll a random award-winner, or mark the films you’ve
+          already seen. Every signal sharpens what comes next.
         </p>
       </div>
       <div className="flex shrink-0 flex-col items-start gap-3 sm:items-end">
@@ -23,7 +23,7 @@ export function NewUserCallout() {
           href="/browse"
           className="font-[family-name:var(--font-geist-mono)] text-[13px] text-[#b4b4c4] underline-offset-4 transition-colors hover:text-[#F5F5F0] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
         >
-          Rate films you&rsquo;ve seen
+          Mark films you&rsquo;ve seen
         </Link>
       </div>
     </div>

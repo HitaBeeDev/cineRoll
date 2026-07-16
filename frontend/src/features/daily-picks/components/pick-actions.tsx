@@ -29,7 +29,7 @@ export function PickActions({ film }: PickActionsProps) {
         aria-label={seen ? "Marked as seen" : "Mark as seen"}
         title={seen ? "Seen — hidden from future picks" : "Mark as seen"}
         disabled={actions.pending}
-        onClick={() => void actions.saveDecision("watched", true)}
+        onClick={() => void actions.saveDecision("watched", false)}
         className={cn(
           "flex h-11 w-11 shrink-0 items-center justify-center rounded-full border transition-colors disabled:cursor-not-allowed disabled:opacity-60",
           seen

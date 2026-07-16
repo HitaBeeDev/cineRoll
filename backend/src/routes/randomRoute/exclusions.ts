@@ -5,19 +5,19 @@ import { prisma } from "../../lib/prisma";
 
 export async function buildExclusionConditions(query: RandomQuery): Promise<Prisma.Sql[]> {
   const conditions: Prisma.Sql[] = [];
-  const doNotSuggest = await doNotSuggestIdsCondition(query.userId);
+  const watchedOrHidden = await watchedOrHiddenIdsCondition(query.userId);
   const excludedIdsCondition = clientExcludedIdsCondition(query);
 
-  if (doNotSuggest) conditions.push(doNotSuggest);
+  if (watchedOrHidden) conditions.push(watchedOrHidden);
   if (excludedIdsCondition) conditions.push(excludedIdsCondition);
 
   return conditions;
 }
 
-async function doNotSuggestIdsCondition(userId: string | undefined): Promise<Prisma.Sql | null> {
+async function watchedOrHiddenIdsCondition(userId: string | undefined): Promise<Prisma.Sql | null> {
   if (!userId) return null;
 
-  const excludedFilmIds = await getDoNotSuggestFilmIds(userId);
+  const excludedFilmIds = await getWatchedOrHiddenFilmIds(userId);
   return excludedFilmIds.length > 0
     ? Prisma.sql`"Film"."id" NOT IN (${Prisma.join(excludedFilmIds)})`
     : null;
@@ -29,7 +29,10 @@ function clientExcludedIdsCondition(query: RandomQuery): Prisma.Sql | null {
   return Prisma.sql`"Film"."id" NOT IN (${Prisma.join(query.excludeIds)})`;
 }
 
-async function getDoNotSuggestFilmIds(userId: string): Promise<string[]> {
+// Every WatchedFilm row is excluded from rolls: watched (doNotSuggest=false)
+// and not-interested (doNotSuggest=true) alike — neither should roll again.
+// Matches the recommender's candidate exclusions.
+async function getWatchedOrHiddenFilmIds(userId: string): Promise<string[]> {
   const tableRows = await prisma.$queryRaw<{ exists: boolean }[]>`
     SELECT to_regclass('public."WatchedFilm"') IS NOT NULL AS "exists"
   `;
@@ -40,7 +43,6 @@ async function getDoNotSuggestFilmIds(userId: string): Promise<string[]> {
     SELECT "filmId"
     FROM "WatchedFilm"
     WHERE "userId" = ${userId}
-      AND "doNotSuggest" = true
   `;
 
   return rows.map(row => row.filmId);

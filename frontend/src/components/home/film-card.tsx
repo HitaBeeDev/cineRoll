@@ -290,9 +290,10 @@ export function FilmCard({
               disabled={pending}
               onClick={() => {
                 onEngage?.();
-                // doNotSuggest=true → "do not show again"; the 👍/👎 prompt below
-                // still feeds taste, so a liked title boosts similar picks.
-                void saveDecision("watched", true);
+                // doNotSuggest=false → counted as watched (stats, history,
+                // archive progress). Watched films are excluded from future
+                // rolls regardless, and the 👍/👎 prompt below feeds taste.
+                void saveDecision("watched", false);
               }}
               icon={<Eye className="h-4 w-4" aria-hidden />}
               label="Already seen"

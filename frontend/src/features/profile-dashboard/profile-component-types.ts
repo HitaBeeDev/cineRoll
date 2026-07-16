@@ -4,6 +4,7 @@ import type { ProfileNavigationItem } from "./profile-navigation-item";
 export type ProfileIdentityProps = {
   name: string | null | undefined;
   email: string | null | undefined;
+  image: string | null | undefined;
 };
 
 export type ProfileStatProps = {
