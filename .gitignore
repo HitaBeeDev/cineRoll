@@ -66,3 +66,6 @@ backend/prisma.config.ts
 
 # Private project docs
 docs/
+
+# Database backups — never commit
+*.dump
