@@ -2,6 +2,16 @@ import { PICK_OF_DAY_CONFIG } from "./constants";
 import { seededUnit } from "./seed";
 import { PoolRow } from "./types";
 
+// Pick-of-day scorer: fully deterministic for a given (pool, dateKey) — no RNG,
+// so every server instance and every request on the same day agrees on the pick
+// without coordination. score = quality + underExposure + daily seeded jitter:
+//   quality        prestige normalized within TODAY'S pool (min–max), so the
+//                  scale adapts as the eligible pool shrinks over the year.
+//   underExposure  favors films the roll has surfaced least recently — the pick
+//                  spotlights the catalog's corners instead of re-crowning hits.
+//   seed           per-(day, film) hash jitter, the only thing that changes day
+//                  to day — it rotates which of the many good candidates wins.
+
 type PoolStats = {
   maxPrestige: number;
   maxRolls: number;
@@ -55,6 +65,7 @@ function scoreFilm(film: PoolRow, stats: PoolStats, dateKey: string): ScoredFilm
   return { id: film.id, score };
 }
 
+// Ties break by lowest id so equal scores still resolve identically everywhere.
 function isBetterCandidate(candidate: ScoredFilm, best: ScoredFilm | null): boolean {
   return best === null || candidate.score > best.score || (
     candidate.score === best.score && candidate.id < best.id

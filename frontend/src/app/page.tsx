@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
-import { HomeClient } from "./home-client";
+import { HomeClient } from "@/features/home/components/home-client";
+import { ONBOARDED_COOKIE } from "@/features/home/constants";
 import { HomeHero } from "./home-hero";
-
-// Must match the cookie written by `markOnboardedCookie` in home-client.tsx.
-const ONBOARDED_COOKIE = "cineroll_onboarded";
 
 export const metadata: Metadata = {
   // `absolute` opts out of the layout's "%s | CineRoll" template for the

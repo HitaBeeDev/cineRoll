@@ -13,6 +13,11 @@ type MutableProfileVectors = {
   ratingTier: Vector;
 };
 
+// Folds a user's raw signals into the six taste vectors (genre / director /
+// decade / runtime band / award / rating tier). Each signal adds its weight —
+// recency-decayed, 90-day half-life — to every feature of its film; each vector
+// is then normalized by its largest absolute weight so a 5-signal user and a
+// 500-signal user land on the same scale.
 export function aggregateTasteVectors(
   signals: Signal[],
   onboardingGenres: string[],
@@ -83,6 +88,10 @@ function shouldSeedColdStart(positiveCount: number, onboardingGenres: string[]):
   return positiveCount < TASTE_PROFILE_CONFIG.coldStartThreshold && onboardingGenres.length > 0;
 }
 
+// Cold-start seeding: with almost no real signals, the genres picked at
+// onboarding stand in for taste. Weight descends with pick order (first pick
+// counts most), and the seed is deliberately weak (0.5 vs a like's 1.0) so the
+// first few real signals immediately start outvoting the questionnaire.
 function applyOnboardingGenreSeeds(genreWeights: Vector, onboardingGenres: string[]): void {
   const count = onboardingGenres.length;
 

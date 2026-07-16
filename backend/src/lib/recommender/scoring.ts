@@ -50,6 +50,10 @@ function tasteScore(film: FilmFeatures, taste: TasteProfileVectors): number {
   return score;
 }
 
+// Taste-independent "is this a good film" prior, so thin taste profiles still
+// rank good films first. Ratings lead (0.75) because they cover the whole
+// catalog; awards assist (0.25) because every film here has some award context —
+// as a lead signal it would barely discriminate.
 function qualityPrior(film: FilmFeatures): number {
   const ratingPrior = averageRatingPrior(film);
   const awardPrior = awardQualityPrior(film);
@@ -63,11 +67,16 @@ function averageRatingPrior(film: FilmFeatures): number {
   if (film.imdbRating != null) ratings.push(film.imdbRating / 10);
   if (film.rtScore != null) ratings.push(film.rtScore / 100);
 
+  // No rating at all → slightly below the scale's middle: unknown quality
+  // shouldn't outrank a rated-mediocre film, but shouldn't be buried either.
   return ratings.length
     ? ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length
     : 0.4;
 }
 
+// Award recognition in [0, 1]: a win counts 4× a nomination, and the scale
+// saturates at 4 win-equivalents — past that, more trophies say "famous", not
+// "better", and fame is already priced in elsewhere.
 function awardQualityPrior(film: FilmFeatures): number {
   const wins = film.oscarWins + film.ggWins + film.cannesWins + film.berlinWins;
   const nominations =

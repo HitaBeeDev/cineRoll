@@ -1,3 +1,8 @@
+// Deterministic "randomness": FNV-1a hash of the key, folded to a float in
+// [0, 1). The same key ("2026-07-16:<filmId>") always yields the same value on
+// any machine — which is the whole point: the daily pick must not depend on
+// Math.random(), process, or instance. The constants are FNV-1a's standard
+// 32-bit offset basis and prime.
 export function seededUnit(key: string): number {
   let hash = 2166136261;
 

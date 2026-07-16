@@ -44,6 +44,8 @@ async function loadEligiblePool(day: Date): Promise<PoolRow[]> {
   const excludeIds = await findRecentPickFilmIds(recentCutoff);
   const pool = await loadPool(excludeIds);
 
+  // If a year of no-repeats has exhausted the whole pool, allowing repeats
+  // beats serving nothing.
   if (pool.length === 0 && excludeIds.length > 0) {
     return loadPool([]);
   }
@@ -51,6 +53,10 @@ async function loadEligiblePool(day: Date): Promise<PoolRow[]> {
   return pool;
 }
 
+// Persist today's pick. Two concurrent requests can race to be "first" on a new
+// day; the unique constraint on the day makes the DB the referee — the loser
+// discards its own choice and serves whatever the winner recorded, so everyone
+// still sees one film.
 async function recordPick(
   filmId: string,
   day: Date,
