@@ -8,7 +8,7 @@ A film-discovery engine for award-winning cinema. It resolves a century of messy
 
 The interesting part of CineRoll is not the UI. It is the data.
 
-Award data arrives as Excel workbooks assembled by Python scripts, one row per _nomination_, spread across five award bodies and roughly a hundred years of inconsistent formatting. The same film appears under different titles (_The Lives of Others_ vs _Das Leben der Anderen_), in different ceremony years, with a different category vocabulary per body. Stored naively, _The Godfather_ exists three times, each row carrying a fragment of its award history — useless for a query like "films that won at both Cannes and the Oscars", and poisonous as input to a recommender.
+Award data arrives as Excel workbooks assembled by Python scripts, one row per _nomination_, spread across four award bodies and roughly a hundred years of inconsistent formatting. The same film appears under different titles (_The Lives of Others_ vs _Das Leben der Anderen_), in different ceremony years, and each body names its categories differently. Stored naively, _The Godfather_ exists three times, each row carrying a fragment of its award history — useless for a query like "films that won at both Cannes and the Oscars", and poisonous as input to a recommender.
 
 The pipeline solves this with entity resolution against an external authority: candidate films are matched to TMDB, and the TMDB ID becomes the identity key. Rows that resolve to the same ID are the same film, whatever they are titled. Award records merge onto one canonical row; anything without a confident match goes to a manual recall queue rather than being silently dropped or written half-broken. The result is a catalog where every film carries its complete award history — the foundation everything else stands on.
 
@@ -76,8 +76,6 @@ npm run dev                              # backend :4000 + frontend :3000
 ```
 
 Sanity check: `http://localhost:4000/health` returns `{ ok: true, db: "up" }`. Every environment variable is validated at boot — the server refuses to start on a bad value. The full table is in [`documentation/SETUP.md`](./documentation/SETUP.md).
-
-Note on data: the raw award Excel files are private project assets and are not in the repository. A fresh clone runs against whatever your database is seeded with.
 
 ## Testing
 

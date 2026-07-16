@@ -2,7 +2,7 @@
 
 This is the entry point to CineRoll's documentation. It tells you what exists, who each document is for, and in what order to read — so you never have to guess where an answer lives.
 
-**What CineRoll is, in one paragraph.** A film-discovery app for award-winning cinema: browse, filter, and search ~8,600 films carrying their complete award history across the Oscars, Golden Globes, Cannes, the Berlinale, and the IMDB Top 250 — or "roll" a random film from any filtered set, with a personalized recommendation layer learned from your taste. The genuinely hard engineering is in two places: the **award-data pipeline** (entity resolution across five award bodies and a century of ceremonies) and the **algorithm layer** (content-based recommendations, taste modelling, bandit-driven rolls). Everything else is deliberately boring and solid.
+**What CineRoll is, in one paragraph.** A film-discovery app for award-winning cinema: browse, filter, and search ~8,600 films carrying their complete award history across the Oscars, Golden Globes, Cannes, the Berlinale, and the IMDB Top 250 — or "roll" a random film from any filtered set, with a personalized recommendation layer learned from your taste. The genuinely hard engineering is in two places: the **award-data pipeline** (entity resolution across four award bodies and a century of ceremonies) and the **algorithm layer** (content-based recommendations, taste modelling, bandit-driven rolls). Everything else is deliberately boring and solid.
 
 ---
 

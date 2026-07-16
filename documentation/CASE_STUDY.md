@@ -1,12 +1,12 @@
 # Case Study — CineRoll
 
-A film‑discovery app for award‑winning cinema: browse and filter by every dimension the award data provides, "roll" a random film from any filtered set, and get personalized recommendations learned from your taste. This writeup leads with the hardest engineering — resolving the same film across five award bodies and a century of ceremonies into one canonical record — then covers the recommendation system and the rest.
+A film‑discovery app for award‑winning cinema: browse and filter by every dimension the award data provides, "roll" a random film from any filtered set, and get personalized recommendations learned from your taste. This writeup leads with the hardest engineering — resolving the same film across four award bodies and a century of ceremonies into one canonical record — then covers the recommendation system and the rest.
 
 > **TL;DR for reviewers.** The genuinely hard part isn't the UI or CRUD — it's the **entity resolution** that turns thousands of messy, differently‑titled award‑nomination rows into one clean catalog of ~8,600 films, and the **content‑based recommendation system** built on the signals collected on top of it. Architecture details: [`ARCHITECTURE.md`](./ARCHITECTURE.md).
 
 ---
 
-## The headline problem — one film, five award bodies, a hundred years
+## The headline problem — one film, four award bodies, a hundred years
 
 Award data is deceptively messy. The source is Excel assembled by Python scripts — **one row per nomination** — across the Oscars, Golden Globes, Cannes, the Berlinale, and the IMDB Top 250. A single film shows up many times:
 
