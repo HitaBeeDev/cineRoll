@@ -1,6 +1,6 @@
 # CineRoll
 
-A film-discovery engine for award-winning cinema. It resolves a century of messy award data — Oscars, Golden Globes, Cannes, the Berlinale, the IMDB Top 250 — into one clean catalog of ~8,600 films, and puts a real algorithmic layer on top: content-based recommendations, taste modelling, and bandit-driven film rolls.
+A film-discovery engine for award-winning cinema. It resolves a century of messy award data — Oscars, Golden Globes, Cannes, the Berlinale — into one clean catalog of ~8,600 films, and puts a real algorithmic layer on top: content-based recommendations, taste modelling, and bandit-driven film rolls.
 
 **Live:** [cineroll.de](https://cineroll.de/)
 
@@ -8,7 +8,7 @@ A film-discovery engine for award-winning cinema. It resolves a century of messy
 
 The interesting part of CineRoll is not the UI. It is the data.
 
-Award data arrives as hand-curated Excel, one row per *nomination*, spread across five award bodies and roughly a hundred years of inconsistent formatting. The same film appears under different titles (*The Lives of Others* vs *Das Leben der Anderen*), in different ceremony years, with a different category vocabulary per body. Stored naively, *The Godfather* exists three times, each row carrying a fragment of its award history — useless for a query like "films that won at both Cannes and the Oscars", and poisonous as input to a recommender.
+Award data arrives as hand-curated Excel, one row per _nomination_, spread across five award bodies and roughly a hundred years of inconsistent formatting. The same film appears under different titles (_The Lives of Others_ vs _Das Leben der Anderen_), in different ceremony years, with a different category vocabulary per body. Stored naively, _The Godfather_ exists three times, each row carrying a fragment of its award history — useless for a query like "films that won at both Cannes and the Oscars", and poisonous as input to a recommender.
 
 The pipeline solves this with entity resolution against an external authority: candidate films are matched to TMDB, and the TMDB ID becomes the identity key. Rows that resolve to the same ID are the same film, whatever they are titled. Award records merge onto one canonical row; anything without a confident match goes to a manual recall queue rather than being silently dropped or written half-broken. The result is a catalog where every film carries its complete award history — the foundation everything else stands on.
 
@@ -18,14 +18,14 @@ The full writeup is in [`docs/CASE_STUDY.md`](./docs/CASE_STUDY.md).
 
 Algorithms appear only where they earn their place — matching, ranking, recommendation, optimization — never as decoration. The shipped core:
 
-| Algorithm | Where it works |
-|---|---|
-| TF-IDF + cosine similarity | Film similarity and the user's taste centroid, learned from weighted signals with a 90-day half-life |
-| Maximal Marginal Relevance (MMR) | Re-ranks recommendations for diversity, so ten near-identical suggestions never ship together |
-| Thompson sampling (multi-armed bandit) | Chooses between Safe / Gem / Wild roll lanes per user, learning from accept/reject feedback |
-| Softmax weighting + ε-greedy | Personalizes the roll itself: exploitation of known taste with a floor of exploration |
-| Two-stage retrieve-then-rerank | "Describe It" natural-language search, with query relaxation and an LLM ↔ local fallback |
-| Deterministic weighted scoring, FNV-1a seeded | Pick of the Day — same film for everyone, all day, no state |
+| Algorithm                                     | Where it works                                                                                       |
+| --------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| TF-IDF + cosine similarity                    | Film similarity and the user's taste centroid, learned from weighted signals with a 90-day half-life |
+| Maximal Marginal Relevance (MMR)              | Re-ranks recommendations for diversity, so ten near-identical suggestions never ship together        |
+| Thompson sampling (multi-armed bandit)        | Chooses between Safe / Gem / Wild roll lanes per user, learning from accept/reject feedback          |
+| Softmax weighting + ε-greedy                  | Personalizes the roll itself: exploitation of known taste with a floor of exploration                |
+| Two-stage retrieve-then-rerank                | "Describe It" natural-language search, with query relaxation and an LLM ↔ local fallback             |
+| Deterministic weighted scoring, FNV-1a seeded | Pick of the Day — same film for everyone, all day, no state                                          |
 
 Each one is documented — what problem it solves, why that method, where it lives in the code, and honest shipped/designed status — in [`docs/algorithms.md`](./docs/algorithms.md). The recommender has its own end-to-end writeup in [`docs/RECOMMENDATIONS.md`](./docs/RECOMMENDATIONS.md), including how changes are measured with A/B experiments.
 
@@ -47,7 +47,7 @@ run time     Next.js 16 frontend ──► BFF proxy (attach JWT) ──► Expr
 A few deliberate choices, each recorded with its cost in [`docs/DECISIONS.md`](./docs/DECISIONS.md):
 
 - **A real Express backend, not Next API routes.** The algorithm layer has its own middleware pipeline, unit tests, eval harness (`npm run eval:recommender`), and load check — it deserves a lifecycle independent of the frontend.
-- **Postgres over a document store.** The data is relational and the product leans on two Postgres features directly: `pg_trgm` for typo-tolerant search and GIN indexes for genre filtering. Schema flexibility is handled *before* the database, in the pipeline.
+- **Postgres over a document store.** The data is relational and the product leans on two Postgres features directly: `pg_trgm` for typo-tolerant search and GIN indexes for genre filtering. Schema flexibility is handled _before_ the database, in the pipeline.
 - **One shared types package.** The API contract lives in `packages/types` and compiles into both apps; changing the `Film` shape breaks the build, not production.
 - **One error shape.** Every backend error is `{ "error": "…", "code": "…" }`. There is exactly one format to handle.
 
@@ -95,7 +95,7 @@ The algorithm layer is the most heavily tested part of the codebase, on purpose.
 
 ## License
 
-No open-source license is granted. This is a portfolio project: the code is public to read, all rights reserved.
+MIT — see [`LICENSE`](./LICENSE). Note that the raw award data files are private assets and are not covered; only the code is licensed.
 
 ## Contact
 
