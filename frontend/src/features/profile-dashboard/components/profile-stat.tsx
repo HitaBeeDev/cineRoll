@@ -8,7 +8,7 @@ export function ProfileStat({ label, value }: ProfileStatProps) {
           {value}
         </span>
       </div>
-      <p className="mt-1.5 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.18em] text-[#9a9aac]">
+      <p className="mt-1.5 font-[family-name:var(--font-geist-mono)] text-[12px] uppercase tracking-[0.1em] text-[#b4b4c4]">
         {label}
       </p>
     </div>

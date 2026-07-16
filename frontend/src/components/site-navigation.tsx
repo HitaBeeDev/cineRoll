@@ -157,13 +157,13 @@ export function SiteNavigation({
               href={item.href}
               className={cn(
                 "px-3.5 py-2",
-                "font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.13em]",
+                "font-[family-name:var(--font-geist-mono)] text-[12px] uppercase tracking-[0.1em]",
                 "transition-colors duration-150",
                 "focus-visible:outline-none focus-visible:ring-2",
                 focusRingClassName,
                 isActive(item.href)
                   ? "text-[#ff554c]"
-                  : "text-[#9b96aa] hover:text-[#F5F5F0]",
+                  : "text-[#aaa6ba] hover:text-[#F5F5F0]",
               )}
             >
               {item.label}
@@ -180,13 +180,13 @@ export function SiteNavigation({
               href={item.href}
               className={cn(
                 "px-3.5 py-2",
-                "font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.13em]",
+                "font-[family-name:var(--font-geist-mono)] text-[12px] uppercase tracking-[0.1em]",
                 "transition-colors duration-150",
                 "focus-visible:outline-none focus-visible:ring-2",
                 focusRingClassName,
                 isActive(item.href)
                   ? "text-[#ff625a]"
-                  : "text-[#8b86a0] hover:text-[#F5F5F0]",
+                  : "text-[#aaa6ba] hover:text-[#F5F5F0]",
               )}
             >
               {item.label}

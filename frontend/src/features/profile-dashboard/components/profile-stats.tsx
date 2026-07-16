@@ -16,7 +16,7 @@ export function ProfileStats({ summary }: ProfileStatsProps) {
         <ProfileStat label="Watched" value={summary.watched} />
       </div>
       {hasNoActivity && (
-        <p className="mt-5 font-[family-name:var(--font-geist-mono)] text-[11px] leading-relaxed text-[#9a9aac]">
+        <p className="mt-5 font-[family-name:var(--font-geist-mono)] text-[13px] leading-relaxed text-[#b4b4c4]">
           Your stats fill in as you go — roll films to rate them, save some to
           your watchlist, and mark what you’ve watched.
         </p>

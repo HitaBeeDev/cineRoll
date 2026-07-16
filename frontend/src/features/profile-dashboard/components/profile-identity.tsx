@@ -11,11 +11,6 @@ export function ProfileIdentity({ name, email }: ProfileIdentityProps) {
         <h1 className="font-[family-name:var(--font-display)] text-3xl font-bold text-[#F5F5F0]">
           {name ?? "Your Profile"}
         </h1>
-        {email && (
-          <p className="mt-1 truncate font-[family-name:var(--font-geist-mono)] text-[12px] normal-case tracking-[0.06em] text-[#9a9aac]">
-            {email}
-          </p>
-        )}
       </div>
     </div>
   );

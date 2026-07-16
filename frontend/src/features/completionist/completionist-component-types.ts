@@ -23,3 +23,12 @@ export type CompletionCategoryListProps = {
   categories: CompletionCategoryProgress[];
   reduceMotion: boolean;
 };
+
+export type ArchiveFilmStripProps = {
+  percentage: number;
+  reduceMotion: boolean;
+};
+
+export type ArchiveInvitationProps = {
+  categories: CompletionCategoryProgress[];
+};

@@ -11,7 +11,7 @@ export function RecommendationsSectionView({
       <h2 className="font-[family-name:var(--font-display)] text-2xl font-bold text-[#F5F5F0]">
         Recommended for you
       </h2>
-      <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.2em] text-[#9a9aac]">
+      <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-[13px] text-[#b4b4c4]">
         {coldStart
           ? "Early recommendations — rate more films to improve your picks"
           : "Picked from your taste · not the global Pick of the Day"}
@@ -27,7 +27,7 @@ export function RecommendationsSectionView({
           ))}
         </div>
       ) : (
-        <p className="mt-6 font-[family-name:var(--font-geist-mono)] text-[12px] leading-relaxed text-[#888899]">
+        <p className="mt-6 font-[family-name:var(--font-geist-mono)] text-[13px] leading-relaxed text-[#b4b4c4]">
           That’s everything for now — roll and rate a few films to refresh your
           picks.
         </p>

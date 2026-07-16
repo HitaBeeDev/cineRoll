@@ -1,4 +1,4 @@
-import { formatCompletionPercentage } from "../format-completion-percentage";
+import { CountUp } from "@/features/stats/components/count-up";
 import type { CompletionistSummaryProps } from "../completionist-component-types";
 
 export function CompletionistSummary({ overall }: CompletionistSummaryProps) {
@@ -14,17 +14,21 @@ export function CompletionistSummary({ overall }: CompletionistSummaryProps) {
         >
           Your archive progress
         </h2>
-        <p className="mt-2 max-w-xl font-[family-name:var(--font-geist-mono)] text-[11px] leading-relaxed text-[#9a9aac]">
-          Every film you mark watched moves you closer to completing the
-          collection.
+        <p className="mt-2 max-w-xl font-[family-name:var(--font-geist-mono)] text-[13px] leading-relaxed text-[#b4b4c4]">
+          {overall.total.toLocaleString()} award-winning films in the archive —
+          every one you watch fills a frame.
         </p>
       </div>
       <div className="shrink-0 sm:text-right">
-        <span className="font-[family-name:var(--font-display)] text-4xl font-bold tabular-nums text-[#F5F5F0]">
-          {formatCompletionPercentage(overall.percentage)}
-        </span>
-        <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.16em] text-[#77778b]">
-          {overall.watched.toLocaleString()} of {overall.total.toLocaleString()} watched
+        <CountUp
+          value={overall.percentage}
+          decimals={Number.isInteger(overall.percentage) ? 0 : 1}
+          suffix="%"
+          className="font-[family-name:var(--font-display)] text-5xl font-bold tabular-nums text-[#F5F5F0]"
+        />
+        <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[12px] uppercase tracking-[0.08em] text-[#b4b4c4]">
+          <CountUp value={overall.watched} /> of{" "}
+          {overall.total.toLocaleString()} watched
         </p>
       </div>
     </div>

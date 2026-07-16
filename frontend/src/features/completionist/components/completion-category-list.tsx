@@ -17,10 +17,10 @@ export function CompletionCategoryList({
           aria-label={`Browse ${category.label}: ${category.watched} of ${category.total} watched`}
         >
           <div className="flex items-baseline justify-between gap-3">
-            <span className="truncate font-[family-name:var(--font-geist-mono)] text-[11px] font-semibold text-[#c8c8d2] transition-colors group-hover:text-[#F5F5F0]">
+            <span className="truncate font-[family-name:var(--font-geist-mono)] text-[13px] font-semibold text-[#c8c8d2] transition-colors group-hover:text-[#F5F5F0]">
               {category.label}
             </span>
-            <span className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[10px] tabular-nums text-[#77778b]">
+            <span className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[12px] tabular-nums text-[#9a9aac]">
               {category.watched.toLocaleString()} / {category.total.toLocaleString()}
               <span className="ml-2 text-[#e8453c]" aria-hidden>→</span>
             </span>
