@@ -2,12 +2,18 @@ import { loadCandidatesWithRelaxation, RelaxationResult } from "./candidateRelax
 import { prepareNaturalRollFilters } from "./filterPreparation";
 import { selectFinalFilms } from "./finalFilms";
 import { NaturalRollBody } from "./schemas";
+import {
+  resolveResultCount,
+  SoftPreferences,
+  softPreferencesFrom,
+} from "./softPreferences";
 import { extractStructuralFilters } from "./structuralExtractor";
 
 // The natural roll runs as two phases so the route can stream progressively:
 //
-//   1. interpret — Stage-1 structural extraction + candidate selection (+ filter
-//      relaxation). Produces the interpreted filters the UI shows immediately.
+//   1. interpret — Stage-1 extraction (hard filters + soft preferences +
+//      result count) and candidate selection (+ filter relaxation). Produces
+//      the interpreted filters the UI shows immediately.
 //   2. rank      — the Stage-2 rerank LLM call that orders the final picks.
 //
 // Splitting them lets the caller emit the interpreted filters the instant phase
@@ -24,7 +30,14 @@ export type InterpretOutcome =
         droppedFilters: string[];
       };
     }
-  | { ok: true; candidateResult: RelaxationResult };
+  | {
+      ok: true;
+      candidateResult: RelaxationResult;
+      preferences: SoftPreferences;
+      // How many picks to return: the count stated in the prompt ("suggest
+      // only one movie") wins over the client's requested count.
+      resultCount: number;
+    };
 
 export type RankPayload = {
   films: Awaited<ReturnType<typeof selectFinalFilms>>;
@@ -58,17 +71,25 @@ export async function interpretNaturalRoll(body: NaturalRollBody): Promise<Inter
     };
   }
 
-  return { ok: true, candidateResult };
+  return {
+    ok: true,
+    candidateResult,
+    // Preferences read the pre-relaxation filters: even when a filter was
+    // relaxed away to fill the pool, the ranking should still honor it.
+    preferences: softPreferencesFrom(structuralFilters, prepared.appliedFilters),
+    resultCount: resolveResultCount(structuralFilters, body.count),
+  };
 }
 
 /** Phase 2: rerank the selected candidates into the final ordered picks. */
 export async function rankNaturalRoll(
   prompt: string,
+  preferences: SoftPreferences,
   candidateResult: RelaxationResult,
   count: number,
 ): Promise<RankPayload> {
   return {
-    films: await selectFinalFilms(prompt, candidateResult.films, count),
+    films: await selectFinalFilms(prompt, preferences, candidateResult.films, count),
     total: candidateResult.total,
     interpretedFilters: candidateResult.appliedFilters,
     droppedFilters: candidateResult.droppedFilters,

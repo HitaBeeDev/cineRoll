@@ -9,10 +9,16 @@ export const naturalRollBodySchema = z.object({
 const nullableString = z.union([z.string().trim().min(1), z.null()]);
 const nullableBoolean = z.union([z.boolean(), z.null()]);
 const nullableNumber = z.union([z.number(), z.null()]);
+// Gemini sometimes emits a single string where an array was asked for; accept both.
+const nullableStringList = z.union([
+  z.array(z.string().trim().min(1)),
+  z.string().trim().min(1).transform(value => [value]),
+  z.null(),
+]);
 
 export const stage1Schema = z.object({
   language: nullableString.optional(),
-  genre: nullableString.optional(),
+  genres: nullableStringList.optional(),
   contentType: nullableString.optional(),
   awardBody: z.union([z.enum(["oscar", "goldenglobe", "cannes", "all"]), z.null()]).optional(),
   winnerOnly: nullableBoolean.optional(),
@@ -24,6 +30,12 @@ export const stage1Schema = z.object({
   awardYear: nullableNumber.optional(),
   category: nullableString.optional(),
   femaleDirectorOnly: nullableBoolean.optional(),
+  // Soft preferences — scored, never turned into SQL filters (see softPreferences.ts).
+  tones: nullableStringList.optional(),
+  themes: nullableStringList.optional(),
+  keywords: nullableStringList.optional(),
+  // How many picks the user explicitly asked for ("suggest only one movie").
+  resultCount: nullableNumber.optional(),
 }).strict();
 
 export const rerankOutputSchema = z.object({ picks: z.array(z.string()) });

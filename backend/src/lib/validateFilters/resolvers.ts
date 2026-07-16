@@ -1,6 +1,7 @@
 import type { AllowedFilterValues } from "../allowedFilterValues";
 import {
   CATEGORY_ALIASES,
+  CONTENT_TYPE_ALIASES,
   GENRE_ALIASES,
   LANGUAGE_NAME_TO_CODE,
 } from "./aliases";
@@ -13,7 +14,7 @@ export type ValidatedFilterKey =
   | "contentType"
   | "decadeMax"
   | "decadeMin"
-  | "genre"
+  | "genres"
   | "language";
 
 export const VALIDATED_KEYS = new Set<string>([
@@ -23,9 +24,15 @@ export const VALIDATED_KEYS = new Set<string>([
   "contentType",
   "decadeMax",
   "decadeMin",
-  "genre",
+  "genres",
   "language",
 ]);
+
+// Extraction keys that differ from the query-schema keys they feed
+// (`genres` is extracted as a list but queried through the CSV `genre` param).
+export const FILTER_OUTPUT_KEYS: Partial<Record<ValidatedFilterKey, string>> = {
+  genres: "genre",
+};
 
 export function resolveValidatedFilter(
   key: ValidatedFilterKey,
@@ -40,12 +47,12 @@ export function resolveValidatedFilter(
     case "category":
       return resolveAgainstSet(String(value), allowed.categories, CATEGORY_ALIASES);
     case "contentType":
-      return resolveAgainstSet(String(value), allowed.contentTypes, {});
+      return resolveAgainstSet(String(value), allowed.contentTypes, CONTENT_TYPE_ALIASES);
     case "decadeMax":
     case "decadeMin":
       return resolveDecade(value, allowed);
-    case "genre":
-      return resolveAgainstSet(String(value), allowed.genres, GENRE_ALIASES);
+    case "genres":
+      return resolveGenres(value, allowed);
     case "language":
       return resolveLanguage(String(value), allowed.languages);
   }
@@ -74,6 +81,20 @@ function findAllowedMember(normalizedValue: string, allowed: Set<string>): strin
   }
 
   return null;
+}
+
+// Resolves each requested genre independently and keeps the valid ones, so one
+// hallucinated genre doesn't sink the rest. Null (= drop the key) only when
+// nothing survives. The array feeds `genre: csvParam` downstream, which matches
+// films via array overlap — multiple genres widen the pool (OR), they don't
+// intersect it.
+function resolveGenres(value: unknown, allowed: AllowedFilterValues): string[] | null {
+  const requested = Array.isArray(value) ? value : [value];
+  const resolved = requested
+    .map(genre => resolveAgainstSet(String(genre), allowed.genres, GENRE_ALIASES))
+    .filter((genre): genre is string => genre !== null);
+
+  return resolved.length > 0 ? [...new Set(resolved)] : null;
 }
 
 function resolveLanguage(value: string, allowed: Set<string>): string | null {

@@ -8,11 +8,26 @@ export const GENRE_ALIASES: Record<string, string> = {
   doc: "Documentary",
   documentaries: "Documentary",
   historical: "History",
+  musical: "Music",
+  musicals: "Music",
   period: "History",
   romcom: "Romance",
   scifi: "Science Fiction",
   "science fiction": "Science Fiction",
   space: "Science Fiction",
+};
+
+// Extractors emit user-facing words ("series", "film"); the DB's canonical
+// `types` values are movie / tv-series / documentary / short / animation.
+export const CONTENT_TYPE_ALIASES: Record<string, string> = {
+  feature: "movie",
+  film: "movie",
+  movies: "movie",
+  series: "tv-series",
+  show: "tv-series",
+  tv: "tv-series",
+  "tv series": "tv-series",
+  "tv show": "tv-series",
 };
 
 export const CATEGORY_ALIASES: Record<string, string> = {

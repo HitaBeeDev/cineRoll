@@ -82,7 +82,9 @@ export type NaturalRollFilters = {
   category?: string;
   awardYear?: number;
   language?: string;
-  genre?: string;
+  // The backend extracts every named genre; older cached responses may still
+  // carry a single string.
+  genre?: string | string[];
   country?: string;
   contentType?: string;
   decadeMin?: number;
@@ -110,6 +112,9 @@ export type NaturalRollInterpreted = {
   interpretedFilters: NaturalRollFilters;
   relaxed: boolean;
   total: number;
+  // How many picks the backend will return — the count stated in the prompt
+  // ("suggest only one movie") wins over the client's requested count.
+  resultCount?: number;
 };
 
 export type NaturalRollError = Error & {

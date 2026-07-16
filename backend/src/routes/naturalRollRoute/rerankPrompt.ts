@@ -1,27 +1,48 @@
 import { RandomFilmRow } from "../random";
+import { SoftPreferences } from "./softPreferences";
 
 // Shared rerank objective. Both rerank paths — this LLM prompt and the
 // deterministic localReranker — must optimize the SAME thing on the SAME
 // signals, or the same query returns different orderings depending on whether
-// Gemini is available. The signals are: textual relevance, IMDb rating as a
-// quality prior, and the explicit "underrated" / "avoid gore" preferences.
-// Keep this instruction and localReranker.ts in sync.
+// Gemini is available. The signals, strongest first: content type (absolute),
+// requested genres, tones, themes, craft keywords, textual relevance, and only
+// then IMDb rating as a weak tie-breaker. Keep this instruction and
+// localReranker.ts in sync.
 export const rerankInstruction = `
-You are a film recommendation expert. Rank the candidate films by how well they satisfy the user's description.
+You are reranking film candidates for relevance to the user's request.
 
-Apply this objective, in order:
-1. Relevance — match the description's mood, theme, genre, era, people, and any explicit constraints.
-2. Quality prior — among comparably relevant films, prefer higher IMDb ratings (shown as "IMDb x.x"; "NR" = unrated).
-3. Explicit preferences in the description:
-   - If the user asks for a hidden gem / underrated / obscure film, prefer titles NOT marked "(IMDb Top)".
-   - If the user wants to avoid gore or violence, rank gory or slasher titles lower.
+Rules, in order of priority:
+1. Use only the exact IDs from the provided candidate list. Never invent titles.
+2. Content type is absolute: if the extracted preferences say "movie", never pick a TV series, and vice versa.
+3. Explicit requirements (genres, tones, themes, qualities in the extracted preferences) outweigh fame, popularity, and rating. Prefer candidates matching SEVERAL preferences simultaneously over famous titles matching one.
+4. Among comparably relevant films, prefer higher IMDb ratings (shown as "IMDb x.x"; "NR" = unrated).
+5. If the user asks for a hidden gem / underrated / obscure film, prefer titles NOT marked "(IMDb Top)".
+6. If the user wants to avoid gore or violence, rank gory or slasher titles lower.
 
-Return JSON: { "picks": ["id1", "id2", ...] }, best match first.
-Use only the exact IDs from the provided list.
+Return JSON: { "picks": ["id1", "id2", ...] }, best match first, exactly the requested number of picks.
 `.trim();
 
-export function rerankPrompt(prompt: string, candidates: RandomFilmRow[], count: number): string {
-  return `User wants: "${prompt}"\n\nPick the ${count} best from these ${candidates.length} films:\n\n${formatCandidatesForRerank(candidates)}`;
+export function rerankPrompt(
+  prompt: string,
+  preferences: SoftPreferences,
+  candidates: RandomFilmRow[],
+  count: number,
+): string {
+  return [
+    `User request: "${prompt}"`,
+    `Extracted preferences: ${JSON.stringify(preferencesForPrompt(preferences))}`,
+    `Pick exactly the ${count} best from these ${candidates.length} candidates:`,
+    formatCandidatesForRerank(candidates),
+  ].join("\n\n");
+}
+
+// Only the fields the reranker should weigh; empty lists are noise.
+function preferencesForPrompt(preferences: SoftPreferences): Record<string, unknown> {
+  return Object.fromEntries(
+    Object.entries(preferences).filter(
+      ([, value]) => value !== null && (!Array.isArray(value) || value.length > 0),
+    ),
+  );
 }
 
 function formatCandidatesForRerank(candidates: RandomFilmRow[]): string {
@@ -36,5 +57,5 @@ function formatCandidate(film: RandomFilmRow): string {
   // Surfaces the same acclaim signal localReranker uses for "underrated" intent.
   const acclaim = film.imdbTopMovieRank || film.imdbTopTvRank ? " (IMDb Top)" : "";
 
-  return `${film.id} | ${film.title} (${film.year}) | ${genres}${director} | ${rating}${acclaim}${plot ? ` | ${plot}` : ""}`;
+  return `${film.id} | ${film.title} (${film.year}) | ${film.contentType} | ${genres}${director} | ${rating}${acclaim}${plot ? ` | ${plot}` : ""}`;
 }

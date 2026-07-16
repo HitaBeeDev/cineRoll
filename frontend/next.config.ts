@@ -85,6 +85,12 @@ const nextConfig: NextConfig = {
   // Hide the dev-only Next.js indicator badge (the floating "N").
   devIndicators: false,
   poweredByHeader: false,
+  async redirects() {
+    return [
+      // The natural-language roll moved from /describe when it became "Ask AI".
+      { source: "/describe", destination: "/ask-ai", permanent: true },
+    ];
+  },
   async headers() {
     return [
       {

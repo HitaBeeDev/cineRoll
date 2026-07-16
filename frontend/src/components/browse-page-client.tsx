@@ -1429,7 +1429,7 @@ function filtersFromSearchParams(params: URLSearchParams): FilterState {
 
   // Browse intentionally reads only the filters its UI can set. The remaining
   // FilterState fields (director, certificate, tvType, imdbRatingMax) belong to
-  // other surfaces (e.g. /describe) and have no browse control, so they're left
+  // other surfaces (e.g. /ask-ai) and have no browse control, so they're left
   // at their DEFAULT_FILTERS values rather than parsed into a filter nobody here
   // could see or clear.
   return {

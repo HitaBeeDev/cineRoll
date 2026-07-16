@@ -39,6 +39,7 @@
     "recall-apply": "npx tsx data/scripts/recall-apply.ts",
     "missing-find": "npx tsx data/scripts/missing-find.ts",
     "missing-apply": "npx tsx data/scripts/missing-apply.ts",
+    "missing-awards": "npx tsx data/scripts/missing-awards-apply.ts",
     "reslug": "npx tsx data/scripts/reslug.ts",
     "master-remove": "npx tsx data/scripts/master-remove.ts"
   },

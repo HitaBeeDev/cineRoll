@@ -14,8 +14,11 @@ export const GEMINI_MODEL = "gemini-2.5-flash-lite";
 // resets on deploy anyway (which is also when the extraction prompt changes).
 export const EXTRACT_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 
+// Structural (Stage-1) filter keys, in the order they're dropped when the
+// filtered pool comes back empty. contentType is deliberately absent: movie vs
+// series is a hard constraint and must never be relaxed away.
 export const RELAX_PRIORITY = [
-  "genre",
+  "genres",
   "category",
   "language",
   "awardYear",

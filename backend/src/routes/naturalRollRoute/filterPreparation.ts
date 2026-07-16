@@ -2,6 +2,7 @@ import { randomQuerySchema, RandomQuery } from "../../lib/filmFilters/randomQuer
 import { getAllowedFilterValues } from "../../lib/allowedFilterValues";
 import { validateStructuralFilters } from "../../lib/validateFilters";
 import { Stage1Filters } from "./schemas";
+import { stripSoftFields } from "./softPreferences";
 
 export type PreparedFilters = {
   allowed: Awaited<ReturnType<typeof getAllowedFilterValues>>;
@@ -13,7 +14,9 @@ export async function prepareNaturalRollFilters(
   structuralFilters: Stage1Filters,
 ): Promise<PreparedFilters> {
   const allowed = await getAllowedFilterValues();
-  const { filters, dropped } = validateStructuralFilters(structuralFilters, allowed);
+  // Soft fields (tones, themes, keywords, resultCount) are ranking signals,
+  // not filters — they never reach validation or the query.
+  const { filters, dropped } = validateStructuralFilters(stripSoftFields(structuralFilters), allowed);
 
   if (dropped.length > 0) {
     console.warn("Natural roll dropped invalid filter values:", dropped);

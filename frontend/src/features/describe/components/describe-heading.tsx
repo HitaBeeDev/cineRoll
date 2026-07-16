@@ -5,7 +5,7 @@ export function DescribeHeading() {
         ◈ Natural Language Roll ◈
       </p>
       <h1 className="mt-2 font-[family-name:var(--font-display)] text-4xl font-bold leading-none tracking-tight text-[#F5F5F0] sm:text-5xl lg:text-6xl">
-        Describe It
+        Ask AI
       </h1>
     </div>
   );

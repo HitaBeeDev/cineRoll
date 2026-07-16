@@ -3,17 +3,19 @@ import { generateGeminiJson, hasGeminiApiKey, rerankResponseSchema } from "./gem
 import { localRerankCandidates } from "./localReranker";
 import { rerankInstruction, rerankPrompt } from "./rerankPrompt";
 import { rerankOutputSchema } from "./schemas";
+import { SoftPreferences } from "./softPreferences";
 
 export async function rerankCandidates(
   prompt: string,
+  preferences: SoftPreferences,
   candidates: RandomFilmRow[],
   count: number,
 ): Promise<string[]> {
-  if (!hasGeminiApiKey()) return localRerankCandidates(prompt, candidates, count);
+  if (!hasGeminiApiKey()) return localRerankCandidates(prompt, preferences, candidates, count);
 
   try {
     const parsed = await generateGeminiJson(
-      rerankPrompt(prompt, candidates, count),
+      rerankPrompt(prompt, preferences, candidates, count),
       rerankInstruction,
       rerankResponseSchema,
       0.2,
@@ -21,7 +23,7 @@ export async function rerankCandidates(
     );
     return validPicks(rerankOutputSchema.parse(parsed).picks, candidates, count);
   } catch {
-    return localRerankCandidates(prompt, candidates, count);
+    return localRerankCandidates(prompt, preferences, candidates, count);
   }
 }
 

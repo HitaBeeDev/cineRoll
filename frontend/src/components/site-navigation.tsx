@@ -12,7 +12,7 @@ const primaryNavItems = [
   { href: "/", label: "Home" },
   { href: "/browse", label: "Browse" },
   { href: "/picks", label: "Daily Picks" },
-  { href: "/describe", label: "Describe" },
+  { href: "/ask-ai", label: "Ask AI" },
   { href: "/stats", label: "Stats" },
 ];
 

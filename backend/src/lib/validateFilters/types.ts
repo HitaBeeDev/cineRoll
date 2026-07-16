@@ -1,6 +1,6 @@
 export type StructuralFilters = {
   language?: string | null | undefined;
-  genre?: string | null | undefined;
+  genres?: string[] | string | null | undefined;
   contentType?: string | null | undefined;
   awardBody?: string | null | undefined;
   category?: string | null | undefined;

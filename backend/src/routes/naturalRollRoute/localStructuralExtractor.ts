@@ -1,7 +1,9 @@
 import {
   LOCAL_CATEGORY_PATTERNS,
   LOCAL_GENRE_PATTERNS,
+  LOCAL_KEYWORD_PATTERNS,
   LOCAL_LANGUAGE_PATTERNS,
+  LOCAL_TONE_PATTERNS,
 } from "./patterns";
 import { Stage1Filters, stage1Schema } from "./schemas";
 
@@ -10,9 +12,12 @@ export function extractLocalStructuralFilters(prompt: string): Stage1Filters {
   const lowerPrompt = prompt.toLowerCase();
 
   filters.language = firstMatch(prompt, LOCAL_LANGUAGE_PATTERNS);
-  filters.genre = firstMatch(prompt, LOCAL_GENRE_PATTERNS);
+  filters.genres = allMatches(prompt, LOCAL_GENRE_PATTERNS);
   filters.category = firstMatch(prompt, LOCAL_CATEGORY_PATTERNS);
+  filters.tones = allMatches(prompt, LOCAL_TONE_PATTERNS);
+  filters.keywords = allMatches(prompt, LOCAL_KEYWORD_PATTERNS);
   applyContentType(prompt, filters);
+  applyResultCount(prompt, filters);
   applyAwardIntent(prompt, filters);
   Object.assign(filters, extractDecadeFilters(prompt));
   applyAwardYear(lowerPrompt, filters);
@@ -20,13 +25,51 @@ export function extractLocalStructuralFilters(prompt: string): Stage1Filters {
   return stage1Schema.parse(filters);
 }
 
+/** Deterministic extraction of the hard constraints (content type, result
+ *  count) that the pipeline must never lose. Merged over the LLM extraction so
+ *  a "movie" or "only one" stated in plain words survives even when the model
+ *  omits it. */
+export function extractLocalHardConstraints(
+  prompt: string,
+): Pick<Stage1Filters, "contentType" | "resultCount"> {
+  const filters: Stage1Filters = {};
+  applyContentType(prompt, filters);
+  applyResultCount(prompt, filters);
+
+  return { contentType: filters.contentType, resultCount: filters.resultCount };
+}
+
 function firstMatch<T>(prompt: string, patterns: Array<[RegExp, T]>): T | undefined {
   return patterns.find(([pattern]) => pattern.test(prompt))?.[1];
+}
+
+function allMatches<T>(prompt: string, patterns: Array<[RegExp, T]>): T[] | undefined {
+  const matches = patterns.filter(([pattern]) => pattern.test(prompt)).map(([, value]) => value);
+
+  return matches.length > 0 ? [...new Set(matches)] : undefined;
 }
 
 function applyContentType(prompt: string, filters: Stage1Filters): void {
   if (/\b(series|show|tv)\b/i.test(prompt)) filters.contentType = "series";
   if (/\b(film|movie|movies|feature)\b/i.test(prompt)) filters.contentType = "movie";
+}
+
+const COUNT_WORDS: Record<string, number> = {
+  one: 1, single: 1, two: 2, three: 3, four: 4, five: 5, six: 6,
+};
+
+// "Suggest only one movie", "one romantic drama movie", "give me three picks".
+// The quantity word may be separated from its noun by adjectives ("one romantic
+// drama movie") but never by "of" — "one of the best films" is not a count.
+// Bare "a movie" stays unset: an article is a way of speaking, not a count.
+function applyResultCount(prompt: string, filters: Stage1Filters): void {
+  const quantified = prompt.match(
+    /\b(one|single|two|three|four|five|six|[1-6])\s+(?:(?!of\b)[a-z'-]+\s+){0,4}?(?:movie|film|series|show|pick|title|recommendation)s?\b/i,
+  );
+  const word = quantified?.[1]?.toLowerCase();
+  if (!word) return;
+
+  filters.resultCount = COUNT_WORDS[word] ?? Number(word);
 }
 
 function applyAwardIntent(prompt: string, filters: Stage1Filters): void {

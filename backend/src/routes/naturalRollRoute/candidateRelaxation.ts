@@ -4,6 +4,7 @@ import { getQualityCandidates, getRandomCount, RandomFilmRow } from "../random";
 import { NATURAL_ROLL_LIMITS, RELAX_PRIORITY } from "./constants";
 import { naturalRollQuery } from "./filterPreparation";
 import { Stage1Filters } from "./schemas";
+import { stripSoftFields } from "./softPreferences";
 
 export type RelaxationResult = {
   films: RandomFilmRow[];
@@ -37,7 +38,7 @@ async function relaxUntilCandidatesFound(
 ): Promise<RelaxationResult> {
   const removed: string[] = [];
 
-  for (const key of relaxableKeys(appliedFilters)) {
+  for (const key of relaxableKeys(structuralFilters)) {
     removed.push(key);
     const relaxedFilters = cleanWithRemovedFilters(structuralFilters, removed, allowed);
     const films = await loadCandidateFilms(relaxedFilters, userId);
@@ -65,8 +66,13 @@ async function finalize(
   return { films, total, appliedFilters, droppedFilters, relaxed };
 }
 
-function relaxableKeys(filters: Record<string, unknown>): string[] {
-  return RELAX_PRIORITY.filter(key => key in filters);
+// Relaxation drops STRUCTURAL keys (the Stage-1 extraction shape), so it keys
+// off the structural filters, not the validated query filters — the two use
+// different names for genres ("genres" list in, "genre" CSV out).
+function relaxableKeys(structuralFilters: Stage1Filters): string[] {
+  return RELAX_PRIORITY.filter(
+    key => structuralFilters[key] !== null && structuralFilters[key] !== undefined,
+  );
 }
 
 function cleanWithRemovedFilters(
@@ -75,7 +81,10 @@ function cleanWithRemovedFilters(
   allowed: AllowedFilterValues,
 ): Record<string, unknown> {
   const overrides = Object.fromEntries(removed.map(key => [key, null]));
-  const { filters } = validateStructuralFilters({ ...structuralFilters, ...overrides }, allowed);
+  const { filters } = validateStructuralFilters(
+    stripSoftFields({ ...structuralFilters, ...overrides }),
+    allowed,
+  );
 
   return filters;
 }

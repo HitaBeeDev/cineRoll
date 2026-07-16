@@ -1,5 +1,6 @@
 import type { AllowedFilterValues } from "./allowedFilterValues";
 import {
+  FILTER_OUTPUT_KEYS,
   isValidatedFilterKey,
   resolveValidatedFilter,
 } from "./validateFilters/resolvers";
@@ -50,7 +51,7 @@ function keepResolvedFilter(
   dropped: string[],
 ): void {
   if (value === null) dropped.push(key);
-  else out[key] = value;
+  else out[FILTER_OUTPUT_KEYS[key as keyof typeof FILTER_OUTPUT_KEYS] ?? key] = value;
 }
 
 export type { StructuralFilters, StructuralFilterValidationResult };

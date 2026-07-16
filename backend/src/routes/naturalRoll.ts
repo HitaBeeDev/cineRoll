@@ -1,7 +1,6 @@
 import { Router, Response } from "express";
 
 import { getValidated, validate } from "../middleware/validate";
-import { NATURAL_ROLL_LIMITS } from "./naturalRollRoute/constants";
 import {
   assertWithinNaturalRollRateLimit,
   rateLimitKey,
@@ -24,14 +23,12 @@ naturalRollRouter.post("/", validate(naturalRollBodySchema, "body"), async (req,
   const body = getValidated<NaturalRollBody>(req, "body");
   assertWithinNaturalRollRateLimit(rateLimitKey(body, req.ip));
 
-  const count = body.count ?? NATURAL_ROLL_LIMITS.defaultCount;
-
   // Phase 1 runs before any bytes are sent, so a failure here (DB, etc.) still
   // routes to the normal error handler with a clean status code.
   const interpreted = await interpretNaturalRoll(body);
 
   // From here on the response is a stream of newline-delimited JSON events:
-  //   { type: "interpreted", interpretedFilters, relaxed, total }
+  //   { type: "interpreted", interpretedFilters, relaxed, total, resultCount }
   //   { type: "result", films, total, interpretedFilters, droppedFilters, relaxed }
   //   { type: "error", error, code, interpretedFilters?, droppedFilters? }
   // Because the status line is already 200 once streaming starts, the no-match
@@ -47,16 +44,17 @@ naturalRollRouter.post("/", validate(naturalRollBodySchema, "body"), async (req,
     return;
   }
 
-  const { candidateResult } = interpreted;
+  const { candidateResult, preferences, resultCount } = interpreted;
   writeEvent(res, {
     type: "interpreted",
     interpretedFilters: candidateResult.appliedFilters,
     relaxed: candidateResult.relaxed,
     total: candidateResult.total,
+    resultCount,
   });
 
   try {
-    const payload = await rankNaturalRoll(body.prompt, candidateResult, count);
+    const payload = await rankNaturalRoll(body.prompt, preferences, candidateResult, resultCount);
     writeEvent(res, { type: "result", ...payload });
   } catch (error) {
     console.error("Natural roll rerank failed mid-stream.", error);

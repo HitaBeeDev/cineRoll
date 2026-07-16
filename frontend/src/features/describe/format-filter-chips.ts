@@ -32,6 +32,14 @@ function addStringChip(chips: string[], value: unknown, prefix = ""): void {
   if (typeof value === "string") chips.push(`${prefix}${value}`);
 }
 
+// The backend extracts every named genre ("romantic drama with music" →
+// Romance, Drama, Music), so genre is one chip per entry.
+function addGenreChips(chips: string[], genre: string | string[] | undefined): void {
+  for (const value of Array.isArray(genre) ? genre : [genre]) {
+    addStringChip(chips, value);
+  }
+}
+
 export function formatFilterChips(filters: NaturalRollFilters): string[] {
   const chips: string[] = [];
   const award = formatAwardFilter(filters);
@@ -41,7 +49,7 @@ export function formatFilterChips(filters: NaturalRollFilters): string[] {
   if (filters.language) {
     chips.push(LANGUAGE_LABELS[filters.language] ?? filters.language.toUpperCase());
   }
-  addStringChip(chips, filters.genre);
+  addGenreChips(chips, filters.genre);
   addStringChip(chips, filters.contentType);
   addStringChip(chips, filters.person);
   addStringChip(chips, filters.director, "Dir. ");

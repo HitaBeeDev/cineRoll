@@ -4,11 +4,17 @@ import type { ResponseSchema } from "@google/generative-ai";
 import { config } from "../../config";
 import { GEMINI_MODEL } from "./constants";
 
+const nullableStringArray = {
+  type: SchemaType.ARRAY,
+  items: { type: SchemaType.STRING },
+  nullable: true,
+} as const;
+
 export const stage1ResponseSchema: ResponseSchema = {
   type: SchemaType.OBJECT,
   properties: {
     language: { type: SchemaType.STRING, nullable: true },
-    genre: { type: SchemaType.STRING, nullable: true },
+    genres: nullableStringArray,
     contentType: { type: SchemaType.STRING, nullable: true },
     awardBody: { type: SchemaType.STRING, format: "enum", enum: ["oscar", "goldenglobe", "cannes", "all"], nullable: true },
     winnerOnly: { type: SchemaType.BOOLEAN, nullable: true },
@@ -20,6 +26,10 @@ export const stage1ResponseSchema: ResponseSchema = {
     awardYear: { type: SchemaType.INTEGER, nullable: true },
     category: { type: SchemaType.STRING, nullable: true },
     femaleDirectorOnly: { type: SchemaType.BOOLEAN, nullable: true },
+    tones: nullableStringArray,
+    themes: nullableStringArray,
+    keywords: nullableStringArray,
+    resultCount: { type: SchemaType.INTEGER, nullable: true },
   },
 };
 

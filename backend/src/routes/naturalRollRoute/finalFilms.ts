@@ -1,14 +1,16 @@
 import { RandomFilmRow } from "../random";
 import { rerankCandidates } from "./reranker";
+import { SoftPreferences } from "./softPreferences";
 
 export async function selectFinalFilms(
   prompt: string,
+  preferences: SoftPreferences,
   candidates: RandomFilmRow[],
   count: number,
 ): Promise<RandomFilmRow[]> {
   if (candidates.length <= count) return candidates;
 
-  const pickedIds = await rerankCandidates(prompt, candidates, count);
+  const pickedIds = await rerankCandidates(prompt, preferences, candidates, count);
   const pickedFilms = filmsByPickedIds(candidates, pickedIds);
 
   return padMissingPicks(pickedFilms, candidates, pickedIds, count);
