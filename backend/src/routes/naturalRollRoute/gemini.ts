@@ -14,7 +14,8 @@ export const stage1ResponseSchema: ResponseSchema = {
   type: SchemaType.OBJECT,
   properties: {
     language: { type: SchemaType.STRING, nullable: true },
-    genres: nullableStringArray,
+    requiredGenres: nullableStringArray,
+    preferredGenres: nullableStringArray,
     contentType: { type: SchemaType.STRING, nullable: true },
     awardBody: { type: SchemaType.STRING, format: "enum", enum: ["oscar", "goldenglobe", "cannes", "all"], nullable: true },
     winnerOnly: { type: SchemaType.BOOLEAN, nullable: true },

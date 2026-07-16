@@ -51,8 +51,19 @@ export type RankPayload = {
 export async function interpretNaturalRoll(body: NaturalRollBody): Promise<InterpretOutcome> {
   const structuralFilters = await extractStructuralFilters(body.prompt);
   const prepared = await prepareNaturalRollFilters(structuralFilters);
+  // One line per roll so extraction failures are diagnosable from the server
+  // log — when this pipeline misbehaves, the first question is always "what
+  // did Stage 1 actually extract?".
+  console.info(
+    "Natural roll interpreted:",
+    JSON.stringify({
+      extracted: structuralFilters,
+      applied: prepared.appliedFilters,
+      dropped: prepared.droppedFilters,
+    }),
+  );
   const candidateResult = await loadCandidatesWithRelaxation(
-    structuralFilters,
+    prepared.effectiveFilters,
     body.userId,
     prepared.allowed,
     prepared.appliedFilters,
@@ -76,7 +87,7 @@ export async function interpretNaturalRoll(body: NaturalRollBody): Promise<Inter
     candidateResult,
     // Preferences read the pre-relaxation filters: even when a filter was
     // relaxed away to fill the pool, the ranking should still honor it.
-    preferences: softPreferencesFrom(structuralFilters, prepared.appliedFilters),
+    preferences: softPreferencesFrom(structuralFilters, prepared.appliedFilters, prepared.allowed),
     resultCount: resolveResultCount(structuralFilters, body.count),
   };
 }

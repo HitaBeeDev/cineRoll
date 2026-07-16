@@ -49,7 +49,11 @@ export const LOCAL_CATEGORY_PATTERNS: Array<[RegExp, string]> = [
 // Both feed the weighted reranker, never the SQL filters.
 export const LOCAL_TONE_PATTERNS: Array<[RegExp, string]> = [
   [/\bbitter[-\s]?sweet\b/i, "bittersweet"],
+  // Wanting both halves of the emotional register at once IS bittersweet.
+  [/\b(smiling|laugh(ing)?|happy)\b.{0,20}\b(and|but|yet)\b.{0,20}\b(crying|cry|tears?|sad)\b/i, "bittersweet"],
+  [/\b(crying|cry|tears?|sad)\b.{0,20}\b(and|but|yet)\b.{0,20}\b(smiling|laugh(ing)?|happy)\b/i, "bittersweet"],
   [/\b(emotional|moving|touching|tear[-\s]?jerker)\b/i, "emotional"],
+  [/\b(hopeful|optimistic)\b/i, "hopeful"],
   [/\b(uplifting|feel[-\s]?good|heartwarming|inspiring)\b/i, "uplifting"],
   [/\b(dark|bleak|grim)\b/i, "dark"],
   [/\b(melanchol(y|ic)|sad|somber|wistful)\b/i, "melancholic"],
@@ -60,8 +64,9 @@ export const LOCAL_TONE_PATTERNS: Array<[RegExp, string]> = [
 
 export const LOCAL_KEYWORD_PATTERNS: Array<[RegExp, string]> = [
   [/\b(cinematograph(y|er)|visually\s+(stunning|striking)|stunning\s+visuals?)\b/i, "cinematography"],
+  [/\b(colou?rful|vibrant|vivid)\b/i, "colorful"],
   [/\bcharacter[-\s]?driven\b/i, "character-driven"],
-  [/\b(musical|beautiful\s+music|great\s+(music|soundtrack)|soundtrack|score)\b/i, "musical"],
+  [/\b(musical|(beautiful|incredible|amazing|great)\s+music|great\s+soundtrack|soundtrack|score)\b/i, "musical"],
   [/\b(memorable|great|powerful)\s+(performances?|acting)\b/i, "performances"],
   [/\b(bitter[-\s]?sweet|sad|tragic|unhappy)\s+ending\b/i, "bittersweet ending"],
   [/\b(slow[-\s]?burn)\b/i, "slow-burn"],
@@ -74,7 +79,9 @@ export const LOCAL_SEMANTIC_KEYWORDS: Record<string, string[]> = {
   bittersweet: ["bittersweet", "melancholy", "wistful", "nostalgic", "heartbreak", "parting"],
   cinematography: ["cinematography", "visual", "visually", "striking", "vivid", "colorful", "cinematic"],
   "character-driven": ["character", "intimate", "portrait", "relationship", "personal"],
+  colorful: ["colorful", "vivid", "vibrant", "dazzling", "stylized", "visual"],
   dark: ["dark", "bleak", "grim", "violent", "disturbing", "sinister"],
+  hopeful: ["hopeful", "hope", "dream", "dreams", "optimistic", "triumph", "uplifting"],
   emotional: ["emotional", "moving", "poignant", "tender", "heartfelt", "touching"],
   fear: ["fear", "terror", "dread", "haunting", "nightmare", "threat"],
   gore: ["gore", "bloody", "blood", "slasher"],

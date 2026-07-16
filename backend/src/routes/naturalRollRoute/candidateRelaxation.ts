@@ -2,8 +2,7 @@ import { AllowedFilterValues } from "../../lib/allowedFilterValues";
 import { validateStructuralFilters } from "../../lib/validateFilters";
 import { getQualityCandidates, getRandomCount, RandomFilmRow } from "../random";
 import { NATURAL_ROLL_LIMITS, RELAX_PRIORITY } from "./constants";
-import { naturalRollQuery } from "./filterPreparation";
-import { Stage1Filters } from "./schemas";
+import { EffectiveStructuralFilters, naturalRollQuery } from "./filterPreparation";
 import { stripSoftFields } from "./softPreferences";
 
 export type RelaxationResult = {
@@ -15,7 +14,7 @@ export type RelaxationResult = {
 };
 
 export async function loadCandidatesWithRelaxation(
-  structuralFilters: Stage1Filters,
+  structuralFilters: EffectiveStructuralFilters,
   userId: string | undefined,
   allowed: AllowedFilterValues,
   appliedFilters: Record<string, unknown>,
@@ -30,7 +29,7 @@ export async function loadCandidatesWithRelaxation(
 }
 
 async function relaxUntilCandidatesFound(
-  structuralFilters: Stage1Filters,
+  structuralFilters: EffectiveStructuralFilters,
   userId: string | undefined,
   allowed: AllowedFilterValues,
   appliedFilters: Record<string, unknown>,
@@ -69,14 +68,14 @@ async function finalize(
 // Relaxation drops STRUCTURAL keys (the Stage-1 extraction shape), so it keys
 // off the structural filters, not the validated query filters — the two use
 // different names for genres ("genres" list in, "genre" CSV out).
-function relaxableKeys(structuralFilters: Stage1Filters): string[] {
+function relaxableKeys(structuralFilters: EffectiveStructuralFilters): string[] {
   return RELAX_PRIORITY.filter(
     key => structuralFilters[key] !== null && structuralFilters[key] !== undefined,
   );
 }
 
 function cleanWithRemovedFilters(
-  structuralFilters: Stage1Filters,
+  structuralFilters: EffectiveStructuralFilters,
   removed: string[],
   allowed: AllowedFilterValues,
 ): Record<string, unknown> {

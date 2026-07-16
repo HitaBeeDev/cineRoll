@@ -4,18 +4,19 @@ import type { RandomFilmRow } from "../src/routes/random";
 import { localRerankCandidates } from "../src/routes/naturalRollRoute/localReranker";
 import type { SoftPreferences } from "../src/routes/naturalRollRoute/softPreferences";
 
-const REGRESSION_PROMPT =
-  "Recommend one romantic drama movie with beautiful music, emotional storytelling, " +
-  "memorable performances, stunning cinematography, a bittersweet ending, and " +
-  "character-driven storytelling.";
+const ROMANCE_PROMPT =
+  "I want a beautiful, emotional romance that feels nostalgic and hopeful at the same time. " +
+  "It should have incredible music, colorful visuals, memorable performances, and leave me " +
+  "smiling and crying by the end.";
 
-// The extraction the regression prompt produces (see naturalRollExtraction.test.ts).
+// The extraction the romance prompt produces (see naturalRollExtraction.test.ts).
 const preferences: SoftPreferences = {
-  genres: ["Romance", "Drama", "Music"],
-  tones: ["bittersweet", "emotional"],
-  themes: ["ambition", "dreams"],
-  keywords: ["cinematography", "character-driven", "musical"],
-  contentType: "movie",
+  requiredGenres: ["Romance"],
+  preferredGenres: ["Music"],
+  tones: ["emotional", "nostalgic", "hopeful", "bittersweet"],
+  themes: [],
+  keywords: ["colorful", "musical", "performances"],
+  contentType: null,
 };
 
 function film(overrides: Partial<RandomFilmRow>): RandomFilmRow {
@@ -29,6 +30,8 @@ function film(overrides: Partial<RandomFilmRow>): RandomFilmRow {
     runtime: 120,
     genres: [],
     contentType: "movie",
+    moodTags: [],
+    keywords: [],
     plot: null,
     director: null,
     posterUrl: null,
@@ -54,70 +57,136 @@ function film(overrides: Partial<RandomFilmRow>): RandomFilmRow {
   };
 }
 
-// Fixtures modeled on the real failure: a lower-rated film matching every
-// requested signal must beat famous, higher-rated titles matching few — and a
-// TV series must never appear for a movie request. No titles are hard-coded
-// into the scorer; these win or lose purely on their metadata.
+// Fixtures modeled on the real failures. No titles are hard-coded into the
+// scorer; these win or lose purely on their metadata.
 const romanticMusical = film({
   id: "romantic-musical",
   title: "City of Dreams",
   genres: ["Romance", "Drama", "Music"],
   imdbRating: 8.0,
+  keywords: ["jazz", "melancholy", "musical", "ambition", "dancing"],
   plot: "Two ambitious artists fall in love in a vivid, jazz-filled city, torn between romance and their dreams in a bittersweet parting.",
 });
 
-const acclaimedSeries = film({
-  id: "acclaimed-series",
-  title: "Chemistry Teacher",
-  contentType: "tv-series",
-  genres: ["Drama", "Crime"],
-  imdbRating: 9.5,
-  imdbTopTvRank: 1,
-  plot: "A dying teacher builds a drug empire in this acclaimed dramatic series.",
+// The title-token trap: "Beautiful" in the title matches the prompt's
+// "beautiful" — fame + rating + a title token must not beat a real match.
+const beautifulWarDrama = film({
+  id: "beautiful-war-drama",
+  title: "A Beautiful Life",
+  genres: ["Comedy", "Drama", "War"],
+  imdbRating: 8.6,
+  imdbTopMovieRank: 20,
+  plot: "A father uses humor to shield his son from the horrors of a camp in this beautiful, emotional story.",
 });
 
-const famousDrama = film({
-  id: "famous-drama",
-  title: "Park Bench Chronicle",
-  genres: ["Drama"],
-  imdbRating: 9.0,
-  imdbTopMovieRank: 5,
-  plot: "A slow-witted but kind man witnesses decades of history in this beloved drama.",
+const wartimeDocumentary = film({
+  id: "wartime-documentary",
+  title: "The Memory of Justice",
+  contentType: "documentary",
+  genres: ["Documentary"],
+  imdbRating: 8.4,
+  plot: "An unflinching examination of wartime atrocities and how nations remember them.",
 });
 
-describe("natural roll weighted reranking", () => {
-  it("ranks the multi-signal match above famous but irrelevant titles", () => {
+const epicAdventure = film({
+  id: "epic-adventure",
+  title: "The Fellowship",
+  genres: ["Adventure", "Fantasy", "Drama"],
+  imdbRating: 8.9,
+  imdbTopMovieRank: 9,
+  plot: "A hobbit sets out on an epic quest to destroy a ring of power.",
+});
+
+describe("natural roll weighted reranking — required genres", () => {
+  it("ranks every romance above every non-romance, regardless of rating", () => {
     const picks = localRerankCandidates(
-      REGRESSION_PROMPT,
+      ROMANCE_PROMPT,
       preferences,
-      [famousDrama, acclaimedSeries, romanticMusical],
-      3,
+      [wartimeDocumentary, epicAdventure, beautifulWarDrama, romanticMusical],
+      4,
+    );
+
+    expect(picks[0]).toBe("romantic-musical");
+    // The non-romances sink below both romance-adjacent titles.
+    expect(picks.indexOf("wartime-documentary")).toBeGreaterThan(0);
+    expect(picks.indexOf("epic-adventure")).toBeGreaterThan(0);
+  });
+
+  it("does not let a title token ('Beautiful') beat a genuine multi-signal match", () => {
+    const picks = localRerankCandidates(
+      ROMANCE_PROMPT,
+      preferences,
+      [beautifulWarDrama, romanticMusical],
+      2,
     );
 
     expect(picks[0]).toBe("romantic-musical");
   });
 
-  it("never returns a TV series for a movie request", () => {
+  it("penalizes a missing preferred genre far less than a missing required one", () => {
+    const romanceNoMusic = film({
+      id: "romance-no-music",
+      genres: ["Romance", "Drama"],
+      imdbRating: 7.5,
+      plot: "Two strangers fall in love over one long night of conversation.",
+    });
+    const musicNoRomance = film({
+      id: "music-no-romance",
+      genres: ["Music", "Drama"],
+      imdbRating: 8.5,
+      plot: "A young drummer is pushed to his limits by a ruthless teacher.",
+    });
+
     const picks = localRerankCandidates(
-      REGRESSION_PROMPT,
+      ROMANCE_PROMPT,
       preferences,
-      [acclaimedSeries, famousDrama, romanticMusical],
-      3,
+      [musicNoRomance, romanceNoMusic],
+      2,
     );
 
-    expect(picks).not.toContain("acclaimed-series");
+    // Missing Romance (required) outweighs missing Music (preferred) plus a full point of rating.
+    expect(picks[0]).toBe("romance-no-music");
+  });
+});
+
+describe("natural roll weighted reranking — enriched metadata", () => {
+  it("lets moodTags satisfy soft signals a short plot cannot", () => {
+    const taggedRomance = film({
+      id: "tagged-romance",
+      genres: ["Romance", "Drama"],
+      imdbRating: 7.0,
+      moodTags: ["nostalgic", "hopeful", "bittersweet", "colorful", "musical"],
+      plot: "Two people meet.",
+    });
+    const untaggedRomance = film({
+      id: "untagged-romance",
+      genres: ["Romance", "Drama"],
+      imdbRating: 8.5,
+      plot: "Two people meet.",
+    });
+
+    const picks = localRerankCandidates(
+      ROMANCE_PROMPT,
+      preferences,
+      [untaggedRomance, taggedRomance],
+      2,
+    );
+
+    expect(picks[0]).toBe("tagged-romance");
   });
 
-  it("returns exactly the requested number of picks", () => {
+  it("never returns the wrong content type for an explicit request", () => {
+    const series = film({ id: "series", contentType: "tv-series", genres: ["Romance"] });
+    const movie = film({ id: "movie", genres: ["Romance"] });
+
     const picks = localRerankCandidates(
-      REGRESSION_PROMPT,
-      preferences,
-      [famousDrama, romanticMusical],
-      1,
+      "a romance movie",
+      { ...preferences, contentType: "movie" },
+      [series, movie],
+      2,
     );
 
-    expect(picks).toHaveLength(1);
-    expect(picks[0]).toBe("romantic-musical");
+    expect(picks).not.toContain("series");
   });
 
   it("lets rating break ties when relevance is equal", () => {
@@ -126,7 +195,14 @@ describe("natural roll weighted reranking", () => {
 
     const picks = localRerankCandidates(
       "a romance",
-      { genres: ["Romance"], tones: [], themes: [], keywords: [], contentType: "movie" },
+      {
+        requiredGenres: ["Romance"],
+        preferredGenres: [],
+        tones: [],
+        themes: [],
+        keywords: [],
+        contentType: "movie",
+      },
       [lowRated, highRated],
       2,
     );

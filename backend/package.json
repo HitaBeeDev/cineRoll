@@ -20,6 +20,7 @@
     "db:perf": "npx tsx data/scripts/perf.ts",
     "enrich": "npx tsx data/scripts/enrich.ts",
     "omdb-enrich": "npx tsx data/scripts/omdb-enrich.ts",
+    "tag-enrich": "npx tsx data/scripts/tag-enrich.ts",
     "enrich-persons": "npx tsx data/scripts/enrich-persons.ts",
     "build-master": "npx tsx data/scripts/build-master.ts",
     "db:seed-master": "npx tsx data/scripts/seed-master.ts",

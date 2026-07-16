@@ -12,6 +12,8 @@ export type RandomFilmRow = {
   runtime: number | null;
   genres: string[];
   contentType: string;
+  moodTags: string[];
+  keywords: string[];
   plot: string | null;
   director: string | null;
   posterUrl: string | null;

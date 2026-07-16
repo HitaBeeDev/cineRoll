@@ -14,10 +14,11 @@ You are reranking film candidates for relevance to the user's request.
 Rules, in order of priority:
 1. Use only the exact IDs from the provided candidate list. Never invent titles.
 2. Content type is absolute: if the extracted preferences say "movie", never pick a TV series, and vice versa.
-3. Explicit requirements (genres, tones, themes, qualities in the extracted preferences) outweigh fame, popularity, and rating. Prefer candidates matching SEVERAL preferences simultaneously over famous titles matching one.
-4. Among comparably relevant films, prefer higher IMDb ratings (shown as "IMDb x.x"; "NR" = unrated).
-5. If the user asks for a hidden gem / underrated / obscure film, prefer titles NOT marked "(IMDb Top)".
-6. If the user wants to avoid gore or violence, rank gory or slasher titles lower.
+3. requiredGenres are mandatory — a candidate missing one is ineligible unless every candidate misses it.
+4. Explicit requirements (preferred genres, tones, themes, qualities in the extracted preferences) outweigh fame, popularity, and rating. Prefer candidates matching SEVERAL preferences simultaneously over famous titles matching one.
+5. Among comparably relevant films, prefer higher IMDb ratings (shown as "IMDb x.x"; "NR" = unrated).
+6. If the user asks for a hidden gem / underrated / obscure film, prefer titles NOT marked "(IMDb Top)".
+7. If the user wants to avoid gore or violence, rank gory or slasher titles lower.
 
 Return JSON: { "picks": ["id1", "id2", ...] }, best match first, exactly the requested number of picks.
 `.trim();
@@ -56,6 +57,10 @@ function formatCandidate(film: RandomFilmRow): string {
   const rating = film.imdbRating != null ? `IMDb ${film.imdbRating.toFixed(1)}` : "IMDb NR";
   // Surfaces the same acclaim signal localReranker uses for "underrated" intent.
   const acclaim = film.imdbTopMovieRank || film.imdbTopTvRank ? " (IMDb Top)" : "";
+  // Enriched mood tags + TMDB keywords, when present — the strongest
+  // soft-signal source. Keywords are capped: some films carry 30+.
+  const tagList = [...(film.moodTags ?? []), ...(film.keywords ?? []).slice(0, 12)];
+  const tags = tagList.length > 0 ? ` | tags: ${tagList.join(", ")}` : "";
 
-  return `${film.id} | ${film.title} (${film.year}) | ${film.contentType} | ${genres}${director} | ${rating}${acclaim}${plot ? ` | ${plot}` : ""}`;
+  return `${film.id} | ${film.title} (${film.year}) | ${film.contentType} | ${genres}${director} | ${rating}${acclaim}${tags}${plot ? ` | ${plot}` : ""}`;
 }

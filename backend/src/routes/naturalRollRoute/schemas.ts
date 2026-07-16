@@ -18,7 +18,10 @@ const nullableStringList = z.union([
 
 export const stage1Schema = z.object({
   language: nullableString.optional(),
-  genres: nullableStringList.optional(),
+  // What the film must BE ("a romance", "romantic drama") — becomes the SQL
+  // genre filter. vs. genre-ish qualities ("with music") — ranking-only.
+  requiredGenres: nullableStringList.optional(),
+  preferredGenres: nullableStringList.optional(),
   contentType: nullableString.optional(),
   awardBody: z.union([z.enum(["oscar", "goldenglobe", "cannes", "all"]), z.null()]).optional(),
   winnerOnly: nullableBoolean.optional(),

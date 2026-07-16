@@ -12,7 +12,7 @@ export function extractLocalStructuralFilters(prompt: string): Stage1Filters {
   const lowerPrompt = prompt.toLowerCase();
 
   filters.language = firstMatch(prompt, LOCAL_LANGUAGE_PATTERNS);
-  filters.genres = allMatches(prompt, LOCAL_GENRE_PATTERNS);
+  Object.assign(filters, extractGenreSplit(prompt));
   filters.category = firstMatch(prompt, LOCAL_CATEGORY_PATTERNS);
   filters.tones = allMatches(prompt, LOCAL_TONE_PATTERNS);
   filters.keywords = allMatches(prompt, LOCAL_KEYWORD_PATTERNS);
@@ -25,20 +25,6 @@ export function extractLocalStructuralFilters(prompt: string): Stage1Filters {
   return stage1Schema.parse(filters);
 }
 
-/** Deterministic extraction of the hard constraints (content type, result
- *  count) that the pipeline must never lose. Merged over the LLM extraction so
- *  a "movie" or "only one" stated in plain words survives even when the model
- *  omits it. */
-export function extractLocalHardConstraints(
-  prompt: string,
-): Pick<Stage1Filters, "contentType" | "resultCount"> {
-  const filters: Stage1Filters = {};
-  applyContentType(prompt, filters);
-  applyResultCount(prompt, filters);
-
-  return { contentType: filters.contentType, resultCount: filters.resultCount };
-}
-
 function firstMatch<T>(prompt: string, patterns: Array<[RegExp, T]>): T | undefined {
   return patterns.find(([pattern]) => pattern.test(prompt))?.[1];
 }
@@ -47,6 +33,29 @@ function allMatches<T>(prompt: string, patterns: Array<[RegExp, T]>): T[] | unde
   const matches = patterns.filter(([pattern]) => pattern.test(prompt)).map(([, value]) => value);
 
   return matches.length > 0 ? [...new Set(matches)] : undefined;
+}
+
+// Genres named before the first attribute marker describe what the film IS
+// ("a beautiful emotional ROMANCE that…") — required. Genres after it describe
+// what it should HAVE ("…should have incredible MUSIC") — preferred, ranking
+// only. Without a marker, everything named is required.
+const ATTRIBUTE_MARKER = /\b(?:with|should have|that has|featuring|including|full of|plus some|has)\b/i;
+
+function extractGenreSplit(
+  prompt: string,
+): Pick<Stage1Filters, "requiredGenres" | "preferredGenres"> {
+  const markerIndex = prompt.search(ATTRIBUTE_MARKER);
+  const head = markerIndex === -1 ? prompt : prompt.slice(0, markerIndex);
+  const tail = markerIndex === -1 ? "" : prompt.slice(markerIndex);
+
+  const required = allMatches(head, LOCAL_GENRE_PATTERNS) ?? [];
+  const tailGenres = allMatches(tail, LOCAL_GENRE_PATTERNS) ?? [];
+  const preferred = tailGenres.filter(genre => !required.includes(genre));
+
+  return {
+    requiredGenres: required.length > 0 ? required : undefined,
+    preferredGenres: preferred.length > 0 ? preferred : undefined,
+  };
 }
 
 function applyContentType(prompt: string, filters: Stage1Filters): void {

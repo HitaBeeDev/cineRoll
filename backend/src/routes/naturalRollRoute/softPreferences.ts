@@ -1,13 +1,15 @@
+import type { AllowedFilterValues } from "../../lib/allowedFilterValues";
+import { resolveValidatedFilter } from "../../lib/validateFilters/resolvers";
 import { NATURAL_ROLL_LIMITS } from "./constants";
 import { Stage1Filters } from "./schemas";
 
-/** The extracted signals that shape ranking but never become SQL filters.
- *  `genres` doubles as both: it hard-filters candidates (OR-overlap) AND
- *  weights the ranking, so a film matching all requested genres beats one
- *  that squeaked in on a single overlap. `contentType` is the canonical
+/** The extracted signals that shape ranking. `requiredGenres` also hard-filter
+ *  candidates (what the film must BE); `preferredGenres` are genre-ish
+ *  qualities ("with music") that only score. `contentType` is the canonical
  *  validated value, carried for the reranker's movie-vs-series guard. */
 export type SoftPreferences = {
-  genres: string[];
+  requiredGenres: string[];
+  preferredGenres: string[];
   tones: string[];
   themes: string[];
   keywords: string[];
@@ -15,10 +17,18 @@ export type SoftPreferences = {
 };
 
 // Stage-1 fields that must be stripped before filter validation — they are
-// ranking signals, not queryable columns.
-const SOFT_KEYS = ["tones", "themes", "keywords", "resultCount"] as const;
+// ranking signals, not queryable columns. The genre split is stripped too:
+// filterPreparation folds it into the single effective `genres` filter first.
+const SOFT_KEYS = [
+  "tones",
+  "themes",
+  "keywords",
+  "resultCount",
+  "requiredGenres",
+  "preferredGenres",
+] as const;
 
-export function stripSoftFields(stage1: Stage1Filters): Stage1Filters {
+export function stripSoftFields<T extends Stage1Filters>(stage1: T): T {
   const hard = { ...stage1 };
   for (const key of SOFT_KEYS) delete hard[key];
 
@@ -28,16 +38,31 @@ export function stripSoftFields(stage1: Stage1Filters): Stage1Filters {
 export function softPreferencesFrom(
   stage1: Stage1Filters,
   appliedFilters: Record<string, unknown>,
+  allowed: AllowedFilterValues,
 ): SoftPreferences {
   return {
-    // Prefer the validated canonical genres; fall back to the raw extraction
-    // when validation dropped the filter (unmatched words simply never score).
-    genres: stringList(appliedFilters.genre) ?? stringList(stage1.genres) ?? [],
+    requiredGenres: canonicalGenres(stage1.requiredGenres, allowed),
+    preferredGenres: canonicalGenres(stage1.preferredGenres, allowed),
     tones: stringList(stage1.tones) ?? [],
     themes: stringList(stage1.themes) ?? [],
     keywords: stringList(stage1.keywords) ?? [],
     contentType: typeof appliedFilters.contentType === "string" ? appliedFilters.contentType : null,
   };
+}
+
+// Canonicalize against the catalog ("musical" → "Music") so scoring compares
+// like with like; genres that resolve to nothing fall back to the raw words —
+// they simply never match a film and cost their penalty honestly.
+function canonicalGenres(
+  requested: string[] | null | undefined,
+  allowed: AllowedFilterValues,
+): string[] {
+  const raw = stringList(requested);
+  if (!raw) return [];
+
+  const resolved = resolveValidatedFilter("genres", raw, allowed);
+
+  return Array.isArray(resolved) ? (resolved as string[]) : raw;
 }
 
 /** The user's explicit count ("suggest only one movie") beats the client's

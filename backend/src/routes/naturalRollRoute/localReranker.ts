@@ -6,13 +6,17 @@ import { tokenize } from "./tokenize";
 // Deterministic fallback for the rerank step. It must optimize the SAME
 // objective as the Gemini path (see rerankPrompt.ts) so the ordering doesn't
 // swing depending on whether Gemini is available. The objective, in order of
-// weight: content-type guard (movie vs series is absolute), requested genres,
-// tones, themes, craft keywords, textual relevance, and only then the IMDb
-// rating as a weak tie-breaker — a famous title must never outrank a film
-// that actually matches the request.
+// weight: content-type guard (movie vs series is absolute), REQUIRED genres
+// (what the film must be — missing one is near-disqualifying), preferred
+// genres, tones, themes, craft keywords, textual relevance, and only then the
+// IMDb rating as a weak tie-breaker — a famous title must never outrank a
+// film that actually matches the request.
 const WEIGHTS = {
   genreMatch: 4,
-  genreMissing: -8,
+  // Not -Infinity: when relaxation emptied the requirement the pipeline must
+  // still return something — the worst satisfiers just sink to the bottom.
+  requiredGenreMissing: -100,
+  preferredGenreMissing: -2,
   tone: 3,
   theme: 2.5,
   keyword: 2,
@@ -50,9 +54,20 @@ function scoreCandidate(
 ): number {
   if (violatesContentType(film, preferences.contentType)) return -Infinity;
 
-  const filmTokenSet = new Set(filmTokens(film));
+  // Mood tags (tag-enrich pipeline) and TMDB keywords are part of the
+  // matchable text — both verbatim (so hyphenated signals like
+  // "character-driven" hit their matching tag exactly) and tokenized (so
+  // "jazz club" also answers for "jazz"). Films without them fall back to
+  // plot/genre tokens.
+  const tags = [...(film.moodTags ?? []), ...(film.keywords ?? [])];
+  const filmTokenSet = new Set([
+    ...filmTokens(film),
+    ...tags.map(tag => tag.toLowerCase()),
+    ...tokenize(tags.join(" ")),
+  ]);
 
-  let score = genreScore(film, preferences.genres);
+  let score = genreScore(film, preferences.requiredGenres, WEIGHTS.requiredGenreMissing);
+  score += genreScore(film, preferences.preferredGenres, WEIGHTS.preferredGenreMissing);
   score += softSignalScore(preferences.tones, filmTokenSet) * WEIGHTS.tone;
   score += softSignalScore(preferences.themes, filmTokenSet) * WEIGHTS.theme;
   score += softSignalScore(preferences.keywords, filmTokenSet) * WEIGHTS.keyword;
@@ -78,15 +93,19 @@ function violatesContentType(film: RandomFilmRow, requested: string | null): boo
 }
 
 // Each requested genre the film carries earns a bonus; each one it lacks costs
-// more than a bonus — so a film matching 3 of 3 requested genres always beats
-// a film matching 1 of 3, no matter how the soft signals fall.
-function genreScore(film: RandomFilmRow, requestedGenres: string[]): number {
+// the given penalty — near-disqualifying for required genres, a mild dent for
+// preferred ones.
+function genreScore(
+  film: RandomFilmRow,
+  requestedGenres: string[],
+  missingPenalty: number,
+): number {
   const filmGenres = new Set(film.genres.map(genre => genre.toLowerCase()));
 
   return requestedGenres.reduce((score, requested) => {
     const matched = filmGenres.has(requested.toLowerCase());
 
-    return score + (matched ? WEIGHTS.genreMatch : WEIGHTS.genreMissing);
+    return score + (matched ? WEIGHTS.genreMatch : missingPenalty);
   }, 0);
 }
 
