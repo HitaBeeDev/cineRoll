@@ -16,12 +16,12 @@ export async function evaluateUser(
   params: RecommenderParams = BASELINE_PARAMS,
 ): Promise<UserMetrics | null> {
   const rows = await loadUserSignalRows(userId);
-  const liked = likedFilmRefs(rows.watched, rows.ratings);
+  const liked = likedFilmRefs(rows.watched);
 
   if (!hasEnoughLikedFilms(liked)) return null;
 
   const heldOutIds = holdoutFilmIds(liked);
-  const signals = buildTrainingSignals(rows.watched, rows.ratings, rows.watchlist, heldOutIds);
+  const signals = buildTrainingSignals(rows.watched, rows.watchlist, heldOutIds);
   const taste = aggregateTasteVectors(signals, rows.onboardingGenres);
 
   if (isColdStart(taste.positiveCount, rows.onboardingGenres)) return null;

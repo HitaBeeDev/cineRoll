@@ -44,8 +44,8 @@ function assertTestEnv(): void {
 
 /**
  * Remove every fixture row. Scoped to the fixture ids only (never a bulk delete).
- * Films/User cascade to their child rows (watchlist, watched, ratings, comments,
- * taste profile); Event rows are SetNull on delete, so we clear them explicitly.
+ * Films/User cascade to their child rows (watchlist, watched, taste profile);
+ * Event rows are SetNull on delete, so we clear them explicitly.
  * Idempotent — safe to call before seeding and in afterAll/afterEach.
  */
 export async function cleanupFixture(): Promise<void> {
@@ -58,7 +58,7 @@ export async function cleanupFixture(): Promise<void> {
 
 /**
  * Seed a clean fixture: the test user, the film set, a couple of "liked" signals
- * (watched + high rating on the Drama titles), and a matching taste profile so
+ * (watched likes on the Drama titles), and a matching taste profile so
  * `recommend()` has a real Drama genre signal. Returns the created ids.
  */
 export async function seedFixture(): Promise<SeededFixture> {
@@ -76,12 +76,6 @@ export async function seedFixture(): Promise<SeededFixture> {
     data: [
       { userId: FIXTURE_USER_ID, filmId: 'itest_film_1', sentiment: 'like' },
       { userId: FIXTURE_USER_ID, filmId: 'itest_film_2', sentiment: 'like' },
-    ],
-  });
-  await prisma.userRating.createMany({
-    data: [
-      { userId: FIXTURE_USER_ID, filmId: 'itest_film_1', rating: 9 },
-      { userId: FIXTURE_USER_ID, filmId: 'itest_film_2', rating: 8.5 },
     ],
   });
 

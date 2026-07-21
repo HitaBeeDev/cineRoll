@@ -12,7 +12,7 @@ Award data arrives as Excel workbooks assembled by Python scripts, one row per _
 
 The pipeline solves this with entity resolution against an external authority: candidate films are matched to TMDB, and the TMDB ID becomes the identity key. Rows that resolve to the same ID are the same film, whatever they are titled. Award records merge onto one canonical row; anything without a confident match goes to a manual recall queue rather than being silently dropped or written half-broken. The result is a catalog where every film carries its complete award history — the foundation everything else stands on.
 
-The full writeup is in [`documentation/CASE_STUDY.md`](./documentation/CASE_STUDY.md).
+The full writeup is in [`documentation/ARCHITECTURE.md`](./documentation/ARCHITECTURE.md).
 
 ## The algorithm layer
 
@@ -31,7 +31,7 @@ Each one is documented — what problem it solves, why that method, where it liv
 
 ## What it looks like in the product
 
-Browse and filter the catalog by any dimension the award data provides; roll a random film from any filtered set; get recommendations with human-readable reasons; try the Blind Roll, Roll Battle, Snob Test (stratified ballot sampling, IRT-scored), and taste test; ask for a film in plain language ("something slow and melancholic from the 70s"). Every feature sits on the same clean catalog.
+Browse and filter the catalog by any dimension the award data provides; roll a random film from any filtered set; get recommendations with human-readable reasons; take the taste test to tune your profile; ask for a film in plain language ("something slow and melancholic from the 70s"). Every feature sits on the same clean catalog.
 
 ## Architecture
 
@@ -44,7 +44,7 @@ run time     Next.js 16 frontend ──► BFF proxy (attach JWT) ──► Expr
                                                                  algorithm layer    GIN array indexes
 ```
 
-A few deliberate choices, each recorded with its cost in [`documentation/DECISIONS.md`](./documentation/DECISIONS.md):
+A few deliberate choices, each with its cost:
 
 - **A real Express backend, not Next API routes.** The algorithm layer has its own middleware pipeline, unit tests, eval harness (`npm run eval:recommender`), and load check — it deserves a lifecycle independent of the frontend.
 - **Postgres over a document store.** The data is relational and the product leans on two Postgres features directly: `pg_trgm` for typo-tolerant search and GIN indexes for genre filtering. Schema flexibility is handled _before_ the database, in the pipeline.
@@ -89,7 +89,11 @@ The algorithm layer is the most heavily tested part of the codebase, on purpose.
 
 ## Documentation
 
-[`documentation/DOCUMENTATION.md`](./documentation/DOCUMENTATION.md) is the map of everything — which document to read first depending on whether you are reviewing the engineering or joining the codebase.
+- [`documentation/ARCHITECTURE.md`](./documentation/ARCHITECTURE.md) — how the system fits together and why (start here).
+- [`documentation/RECOMMENDATIONS.md`](./documentation/RECOMMENDATIONS.md) — the taste/recommender writeup + A/B experiments.
+- [`documentation/algorithms.md`](./documentation/algorithms.md) — every named algorithm, shipped or designed.
+- [`docs/API_DOCS.md`](./docs/API_DOCS.md) — every endpoint, params, and error codes.
+- [`documentation/SETUP.md`](./documentation/SETUP.md) + [`docs/DEPLOYMENT.md`](./docs/DEPLOYMENT.md) — local dev and deploy.
 
 ## License
 

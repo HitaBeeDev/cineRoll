@@ -23,7 +23,6 @@ const eventTypes = [
   "watchlist_remove",
   "watched",
   "not_interested",
-  "rating_set",
   "sentiment_set",
   "recommendation_served",
   "recommendation_click",

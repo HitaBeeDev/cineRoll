@@ -9,8 +9,8 @@ const HEIGHT = 630;
 const ACCENT = "#D4AF37";
 
 // Generic branded OG card used as the default social image for every page that
-// doesn't ship its own (the film + roll-battle result routes render richer,
-// data-driven cards). Pass ?title= and ?subtitle= to label a specific page type,
+// doesn't ship its own (the film route renders a richer, data-driven card).
+// Pass ?title= and ?subtitle= to label a specific page type,
 // e.g. /api/og?title=Browse%20Films.
 export function GET(request: Request) {
   const { searchParams } = new URL(request.url);

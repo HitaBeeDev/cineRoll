@@ -59,10 +59,6 @@ export type StatsResponse = {
   topWatchlistedFilms: FilmStat[];
 };
 
-export type BattleLeaderboardResponse = {
-  films: Array<Omit<FilmStat, "count"> & { rating: number }>;
-};
-
 export type Insight = { title: string; body: string };
 
 export type ReelItem = {

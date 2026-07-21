@@ -78,12 +78,7 @@ model Film {
   watchlistEntries  Watchlist[]
   listEntries       UserListEntry[]
   watchedFilms      WatchedFilm[]
-  ratings           UserRating[]
-  comments          FilmComment[]
   pickOfDayHistory  PickOfDayHistory[]
-  filmRating        FilmRating?
-  battlesWon        BattleMatch[]      @relation("BattleWinner")
-  battlesLost       BattleMatch[]      @relation("BattleLoser")
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
 
@@ -151,8 +146,6 @@ model User {
   tasteProfile     UserTasteProfile?
   watchlistEntries Watchlist[]
   watchedFilms     WatchedFilm[]
-  ratings          UserRating[]
-  comments         FilmComment[]
   passwordResets   PasswordResetToken[]
   laneBandit       RollLaneBandit?
   lists            UserList[]
@@ -313,38 +306,6 @@ model WatchedFilm {
 }
 
 // Explicit numeric rating (half-star widget, 1.0–10.0 step 0.5). The richer
-// signal that complements WatchedFilm.sentiment; the taste profile consumes it.
-// Step is enforced in the API layer (Postgres can't express it).
-model UserRating {
-  id        String   @id @default(cuid())
-  userId    String
-  filmId    String
-  rating    Float
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  film      Film     @relation(fields: [filmId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, filmId])
-  @@index([userId], map: "UserRating_userId_idx")
-  @@index([filmId], map: "UserRating_filmId_idx")
-}
-
-model FilmComment {
-  id        String   @id @default(cuid())
-  userId    String
-  filmId    String
-  body      String   @db.Text
-  hidden    Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  film      Film     @relation(fields: [filmId], references: [id], onDelete: Cascade)
-
-  @@index([filmId, hidden, createdAt], map: "FilmComment_filmId_hidden_createdAt_idx")
-  @@index([userId], map: "FilmComment_userId_idx")
-}
-
 // One row per day recording the deterministically-selected Pick of the Day, so
 // the algorithm can avoid recently-featured films and the choice is auditable.
 model PickOfDayHistory {
@@ -398,32 +359,3 @@ model SiteFeedback {
   @@index([createdAt], map: "SiteFeedback_createdAt_idx")
 }
 
-// Persistent Elo rating per film, aggregated from Roll Battle (Versus) duels.
-// One row per film that has ever fought; absent films are treated as the default
-// INITIAL_RATING (1500). See backend/src/routes/rollBattleRoute/elo.ts and
-// docs/algorithms.md §10.
-model FilmRating {
-  id        String   @id @default(cuid())
-  filmId    String   @unique
-  film      Film     @relation(fields: [filmId], references: [id], onDelete: Cascade)
-  rating    Float    @default(1500)
-  games     Int      @default(0)
-  wins      Int      @default(0)
-  updatedAt DateTime @updatedAt
-
-  @@index([rating], map: "FilmRating_rating_idx")
-}
-
-// Append-only log of every pairwise Versus outcome. Kept so the Elo table can be
-// recomputed / audited and so a Bradley–Terry batch fit is possible later.
-model BattleMatch {
-  id        String   @id @default(cuid())
-  winnerId  String
-  loserId   String
-  winner    Film     @relation("BattleWinner", fields: [winnerId], references: [id], onDelete: Cascade)
-  loser     Film     @relation("BattleLoser", fields: [loserId], references: [id], onDelete: Cascade)
-  userId    String?
-  createdAt DateTime @default(now())
-
-  @@index([createdAt], map: "BattleMatch_createdAt_idx")
-}

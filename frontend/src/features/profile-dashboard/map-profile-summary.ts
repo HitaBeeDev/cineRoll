@@ -7,8 +7,7 @@ export function mapProfileSummary(
     watchlist: data.watchlist ?? 0,
     watched: data.watched ?? 0,
     hidden: data.hidden ?? 0,
-    rated: data.rated ?? 0,
     favoriteGenres: data.favoriteGenres ?? [],
-    genresFromRatings: data.genresFromRatings ?? false,
+    genresFromSignals: data.genresFromSignals ?? false,
   };
 }

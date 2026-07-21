@@ -22,10 +22,6 @@ export async function deleteAccount(userId: string): Promise<void> {
         variant: null,
       },
     }),
-    prisma.battleMatch.updateMany({
-      where: { userId },
-      data: { userId: null },
-    }),
     ...(user?.email
       ? [
           prisma.siteFeedback.updateMany({

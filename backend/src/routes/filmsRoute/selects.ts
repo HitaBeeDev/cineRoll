@@ -28,17 +28,7 @@ export const filmListSelect = Prisma.sql`
   "Film"."cannesNominations",
   "Film"."cannesWins",
   "Film"."berlinNominations",
-  "Film"."berlinWins",
-  (
-    SELECT ROUND(AVG("UserRating"."rating")::numeric, 1)::double precision
-    FROM "UserRating"
-    WHERE "UserRating"."filmId" = "Film"."id"
-  ) AS "averageRating",
-  (
-    SELECT COUNT(*)::int
-    FROM "UserRating"
-    WHERE "UserRating"."filmId" = "Film"."id"
-  ) AS "ratingCount"
+  "Film"."berlinWins"
 `;
 
 export const filmDetailSelect = {

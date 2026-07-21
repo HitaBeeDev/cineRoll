@@ -1,6 +1,5 @@
 import { Router } from "express";
 
-import { filmCommentsRouter } from "./filmsRoute/commentRoutes";
 import { filmDetailRouter } from "./filmsRoute/detailRoutes";
 import { facetRouter } from "./filmsRoute/facetRoutes";
 import { filmListRouter } from "./filmsRoute/listRoutes";
@@ -13,5 +12,4 @@ filmsRouter.use(facetRouter);
 filmsRouter.use(peopleRouter);
 filmsRouter.use(filmListRouter);
 filmsRouter.use(similarFilmsRouter);
-filmsRouter.use(filmCommentsRouter);
 filmsRouter.use(filmDetailRouter);

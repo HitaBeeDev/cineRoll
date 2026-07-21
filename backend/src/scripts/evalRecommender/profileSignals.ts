@@ -1,19 +1,15 @@
-import { SIGNAL_WEIGHT, ratingWeight, sentimentWeight } from "../../lib/tasteWeights";
+import { SIGNAL_WEIGHT, sentimentWeight } from "../../lib/tasteWeights";
 import type { Signal } from "../../lib/tasteProfile";
-import type { RatingRow, WatchedRow, WatchlistRow } from "./types";
+import type { WatchedRow, WatchlistRow } from "./types";
 
 export function buildTrainingSignals(
   watched: WatchedRow[],
-  ratings: RatingRow[],
   watchlist: WatchlistRow[],
   heldOutIds: Set<string>,
 ): Signal[] {
   const signals: Signal[] = [];
-  const ratingsByFilmId = new Map(ratings.map(rating => [rating.filmId, rating]));
-  const consumedRatingFilmIds = new Set<string>();
 
-  appendWatchedSignals(signals, watched, ratingsByFilmId, consumedRatingFilmIds, heldOutIds);
-  appendRatingSignals(signals, ratings, consumedRatingFilmIds, heldOutIds);
+  appendWatchedSignals(signals, watched, heldOutIds);
   appendWatchlistSignals(signals, watchlist);
 
   return signals;
@@ -22,28 +18,11 @@ export function buildTrainingSignals(
 function appendWatchedSignals(
   signals: Signal[],
   watched: WatchedRow[],
-  ratingsByFilmId: Map<string, RatingRow>,
-  consumedRatingFilmIds: Set<string>,
   heldOutIds: Set<string>,
 ): void {
   for (const entry of watched) {
     if (heldOutIds.has(entry.filmId)) continue;
-    const rating = ratingsByFilmId.get(entry.filmId);
-    if (rating) consumedRatingFilmIds.add(entry.filmId);
-    signals.push(watchedSignal(entry, rating));
-  }
-}
-
-function appendRatingSignals(
-  signals: Signal[],
-  ratings: RatingRow[],
-  consumedRatingFilmIds: Set<string>,
-  heldOutIds: Set<string>,
-): void {
-  for (const rating of ratings) {
-    if (heldOutIds.has(rating.filmId)) continue;
-    if (consumedRatingFilmIds.has(rating.filmId)) continue;
-    signals.push({ film: rating.film, weight: ratingWeight(rating.rating), at: rating.updatedAt });
+    signals.push(watchedSignal(entry));
   }
 }
 
@@ -53,16 +32,14 @@ function appendWatchlistSignals(signals: Signal[], watchlist: WatchlistRow[]): v
   }
 }
 
-function watchedSignal(entry: WatchedRow, rating: RatingRow | undefined): Signal {
+function watchedSignal(entry: WatchedRow): Signal {
   const weight = entry.doNotSuggest
     ? SIGNAL_WEIGHT.notInterested
-    : rating
-      ? ratingWeight(rating.rating)
-      : sentimentWeight(entry.sentiment);
+    : sentimentWeight(entry.sentiment);
 
   return {
     film: entry.film,
     weight,
-    at: rating?.updatedAt ?? entry.watchedAt,
+    at: entry.watchedAt,
   };
 }

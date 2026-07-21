@@ -11,13 +11,6 @@ export const watchedBodySchema = filmIdBodySchema.extend({
   sentiment: z.enum(["like", "dislike"]).nullable().optional(),
 });
 
-export const ratingBodySchema = filmIdBodySchema.extend({
-  rating: z.number()
-    .min(1)
-    .max(10)
-    .refine(value => Number.isInteger(value * 2), "Rating must be a multiple of 0.5"),
-});
-
 export const filmIdParamsSchema = z.object({
   filmId: z.string().trim().min(1),
 });
@@ -54,7 +47,6 @@ export const cursorQuerySchema = z.object({
 
 export type FilmIdBody = z.infer<typeof filmIdBodySchema>;
 export type WatchedBody = z.infer<typeof watchedBodySchema>;
-export type RatingBody = z.infer<typeof ratingBodySchema>;
 export type FilmIdParams = z.infer<typeof filmIdParamsSchema>;
 export type OnboardingBody = z.infer<typeof onboardingBodySchema>;
 export type CursorQuery = z.infer<typeof cursorQuerySchema>;

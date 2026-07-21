@@ -106,9 +106,7 @@ async function getOnboardingSample(query: ListQuery): Promise<FilmListPayload> {
         "cannesNominations",
         "cannesWins",
         "berlinNominations",
-        "berlinWins",
-        "averageRating",
-        "ratingCount"
+        "berlinWins"
       FROM sampled
       ORDER BY RANDOM()
     `,

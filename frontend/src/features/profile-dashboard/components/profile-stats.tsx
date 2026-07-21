@@ -4,9 +4,9 @@ import { ProfileStat } from "./profile-stat";
 
 export function ProfileStats({ summary }: ProfileStatsProps) {
   const hasNoActivity =
-    summary.rated === 0 && summary.watchlist === 0 && summary.watched === 0;
+    summary.watchlist === 0 && summary.watched === 0;
   const hasRatedGenres =
-    summary.genresFromRatings && summary.favoriteGenres.length > 0;
+    summary.genresFromSignals && summary.favoriteGenres.length > 0;
 
   return (
     <div className="mt-8 border-t border-[#1e1e2a] pt-7">

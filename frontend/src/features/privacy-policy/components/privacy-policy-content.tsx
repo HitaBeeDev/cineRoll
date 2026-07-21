@@ -6,7 +6,6 @@ import { DataUsageSection } from "./data-usage-section";
 import { DeletionProcessSection } from "./deletion-process-section";
 import { PrivacyContactSection } from "./privacy-contact-section";
 import { PrivacyOverviewSection } from "./privacy-overview-section";
-import { PublicContentSection } from "./public-content-section";
 
 export function PrivacyPolicyContent() {
   return (
@@ -17,7 +16,6 @@ export function PrivacyPolicyContent() {
       <BrowserStorageSection />
       <DataRetentionSection />
       <DataProcessorsSection />
-      <PublicContentSection />
       <DeletionProcessSection />
       <PrivacyContactSection />
     </div>

@@ -7,45 +7,44 @@ import { Vector } from "../../lib/tasteProfile/types";
 const FAVORITE_GENRE_COUNT = 3;
 
 export async function getUserSummary(userId: string) {
-  const [watchlist, watched, hidden, rated] = await Promise.all([
+  const [watchlist, watched, hidden] = await Promise.all([
     prisma.watchlist.count({ where: { userId } }),
     prisma.watchedFilm.count({ where: { userId, doNotSuggest: false } }),
     prisma.watchedFilm.count({ where: { userId, doNotSuggest: true } }),
-    prisma.userRating.count({ where: { userId } }),
   ]);
 
-  const { favoriteGenres, genresFromRatings } = await deriveFavoriteGenres(
+  const { favoriteGenres, genresFromSignals } = await deriveFavoriteGenres(
     userId,
-    rated + watched,
+    watched,
   );
 
-  return { watchlist, watched, hidden, rated, favoriteGenres, genresFromRatings };
+  return { watchlist, watched, hidden, favoriteGenres, genresFromSignals };
 }
 
 /**
- * Favorite genres only appear once real rating behavior exists, so skip the
- * taste-profile build entirely below that bar. `rated + watched` is an upper
- * bound on positive signals: if it can't reach the cold-start threshold, the
- * genres would be hidden anyway — and this endpoint (hit by profile, watchlist,
- * and history) stays a handful of cheap counts for new users.
+ * Favorite genres only appear once real taste signal exists, so skip the
+ * taste-profile build entirely below that bar. `watched` is an upper bound on
+ * positive signals: if it can't reach the cold-start threshold, the genres
+ * would be hidden anyway — and this endpoint (hit by profile, watchlist, and
+ * history) stays a handful of cheap counts for new users.
  */
 async function deriveFavoriteGenres(
   userId: string,
   positiveSignalCeiling: number,
-): Promise<{ favoriteGenres: string[]; genresFromRatings: boolean }> {
+): Promise<{ favoriteGenres: string[]; genresFromSignals: boolean }> {
   if (positiveSignalCeiling < TASTE_PROFILE_CONFIG.coldStartThreshold) {
-    return { favoriteGenres: [], genresFromRatings: false };
+    return { favoriteGenres: [], genresFromSignals: false };
   }
 
   const taste = await getTasteProfile(userId);
-  const genresFromRatings =
+  const genresFromSignals =
     taste.positiveCount >= TASTE_PROFILE_CONFIG.coldStartThreshold;
 
   return {
-    favoriteGenres: genresFromRatings
+    favoriteGenres: genresFromSignals
       ? topGenres(taste.genreWeights, FAVORITE_GENRE_COUNT)
       : [],
-    genresFromRatings,
+    genresFromSignals,
   };
 }
 
@@ -58,7 +57,7 @@ function topGenres(weights: Vector, limit: number): string[] {
 }
 
 export async function getFilmStatus(userId: string, filmId: string) {
-  const [watchedEntry, watchlistEntry, ratingEntry] = await Promise.all([
+  const [watchedEntry, watchlistEntry] = await Promise.all([
     prisma.watchedFilm.findUnique({
       where: { userId_filmId: { userId, filmId } },
       select: { sentiment: true, doNotSuggest: true },
@@ -67,10 +66,6 @@ export async function getFilmStatus(userId: string, filmId: string) {
       where: { userId_filmId: { userId, filmId } },
       select: { id: true },
     }),
-    prisma.userRating.findUnique({
-      where: { userId_filmId: { userId, filmId } },
-      select: { rating: true },
-    }),
   ]);
 
   return {
@@ -78,6 +73,5 @@ export async function getFilmStatus(userId: string, filmId: string) {
     sentiment: watchedEntry?.sentiment ?? null,
     doNotSuggest: watchedEntry?.doNotSuggest ?? false,
     inWatchlist: watchlistEntry !== null,
-    rating: ratingEntry?.rating ?? null,
   };
 }

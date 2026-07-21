@@ -14,8 +14,8 @@ export function TermsContent() {
         <p>When using CineRoll, you agree not to:</p>
         <ul>
           <li>
-            Post comments or feedback that are unlawful, harassing, hateful, threatening, spam, or
-            infringe someone else&apos;s rights.
+            Submit feedback or other content that is unlawful, harassing, hateful, threatening,
+            spam, or infringes someone else&apos;s rights.
           </li>
           <li>
             Impersonate another person or misrepresent your affiliation with any person or
@@ -47,17 +47,16 @@ export function TermsContent() {
 
       <PolicySection title="Your Content and Ownership">
         <p>
-          You retain ownership of the content you create on CineRoll, such as comments, ratings,
-          and feedback. You are responsible for the content you post and confirm you have the right
-          to post it.
+          You retain ownership of the content you create on CineRoll, such as feedback and the
+          lists you create. You are responsible for the content you submit and confirm you have the
+          right to submit it.
         </p>
         <p>
-          By posting content, you grant CineRoll a non-exclusive, worldwide, royalty-free license
+          By submitting content, you grant CineRoll a non-exclusive, worldwide, royalty-free license
           to host, store, display, and distribute that content within the app for the purpose of
-          operating and improving the service. Public comments may show your display name, avatar,
-          date, and comment body. This license ends when you delete the content or your account,
-          except for content already shared publicly or retained as required for security, legal,
-          or abuse-prevention reasons.
+          operating and improving the service. This license ends when you delete the content or your
+          account, except for content retained as required for security, legal, or abuse-prevention
+          reasons.
         </p>
       </PolicySection>
 
@@ -66,10 +65,6 @@ export function TermsContent() {
           We may review, hide, edit, or remove any content, and suspend or terminate access, at our
           discretion and without prior notice, when content is abusive, unlawful, spam, or otherwise
           violates these terms, or when removal is needed to protect users or the service.
-        </p>
-        <p>
-          Comments may be hidden automatically after multiple abuse reports and removed following
-          moderation review.
         </p>
       </PolicySection>
 

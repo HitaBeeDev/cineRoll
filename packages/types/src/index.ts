@@ -37,8 +37,6 @@ export interface Film {
   backdropUrl: string | null;
   trailerUrl: string | null;
   imdbRating: number | null;
-  averageRating: number | null;
-  ratingCount: number;
   rtScore: number | null;
   imdbTopMovieRank: number | null;
   imdbTopTvRank: number | null;
@@ -197,28 +195,6 @@ export interface UserListMeta {
   createdAt: string;
   updatedAt: string;
   filmCount: number;
-}
-
-export interface UserRating {
-  id: string;
-  userId: string;
-  filmId: string;
-  rating: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface FilmComment {
-  id: string;
-  userId: string;
-  filmId: string;
-  body: string;
-  createdAt: string;
-  updatedAt: string;
-  user: {
-    name: string | null;
-    image: string | null;
-  };
 }
 
 export interface SiteFeedback {

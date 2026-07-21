@@ -41,8 +41,6 @@ function film(overrides: Record<string, unknown> = {}) {
     backdropUrl: null,
     trailerUrl: null,
     imdbRating: 8.4,
-    averageRating: null,
-    ratingCount: 0,
     rtScore: 92,
     imdbTopMovieRank: null,
     imdbTopTvRank: null,
@@ -104,20 +102,6 @@ const unfilteredBrowseFilms = [
     oscarCategories: [{ ...awardRecord, awardYear: 2021, nominee: 'Third Fixture' }],
   }),
 ];
-
-const snobFilms = Array.from({ length: 20 }, (_, index) => ({
-  ...film({
-    id: `snob-${index + 1}`,
-    slug: `snob-${index + 1}`,
-    title: `Snob Fixture ${index + 1}`,
-    releaseYear: 2000 + index,
-    year: 2000 + index,
-    imdbRating: 7 + (index % 3) * 0.3,
-    oscarCategories: [{ ...awardRecord, nominee: `Snob Fixture ${index + 1}` }],
-  }),
-  decade: 2000 + Math.floor(index / 10) * 10,
-  awardBodies: ['oscar'],
-}));
 
 function sendJson(res: ServerResponse, status: number, body: unknown) {
   res.writeHead(status, {
@@ -184,29 +168,6 @@ function routeApi(req: IncomingMessage, res: ServerResponse) {
 
   if (url.pathname === '/api/films/missing-film') {
     sendJson(res, 404, { error: 'Film not found', code: 'FILM_NOT_FOUND' });
-    return;
-  }
-
-  if (url.pathname === '/api/snob-test/films') {
-    sendJson(res, 200, { films: snobFilms });
-    return;
-  }
-
-  if (url.pathname === '/api/snob-test/score') {
-    sendJson(res, 200, {
-      score: 5,
-      title: 'Movie Dilettante',
-      seen: 1,
-      total: 20,
-      breakdown: {
-        byDecade: { '2000s': { seen: 1, total: 10 }, '2010s': { seen: 0, total: 10 } },
-        byAwardBody: {
-          oscar: { seen: 1, total: 20 },
-          goldenglobe: { seen: 0, total: 0 },
-          cannes: { seen: 0, total: 0 },
-        },
-      },
-    });
     return;
   }
 
@@ -314,18 +275,6 @@ test('film detail renders H1, awards, plot, and the not-found page', async ({ pa
   await page.goto('/film/missing-film');
 
   await expect(page.getByRole('heading', { name: 'Film not found' })).toBeVisible();
-});
-
-test('Snob Test supports selecting films and scoring the ballot', async ({ page }) => {
-  await page.goto('/snob-test');
-
-  await expect(page.getByRole('heading', { name: /The Snob Test/i })).toBeVisible();
-  await page.getByRole('button', { name: /Mark Snob Fixture 1 as seen/i }).click();
-  await expect(page.getByRole('complementary').getByText('1/20', { exact: true })).toBeVisible();
-  await page.getByRole('button', { name: /See My Score/i }).click();
-
-  await expect(page.getByRole('heading', { name: 'Movie Dilettante', level: 2 })).toBeVisible();
-  await expect(page.locator('span').filter({ hasText: /^5%$/ }).first()).toBeVisible();
 });
 
 test('sign-in page renders and logged-out profile visits redirect to sign-in', async ({ page }) => {

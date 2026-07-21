@@ -25,12 +25,9 @@
 | 4 | **TF-IDF + cosine similarity** | Content-based film similarity / taste centroid | `backend/src/lib/recommender/tfidf.ts` | ✅ shipped |
 | 5 | **Maximal Marginal Relevance (MMR)** | Recommender diversity rerank | `backend/src/lib/recommender/ranking.ts` | ✅ shipped |
 | 6 | **Thompson sampling** multi-armed bandit | Roll lane selection (Safe/Gem/Wild) | `backend/src/routes/randomRoute/bandit.ts` | ✅ shipped |
-| 7 | **Item Response Theory (Rasch / 1PL)** | The Snob Test score | `backend/src/routes/snobTestRoute/` | 🔶 designed (this doc) |
-| 8 | **Stratified diversity sampling** (window functions) | Snob Test ballot generation | `snobTestRoute/filmRepository.ts` | ✅ shipped |
+| 7 | **Item Response Theory (Rasch / 1PL)** | The Taste Test score | `backend/src/routes/tasteTestRoute/` | 🔶 designed (this doc) |
+| 8 | **Stratified diversity sampling** (window functions) | Taste Test ballot generation | `tasteTestRoute/repository.ts` | ✅ shipped |
 | 9 | **Softmax weighting + ε-greedy** + weighted sampling | Personalized roll + base lane weighting | `randomRoute/personalizedService.ts`, `weightedSample.ts` | ✅ shipped |
-| 10 | **Weighted-feature k-NN clustering** | Versus matchmaking (fair pairings) | `frontend/src/lib/roll-battle-matchmaking.ts` | ✅ shipped |
-| 11 | **Elo rating** (pairwise → global ranking) | Versus head-to-head leaderboard | `backend/src/routes/rollBattleRoute/elo.ts` | ✅ shipped |
-| 12 | **Confusability distractor selection** (TF-IDF cosine hard-negative mining) | Guess the Film (Blind Roll) decoys | `backend/src/routes/blindRollRoute/distractors.ts` | ✅ shipped |
 
 Legend: ✅ shipped · 🔶 designed / proposed.
 
@@ -136,15 +133,15 @@ Relevance is the normalized recommender score; similarity is the **TF-IDF cosine
 
 ---
 
-## 7. Item Response Theory (Rasch / 1PL) — The Snob Test
+## 7. Item Response Theory (Rasch / 1PL) — The Taste Test
 
-**Feature:** `/snob-test` — tick the films you've seen → a score, a rank, and a "what you missed" watchlist.
-**Where (designed):** `backend/src/routes/snobTestRoute/` — new `irt.ts` + changes to `scoring.ts`.
+**Feature:** `/taste-test` — tick the films you've seen → a score, a rank, and a "what you missed" watchlist.
+**Where (designed):** `backend/src/routes/tasteTestRoute/` — new `irt.ts` + changes to `scoring.ts`.
 **Status:** 🔶 designed here; not yet built.
 
 **The gap.** Current scoring is `score = seen / 20 × 100` — every film worth a flat 5%. But each user gets a **different randomized 20-film ballot** (§8), so a raw seen-count isn't comparable across users, and having seen an obscure Cannes winner is far stronger evidence of cinephilia than having seen *Ben-Hur*. Flat scoring ignores both facts.
 
-**The named fix — Item Response Theory**, the model behind the GRE, GMAT, and computerized adaptive testing. It's the exact right tool because the Snob Test *is* a test with per-user item sets (the "test equating" problem):
+**The named fix — Item Response Theory**, the model behind the GRE, GMAT, and computerized adaptive testing. It's the exact right tool because the Taste Test *is* a test with per-user item sets (the "test equating" problem):
 
 - A **film = a test item** with difficulty `b` = its *obscurity* (derived from the same popularity signals the ballot query already computes as `knownScore`).
 - A **user = a latent ability** `θ` (cinephilia).
@@ -196,14 +193,13 @@ const KNOWNNESS_CENTER = 45;
 const KNOWNNESS_SCALE = 25;
 
 export function filmDifficulty(f: {
-  imdbRating: number | null; imdbTopMovieRank: number | null; imdbTopTvRank: number | null;
+  imdbRating: number | null;
   oscarWins: number; ggWins: number; cannesWins: number;
   oscarNominations: number; ggNominations: number; cannesNominations: number;
   posterUrl: string | null;
 }): number {
-  const topBonus = (rank: number | null) => (rank ? (260 - rank) * 0.55 : 0);
   const knownness =
-    (f.imdbRating ?? 0) * 9 + topBonus(f.imdbTopMovieRank) + topBonus(f.imdbTopTvRank) +
+    (f.imdbRating ?? 0) * 9 +
     f.oscarWins * 10 + f.ggWins * 7 + f.cannesWins * 8 +
     (f.oscarNominations + f.ggNominations + f.cannesNominations) * 1.5 +
     (f.posterUrl ? 8 : 0);
@@ -228,7 +224,7 @@ function normalCdf(z: number): number {
 ```ts
 import { estimateAbility, abilityPercentile, filmDifficulty, BallotItem } from "./irt";
 
-export function scoreSnobTest(ballot: ScoreFilmRow[], seenIds: Set<string>) {
+export function scoreTasteTest(ballot: ScoreFilmRow[], seenIds: Set<string>) {
   const items: BallotItem[] = ballot.map(film => ({
     difficulty: filmDifficulty(film),
     seen: seenIds.has(film.id),
@@ -241,7 +237,7 @@ export function scoreSnobTest(ballot: ScoreFilmRow[], seenIds: Set<string>) {
     score,                              // IRT percentile, not seen/20
     title: titleForScore(score),        // unchanged
     seen: seenFilms.length,
-    total: SNOB_TEST_FILM_COUNT,
+    total: TASTE_TEST_FILM_COUNT,
     breakdown: buildBreakdown(seenFilms), // unchanged
   };
 }
@@ -251,10 +247,10 @@ export function scoreSnobTest(ballot: ScoreFilmRow[], seenIds: Set<string>) {
 
 ---
 
-## 8. Stratified diversity sampling — Snob Test ballot
+## 8. Stratified diversity sampling — Taste Test ballot
 
 **Feature:** pick 20 films that span decades, genres, and award bodies (not 20 Best-Picture blockbusters).
-**Where:** `backend/src/routes/snobTestRoute/filmRepository.ts`.
+**Where:** `backend/src/routes/tasteTestRoute/repository.ts`.
 
 **How it works.** A SQL CTE assigns each award-recognized film a `knownScore` (prestige/fame proxy), then uses `ROW_NUMBER()` **window functions partitioned by decade, primary genre, and primary award body** — each ordered by `knownScore + RANDOM()·jitter` — to rank films *within* each stratum. The ballot pool keeps films that rank near the top of *any* stratum (`decadeRank ≤ 3 OR genreRank ≤ 2 OR awardBodyRank ≤ 8`), deduped by a normalized `titleRoot` (so no franchise clones), then samples 20 with jitter.
 
@@ -270,51 +266,6 @@ export function scoreSnobTest(ballot: ScoreFilmRow[], seenIds: Set<string>) {
 **How it works.** The personalized roll scores a top-N-by-rating pool with `recommender.scoreFilm`, converts scores to weights via **softmax** (`exp((score − max)/T)`, `T = SOFTMAX_TEMPERATURE`), then draws with **weighted sampling** — with probability `EXPLORATION_EPSILON` it instead does a uniform **ε-greedy** explore draw. `weightedSample(items, weights)` is a standard cumulative-sum inverse-CDF draw. On the base roll, per-lane affinities are sharpened and multiplied by the session-diversity factor, then sampled the same way. (The lane *choice* itself is now the Thompson bandit of §6; ε-greedy survives on the personalized path.)
 
 **Why these algorithms.** Softmax turns scores into a temperature-controlled probability distribution (better titles win more often without going deterministic); ε-greedy is the baseline explore/exploit strategy; weighted sampling is the standard mechanism for "ranked but not fixed." All three are small, well-understood, and exactly enough — no ML added for the label.
-
----
-
-## 10. Weighted-feature k-NN matchmaking — Versus
-
-**Feature:** `/roll-battle` ("Versus") — pick the 5 films for a king-of-the-hill bracket so every duel is *fair* (no 1h40 drama vs. 7h47 documentary).
-**Where:** `frontend/src/lib/roll-battle-matchmaking.ts`.
-
-**How it works.** Each film → a feature vector (year, runtime, IMDb rating, genre set, documentary flag). A **weighted distance** combines min-max-normalized numeric gaps + **Jaccard distance** on genres + a medium-mismatch term (genre and medium weighted highest — a different *kind* of film is the most jarring mismatch). Then a **nearest-neighbour (k-NN) tightest-cluster** search: for every candidate seed, take its `size−1` nearest neighbours and score the cluster by total intra-distance; the tightest cluster wins. Because the bracket is king-of-the-hill (the winner stays on), the whole set must be *mutually* comparable — a k-NN cluster guarantees that, not just consecutive pairs. Missing numeric signals are skipped so they neither help nor hurt. O(n²) over a handful of films — negligible.
-
-**Why this algorithm.** k-NN over a normalized feature space is the standard, explainable way to find "similar enough" items; Jaccard is the right set-similarity for genres. The goal is to remove obvious mismatches, not model taste — correct altitude.
-
----
-
-## 11. Elo rating — Versus head-to-head leaderboard
-
-**Feature:** turn every Versus click (a pairwise preference judgment) into a persistent, community "which award films actually win head-to-head" ranking, surfaced on `/stats`.
-**Where:** `backend/src/routes/rollBattleRoute/{elo,repository,schemas}.ts`, `routes/rollBattle.ts`; Prisma `FilmRating` + `BattleMatch`; Stats section in `frontend/src/app/stats/page.tsx`.
-
-**How it works.**
-- Each film has an **Elo rating** (`FilmRating`, default `INITIAL_RATING = 1500`). Every settled duel updates both films:
-  `expected(A) = 1 / (1 + 10^((ratingB − ratingA)/400))`, `ratingA' = ratingA + K·(scoreA − expected(A))`, `scoreA ∈ {1, 0}`.
-- **K-factor steps down with games played** (40 provisional → 24 → 16) — the USCF convention: fresh films converge fast, established ones stay stable.
-- On bracket completion the client POSTs each round's `{winnerId, loserId}` to `POST /api/roll-battle/results`. The repository applies the duels **sequentially in one transaction** against an in-memory snapshot, so the recurring king-of-the-hill champion compounds correctly, then persists each touched film once and appends to the **`BattleMatch` append-only log** (kept so Elo can be recomputed/audited, or a **Bradley–Terry** batch fit run later). Unknown film ids are dropped up front to protect the FK writes.
-- `GET /api/roll-battle/leaderboard` returns the top films by rating (min `LEADERBOARD_MIN_GAMES = 3` so one lucky win can't top the board), short-cached 60s; the Stats page renders it via the existing record-group UI.
-
-**Why this algorithm.** Aggregating sparse pairwise votes into a single ranking is *the* canonical Elo use case; it's incremental (no global refit per vote) and famous/legible. **Bradley–Terry** (the statistical model underneath) and **TrueSkill** (Bayesian) are the heavier alternatives — deferred, but the match log makes a later Bradley–Terry fit a pure batch job, no data migration.
-
-**Deferred (honest scope):** results are submitted anonymously; folding a signed-in user's own picks into their **taste profile** as a pairwise signal is a clean follow-up (the route already accepts an optional `userId`). **Needs a migration: `npm run db:migrate`** (user-run) to create `FilmRating` / `BattleMatch`.
-
----
-
-## 12. Confusability-based distractor selection — Guess the Film
-
-**Feature:** `/blind-roll` ("Guess the Film") — a hidden film + 4 suspect titles; the player guesses from clues (decade, award trail, creators).
-**Where:** `backend/src/routes/blindRollRoute/{distractors,repository,service}.ts`, `routes/blindRoll.ts`; frontend `frontend/src/app/blind-roll/page.tsx`.
-
-**The gap it closed.** The wrong answers were previously **3 fully random films** from the whole catalog. Against a "1930s Oscar film" clue, three random modern titles are eliminable on sight — the puzzle solved itself, and "difficulty" only changed *how many clues* were shown, not how hard the choices were.
-
-**The algorithm — hard-negative mining.** Good decoys are the ones *confusable* with the answer. Each candidate is scored by **TF-IDF cosine similarity to the target** over its award/genre/decade/creator features (the §4 primitive: a shared *rare* trait — same director, same festival+year — outweighs a shared common one). Then:
-- **Candidate pool** = eligible films (poster + ≥1 genre + an award trail) from the **target's own decade**, so the visible decade clue can't trivially eliminate them; broadened to the catalog only if a decade is too thin (graceful degradation).
-- **Difficulty = the similarity band** the decoys are drawn from: `hard = [0, 0.25]` (most similar, hardest to rule out), `medium = [0.2, 0.6]`, `easy = [0.55, 1.0]` (clearly different). A little sampling within the band keeps one target from always yielding the identical four options.
-- Difficulty now genuinely changes the puzzle — the UI toggle **re-selects decoys for the same hidden film** rather than only toggling clue visibility.
-
-**Why this design.** Confusability/hard-negative selection is the standard technique in automatic question generation and assessment; cosine over the existing TF-IDF feature space is a direct, honest reuse (unlike the Describe-It reranker, this *is* film-to-film structured similarity). Runs server-side in one request (was 3 sequential random round-trips) with a `no-store` response. **Known tuning note:** the feature set is coarse for films with little shared signal (genre + award-nominee tokens dominate), so an occasional off-genre decoy can reach the hard band; requiring genre overlap for hard mode is a clean future refinement. **Fix along the way:** the old `sort(() => Math.random() - 0.5)` shuffle (biased) is replaced by Fisher–Yates.
 
 ---
 

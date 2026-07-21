@@ -26,11 +26,6 @@ describe.runIf(process.env['RUN_DB_TESTS'] === '1')('recommender (integration)',
 
     const watched = await prisma.watchedFilm.count({ where: { userId: FIXTURE_USER_ID } });
     expect(watched).toBe(2);
-
-    const rating = await prisma.userRating.findFirst({
-      where: { userId: FIXTURE_USER_ID, filmId: 'itest_film_1' },
-    });
-    expect(rating?.rating).toBe(9);
   });
 
   it('recommend() runs the DB-backed path and returns a versioned result', async () => {

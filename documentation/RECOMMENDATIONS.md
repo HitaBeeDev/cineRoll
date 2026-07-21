@@ -15,17 +15,14 @@ Positive pulls taste toward a film's features, negative pushes away.
 
 | Signal | Weight |
 |---|---|
-| Numeric rating 7–10 | +1.0 → +1.5 (linear) |
 | Liked (thumbs up) | +1.0 |
-| Rating 4–7 (neutral zone) | −0.25 → +0.25 |
 | Watchlist add | +0.4 |
-| Watched, no rating | +0.25 |
+| Watched (no thumb) | +0.25 |
 | "Not interested" | −0.6 |
 | Disliked (thumbs down) | −1.0 |
-| Numeric rating 1–4 | −1.0 → −1.5 (linear) |
 
-Deliberate ordering: an explicit numeric rating beats a thumb, a thumb beats
-merely watching, and saving to the watchlist is intent, not a verdict.
+Deliberate ordering: a thumb beats merely watching, and saving to the watchlist
+is intent, not a verdict.
 
 Signals decay with a **90-day half-life** (`recencyDecay`): a like from six
 months ago counts ~25% of a like today, so current taste wins.
@@ -101,9 +98,9 @@ weights that produced the score — up to two strongest true phrases:
 *"Because you liked Chinatown and watch a lot of Crime."*
 
 Cold-start users have no history, so "because you watch a lot of X" would be a
-lie. They get honest pedigree hooks instead ("#14 on IMDb's Top 250", "A Cannes
-winner in Drama — one of your starting genres"), rotated by card position so the
-grid doesn't repeat one string.
+lie. They get honest pedigree hooks instead ("A Cannes winner in Drama — one of
+your starting genres", "Among the highest-rated Drama films"), rotated by card
+position so the grid doesn't repeat one string.
 
 ## 7. Taste-weighted roll + exploration
 

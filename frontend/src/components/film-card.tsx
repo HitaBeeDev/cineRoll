@@ -3,7 +3,6 @@
 import { useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-// import { Star } from "lucide-react"; // user ratings hidden for now
 import type { AwardBodyFilter, Film } from "@cineroll/types";
 import { cn } from "@/lib/utils";
 import { formatFilmYear } from "@/lib/format";
@@ -73,10 +72,7 @@ function getListBadge(film: Film) {
 }
 
 interface FilmCardProps {
-  film: Film & {
-    averageRating?: number | null;
-    ratingCount?: number;
-  };
+  film: Film;
   className?: string | undefined;
   // Award bodies the badge count is scoped to (from the browse filter). Empty or
   // omitted → count across all bodies.
@@ -90,10 +86,6 @@ export function FilmCard({ film, className, awardBodies, awardStatus = "any" }: 
   const badge = getAwardBadge(film, awardBodies ?? [], awardStatus);
   const listBadge = getListBadge(film);
   const primaryGenre = film.genres[0] ?? film.contentType;
-  // User ratings hidden for now — feature disabled by request.
-  // const averageRating = film.averageRating ?? null;
-  // const ratingCount = film.ratingCount ?? 0;
-  // const showAverageRating = averageRating !== null && ratingCount > 0;
 
   useEffect(() => {
     const node = cardRef.current;
@@ -178,18 +170,6 @@ export function FilmCard({ film, className, awardBodies, awardStatus = "any" }: 
             )}
           </div>
         )}
-
-        {/* User ratings hidden for now — feature disabled by request. */}
-        {/* {showAverageRating && (
-          <span
-            aria-label={`CineRoll average rating ${averageRating.toFixed(1)} from ${ratingCount} ${ratingCount === 1 ? "rating" : "ratings"}`}
-            title={`CineRoll average ${averageRating.toFixed(1)}/10`}
-            className="absolute right-2.5 top-2.5 inline-flex items-center gap-1 rounded-full border border-[#e8453c]/35 bg-black/70 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] font-semibold tracking-[0.1em] text-[#ff8a82] shadow-lg shadow-black/25 backdrop-blur-sm"
-          >
-            <Star className="h-3 w-3 fill-current" aria-hidden />
-            {averageRating.toFixed(1)}
-          </span>
-        )} */}
 
         <div className="absolute inset-x-2.5 bottom-2.5 flex translate-y-2 items-center justify-end gap-2 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
           <div className="flex items-center gap-1.5">

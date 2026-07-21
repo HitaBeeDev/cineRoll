@@ -515,7 +515,6 @@ export type FilmStatus = {
   sentiment: "like" | "dislike" | null;
   doNotSuggest: boolean;
   inWatchlist: boolean;
-  rating: number | null;
 };
 
 export async function fetchFilmStatus(filmId: string): Promise<FilmStatus> {
@@ -526,27 +525,6 @@ export async function fetchFilmStatus(filmId: string): Promise<FilmStatus> {
     });
   }
   return res.json() as Promise<FilmStatus>;
-}
-
-export async function saveFilmRating(filmId: string, rating: number): Promise<void> {
-  const res = await fetch("/api/user/ratings", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ filmId, rating }),
-  });
-  if (!res.ok) {
-    const body = (await res.json().catch(() => ({}))) as { code?: string };
-    throw Object.assign(new Error("Failed to save rating"), {
-      code: body.code ?? "UNKNOWN",
-      status: res.status,
-    });
-  }
-
-  trackEvent({
-    type: "rating_set",
-    filmId,
-    context: { source: "rating_widget", rating },
-  });
 }
 
 export async function addFilmToWatchlist(filmId: string): Promise<void> {
@@ -708,62 +686,6 @@ export async function submitTasteResult(comparisons: TasteComparison[]): Promise
   });
   if (!res.ok) throw new Error("Failed to read your taste");
   return res.json() as Promise<TasteResult>;
-}
-
-export type BattleMatchResult = { winnerId: string; loserId: string };
-
-export type BattleLeaderboardFilm = {
-  id: string;
-  slug: string;
-  title: string;
-  releaseYear: number;
-  posterUrl: string | null;
-  rating: number;
-  games: number;
-  wins: number;
-};
-
-// Fire-and-forget: record a completed bracket's pairwise outcomes so they feed
-// the global Elo leaderboard. Failures are swallowed — losing a vote must never
-// break the result screen.
-export async function submitBattleResults(results: BattleMatchResult[]): Promise<void> {
-  if (results.length === 0) return;
-  try {
-    await fetch(`${API_URL}/api/roll-battle/results`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ results }),
-      keepalive: true,
-    });
-  } catch {
-    // ignore — best-effort telemetry
-  }
-}
-
-export type BlindRollDifficulty = "easy" | "medium" | "hard";
-export type BlindRollRound = { film: RollFilm; options: RollFilm[] };
-
-// One puzzle round: a hidden target film plus difficulty-tuned decoys, chosen
-// server-side by TF-IDF-cosine confusability. `filmSlug` fixes the answer (shared
-// challenge links) while the decoys still follow the requested difficulty.
-export async function fetchBlindRoll(
-  difficulty: BlindRollDifficulty,
-  filmSlug?: string,
-): Promise<BlindRollRound> {
-  const params = new URLSearchParams({ difficulty });
-  if (filmSlug) params.set("film", filmSlug);
-  const res = await fetch(`${API_URL}/api/blind-roll?${params.toString()}`, { cache: "no-store" });
-  if (!res.ok) throw new Error("Failed to fetch blind roll round");
-  return res.json() as Promise<BlindRollRound>;
-}
-
-export async function fetchBattleLeaderboard(limit = 10): Promise<BattleLeaderboardFilm[]> {
-  const res = await fetch(`${API_URL}/api/roll-battle/leaderboard?limit=${limit}`, {
-    cache: "no-store",
-  });
-  if (!res.ok) throw new Error("Failed to fetch Roll Battle leaderboard");
-  const data = (await res.json()) as { films: BattleLeaderboardFilm[] };
-  return data.films;
 }
 
 // Facet lists (genres, countries, …) are effectively static within a session,

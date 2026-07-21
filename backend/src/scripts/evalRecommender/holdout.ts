@@ -1,16 +1,11 @@
 import { HOLDOUT_FRACTION, HOLDOUT_MAX, MIN_LIKED } from "./config";
-import type { LikedFilmRef, RatingRow, WatchedRow } from "./types";
-import { ratingWeight } from "../../lib/tasteWeights";
+import type { LikedFilmRef, WatchedRow } from "./types";
 
-export function likedFilmRefs(watched: WatchedRow[], ratings: RatingRow[]): LikedFilmRef[] {
-  const positiveRows = [
-    ...watched
-      .filter(entry => entry.sentiment === "like" && !entry.doNotSuggest)
-      .map(entry => ({ filmId: entry.filmId, at: entry.watchedAt })),
-    ...ratings
-      .filter(entry => ratingWeight(entry.rating) > 0)
-      .map(entry => ({ filmId: entry.filmId, at: entry.updatedAt })),
-  ].sort((a, b) => b.at.getTime() - a.at.getTime());
+export function likedFilmRefs(watched: WatchedRow[]): LikedFilmRef[] {
+  const positiveRows = watched
+    .filter(entry => entry.sentiment === "like" && !entry.doNotSuggest)
+    .map(entry => ({ filmId: entry.filmId, at: entry.watchedAt }))
+    .sort((a, b) => b.at.getTime() - a.at.getTime());
 
   return Array.from(new Map(positiveRows.map(row => [row.filmId, row])).values());
 }

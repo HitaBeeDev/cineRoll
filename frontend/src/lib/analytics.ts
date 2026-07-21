@@ -7,7 +7,6 @@ export const eventTypes = [
   "watchlist_remove",
   "watched",
   "not_interested",
-  "rating_set",
   "sentiment_set",
   "recommendation_served",
   "recommendation_click",
@@ -233,21 +232,6 @@ export function trackFilmImpression(
   } catch {
     // Analytics must never block the product experience.
   }
-}
-
-export function trackRatingSet(
-  filmId: string,
-  rating: number,
-  context?: Record<string, unknown>,
-): void {
-  trackEvent({
-    type: "rating_set",
-    filmId,
-    context: {
-      rating,
-      ...context,
-    },
-  });
 }
 
 export function trackSentimentSet(

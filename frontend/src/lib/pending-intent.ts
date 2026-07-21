@@ -8,8 +8,6 @@
  * loss: the worst case is the user simply re-does the action.
  */
 
-const RATING_KEY = (filmId: string) => `cineroll.pending.rating.${filmId}`;
-const COMMENT_KEY = (slug: string) => `cineroll.pending.comment.${slug}`;
 const ACTION_KEY = (filmId: string) => `cineroll.pending.action.${filmId}`;
 
 /** A gated film action a guest attempted before signing in. */
@@ -37,29 +35,6 @@ function safeRemove(key: string): void {
   } catch {
     /* no-op */
   }
-}
-
-export function setPendingRating(filmId: string, value: number): void {
-  safeSet(RATING_KEY(filmId), String(value));
-}
-
-export function takePendingRating(filmId: string): number | null {
-  const raw = safeGet(RATING_KEY(filmId));
-  if (raw === null) return null;
-  safeRemove(RATING_KEY(filmId));
-  const value = Number(raw);
-  return Number.isFinite(value) ? value : null;
-}
-
-export function setPendingComment(slug: string, body: string): void {
-  safeSet(COMMENT_KEY(slug), body);
-}
-
-export function takePendingComment(slug: string): string | null {
-  const raw = safeGet(COMMENT_KEY(slug));
-  if (raw === null) return null;
-  safeRemove(COMMENT_KEY(slug));
-  return raw;
 }
 
 const FILM_ACTIONS: readonly PendingFilmAction[] = ["watched", "notInterested", "watchlist"];

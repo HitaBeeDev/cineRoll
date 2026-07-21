@@ -25,17 +25,9 @@ export type WatchlistRow = {
   film: Signal["film"];
 };
 
-export type RatingRow = {
-  filmId: string;
-  rating: number;
-  updatedAt: Date;
-  film: Signal["film"];
-};
-
 export type UserSignalRows = {
   watched: WatchedRow[];
   watchlist: WatchlistRow[];
-  ratings: RatingRow[];
   onboardingGenres: string[];
 };
 

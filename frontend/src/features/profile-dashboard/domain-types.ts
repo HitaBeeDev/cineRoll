@@ -4,9 +4,8 @@ export type ProfileSummary = {
   watchlist: number;
   watched: number;
   hidden: number;
-  rated: number;
   favoriteGenres: string[];
-  genresFromRatings: boolean;
+  genresFromSignals: boolean;
 };
 
 export type RecommendationsResult = {

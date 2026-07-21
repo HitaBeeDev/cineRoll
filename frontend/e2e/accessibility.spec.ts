@@ -40,8 +40,6 @@ function film(overrides: Record<string, unknown> = {}) {
     backdropUrl: null,
     trailerUrl: null,
     imdbRating: 8.4,
-    averageRating: null,
-    ratingCount: 0,
     rtScore: 92,
     imdbTopMovieRank: null,
     imdbTopTvRank: null,

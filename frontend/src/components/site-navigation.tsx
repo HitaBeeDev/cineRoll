@@ -16,11 +16,7 @@ const primaryNavItems = [
   { href: "/stats", label: "Stats" },
 ];
 
-const gameModeItems = [
-  { href: "/taste-test", label: "Taste Test" },
-  // Temporarily removed: "Versus" (/roll-battle) — route kept, hidden from nav.
-  // Temporarily removed: "Guess the Film" (/blind-roll) — route kept, hidden from nav.
-];
+const gameModeItems = [{ href: "/taste-test", label: "Taste Test" }];
 
 type SiteNavigationProps = {
   focusRingClassName?: string;

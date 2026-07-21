@@ -9,12 +9,8 @@ export function DataCollectionSection() {
           records, and email verification status.
         </li>
         <li>
-          Film activity: watch history, watchlist entries, hidden or not-interested films, taste
-          preferences, recommendations, and roll activity.
-        </li>
-        <li>
-          Ratings and comments: film ratings, liked or disliked watched films, public film comments,
-          comment timestamps, and moderation state.
+          Film activity: watch history, liked or disliked watched films, watchlist entries, hidden
+          or not-interested films, taste preferences, recommendations, and roll activity.
         </li>
         <li>
           Analytics events: impressions, clicks, searches, filter usage, recommendation

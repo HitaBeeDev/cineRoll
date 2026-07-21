@@ -13,9 +13,6 @@ vi.mock("../src/lib/cache", () => ({
 vi.mock("../src/lib/prisma", () => ({
   prisma: {
     $transaction: vi.fn(),
-    battleMatch: {
-      updateMany: vi.fn(),
-    },
     event: {
       updateMany: vi.fn(),
     },
@@ -35,7 +32,6 @@ import { accountRouter } from "../src/routes/userRoute/accountRoutes";
 
 const deleteByPrefix = vi.mocked(cache.deleteByPrefix);
 const transaction = vi.mocked(prisma.$transaction);
-const battleUpdateMany = vi.mocked(prisma.battleMatch.updateMany);
 const eventUpdateMany = vi.mocked(prisma.event.updateMany);
 const feedbackUpdateMany = vi.mocked(prisma.siteFeedback.updateMany);
 const userDeleteMany = vi.mocked(prisma.user.deleteMany);
@@ -72,7 +68,6 @@ beforeEach(() => {
   deleteByPrefix.mockResolvedValue(undefined);
   transaction.mockResolvedValue([]);
   eventUpdateMany.mockResolvedValue({ count: 3 });
-  battleUpdateMany.mockResolvedValue({ count: 2 });
   feedbackUpdateMany.mockResolvedValue({ count: 1 });
   userDeleteMany.mockResolvedValue({ count: 1 });
   userFindUnique.mockResolvedValue({ email: "person@example.com" });
@@ -104,17 +99,12 @@ describe("account deletion", () => {
         variant: null,
       },
     });
-    expect(battleUpdateMany).toHaveBeenCalledWith({
-      where: { userId: "user-123" },
-      data: { userId: null },
-    });
     expect(feedbackUpdateMany).toHaveBeenCalledWith({
       where: { email: "person@example.com" },
       data: { email: null },
     });
     expect(userDeleteMany).toHaveBeenCalledWith({ where: { id: "user-123" } });
     expect(transaction).toHaveBeenCalledWith([
-      expect.any(Promise),
       expect.any(Promise),
       expect.any(Promise),
       expect.any(Promise),
@@ -129,7 +119,6 @@ describe("account deletion", () => {
     expect(response.status).toBe(204);
     expect(feedbackUpdateMany).not.toHaveBeenCalled();
     expect(transaction).toHaveBeenCalledWith([
-      expect.any(Promise),
       expect.any(Promise),
       expect.any(Promise),
     ]);

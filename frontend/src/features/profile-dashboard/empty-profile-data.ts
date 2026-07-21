@@ -8,9 +8,8 @@ export const EMPTY_PROFILE_SUMMARY: ProfileSummary = {
   watchlist: 0,
   watched: 0,
   hidden: 0,
-  rated: 0,
   favoriteGenres: [],
-  genresFromRatings: false,
+  genresFromSignals: false,
 };
 
 export const EMPTY_COMPLETION_PROGRESS: CompletionProgress = {
