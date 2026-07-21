@@ -2,10 +2,11 @@ import { Router } from "express";
 
 import { getValidated, validate } from "../middleware/validate";
 import {
+  Archetype,
   Comparison,
   filmToVector,
-  matchArchetype,
   profileFromComparisons,
+  rankArchetypes,
   TasteVector,
 } from "./tasteTestRoute/model";
 import { buildQuestions } from "./tasteTestRoute/questions";
@@ -44,10 +45,11 @@ tasteTestRouter.post("/result", validate(resultBodySchema, "body"), async (req, 
   });
 
   const profile = profileFromComparisons(resolved);
-  const archetype = matchArchetype(profile);
+  // rankArchetypes always returns all six anchors, so both are defined.
+  const [archetype, secondary] = rankArchetypes(profile) as [Archetype, Archetype];
 
   const pool = await getCandidatePool();
-  const { byType } = recommend(profile, pool, new Set(involvedIds));
+  const { hero, byType } = recommend(profile, pool, new Set(involvedIds));
 
   res.json({
     archetype: {
@@ -55,9 +57,12 @@ tasteTestRouter.post("/result", validate(resultBodySchema, "body"), async (req, 
       label: archetype.label,
       emoji: archetype.emoji,
       blurb: archetype.blurb,
+      accent: archetype.accent,
     },
+    secondaryArchetype: { key: secondary.key, label: secondary.label, emoji: secondary.emoji },
     traits: archetype.tags,
     profile,
+    hero,
     recommendations: byType,
   });
 });

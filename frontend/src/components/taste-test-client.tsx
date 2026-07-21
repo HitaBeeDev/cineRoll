@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { ArrowRight, RotateCcw, Share2, Sparkles } from "lucide-react";
+import { ArrowRight, Compass, Download, RotateCcw, Share2, Sparkles, X } from "lucide-react";
 import { AppHeader } from "@/components/app-header";
 import { useToast } from "@/components/ui/toast";
 import {
@@ -18,7 +18,17 @@ import {
 } from "@/lib/api";
 import { trackEvent } from "@/lib/analytics";
 import { blurDataUrl, tmdbImageUrl } from "@/lib/images";
+import { dnaBars, insights, whyReasons } from "@/lib/taste-insights";
+import { drawShareCard, renderShareCard, type ShareCardData } from "@/lib/share-card";
 import { cn } from "@/lib/utils";
+
+/** #rrggbb + alpha → rgba() for accent-tinted inline styles. */
+function withAlpha(hex: string, alpha: number): string {
+  const m = /^#?([0-9a-f]{6})$/i.exec(hex.trim());
+  if (!m) return hex;
+  const n = parseInt(m[1]!, 16);
+  return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${alpha})`;
+}
 
 type Phase = "intro" | "quiz" | "scoring" | "result" | "error";
 
@@ -32,7 +42,6 @@ const TYPE_LABEL: Record<string, string> = {
 
 export function TasteTestClient() {
   const reduceMotion = useReducedMotion();
-  const { toast } = useToast();
 
   const [phase, setPhase] = useState<Phase>("intro");
   const [questions, setQuestions] = useState<TasteQuestion[]>([]);
@@ -107,22 +116,6 @@ export function TasteTestClient() {
       .catch(() => {});
   }
 
-  async function share() {
-    if (!result) return;
-    const text = `I'm a ${result.archetype.label} ${result.archetype.emoji} on the CineRoll Taste Test`;
-    const url = typeof window !== "undefined" ? `${window.location.origin}/taste-test` : "";
-    try {
-      if (navigator.share) {
-        await navigator.share({ title: "CineRoll Taste Test", text, url });
-      } else {
-        await navigator.clipboard.writeText(`${text} — ${url}`);
-        toast({ title: "Copied to clipboard", description: "Share your archetype." });
-      }
-    } catch {
-      /* user dismissed the share sheet — nothing to do */
-    }
-  }
-
   return (
     // flex-1 (not min-h-screen) so the page fills the viewport *minus* the global
     // footer — using min-h-screen here would stack a full 100vh on top of the
@@ -152,7 +145,6 @@ export function TasteTestClient() {
               key="result"
               result={result}
               onRetake={retake}
-              onShare={share}
               reduceMotion={reduceMotion}
             />
           )}
@@ -336,7 +328,23 @@ function PosterChoice({
 
 /* ── Scoring ────────────────────────────────────────────────────────────── */
 
+// The reveal cycles a few lines so the wait reads as the model *working*, not a
+// spinner. Steps advance on a timer; the last line holds until the result lands.
+const SCORING_STEPS = [
+  "Analysing your cinematic instincts…",
+  "Weighing what you chose against what you passed on…",
+  "Naming your taste…",
+];
+
 function ScoringPanel() {
+  const [step, setStep] = useState(0);
+  useEffect(() => {
+    const id = setInterval(
+      () => setStep((s) => Math.min(s + 1, SCORING_STEPS.length - 1)),
+      900,
+    );
+    return () => clearInterval(id);
+  }, []);
   return (
     <motion.section
       initial={{ opacity: 0 }}
@@ -345,104 +353,352 @@ function ScoringPanel() {
       className="flex flex-1 flex-col items-center justify-center py-24 text-center"
     >
       <Sparkles className="h-8 w-8 animate-pulse text-[#e8453c]" aria-hidden />
-      <p className="mt-5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.32em] text-[#888899]">
-        Reading your taste…
-      </p>
+      <div className="mt-5 h-4">
+        <AnimatePresence mode="wait">
+          <motion.p
+            key={step}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.3 }}
+            className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.32em] text-[#888899]"
+          >
+            {SCORING_STEPS[step]}
+          </motion.p>
+        </AnimatePresence>
+      </div>
     </motion.section>
   );
 }
 
 /* ── Result ─────────────────────────────────────────────────────────────── */
 
+/** Fades + lifts a result section in, staggered by `delay` for a cinematic reveal. */
+function Reveal({
+  delay,
+  reduceMotion,
+  className,
+  children,
+}: {
+  delay: number;
+  reduceMotion: boolean | null;
+  className?: string;
+  children: ReactNode;
+}) {
+  return (
+    <motion.div
+      initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay, duration: 0.5, ease: "easeOut" }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
 function ResultPanel({
   result,
   onRetake,
-  onShare,
   reduceMotion,
 }: {
   result: TasteResult;
   onRetake: () => void;
-  onShare: () => void;
   reduceMotion: boolean | null;
 }) {
-  const { archetype, traits, recommendations } = result;
+  const { archetype, secondaryArchetype, traits, profile, hero, recommendations } = result;
+  const accent = archetype.accent;
+  const [shareOpen, setShareOpen] = useState(false);
+
+  const bars = dnaBars(profile);
+  const reads = insights(profile);
+  const reasons = whyReasons(profile);
+
   return (
     <motion.section
-      initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.4 }}
-      className="flex flex-1 flex-col py-6"
+      transition={{ duration: 0.3 }}
+      style={{ ["--accent" as string]: accent }}
+      className="flex flex-1 flex-col pb-10"
     >
-      {/* Reveal */}
-      <div className="text-center">
-        <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.32em] text-[#888899]">
-          Your archetype
-        </p>
-        <motion.div
-          initial={reduceMotion ? { opacity: 0 } : { scale: 0.6, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: 0.1, type: "spring", stiffness: 220, damping: 16 }}
-          className="mt-3 text-6xl sm:text-7xl"
-        >
-          {archetype.emoji}
-        </motion.div>
-        <h1 className="mt-3 font-[family-name:var(--font-display)] text-4xl font-bold leading-none tracking-tight sm:text-6xl">
-          {archetype.label}
-        </h1>
-        <p className="mx-auto mt-4 max-w-xl text-balance text-base leading-7 text-[#b6b6c6]">
-          {archetype.blurb}
-        </p>
-        {traits.length > 0 && (
-          <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
-            {traits.map((t) => (
-              <span
-                key={t}
-                className="rounded-full border border-[#2a2a3e] bg-[#11111b] px-3 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.16em] text-[#d8d8df]"
-              >
-                {t}
-              </span>
+      {/* ── Hero ── */}
+      <Reveal delay={0} reduceMotion={reduceMotion} className="relative">
+        {/* Accent glow standing in for the "cinematic background". */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 -top-6 h-72"
+          style={{
+            background: `radial-gradient(60% 100% at 50% 0%, ${withAlpha(accent, 0.22)} 0%, transparent 70%)`,
+          }}
+        />
+        <div className="relative pt-8 text-center">
+          <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.32em] text-[#888899]">
+            Your cinematic archetype
+          </p>
+          <motion.div
+            initial={reduceMotion ? { opacity: 0 } : { scale: 0.5, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.15, type: "spring", stiffness: 200, damping: 15 }}
+            className="mx-auto mt-4 flex h-24 w-24 items-center justify-center rounded-full text-5xl sm:h-28 sm:w-28 sm:text-6xl"
+            style={{
+              background: withAlpha(accent, 0.12),
+              boxShadow: `0 0 60px ${withAlpha(accent, 0.35)}`,
+              border: `1px solid ${withAlpha(accent, 0.4)}`,
+            }}
+          >
+            {archetype.emoji}
+          </motion.div>
+          <h1
+            className="mt-5 font-[family-name:var(--font-display)] text-4xl font-bold leading-none tracking-tight sm:text-6xl"
+            style={{ color: accent }}
+          >
+            {archetype.label}
+          </h1>
+          <p className="mx-auto mt-4 max-w-2xl text-balance text-base leading-7 text-[#c8c8d4] sm:text-lg">
+            {archetype.blurb}
+          </p>
+          {traits.length > 0 && (
+            <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+              {traits.map((t) => (
+                <span
+                  key={t}
+                  className="rounded-full border px-3 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.16em]"
+                  style={{ borderColor: withAlpha(accent, 0.35), color: "#e6e6ee", background: withAlpha(accent, 0.06) }}
+                >
+                  {t}
+                </span>
+              ))}
+            </div>
+          )}
+          <p className="mt-5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em] text-[#7c7c8c]">
+            Secondary leaning · {secondaryArchetype.emoji} {secondaryArchetype.label}
+          </p>
+
+          {/* Actions — Explore leads, Share is secondary, Retake recedes. */}
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <Link
+              href="/browse"
+              className="inline-flex items-center gap-2 rounded-full px-7 py-3.5 font-[family-name:var(--font-geist-mono)] text-[12px] font-bold uppercase tracking-[0.16em] text-[#09090f] transition-all hover:brightness-110 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090f]"
+              style={{ background: accent }}
+            >
+              <Compass className="h-4 w-4" aria-hidden />
+              Explore your taste
+            </Link>
+            <button
+              type="button"
+              onClick={() => setShareOpen(true)}
+              className="inline-flex items-center gap-2 rounded-full border border-[#2a2a3e] bg-[#11111b] px-5 py-3 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.16em] text-[#F5F5F0] transition-colors hover:border-[#6a6a85] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
+            >
+              <Share2 className="h-3.5 w-3.5" aria-hidden />
+              Share result
+            </button>
+            <button
+              type="button"
+              onClick={onRetake}
+              className="inline-flex items-center gap-1.5 rounded-full px-3 py-3 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.16em] text-[#6c6c80] transition-colors hover:text-[#b6b6c6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
+            >
+              <RotateCcw className="h-3.5 w-3.5" aria-hidden />
+              Retake
+            </button>
+          </div>
+        </div>
+      </Reveal>
+
+      {/* ── Perfect match ── */}
+      {hero && (
+        <Reveal delay={0.2} reduceMotion={reduceMotion} className="mt-14">
+          <SectionHeading accent={accent}>Your perfect match</SectionHeading>
+          <div className="mt-4">
+            <HeroRecCard film={hero} accent={accent} reasons={reasons} />
+          </div>
+        </Reveal>
+      )}
+
+      {/* ── Cinematic DNA + what the picks revealed ── */}
+      <Reveal delay={0.3} reduceMotion={reduceMotion} className="mt-14">
+        <SectionHeading accent={accent}>Your cinematic DNA</SectionHeading>
+        <div className="mt-5 grid gap-8 rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 sm:p-8 md:grid-cols-2">
+          <div className="flex flex-col justify-center gap-6">
+            {bars.map((bar) => (
+              <DnaBar key={bar.key} bar={bar} accent={accent} />
             ))}
           </div>
-        )}
-        <div className="mt-7 flex items-center justify-center gap-3">
-          <button
-            type="button"
-            onClick={onShare}
-            className="inline-flex items-center gap-2 rounded-full border border-[#2a2a3e] bg-[#11111b] px-5 py-2.5 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.16em] text-[#F5F5F0] transition-colors hover:border-[#6a6a85] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
-          >
-            <Share2 className="h-3.5 w-3.5" aria-hidden />
-            Share
-          </button>
-          <button
-            type="button"
-            onClick={onRetake}
-            className="inline-flex items-center gap-2 rounded-full px-4 py-2.5 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.16em] text-[#888899] transition-colors hover:text-[#F5F5F0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
-          >
-            <RotateCcw className="h-3.5 w-3.5" aria-hidden />
-            Retake
-          </button>
+          <div className="flex flex-col justify-center">
+            <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.2em] text-[#888899]">
+              What your picks revealed
+            </p>
+            <ul className="mt-4 space-y-3">
+              {reads.map((line) => (
+                <li key={line} className="flex gap-3 text-[15px] leading-6 text-[#d0d0da]">
+                  <span aria-hidden style={{ color: accent }} className="mt-0.5 shrink-0">
+                    ▸
+                  </span>
+                  {line}
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
-      </div>
+      </Reveal>
 
-      {/* One pick per type — the payoff: what to watch, across every kind. */}
+      {/* ── And in every kind ── */}
       {recommendations.length > 0 && (
-        <div className="mt-12">
-          <h2 className="text-center font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.24em] text-[#888899]">
-            What to watch — every kind
-          </h2>
+        <Reveal delay={0.4} reduceMotion={reduceMotion} className="mt-14">
+          <SectionHeading accent={accent}>And a pick in every kind</SectionHeading>
           <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5 lg:grid-cols-5">
             {recommendations.map((film) => (
-              <RecCard key={film.id} film={film} />
+              <RecCard key={film.id} film={film} accent={accent} />
             ))}
           </div>
-        </div>
+        </Reveal>
       )}
+
+      <AnimatePresence>
+        {shareOpen && (
+          <ShareModal
+            result={result}
+            bars={bars}
+            onClose={() => setShareOpen(false)}
+          />
+        )}
+      </AnimatePresence>
     </motion.section>
   );
 }
 
-function RecCard({ film }: { film: TasteRecFilm }) {
+function SectionHeading({ accent, children }: { accent: string; children: ReactNode }) {
+  return (
+    <div className="flex items-center gap-3">
+      <span aria-hidden className="h-px flex-1" style={{ background: `linear-gradient(to right, transparent, ${withAlpha(accent, 0.3)})` }} />
+      <h2 className="font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.24em] text-[#9a9aa8]">
+        {children}
+      </h2>
+      <span aria-hidden className="h-px flex-1" style={{ background: `linear-gradient(to left, transparent, ${withAlpha(accent, 0.3)})` }} />
+    </div>
+  );
+}
+
+function MatchBadge({ match, accent }: { match: number; accent: string }) {
+  return (
+    <span
+      className="inline-flex items-center rounded-full px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.1em]"
+      style={{ background: withAlpha(accent, 0.16), color: accent, border: `1px solid ${withAlpha(accent, 0.4)}` }}
+    >
+      {match}% match
+    </span>
+  );
+}
+
+function HeroRecCard({
+  film,
+  accent,
+  reasons,
+}: {
+  film: TasteRecFilm;
+  accent: string;
+  reasons: { label: string; desc: string }[];
+}) {
+  const poster = tmdbImageUrl(film.posterUrl, "w342");
+  const backdrop = tmdbImageUrl(film.backdropUrl, "w780");
+  return (
+    <Link
+      href={`/film/${film.slug}`}
+      onClick={() =>
+        trackEvent({
+          type: "recommendation_click",
+          filmId: film.id,
+          context: { source: "taste_test_hero", slug: film.slug },
+        })
+      }
+      className="group relative flex gap-5 overflow-hidden rounded-2xl border border-white/[0.08] bg-[#11111a] p-4 transition-all duration-300 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] sm:p-5"
+      style={{ borderColor: withAlpha(accent, 0.25) }}
+    >
+      {backdrop && (
+        <>
+          <Image
+            src={backdrop}
+            alt=""
+            fill
+            aria-hidden
+            sizes="(max-width: 900px) 100vw, 900px"
+            className="object-cover opacity-[0.16] transition-opacity duration-300 group-hover:opacity-25"
+          />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#11111a] via-[#11111a]/85 to-[#11111a]/40" />
+        </>
+      )}
+      <div className="relative aspect-[2/3] w-24 shrink-0 overflow-hidden rounded-lg border border-white/10 bg-[#0a0a14] sm:w-32">
+        {poster ? (
+          <Image
+            src={poster}
+            alt={film.title}
+            fill
+            sizes="128px"
+            placeholder="blur"
+            blurDataURL={blurDataUrl(film.posterColor)}
+            className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+          />
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a2e] to-[#0a0a14]" />
+        )}
+      </div>
+      <div className="relative flex min-w-0 flex-col justify-center py-1">
+        <MatchBadge match={film.match} accent={accent} />
+        <h3 className="mt-2 font-[family-name:var(--font-display)] text-2xl font-bold leading-tight text-[#f4f2fa] sm:text-3xl">
+          {film.title}
+          <span className="ml-2 text-lg font-normal text-[#9d98ad]">{film.year}</span>
+        </h3>
+        {film.genres.length > 0 && (
+          <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-[#9d98ad]">
+            {film.genres.slice(0, 3).join(" · ")}
+          </p>
+        )}
+        {reasons.length > 0 && (
+          <p className="mt-3 text-sm leading-6 text-[#c8c8d4]">
+            <span className="text-[#8b8b9a]">Because you value </span>
+            {reasons.map((r, i) => (
+              <span key={r.label}>
+                <span style={{ color: accent }}>{r.label.toLowerCase()}</span>
+                {i < reasons.length - 1 ? " · " : ""}
+              </span>
+            ))}
+          </p>
+        )}
+        <span className="mt-4 inline-flex items-center gap-1 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.16em] text-[#b6b6c6] transition-colors group-hover:text-white">
+          View film <ArrowRight className="h-3.5 w-3.5" aria-hidden />
+        </span>
+      </div>
+    </Link>
+  );
+}
+
+function DnaBar({ bar, accent }: { bar: { left: string; right: string; value: number }; accent: string }) {
+  const leansRight = bar.value >= 50;
+  const strength = leansRight ? bar.value : 100 - bar.value;
+  return (
+    <div>
+      <div className="mb-1.5 flex items-center justify-between font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.12em]">
+        <span className={leansRight ? "text-[#5c5c6c]" : "text-[#e6e6ee]"}>{bar.left}</span>
+        <span className={leansRight ? "text-[#e6e6ee]" : "text-[#5c5c6c]"}>{bar.right}</span>
+      </div>
+      <div className="relative h-2.5 overflow-hidden rounded-full bg-[#1c1c28]">
+        <motion.div
+          className="absolute top-0 h-full rounded-full"
+          style={{
+            background: accent,
+            [leansRight ? "right" : "left"]: 0,
+          }}
+          initial={{ width: 0 }}
+          animate={{ width: `${strength}%` }}
+          transition={{ delay: 0.4, duration: 0.7, ease: "easeOut" }}
+        />
+      </div>
+    </div>
+  );
+}
+
+function RecCard({ film, accent }: { film: TasteRecFilm; accent: string }) {
   const poster = tmdbImageUrl(film.posterUrl, "w342");
   return (
     <Link
@@ -456,7 +712,7 @@ function RecCard({ film }: { film: TasteRecFilm }) {
       }
       className="group block focus-visible:outline-none"
     >
-      <div className="relative aspect-[2/3] overflow-hidden rounded-lg border border-white/[0.08] bg-[#11111a] transition-all duration-300 group-hover:-translate-y-1 group-hover:border-[#e8453c]/40 group-focus-visible:ring-2 group-focus-visible:ring-[#e8453c]">
+      <div className="relative aspect-[2/3] overflow-hidden rounded-lg border border-white/[0.08] bg-[#11111a] transition-all duration-300 group-hover:-translate-y-1 group-focus-visible:ring-2 group-focus-visible:ring-[#e8453c]">
         {poster ? (
           <Image
             src={poster}
@@ -470,8 +726,14 @@ function RecCard({ film }: { film: TasteRecFilm }) {
         ) : (
           <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a2e] to-[#0a0a14]" />
         )}
-        <span className="absolute left-2 top-2 rounded-full border border-[#2dd4bf]/40 bg-black/75 px-2 py-0.5 font-[family-name:var(--font-geist-mono)] text-[10px] font-semibold uppercase tracking-[0.14em] text-[#5eead4] backdrop-blur-sm">
+        <span className="absolute left-2 top-2 rounded-full border border-white/15 bg-black/75 px-2 py-0.5 font-[family-name:var(--font-geist-mono)] text-[10px] font-semibold uppercase tracking-[0.14em] text-[#d8d8df] backdrop-blur-sm">
           {TYPE_LABEL[film.contentType] ?? film.contentType}
+        </span>
+        <span
+          className="absolute right-2 top-2 rounded-full px-2 py-0.5 font-[family-name:var(--font-geist-mono)] text-[10px] font-bold backdrop-blur-sm"
+          style={{ background: withAlpha(accent, 0.9), color: "#09090f" }}
+        >
+          {film.match}%
         </span>
       </div>
       <h3 className="mt-2 line-clamp-1 text-sm font-semibold text-[#eeeaf6] transition-colors group-hover:text-white">
@@ -481,6 +743,140 @@ function RecCard({ film }: { film: TasteRecFilm }) {
         {film.year}
       </p>
     </Link>
+  );
+}
+
+/* ── Share card ─────────────────────────────────────────────────────────── */
+
+function ShareModal({
+  result,
+  bars,
+  onClose,
+}: {
+  result: TasteResult;
+  bars: ShareCardData["bars"];
+  onClose: () => void;
+}) {
+  const { toast } = useToast();
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [busy, setBusy] = useState(false);
+
+  const heroTitle = result.hero?.title ?? result.recommendations[0]?.title ?? null;
+  const data: ShareCardData = {
+    archetypeLabel: result.archetype.label,
+    emoji: result.archetype.emoji,
+    accent: result.archetype.accent,
+    secondaryLabel: result.secondaryArchetype.label,
+    bars,
+    heroTitle,
+  };
+
+  // Draw the preview once mounted, and close on Escape.
+  useEffect(() => {
+    if (canvasRef.current) drawShareCard(canvasRef.current, data);
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+    // data is derived from a stable result; redrawing on identity churn is fine.
+  }, []);
+
+  const filename = `cineroll-${result.archetype.key}.png`;
+
+  async function onDownload() {
+    setBusy(true);
+    try {
+      const blob = await renderShareCard(data);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      toast({ title: "Couldn't create the image", description: "Please try again." });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function onShare() {
+    setBusy(true);
+    const url = typeof window !== "undefined" ? `${window.location.origin}/taste-test` : "";
+    const text = `I'm a ${result.archetype.label} ${result.archetype.emoji} on the CineRoll Taste Test`;
+    try {
+      const blob = await renderShareCard(data);
+      const file = new File([blob], filename, { type: "image/png" });
+      const nav = navigator as Navigator & { canShare?: (d: ShareData) => boolean };
+      if (nav.canShare?.({ files: [file] }) && navigator.share) {
+        await navigator.share({ title: "CineRoll Taste Test", text, files: [file] });
+      } else if (navigator.share) {
+        await navigator.share({ title: "CineRoll Taste Test", text, url });
+      } else {
+        await navigator.clipboard.writeText(`${text} — ${url}`);
+        toast({ title: "Copied to clipboard", description: "Share your archetype." });
+      }
+    } catch {
+      /* user dismissed the share sheet — nothing to do */
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Share your result"
+    >
+      <motion.div
+        initial={{ scale: 0.94, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.96, opacity: 0 }}
+        transition={{ type: "spring", stiffness: 260, damping: 22 }}
+        onClick={(e) => e.stopPropagation()}
+        className="relative flex w-full max-w-sm flex-col items-center rounded-2xl border border-white/10 bg-[#0d0d16] p-5"
+      >
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Close"
+          className="absolute right-3 top-3 rounded-full p-1.5 text-[#888899] transition-colors hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
+        >
+          <X className="h-4 w-4" aria-hidden />
+        </button>
+        <canvas
+          ref={canvasRef}
+          className="w-full max-w-[280px] rounded-xl shadow-2xl shadow-black/50"
+          style={{ aspectRatio: "1080 / 1350" }}
+        />
+        <div className="mt-5 flex w-full gap-3">
+          <button
+            type="button"
+            onClick={onShare}
+            disabled={busy}
+            className="inline-flex flex-1 items-center justify-center gap-2 rounded-full px-4 py-3 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.16em] text-[#09090f] transition-all hover:brightness-110 disabled:opacity-60"
+            style={{ background: result.archetype.accent }}
+          >
+            <Share2 className="h-3.5 w-3.5" aria-hidden />
+            Share
+          </button>
+          <button
+            type="button"
+            onClick={onDownload}
+            disabled={busy}
+            className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border border-white/15 px-4 py-3 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.16em] text-[#F5F5F0] transition-colors hover:border-white/40 disabled:opacity-60"
+          >
+            <Download className="h-3.5 w-3.5" aria-hidden />
+            Save
+          </button>
+        </div>
+      </motion.div>
+    </motion.div>
   );
 }
 

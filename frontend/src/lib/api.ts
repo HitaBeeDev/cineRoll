@@ -178,12 +178,18 @@ export type TasteRecFilm = Pick<
   | "imdbRating"
   | "genres"
   | "director"
->;
+> & {
+  /** 0–100 fit to the taste profile. */
+  match: number;
+};
 
 export type TasteResult = {
-  archetype: { key: string; label: string; emoji: string; blurb: string };
+  archetype: { key: string; label: string; emoji: string; blurb: string; accent: string };
+  secondaryArchetype: { key: string; label: string; emoji: string };
   traits: string[];
   profile: { origin: number; mood: number; lane: number };
+  /** Best-fitting film of any kind — the headline pick (null if the pool is empty). */
+  hero: TasteRecFilm | null;
   recommendations: TasteRecFilm[];
 };
 
