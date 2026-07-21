@@ -19,8 +19,27 @@ model Film {
   releaseYear       Int                @map("year")
   runtime           Int?
   genres            String[]
+  // Every co-financing country TMDB lists — DISPLAY ONLY. A Turkish co-producer puts a
+  // Norwegian film in here under "Turkey", so filtering on it is what made the country
+  // facet wrong; see originCountries below.
   countries         String[]
+  // The country facet — TMDB's origin_country, i.e. where the film is actually FROM.
+  // Falls back to `countries` at seed time when TMDB has no origin, because an empty
+  // array is permanent invisibility: it matches no country filter, ever.
+  originCountries   String[]
   contentType       String             @default("movie")
+  // The browse facets ("Movie", "Short", "Doc", "Animation") — a set, because a film
+  // can be several at once (a 9-minute war documentary is documentary + short).
+  // Derived at seed time by deriveFilmTypes(); contentType stays single-valued because
+  // the tmdbId uniqueness key below is scoped by it.
+  types             String[]
+  // AI-generated mood/theme/visual-style tags from the tag-enrich pipeline
+  // (controlled vocabulary, lowercase). Scored in-process by the natural-roll
+  // reranker — never SQL-filtered, so no index.
+  moodTags          String[]           @default([])
+  // TMDB keywords from build-master ("jazz", "melancholy", "ambition") —
+  // free-vocabulary semantic signals, same in-process use as moodTags.
+  keywords          String[]           @default([])
   plot              String?
   director          String?
   cast              Json               @default("[]")
@@ -37,6 +56,8 @@ model Film {
   tvType            String?
   tvStartYear       Int?
   tvEndYear         Int?
+  tvSeasons         Int?
+  tvEpisodes        Int?
   oscarNominations  Int                @default(0)
   oscarWins         Int                @default(0)
   oscarCategories   Json               @default("[]")
@@ -55,6 +76,7 @@ model Film {
   rollEvents        RollEvent[]
   events            Event[]
   watchlistEntries  Watchlist[]
+  listEntries       UserListEntry[]
   watchedFilms      WatchedFilm[]
   ratings           UserRating[]
   comments          FilmComment[]
@@ -72,6 +94,8 @@ model Film {
   @@index([releaseYear], map: "Film_year_idx")
   @@index([genres], type: Gin, map: "Film_genres_gin_idx")
   @@index([countries], type: Gin, map: "Film_countries_gin_idx")
+  @@index([originCountries], type: Gin, map: "Film_originCountries_gin_idx")
+  @@index([types], type: Gin, map: "Film_types_gin_idx")
   @@index([title(ops: raw("gin_trgm_ops"))], type: Gin, map: "Film_title_trgm_idx")
   // Sort/range filters on quality scores (browse sort + quality candidate pools).
   @@index([imdbRating], map: "Film_imdbRating_idx")
@@ -131,6 +155,7 @@ model User {
   comments         FilmComment[]
   passwordResets   PasswordResetToken[]
   laneBandit       RollLaneBandit?
+  lists            UserList[]
 
   @@index([email], map: "User_email_idx")
 }
@@ -237,6 +262,35 @@ model Watchlist {
 
   @@unique([userId, filmId])
   @@index([userId], map: "Watchlist_userId_idx")
+}
+
+// User-authored custom lists ("Best Heist Films", "To watch with Mum"). A user
+// keeps at most 20 (enforced in the API); each list holds films via
+// UserListEntry. Both cascade on user delete, so GDPR account removal wipes them
+// with no extra bookkeeping.
+model UserList {
+  id        String          @id @default(cuid())
+  userId    String
+  name      String
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  entries   UserListEntry[]
+
+  @@index([userId], map: "UserList_userId_idx")
+}
+
+model UserListEntry {
+  id      String   @id @default(cuid())
+  listId  String
+  filmId  String
+  addedAt DateTime @default(now())
+  list    UserList @relation(fields: [listId], references: [id], onDelete: Cascade)
+  film    Film     @relation(fields: [filmId], references: [id], onDelete: Cascade)
+
+  @@unique([listId, filmId])
+  @@index([listId], map: "UserListEntry_listId_idx")
+  @@index([filmId], map: "UserListEntry_filmId_idx")
 }
 
 enum WatchedSentiment {
