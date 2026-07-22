@@ -1,10 +1,8 @@
 import { z } from "zod";
 
-import {
-  awardBodiesParam,
-  csvParam,
-  queryBooleanSchema,
-} from "./queryParamSchemas";
+import { awardBodiesParam } from "./queryParams/awardBodiesParam";
+import { createCsvParamSchema } from "./queryParams/createCsvParamSchema";
+import { queryBooleanSchema } from "./queryParams/queryBooleanSchema";
 import { decadeRangeError, validDecadeRange } from "./queryRefinements";
 
 export const listQueryBaseSchema = z.object({
@@ -13,13 +11,13 @@ export const listQueryBaseSchema = z.object({
   director: z.string().trim().min(1).max(120).optional(),
   femaleDirectorOnly: queryBooleanSchema.optional(),
   awardBody: awardBodiesParam,
-  contentType: csvParam(60),
-  language: csvParam(10),
-  genre: csvParam(80),
+  contentType: createCsvParamSchema(60),
+  language: createCsvParamSchema(10),
+  genre: createCsvParamSchema(80),
   // AND-semantics genre filter: the film must carry EVERY listed genre
   // ("romantic musical drama" → Romance ∧ Music ∧ Drama). `genre` stays OR.
-  genreAll: csvParam(80),
-  country: csvParam(80),
+  genreAll: createCsvParamSchema(80),
+  country: createCsvParamSchema(80),
   runtimeMax: z.coerce.number().int().min(1).max(1000).optional(),
   decadeMin: z.coerce.number().int().min(1800).max(2200).optional(),
   decadeMax: z.coerce.number().int().min(1800).max(2200).optional(),
@@ -28,7 +26,7 @@ export const listQueryBaseSchema = z.object({
   imdbRatingMin: z.coerce.number().min(0).max(10).optional(),
   imdbRatingMax: z.coerce.number().min(0).max(10).optional(),
   rtScoreMin: z.coerce.number().int().min(0).max(100).optional(),
-  category: csvParam(120),
+  category: createCsvParamSchema(120),
   winnerOnly: queryBooleanSchema.optional(),
   nominatedOnly: queryBooleanSchema.optional(),
   certificate: z.string().trim().min(1).max(20).optional(),

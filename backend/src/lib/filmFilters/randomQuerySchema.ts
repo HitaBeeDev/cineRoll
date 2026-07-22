@@ -1,13 +1,11 @@
 import { z } from "zod";
 
 import { listQueryBaseSchema } from "./listQuerySchema";
-import {
-  excludedFilmIdsParam,
-  laneBanditFeedbackParam,
-  laneBanditParam,
-  queryFlagSchema,
-  rerollPenaltyParam,
-} from "./queryParamSchemas";
+import { excludedFilmIdsParam } from "./queryParams/excludedFilmIdsParam";
+import { laneBanditFeedbackParam } from "./queryParams/laneBanditFeedbackParam";
+import { laneBanditParam } from "./queryParams/laneBanditParam";
+import { queryFlagSchema } from "./queryParams/queryFlagSchema";
+import { rerollPenaltyParam } from "./queryParams/rerollPenaltyParam";
 import { decadeRangeError, validDecadeRange } from "./queryRefinements";
 
 export const randomQuerySchema = listQueryBaseSchema.extend({
