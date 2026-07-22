@@ -1,0 +1,16 @@
+export const eventTypes = [
+  "roll",
+  "roll_personalized",
+  "impression",
+  "film_click",
+  "watchlist_add",
+  "watchlist_remove",
+  "watched",
+  "not_interested",
+  "sentiment_set",
+  "recommendation_served",
+  "recommendation_click",
+  "search",
+  "filter_apply",
+  "pick_of_day_click",
+] as const;
