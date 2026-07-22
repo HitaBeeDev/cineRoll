@@ -1,180 +1,31 @@
-import { RandomFilmRow } from "../random";
-import { LOCAL_SEMANTIC_KEYWORDS } from "./patterns";
-import { SoftPreferences } from "./softPreferences";
-import { tokenize } from "./tokenize";
+import type { RandomFilmRow } from "../random";
+import { createPromptTokenSet } from "./localReranking/createPromptTokenSet";
+import { expandSemanticTerms } from "./localReranking/expandSemanticTerms";
+import { detectPromptIntent } from "./localReranking/promptIntent";
+import { scoreLocalCandidate } from "./localReranking/scoreLocalCandidate";
+import type { SoftPreferences } from "./softPreferences";
 
-// Deterministic fallback for the rerank step. It must optimize the SAME
-// objective as the Gemini path (see rerankPrompt.ts) so the ordering doesn't
-// swing depending on whether Gemini is available. The objective, in order of
-// weight: content-type guard (movie vs series is absolute), REQUIRED genres
-// (what the film must be — missing one is near-disqualifying), preferred
-// genres, tones, themes, craft keywords, textual relevance, and only then the
-// IMDb rating as a weak tie-breaker — a famous title must never outrank a
-// film that actually matches the request.
-const WEIGHTS = {
-  genreMatch: 4,
-  // Not -Infinity: when relaxation emptied the requirement the pipeline must
-  // still return something — the worst satisfiers just sink to the bottom.
-  requiredGenreMissing: -100,
-  preferredGenreMissing: -2,
-  tone: 3,
-  theme: 2.5,
-  keyword: 2,
-  promptToken: 1.5,
-  expandedToken: 0.5,
-} as const;
-
-export function localRerankCandidates(
+// Deterministic fallback that mirrors the Gemini reranking objective.
+export const localRerankCandidates = (
   prompt: string,
   preferences: SoftPreferences,
   candidates: RandomFilmRow[],
   count: number,
-): string[] {
-  const promptTokens = promptTokenSet(prompt);
-  const expandedTerms = expandTerms(promptTokens);
-  const promptFlags = promptPreferences(prompt);
+): string[] => {
+  const promptTokens = createPromptTokenSet(prompt);
+  const context = {
+    promptTokens,
+    expandedTerms: expandSemanticTerms(promptTokens),
+    promptIntent: detectPromptIntent(prompt),
+  };
 
   return candidates
     .map(film => ({
       id: film.id,
-      score: scoreCandidate(film, preferences, promptTokens, expandedTerms, promptFlags),
+      score: scoreLocalCandidate(film, preferences, context),
     }))
     .filter(result => Number.isFinite(result.score))
-    .sort((a, b) => b.score - a.score)
+    .sort((left, right) => right.score - left.score)
     .slice(0, count)
     .map(result => result.id);
-}
-
-function scoreCandidate(
-  film: RandomFilmRow,
-  preferences: SoftPreferences,
-  promptTokens: Set<string>,
-  expandedTerms: Set<string>,
-  promptFlags: ReturnType<typeof promptPreferences>,
-): number {
-  if (violatesContentType(film, preferences.contentType)) return -Infinity;
-
-  // Mood tags (tag-enrich pipeline) and TMDB keywords are part of the
-  // matchable text — both verbatim (so hyphenated signals like
-  // "character-driven" hit their matching tag exactly) and tokenized (so
-  // "jazz club" also answers for "jazz"). Films without them fall back to
-  // plot/genre tokens.
-  const tags = [...(film.moodTags ?? []), ...(film.keywords ?? [])];
-  const filmTokenSet = new Set([
-    ...filmTokens(film),
-    ...tags.map(tag => tag.toLowerCase()),
-    ...tokenize(tags.join(" ")),
-  ]);
-
-  let score = genreScore(film, preferences.requiredGenres, WEIGHTS.requiredGenreMissing);
-  score += genreScore(film, preferences.preferredGenres, WEIGHTS.preferredGenreMissing);
-  score += softSignalScore(preferences.tones, filmTokenSet) * WEIGHTS.tone;
-  score += softSignalScore(preferences.themes, filmTokenSet) * WEIGHTS.theme;
-  score += softSignalScore(preferences.keywords, filmTokenSet) * WEIGHTS.keyword;
-  score += tokenScore(filmTokenSet, promptTokens, expandedTerms);
-
-  // Quality is a tie-breaker among comparably relevant films, never a driver:
-  // capped at one point so it can't outweigh a single genre match.
-  if (film.imdbRating != null) score += Math.min(film.imdbRating / 10, 1);
-  if (promptFlags.wantsUnderrated && !film.imdbTopMovieRank && !film.imdbTopTvRank) score += 2;
-  if (promptFlags.rejectsGore && containsGoreToken(filmTokenSet)) score -= 5;
-
-  return score;
-}
-
-// The guard covers the movie-vs-series axis only. Finer type distinctions
-// (documentary, short, animation) are already settled by the SQL `types`
-// overlap filter, where a film can legitimately carry several types.
-function violatesContentType(film: RandomFilmRow, requested: string | null): boolean {
-  if (requested === "movie") return film.contentType === "tv-series";
-  if (requested === "tv-series") return film.contentType !== "tv-series";
-
-  return false;
-}
-
-// Each requested genre the film carries earns a bonus; each one it lacks costs
-// the given penalty — near-disqualifying for required genres, a mild dent for
-// preferred ones.
-function genreScore(
-  film: RandomFilmRow,
-  requestedGenres: string[],
-  missingPenalty: number,
-): number {
-  const filmGenres = new Set(film.genres.map(genre => genre.toLowerCase()));
-
-  return requestedGenres.reduce((score, requested) => {
-    const matched = filmGenres.has(requested.toLowerCase());
-
-    return score + (matched ? WEIGHTS.genreMatch : missingPenalty);
-  }, 0);
-}
-
-// A soft signal ("bittersweet", "ambition", "character-driven") counts once
-// per preference term when the film's text contains the term itself or any of
-// its semantic expansions (music → jazz, soundtrack, pianist, …). The raw term
-// is looked up before tokenizing so hyphenated table keys ("character-driven")
-// resolve; the tokenized form then picks up single-word keys inside phrases
-// ("bittersweet ending" → bittersweet).
-function softSignalScore(terms: string[], filmTokenSet: Set<string>): number {
-  return terms.reduce(
-    (matches, term) => matches + (signalMatchesFilm(term, filmTokenSet) ? 1 : 0),
-    0,
-  );
-}
-
-function signalMatchesFilm(term: string, filmTokenSet: Set<string>): boolean {
-  const direct = LOCAL_SEMANTIC_KEYWORDS[term.toLowerCase().trim()] ?? [];
-  const expanded = expandTerms(new Set(tokenize([term, ...direct].join(" "))));
-
-  return [...expanded].some(token => filmTokenSet.has(token));
-}
-
-function promptTokenSet(prompt: string): Set<string> {
-  return new Set(tokenize(prompt).filter(token => token.length > 2));
-}
-
-function expandTerms(terms: Set<string>): Set<string> {
-  const expanded = new Set(terms);
-
-  for (const [term, keywords] of Object.entries(LOCAL_SEMANTIC_KEYWORDS)) {
-    if (terms.has(term)) keywords.forEach(keyword => expanded.add(keyword));
-  }
-
-  return expanded;
-}
-
-function promptPreferences(prompt: string) {
-  return {
-    rejectsGore: /\b(rather than gore|not gore|no gore|less gore)\b/i.test(prompt),
-    wantsUnderrated: /\b(underrated|hidden gem|obscure|overlooked)\b/i.test(prompt),
-  };
-}
-
-function tokenScore(
-  filmTokenSet: Set<string>,
-  promptTokens: Set<string>,
-  expandedTerms: Set<string>,
-): number {
-  let score = 0;
-  for (const token of filmTokenSet) {
-    if (promptTokens.has(token)) score += WEIGHTS.promptToken;
-    else if (expandedTerms.has(token)) score += WEIGHTS.expandedToken;
-  }
-
-  return score;
-}
-
-function filmTokens(film: RandomFilmRow): string[] {
-  return tokenize([
-    film.title,
-    film.originalTitle,
-    film.year,
-    film.genres.join(" "),
-    film.director,
-    film.plot,
-  ].filter(Boolean).join(" "));
-}
-
-function containsGoreToken(tokens: Set<string>): boolean {
-  return ["gore", "bloody", "blood", "slasher"].some(token => tokens.has(token));
-}
+};
