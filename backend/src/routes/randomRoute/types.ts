@@ -1,6 +1,6 @@
 import { Prisma } from "@prisma/client";
 
-import { LanePosteriors } from "./bandit";
+import type { LanePosteriors } from "./bandit/types";
 
 export type RandomFilmRow = {
   id: string;

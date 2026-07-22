@@ -1,5 +1,7 @@
 import { prisma } from "../../lib/prisma";
-import { BetaArm, initialPosteriors, LanePosteriors, LANES } from "./bandit";
+import { createInitialPosteriors } from "./bandit/createInitialPosteriors";
+import { LANES } from "./bandit/lanes";
+import type { BetaArm, LanePosteriors } from "./bandit/types";
 
 // DB persistence for the lane bandit (docs/smart-roll-engine.md §6b). Signed-in
 // users' posteriors live here so the roll keeps learning them across devices;
@@ -12,7 +14,7 @@ export async function loadLanePosteriors(userId: string): Promise<LanePosteriors
     select: { posteriors: true },
   });
 
-  return parsePosteriors(row?.posteriors) ?? initialPosteriors();
+  return parsePosteriors(row?.posteriors) ?? createInitialPosteriors();
 }
 
 export async function persistLanePosteriors(
@@ -30,7 +32,7 @@ function parsePosteriors(value: unknown): LanePosteriors | null {
   if (!value || typeof value !== "object") return null;
 
   const record = value as Record<string, unknown>;
-  const result = initialPosteriors();
+  const result = createInitialPosteriors();
   for (const lane of LANES) {
     const arm = parseArm(record[lane]);
     if (!arm) return null;
