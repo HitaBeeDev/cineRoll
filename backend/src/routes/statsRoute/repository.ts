@@ -6,14 +6,12 @@ import {
   getTotalNominationsRow,
   getTotalWinsRow,
 } from "./awardStatsRepository";
-import {
-  getDecadeTopFilmRows,
-  getFilmRecordRowsByType,
-  getTopNominatedFilmRows,
-  getTopRolledRows,
-  getTopWatchlistedRows,
-  getTopWinningFilmRows,
-} from "./filmStatsRepository";
+import { getDecadeTopFilmRows } from "./filmStats/getDecadeTopFilmRows";
+import { getFilmRecordRowsByType } from "./filmStats/getFilmRecordRowsByType";
+import { getTopNominatedFilmRows } from "./filmStats/getTopNominatedFilmRows";
+import { getTopRolledRows } from "./filmStats/getTopRolledRows";
+import { getTopWatchlistedRows } from "./filmStats/getTopWatchlistedRows";
+import { getTopWinningFilmRows } from "./filmStats/getTopWinningFilmRows";
 import {
   getTopNominatedPersonRows,
   getTopWinningPersonRows,
