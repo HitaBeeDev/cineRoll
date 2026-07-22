@@ -2,7 +2,9 @@ import { BASELINE_PARAMS, RecommenderParams } from "../experiments";
 import { TasteProfileVectors } from "../tasteProfile";
 import { scoreFilm } from "./scoring";
 import { tfidfSimilarity } from "./similarity";
-import { buildIdf, IdfTable, SparseVector, tfidfVector } from "./tfidf";
+import { buildIdf } from "./tfidf/buildIdf";
+import { createTfidfVector } from "./tfidf/createTfidfVector";
+import type { IdfTable, SparseVector } from "./tfidf/types";
 import { CandidateFilm, Scored } from "./types";
 
 export function rankCandidates(
@@ -18,7 +20,7 @@ export function rankCandidates(
   // is supplied (keeps the function pure and self-contained for tests/scripts).
   const idfTable = idf ?? buildIdf(candidates);
   const vectors = new Map<string, SparseVector>(
-    candidates.map(film => [film.id, tfidfVector(film, idfTable)]),
+    candidates.map(film => [film.id, createTfidfVector(film, idfTable)]),
   );
 
   return mmrRerank(

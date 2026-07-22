@@ -1,13 +1,13 @@
 import { describe, it, expect } from "vitest";
 
 import {
-  buildIdf,
-  centroid,
-  cosineSimilarity,
-  filmTokens,
-  TfidfFilm,
-  tfidfVector,
-} from "../src/lib/recommender/tfidf";
+  calculateCentroid,
+} from "../src/lib/recommender/tfidf/calculateCentroid";
+import { calculateCosineSimilarity } from "../src/lib/recommender/tfidf/calculateCosineSimilarity";
+import { buildIdf } from "../src/lib/recommender/tfidf/buildIdf";
+import { createFilmTokens } from "../src/lib/recommender/tfidf/createFilmTokens";
+import { createTfidfVector } from "../src/lib/recommender/tfidf/createTfidfVector";
+import type { TfidfFilm } from "../src/lib/recommender/tfidf/types";
 
 // A film with no awards — spreads the noise out of the fixtures below.
 function film(partial: Partial<TfidfFilm>): TfidfFilm {
@@ -27,9 +27,9 @@ function film(partial: Partial<TfidfFilm>): TfidfFilm {
   };
 }
 
-describe("filmTokens", () => {
+describe("createFilmTokens", () => {
   it("emits genre, director, decade, and award tokens", () => {
-    const tokens = filmTokens(
+    const tokens = createFilmTokens(
       film({
         genres: ["Drama", "Crime"],
         director: "Coppola",
@@ -50,7 +50,7 @@ describe("filmTokens", () => {
   });
 
   it("prefers winner over nominee for the same body", () => {
-    const tokens = filmTokens(film({ oscarWins: 1, oscarNominations: 4 }));
+    const tokens = createFilmTokens(film({ oscarWins: 1, oscarNominations: 4 }));
 
     expect(tokens).toContain("award:oscar_winner");
     expect(tokens).not.toContain("award:oscar_nominee");
@@ -79,7 +79,7 @@ describe("buildIdf", () => {
   });
 });
 
-describe("cosineSimilarity", () => {
+describe("calculateCosineSimilarity", () => {
   const catalog = [
     film({ genres: ["Drama"] }),
     film({ genres: ["Drama"] }),
@@ -88,19 +88,19 @@ describe("cosineSimilarity", () => {
     film({ genres: ["Comedy"] }),
   ];
   const idf = buildIdf(catalog);
-  const vec = (f: TfidfFilm) => tfidfVector(f, idf);
+  const vec = (f: TfidfFilm) => createTfidfVector(f, idf);
 
   it("is 1 for a vector with itself", () => {
     const v = vec(film({ genres: ["Drama", "Film-Noir"] }));
 
-    expect(cosineSimilarity(v, v)).toBeCloseTo(1);
+    expect(calculateCosineSimilarity(v, v)).toBeCloseTo(1);
   });
 
   it("is 0 when two films share no tokens", () => {
     const drama = vec(film({ genres: ["Drama"] }));
     const comedy = vec(film({ genres: ["Comedy"] }));
 
-    expect(cosineSimilarity(drama, comedy)).toBe(0);
+    expect(calculateCosineSimilarity(drama, comedy)).toBe(0);
   });
 
   it("weights a shared RARE tag above a shared COMMON tag", () => {
@@ -111,13 +111,13 @@ describe("cosineSimilarity", () => {
     const sharesRare = vec(film({ genres: ["Film-Noir", "Comedy"] }));
     const sharesCommon = vec(film({ genres: ["Drama", "Comedy"] }));
 
-    expect(cosineSimilarity(query, sharesRare)).toBeGreaterThan(
-      cosineSimilarity(query, sharesCommon),
+    expect(calculateCosineSimilarity(query, sharesRare)).toBeGreaterThan(
+      calculateCosineSimilarity(query, sharesCommon),
     );
   });
 });
 
-describe("centroid", () => {
+describe("calculateCentroid", () => {
   it("averages liked films into a taste vector nearest the shared theme", () => {
     const catalog = [
       film({ genres: ["Crime"] }),
@@ -129,20 +129,20 @@ describe("centroid", () => {
 
     // User liked two crime films → centroid should sit closer to a crime film
     // than to a comedy.
-    const taste = centroid([
-      tfidfVector(film({ genres: ["Crime", "Drama"] }), idf),
-      tfidfVector(film({ genres: ["Crime"] }), idf),
+    const taste = calculateCentroid([
+      createTfidfVector(film({ genres: ["Crime", "Drama"] }), idf),
+      createTfidfVector(film({ genres: ["Crime"] }), idf),
     ]);
 
-    const crime = tfidfVector(film({ genres: ["Crime"] }), idf);
-    const comedy = tfidfVector(film({ genres: ["Comedy"] }), idf);
+    const crime = createTfidfVector(film({ genres: ["Crime"] }), idf);
+    const comedy = createTfidfVector(film({ genres: ["Comedy"] }), idf);
 
-    expect(cosineSimilarity(taste, crime)).toBeGreaterThan(
-      cosineSimilarity(taste, comedy),
+    expect(calculateCosineSimilarity(taste, crime)).toBeGreaterThan(
+      calculateCosineSimilarity(taste, comedy),
     );
   });
 
   it("returns an empty vector for no inputs", () => {
-    expect(centroid([]).size).toBe(0);
+    expect(calculateCentroid([]).size).toBe(0);
   });
 });

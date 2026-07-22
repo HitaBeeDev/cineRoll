@@ -1,4 +1,5 @@
-import { cosineSimilarity, SparseVector } from "./tfidf";
+import { calculateCosineSimilarity } from "./tfidf/calculateCosineSimilarity";
+import type { SparseVector } from "./tfidf/types";
 import { CandidateFilm } from "./types";
 
 // TF-IDF cosine similarity between two films, given their precomputed vectors.
@@ -14,7 +15,7 @@ export function tfidfSimilarity(
   const vectorB = vectors.get(b.id);
   if (!vectorA || !vectorB) return 0;
 
-  return cosineSimilarity(vectorA, vectorB);
+  return calculateCosineSimilarity(vectorA, vectorB);
 }
 
 // Legacy raw-Jaccard similarity — superseded by `tfidfSimilarity` in the MMR

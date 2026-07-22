@@ -1,5 +1,6 @@
 import { prisma } from "../prisma";
-import { buildIdf, IdfTable } from "./tfidf";
+import { buildIdf } from "./tfidf/buildIdf";
+import type { IdfTable } from "./tfidf/types";
 
 // Catalog-wide IDF, computed once and memoized. Rarity should be measured
 // against the whole library (~4k films), not the handful being ranked, so
