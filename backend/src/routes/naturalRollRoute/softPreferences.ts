@@ -1,5 +1,5 @@
 import type { AllowedFilterValues } from "../../lib/allowedFilterValues";
-import { resolveValidatedFilter } from "../../lib/validateFilters/resolvers";
+import { resolveValidatedFilter } from "../../lib/validateFilters/resolveValidatedFilter";
 import { NATURAL_ROLL_LIMITS } from "./constants";
 import { Stage1Filters } from "./schemas";
 

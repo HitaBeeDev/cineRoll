@@ -1,9 +1,7 @@
 import type { AllowedFilterValues } from "./allowedFilterValues";
-import {
-  FILTER_OUTPUT_KEYS,
-  isValidatedFilterKey,
-  resolveValidatedFilter,
-} from "./validateFilters/resolvers";
+import { FILTER_OUTPUT_KEYS } from "./validateFilters/filterOutputKeys";
+import { isValidatedFilterKey } from "./validateFilters/isValidatedFilterKey";
+import { resolveValidatedFilter } from "./validateFilters/resolveValidatedFilter";
 import {
   StructuralFilters,
   StructuralFilterValidationResult,

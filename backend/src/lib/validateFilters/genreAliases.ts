@@ -1,0 +1,18 @@
+export const GENRE_ALIASES: Readonly<Record<string, string>> = {
+  "period piece": "History",
+  "rom com": "Romance",
+  "sci fi": "Science Fiction",
+  animated: "Animation",
+  anime: "Animation",
+  biopic: "Biography",
+  doc: "Documentary",
+  documentaries: "Documentary",
+  historical: "History",
+  musical: "Music",
+  musicals: "Music",
+  period: "History",
+  romcom: "Romance",
+  scifi: "Science Fiction",
+  "science fiction": "Science Fiction",
+  space: "Science Fiction",
+};
