@@ -1,16 +1,13 @@
 import { Prisma } from "@prisma/client";
 
-import { RandomQuery } from "../../lib/filmFilters/randomQuerySchema";
+import type { RandomQuery } from "../../lib/filmFilters/randomQuerySchema";
 import { prisma } from "../../lib/prisma";
 import { DIVERSITY_SAMPLE_SIZE } from "./constants";
-import {
-  RECENT_ROLL_WINDOW,
-  RecentRoll,
-  RerollPenalty,
-  decadeOf,
-  mainGenre,
-  pinnedDimensions,
-} from "./diversity";
+import { RECENT_ROLL_WINDOW } from "./diversity/decayPolicy";
+import { getMainGenre } from "./diversity/getMainGenre";
+import { getPinnedDimensions } from "./diversity/getPinnedDimensions";
+import { getReleaseDecade } from "./diversity/getReleaseDecade";
+import type { RecentRoll, RerollPenalty } from "./diversity/types";
 import { createInitialPosteriors } from "./bandit/createInitialPosteriors";
 import { pickLaneWithThompsonSampling } from "./bandit/pickLaneWithThompsonSampling";
 import type { LanePosteriors } from "./bandit/types";
@@ -42,7 +39,7 @@ export async function getSessionRoll(query: RandomQuery): Promise<RandomFilmResu
   const ctx: ScoreContext = {
     recent,
     penalty: rerollPenaltyFrom(query),
-    pinned: pinnedDimensions(query),
+    pinned: getPinnedDimensions(query),
   };
 
   // Thompson-sample the lane from the resolved posteriors, then weight + sample
@@ -122,9 +119,9 @@ async function getRecentRolls(orderedSeenIds: string[]): Promise<RecentRoll[]> {
     .map(id => byId.get(id))
     .filter((row): row is RecentRollRow => row != null)
     .map(row => ({
-      genre: mainGenre(row.genres),
+      genre: getMainGenre(row.genres),
       contentType: row.contentType,
-      decade: decadeOf(row.year),
+      decade: getReleaseDecade(row.year),
       director: row.director,
     }));
 }

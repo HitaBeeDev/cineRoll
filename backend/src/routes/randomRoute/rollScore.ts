@@ -1,11 +1,13 @@
 import {
+  calculateDiversityMultiplier,
+} from "./diversity/calculateDiversityMultiplier";
+import { calculateRerollMultiplier } from "./diversity/calculateRerollMultiplier";
+import type {
   PinnedDimensions,
   RecentRoll,
   RerollPenalty,
-  diversityMultiplier,
-  rerollMultiplier,
-} from "./diversity";
-import { RandomFilmRow } from "./types";
+} from "./diversity/types";
+import type { RandomFilmRow } from "./types";
 
 // RollScorer (docs/smart-roll-engine.md §7). After the hard eligibility gate we
 // don't pick uniformly — each candidate is broken into normalized signals, and
@@ -65,8 +67,8 @@ export function scoreBreakdown(film: RandomFilmRow, ctx: ScoreContext): ScoreBre
     hiddenGem: rating * (1 - fame),
     taste: ctx.tasteMatch?.(film) ?? NEUTRAL_TASTE,
     session:
-      diversityMultiplier(film, ctx.recent, ctx.pinned) *
-      rerollMultiplier(film, ctx.penalty, ctx.pinned),
+      calculateDiversityMultiplier(film, ctx.recent, ctx.pinned) *
+      calculateRerollMultiplier(film, ctx.penalty, ctx.pinned),
   };
 }
 
