@@ -7,7 +7,7 @@ import { FilmographySection } from "@/features/person-detail/components/filmogra
 import { PersonHero } from "@/features/person-detail/components/person-hero";
 import { PersonStructuredData } from "@/features/person-detail/components/person-structured-data";
 import { getAwardBodies } from "@/features/person-detail/get-award-bodies";
-import type { PersonPageProps } from "@/features/person-detail/person-page-props";
+type PersonPageProps = { params: Promise<{ slug: string }> };
 import { fetchPerson } from "@/features/person-detail/person-repository";
 import { getNameHue } from "@/lib/name-avatar";
 

@@ -1,10 +1,15 @@
 import { Router } from "express";
+import { z } from "zod";
 
 import { getValidated, validate } from "../middleware/validate";
 import { requireMetricsToken } from "./metricsRoute/auth";
 import { getRecommendationMetrics } from "./metricsRoute/recommendationMetricsService";
 import { getRollMetrics } from "./metricsRoute/rollMetricsService";
-import { MetricsQuery, metricsQuerySchema } from "./metricsRoute/schemas";
+
+const metricsQuerySchema = z.object({
+  days: z.coerce.number().int().min(1).max(365).optional(),
+});
+type MetricsQuery = z.infer<typeof metricsQuerySchema>;
 
 export const metricsRouter = Router();
 

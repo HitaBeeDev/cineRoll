@@ -1,6 +1,5 @@
 import { ResetPasswordErrorMessage } from "./reset-password-error-message";
 import { ResetPasswordField } from "./reset-password-field";
-import { handleResetPasswordSubmit } from "./reset-password-submit";
 import { ResetPasswordSubmitButton } from "./reset-password-submit-button";
 
 type ResetPasswordFieldsProps = {
@@ -23,7 +22,13 @@ export function ResetPasswordFields({
   onSubmit,
 }: ResetPasswordFieldsProps) {
   return (
-    <form onSubmit={(event) => handleResetPasswordSubmit(event, onSubmit)} className="mt-6 flex flex-col gap-3">
+    <form
+      onSubmit={(event) => {
+        event.preventDefault();
+        void onSubmit();
+      }}
+      className="mt-6 flex flex-col gap-3"
+    >
       <ResetPasswordField
         id="reset-password"
         label="New password"

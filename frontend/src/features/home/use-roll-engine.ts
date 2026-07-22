@@ -5,7 +5,6 @@ import type { FilterState } from "@cineroll/types";
 import type { RollFilm } from "@/lib/api";
 import { useToast } from "@/components/ui/toast";
 import type { CurrentRoll } from "./domain-types";
-import { createCurrentRoll } from "./create-current-roll";
 import { presentRollError } from "./present-roll-error";
 import { processOutgoingRoll } from "./process-outgoing-roll";
 import { pulseSearching } from "./pulse-searching";
@@ -57,7 +56,7 @@ export function useRollEngine(input: UseRollEngineInput) {
         banditFeedback: feedback,
       });
       recordRollResult(result, filters);
-      currentRollRef.current = createCurrentRoll(result.film, result.lane);
+      currentRollRef.current = { film: result.film, engaged: false, rejected: false, lane: result.lane };
       setFilm(result.film);
       onCountChange(result.total);
     } catch (error) {

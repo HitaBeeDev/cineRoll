@@ -1,5 +1,5 @@
 import { HttpError } from "../../middleware/errorHandler";
-import { isUniqueConstraintError } from "./errors";
+import { isUniqueConstraintError } from "./helpers";
 import { assertFilmExists } from "./filmRepository";
 import { mapEntryFilm, paginatedFilmEntries } from "./filmMapper";
 import {

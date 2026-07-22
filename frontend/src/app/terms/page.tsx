@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { AppHeader } from "@/components/app-header";
 import { LegalHero } from "@/features/legal/components/legal-hero";
 import { TermsContent } from "@/features/terms-of-service/components/terms-content";
-import { TERMS_UPDATED_AT } from "@/features/terms-of-service/config";
+
+const TERMS_UPDATED_AT = "July 4, 2026";
 
 export const metadata: Metadata = {
   title: "Terms of Service",

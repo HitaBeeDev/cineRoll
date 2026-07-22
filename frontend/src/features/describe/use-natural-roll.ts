@@ -2,7 +2,6 @@
 
 import { useCallback, useMemo, useRef, useState } from "react";
 import { fetchNaturalRoll } from "@/lib/api";
-import { NATURAL_ROLL_RESULT_COUNT } from "./natural-roll-config";
 import { PROMPT_MAX_LENGTH } from "./prompt-config";
 import { getNaturalRollFailure } from "./get-natural-roll-error";
 import { getNaturalRollStatus } from "./get-natural-roll-status";
@@ -13,6 +12,8 @@ import type {
   NaturalRollInterpreted,
   NaturalRollResult,
 } from "@/lib/api";
+
+const NATURAL_ROLL_RESULT_COUNT = 6;
 
 export function useNaturalRoll(): NaturalRollController {
   const textareaRef = useRef<HTMLTextAreaElement>(null);

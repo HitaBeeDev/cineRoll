@@ -1,9 +1,8 @@
 import type { Film } from "@cineroll/types";
 
-import { FALLBACK_ACCENT } from "./filmOgConfig";
+import { FALLBACK_ACCENT, SITE_URL } from "./filmOgConfig";
 import type { FilmOgViewModel } from "./filmOgTypes";
 import { getAwardBadges } from "./mappers/getAwardBadges";
-import { getDisplayShareUrl } from "./mappers/getDisplayShareUrl";
 import { getFilmMetaLine } from "./mappers/getFilmMetaLine";
 import { getRatings } from "./mappers/getRatings";
 import { getTitleSize } from "./mappers/getTitleSize";
@@ -15,7 +14,7 @@ export function createFilmOgViewModel(film: Film): FilmOgViewModel {
     backdropUrl: film.backdropUrl,
     badges: getAwardBadges(film),
     brandLabel: film.isPickOfDay ? "CineRoll · Tonight's Pick" : "CineRoll",
-    displayShareUrl: getDisplayShareUrl(film.slug),
+    displayShareUrl: new URL(`/film/${film.slug}`, SITE_URL).toString().replace(/^https?:\/\//, ""),
     metaLine: getFilmMetaLine(film),
     plot: truncatePlot(film.plot),
     posterAlt: `${film.title} poster`,

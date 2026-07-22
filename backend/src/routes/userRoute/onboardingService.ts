@@ -1,5 +1,5 @@
 import { prisma } from "../../lib/prisma";
-import { staleTasteProfile } from "./taste";
+import { markTasteProfileStale } from "../../lib/tasteProfile";
 
 export async function saveOnboardingGenres(userId: string, genres: string[]): Promise<void> {
   await prisma.user.update({
@@ -7,5 +7,5 @@ export async function saveOnboardingGenres(userId: string, genres: string[]): Pr
     data: { onboardingGenres: genres },
   });
 
-  await staleTasteProfile(userId);
+  await markTasteProfileStale(userId);
 }

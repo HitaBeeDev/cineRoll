@@ -2,7 +2,7 @@ import { logEvent } from "../../lib/events";
 import { HttpError } from "../../middleware/errorHandler";
 import { assertFilmExists } from "./filmRepository";
 import { mapEntryFilm, paginatedFilmEntries } from "./filmMapper";
-import { staleTasteProfile } from "./taste";
+import { markTasteProfileStale } from "../../lib/tasteProfile";
 import {
   countWatched,
   deleteWatchedFilm,
@@ -38,7 +38,7 @@ export async function setWatchedFilm(
   const entry = await upsertWatchedFilm(userId, filmId, doNotSuggest, sentiment);
   await logWatchedEvent(userId, filmId, doNotSuggest, sentiment);
   if (sentiment !== undefined) await logSentimentEvent(userId, filmId, sentiment);
-  await staleTasteProfile(userId);
+  await markTasteProfileStale(userId);
 
   return mapEntryFilm(entry);
 }
@@ -54,7 +54,7 @@ export async function removeWatchedFilm(userId: string, filmId: string): Promise
     filmId,
     context: { source: "user_route", action: "remove" },
   });
-  await staleTasteProfile(userId);
+  await markTasteProfileStale(userId);
 }
 
 function logWatchedEvent(

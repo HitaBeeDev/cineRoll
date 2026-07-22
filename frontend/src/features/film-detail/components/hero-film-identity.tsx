@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { Sparkles } from "lucide-react";
 import { formatFilmLength, formatLanguage, formatSeriesEpisodes } from "@/lib/format";
-import { nameToSlug } from "@/lib/utils";
-import { displayTitle } from "../display-title";
+import { displayTitle, nameToSlug } from "@/lib/utils";
 import { getTitleFontSize } from "../title-font-size";
 import { HeroGenreTag } from "./hero-genre-tag";
 import { HeroMetaLine } from "./hero-meta-line";

@@ -21,7 +21,7 @@ import {
 } from "@/features/film-detail/film-repository";
 import { getRankTags } from "@/features/film-detail/get-rank-tags";
 import { pickHeadlineAccolade } from "@/features/film-detail/pick-headline-accolade";
-import type { FilmPageProps } from "@/features/film-detail/film-page-props";
+type FilmPageProps = { params: Promise<{ slug: string }> };
 
 export const revalidate = 3600;
 

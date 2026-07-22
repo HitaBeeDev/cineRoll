@@ -1,8 +1,10 @@
-import type { EditorialSectionLabelProps } from "./editorial-section-label-props";
+import type { ReactNode } from "react";
 
 export function EditorialSectionLabel({
   children,
-}: EditorialSectionLabelProps) {
+}: {
+  children: ReactNode;
+}) {
   return (
     <div className="flex items-center gap-4">
       <span className="font-[family-name:var(--font-geist-mono)] text-[11px] text-[#e8453c]">

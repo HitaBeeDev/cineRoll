@@ -1,5 +1,6 @@
-import { STATS_API_URL } from "./config";
 import type { StatsResponse } from "./types";
+
+const STATS_API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 
 export async function fetchStats(): Promise<StatsResponse | null> {
   try {

@@ -1,5 +1,4 @@
 import type { DailyPick, PickDiversity } from "./domain-types";
-import { getDecade } from "./get-decade";
 import { PICK_SLOTS } from "./pick-slots";
 import { selectPick } from "./select-pick";
 
@@ -29,7 +28,7 @@ function recordSelection(
   diversity: PickDiversity,
 ): void {
   usedIds.push(pick.film.id);
-  diversity.usedDecades.add(getDecade(pick.film.year));
+  diversity.usedDecades.add(Math.floor(pick.film.year / 10) * 10);
   const primaryGenre = pick.film.genres[0];
   if (primaryGenre) diversity.usedGenres.add(primaryGenre);
 }

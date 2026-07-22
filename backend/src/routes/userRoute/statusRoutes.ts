@@ -1,7 +1,7 @@
 import { Router } from "express";
 
 import { getValidated, validate } from "../../middleware/validate";
-import { getUserId } from "./request";
+import { getUserId } from "./helpers";
 import { FilmIdParams, filmIdParamsSchema } from "./schemas";
 import { getFilmStatus, getUserSummary } from "./statusRepository";
 

@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { AppHeader } from "@/components/app-header";
 import { LegalHero } from "@/features/legal/components/legal-hero";
-import { PRIVACY_POLICY_UPDATED_AT } from "@/features/privacy-policy/config";
 import { PrivacyPolicyContent } from "@/features/privacy-policy/components/privacy-policy-content";
+
+const PRIVACY_POLICY_UPDATED_AT = "June 19, 2026";
 
 export const metadata: Metadata = {
   title: "Privacy Policy",

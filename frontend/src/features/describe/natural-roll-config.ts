@@ -1,1 +1,0 @@
-export const NATURAL_ROLL_RESULT_COUNT = 6;

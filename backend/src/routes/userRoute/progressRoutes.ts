@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import { getUserId } from "./request";
+import { getUserId } from "./helpers";
 import { getUserProgress } from "./progressRepository";
 
 export const progressRouter = Router();

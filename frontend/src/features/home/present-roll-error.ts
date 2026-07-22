@@ -1,5 +1,3 @@
-import { getApiErrorCode } from "./get-api-error-code";
-
 type ErrorToast = (options: {
   variant: "error";
   title: string;
@@ -11,7 +9,8 @@ export function presentRollError(
   setCount: (count: number) => void,
   toast: ErrorToast,
 ): void {
-  if (getApiErrorCode(error) === "NO_FILMS_FOUND") {
+  const code = error instanceof Error ? (error as Error & { code?: string }).code : undefined;
+  if (code === "NO_FILMS_FOUND") {
     setCount(0);
     toast({
       variant: "error",

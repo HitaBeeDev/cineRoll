@@ -1,5 +1,4 @@
 import { createPersonSlug } from "./create-person-slug";
-import { formatNumber } from "./format-number";
 import type { ReelItem, StatsResponse } from "./types";
 
 export function buildReelItems(stats: StatsResponse): ReelItem[] {
@@ -17,7 +16,7 @@ function buildCompetitiveYearItem(stats: StatsResponse): ReelItem | null {
   return {
     eyebrow: "Most competitive year",
     title: String(year.awardYear),
-    value: formatNumber(year.totalNominations),
+    value: year.totalNominations.toLocaleString(),
     sub: "nominations",
     href: `#decade-${Math.floor(year.awardYear / 10) * 10}`,
     accent: "red",

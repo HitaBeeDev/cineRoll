@@ -1,9 +1,9 @@
 import { logEvent } from "../../lib/events";
 import { HttpError } from "../../middleware/errorHandler";
-import { isUniqueConstraintError } from "./errors";
+import { isUniqueConstraintError } from "./helpers";
 import { assertFilmExists } from "./filmRepository";
 import { mapEntryFilm, paginatedFilmEntries } from "./filmMapper";
-import { staleTasteProfile } from "./taste";
+import { markTasteProfileStale } from "../../lib/tasteProfile";
 import {
   countWatchlist,
   createWatchlistEntry,
@@ -34,7 +34,7 @@ export async function addWatchlistFilm(userId: string, filmId: string) {
   try {
     const entry = await createWatchlistEntry(userId, filmId);
     await logWatchlistEvent("watchlist_add", userId, filmId);
-    await staleTasteProfile(userId);
+    await markTasteProfileStale(userId);
 
     return mapEntryFilm(entry);
   } catch (error) {
@@ -51,7 +51,7 @@ export async function removeWatchlistFilm(userId: string, filmId: string): Promi
   }
 
   await logWatchlistEvent("watchlist_remove", userId, filmId);
-  await staleTasteProfile(userId);
+  await markTasteProfileStale(userId);
 }
 
 function logWatchlistEvent(type: "watchlist_add" | "watchlist_remove", userId: string, filmId: string) {

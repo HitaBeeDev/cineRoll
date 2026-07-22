@@ -1,4 +1,3 @@
-import { formatNumber } from "./format-number";
 import type { Insight, StatsResponse } from "./types";
 
 export function buildInsights(stats: StatsResponse): Insight[] {
@@ -17,7 +16,7 @@ function buildPeakDecadeInsight(stats: StatsResponse): Insight | null {
   const peak = stats.decadeBreakdown.reduce((a, b) => (b.filmCount > a.filmCount ? b : a));
   return {
     title: `The ${peak.decade}s are the densest era`,
-    body: `${formatNumber(peak.filmCount)} films land in the ${peak.decade}s — more than any other decade in the archive.`,
+    body: `${peak.filmCount.toLocaleString()} films land in the ${peak.decade}s — more than any other decade in the archive.`,
   };
 }
 
@@ -27,7 +26,7 @@ function buildCrossBodyInsight(stats: StatsResponse): Insight | null {
   const count = breakdown.composition.multiple;
   return {
     title: `${Math.round((count / breakdown.total) * 100)}% of films cross award bodies`,
-    body: `${formatNumber(count)} films were honored by more than one of the Oscars, Golden Globes, Cannes, or Berlinale.`,
+    body: `${count.toLocaleString()} films were honored by more than one of the Oscars, Golden Globes, Cannes, or Berlinale.`,
   };
 }
 
@@ -37,7 +36,7 @@ function buildWinRateInsight(stats: StatsResponse): Insight | null {
   const rate = ((totalWins / totalNominations) * 100).toFixed(1);
   return {
     title: `Only ${rate}% of nominations become wins`,
-    body: `Across ${formatNumber(totalNominations)} nominations, the archive records just ${formatNumber(totalWins)} wins.`,
+    body: `Across ${totalNominations.toLocaleString()} nominations, the archive records just ${totalWins.toLocaleString()} wins.`,
   };
 }
 

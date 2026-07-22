@@ -7,7 +7,6 @@ import {
   resetRolledBag,
 } from "@/lib/home-storage";
 import type { BanditFeedback } from "./domain-types";
-import { getApiErrorCode } from "./get-api-error-code";
 
 type NextRollRequest = {
   filters: FilterState;
@@ -33,7 +32,8 @@ export async function requestNextRoll(request: NextRollRequest): Promise<RandomR
   try {
     return await fetchWithExclusions(seenFilmIds);
   } catch (error) {
-    if (getApiErrorCode(error) !== "NO_FILMS_FOUND" || seenFilmIds.length === 0) throw error;
+    const code = error instanceof Error ? (error as Error & { code?: string }).code : undefined;
+    if (code !== "NO_FILMS_FOUND" || seenFilmIds.length === 0) throw error;
     resetRolledBag();
     return fetchWithExclusions([]);
   }

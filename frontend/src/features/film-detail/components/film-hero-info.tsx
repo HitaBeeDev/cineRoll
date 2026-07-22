@@ -1,6 +1,6 @@
 import { HeroCTAs } from "@/components/hero-ctas";
 import { buildShareCaption } from "../share-caption";
-import { displayTitle } from "../display-title";
+import { displayTitle } from "@/lib/utils";
 import { SITE_URL } from "../config";
 import type { FilmHeroInfoProps } from "../component-props";
 import { HeroAccolades } from "./hero-accolades";

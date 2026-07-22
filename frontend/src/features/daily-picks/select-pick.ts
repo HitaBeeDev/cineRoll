@@ -1,7 +1,6 @@
 import { fetchSeededRandom, type RollFilm } from "@/lib/api";
 import { PICK_SEED_VARIANTS } from "./config";
 import type { DailyPick, PickDiversity, PickSlot } from "./domain-types";
-import { getDecade } from "./get-decade";
 import { SLOT_FALLBACK_FILTERS } from "./pick-slots";
 
 export async function selectPick(
@@ -80,7 +79,7 @@ async function findRelaxedPick(
 
 function isDiverse(film: RollFilm, diversity: PickDiversity): boolean {
   const primaryGenre = film.genres[0];
-  const hasDecadeClash = diversity.usedDecades.has(getDecade(film.year));
+  const hasDecadeClash = diversity.usedDecades.has(Math.floor(film.year / 10) * 10);
   const hasGenreClash = primaryGenre
     ? diversity.usedGenres.has(primaryGenre)
     : false;
