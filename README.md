@@ -31,7 +31,7 @@ Each one is documented — what problem it solves, why that method, where it liv
 
 ## What it looks like in the product
 
-Browse and filter the catalog by any dimension the award data provides; roll a random film from any filtered set; get recommendations with human-readable reasons; take the taste test to tune your profile; ask for a film in plain language ("something slow and melancholic from the 70s"). Every feature sits on the same clean catalog.
+Browse and filter the catalog by any dimension the award data provides; roll a random film from any filtered set; get recommendations with human-readable reasons; ask for a film in plain language ("something slow and melancholic from the 70s"). Every feature sits on the same clean catalog.
 
 ## Architecture
 

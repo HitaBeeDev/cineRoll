@@ -74,7 +74,7 @@ A monorepo (not split repos) keeps the shared `@cineroll/types` contract honest 
 
 Three responsibilities, kept distinct:
 
-1. **Presentation** — Server Components render the pages (home, browse, film/person detail, picks, describe, taste test, stats, profile). Styling is Tailwind v4 + Framer Motion + Radix; **no global CSS** beyond variables/resets — every style lives in its component.
+1. **Presentation** — Server Components render the pages (home, browse, film/person detail, picks, describe, stats, profile). Styling is Tailwind v4 + Framer Motion + Radix; **no global CSS** beyond variables/resets — every style lives in its component.
 2. **BFF proxy** — `frontend/src/app/api/*` routes are thin forwarders. They read the Auth.js session, attach the JWT, and call the Express backend via `apiWithAuth`. They contain no business logic and never touch the catalog database. Example: `POST /api/user/watchlist` just forwards to Express `/api/user/watchlist`.
 3. **Auth session store** — Auth.js (NextAuth v5) owns sign‑in. The **only** place the frontend uses Prisma is `src/auth.ts`, where the Auth.js Prisma adapter persists `User` / `Account` / `Session` to the shared database.
 
@@ -100,7 +100,7 @@ This is a deliberate **Backend‑for‑Frontend** split: the browser never holds
 
 ### Routes vs. lib
 
-Routes are thin: parse + Zod‑validate, then delegate to `lib/`. The interesting code lives in **`lib/`** (§6). Endpoint groups: catalog (`films`, `autocomplete`, `persons`, `stats`), discovery (`random`, `roll`, `pick-of-day`, `recommendations`, `natural-roll`), user data (`user`, `feedback`), analytics (`events`, `metrics`), games (`taste-test`, `marathon`).
+Routes are thin: parse + Zod‑validate, then delegate to `lib/`. The interesting code lives in **`lib/`** (§6). Endpoint groups: catalog (`films`, `autocomplete`, `persons`, `stats`), discovery (`random`, `roll`, `pick-of-day`, `recommendations`, `natural-roll`), user data (`user`, `feedback`), analytics (`events`, `metrics`), games (`marathon`).
 
 ---
 

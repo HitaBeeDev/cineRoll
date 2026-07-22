@@ -16,8 +16,6 @@ const primaryNavItems = [
   { href: "/stats", label: "Stats" },
 ];
 
-const gameModeItems = [{ href: "/taste-test", label: "Taste Test" }];
-
 type SiteNavigationProps = {
   focusRingClassName?: string;
 };
@@ -107,29 +105,6 @@ export function SiteNavigation({
             ))}
           </div>
 
-          <div className="flex flex-col gap-1 border-t border-[#222232] pt-5">
-            <span className="font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.24em] text-[#e8453c]">
-              Game Modes
-            </span>
-            {gameModeItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  "rounded-xl px-3 py-3 font-[family-name:var(--font-geist-mono)] text-lg font-bold uppercase tracking-[0.16em]",
-                  isActive(item.href)
-                    ? "bg-[#141421] text-[#F5F5F0]"
-                    : "text-[#9b96aa] transition-colors hover:bg-[#10101a] hover:text-[#F5F5F0]",
-                  "focus-visible:outline-none focus-visible:ring-2",
-                  focusRingClassName,
-                )}
-                onClick={() => setIsOpen(false)}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </div>
-
           <div className="mt-auto border-t border-[#222232] pt-5">
             <AuthButton
               variant="inline"
@@ -159,29 +134,6 @@ export function SiteNavigation({
                 focusRingClassName,
                 isActive(item.href)
                   ? "text-[#ff554c]"
-                  : "text-[#aaa6ba] hover:text-[#F5F5F0]",
-              )}
-            >
-              {item.label}
-            </Link>
-          ))}
-        </div>
-
-        <span className="select-none text-[#2a2a3e]" aria-hidden>|</span>
-
-        <div className="hidden items-center gap-1 xl:flex" aria-label="Game modes">
-          {gameModeItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "px-3.5 py-2",
-                "font-[family-name:var(--font-geist-mono)] text-[12px] uppercase tracking-[0.1em]",
-                "transition-colors duration-150",
-                "focus-visible:outline-none focus-visible:ring-2",
-                focusRingClassName,
-                isActive(item.href)
-                  ? "text-[#ff625a]"
                   : "text-[#aaa6ba] hover:text-[#F5F5F0]",
               )}
             >

@@ -25,9 +25,7 @@
 | 4 | **TF-IDF + cosine similarity** | Content-based film similarity / taste centroid | `backend/src/lib/recommender/tfidf.ts` | ✅ shipped |
 | 5 | **Maximal Marginal Relevance (MMR)** | Recommender diversity rerank | `backend/src/lib/recommender/ranking.ts` | ✅ shipped |
 | 6 | **Thompson sampling** multi-armed bandit | Roll lane selection (Safe/Gem/Wild) | `backend/src/routes/randomRoute/bandit.ts` | ✅ shipped |
-| 7 | **Item Response Theory (Rasch / 1PL)** | The Taste Test score | `backend/src/routes/tasteTestRoute/` | 🔶 designed (this doc) |
-| 8 | **Stratified diversity sampling** (window functions) | Taste Test ballot generation | `tasteTestRoute/repository.ts` | ✅ shipped |
-| 9 | **Softmax weighting + ε-greedy** + weighted sampling | Personalized roll + base lane weighting | `randomRoute/personalizedService.ts`, `weightedSample.ts` | ✅ shipped |
+| 7 | **Softmax weighting + ε-greedy** + weighted sampling | Personalized roll + base lane weighting | `randomRoute/personalizedService.ts`, `weightedSample.ts` | ✅ shipped |
 
 Legend: ✅ shipped · 🔶 designed / proposed.
 
@@ -133,132 +131,7 @@ Relevance is the normalized recommender score; similarity is the **TF-IDF cosine
 
 ---
 
-## 7. Item Response Theory (Rasch / 1PL) — The Taste Test
-
-**Feature:** `/taste-test` — tick the films you've seen → a score, a rank, and a "what you missed" watchlist.
-**Where (designed):** `backend/src/routes/tasteTestRoute/` — new `irt.ts` + changes to `scoring.ts`.
-**Status:** 🔶 designed here; not yet built.
-
-**The gap.** Current scoring is `score = seen / 20 × 100` — every film worth a flat 5%. But each user gets a **different randomized 20-film ballot** (§8), so a raw seen-count isn't comparable across users, and having seen an obscure Cannes winner is far stronger evidence of cinephilia than having seen *Ben-Hur*. Flat scoring ignores both facts.
-
-**The named fix — Item Response Theory**, the model behind the GRE, GMAT, and computerized adaptive testing. It's the exact right tool because the Taste Test *is* a test with per-user item sets (the "test equating" problem):
-
-- A **film = a test item** with difficulty `b` = its *obscurity* (derived from the same popularity signals the ballot query already computes as `knownScore`).
-- A **user = a latent ability** `θ` (cinephilia).
-- **Rasch / 1PL model:** `P(seen | θ, b) = σ(θ − b)`.
-- **Estimate θ by MAP** (MLE + a `N(0, σ²)` prior) so degenerate ballots (all-seen / none-seen) yield a finite estimate instead of ±∞.
-- Convert θ to a **percentile** via the normal CDF — that's the real "Projected Rank," and it lets "saw the 3 hardest of 20" outrank "saw the 8 easiest," which is the entire point.
-
-**Requires:** the client must POST the **full ballot** (all 20 shown) alongside the seen subset — currently `/score` receives only `seenFilmIds`. Without the administered items IRT can't run.
-
-### `irt.ts` (design sketch)
-
-```ts
-export type BallotItem = { difficulty: number; seen: boolean };
-
-const PRIOR_SD = 1.5;         // θ ~ N(0, PRIOR_SD²); regularizes the MAP fit
-const MAX_ITERATIONS = 30;
-const CONVERGENCE_EPS = 1e-6;
-const sigmoid = (x: number): number => 1 / (1 + Math.exp(-x));
-
-// MAP estimate of latent ability via Newton–Raphson on the penalized
-// log-likelihood. The prior guarantees a finite root even for all-seen / none-seen.
-export function estimateAbility(items: BallotItem[]): number {
-  const priorPrecision = 1 / (PRIOR_SD * PRIOR_SD);
-  let theta = 0;
-  for (let i = 0; i < MAX_ITERATIONS; i++) {
-    let gradient = -theta * priorPrecision;   // d/dθ log-prior
-    let information = priorPrecision;          // Fisher info + prior precision
-    for (const item of items) {
-      const p = sigmoid(theta - item.difficulty);
-      gradient += (item.seen ? 1 : 0) - p;     // score function Σ(y − p)
-      information += p * (1 - p);
-    }
-    const step = gradient / information;
-    theta += step;
-    if (Math.abs(step) < CONVERGENCE_EPS) break;
-  }
-  return theta;
-}
-
-export function abilityPercentile(theta: number): number {
-  return normalCdf(theta / PRIOR_SD);
-}
-
-// Difficulty b = −logit(p), p = base P(seen) for an average cinephile (θ=0),
-// squashed from the same popularity signals as the ballot query's knownScore.
-// CENTER/SCALE are cold-start calibration constants — refittable from real
-// ballot data once enough tests accumulate (that's true IRT calibration).
-const KNOWNNESS_CENTER = 45;
-const KNOWNNESS_SCALE = 25;
-
-export function filmDifficulty(f: {
-  imdbRating: number | null;
-  oscarWins: number; ggWins: number; cannesWins: number;
-  oscarNominations: number; ggNominations: number; cannesNominations: number;
-  posterUrl: string | null;
-}): number {
-  const knownness =
-    (f.imdbRating ?? 0) * 9 +
-    f.oscarWins * 10 + f.ggWins * 7 + f.cannesWins * 8 +
-    (f.oscarNominations + f.ggNominations + f.cannesNominations) * 1.5 +
-    (f.posterUrl ? 8 : 0);
-  const p = clamp(sigmoid((knownness - KNOWNNESS_CENTER) / KNOWNNESS_SCALE), 0.02, 0.98);
-  return -Math.log(p / (1 - p)); // −logit(p)
-}
-
-const clamp = (x: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, x));
-
-// Abramowitz & Stegun 7.1.26 standard-normal CDF (~1e-7) — no stats dependency.
-function normalCdf(z: number): number {
-  const sign = z < 0 ? -1 : 1;
-  const x = Math.abs(z) / Math.SQRT2;
-  const t = 1 / (1 + 0.3275911 * x);
-  const y = 1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-x * x);
-  return 0.5 * (1 + sign * y);
-}
-```
-
-### How `scoring.ts` calls it
-
-```ts
-import { estimateAbility, abilityPercentile, filmDifficulty, BallotItem } from "./irt";
-
-export function scoreTasteTest(ballot: ScoreFilmRow[], seenIds: Set<string>) {
-  const items: BallotItem[] = ballot.map(film => ({
-    difficulty: filmDifficulty(film),
-    seen: seenIds.has(film.id),
-  }));
-  const theta = estimateAbility(items);
-  const score = Math.round(abilityPercentile(theta) * 100); // difficulty-aware percentile
-
-  const seenFilms = ballot.filter(film => seenIds.has(film.id));
-  return {
-    score,                              // IRT percentile, not seen/20
-    title: titleForScore(score),        // unchanged
-    seen: seenFilms.length,
-    total: TASTE_TEST_FILM_COUNT,
-    breakdown: buildBreakdown(seenFilms), // unchanged
-  };
-}
-```
-
-**Wiring changes required:** add `ballotFilmIds` to `schemas.ts`; fetch the ballot (not just seen) in the route; add the difficulty fields to `scoreFilmSelect`; have the frontend POST the 20 shown IDs. **Cold-start caveat:** `KNOWNNESS_CENTER/SCALE` and `PRIOR_SD` are hand-set priors — legitimate at launch; the real upgrade is fitting item difficulties from actual seen/unseen frequencies as ballots accumulate. **Simpler fallback if we don't touch the client yet:** a difficulty-*weighted* score (sum of seen difficulties) — not real IRT, but ballot-free.
-
----
-
-## 8. Stratified diversity sampling — Taste Test ballot
-
-**Feature:** pick 20 films that span decades, genres, and award bodies (not 20 Best-Picture blockbusters).
-**Where:** `backend/src/routes/tasteTestRoute/repository.ts`.
-
-**How it works.** A SQL CTE assigns each award-recognized film a `knownScore` (prestige/fame proxy), then uses `ROW_NUMBER()` **window functions partitioned by decade, primary genre, and primary award body** — each ordered by `knownScore + RANDOM()·jitter` — to rank films *within* each stratum. The ballot pool keeps films that rank near the top of *any* stratum (`decadeRank ≤ 3 OR genreRank ≤ 2 OR awardBodyRank ≤ 8`), deduped by a normalized `titleRoot` (so no franchise clones), then samples 20 with jitter.
-
-**Why this algorithm.** This is **stratified sampling** with controlled randomness — the right way to guarantee spread across categories while still surfacing prominent titles, rather than letting raw prestige collapse the ballot onto the same famous few.
-
----
-
-## 9. Softmax weighting, ε-greedy, weighted sampling
+## 7. Softmax weighting, ε-greedy, weighted sampling
 
 **Feature:** the personalized roll and the base-roll lane weighting.
 **Where:** `randomRoute/personalizedService.ts`, `randomRoute/weightedSample.ts`, `randomRoute/rollScore.ts`.

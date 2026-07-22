@@ -150,59 +150,6 @@ export type PickOfDayFilm = Pick<
   | "pickOfDayDate"
 >;
 
-// ── Taste Test ──────────────────────────────────────────────────────────────
-export type TasteQuestionOption = {
-  id: string;
-  title: string;
-  year: number;
-  posterUrl: string | null;
-  posterColor: string | null;
-};
-
-/**
- * A quiz round. `kind` decides how it renders and how many comparisons one
- * answer yields — but every kind resolves to plain (chosen, rejected) pairs:
- *   - `pair`   two posters, pick one          → 1 comparison
- *   - `grid`   four posters, pick the one     → 3 comparisons (pick vs each)
- *   - `podium` three posters, rank them 1·2·3 → 3 ordered comparisons
- */
-export type TasteQuestionKind = "pair" | "grid" | "podium";
-
-export type TasteQuestion = {
-  id: string;
-  kind: TasteQuestionKind;
-  prompt: string;
-  options: TasteQuestionOption[];
-};
-
-export type TasteRecFilm = Pick<
-  Film,
-  | "id"
-  | "slug"
-  | "title"
-  | "year"
-  | "contentType"
-  | "posterUrl"
-  | "posterColor"
-  | "backdropUrl"
-  | "imdbRating"
-  | "genres"
-  | "director"
-> & {
-  /** 0–100 fit to the taste profile. */
-  match: number;
-};
-
-export type TasteResult = {
-  archetype: { key: string; label: string; emoji: string; blurb: string; accent: string };
-  secondaryArchetype: { key: string; label: string; emoji: string };
-  traits: string[];
-  profile: { origin: number; mood: number; lane: number };
-  /** Best-fitting film of any kind — the headline pick (null if the pool is empty). */
-  hero: TasteRecFilm | null;
-  recommendations: TasteRecFilm[];
-};
-
 export type PersonSuggestion = {
   name: string;
   roles: string[];
@@ -683,48 +630,6 @@ export async function fetchPickOfDay(): Promise<PickOfDayFilm | null> {
   if (res.status === 404) return null;
   if (!res.ok) throw new Error("Failed to fetch pick of the day");
   return res.json() as Promise<PickOfDayFilm>;
-}
-
-export async function fetchTasteQuestions(): Promise<TasteQuestion[]> {
-  const res = await fetch(`${API_URL}/api/taste-test/questions`, { cache: "no-store" });
-  if (!res.ok) throw new Error("Failed to load the Taste Test");
-  const data = (await res.json()) as { questions: TasteQuestion[] };
-  return data.questions;
-}
-
-export type TasteComparison = { chosenId: string; otherId: string };
-
-/**
- * The finale pair that breaks a tie between the top two archetypes, or null when
- * the picks already point to a clear winner. The finale is optional polish, so a
- * failed request degrades to null (skip straight to the result) rather than
- * blocking the run.
- */
-export async function fetchTasteTiebreaker(
-  comparisons: TasteComparison[],
-): Promise<TasteQuestion | null> {
-  try {
-    const res = await fetch(`${API_URL}/api/taste-test/tiebreaker`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ comparisons }),
-    });
-    if (!res.ok) return null;
-    const data = (await res.json()) as { question: TasteQuestion | null };
-    return data.question;
-  } catch {
-    return null;
-  }
-}
-
-export async function submitTasteResult(comparisons: TasteComparison[]): Promise<TasteResult> {
-  const res = await fetch(`${API_URL}/api/taste-test/result`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ comparisons }),
-  });
-  if (!res.ok) throw new Error("Failed to read your taste");
-  return res.json() as Promise<TasteResult>;
 }
 
 // Facet lists (genres, countries, …) are effectively static within a session,
