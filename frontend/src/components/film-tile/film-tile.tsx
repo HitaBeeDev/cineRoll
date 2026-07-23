@@ -8,12 +8,12 @@ import { formatFilmYear } from "@/lib/format";
 import { blurDataUrl, tmdbImageUrl } from "@/lib/images";
 import { trackEvent } from "@/lib/analytics";
 import { useFilmImpression } from "@/hooks/useFilmImpression";
-import { getAwardBadge, type AwardBadgeStatus } from "@/components/film-card/award-badge";
-import { getListBadge } from "@/components/film-card/list-badge";
-import { ImdbIcon } from "@/components/film-card/imdb-icon";
-import { TomatoIcon } from "@/components/film-card/tomato-icon";
+import { getAwardBadge, type AwardBadgeStatus } from "@/components/film-tile/award-badge";
+import { getListBadge } from "@/components/film-tile/list-badge";
+import { ImdbIcon } from "@/components/film-tile/imdb-icon";
+import { TomatoIcon } from "@/components/film-tile/tomato-icon";
 
-interface FilmCardProps {
+interface FilmTileProps {
   film: Film;
   className?: string | undefined;
   // Award bodies the badge count is scoped to (from the browse filter). Empty or
@@ -23,7 +23,7 @@ interface FilmCardProps {
   awardStatus?: AwardBadgeStatus;
 }
 
-export function FilmCard({ film, className, awardBodies, awardStatus = "any" }: FilmCardProps) {
+export function FilmTile({ film, className, awardBodies, awardStatus = "any" }: FilmTileProps) {
   const cardRef = useFilmImpression<HTMLAnchorElement>(film, "shared_film_card");
   const badge = getAwardBadge(film, awardBodies ?? [], awardStatus);
   const listBadge = getListBadge(film);

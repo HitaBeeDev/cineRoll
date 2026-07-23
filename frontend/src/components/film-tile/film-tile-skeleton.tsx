@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 
-export function FilmCardSkeleton({ className }: { className?: string | undefined }) {
+export function FilmTileSkeleton({ className }: { className?: string | undefined }) {
   return (
     <div className={cn("block", className)}>
       <Skeleton className="aspect-[2/3] w-full rounded-md" />

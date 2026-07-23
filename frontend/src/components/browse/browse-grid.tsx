@@ -2,7 +2,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { Clapperboard } from "lucide-react";
 import type { FilterState, PaginatedFilms } from "@cineroll/types";
 import { cn } from "@/lib/utils";
-import { FilmCard, FilmCardSkeleton } from "@/components/film-card";
+import { FilmTile, FilmTileSkeleton } from "@/components/film-tile";
 import { BrowsePagination } from "@/components/browse/browse-pagination";
 import { PAGE_SIZE, type LoadStatus } from "@/lib/browse/options";
 import { statusFromFilters } from "@/lib/browse/filter-updates";
@@ -49,7 +49,7 @@ export function BrowseGrid({
       {/* Loading — only when there's no grid to hold or the load has gone slow */}
       {showSkeleton && (
         <div className={GRID_CLASS}>
-          {Array.from({ length: PAGE_SIZE }).map((_, i) => <FilmCardSkeleton key={i} />)}
+          {Array.from({ length: PAGE_SIZE }).map((_, i) => <FilmTileSkeleton key={i} />)}
         </div>
       )}
 
@@ -98,7 +98,7 @@ export function BrowseGrid({
                   ease: "easeOut",
                 }}
               >
-                <FilmCard
+                <FilmTile
                   film={film}
                   awardBodies={filters.awardBodies}
                   awardStatus={awardStatus}

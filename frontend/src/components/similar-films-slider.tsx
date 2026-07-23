@@ -3,7 +3,7 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 import { motion, useMotionValue, animate } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { FilmCard } from "@/components/film-card";
+import { FilmTile } from "@/components/film-tile";
 import type { Film } from "@cineroll/types";
 
 const CARD_W = 208;
@@ -133,7 +133,7 @@ export function SimilarFilmsSlider({ films }: { films: Film[] }) {
               }}
               className="w-52 flex-shrink-0"
             >
-              <FilmCard film={f} />
+              <FilmTile film={f} />
             </div>
           ))}
         </motion.div>
