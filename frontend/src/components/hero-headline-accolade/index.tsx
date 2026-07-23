@@ -1,14 +1,9 @@
 import { Trophy } from "lucide-react";
+import { GOLD } from "@/components/hero-headline-accolade/constants";
+import { Total } from "@/components/hero-headline-accolade/total";
+import type { HeadlineAccolade } from "@/components/hero-headline-accolade/types";
 
-// Prestige gold, matched to the hero Accolades module.
-const GOLD = "#D4AF37";
-
-export type HeadlineAccolade = {
-  category: string;
-  ceremony: string;
-  year: number;
-  won: boolean;
-};
+export type { HeadlineAccolade } from "@/components/hero-headline-accolade/types";
 
 /**
  * The hero's right-third when a film has a real backdrop (so the poster card is
@@ -42,10 +37,7 @@ export function HeroHeadlineAccolade({
         }}
       />
 
-      <div
-        className="border-l-2 pl-6"
-        style={{ borderColor: `${GOLD}55` }}
-      >
+      <div className="border-l-2 pl-6" style={{ borderColor: `${GOLD}55` }}>
         {headline && (
           <>
             <div className="flex items-center gap-2.5">
@@ -99,29 +91,5 @@ export function HeroHeadlineAccolade({
         </a>
       </div>
     </aside>
-  );
-}
-
-function Total({
-  value,
-  label,
-  gold,
-}: {
-  value: number;
-  label: string;
-  gold?: boolean;
-}) {
-  return (
-    <span className="flex items-baseline gap-1.5">
-      <span
-        className="font-[family-name:var(--font-display)] text-2xl font-bold leading-none tabular-nums"
-        style={{ color: gold ? GOLD : "#c8c8e0" }}
-      >
-        {value}
-      </span>
-      <span className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.24em] text-white/45">
-        {label}
-      </span>
-    </span>
   );
 }
