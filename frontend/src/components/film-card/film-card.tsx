@@ -1,75 +1,17 @@
 "use client";
 
-import { useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import type { AwardBodyFilter, Film } from "@cineroll/types";
 import { cn } from "@/lib/utils";
 import { formatFilmYear } from "@/lib/format";
 import { blurDataUrl, tmdbImageUrl } from "@/lib/images";
-import { Skeleton } from "@/components/ui/skeleton";
-import { trackEvent, trackFilmImpression } from "@/lib/analytics";
-
-type AwardBadge = { detail: string } | null;
-
-/** Award status the browse filter can be scoped to. */
-export type AwardBadgeStatus = "any" | "won" | "nom";
-
-// Per-body win/nomination field pairs, so the badge can be summed over whichever
-// bodies the browse scope currently selects.
-const AWARD_BODY_FIELDS: Record<
-  AwardBodyFilter,
-  { wins: keyof Film; noms: keyof Film }
-> = {
-  oscar:       { wins: "oscarWins",  noms: "oscarNominations" },
-  goldenglobe: { wins: "ggWins",     noms: "ggNominations" },
-  cannes:      { wins: "cannesWins", noms: "cannesNominations" },
-  berlin:      { wins: "berlinWins", noms: "berlinNominations" },
-};
-
-const ALL_AWARD_BODIES: AwardBodyFilter[] = ["oscar", "goldenglobe", "cannes", "berlin"];
-
-/**
- * Award count for the poster badge, scoped to the active browse filter:
- *  - `bodies` empty → sum across every award body (the default "all awards").
- *  - `bodies` non-empty → sum only the selected bodies, so filtering Oscar shows
- *    the film's Oscar count, Cannes shows its Cannes count, etc.
- *  - `status` picks which number: "won" → wins, "nom" → nominations, "any" →
- *    wins when it has any, otherwise nominations.
- * No single body is named on the chip, so the number reads as "N awards" for the
- * current scope rather than being misread as "N Oscars".
- */
-function getAwardBadge(
-  film: Film,
-  bodies: AwardBodyFilter[],
-  status: AwardBadgeStatus,
-): AwardBadge {
-  const scope = bodies.length > 0 ? bodies : ALL_AWARD_BODIES;
-  let wins = 0;
-  let noms = 0;
-  for (const body of scope) {
-    const fields = AWARD_BODY_FIELDS[body];
-    wins += film[fields.wins] as number;
-    noms += film[fields.noms] as number;
-  }
-
-  const winsBadge = wins > 0 ? { detail: `${wins} ${wins === 1 ? "award" : "awards"}` } : null;
-  const nomsBadge = noms > 0 ? { detail: `${noms} ${noms === 1 ? "nom" : "noms"}` } : null;
-
-  if (status === "won") return winsBadge;
-  if (status === "nom") return nomsBadge;
-  return winsBadge ?? nomsBadge;
-}
-
-function getListBadge(film: Film) {
-  if (film.imdbTopMovieRank != null) {
-    return { label: "IMDb Top 250 Film", detail: `#${film.imdbTopMovieRank}` };
-  }
-  if (film.imdbTopTvRank != null) {
-    return { label: "IMDb Top 250 TV", detail: `#${film.imdbTopTvRank}` };
-  }
-  return null;
-}
+import { trackEvent } from "@/lib/analytics";
+import { useFilmImpression } from "@/hooks/useFilmImpression";
+import { getAwardBadge, type AwardBadgeStatus } from "@/components/film-card/award-badge";
+import { getListBadge } from "@/components/film-card/list-badge";
+import { ImdbIcon } from "@/components/film-card/imdb-icon";
+import { TomatoIcon } from "@/components/film-card/tomato-icon";
 
 interface FilmCardProps {
   film: Film;
@@ -82,31 +24,10 @@ interface FilmCardProps {
 }
 
 export function FilmCard({ film, className, awardBodies, awardStatus = "any" }: FilmCardProps) {
-  const cardRef = useRef<HTMLAnchorElement | null>(null);
+  const cardRef = useFilmImpression<HTMLAnchorElement>(film, "shared_film_card");
   const badge = getAwardBadge(film, awardBodies ?? [], awardStatus);
   const listBadge = getListBadge(film);
   const primaryGenre = film.genres[0] ?? film.contentType;
-
-  useEffect(() => {
-    const node = cardRef.current;
-    if (!node || typeof IntersectionObserver === "undefined") return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry?.isIntersecting) return;
-        trackFilmImpression(film.id, {
-          title: film.title,
-          slug: film.slug,
-          surface: "shared_film_card",
-        });
-        observer.disconnect();
-      },
-      { threshold: 0.5 },
-    );
-
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, [film.id, film.slug, film.title]);
 
   return (
     <Link
@@ -196,35 +117,5 @@ export function FilmCard({ film, className, awardBodies, awardStatus = "any" }: 
         </p>
       </div>
     </Link>
-  );
-}
-
-function ImdbIcon() {
-  return (
-    <svg viewBox="0 0 12 12" width="11" height="11" fill="currentColor" aria-hidden>
-      <polygon points="6,1 7.5,4.5 11,4.8 8.5,7 9.3,10.5 6,8.5 2.7,10.5 3.5,7 1,4.8 4.5,4.5" />
-    </svg>
-  );
-}
-
-function TomatoIcon() {
-  return (
-    <svg viewBox="0 0 12 12" width="11" height="11" fill="currentColor" aria-hidden>
-      <ellipse cx="6" cy="7" rx="4.5" ry="4" />
-      <path d="M6 3 Q7.5 1 9 1.5 Q8 3 6 3Z" opacity="0.85" />
-      <path d="M6 3 Q4.5 1 3 1.5 Q4 3 6 3Z" opacity="0.7" />
-    </svg>
-  );
-}
-
-export function FilmCardSkeleton({ className }: { className?: string | undefined }) {
-  return (
-    <div className={cn("block", className)}>
-      <Skeleton className="aspect-[2/3] w-full rounded-md" />
-      <div className="space-y-2 pt-3">
-        <Skeleton className="h-4 w-4/5 rounded" />
-        <Skeleton className="h-3 w-1/3 rounded" />
-      </div>
-    </div>
   );
 }
