@@ -6,7 +6,7 @@ import Link from "next/link";
 import { createPortal } from "react-dom";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { AuthButton } from "@/components/AuthButton";
+import { AuthButton } from "@/components/auth-button";
 
 const primaryNavItems = [
   { href: "/", label: "Home" },
