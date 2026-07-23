@@ -1,3 +1,9 @@
+export {
+  changePassword,
+  deleteAccount,
+  updateAvatar,
+} from "./api/account-client";
+export type { ChangePasswordInput } from "./api/account-client";
 export { fetchMarathon } from "./api/fetch-marathon";
 export {
   fetchRandom,
@@ -19,10 +25,12 @@ export {
   addFilmToList,
   createUserList,
   deleteUserList,
+  fetchListPage,
   fetchUserLists,
   removeFilmFromList,
   renameUserList,
 } from "./api/user-lists-client";
+export type { ListPage } from "./api/user-lists-client";
 export {
   fetchFilmBySlug,
   fetchFilms,

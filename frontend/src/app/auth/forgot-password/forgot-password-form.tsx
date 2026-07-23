@@ -1,33 +1,11 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { useForgotPassword } from "./use-forgot-password";
 
 export function ForgotPasswordForm() {
-  const [email, setEmail] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [sent, setSent] = useState(false);
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (isLoading) return;
-    setIsLoading(true);
-    try {
-      await fetch("/api/auth/forgot-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
-      // The endpoint always succeeds (it won't disclose whether the email is
-      // registered), so we show the same confirmation either way.
-      setSent(true);
-    } catch {
-      setSent(true);
-    } finally {
-      setIsLoading(false);
-    }
-  }
+  const { email, isLoading, sent, setEmail, submit } = useForgotPassword();
 
   if (sent) {
     return (
@@ -59,7 +37,13 @@ export function ForgotPasswordForm() {
         Enter your email and we&apos;ll send you a link to set a new password.
       </p>
 
-      <form onSubmit={(e) => void handleSubmit(e)} className="mt-6 flex flex-col gap-3">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          void submit();
+        }}
+        className="mt-6 flex flex-col gap-3"
+      >
         <div className="flex flex-col gap-2">
           <label htmlFor="forgot-email" className="text-xs font-medium text-[#b8b8c6]">
             Email address

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { ACCOUNT_DELETED_TOAST_KEY } from "@/components/settings/delete-account-card";
+import { ACCOUNT_DELETED_TOAST_KEY } from "@/components/settings/account-deleted-toast-key";
 import { useToast } from "@/components/ui/toast";
 
 export function AccountDeletedToast() {

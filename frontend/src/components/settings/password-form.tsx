@@ -1,9 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import { PasswordInput } from "@/components/auth/password-input";
-import { useToast } from "@/components/ui/toast";
 import { cn } from "@/lib/utils";
+import { usePasswordForm } from "./use-password-form";
 
 /**
  * Changes (or, for OAuth-only accounts, sets for the first time) the signed-in
@@ -11,54 +10,26 @@ import { cn } from "@/lib/utils";
  * shown — an account with no hash yet has nothing to verify.
  */
 export function PasswordForm({ hasPassword }: { hasPassword: boolean }) {
-  const { toast } = useToast();
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [pending, setPending] = useState(false);
-
-  async function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (pending) return;
-    setError(null);
-
-    if (newPassword !== confirmPassword) {
-      setError("New passwords don’t match.");
-      return;
-    }
-
-    setPending(true);
-    try {
-      const res = await fetch("/api/auth/change-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...(hasPassword ? { currentPassword } : {}),
-          newPassword,
-        }),
-      });
-      const data: { error?: string } = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        setError(data.error ?? "Something went wrong. Please try again.");
-        return;
-      }
-      setCurrentPassword("");
-      setNewPassword("");
-      setConfirmPassword("");
-      toast({
-        variant: "success",
-        title: hasPassword ? "Password changed" : "Password set",
-      });
-    } catch {
-      setError("Something went wrong. Please try again.");
-    } finally {
-      setPending(false);
-    }
-  }
+  const {
+    currentPassword,
+    newPassword,
+    confirmPassword,
+    error,
+    pending,
+    setCurrentPassword,
+    setNewPassword,
+    setConfirmPassword,
+    submit,
+  } = usePasswordForm(hasPassword);
 
   return (
-    <form onSubmit={onSubmit} className="mt-4 flex flex-1 flex-col gap-4">
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        void submit();
+      }}
+      className="mt-4 flex flex-1 flex-col gap-4"
+    >
       {hasPassword && (
         <div className="space-y-1.5">
           <label
@@ -124,11 +95,7 @@ export function PasswordForm({ hasPassword }: { hasPassword: boolean }) {
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d4af37]/40",
           )}
         >
-          {pending
-            ? "Saving…"
-            : hasPassword
-              ? "Change password"
-              : "Set password"}
+          {pending ? "Saving…" : hasPassword ? "Change password" : "Set password"}
         </button>
       </div>
     </form>

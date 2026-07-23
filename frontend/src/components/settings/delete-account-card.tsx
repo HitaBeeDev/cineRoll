@@ -1,7 +1,5 @@
 "use client";
 
-import { useState } from "react";
-import { signOut } from "next-auth/react";
 import { Trash2 } from "lucide-react";
 import {
   Dialog,
@@ -13,44 +11,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useToast } from "@/components/ui/toast";
 import { cn } from "@/lib/utils";
-
-export const ACCOUNT_DELETED_TOAST_KEY = "cineroll_account_deleted_toast";
+import { useDeleteAccount } from "./use-delete-account";
 
 export function DeleteAccountCard() {
-  const { toast } = useToast();
-  const [open, setOpen] = useState(false);
-  const [pending, setPending] = useState(false);
-
-  async function deleteAccount() {
-    if (pending) return;
-    setPending(true);
-
-    try {
-      const res = await fetch("/api/user/account", { method: "DELETE" });
-
-      if (!res.ok) {
-        toast({
-          variant: "error",
-          title: "Account not deleted",
-          description: "Please try again.",
-        });
-        setPending(false);
-        return;
-      }
-
-      window.sessionStorage.setItem(ACCOUNT_DELETED_TOAST_KEY, "1");
-      await signOut({ callbackUrl: "/" });
-    } catch {
-      toast({
-        variant: "error",
-        title: "Account not deleted",
-        description: "Check your connection and try again.",
-      });
-      setPending(false);
-    }
-  }
+  const { open, setOpen, pending, confirmDelete } = useDeleteAccount();
 
   return (
     <section className="rounded-2xl border border-[#3a1f22] bg-[#130d10] px-6 py-6">
@@ -102,7 +67,7 @@ export function DeleteAccountCard() {
             <button
               type="button"
               disabled={pending}
-              onClick={() => void deleteAccount()}
+              onClick={() => void confirmDelete()}
               className="h-10 rounded-xl bg-[#e8453c] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#f2554c] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {pending ? "Deleting..." : "Delete account"}

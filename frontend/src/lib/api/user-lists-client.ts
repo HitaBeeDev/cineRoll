@@ -1,9 +1,27 @@
 import type { UserListMeta } from "@cineroll/types";
+import type { SavedFilmEntry } from "@/types/saved-film";
 import { throwApiError } from "./api-error";
 import { JSON_HEADERS } from "./constants";
 import type { UserListsResponse } from "./user-list-types";
 
 const LISTS_PATH = "/api/user/lists";
+
+export type ListPage = {
+  films: SavedFilmEntry[];
+  nextCursor: string | null;
+};
+
+export async function fetchListPage(
+  listId: string,
+  cursor: string,
+  limit: number,
+): Promise<ListPage> {
+  const query = `?cursor=${encodeURIComponent(cursor)}&limit=${limit}`;
+  const response = await fetch(`${listPath(listId)}${query}`);
+  if (!response.ok) await throwApiError(response, "Failed to load more films");
+  const data = (await response.json()) as Partial<ListPage>;
+  return { films: data.films ?? [], nextCursor: data.nextCursor ?? null };
+}
 
 export async function fetchUserLists(
   filmId?: string,
