@@ -102,6 +102,45 @@ for (const { workspace, pkg, why } of RUNTIME_REQUIRED) {
   );
 }
 
+// Vercel bundles the backend function from the HOISTED root node_modules. Anything
+// npm was forced to nest under backend/node_modules — which happens when the
+// backend pins a different major than the frontend, so the two cannot share one
+// hoisted copy — is dropped from that bundle and is simply absent at runtime.
+//
+// This is what took the site down twice. `jose` was pinned to ^5 in the backend
+// while next-auth pulled ^6 to the root, so npm nested jose@5 under
+// backend/node_modules. Production then threw "Cannot find module 'jose'" from
+// middleware/auth.js on every single request.
+//
+// Only meaningful where node_modules is installed, so skip it on Vercel.
+const nestedDir = resolve(repoRoot, "backend/node_modules");
+
+if (existsSync(nestedDir) && existsSync(resolve(repoRoot, "node_modules"))) {
+  const backendManifest = JSON.parse(
+    readFileSync(resolve(repoRoot, "backend/package.json"), "utf8"),
+  );
+
+  for (const dep of Object.keys(backendManifest.dependencies ?? {})) {
+    // Workspace links (@cineroll/*) are symlinked, not duplicated — not a risk.
+    if (dep.startsWith("@cineroll/")) continue;
+    if (!existsSync(resolve(nestedDir, dep, "package.json"))) continue;
+
+    const nestedVersion = JSON.parse(
+      readFileSync(resolve(nestedDir, dep, "package.json"), "utf8"),
+    ).version;
+    const rootPath = resolve(repoRoot, "node_modules", dep, "package.json");
+    const rootVersion = existsSync(rootPath)
+      ? JSON.parse(readFileSync(rootPath, "utf8")).version
+      : "absent";
+
+    problems.push(
+      `backend/node_modules/${dep} — nested (v${nestedVersion}) because the root has v${rootVersion}. ` +
+        `Vercel bundles only the hoisted copy, so this one is MISSING at runtime. ` +
+        `Align the version range in backend/package.json with the rest of the repo so npm can hoist it.`,
+    );
+  }
+}
+
 if (problems.length > 0) {
   console.error("\n  Build inputs will be missing in production:\n");
   for (const problem of problems) console.error(`    ${problem}`);

@@ -1,4 +1,8 @@
 import { Request, Response, NextFunction } from "express";
+// Must stay a STATIC import. Vercel's bundler traces dependencies statically, so
+// a dynamic or Function-wrapped import would make jose invisible to it and leave
+// the package out of the deployed function entirely. The version that keeps this
+// working is pinned in the ROOT package.json — see the comment there.
 import { jwtDecrypt } from "jose";
 import { hkdfSync } from "crypto";
 
