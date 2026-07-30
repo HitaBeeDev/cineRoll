@@ -46,7 +46,29 @@ const envSchema = z.object({
     .transform((v) => v === "true"),
 });
 
-const env = envSchema.parse(process.env);
+// This runs at module load, so a bad env var throws before Express mounts a
+// single route — including /health. On Vercel that surfaces only as an opaque
+// FUNCTION_INVOCATION_FAILED on every request, with nothing saying which
+// variable was wrong. Fail with a message that names the offenders instead.
+const parsed = envSchema.safeParse(process.env);
+
+if (!parsed.success) {
+  const details = parsed.error.issues
+    .map((issue) => {
+      const name = issue.path.join(".") || "(root)";
+      const present = process.env[name] !== undefined;
+      return `  ${name}: ${issue.message}${present ? "" : " (not set)"}`;
+    })
+    .join("\n");
+
+  throw new Error(
+    `Invalid backend environment — the server cannot start.\n${details}\n` +
+      `Set these in the Vercel project's Environment Variables (Production), then redeploy. ` +
+      `Note FRONTEND_URL must include the scheme, e.g. https://cineroll.de`,
+  );
+}
+
+const env = parsed.data;
 
 export const config = {
   port: env.PORT,
