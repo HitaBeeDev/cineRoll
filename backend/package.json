@@ -4,11 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "dev": "tsx watch src/index.mts",
     "prebuild": "node ../scripts/check-build-inputs.mjs",
     "build": "tsc",
     "postinstall": "prisma generate --schema=prisma/schema.prisma",
-    "start": "node dist/index.js",
+    "start": "node dist/index.mjs",
     "lint": "eslint src --ext .ts",
     "type-check": "tsc --noEmit",
     "test": "vitest run",
