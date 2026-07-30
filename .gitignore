@@ -60,12 +60,16 @@ agents.md
 # Film data pipeline — entire folder is private, never commit anything inside it
 backend/film-data/
 
-# Prisma schema, migrations, and config
-backend/prisma/
-backend/prisma.config.ts
+# NOTE: backend/prisma/ (schema + migrations) and backend/prisma.config.ts must
+# stay TRACKED. They are build inputs: `prisma generate` runs from the schema at
+# install time, and without it @prisma/client throws on import and the whole
+# backend function fails to boot. They hold no secrets — the datasource URL comes
+# from DATABASE_URL at runtime. Ignoring them took production down once already.
 
 # Private project docs
 docs/
 
 # Database backups — never commit
 *.dump
+.vercel
+.env*
