@@ -1,1 +1,6 @@
 npx lint-staged
+
+# Blocks the commit if a file the build reads is ignored or uncommitted. Catches
+# a prod-only outage here, before a broken deploy exists. See
+# scripts/check-build-inputs.mjs.
+node scripts/check-build-inputs.mjs

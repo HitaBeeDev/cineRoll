@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "prebuild": "node ../scripts/check-build-inputs.mjs",
     "build": "tsc",
     "postinstall": "prisma generate --schema=prisma/schema.prisma",
     "start": "node dist/index.js",
@@ -66,6 +67,7 @@
     "morgan": "^1.10.1",
     "node-vibrant": "^4.0.4",
     "pg": "^8.20.0",
+    "prisma": "^7.8.0",
     "resend": "^6.12.3",
     "sharp": "^0.34.5",
     "xlsx": "^0.18.5",
@@ -77,7 +79,6 @@
     "@types/morgan": "^1.9.10",
     "@types/node": "^25.6.0",
     "@types/pg": "^8.20.0",
-    "prisma": "^7.8.0",
     "ts-node-dev": "^2.0.0",
     "tsx": "^4.21.0",
     "typescript": "^6.0.3",
