@@ -1,6 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
+
+/** Never fires: the value it reports is fixed per environment, not observed. */
+const noSubscribe = () => () => {};
 
 /**
  * Manages the mobile navigation sheet: open state, portal-mount readiness, and
@@ -9,11 +12,13 @@ import { useEffect, useState } from "react";
  */
 export function useMobileMenu() {
   const [isOpen, setIsOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  // "Is there a document to portal into yet" — false on the server, true once
+  // hydrated. `useSyncExternalStore` rather than the setState-in-an-effect this
+  // used to be: that pattern renders, then immediately re-renders to correct
+  // itself, which is what `react-hooks/set-state-in-effect` is pointing at.
+  // Same idiom as useIsCompactViewport, for the same reason.
+  const mounted = useSyncExternalStore(noSubscribe, () => true, () => false);
 
   useEffect(() => {
     if (!isOpen) return;
