@@ -66,7 +66,6 @@ export function BrowsePageClient() {
           // The open panel covers the results header, so the count it would have
           // read travels into the panel's footer instead.
           resultCount={result?.total ?? null}
-          isCounting={status === "loading"}
         />
 
         <section className="mx-auto w-full max-w-[100vw] flex-1 px-4 py-6 sm:max-w-screen-2xl sm:px-6 sm:py-8 lg:px-8 xl:px-12">

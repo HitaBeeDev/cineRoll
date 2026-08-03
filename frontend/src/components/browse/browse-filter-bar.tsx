@@ -6,7 +6,6 @@ import { BrowseSearchBox } from "@/components/browse/browse-search-box";
 import { ToggleStrip } from "@/components/browse/toggle-strip";
 import { SegmentedControl } from "@/components/browse/segmented-control";
 import { ActiveFilterChips } from "@/components/browse/active-filter-chips";
-import { MatchCount } from "@/components/browse/match-count";
 import { BrowseAdvancedPanel } from "@/components/browse/browse-advanced-panel";
 import { AWARD_BODY_OPTIONS, STATUS_OPTIONS, type AwardStatus } from "@/lib/browse/options";
 import { statusFromFilters, statusToUpdates, toggleValue } from "@/lib/browse/filter-updates";
@@ -39,7 +38,6 @@ export function BrowseFilterBar({
   autocomplete,
   facets,
   resultCount,
-  isCounting,
 }: {
   filters: FilterState;
   setFilters: SetFilters;
@@ -48,9 +46,10 @@ export function BrowseFilterBar({
   setSearchDraft: (value: string) => void;
   autocomplete: BrowseAutocomplete;
   facets: FacetCounts;
-  /** Films matching the current filters; null until the first result lands. */
+  /** Films matching the current filters; null until the first result lands.
+   *  Only the compact sheet shows it, on its close button — the sticky bar
+   *  itself states no total, since the results header already does. */
   resultCount: number | null;
-  isCounting: boolean;
 }) {
   const [showMore, setShowMore] = useState(false);
   const compact = useIsCompactViewport();
@@ -106,10 +105,6 @@ export function BrowseFilterBar({
             onChange={(value) => setFilters(statusToUpdates(value))}
             className="xl:shrink-0"
           />
-
-          {/* Sits with the disclosure it belongs to: the number the panel is
-              there to move, beside the control that opens the panel. */}
-          <MatchCount resultCount={resultCount} isCounting={isCounting} />
 
           <button
             type="button"

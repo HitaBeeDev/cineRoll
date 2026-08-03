@@ -55,11 +55,10 @@ export function BrowseResultsHeader({
       ref={resultsTopRef}
       className="mb-6 flex scroll-mt-[var(--browse-scroll-offset)] flex-col gap-4 border-b border-white/10 pb-5 lg:flex-row lg:items-center lg:justify-between"
     >
-      {/* The set's size is the sticky bar's job (see MatchCount) — it has to stay
-          on screen while filters are edited, which a heading in the results
-          section cannot. So this heading answers what the bar can't: where in
-          that set the current page sits. Between them the total is stated once,
-          in one wording, instead of twice in two. */}
+      {/* The one place the total is stated. The sticky bar used to carry a live
+          count beside the Advanced button as well, which put the same number on
+          screen twice in two wordings; this heading says it once, and says where
+          in the set the current page sits besides. */}
       <div>
         <h2
           aria-live="polite"
