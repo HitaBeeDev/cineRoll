@@ -59,8 +59,15 @@ export function FilmBand({
   }));
 
   return (
+    /* One pair of controls per row, each pair answering one question: what the
+       film IS, when it is from, how well it scored. The controls in a row are
+       siblings rather than neighbours-by-accident, which is what the old span
+       juggling produced. The pairs sit in the panel's shared column track (see
+       PanelSection's `startsRow`), so they stay aligned with the bands above and
+       below rather than running on a grid of their own. */
     <PanelBand label="Film" activeCount={activeCount}>
-      <PanelSection label="Content Type" span={2}>
+      {/* Nature — what the film is. */}
+      <PanelSection label="Content Type" startsRow>
         {/* Multi-select: nothing highlighted already means every type, so there
             is no "All" chip to keep in sync with the selection. */}
         <ChipGroup>
@@ -90,13 +97,14 @@ export function FilmBand({
         />
       </PanelSection>
 
-      {/* One heading, because there is one filter: yearMin/yearMax. The decade
-          select is a shortcut that writes ten years into the range below it and
-          falls back to "Any decade" the moment those bounds are edited by hand —
-          shown together, so the shortcut and what it did can't read as two
-          competing era filters. The heading and the dash carry the range, so the
-          bounds need no From/To captions (kept as aria-labels). */}
-      <PanelSection label="Release Year">
+      {/* Time — when it is from, and how much of yours it takes. One heading for
+          the era, because there is one filter: yearMin/yearMax. The decade select
+          is a shortcut that writes ten years into the range below it and falls
+          back to "Any decade" the moment those bounds are edited by hand — shown
+          together, so the shortcut and what it did can't read as two competing
+          era filters. The heading and the dash carry the range, so the bounds need
+          no From/To captions (kept as aria-labels). */}
+      <PanelSection label="Release Year" startsRow>
         <div className={`flex flex-col gap-2 ${CONTROL_WIDTH}`}>
           <FilterSelect
             value={selectedDecade != null ? String(selectedDecade) : ANY_YEAR}
@@ -141,19 +149,6 @@ export function FilmBand({
         </div>
       </PanelSection>
 
-      {/* The two score filters are one question asked of two sources, so they
-          are the same control, the same width, stacked in the same columns —
-          not one here and one in another band. */}
-      <PanelSection label="IMDb Rating" span={2}>
-        <ThresholdChips
-          ariaLabel="Minimum IMDb rating"
-          options={IMDB_OPTIONS}
-          // 0 is this filter's "unset" in FilterState, not a rating anyone picks.
-          value={filters.imdbRatingMin || null}
-          onSelect={(next) => setFilters({ imdbRatingMin: next ?? 0, page: 1 })}
-        />
-      </PanelSection>
-
       <PanelSection label="Max Runtime">
         <ThresholdChips
           ariaLabel="Maximum runtime"
@@ -163,7 +158,19 @@ export function FilmBand({
         />
       </PanelSection>
 
-      <PanelSection label="Rotten Tomatoes" span={2}>
+      {/* Scores — one question asked of two sources, so they sit side by side in
+          the same control at the same width, not one here and one a band away. */}
+      <PanelSection label="IMDb Rating" startsRow>
+        <ThresholdChips
+          ariaLabel="Minimum IMDb rating"
+          options={IMDB_OPTIONS}
+          // 0 is this filter's "unset" in FilterState, not a rating anyone picks.
+          value={filters.imdbRatingMin || null}
+          onSelect={(next) => setFilters({ imdbRatingMin: next ?? 0, page: 1 })}
+        />
+      </PanelSection>
+
+      <PanelSection label="Rotten Tomatoes">
         <ThresholdChips
           ariaLabel="Minimum Rotten Tomatoes score"
           options={RT_OPTIONS}

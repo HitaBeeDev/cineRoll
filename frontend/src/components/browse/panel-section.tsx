@@ -14,36 +14,46 @@ import { FieldLabelProvider } from "@/components/ui/field-label-context";
 export const CONTROL_WIDTH = "w-full max-w-[22rem]";
 
 /**
- * How many of the band's columns this section occupies. A row of chips is as
- * wide as its chips: give the long ones (content types, the rating scales) two
- * columns and none of them wrap, which is what kept orphaning "TV Series", "9+"
- * and "95%+" onto lines of their own.
+ * One captioned control in a band's grid, occupying exactly one cell. Sections
+ * used to be able to span two columns, which is what let a short chip row sit
+ * beside a control four times its height and leave a hole under it.
+ *
+ * `startsRow` pins the section to the first column, so a band whose controls come
+ * in pairs gets a row per pair without leaving the shared three-column track. The
+ * third column then stands empty for that band — deliberately: the pairing is
+ * what the whitespace is there to say, and it costs less than either breaking the
+ * panel's vertical alignment or filling the row with an unrelated control.
  *
  * The caption is also the accessible name of whatever the section holds. It is
  * published to the control through FieldLabelProvider rather than restated as an
  * `aria-label`, which had screen readers announcing "Content type" twice — once
  * reading the caption, once naming the group.
+ *
+ * Its letterspacing is 0.12em, not the 0.3em it carried before. At 11px that much
+ * tracking pulls the word apart into separate letters and costs more legibility
+ * than the styling is worth; the band heading above now carries the difference in
+ * level through size and weight instead.
  */
 export function PanelSection({
   label,
   children,
-  span = 1,
+  startsRow = false,
   className,
 }: {
   label: string;
   children: React.ReactNode;
-  span?: 1 | 2;
+  startsRow?: boolean;
   className?: string;
 }) {
   const labelId = useId();
 
   return (
     <div
-      className={`flex flex-col gap-2${span === 2 ? " md:col-span-2" : ""}${className ? ` ${className}` : ""}`}
+      className={`flex flex-col gap-2${startsRow ? " xl:col-start-1" : ""}${className ? ` ${className}` : ""}`}
     >
       <span
         id={labelId}
-        className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.3em] text-[#8e899e]"
+        className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.12em] text-[#8e899e]"
       >
         {label}
       </span>

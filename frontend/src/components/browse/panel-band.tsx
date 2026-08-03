@@ -6,11 +6,16 @@
  * filter, add collapse state to persist, and reflow the grid on every toggle. A
  * heading plus a hairline rule carries the same hierarchy for free.
  *
- * The grid stops at three columns. Four squeezed every chip row into a cell
- * narrower than its chips, so "TV Series", "9+" and "95%+" each wrapped alone
- * onto a second line and the bands read as ragged. At three, a section that
- * needs the width takes two columns (see PanelSection's `span`) and every band
- * lands on whole rows instead of trailing a half-empty one.
+ * One three-column track, shared by every band, so a control's left edge lines up
+ * with the control above it in the band before — the vertical rhythm is what
+ * holds a panel this dense together. Bands whose controls come in pairs break
+ * their rows with PanelSection's `startsRow` rather than by switching to a grid
+ * of their own, which would misalign every column below it.
+ *
+ * Sections used to be able to span two columns instead. That is what made the
+ * bands read as ragged: a span-2 row of chips 32px tall would land beside a
+ * stacked control four times its height, and the grid row took the taller of the
+ * two, leaving a hole under the chips with nothing to do with them.
  *
  * `activeCount` marks the band whose filters are doing something — the same
  * badge the collapsed Advanced button shows, resolved down to which band to
@@ -28,7 +33,11 @@ export function PanelBand({
   return (
     <section aria-label={label} className="flex flex-col gap-4">
       <div className="flex items-center gap-3">
-        <h3 className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.25em] text-[#f1eff8]">
+        {/* A level above the section captions below it: bigger, heavier, brighter,
+            and less letterspaced. At 11px/0.25em against their 11px/0.3em the two
+            were the same typographic voice, so "AWARDS" read as a peer of "AWARD
+            CATEGORY" rather than as the heading over it. */}
+        <h3 className="font-[family-name:var(--font-geist-mono)] text-[13px] font-semibold uppercase tracking-[0.16em] text-[#f1eff8]">
           {label}
         </h3>
         {activeCount > 0 && (
