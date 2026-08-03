@@ -35,6 +35,12 @@ export function DetailsBand({
   const signedIn = useSession().status === "authenticated";
 
   return (
+    /* Three cells, one row. The two checkboxes used to be a section each —
+       "Filmmaker" over one line, "Your History" over another — which put a
+       caption above a control that already said the whole thing in its own
+       label, and left the band running onto a second row that was two thirds
+       empty. Gathered under one heading they read as what they are: a pair of
+       narrowings on the same set, phrased the same way. */
     <PanelBand label="Details" activeCount={activeCount} collapsible={collapsible}>
       <PanelSection label="Language">
         <MultiSelect
@@ -58,28 +64,29 @@ export function DetailsBand({
         />
       </PanelSection>
 
-      {/* One boolean, stated in full by its own label — so no caption above it,
-          and half the height the captioned chip row took. */}
-      <PanelSection label="Filmmaker">
-        <FilterCheckbox
-          label="Directed by a woman"
-          checked={filters.femaleDirectorOnly}
-          onChange={(checked) => setFilters({ femaleDirectorOnly: checked, page: 1 })}
-        />
-      </PanelSection>
-
-      {/* Signed in only, because it filters against the viewer's own history:
-          shown to a signed-out visitor it could only ever be a checkbox that
-          changes nothing. */}
-      {signedIn && (
-        <PanelSection label="Your History">
+      {/* Both booleans state themselves in full, so the caption over them only
+          has to say what they have in common — and phrasing the second as what
+          to keep rather than what to hide is what lets one heading cover both. */}
+      <PanelSection label="Only Show">
+        <div className="flex flex-col gap-2.5">
           <FilterCheckbox
-            label="Hide films I've watched"
-            checked={filters.excludeWatched}
-            onChange={(checked) => setFilters({ excludeWatched: checked, page: 1 })}
+            label="Films directed by a woman"
+            checked={filters.femaleDirectorOnly}
+            onChange={(checked) => setFilters({ femaleDirectorOnly: checked, page: 1 })}
           />
-        </PanelSection>
-      )}
+
+          {/* Signed in only, because it filters against the viewer's own history:
+              shown to a signed-out visitor it could only ever be a checkbox that
+              changes nothing. */}
+          {signedIn && (
+            <FilterCheckbox
+              label="Films I haven't watched"
+              checked={filters.excludeWatched}
+              onChange={(checked) => setFilters({ excludeWatched: checked, page: 1 })}
+            />
+          )}
+        </div>
+      </PanelSection>
     </PanelBand>
   );
 }

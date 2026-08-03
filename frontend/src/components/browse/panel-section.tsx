@@ -34,11 +34,32 @@ export const CONTROL_WIDTH = "w-full max-w-[22rem]";
  * than the styling is worth; the band heading above now carries the difference in
  * level through size and weight instead.
  */
+/**
+ * Two levels of caption, because a band is not a flat list of equals.
+ *
+ * Every caption used to be the same 11px grey, so "Genre" and "Max. Wins" — one
+ * of them touched most sessions, the other almost never — cost exactly the same
+ * to find. Twenty controls at one weight give the eye nowhere to land and no way
+ * to skim, and the panel reads as a form to fill in rather than a set of choices
+ * to make.
+ *
+ * `primary` marks the handful of controls each band actually leads with; they
+ * take the top row and carry a brighter, heavier caption. The rest keep the old
+ * one. Nothing is dimmed further to make the difference — contrast at 11px on
+ * this background has none to give — so the level is carried by weight, size and
+ * brightness going up rather than down.
+ */
+const LABEL_LEVELS = {
+  primary: "text-[12px] font-semibold tracking-[0.1em] text-[#ded8ee]",
+  default: "text-[11px] tracking-[0.12em] text-[#8e899e]",
+} as const;
+
 export function PanelSection({
   label,
   hint,
   children,
   startsRow = false,
+  emphasis = "default",
   className,
 }: {
   label: string;
@@ -48,6 +69,8 @@ export function PanelSection({
   hint?: string;
   children: React.ReactNode;
   startsRow?: boolean;
+  /** `primary` for the controls a band leads with — see LABEL_LEVELS. */
+  emphasis?: keyof typeof LABEL_LEVELS;
   className?: string;
 }) {
   const labelId = useId();
@@ -58,11 +81,11 @@ export function PanelSection({
     >
       <span
         id={labelId}
-        className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.12em] text-[#8e899e]"
+        className={`font-[family-name:var(--font-geist-mono)] uppercase ${LABEL_LEVELS[emphasis]}`}
       >
         {label}
         {hint && (
-          <span className="ml-2 normal-case tracking-normal text-[#6f6b80]">{hint}</span>
+          <span className="ml-2 font-normal normal-case tracking-normal text-[#6f6b80]">{hint}</span>
         )}
       </span>
       <FieldLabelProvider id={labelId}>{children}</FieldLabelProvider>

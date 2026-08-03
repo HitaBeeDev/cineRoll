@@ -89,8 +89,31 @@ export function AwardsBand({
   const yearOptions = awardYears.map(({ year }) => ({ value: String(year), label: String(year) }));
 
   return (
+    /* Two rows of three, and which control gets which slot is the argument the
+       band is making.
+
+       "Recognised by" leads. It was last here — bottom left, alone in a row two
+       thirds empty — while "how many nominations / wins / at most wins" took the
+       middle. That had it backwards twice over: consensus across four juries is
+       the one question this catalogue can answer that a single-ceremony list
+       cannot, and the win-count trio is the most specialist thing in the band.
+       The differentiator now opens the panel, and the counting follows it. */
     <PanelBand label="Awards" activeCount={activeCount} collapsible={collapsible}>
-      <PanelSection label="Award Category" startsRow>
+      <PanelSection
+        label="Recognised By"
+        hint="how many of the four ceremonies"
+        emphasis="primary"
+        startsRow
+      >
+        <ThresholdChips
+          ariaLabel="Minimum number of ceremonies that recognised the film"
+          options={CEREMONY_COUNT_OPTIONS}
+          value={filters.ceremonyCount}
+          onSelect={(next) => setFilters({ ceremonyCount: next, page: 1 })}
+        />
+      </PanelSection>
+
+      <PanelSection label="Award Category" emphasis="primary">
         <MultiSelect
           selected={filters.categories}
           onChange={(vals) => setFilters({ categories: vals, page: 1 })}
@@ -102,10 +125,10 @@ export function AwardsBand({
       </PanelSection>
 
       {/* A range, not a single year, and shaped like the release-year bounds
-          below it: "the Oscars of the 1970s" is an obvious thing to ask of an
-          award catalogue and a one-value select could not express it. Leaving
-          both bounds on the same year still asks for one ceremony. */}
-      <PanelSection label="Ceremony Year">
+          in the band below: "the Oscars of the 1970s" is an obvious thing to ask
+          of an award catalogue and a one-value select could not express it.
+          Leaving both bounds on the same year still asks for one ceremony. */}
+      <PanelSection label="Ceremony Year" emphasis="primary">
         <div className={`flex items-center gap-2 ${CONTROL_WIDTH}`}>
           <FilterSelect
             value={filters.awardYearMin != null ? String(filters.awardYearMin) : ANY_YEAR}
@@ -169,15 +192,6 @@ export function AwardsBand({
           options={WIN_MAX_OPTIONS}
           value={filters.winsMax}
           onSelect={(next) => setFilters({ ...setWinsMax(filters, next), page: 1 })}
-        />
-      </PanelSection>
-
-      <PanelSection label="Recognised By" hint="how many of the four ceremonies" startsRow>
-        <ThresholdChips
-          ariaLabel="Minimum number of ceremonies that recognised the film"
-          options={CEREMONY_COUNT_OPTIONS}
-          value={filters.ceremonyCount}
-          onSelect={(next) => setFilters({ ceremonyCount: next, page: 1 })}
         />
       </PanelSection>
     </PanelBand>

@@ -108,29 +108,54 @@ export function FilmBand({
   }));
 
   return (
-    /* One pair of controls per row, each pair answering one question: what the
-       film IS, when it is from, how well it scored. The controls in a row are
-       siblings rather than neighbours-by-accident, which is what the old span
-       juggling produced. The pairs sit in the panel's shared column track (see
-       PanelSection's `startsRow`), so they stay aligned with the bands above and
-       below rather than running on a grid of their own. */
+    /* Two full rows of three, front-loaded. What a film IS — its format, its
+       subject, its era — is what nearly every visit narrows by, so those three
+       take the top row and the brighter caption; how long it runs and how it
+       scored are refinements and take the second.
+
+       Full rows are the point as much as the order. The band used to run three
+       rows of pairs, which left a third of every row empty and made a panel with
+       nothing much in it feel long to scroll — sparse and tall at once. Folding
+       the runtime bounds into one control (they are one number) closed the gap
+       that produced. The controls still sit in the panel's shared column track
+       (see PanelSection's `startsRow`), so they stay aligned with the bands above
+       and below rather than running on a grid of their own. */
     <PanelBand label="Film" activeCount={activeCount} collapsible={collapsible}>
-      {/* Nature — what the film is. */}
-      <PanelSection label="Content Type" startsRow>
-        {/* Multi-select: nothing highlighted already means every type, so there
-            is no "All" chip to keep in sync with the selection. */}
-        <ChipGroup>
-          {CONTENT_TYPE_OPTIONS.map(({ value, label }) => (
-            <FilterChip
-              key={value}
-              active={filters.contentTypes.includes(value)}
-              count={countOf(counts.contentTypes, value)}
-              onClick={() => toggleContentType(value)}
-            >
-              {label}
-            </FilterChip>
-          ))}
-        </ChipGroup>
+      {/* Nature — what the film is. The kind-of-television select is stacked
+          inside this cell rather than given a caption of its own: it refines the
+          chip directly above it and exists only while that chip is on, which is
+          the same shape as the genre match-mode control below. As its own
+          section it was a fourth thing appearing and disappearing from the row,
+          shunting everything after it a column sideways. */}
+      <PanelSection label="Content Type" emphasis="primary" startsRow>
+        <div className={`flex flex-col gap-2 ${CONTROL_WIDTH}`}>
+          {/* Multi-select: nothing highlighted already means every type, so there
+              is no "All" chip to keep in sync with the selection. */}
+          <ChipGroup columns>
+            {CONTENT_TYPE_OPTIONS.map(({ value, label }) => (
+              <FilterChip
+                key={value}
+                active={filters.contentTypes.includes(value)}
+                count={countOf(counts.contentTypes, value)}
+                onClick={() => toggleContentType(value)}
+              >
+                {label}
+              </FilterChip>
+            ))}
+          </ChipGroup>
+
+          {showTvType && (
+            <FilterSelect
+              value={filters.tvType || ANY_TV_TYPE}
+              onValueChange={(value) =>
+                setFilters({ tvType: value === ANY_TV_TYPE ? "" : value, page: 1 })
+              }
+              ariaLabel="Kind of series"
+              className="w-full text-[#b8b5c8]"
+              options={[{ value: ANY_TV_TYPE, label: "Any kind of series" }, ...tvTypeOptions]}
+            />
+          )}
+        </div>
       </PanelSection>
 
       {/* Two genres can be asked for two ways and the difference is the whole
@@ -138,7 +163,7 @@ export function FilmBand({
           romantic musical. The switch appears only once a second genre makes the
           distinction real — before that both readings return the same films, and
           a control with no effect is one more thing to work out. */}
-      <PanelSection label="Genre">
+      <PanelSection label="Genre" emphasis="primary">
         <div className={`flex flex-col gap-2 ${CONTROL_WIDTH}`}>
           <MultiSelect
             selected={filters.genres}
@@ -161,27 +186,14 @@ export function FilmBand({
         </div>
       </PanelSection>
 
-      {showTvType && (
-        <PanelSection label="TV Type" hint="kind of series">
-          <FilterSelect
-            value={filters.tvType || ANY_TV_TYPE}
-            onValueChange={(value) =>
-              setFilters({ tvType: value === ANY_TV_TYPE ? "" : value, page: 1 })
-            }
-            className={`${CONTROL_WIDTH} text-[#b8b5c8]`}
-            options={[{ value: ANY_TV_TYPE, label: "Any kind" }, ...tvTypeOptions]}
-          />
-        </PanelSection>
-      )}
-
-      {/* Time — when it is from, and how much of yours it takes. One heading for
-          the era, because there is one filter: yearMin/yearMax. The decade select
-          is a shortcut that writes ten years into the range below it and falls
-          back to "Any decade" the moment those bounds are edited by hand — shown
-          together, so the shortcut and what it did can't read as two competing
-          era filters. The heading and the dash carry the range, so the bounds need
-          no From/To captions (kept as aria-labels). */}
-      <PanelSection label="Release Year" startsRow>
+      {/* Time — when it is from. One heading for the era, because there is one
+          filter: yearMin/yearMax. The decade select is a shortcut that writes ten
+          years into the range below it and falls back to "Any decade" the moment
+          those bounds are edited by hand — shown together, so the shortcut and
+          what it did can't read as two competing era filters. The heading and the
+          dash carry the range, so the bounds need no From/To captions (kept as
+          aria-labels). */}
+      <PanelSection label="Release Year" emphasis="primary">
         <div className={`flex flex-col gap-2 ${CONTROL_WIDTH}`}>
           <FilterSelect
             value={selectedDecade != null ? String(selectedDecade) : ANY_YEAR}
@@ -226,31 +238,37 @@ export function FilmBand({
         </div>
       </PanelSection>
 
-      {/* Two bounds, one length: the cap alone could only ask for something
-          short, and "a proper long one, but not a four-hour one" is the other
-          half of the same question. They move each other out of the way rather
-          than crossing into a range nothing can satisfy (see bounds.ts). */}
-      <PanelSection label="Min Runtime">
-        <ThresholdChips
-          ariaLabel="Minimum runtime"
-          options={RUNTIME_MIN_OPTIONS}
-          value={filters.runtimeMin}
-          onSelect={(next) => setFilters({ ...setRuntimeMin(filters, next), page: 1 })}
-        />
-      </PanelSection>
+      {/* Two bounds, one length — so one caption, the way Release Year and
+          Ceremony Year already carry their two ends under one. As "Min Runtime"
+          and "Max Runtime" they were two captions of equal weight for one
+          number, which cost a grid cell that then had to be paid for with an
+          empty one further down the band. The chips say which end they are: a row
+          of ≥ over a row of ≤.
 
-      <PanelSection label="Max Runtime">
-        <ThresholdChips
-          ariaLabel="Maximum runtime"
-          options={RUNTIME_MAX_OPTIONS}
-          value={filters.runtimeMax}
-          onSelect={(next) => setFilters({ ...setRuntimeMax(filters, next), page: 1 })}
-        />
+          The cap alone could only ask for something short, and "a proper long
+          one, but not a four-hour one" is the other half of the same question.
+          The two move each other out of the way rather than crossing into a range
+          nothing can satisfy (see bounds.ts). */}
+      <PanelSection label="Runtime" hint="at least / at most" startsRow>
+        <div className="flex flex-col gap-1.5">
+          <ThresholdChips
+            ariaLabel="Minimum runtime"
+            options={RUNTIME_MIN_OPTIONS}
+            value={filters.runtimeMin}
+            onSelect={(next) => setFilters({ ...setRuntimeMin(filters, next), page: 1 })}
+          />
+          <ThresholdChips
+            ariaLabel="Maximum runtime"
+            options={RUNTIME_MAX_OPTIONS}
+            value={filters.runtimeMax}
+            onSelect={(next) => setFilters({ ...setRuntimeMax(filters, next), page: 1 })}
+          />
+        </div>
       </PanelSection>
 
       {/* Scores — one question asked of two sources, so they sit side by side in
           the same control at the same width, not one here and one a band away. */}
-      <PanelSection label="IMDb Rating" startsRow>
+      <PanelSection label="IMDb Rating">
         <ThresholdChips
           ariaLabel="Minimum IMDb rating"
           options={IMDB_OPTIONS}

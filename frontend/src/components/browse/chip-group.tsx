@@ -17,13 +17,28 @@ import { useFieldLabelling } from "@/components/ui/field-label-context";
  */
 export function ChipGroup({
   label,
+  columns = false,
   children,
 }: {
   label?: string;
+  /**
+   * Lay the chips out on a fixed three-column grid instead of letting them wrap.
+   *
+   * Wrapping breaks wherever the labels happen to run out of room, and for a set
+   * of five that landed four on the first line and orphaned the fifth ("TV
+   * Series") on a line of its own — which reads as a mistake rather than a fifth
+   * choice. A grid breaks 3 and 2 at every width, and the chips come out on a
+   * shared width besides, so the row scans as one set of options.
+   */
+  columns?: boolean;
   children: React.ReactNode;
 }) {
   return (
-    <div role="group" {...useFieldLabelling(label)} className="flex flex-wrap gap-1">
+    <div
+      role="group"
+      {...useFieldLabelling(label)}
+      className={columns ? "grid grid-cols-3 gap-1" : "flex flex-wrap gap-1"}
+    >
       {children}
     </div>
   );
