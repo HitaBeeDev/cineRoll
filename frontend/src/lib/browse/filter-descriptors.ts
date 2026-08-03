@@ -133,16 +133,22 @@ const FILTER_DESCRIPTORS: FilterDescriptor[] = [
     toChips: (f, set) => [{ key: "runtime-min", label: `≥ ${f.runtimeMin}m`, onRemove: () => set({ runtimeMin: null, page: 1 }) }] },
   { band: "film", isActive: (f) => f.runtimeMax != null,
     toChips: (f, set) => [{ key: "runtime", label: `≤ ${f.runtimeMax}m`, onRemove: () => set({ runtimeMax: null, page: 1 }) }] },
+  // Both wins bounds clear together, whichever one is set: they are two halves of
+  // one control now (see awards-band's AWARDS_WON_OPTIONS), and a chip that
+  // removed only its own half could leave the other one filtering invisibly.
   { band: "awards", isActive: (f) => f.winsMin != null && f.winsMin > 0,
-    toChips: (f, set) => [{ key: "wins", label: `${f.winsMin}+ wins`, onRemove: () => set({ winsMin: null, page: 1 }) }] },
+    toChips: (f, set) => [{ key: "wins", label: `${f.winsMin}+ wins`, onRemove: () => set({ winsMin: null, winsMax: null, page: 1 }) }] },
   // 0 is a value here, not an absence: "never won anything" is the sharpest cut
   // this control makes, so the test is `!= null` rather than truthiness.
   { band: "awards", isActive: (f) => f.winsMax != null,
     toChips: (f, set) => [{
       key: "wins-max",
-      label: f.winsMax === 0 ? "No wins" : `≤ ${f.winsMax} wins`,
-      onRemove: () => set({ winsMax: null, page: 1 }),
+      label: f.winsMax === 0 ? "Never won" : `≤ ${f.winsMax} wins`,
+      onRemove: () => set({ winsMin: null, winsMax: null, page: 1 }),
     }] },
+  // No control on this page sets a nomination floor any more — the "Most
+  // nominations" sort answers that better — but /ask-ai still can, and a link
+  // carrying one has to stay removable.
   { band: "awards", isActive: (f) => f.nominationCount != null && f.nominationCount > 0,
     toChips: (f, set) => [{ key: "noms", label: `${f.nominationCount}+ noms`, onRemove: () => set({ nominationCount: null, page: 1 }) }] },
   { band: "awards", isActive: (f) => f.ceremonyCount != null && f.ceremonyCount > 1,

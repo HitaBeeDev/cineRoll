@@ -11,38 +11,61 @@ import {
   setCeremonyYearMax,
   setCeremonyYearMin,
 } from "@/lib/browse/year-range";
-import { setWinsMax, setWinsMin } from "@/lib/browse/bounds";
 import type { SetFilters } from "@/lib/browse/filter-descriptors";
 
 /**
- * No "1+". Every film in the catalogue is here because it was nominated for
- * something — 0 of 9,180 have no nominations — so that chip selected the entire
- * catalogue, an option that cannot narrow anything sitting in a row whose whole
- * purpose is narrowing. The scale now starts where it starts to mean something.
+ * One row for how decorated a film is, where there used to be three — minimum
+ * nominations, minimum wins, maximum wins, fourteen chips and three captions for
+ * what is really one axis running from "won nothing" upward.
+ *
+ * What each of the three was actually worth:
+ *
+ * - Nominations answered a question the "Most nominations" sort answers better.
+ *   Every film here was nominated for something (0 of 9,180 were not), so the row
+ *   could only ever be a ladder, and a ladder is what an ordering is for: page one
+ *   of that sort IS the "most nominated" answer, already ranked.
+ *
+ * - Minimum wins repeated the Award Result strip in the sticky bar. Not exactly,
+ *   which was the problem: `winnerOnly` lives inside the award-row EXISTS and so
+ *   means "won at the selected ceremony", while `winsMin` sums every body — two
+ *   different questions on one screen, told apart by a grey 11px hint. With no
+ *   ceremony selected they are the same filter, twice. The top of the ladder was
+ *   sort territory besides: 10+ wins is 28 films out of 9,180.
+ *
+ * - The cap was the one worth keeping, and only at zero. "Nominated and went home
+ *   empty" is 54% of the catalogue and nothing else in the UI can name it — not
+ *   even the Nominated segment, which matches any film with an award row, i.e.
+ *   all of them. The ≤1 / ≤2 / ≤5 steps above it are hidden-gem tuning, too fine
+ *   for a browse panel; `winsMax` still takes them from the API.
+ *
+ * So: never-won at one end, a short ladder above it, and "at least one win" left
+ * to the Winner segment that already says it — which is what stops the two
+ * controls meaning subtly different things side by side.
  */
-const NOMINATION_OPTIONS = [2, 3, 5, 10, 20].map((n) => ({ value: n, label: `${n}+` }));
-
-/**
- * Wins start at 1+, where nominations cannot: 54% of the catalogue never won
- * anything, so "at least one win" is the single most discriminating cut on this
- * band — and the reason the two scales don't share a set of thresholds. The top
- * of the range is lower too, because 10+ wins is already only 28 films.
- */
-const WIN_OPTIONS = [1, 2, 3, 5, 10].map((n) => ({ value: n, label: `${n}+` }));
-
-/**
- * The other end of the wins scale — and where the interesting question is asked
- * from below rather than above. "None" is the whole point of it: 54% of the
- * catalogue was nominated and went home empty, a set nothing else in the panel
- * can name. The caps above it are for narrowing that idea rather than dropping
- * it — "won a little, not everything".
- */
-const WIN_MAX_OPTIONS = [
-  { value: 0, label: "None" },
-  { value: 1, label: "≤ 1" },
-  { value: 2, label: "≤ 2" },
-  { value: 5, label: "≤ 5" },
+const AWARDS_WON_OPTIONS = [
+  { value: 0, label: "Never won" },
+  { value: 2, label: "2+" },
+  { value: 3, label: "3+" },
+  { value: 5, label: "5+" },
+  { value: 10, label: "10+" },
 ];
+
+/**
+ * The row's single value, folded out of the two fields behind it: 0 is the cap at
+ * zero, anything else is the floor. They are never both set, so the pair cannot
+ * contradict itself and there is no crossing to guard against.
+ */
+function awardsWonValue(filters: FilterState): number | null {
+  if (filters.winsMax === 0) return 0;
+  return filters.winsMin ?? null;
+}
+
+function setAwardsWon(next: number | null): Partial<FilterState> {
+  if (next === null) return { winsMin: null, winsMax: null };
+  if (next === 0) return { winsMin: null, winsMax: 0 };
+
+  return { winsMin: next, winsMax: null };
+}
 
 /**
  * Consensus across juries, which is the one question a four-ceremony catalogue
@@ -157,41 +180,16 @@ export function AwardsBand({
         </div>
       </PanelSection>
 
-      {/* Nominated how often, and won how often — one question about a film's
-          standing asked twice, so the two scales sit side by side in the same
-          control, like the IMDb and Rotten Tomatoes pair in the band below.
-          The hints are not decoration: both count across all four ceremonies
+      {/* The hint is not decoration: this counts across all four ceremonies
           whatever is selected above, so "5+" with Cannes selected means "a Cannes
-          film with five nominations anywhere", not five at Cannes. Unsaid, the
-          number is quietly the wrong one. */}
-      <PanelSection label="Min. Nominations" hint="across all ceremonies" startsRow>
+          film with five wins anywhere", not five at Cannes. Unsaid, the number is
+          quietly the wrong one. */}
+      <PanelSection label="Awards Won" hint="across all ceremonies" startsRow>
         <ThresholdChips
-          ariaLabel="Minimum total award nominations across all ceremonies"
-          options={NOMINATION_OPTIONS}
-          value={filters.nominationCount}
-          onSelect={(next) => setFilters({ nominationCount: next, page: 1 })}
-        />
-      </PanelSection>
-
-      <PanelSection label="Min. Wins" hint="across all ceremonies">
-        <ThresholdChips
-          ariaLabel="Minimum total award wins across all ceremonies"
-          options={WIN_OPTIONS}
-          value={filters.winsMin}
-          onSelect={(next) => setFilters({ ...setWinsMin(filters, next), page: 1 })}
-        />
-      </PanelSection>
-
-      {/* The cap completes the pair the floor started, and turns this row from
-          "how decorated" into "how decorated, between here and here" — which is
-          how a nominee that never won gets found at all. The two bounds move each
-          other out of the way rather than crossing (see bounds.ts). */}
-      <PanelSection label="Max. Wins" hint="across all ceremonies">
-        <ThresholdChips
-          ariaLabel="Maximum total award wins across all ceremonies"
-          options={WIN_MAX_OPTIONS}
-          value={filters.winsMax}
-          onSelect={(next) => setFilters({ ...setWinsMax(filters, next), page: 1 })}
+          ariaLabel="Total award wins across all ceremonies"
+          options={AWARDS_WON_OPTIONS}
+          value={awardsWonValue(filters)}
+          onSelect={(next) => setFilters({ ...setAwardsWon(next), page: 1 })}
         />
       </PanelSection>
     </PanelBand>
