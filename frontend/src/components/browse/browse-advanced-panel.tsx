@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import type { FilterState } from "@cineroll/types";
 import { cn } from "@/lib/utils";
@@ -15,13 +16,40 @@ import { countFiltersByBand, type SetFilters } from "@/lib/browse/filter-descrip
  * awards-band / film-band / details-band) — this file is only the composition,
  * the per-band active counts, and the footer.
  *
- * `compact` is the same three bands as a bottom sheet. Inline, the panel's three
- * columns collapse to one on a phone: about three screens of controls pushed
- * under a sticky bar, with the results they filter somewhere far below and no
- * way back but scrolling. As a sheet it owns the viewport, scrolls itself,
- * collapses its bands to a contents page, and closes on a button that says how
- * many films are waiting — so the filtering has an end.
+ * `compact` is the same three bands as a full-screen menu. Inline, the panel's
+ * three columns collapse to one on a phone: about three screens of controls
+ * pushed under a sticky bar, with the results they filter somewhere far below and
+ * no way back but scrolling. Full-screen it owns the viewport edge to edge,
+ * scrolls itself, opens on a contents page of three collapsed bands, and closes
+ * on a button that says how many films are waiting — so the filtering has an end.
+ *
+ * It is rendered through a portal onto <body>, and that is load-bearing rather
+ * than tidiness. The sticky filter bar that owns this panel carries
+ * `backdrop-blur`, and a backdrop-filter makes an element the containing block
+ * for every fixed-position descendant — so `fixed inset-0` resolved against the
+ * bar instead of the viewport and the "full screen" menu rendered as a short
+ * block inside the bar with the results still scrolling below it. The portal
+ * moves it out from under that ancestor, where `fixed` means the viewport again.
  */
+function ClearAllButton({
+  onClearAll,
+  disabled,
+}: {
+  onClearAll: () => void;
+  disabled: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClearAll}
+      disabled={disabled}
+      className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[12px] text-[#a9a5bc] underline decoration-white/25 underline-offset-4 transition-colors hover:text-[#ff766d] hover:decoration-[#e8453c]/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/30 disabled:cursor-not-allowed disabled:text-[#56515f] disabled:no-underline"
+    >
+      Clear all filters
+    </button>
+  );
+}
+
 export function BrowseAdvancedPanel({
   filters,
   setFilters,
@@ -45,8 +73,8 @@ export function BrowseAdvancedPanel({
 }) {
   const bandCounts = countFiltersByBand(filters);
 
-  // The sheet covers the page, so the page must not scroll behind it — otherwise
-  // flicking past the end of the sheet's own scroll drags the results underneath.
+  // The menu covers the page, so the page must not scroll behind it — otherwise
+  // flicking past the end of its own scroll drags the results underneath.
   useEffect(() => {
     if (!compact) return;
     const previous = document.body.style.overflow;
@@ -54,11 +82,21 @@ export function BrowseAdvancedPanel({
     return () => { document.body.style.overflow = previous; };
   }, [compact]);
 
-  return (
+  // Escape closes it, as any full-screen overlay owes the keyboard.
+  useEffect(() => {
+    if (!compact || !onClose) return;
+    const onKeyDown = (event: KeyboardEvent) => { if (event.key === "Escape") onClose(); };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [compact, onClose]);
+
+  const panel = (
     <div
       className={cn(
         "border-t border-white/10 bg-[#090910]/98",
-        compact && "fixed inset-0 z-50 flex flex-col border-t-0 bg-[#090910]",
+        // Above the app header (z-50) as well as the filter bar: "full height"
+        // has to mean the whole viewport, not the part below the nav.
+        compact && "fixed inset-0 z-[60] flex flex-col border-t-0 bg-[#08080d]",
       )}
       role={compact ? "dialog" : undefined}
       aria-modal={compact || undefined}
@@ -108,28 +146,23 @@ export function BrowseAdvancedPanel({
           collapsible={compact}
         />
 
-        {/* The live count rides the sticky primary row on desktop (see
-            MatchCount), leaving this row as the escape hatch. The sheet covers
-            that row, so there the count comes back — on the button that closes
-            it, where it answers "is it worth applying yet". */}
-        <div className="flex flex-wrap items-center justify-end gap-3 border-t border-white/[0.09] pt-4">
-          <button
-            type="button"
-            onClick={onClearAll}
-            disabled={activeCount === 0}
-            className="font-[family-name:var(--font-geist-mono)] text-[12px] text-[#a9a5bc] underline decoration-white/25 underline-offset-4 transition-colors hover:text-[#ff766d] hover:decoration-[#e8453c]/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/30 disabled:cursor-not-allowed disabled:text-[#56515f] disabled:no-underline"
-          >
-            Clear all filters
-          </button>
-        </div>
+        {/* Inline, the escape hatch closes the band stack. Full-screen it belongs
+            in the footer beside the way out — on a tall empty menu a link left
+            floating under three collapsed rows reads as unattached to anything. */}
+        {!compact && (
+          <div className="flex flex-wrap items-center justify-end gap-3 border-t border-white/[0.09] pt-4">
+            <ClearAllButton onClearAll={onClearAll} disabled={activeCount === 0} />
+          </div>
+        )}
       </div>
 
       {compact && (
-        <div className="shrink-0 border-t border-white/10 bg-[#0b0b12] px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+        <div className="flex shrink-0 items-center gap-3 border-t border-white/10 bg-[#0b0b12] px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+          <ClearAllButton onClearAll={onClearAll} disabled={activeCount === 0} />
           <button
             type="button"
             onClick={onClose}
-            className="flex h-11 w-full items-center justify-center rounded-lg bg-[#e8453c] font-[family-name:var(--font-geist-mono)] text-[13px] font-semibold text-[#09090f] transition-colors hover:bg-[#ff5c52] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40"
+            className="ml-auto flex h-11 flex-1 items-center justify-center rounded-lg bg-[#e8453c] px-5 font-[family-name:var(--font-geist-mono)] text-[13px] font-semibold text-[#09090f] transition-colors hover:bg-[#ff5c52] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40"
           >
             {resultCount == null
               ? "Show results"
@@ -139,4 +172,6 @@ export function BrowseAdvancedPanel({
       )}
     </div>
   );
+
+  return compact ? createPortal(panel, document.body) : panel;
 }
