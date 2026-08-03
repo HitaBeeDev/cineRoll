@@ -1,7 +1,7 @@
 import type { FilterState } from "@cineroll/types";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { PanelBand } from "@/components/browse/panel-band";
-import { PanelSection } from "@/components/browse/panel-section";
+import { CONTROL_WIDTH, PanelSection } from "@/components/browse/panel-section";
 import { FilterSelect } from "@/components/browse/filter-select";
 import { ThresholdChips } from "@/components/browse/threshold-chips";
 import { ANY_YEAR } from "@/lib/browse/year-range";
@@ -18,16 +18,18 @@ const NOMINATION_OPTIONS = [1, 3, 5, 10, 20].map((n) => ({ value: n, label: `${n
 export function AwardsBand({
   filters,
   setFilters,
+  activeCount,
   categories,
   awardYears,
 }: {
   filters: FilterState;
   setFilters: SetFilters;
+  activeCount: number;
   categories: string[];
   awardYears: number[];
 }) {
   return (
-    <PanelBand label="Awards">
+    <PanelBand label="Awards" activeCount={activeCount}>
       <PanelSection label="Award Category">
         <MultiSelect
           ariaLabel="Award category"
@@ -35,7 +37,7 @@ export function AwardsBand({
           onChange={(vals) => setFilters({ categories: vals, page: 1 })}
           placeholder="Any category"
           searchable
-          triggerClassName="w-full"
+          triggerClassName={CONTROL_WIDTH}
           options={categories.map((c) => ({ value: c, label: c }))}
         />
       </PanelSection>
@@ -48,7 +50,7 @@ export function AwardsBand({
           }
           placeholder="Any year"
           ariaLabel="Ceremony year"
-          className="w-full text-[#b8b5c8]"
+          className={`${CONTROL_WIDTH} text-[#b8b5c8]`}
           options={[
             { value: ANY_YEAR, label: "Any year" },
             ...awardYears.map((y) => ({ value: String(y), label: String(y) })),

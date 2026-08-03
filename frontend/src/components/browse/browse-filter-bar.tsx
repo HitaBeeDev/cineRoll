@@ -11,6 +11,7 @@ import { AWARD_BODY_OPTIONS, STATUS_OPTIONS, type AwardStatus } from "@/lib/brow
 import { statusFromFilters, statusToUpdates, toggleValue } from "@/lib/browse/filter-updates";
 import {
   buildActiveChips,
+  countActiveFilters,
   countAdvancedFilters,
   type SetFilters,
 } from "@/lib/browse/filter-descriptors";
@@ -35,6 +36,8 @@ export function BrowseFilterBar({
   setSearchDraft,
   autocomplete,
   facets,
+  resultCount,
+  isCounting,
 }: {
   filters: FilterState;
   setFilters: SetFilters;
@@ -43,11 +46,15 @@ export function BrowseFilterBar({
   setSearchDraft: (value: string) => void;
   autocomplete: BrowseAutocomplete;
   facets: BrowseFacetOptions;
+  /** Films matching the current filters; null until the first result lands. */
+  resultCount: number | null;
+  isCounting: boolean;
 }) {
   const [showMore, setShowMore] = useState(false);
 
   const awardStatus   = statusFromFilters(filters);
   const activeChips   = buildActiveChips(filters, setFilters);
+  const activeCount   = countActiveFilters(filters);
   const advancedCount = countAdvancedFilters(filters);
 
   const onSearchChange = (value: string) => {
@@ -118,7 +125,17 @@ export function BrowseFilterBar({
       </div>
 
       {showMore && (
-        <BrowseAdvancedPanel filters={filters} setFilters={setFilters} facets={facets} />
+        <BrowseAdvancedPanel
+          filters={filters}
+          setFilters={setFilters}
+          facets={facets}
+          resultCount={resultCount}
+          isCounting={isCounting}
+          activeCount={activeCount}
+          // Unlike the chip bar's Clear all, this one leaves the panel open: it
+          // is a "start over" in the middle of building a set, not a way out.
+          onClearAll={resetFilters}
+        />
       )}
     </div>
   );
