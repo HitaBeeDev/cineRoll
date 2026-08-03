@@ -20,8 +20,9 @@ export function FilterChip({
   active: boolean;
   onClick: () => void;
   children: React.ReactNode;
-  /** Films behind this chip under the other filters. `0` disables it. */
-  count?: number;
+  /** Films behind this chip under the other filters. `0` disables it;
+   *  `undefined` means not counted (yet), which must not. */
+  count?: number | undefined;
 }) {
   // A chip row is a fixed set, so an unreachable value is dimmed in place rather
   // than dropped — removing it would reflow the row under the pointer mid-click.

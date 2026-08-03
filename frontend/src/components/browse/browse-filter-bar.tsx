@@ -18,6 +18,7 @@ import {
 } from "@/lib/browse/filter-descriptors";
 import { countOf } from "@/lib/browse/facet-options";
 import type { BrowseFacets } from "@/hooks/useBrowseFacetCounts";
+import { useIsCompactViewport } from "@/hooks/useIsCompactViewport";
 import type { BrowseAutocomplete } from "@/hooks/useBrowseAutocomplete";
 
 /**
@@ -53,6 +54,7 @@ export function BrowseFilterBar({
   isCounting: boolean;
 }) {
   const [showMore, setShowMore] = useState(false);
+  const compact = useIsCompactViewport();
 
   const awardStatus   = statusFromFilters(filters);
   const activeChips   = buildActiveChips(filters, setFilters);
@@ -148,6 +150,9 @@ export function BrowseFilterBar({
           setFilters={setFilters}
           facets={facets}
           activeCount={activeCount}
+          compact={compact}
+          resultCount={resultCount}
+          onClose={() => setShowMore(false)}
           // Unlike the chip bar's Clear all, this one leaves the panel open: it
           // is a "start over" in the middle of building a set, not a way out.
           onClearAll={resetFilters}

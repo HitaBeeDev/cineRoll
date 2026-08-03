@@ -85,3 +85,35 @@ export function formatYearRange(range: YearRange): string {
 
   return "Any year";
 }
+
+/** The ceremony-year bounds, in the shape the shared range helpers expect. */
+export function ceremonyYearRange(filters: {
+  awardYearMin: number | null;
+  awardYearMax: number | null;
+}): YearRange {
+  return { yearMin: filters.awardYearMin, yearMax: filters.awardYearMax };
+}
+
+export function hasCeremonyYearRange(filters: {
+  awardYearMin: number | null;
+  awardYearMax: number | null;
+}): boolean {
+  return hasYearRange(ceremonyYearRange(filters));
+}
+
+/** Write a moved ceremony bound back, keeping the pair from crossing. */
+export function setCeremonyYearMin(
+  filters: { awardYearMin: number | null; awardYearMax: number | null },
+  value: number | null,
+) {
+  const { yearMin, yearMax } = setYearMin(ceremonyYearRange(filters), value);
+  return { awardYearMin: yearMin, awardYearMax: yearMax };
+}
+
+export function setCeremonyYearMax(
+  filters: { awardYearMin: number | null; awardYearMax: number | null },
+  value: number | null,
+) {
+  const { yearMin, yearMax } = setYearMax(ceremonyYearRange(filters), value);
+  return { awardYearMin: yearMin, awardYearMax: yearMax };
+}

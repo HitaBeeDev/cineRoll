@@ -36,11 +36,16 @@ export const CONTROL_WIDTH = "w-full max-w-[22rem]";
  */
 export function PanelSection({
   label,
+  hint,
   children,
   startsRow = false,
   className,
 }: {
   label: string;
+  /** One line resolving what the caption leaves ambiguous — kept short enough
+   *  not to become a second heading. Read out with the caption, so the control's
+   *  accessible name carries it too. */
+  hint?: string;
   children: React.ReactNode;
   startsRow?: boolean;
   className?: string;
@@ -56,6 +61,9 @@ export function PanelSection({
         className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.12em] text-[#8e899e]"
       >
         {label}
+        {hint && (
+          <span className="ml-2 normal-case tracking-normal text-[#6f6b80]">{hint}</span>
+        )}
       </span>
       <FieldLabelProvider id={labelId}>{children}</FieldLabelProvider>
     </div>

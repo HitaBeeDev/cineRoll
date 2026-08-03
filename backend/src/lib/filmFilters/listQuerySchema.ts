@@ -4,8 +4,12 @@ import { awardBodiesParam } from "./queryParams/awardBodiesParam";
 import { createCsvParamSchema } from "./queryParams/createCsvParamSchema";
 import { queryBooleanSchema } from "./queryParams/queryBooleanSchema";
 import {
+  awardYearRangeError,
+  type AwardYearRangeQuery,
+  foldAwardYear,
   foldLegacyYearRange,
   type LegacyYearRangeQuery,
+  validAwardYearRange,
   validYearRange,
   yearRangeError,
 } from "./queryRefinements";
@@ -34,7 +38,12 @@ export const listQueryBaseSchema = z.object({
   decadeMin: yearBoundSchema,
   decadeMax: yearBoundSchema,
   nominationCount: z.coerce.number().int().min(0).max(1000).optional(),
-  awardYear: z.coerce.number().int().min(1800).max(2200).optional(),
+  // Inclusive ceremony-year bounds. `awardYear` is the single-year form other
+  // surfaces still speak (see foldAwardYear); it is folded into these before
+  // anything reads the query.
+  awardYear: yearBoundSchema,
+  awardYearMin: yearBoundSchema,
+  awardYearMax: yearBoundSchema,
   imdbRatingMin: z.coerce.number().min(0).max(10).optional(),
   imdbRatingMax: z.coerce.number().min(0).max(10).optional(),
   rtScoreMin: z.coerce.number().int().min(0).max(100).optional(),
@@ -57,15 +66,22 @@ export const listQueryBaseSchema = z.object({
 });
 
 /**
- * Seal a query schema's year bounds: fold the legacy names in, THEN validate the
- * range — checking first would wave through `decadeMin=2000&decadeMax=1990`.
+ * Seal a query schema's year bounds — release years and ceremony years alike:
+ * fold the alternate names in, THEN validate each range. Checking first would
+ * wave through `decadeMin=2000&decadeMax=1990`.
  *
  * Applied at the leaves rather than inside the base schema, because a transform
  * returns a pipe and pipes can't be `.extend()`ed — random and marathon both
  * build on the base object and seal it themselves.
  */
-export const withYearRange = <O extends LegacyYearRangeQuery>(schema: z.ZodType<O>) =>
-  schema.transform(foldLegacyYearRange).refine(validYearRange, yearRangeError);
+export const withYearRange = <O extends LegacyYearRangeQuery & AwardYearRangeQuery>(
+  schema: z.ZodType<O>,
+) =>
+  schema
+    .transform(foldLegacyYearRange)
+    .refine(validYearRange, yearRangeError)
+    .transform(foldAwardYear)
+    .refine(validAwardYearRange, awardYearRangeError);
 
 export const listQuerySchema = withYearRange(listQueryBaseSchema);
 

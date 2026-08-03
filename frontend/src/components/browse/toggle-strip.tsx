@@ -20,8 +20,9 @@ export function ToggleStrip({
     active: boolean;
     onToggle: () => void;
     groupStart?: boolean;
-    /** Films behind this toggle under the other filters. `0` disables it. */
-    count?: number;
+    /** Films behind this toggle under the other filters. `0` disables it;
+     *  `undefined` means not counted (yet), which must not. */
+    count?: number | undefined;
   }[];
   ariaLabel: string;
   /** Visible caption above the strip — without it users must infer what the row means. */

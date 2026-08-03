@@ -64,8 +64,12 @@ export function awardExists(
 export function awardElementConditions(query: ListQuery): Prisma.Sql[] {
   const awardConditions: Prisma.Sql[] = [];
 
-  if (query.awardYear !== undefined) {
-    awardConditions.push(Prisma.sql`(award->>'awardYear')::INT = ${query.awardYear}`);
+  if (query.awardYearMin !== undefined) {
+    awardConditions.push(Prisma.sql`(award->>'awardYear')::INT >= ${query.awardYearMin}`);
+  }
+
+  if (query.awardYearMax !== undefined) {
+    awardConditions.push(Prisma.sql`(award->>'awardYear')::INT <= ${query.awardYearMax}`);
   }
 
   if (query.category && query.category.length > 0) {

@@ -36,3 +36,37 @@ export const foldLegacyYearRange = <T extends LegacyYearRangeQuery>(query: T) =>
     yearMax: rest.yearMax ?? decadeMax,
   };
 };
+
+/**
+ * Ceremony-year bounds, and the single-year param that predates them.
+ *
+ * `awardYear` stays in the query vocabulary because other surfaces genuinely mean
+ * one ceremony — the natural-roll extractor pulls "won in 1994" out of a prompt,
+ * and old browse links carry it. Folding it to the range [y, y] leaves exactly one
+ * comparison downstream instead of two code paths that could disagree.
+ */
+export type AwardYearRangeQuery = {
+  awardYear?: number | undefined;
+  awardYearMin?: number | undefined;
+  awardYearMax?: number | undefined;
+};
+
+export const validAwardYearRange = (query: AwardYearRangeQuery) =>
+  query.awardYearMin === undefined ||
+  query.awardYearMax === undefined ||
+  query.awardYearMin <= query.awardYearMax;
+
+export const awardYearRangeError = {
+  message: "awardYearMin must be less than or equal to awardYearMax",
+  path: ["awardYearMin"],
+};
+
+export const foldAwardYear = <T extends AwardYearRangeQuery>(query: T) => {
+  const { awardYear, ...rest } = query;
+
+  return {
+    ...rest,
+    awardYearMin: rest.awardYearMin ?? awardYear,
+    awardYearMax: rest.awardYearMax ?? awardYear,
+  };
+};

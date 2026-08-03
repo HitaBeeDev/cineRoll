@@ -13,6 +13,8 @@ export const DEFAULT_FILTERS: FilterState = {
   nominatedOnly: false,
   categories: [],
   awardYear: null,
+  awardYearMin: null,
+  awardYearMax: null,
   languages: [],
   genres: [],
   countries: [],
@@ -47,6 +49,8 @@ export function computeHasActiveFilters(filters: FilterState): boolean {
     filters.nominatedOnly ||
     filters.categories.length > 0 ||
     filters.awardYear != null ||
+    filters.awardYearMin != null ||
+    filters.awardYearMax != null ||
     filters.languages.length > 0 ||
     filters.genres.length > 0 ||
     filters.countries.length > 0 ||

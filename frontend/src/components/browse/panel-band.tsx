@@ -1,10 +1,21 @@
+"use client";
+
+import { useState } from "react";
+import { ChevronDown } from "lucide-react";
+import { cn } from "@/lib/utils";
+
 /**
  * One labelled band of the advanced panel — "Awards", "Film", "Details".
  *
- * Bands are always open. The panel already sits behind the Advanced disclosure,
- * so making each band collapsible would put two clicks between the user and any
- * filter, add collapse state to persist, and reflow the grid on every toggle. A
- * heading plus a hairline rule carries the same hierarchy for free.
+ * Bands are open on desktop. The panel already sits behind the Advanced
+ * disclosure, so collapsing them there would put two clicks between the user and
+ * any filter for space the layout is not short of; a heading plus a hairline rule
+ * carries the hierarchy for free.
+ *
+ * `collapsible` inverts that for the compact sheet, where the same three bands
+ * stack into one column roughly three screens tall. Collapsed, the sheet opens on
+ * a contents page — three headings and their active counts — and the second click
+ * buys a band you can actually see the whole of.
  *
  * One three-column track, shared by every band, so a control's left edge lines up
  * with the control above it in the band before — the vertical rhythm is what
@@ -24,15 +35,21 @@
 export function PanelBand({
   label,
   activeCount = 0,
+  collapsible = false,
   children,
 }: {
   label: string;
   activeCount?: number;
+  collapsible?: boolean;
   children: React.ReactNode;
 }) {
-  return (
-    <section aria-label={label} className="flex flex-col gap-4">
-      <div className="flex items-center gap-3">
+  // Bands a user has narrowed open on their own: the sheet's contents page is
+  // only useful while it hides things nobody is using.
+  const [open, setOpen] = useState(activeCount > 0);
+  const isOpen = !collapsible || open;
+
+  const heading = (
+    <>
         {/* A level above the section captions below it: bigger, heavier, brighter,
             and less letterspaced. At 11px/0.25em against their 11px/0.3em the two
             were the same typographic voice, so "AWARDS" read as a peer of "AWARD
@@ -46,11 +63,35 @@ export function PanelBand({
             {activeCount}
           </span>
         )}
-        <span className="h-px flex-1 bg-white/[0.09]" aria-hidden />
-      </div>
-      <div className="grid grid-cols-1 gap-x-8 gap-y-6 md:grid-cols-2 xl:grid-cols-3">
-        {children}
-      </div>
+      <span className="h-px flex-1 bg-white/[0.09]" aria-hidden />
+      {collapsible && (
+        <ChevronDown
+          className={cn("h-4 w-4 shrink-0 text-[#8e899e] transition-transform", open && "rotate-180")}
+          aria-hidden
+        />
+      )}
+    </>
+  );
+
+  return (
+    <section aria-label={label} className="flex flex-col gap-4">
+      {collapsible ? (
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          aria-expanded={open}
+          className="flex items-center gap-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40"
+        >
+          {heading}
+        </button>
+      ) : (
+        <div className="flex items-center gap-3">{heading}</div>
+      )}
+      {isOpen && (
+        <div className="grid grid-cols-1 gap-x-8 gap-y-6 md:grid-cols-2 xl:grid-cols-3">
+          {children}
+        </div>
+      )}
     </section>
   );
 }

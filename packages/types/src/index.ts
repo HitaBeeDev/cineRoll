@@ -94,7 +94,14 @@ export interface FilterState {
   winnerOnly: boolean;
   nominatedOnly: boolean;
   categories: string[];
+  /** A single ceremony year — what the natural-roll extractor produces from
+   *  "won in 1994", and what older browse links carry. The API folds it into the
+   *  bounds below, so the two can never disagree. */
   awardYear: number | null;
+  // Inclusive ceremony-year bounds, the browse control's shape: "Oscars
+  // 1970-1979" is a question the single year above cannot ask.
+  awardYearMin: number | null;
+  awardYearMax: number | null;
   languages: string[];
   genres: string[];
   countries: string[];

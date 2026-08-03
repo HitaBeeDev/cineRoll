@@ -38,11 +38,13 @@ export function FilmBand({
   setFilters,
   activeCount,
   counts,
+  collapsible = false,
 }: {
   filters: FilterState;
   setFilters: SetFilters;
   activeCount: number;
   counts: FacetCounts;
+  collapsible?: boolean;
 }) {
   const genreOptions = reachableOptions(counts.genres, filters.genres, formatGenre);
 
@@ -65,7 +67,7 @@ export function FilmBand({
        juggling produced. The pairs sit in the panel's shared column track (see
        PanelSection's `startsRow`), so they stay aligned with the bands above and
        below rather than running on a grid of their own. */
-    <PanelBand label="Film" activeCount={activeCount}>
+    <PanelBand label="Film" activeCount={activeCount} collapsible={collapsible}>
       {/* Nature — what the film is. */}
       <PanelSection label="Content Type" startsRow>
         {/* Multi-select: nothing highlighted already means every type, so there

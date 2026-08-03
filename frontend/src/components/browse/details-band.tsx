@@ -2,8 +2,7 @@ import type { FacetCounts, FilterState } from "@cineroll/types";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { PanelBand } from "@/components/browse/panel-band";
 import { CONTROL_WIDTH, PanelSection } from "@/components/browse/panel-section";
-import { ChipGroup } from "@/components/browse/chip-group";
-import { FilterChip } from "@/components/browse/filter-chip";
+import { FilterCheckbox } from "@/components/browse/filter-checkbox";
 import { countryLabel, languageLabel } from "@/lib/browse/labels";
 import { reachableOptions } from "@/lib/browse/facet-options";
 import type { SetFilters } from "@/lib/browse/filter-descriptors";
@@ -14,11 +13,13 @@ export function DetailsBand({
   setFilters,
   activeCount,
   counts,
+  collapsible = false,
 }: {
   filters: FilterState;
   setFilters: SetFilters;
   activeCount: number;
   counts: FacetCounts;
+  collapsible?: boolean;
 }) {
   // Languages arrive as ISO codes in code order, which is not the order their
   // names read in; countries already arrive alphabetical by the value shown.
@@ -30,7 +31,7 @@ export function DetailsBand({
   const countryOptions = reachableOptions(counts.countries, filters.countries, countryLabel);
 
   return (
-    <PanelBand label="Details" activeCount={activeCount}>
+    <PanelBand label="Details" activeCount={activeCount} collapsible={collapsible}>
       <PanelSection label="Language">
         <MultiSelect
           selected={filters.languages}
@@ -53,19 +54,14 @@ export function DetailsBand({
         />
       </PanelSection>
 
-      {/* "Directed by", not "Director": the heading has to describe the one
-          toggle underneath it, and a heading reading "Director" promises a name
-          to search for. A lone toggle, not a two-chip radio — "any director" was
-          never a filter, only the absence of this one. */}
-      <PanelSection label="Directed by">
-        <ChipGroup>
-          <FilterChip
-            active={filters.femaleDirectorOnly}
-            onClick={() => setFilters({ femaleDirectorOnly: !filters.femaleDirectorOnly, page: 1 })}
-          >
-            A woman
-          </FilterChip>
-        </ChipGroup>
+      {/* One boolean, stated in full by its own label — so no caption above it,
+          and half the height the captioned chip row took. */}
+      <PanelSection label="Filmmaker">
+        <FilterCheckbox
+          label="Directed by a woman"
+          checked={filters.femaleDirectorOnly}
+          onChange={(checked) => setFilters({ femaleDirectorOnly: checked, page: 1 })}
+        />
       </PanelSection>
     </PanelBand>
   );

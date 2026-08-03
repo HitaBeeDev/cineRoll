@@ -33,6 +33,8 @@ function appendFacetFilters(
   setBoolean(params, "nominatedOnly", filters.nominatedOnly);
   setList(params, "category", filters.categories);
   setNumber(params, "awardYear", filters.awardYear);
+  setNumber(params, "awardYearMin", filters.awardYearMin);
+  setNumber(params, "awardYearMax", filters.awardYearMax);
   setList(params, "genre", filters.genres);
   setList(params, "language", filters.languages);
   setList(params, "country", filters.countries);

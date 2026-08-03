@@ -29,7 +29,8 @@ describe("scopeQueryToFacet", () => {
     expect(scopeQueryToFacet(fullQuery(), "categories").category).toBeUndefined();
     expect(scopeQueryToFacet(fullQuery(), "languages").language).toBeUndefined();
     expect(scopeQueryToFacet(fullQuery(), "countries").country).toBeUndefined();
-    expect(scopeQueryToFacet(fullQuery(), "awardYears").awardYear).toBeUndefined();
+    expect(scopeQueryToFacet(fullQuery(), "awardYears").awardYearMin).toBeUndefined();
+    expect(scopeQueryToFacet(fullQuery(), "awardYears").awardYearMax).toBeUndefined();
     expect(scopeQueryToFacet(fullQuery(), "awardBodies").awardBody).toBeUndefined();
     expect(scopeQueryToFacet(fullQuery(), "contentTypes").contentType).toBeUndefined();
   });
@@ -41,6 +42,29 @@ describe("scopeQueryToFacet", () => {
 
     expect(scoped.genre).toBeUndefined();
     expect(scoped.genreAll).toBeUndefined();
+  });
+
+  // A single ceremony year is the range [y, y]: other surfaces still send
+  // `awardYear`, and the SQL has to see one shape whichever sent it.
+  it("folds a single ceremony year into both bounds", () => {
+    const folded = fullQuery({ awardYear: "1994" });
+
+    expect(folded.awardYearMin).toBe(1994);
+    expect(folded.awardYearMax).toBe(1994);
+  });
+
+  it("lets an explicit ceremony-year range through untouched", () => {
+    const ranged = fullQuery({ awardYearMin: "1970", awardYearMax: "1979" });
+
+    expect(ranged.awardYearMin).toBe(1970);
+    expect(ranged.awardYearMax).toBe(1979);
+  });
+
+  it("drops both ceremony-year bounds for the award-year facet", () => {
+    const scoped = scopeQueryToFacet(fullQuery(), "awardYears");
+
+    expect(scoped.awardYearMin).toBeUndefined();
+    expect(scoped.awardYearMax).toBeUndefined();
   });
 
   it("drops both year bounds for the release-year facet", () => {
@@ -55,7 +79,8 @@ describe("scopeQueryToFacet", () => {
 
     expect(scoped.awardBody).toEqual(["cannes"]);
     expect(scoped.category).toEqual(["Palme d'Or"]);
-    expect(scoped.awardYear).toBe(1994);
+    expect(scoped.awardYearMin).toBe(1994);
+    expect(scoped.awardYearMax).toBe(1994);
     expect(scoped.language).toEqual(["fr"]);
     expect(scoped.imdbRatingMin).toBe(7);
     expect(scoped.winnerOnly).toBe(true);

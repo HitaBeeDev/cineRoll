@@ -1,9 +1,21 @@
 import type { FilterState } from "@cineroll/types";
-import { formatYearRange, hasYearRange } from "@/lib/browse/year-range";
+import {
+  ceremonyYearRange,
+  formatYearRange,
+  hasCeremonyYearRange,
+  hasYearRange,
+} from "@/lib/browse/year-range";
 import { awardBodyLabel, contentTypeLabel, countryLabel, languageLabel } from "@/lib/browse/labels";
 import { formatGenre } from "@/lib/format";
 
 export type ActiveChip = { key: string; label: string; onRemove: () => void };
+
+function ceremonyChipLabel(filters: FilterState): string {
+  const range = ceremonyYearRange(filters);
+  const spansOneYear = range.yearMin != null && range.yearMin === range.yearMax;
+
+  return `${formatYearRange(range)} ${spansOneYear ? "ceremony" : "ceremonies"}`;
+}
 
 export type SetFilters = (u: Partial<FilterState>) => void;
 
@@ -73,8 +85,14 @@ const FILTER_DESCRIPTORS: FilterDescriptor[] = [
     toChips: (f, set) => facetChips("country", f.countries, countryLabel, (countries) => ({ countries }), set) },
   { band: "awards", isActive: (f) => f.categories.length > 0,
     toChips: (f, set) => facetChips("cat", f.categories, (c) => c, (categories) => ({ categories }), set) },
-  { band: "awards", isActive: (f) => f.awardYear != null,
-    toChips: (f, set) => [{ key: "year", label: String(f.awardYear), onRemove: () => set({ awardYear: null, page: 1 }) }] },
+  { band: "awards", isActive: hasCeremonyYearRange,
+    toChips: (f, set) => [{
+      key: "ceremony-year",
+      // "1994 ceremony" / "1970-1979 ceremonies" — the bare year read as a
+      // release year beside the release-year chip.
+      label: ceremonyChipLabel(f),
+      onRemove: () => set({ awardYearMin: null, awardYearMax: null, page: 1 }),
+    }] },
   { band: "film", isActive: (f) => f.contentTypes.length > 0,
     toChips: (f, set) => facetChips("type", f.contentTypes, contentTypeLabel, (contentTypes) => ({ contentTypes }), set) },
   { band: "primary", isActive: (f) => f.imdbTopMoviesOnly,

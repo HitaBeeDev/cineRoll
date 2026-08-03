@@ -17,6 +17,10 @@ function listParam(value: string | null): string[] {
 
 export function filtersFromSearchParams(params: URLSearchParams): FilterState {
   const awardYear      = numberParam(params.get("awardYear"));
+  // A bare `awardYear` in an older link is the range [y, y] — the same fold the
+  // API does, so a shared link and a freshly built one read identically.
+  const awardYearMin   = numberParam(params.get("awardYearMin")) ?? awardYear;
+  const awardYearMax   = numberParam(params.get("awardYearMax")) ?? awardYear;
   // decadeMin/decadeMax are the pre-rename names for the same year bounds; links
   // shared or bookmarked before the rename must still resolve.
   const yearMin        = numberParam(params.get("yearMin")) ?? numberParam(params.get("decadeMin"));
@@ -44,7 +48,9 @@ export function filtersFromSearchParams(params: URLSearchParams): FilterState {
     winnerOnly:    params.get("winnerOnly")    === "true",
     nominatedOnly: params.get("nominatedOnly") === "true",
     categories:    listParam(params.get("category")),
-    awardYear,
+    awardYear: null,
+    awardYearMin,
+    awardYearMax,
     genres:        listParam(params.get("genre")),
     languages:     listParam(params.get("language")),
     countries:     listParam(params.get("country")),
