@@ -1,3 +1,4 @@
+import { formatGenre } from "@/lib/format";
 import type { FavoriteGenresProps } from "../profile-component-types";
 
 export function FavoriteGenres({ genres }: FavoriteGenresProps) {
@@ -12,7 +13,7 @@ export function FavoriteGenres({ genres }: FavoriteGenresProps) {
             key={genre}
             className="rounded-full border border-[#26263a] bg-[#0d0d1a] px-3 py-1 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.12em] text-[#b9b9c6]"
           >
-            {genre}
+            {formatGenre(genre)}
           </span>
         ))}
       </span>

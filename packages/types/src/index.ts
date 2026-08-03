@@ -28,6 +28,12 @@ export interface Film {
   genres: string[];
   countries: string[];
   contentType: string;
+  /**
+   * The derived type SET (`deriveFilmTypes`) — a title can be several things at
+   * once (a 9-minute war documentary is documentary + short). This, not the
+   * single-valued `contentType`, is what the UI labels a title with.
+   */
+  types: string[];
   plot: string | null;
   director: string | null;
   cast: CastMember[];

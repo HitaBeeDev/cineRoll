@@ -32,6 +32,7 @@ function film(overrides: Record<string, unknown> = {}) {
     genres: ['Drama'],
     countries: ['United States'],
     contentType: 'movie',
+    types: ['movie'],
     plot: 'A precise fixture film used to prove the golden path works from roll to detail.',
     director: 'Ava Example',
     cast: [],

@@ -1,4 +1,5 @@
 import { ExternalLink } from "lucide-react";
+import { formatGenre } from "@/lib/format";
 import type { FilmDetailsSectionProps } from "../component-props";
 import { EditorialSectionLabel } from "@/components/editorial-section-label";
 import { MetaHeading } from "./meta-heading";
@@ -24,7 +25,7 @@ export function FilmDetailsSection({
                   key={genre}
                   className="border border-[#25253a] px-3.5 py-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.35em] text-[#8888a8] transition-colors hover:border-[#e8453c]/40 hover:text-[#d0d0e8]"
                 >
-                  {genre}
+                  {formatGenre(genre)}
                 </span>
               ))}
             </div>

@@ -1,8 +1,11 @@
 import { Star } from "lucide-react";
 import type { PickOfDayFilm } from "@/lib/api";
+import { filmGenreList, formatContentType, formatGenre } from "@/lib/format";
 
-/** IMDb rating, RT score, and the first few genre chips. */
+/** IMDb rating, RT score, the type (when it isn't a plain film), and every genre. */
 export function PickRatingsRow({ film }: { film: PickOfDayFilm }) {
+  const contentType = formatContentType(film);
+
   return (
     <div className="flex flex-wrap items-center gap-2">
       {film.imdbRating != null ? (
@@ -25,12 +28,17 @@ export function PickRatingsRow({ film }: { film: PickOfDayFilm }) {
           🍅 No RT Score
         </span>
       )}
-      {film.genres.slice(0, 3).map((g) => (
+      {contentType && (
+        <span className="rounded-full border border-zinc-500 px-2.5 py-0.5 text-xs font-semibold text-zinc-200">
+          {contentType}
+        </span>
+      )}
+      {filmGenreList(film).map((g) => (
         <span
           key={g}
           className="rounded-full border border-zinc-700 px-2.5 py-0.5 text-xs text-zinc-300"
         >
-          {g}
+          {formatGenre(g)}
         </span>
       ))}
     </div>

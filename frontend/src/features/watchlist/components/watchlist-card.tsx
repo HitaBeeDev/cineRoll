@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Trash2 } from "lucide-react";
 import { blurDataUrl, tmdbImageUrl } from "@/lib/images";
 import { cn } from "@/lib/utils";
+import { TileMetaLine } from "@/components/film-tile/tile-meta-line";
 import type { WatchlistCardProps } from "../component-props";
 import { getAwardSummary } from "../get-award-summary";
 
@@ -13,7 +14,6 @@ export function WatchlistCard({
 }: WatchlistCardProps) {
   const { film } = entry;
   const awardSummary = getAwardSummary(film);
-  const primaryGenre = film.genres[0] ?? film.contentType;
 
   return (
     <div className="group relative min-w-0">
@@ -58,10 +58,7 @@ export function WatchlistCard({
       </button>
       <div className="pt-3">
         <h3 className="line-clamp-1 text-[14px] font-semibold leading-snug text-[#eeeaf6] sm:text-[15px]">{film.title}</h3>
-        <p className="mt-1 line-clamp-1 font-[family-name:var(--font-geist-mono)] text-[11px] text-[#9d98ad]">
-          {film.year ?? "—"}
-          {primaryGenre && <span className="text-[#6f6a80]"> · {primaryGenre}</span>}
-        </p>
+        <TileMetaLine film={film} />
         {awardSummary && (
           <p className="mt-1 line-clamp-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-[#D4AF37]">
             {awardSummary}

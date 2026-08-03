@@ -1,11 +1,19 @@
-import { formatFilmYear } from "@/lib/format";
+import { formatContentType, formatFilmYear } from "@/lib/format";
 import { MetaDot } from "./meta-dot";
 import type { HeroMetaLineProps } from "../component-props";
 
 export function HeroMetaLine(props: HeroMetaLineProps) {
+  const contentType = formatContentType(props.film);
+
   return (
     <div className="mt-4 flex flex-wrap items-center gap-x-2.5 gap-y-1.5 font-[family-name:var(--font-geist-mono)] text-[13px] tracking-[0.02em] text-white/65">
       <span>{formatFilmYear(props.film)}</span>
+      {contentType && (
+        <>
+          <MetaDot />
+          <span>{contentType}</span>
+        </>
+      )}
       {props.runtime && (
         <>
           <MetaDot />

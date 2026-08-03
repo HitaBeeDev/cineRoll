@@ -72,6 +72,7 @@ const queryOnboardingSample = (
     "year",
     "genres",
     "contentType",
+    "types",
     "posterUrl",
     "posterColor",
     "imdbRating",

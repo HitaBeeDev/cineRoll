@@ -1,4 +1,5 @@
 import type { PickOfDayFilm } from "@/lib/api";
+import { formatGenre } from "@/lib/format";
 
 /**
  * The "Why this pick" rationale copy, chosen by the strongest credential the
@@ -24,7 +25,7 @@ export function getWhyPicked(film: PickOfDayFilm): string {
 
   const primaryGenre = film.genres[0];
   if (primaryGenre) {
-    return `${film.title} is today's ${primaryGenre.toLowerCase()} spotlight from CineRoll's curated award-film collection.`;
+    return `${film.title} is today's ${formatGenre(primaryGenre).toLowerCase()} spotlight from CineRoll's curated award-film collection.`;
   }
 
   return `${film.title} is today's spotlight from CineRoll's curated award-film collection.`;

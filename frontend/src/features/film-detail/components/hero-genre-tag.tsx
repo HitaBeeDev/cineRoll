@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Tag } from "lucide-react";
+import { formatGenre } from "@/lib/format";
 import type { HeroGenreTagProps } from "../component-props";
 
 export function HeroGenreTag({ genre }: HeroGenreTagProps) {
@@ -12,7 +13,9 @@ export function HeroGenreTag({ genre }: HeroGenreTagProps) {
         className="h-3 w-3 opacity-45 transition-opacity group-hover:opacity-90"
         aria-hidden
       />
-      {genre}
+      {/* The link keeps the stored genre (what the browse filter matches on);
+          only the label is shortened. */}
+      {formatGenre(genre)}
     </Link>
   );
 }

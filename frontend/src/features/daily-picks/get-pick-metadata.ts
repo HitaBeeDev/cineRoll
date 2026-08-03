@@ -1,11 +1,12 @@
 import type { RollFilm } from "@/lib/api";
-import { formatFilmLength } from "@/lib/format";
+import { formatContentType, formatFilmLength, formatFilmYear, formatGenres } from "@/lib/format";
 
+/** Year · type · genres · length, skipping whatever the film doesn't have. */
 export function getPickMetadata(film: RollFilm): string[] {
-  const metadata = [String(film.year)];
-  const runtime = formatFilmLength(film);
-  const primaryGenre = film.genres[0];
-  if (runtime) metadata.push(runtime);
-  if (primaryGenre) metadata.push(primaryGenre);
-  return metadata;
+  return [
+    formatFilmYear(film),
+    formatContentType(film),
+    formatGenres(film),
+    formatFilmLength(film),
+  ].filter(Boolean);
 }

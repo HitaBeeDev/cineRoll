@@ -1,5 +1,6 @@
 import type { FilterState } from "@cineroll/types";
 import { MultiSelect } from "@/components/ui/multi-select";
+import { formatGenre } from "@/lib/format";
 import { PanelSection } from "@/components/browse/panel-section";
 import { ChipGroup } from "@/components/browse/chip-group";
 import { FilterChip } from "@/components/browse/filter-chip";
@@ -71,7 +72,7 @@ export function BrowseAdvancedPanel({
               placeholder="Any genre"
               searchable
               triggerClassName="w-full"
-              options={genres.map((g) => ({ value: g, label: g }))}
+              options={genres.map((g) => ({ value: g, label: formatGenre(g) }))}
             />
           </PanelSection>
 

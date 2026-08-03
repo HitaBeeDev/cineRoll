@@ -1,4 +1,4 @@
-import { formatFilmLength } from "@/lib/format";
+import { formatContentType, formatFilmLength, formatFilmYear, formatGenres } from "@/lib/format";
 import { AwardsPanel } from "@/components/home/film-card/awards-panel";
 import type { AwardHighlight } from "@/components/home/film-card/awards";
 import type { RollFilm } from "@/lib/api";
@@ -15,15 +15,16 @@ export function CardIdentity({
   film: RollFilm;
   awardHighlights: AwardHighlight[];
 }) {
-  const runtime = formatFilmLength(film);
-  const genre = film.genres[0] ?? "";
+  // Year · type · genres · length — the type only appears when it isn't a plain
+  // feature film, and every genre is listed rather than just the first.
+  const meta = [formatFilmYear(film), formatContentType(film), formatGenres(film), formatFilmLength(film)]
+    .filter(Boolean)
+    .join(" · ");
 
   return (
     <div className="flex min-w-0 flex-1 flex-col gap-2">
       <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.2em] text-[#888899]">
-        {film.year}
-        {runtime && ` · ${runtime}`}
-        {genre && ` · ${genre}`}
+        {meta}
       </p>
 
       {/* Title — the payoff of the roll, at display scale so it reads as the

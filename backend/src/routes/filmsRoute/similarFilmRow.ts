@@ -7,6 +7,7 @@ export type SimilarFilmRow = {
   year: number;
   genres: string[];
   contentType: string;
+  types: string[];
   director: string | null;
   posterUrl: string | null;
   posterColor: string | null;

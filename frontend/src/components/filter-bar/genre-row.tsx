@@ -1,5 +1,6 @@
 import type { FilterState } from "@cineroll/types";
 import { MultiSelect } from "@/components/ui/multi-select";
+import { formatGenre } from "@/lib/format";
 import { FilterRow } from "@/components/filter-bar/filter-row";
 
 /** Genre row — a searchable multi-select of the available genres. */
@@ -21,7 +22,7 @@ export function GenreRow({
         placeholder="All"
         searchable
         variant="pill"
-        options={genres.map((genre) => ({ value: genre, label: genre }))}
+        options={genres.map((genre) => ({ value: genre, label: formatGenre(genre) }))}
       />
     </FilterRow>
   );

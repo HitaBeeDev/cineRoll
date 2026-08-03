@@ -1,6 +1,7 @@
 import type { FilterState } from "@cineroll/types";
 import { DECADE_MIN, DECADE_MAX } from "@/lib/browse/options";
 import { awardBodyLabel, contentTypeLabel, countryLabel, languageLabel, sortLabel } from "@/lib/browse/labels";
+import { formatGenre } from "@/lib/format";
 
 export type ActiveChip = { key: string; label: string; onRemove: () => void };
 
@@ -52,7 +53,7 @@ const FILTER_DESCRIPTORS: FilterDescriptor[] = [
       ? { key: "won", label: "Won", onRemove: () => set({ winnerOnly: false, page: 1 }) }
       : { key: "nom", label: "Nominated", onRemove: () => set({ nominatedOnly: false, page: 1 }) }] },
   { advanced: true, isActive: (f) => f.genres.length > 0,
-    toChips: (f, set) => facetChips("genre", f.genres, (g) => g, (genres) => ({ genres }), set) },
+    toChips: (f, set) => facetChips("genre", f.genres, formatGenre, (genres) => ({ genres }), set) },
   { advanced: true, isActive: (f) => f.languages.length > 0,
     toChips: (f, set) => facetChips("language", f.languages, languageLabel, (languages) => ({ languages }), set) },
   { advanced: true, isActive: (f) => f.countries.length > 0,

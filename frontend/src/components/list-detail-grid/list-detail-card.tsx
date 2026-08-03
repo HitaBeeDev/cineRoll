@@ -6,6 +6,7 @@ import { Trash2 } from "lucide-react";
 import { blurDataUrl, tmdbImageUrl } from "@/lib/images";
 import { cn } from "@/lib/utils";
 import type { SavedFilm } from "@/types/saved-film";
+import { TileMetaLine } from "@/components/film-tile/tile-meta-line";
 import { awardSummary } from "./award-summary";
 
 export function ListDetailCard({
@@ -18,7 +19,6 @@ export function ListDetailCard({
   onRemove: (film: SavedFilm) => void;
 }) {
   const summary = awardSummary(film);
-  const primaryGenre = film.genres[0] ?? film.contentType;
 
   return (
     <div className="group relative min-w-0">
@@ -69,10 +69,7 @@ export function ListDetailCard({
         <h3 className="line-clamp-1 text-[14px] font-semibold leading-snug text-[#eeeaf6] sm:text-[15px]">
           {film.title}
         </h3>
-        <p className="mt-1 line-clamp-1 font-[family-name:var(--font-geist-mono)] text-[11px] text-[#9d98ad]">
-          {film.year ?? "—"}
-          {primaryGenre ? <span className="text-[#6f6a80]"> · {primaryGenre}</span> : null}
-        </p>
+        <TileMetaLine film={film} />
         {summary ? (
           <p className="mt-1 line-clamp-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-[#D4AF37]">
             {summary}

@@ -6,6 +6,7 @@ export type SavedFilm = {
   posterUrl: string | null;
   genres: string[];
   contentType: string | null;
+  types: string[];
   imdbRating: number | null;
   rtScore: number | null;
   oscarWins: number;

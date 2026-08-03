@@ -10,6 +10,7 @@ export const randomSelect = Prisma.sql`
   "Film"."runtime",
   "Film"."genres",
   "Film"."contentType",
+  "Film"."types",
   "Film"."tvSeasons",
   "Film"."tvEpisodes",
   "Film"."moodTags",

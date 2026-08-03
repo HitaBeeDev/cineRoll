@@ -6,6 +6,7 @@ export type WatchedFilm = {
   posterUrl: string | null;
   genres: string[];
   contentType: string | null;
+  types: string[];
 };
 
 export type WatchedEntry = {

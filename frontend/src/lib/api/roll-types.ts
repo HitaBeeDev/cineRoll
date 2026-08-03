@@ -10,6 +10,7 @@ export type RollFilm = Pick<
   | "runtime"
   | "genres"
   | "contentType"
+  | "types"
   | "tvSeasons"
   | "tvEpisodes"
   | "plot"

@@ -19,6 +19,7 @@ export const querySimilarFilmRows = (
     "Film"."year",
     "Film"."genres",
     "Film"."contentType",
+    "Film"."types",
     "Film"."director",
     "Film"."posterUrl",
     "Film"."posterColor",

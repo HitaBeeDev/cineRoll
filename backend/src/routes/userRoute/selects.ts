@@ -8,6 +8,7 @@ export const filmSummarySelect = {
   releaseYear: true,
   genres: true,
   contentType: true,
+  types: true,
   posterUrl: true,
   posterColor: true,
   imdbRating: true,

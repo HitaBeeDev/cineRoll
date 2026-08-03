@@ -10,6 +10,7 @@ export type PickOfDayFilm = Pick<
   | "runtime"
   | "genres"
   | "contentType"
+  | "types"
   | "tvSeasons"
   | "tvEpisodes"
   | "plot"

@@ -7,6 +7,7 @@ export type PickRow = {
   runtime: number | null;
   genres: string[];
   contentType: string;
+  types: string[];
   plot: string | null;
   director: string | null;
   posterUrl: string | null;

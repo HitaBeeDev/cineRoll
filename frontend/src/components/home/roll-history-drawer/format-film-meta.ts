@@ -1,10 +1,12 @@
 import type { RollFilm } from "@/lib/api";
+import { formatContentType, formatFilmYear, formatGenres } from "@/lib/format";
 
-/** Compact "year · genre · ★ rating" line for a history row; skips missing parts. */
+/** Compact "year · type · genres · ★ rating" line for a history row; skips missing parts. */
 export function formatFilmMeta(film: RollFilm): string {
   return [
-    film.year,
-    film.genres?.[0],
+    formatFilmYear(film),
+    formatContentType(film),
+    formatGenres(film),
     film.imdbRating != null ? `★ ${film.imdbRating.toFixed(1)}` : null,
   ]
     .filter(Boolean)

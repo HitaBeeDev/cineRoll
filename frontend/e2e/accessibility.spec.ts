@@ -31,6 +31,7 @@ function film(overrides: Record<string, unknown> = {}) {
     genres: ['Drama'],
     countries: ['United States'],
     contentType: 'movie',
+    types: ['movie'],
     plot: 'A precise fixture film used to prove accessibility flows work from browse to detail.',
     director: 'Ava Example',
     cast: [],

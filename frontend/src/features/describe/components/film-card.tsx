@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { MouseEvent } from "react";
 import type { RollFilm } from "@/lib/api";
+import { filmGenreList, formatContentType, formatGenre } from "@/lib/format";
 import { getFilmAwards } from "../get-film-awards";
 import { trackNaturalRollClick } from "../natural-roll-analytics";
 import { FilmAwardBadges } from "./film-award-badges";
@@ -13,7 +14,8 @@ type FilmCardProps = {
 
 export function FilmCard({ film, shouldPreventNavigation }: FilmCardProps) {
   const imageUrl = film.posterUrl ?? film.backdropUrl;
-  const genre = film.genres[0];
+  const contentType = formatContentType(film);
+  const genres = filmGenreList(film);
 
   function handleClick(event: MouseEvent<HTMLAnchorElement>) {
     if (shouldPreventNavigation?.()) {
@@ -53,11 +55,19 @@ export function FilmCard({ film, shouldPreventNavigation }: FilmCardProps) {
           {film.year}{film.director ? ` · ${film.director}` : ""}
         </p>
         <div className="flex flex-wrap gap-1.5">
-          {genre && (
-            <span className="rounded-full border border-[#F5F5F0]/20 bg-[#09090f]/70 px-2 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#F5F5F0]">
-              {genre}
+          {contentType && (
+            <span className="rounded-full border border-[#F5F5F0]/35 bg-[#09090f]/70 px-2 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-widest text-[#F5F5F0]">
+              {contentType}
             </span>
           )}
+          {genres.map((genre) => (
+            <span
+              key={genre}
+              className="rounded-full border border-[#F5F5F0]/20 bg-[#09090f]/70 px-2 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#F5F5F0]"
+            >
+              {formatGenre(genre)}
+            </span>
+          ))}
           {film.imdbRating != null && (
             <span className="rounded-full border border-[#e8453c]/35 bg-[#09090f]/70 px-2 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-widest text-[#e8453c]">
               IMDb {film.imdbRating.toFixed(1)}

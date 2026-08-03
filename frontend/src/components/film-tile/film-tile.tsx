@@ -11,6 +11,7 @@ import { useFilmImpression } from "@/hooks/useFilmImpression";
 import { getAwardBadge, type AwardBadgeStatus } from "@/components/film-tile/award-badge";
 import { getListBadge } from "@/components/film-tile/list-badge";
 import { ImdbIcon } from "@/components/film-tile/imdb-icon";
+import { TileMetaLine } from "@/components/film-tile/tile-meta-line";
 import { TomatoIcon } from "@/components/film-tile/tomato-icon";
 
 interface FilmTileProps {
@@ -27,7 +28,6 @@ export function FilmTile({ film, className, awardBodies, awardStatus = "any" }: 
   const cardRef = useFilmImpression<HTMLAnchorElement>(film, "shared_film_card");
   const badge = getAwardBadge(film, awardBodies ?? [], awardStatus);
   const listBadge = getListBadge(film);
-  const primaryGenre = film.genres[0] ?? film.contentType;
 
   return (
     <Link
@@ -111,10 +111,7 @@ export function FilmTile({ film, className, awardBodies, awardStatus = "any" }: 
         <h3 className="line-clamp-1 text-[14px] font-semibold leading-snug text-[#eeeaf6] transition-colors group-hover:text-white sm:text-[15px]">
           {film.title}
         </h3>
-        <p className="mt-1 line-clamp-1 font-[family-name:var(--font-geist-mono)] text-[11px] text-[#9d98ad]">
-          {formatFilmYear(film)}
-          <span className="text-[#8d879d]"> · {primaryGenre}</span>
-        </p>
+        <TileMetaLine film={film} />
       </div>
     </Link>
   );
