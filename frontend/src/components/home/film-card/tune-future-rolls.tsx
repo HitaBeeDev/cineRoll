@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Bookmark, Eye, EyeOff, Moon } from "lucide-react";
 import { AuthDialog } from "@/components/auth/auth-dialog";
 import { AUTH_GATE_TITLE } from "@/hooks/useFilmActions";
@@ -5,8 +6,9 @@ import { QuickActionButton } from "@/components/home/film-card/quick-action-butt
 
 /**
  * The demoted "Tune future rolls" maintenance tier: four distinct signals that
- * each teach the roll differently, plus the signed-in footnote and the guest
- * auth gate. Purely presentational — every signal is a ready-made callback.
+ * each teach the roll differently, plus the confirmation footnote and the guest
+ * auth gate. Every signal is a ready-made callback; the only state here is
+ * whether this card has recorded one.
  */
 export function TuneFutureRolls({
   isAuthenticated,
@@ -37,6 +39,17 @@ export function TuneFutureRolls({
   onCloseAuthPrompt: () => void;
   callbackUrl: string;
 }) {
+  // Confirmation of a signal the user actually sent from THIS card — not a
+  // standing status. Deliberately not derived from seenActive/savedActive:
+  // those hydrate from the account on mount, so a film saved weeks ago would
+  // announce a save the user did not just make. Guests never set it — their
+  // click opens the auth gate and writes nothing.
+  const [signalRecorded, setSignalRecorded] = useState(false);
+  const recordSignal = (send: () => void) => () => {
+    if (isAuthenticated) setSignalRecorded(true);
+    send();
+  };
+
   return (
     <section className="mt-4 border-t border-[#17171f] pt-4">
       <div className="mb-2 flex items-center justify-between gap-3">
@@ -56,7 +69,7 @@ export function TuneFutureRolls({
         <QuickActionButton
           tone="skip"
           active={false}
-          onClick={onNotTonight}
+          onClick={recordSignal(onNotTonight)}
           icon={<Moon className="h-4 w-4" aria-hidden />}
           label="Not tonight"
           activeLabel="Not tonight"
@@ -65,7 +78,7 @@ export function TuneFutureRolls({
           tone="confirm"
           active={seenActive}
           disabled={actionsPending}
-          onClick={onAlreadySeen}
+          onClick={recordSignal(onAlreadySeen)}
           icon={<Eye className="h-4 w-4" aria-hidden />}
           label="Already seen"
           activeLabel="Seen"
@@ -74,7 +87,7 @@ export function TuneFutureRolls({
           tone="dismiss"
           active={notInterestedActive}
           disabled={actionsPending}
-          onClick={onNotInterested}
+          onClick={recordSignal(onNotInterested)}
           icon={<EyeOff className="h-4 w-4" aria-hidden />}
           label="Not interested"
           activeLabel="Hidden"
@@ -83,15 +96,15 @@ export function TuneFutureRolls({
           tone="save"
           active={savedActive}
           disabled={savePending}
-          onClick={onSave}
+          onClick={recordSignal(onSave)}
           icon={<Bookmark className="h-4 w-4" fill={savedActive ? "currentColor" : "none"} aria-hidden />}
           label="Save for later"
           activeLabel="Saved"
         />
       </div>
-      {/* Signed-in status footnote only. Guests get no standing nudge — the red
-          sign-in line appears in its place when they tap an action. */}
-      {isAuthenticated && (
+      {/* Appears only after a signal is sent. Guests get no standing nudge —
+          the red sign-in line appears in its place when they tap an action. */}
+      {isAuthenticated && signalRecorded && (
         <p className="mt-2.5 flex items-center gap-1.5 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.14em] text-[#6c6c80]">
           <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-[#3fb950]" />
           Saved to your account
