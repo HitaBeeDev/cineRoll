@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "tsx watch src/index.mts",
+    "dev": "tsx watch src/localDev.ts",
     "prebuild": "node ../scripts/check-build-inputs.mjs",
     "build": "tsc",
     "postinstall": "prisma generate --schema=prisma/schema.prisma",
