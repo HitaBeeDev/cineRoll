@@ -26,7 +26,7 @@ const ALL_AWARD_BODIES: AwardBodyFilter[] = ["oscar", "goldenglobe", "cannes", "
  *    the film's Oscar count, Cannes shows its Cannes count, etc.
  *  - `status` picks which number: "won" → wins, "nom" → nominations, "any" →
  *    wins when it has any, otherwise nominations.
- * No single body is named on the chip, so the number reads as "N awards" for the
+ * No single body is named on the chip, so the number reads as "N wins" for the
  * current scope rather than being misread as "N Oscars".
  */
 export function getAwardBadge(
@@ -43,7 +43,10 @@ export function getAwardBadge(
     noms += film[fields.noms] as number;
   }
 
-  const winsBadge = wins > 0 ? { detail: `${wins} ${wins === 1 ? "award" : "awards"}` } : null;
+  // "15 wins", not "15 awards": the number IS the win count, and "awards" reads
+  // as everything the film was up for — which for Titanic is 14 Oscar nominations
+  // against 11 wins, two different numbers under one word.
+  const winsBadge = wins > 0 ? { detail: `${wins} ${wins === 1 ? "win" : "wins"}` } : null;
   const nomsBadge = noms > 0 ? { detail: `${noms} ${noms === 1 ? "nom" : "noms"}` } : null;
 
   if (status === "won") return winsBadge;

@@ -76,16 +76,22 @@ function baseOrderBy(
     return Prisma.sql`"Film"."rtScore" ${dir} NULLS LAST, "Film"."year" ${dirOpp}, "Film"."title" ASC`;
   }
 
-  if (sort === "awards") {
+  // Two questions, not one: which films WON the most, and which were NOMINATED
+  // the most. They disagree — a film with 11 nominations and 1 win outranks a
+  // 4-for-4 sweep on one and loses on the other — so each gets its own ordering
+  // with the other as the tiebreaker. (`awards` is the old name for `wins`.)
+  if (sort === "awards" || sort === "wins" || sort === "noms") {
     // Scope the award count to the selected bodies so that filtering (e.g.)
     // Golden Globe ranks by Golden Globe wins — La La Land's 7 leads Titanic's 4
     // — instead of by the all-body total. No body selected → sum every body.
     const scope = awardBodies.length > 0 ? awardBodies : [...AWARD_BODY_VALUES];
     const winsSum = Prisma.join(scope.map(body => AWARD_WIN_COLUMN[body]), " + ");
     const nomsSum = Prisma.join(scope.map(body => AWARD_NOM_COLUMN[body]), " + ");
+    const [lead, tieBreak] = sort === "noms" ? [nomsSum, winsSum] : [winsSum, nomsSum];
+
     return Prisma.sql`
-      (${winsSum}) ${dir},
-      (${nomsSum}) ${dir},
+      (${lead}) ${dir},
+      (${tieBreak}) ${dir},
       "Film"."title" ASC
     `;
   }

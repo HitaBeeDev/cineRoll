@@ -33,10 +33,20 @@ export const STATUS_OPTIONS: { value: AwardStatus; label: string }[] = [
   { value: "nom", label: "Nominated" },
 ];
 
+/**
+ * Wins and nominations are separate orderings because they rank differently:
+ * a film nominated eleven times that won once leads on one and trails on the
+ * other, and "Awards" alone could only ever answer one of the two. Each still
+ * breaks its ties on the other number.
+ *
+ * The order/newest pair is not duplicated as "Oldest" — the direction toggle
+ * beside this select reverses whichever ordering is chosen.
+ */
 export const SORT_OPTIONS: { value: FilterState["sort"]; label: string }[] = [
+  { value: "wins",   label: "Most wins" },
+  { value: "noms",   label: "Most nominations" },
   { value: "newest", label: "Newest" },
   { value: "rating", label: "IMDb" },
   { value: "rt",     label: "RT" },
-  { value: "awards", label: "Awards" },
   { value: "title",  label: "A-Z" },
 ];

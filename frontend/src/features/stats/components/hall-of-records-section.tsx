@@ -32,7 +32,7 @@ export function HallOfRecordsSection({ stats }: { stats: StatsResponse }) {
   if (stats.topWinningFilms.length === 0 && stats.topNominatedFilms.length === 0) return null;
   return (
     <section>
-      <SectionHeader eyebrow="Archive records" title="Hall of Records" description="The films and people that dominate the archive." actionHref="/browse?sort=awards" actionLabel="Enter the leaderboard" />
+      <SectionHeader eyebrow="Archive records" title="Hall of Records" description="The films and people that dominate the archive." actionHref="/browse?sort=wins" actionLabel="Enter the leaderboard" />
       {tabs.length > 2 && (
         <div className="mt-6 flex flex-wrap gap-2" role="group" aria-label="Record type">
           {tabs.map(({ key, label }) => (

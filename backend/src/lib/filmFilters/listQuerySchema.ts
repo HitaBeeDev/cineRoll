@@ -67,7 +67,10 @@ export const listQueryBaseSchema = z.object({
   winsMin: z.coerce.number().int().min(0).max(1000).optional(),
   winsMax: z.coerce.number().int().min(0).max(1000).optional(),
   tvType: z.string().trim().min(1).max(60).optional(),
-  sort: z.enum(["newest", "title", "rating", "rt", "awards"]).default("newest"),
+  // `awards` is the pre-split name for `wins` — it ordered by wins and broke ties
+  // on nominations, which is exactly what `wins` does — kept so shared links and
+  // the stats page's leaderboard link keep resolving.
+  sort: z.enum(["newest", "title", "rating", "rt", "awards", "wins", "noms"]).default("newest"),
   sortOrder: z.enum(["asc", "desc"]).default("desc"),
   sample: z.enum(["onboarding"]).optional(),
   page: z.coerce.number().int().min(1).default(1),

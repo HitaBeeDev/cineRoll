@@ -15,6 +15,20 @@ function listParam(value: string | null): string[] {
   return value ? value.split(",").map((s) => s.trim()).filter(Boolean) : [];
 }
 
+const SORT_VALUES: FilterState["sort"][] = ["newest", "title", "rating", "rt", "wins", "noms"];
+
+/**
+ * The sort from a link. `awards` is the pre-split name for `wins` — it ordered
+ * by wins and broke ties on nominations, which is what `wins` does — so older
+ * links (and the stats page's leaderboard link) land on the ordering they meant
+ * rather than falling back to the default.
+ */
+function parseSort(value: string | null): FilterState["sort"] {
+  if (value === "awards") return "wins";
+
+  return SORT_VALUES.find((sort) => sort === value) ?? DEFAULT_FILTERS.sort;
+}
+
 export function filtersFromSearchParams(params: URLSearchParams): FilterState {
   const awardYear      = numberParam(params.get("awardYear"));
   // A bare `awardYear` in an older link is the range [y, y] — the same fold the
@@ -78,10 +92,7 @@ export function filtersFromSearchParams(params: URLSearchParams): FilterState {
     rtScoreMin:    rtScoreMin ?? DEFAULT_FILTERS.rtScoreMin,
     imdbTopMoviesOnly: params.get("imdbTopMoviesOnly") === "true",
     imdbTopTvOnly:     params.get("imdbTopTvOnly")     === "true",
-    sort:
-      sort === "title" || sort === "rating" || sort === "rt" || sort === "awards" || sort === "newest"
-        ? sort
-        : DEFAULT_FILTERS.sort,
+    sort: parseSort(sort),
     sortOrder: sortOrder === "asc" || sortOrder === "desc" ? sortOrder : DEFAULT_FILTERS.sortOrder,
     page:          page && page > 0 ? page : DEFAULT_FILTERS.page,
   };
