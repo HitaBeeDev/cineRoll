@@ -110,6 +110,41 @@ export function formatContentType(film: {
 }
 
 /**
+ * The browse `contentType` facet value behind the label `formatContentType`
+ * shows, so a link on that label returns what the label says. Mirrors the
+ * precedence of `formatContentType` and returns the single type the label leads
+ * with — "Documentary short" filters to documentaries, not to shorts, because
+ * the facet is an OR over `types` and a two-value link would widen the result
+ * past the label.
+ *
+ * Returns "" exactly when `formatContentType` does (a plain feature film), so
+ * "has a label" and "has a link target" can never disagree.
+ */
+export function contentTypeFilterValue(film: {
+  contentType?: string | null;
+  types?: string[] | null;
+}): string {
+  const types = new Set(film.types?.length ? film.types : [film.contentType ?? "movie"]);
+
+  if (types.has("tv-mini-series")) return "tv-mini-series";
+  if (types.has("tv-series")) return "tv-series";
+  if (types.has("documentary")) return "documentary";
+  if (types.has("animation")) return "animation";
+  return types.has("short") ? "short" : "";
+}
+
+/**
+ * How to introduce the person stored in `director`.
+ *
+ * A series record holds TMDB's `created_by` there — a /tv response carries no
+ * "Director" crew at all (see `buildTvFromTmdb`) — so labelling that name "Dir."
+ * asserts a credit the person does not hold. Series say "Created by".
+ */
+export function formatCreditLabel(film: { contentType?: string | null }): string {
+  return isSeriesContentType(film.contentType) ? "Created by" : "Dir.";
+}
+
+/**
  * Every genre of a title, in full — "Sci-Fi · Action · Adventure". The middot is
  * the app's separator everywhere; a slash reads as a different, louder mark.
  *

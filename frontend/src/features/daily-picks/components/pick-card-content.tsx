@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
+import { formatCreditLabel } from "@/lib/format";
 import type { PickCardContentProps } from "../component-props";
 import { getPickRationale } from "../pick-rationale";
 import { PickActions } from "./pick-actions";
@@ -22,7 +23,7 @@ export function PickCardContent({ pick }: PickCardContentProps) {
         <PickMetadata film={film} />
         {film.director && (
           <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-[12px] uppercase tracking-wider text-[#8a8a9e]">
-            Dir. {film.director}
+            {formatCreditLabel(film)} {film.director}
           </p>
         )}
         <p className="mt-5 line-clamp-2 max-w-xl font-[family-name:var(--font-display)] text-lg leading-relaxed text-[#cfcfdc] sm:text-xl">

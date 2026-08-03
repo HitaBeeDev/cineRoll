@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Sparkles } from "lucide-react";
-import { filmGenreList, formatContentType, formatFilmLength, formatLanguage, formatSeriesEpisodes } from "@/lib/format";
+import { contentTypeFilterValue, filmGenreList, formatContentType, formatFilmLength, formatLanguage, formatSeriesEpisodes, isSeriesContentType } from "@/lib/format";
 import { displayTitle, nameToSlug } from "@/lib/utils";
 import { getTitleFontSize } from "../title-font-size";
 import { HeroGenreTag } from "./hero-genre-tag";
@@ -32,14 +32,24 @@ export function HeroFilmIdentity({
       >
         {title}
       </h1>
+      {/* A bare name under a title reads as "directed by" — true for a movie,
+          false for a series, whose credit is TMDB's created_by. Series say so;
+          movies keep the unlabelled line they always had. */}
       {film.director && (
-        <Link
-          href={`/person/${nameToSlug(film.director)}`}
-          className="mt-4 inline-block font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.36em] text-white/75 transition-colors hover:text-white"
+        <p
+          className="mt-4 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.36em] text-white/75"
           style={{ textShadow: "0 1px 10px rgba(0,0,0,0.75)" }}
         >
-          {film.director}
-        </Link>
+          {isSeriesContentType(film.contentType) && (
+            <span className="text-white/45">Created by </span>
+          )}
+          <Link
+            href={`/person/${nameToSlug(film.director)}`}
+            className="transition-colors hover:text-white"
+          >
+            {film.director}
+          </Link>
+        </p>
       )}
       {film.originalTitle && film.originalTitle !== film.title && (
         <p className="mt-2 font-[family-name:var(--font-display)] text-xl italic text-white/55">
@@ -58,10 +68,15 @@ export function HeroFilmIdentity({
           and there is no reason to hide two thirds of what a title actually is. */}
       {(formatContentType(film) || filmGenreList(film).length > 0) && (
         <div className="mt-4 flex flex-wrap items-center gap-2">
-          {formatContentType(film) && (
-            <span className="inline-flex items-center rounded-[3px] border border-white/30 bg-white/[0.08] px-2.5 py-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em] text-white/90 backdrop-blur-sm">
+          {/* The type sits in a row of genre links, so it filters browse too —
+              an identical-looking chip that ignores clicks reads as broken. */}
+          {formatContentType(film) && contentTypeFilterValue(film) && (
+            <Link
+              href={`/browse?contentType=${encodeURIComponent(contentTypeFilterValue(film))}`}
+              className="inline-flex items-center rounded-[3px] border border-white/30 bg-white/[0.08] px-2.5 py-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em] text-white/90 backdrop-blur-sm transition-colors hover:border-[#e8453c]/45 hover:bg-[#e8453c]/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
+            >
               {formatContentType(film)}
-            </span>
+            </Link>
           )}
           {filmGenreList(film).map((genre) => (
             <HeroGenreTag key={genre} genre={genre} />

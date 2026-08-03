@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Clock, ExternalLink } from "lucide-react";
 import type { PickOfDayFilm } from "@/lib/api";
 import { trackEvent } from "@/lib/analytics";
-import { formatFilmLength } from "@/lib/format";
+import { formatCreditLabel, formatFilmLength } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { getWhyPicked } from "@/components/pick-of-day/why-picked";
 import { PickRatingsRow } from "@/components/pick-of-day/pick-ratings-row";
@@ -43,7 +43,7 @@ export function PickOfDayInfo({ film }: { film: PickOfDayFilm }) {
           {film.director && (
             <>
               <span className="text-zinc-700" aria-hidden>·</span>
-              <span>dir. {film.director}</span>
+              <span>{formatCreditLabel(film).toLowerCase()} {film.director}</span>
             </>
           )}
         </div>
