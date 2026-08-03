@@ -67,6 +67,11 @@ export const listQueryBaseSchema = z.object({
   winsMin: z.coerce.number().int().min(0).max(1000).optional(),
   winsMax: z.coerce.number().int().min(0).max(1000).optional(),
   tvType: z.string().trim().min(1).max(60).optional(),
+  // Drop everything the viewer has already watched. The only filter here whose
+  // meaning depends on who is asking: the viewer's identity comes from the
+  // bearer token, never from the query, so this is inert for a signed-out
+  // request (see viewerPredicates).
+  excludeWatched: queryBooleanSchema.optional(),
   // `awards` is the pre-split name for `wins` — it ordered by wins and broke ties
   // on nominations, which is exactly what `wins` does — kept so shared links and
   // the stats page's leaderboard link keep resolving.

@@ -67,6 +67,7 @@ function appendRankingFilters(
   setBoolean(params, "imdbTopMoviesOnly", filters.imdbTopMoviesOnly);
   setBoolean(params, "imdbTopTvOnly", filters.imdbTopTvOnly);
   setBoolean(params, "imdbTopExclude", filters.imdbTopExclude);
+  setBoolean(params, "excludeWatched", filters.excludeWatched);
 }
 
 function appendSortFilters(

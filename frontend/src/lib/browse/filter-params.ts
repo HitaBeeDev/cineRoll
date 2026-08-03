@@ -92,6 +92,7 @@ export function filtersFromSearchParams(params: URLSearchParams): FilterState {
     rtScoreMin:    rtScoreMin ?? DEFAULT_FILTERS.rtScoreMin,
     imdbTopMoviesOnly: params.get("imdbTopMoviesOnly") === "true",
     imdbTopTvOnly:     params.get("imdbTopTvOnly")     === "true",
+    excludeWatched:    params.get("excludeWatched")    === "true",
     sort: parseSort(sort),
     sortOrder: sortOrder === "asc" || sortOrder === "desc" ? sortOrder : DEFAULT_FILTERS.sortOrder,
     page:          page && page > 0 ? page : DEFAULT_FILTERS.page,

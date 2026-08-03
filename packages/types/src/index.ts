@@ -141,6 +141,9 @@ export interface FilterState {
   winsMin: number | null;
   winsMax: number | null;
   tvType: string;
+  /** Hide films the signed-in viewer has already marked watched. Inert without
+   *  a session — the backend resolves it from the bearer token, not the query. */
+  excludeWatched: boolean;
   sort: FilmSort;
   sortOrder: SortOrder;
   page: number;

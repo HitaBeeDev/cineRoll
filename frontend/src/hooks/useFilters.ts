@@ -36,6 +36,7 @@ export const DEFAULT_FILTERS: FilterState = {
   winsMin: null,
   winsMax: null,
   tvType: "",
+  excludeWatched: false,
   sort: "wins",
   sortOrder: "desc",
   page: 1,
@@ -73,6 +74,7 @@ export function computeHasActiveFilters(filters: FilterState): boolean {
     filters.imdbTopMoviesOnly ||
     filters.imdbTopTvOnly ||
     !!filters.tvType ||
+    filters.excludeWatched ||
     filters.sort !== "wins" ||
     filters.rtScoreMin > 0
   );

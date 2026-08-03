@@ -1,5 +1,6 @@
 import { buildWhereClause } from "../../lib/filmFilters/whereClause";
 import type { ListQuery } from "../../lib/filmFilters/listQuerySchema";
+import { viewerPredicates } from "../../lib/filmFilters/viewerPredicates";
 import { prisma } from "../../lib/prisma";
 import { countFilms } from "./countFilms";
 import { createFilmListPayload } from "./createFilmListPayload";
@@ -9,8 +10,11 @@ import { filmListSelect } from "./selects";
 
 export const getPagedFilmList = async (
   query: ListQuery,
+  /** The signed-in viewer, when the request carried a valid token. Only the
+   *  per-viewer filters read it (see viewerPredicates). */
+  viewerId?: string,
 ): Promise<FilmListPayload> => {
-  const whereSql = buildWhereClause(query);
+  const whereSql = buildWhereClause(query, viewerPredicates(query, viewerId));
   const offset = (query.page - 1) * query.limit;
   const [films, countRows] = await Promise.all([
     prisma.$queryRaw<unknown[]>`

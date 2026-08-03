@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useSession } from "next-auth/react";
 import type { FilterState } from "@cineroll/types";
 import { trackEvent } from "@/lib/analytics";
 import { filtersFromSearchParams, serializeFilters } from "@/lib/browse/filter-params";
@@ -20,7 +21,16 @@ export function useBrowseFilters() {
   const pathname     = usePathname();
   const searchParams = useSearchParams();
 
-  const filters = useMemo(() => filtersFromSearchParams(searchParams), [searchParams]);
+  // A signed-out visitor has no watch history, so "hide what I've watched" can
+  // only be a filter that promises something and does nothing — a link carrying
+  // it (shared by someone signed in) is neutralised here, once, rather than in
+  // each of the request, the chip bar and the control that would read it.
+  const signedOut = useSession().status === "unauthenticated";
+  const filters = useMemo(() => {
+    const parsed = filtersFromSearchParams(searchParams);
+
+    return signedOut && parsed.excludeWatched ? { ...parsed, excludeWatched: false } : parsed;
+  }, [searchParams, signedOut]);
   // "Active" is derived from the same descriptor table that renders the chips,
   // so the Roll button / Clear-all only appear when there is a chip to clear.
   const hasActiveFilters = useMemo(() => anyFilterActive(filters), [filters]);

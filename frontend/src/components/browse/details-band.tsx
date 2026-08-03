@@ -1,3 +1,6 @@
+"use client";
+
+import { useSession } from "next-auth/react";
 import type { FacetCounts, FilterState } from "@cineroll/types";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { PanelBand } from "@/components/browse/panel-band";
@@ -29,6 +32,7 @@ export function DetailsBand({
     languageLabel,
   ).sort((a, b) => a.label.localeCompare(b.label));
   const countryOptions = reachableOptions(counts.countries, filters.countries, countryLabel);
+  const signedIn = useSession().status === "authenticated";
 
   return (
     <PanelBand label="Details" activeCount={activeCount} collapsible={collapsible}>
@@ -63,6 +67,19 @@ export function DetailsBand({
           onChange={(checked) => setFilters({ femaleDirectorOnly: checked, page: 1 })}
         />
       </PanelSection>
+
+      {/* Signed in only, because it filters against the viewer's own history:
+          shown to a signed-out visitor it could only ever be a checkbox that
+          changes nothing. */}
+      {signedIn && (
+        <PanelSection label="Your History">
+          <FilterCheckbox
+            label="Hide films I've watched"
+            checked={filters.excludeWatched}
+            onChange={(checked) => setFilters({ excludeWatched: checked, page: 1 })}
+          />
+        </PanelSection>
+      )}
     </PanelBand>
   );
 }

@@ -20,7 +20,13 @@ export async function fetchFilms(
   params.set("limit", String(limit));
   if (filters.page && filters.page > 1) params.set("page", String(filters.page));
 
-  const response = await fetch(`${API_URL}/api/films?${params}`, {
+  // "Hide what I've watched" is the one browse query whose answer depends on who
+  // is asking, and the browser has no way to prove that to the backend. Those
+  // requests go through the same-origin proxy, which attaches the session; every
+  // other query keeps hitting the backend directly, cache and all.
+  const base = filters.excludeWatched ? "/api/films" : `${API_URL}/api/films`;
+
+  const response = await fetch(`${base}?${params}`, {
     cache: "no-store",
   });
   if (!response.ok) throw new Error("Failed to fetch films");

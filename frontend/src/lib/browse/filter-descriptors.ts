@@ -90,6 +90,8 @@ const FILTER_DESCRIPTORS: FilterDescriptor[] = [
     toChips: (f, set) => [{ key: "search", label: `"${f.search.trim()}"`, onRemove: () => set({ search: "", page: 1 }) }] },
   { band: "primary", isActive: (f) => !!f.person.trim(),
     toChips: (f, set) => [{ key: "person", label: f.person.trim(), onRemove: () => set({ person: "", page: 1 }) }] },
+  { band: "details", isActive: (f) => f.excludeWatched,
+    toChips: (_f, set) => [{ key: "unwatched", label: "Not watched yet", onRemove: () => set({ excludeWatched: false, page: 1 }) }] },
   { band: "details", isActive: (f) => f.femaleDirectorOnly,
     toChips: (_f, set) => [{ key: "femaleDir", label: "Directed by a woman", onRemove: () => set({ femaleDirectorOnly: false, page: 1 }) }] },
   { band: "primary", isActive: (f) => f.awardBodies.length > 0,
