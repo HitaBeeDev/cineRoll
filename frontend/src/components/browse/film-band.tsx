@@ -63,11 +63,10 @@ export function FilmBand({
       <PanelSection label="Content Type" span={2}>
         {/* Multi-select: nothing highlighted already means every type, so there
             is no "All" chip to keep in sync with the selection. */}
-        <ChipGroup label="Content type" multiple>
+        <ChipGroup>
           {CONTENT_TYPE_OPTIONS.map(({ value, label }) => (
             <FilterChip
               key={value}
-              multiple
               active={filters.contentTypes.includes(value)}
               count={countOf(counts.contentTypes, value)}
               onClick={() =>
@@ -82,7 +81,6 @@ export function FilmBand({
 
       <PanelSection label="Genre">
         <MultiSelect
-          ariaLabel="Genre"
           selected={filters.genres}
           onChange={(vals) => setFilters({ genres: vals, page: 1 })}
           placeholder="Any genre"

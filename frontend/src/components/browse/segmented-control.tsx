@@ -1,6 +1,20 @@
-import { Fragment } from "react";
-import { cn } from "@/lib/utils";
+"use client";
 
+import { Fragment, useRef } from "react";
+import { cn } from "@/lib/utils";
+import { useFieldLabelling } from "@/components/ui/field-label-context";
+
+/**
+ * A single-choice strip where one option is always chosen (award result: All /
+ * Winner / Nominated).
+ *
+ * This one really is a radiogroup — unlike the filter chips, no option can be
+ * clicked off, only exchanged for another — so it keeps the radio roles and pays
+ * what they cost: roving tabindex. The group is a single tab stop landing on the
+ * current choice, and the arrow keys move between options. Without that, three
+ * radios sat in the tab order doing nothing on arrow press, which is the half of
+ * the pattern keyboard users actually navigate by.
+ */
 export function SegmentedControl<T extends string>({
   options,
   value,
@@ -13,7 +27,7 @@ export function SegmentedControl<T extends string>({
   options: { value: T; label: string; groupStart?: boolean }[];
   value: T;
   onChange: (value: T) => void;
-  ariaLabel: string;
+  ariaLabel?: string;
   /** Visible caption above the control — without it users must infer what it switches. */
   label?: string;
   /**
@@ -24,6 +38,33 @@ export function SegmentedControl<T extends string>({
   neutralValue?: T;
   className?: string;
 }) {
+  const buttonsRef = useRef<(HTMLButtonElement | null)[]>([]);
+  const labelling = useFieldLabelling(ariaLabel);
+
+  const selectedIndex = options.findIndex((option) => option.value === value);
+  // A group with no tab stop would be unreachable by keyboard, so if nothing
+  // matches the current value the first option holds it.
+  const tabbableIndex = selectedIndex >= 0 ? selectedIndex : 0;
+
+  /** Arrows wrap around the strip, selecting as they go — the radiogroup pattern. */
+  function handleKeyDown(event: React.KeyboardEvent, index: number) {
+    const step =
+      event.key === "ArrowRight" || event.key === "ArrowDown"
+        ? 1
+        : event.key === "ArrowLeft" || event.key === "ArrowUp"
+          ? -1
+          : 0;
+    if (step === 0) return;
+
+    event.preventDefault();
+    const nextIndex = (index + step + options.length) % options.length;
+    const next = options[nextIndex];
+    if (!next) return;
+
+    onChange(next.value);
+    buttonsRef.current[nextIndex]?.focus();
+  }
+
   return (
     <div className={cn("flex w-full flex-col gap-1 sm:w-auto", className)}>
       {label && (
@@ -33,7 +74,7 @@ export function SegmentedControl<T extends string>({
       )}
       <div
         role="radiogroup"
-        aria-label={ariaLabel}
+        {...labelling}
         className="flex w-full max-w-full flex-wrap items-center gap-1 rounded-md border border-white/10 bg-white/[0.025] p-1 sm:w-auto xl:flex-nowrap"
       >
       {options.map((opt, i) => {
@@ -52,6 +93,9 @@ export function SegmentedControl<T extends string>({
               type="button"
               role="radio"
               aria-checked={active}
+              tabIndex={i === tabbableIndex ? 0 : -1}
+              ref={(node) => { buttonsRef.current[i] = node; }}
+              onKeyDown={(event) => handleKeyDown(event, i)}
               onClick={() => onChange(opt.value)}
               className={cn(
                 "h-8 shrink-0 rounded px-3 font-[family-name:var(--font-geist-mono)] text-[12px] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40",

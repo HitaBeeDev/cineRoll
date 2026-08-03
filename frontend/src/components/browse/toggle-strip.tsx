@@ -1,6 +1,7 @@
 import { Fragment } from "react";
 import { cn } from "@/lib/utils";
 import { compactCount } from "@/lib/browse/facet-options";
+import { useFieldLabelling } from "@/components/ui/field-label-context";
 
 /**
  * Same bordered look as SegmentedControl, but every item is an independent
@@ -36,7 +37,7 @@ export function ToggleStrip({
       )}
       <div
         role="group"
-        aria-label={ariaLabel}
+        {...useFieldLabelling(ariaLabel)}
         className="flex w-full max-w-full flex-wrap items-center gap-1 rounded-md border border-white/10 bg-white/[0.025] p-1 sm:w-auto xl:flex-nowrap"
       >
         {items.map((item, i) => {

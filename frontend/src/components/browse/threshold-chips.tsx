@@ -4,6 +4,10 @@ import { FilterChip } from "@/components/browse/filter-chip";
 /**
  * A single-choice row of threshold chips (IMDb 7+, ≤ 2h, 5+ noms …).
  *
+ * Single-choice, but not a radiogroup: clicking the active chip clears it, which
+ * is the one thing a radio may not do. The chips are `aria-pressed` toggles and
+ * this component is what keeps at most one of them pressed.
+ *
  * There is deliberately no "Any" chip: no highlighted chip already means no
  * constraint, and clicking the active chip clears it. That keeps the accent
  * colour meaning exactly one thing — "this filter is cutting your results" —

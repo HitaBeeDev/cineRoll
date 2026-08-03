@@ -1,3 +1,8 @@
+"use client";
+
+import { useId } from "react";
+import { FieldLabelProvider } from "@/components/ui/field-label-context";
+
 /**
  * Width every boxed control in the panel snaps to.
  *
@@ -13,6 +18,11 @@ export const CONTROL_WIDTH = "w-full max-w-[22rem]";
  * wide as its chips: give the long ones (content types, the rating scales) two
  * columns and none of them wrap, which is what kept orphaning "TV Series", "9+"
  * and "95%+" onto lines of their own.
+ *
+ * The caption is also the accessible name of whatever the section holds. It is
+ * published to the control through FieldLabelProvider rather than restated as an
+ * `aria-label`, which had screen readers announcing "Content type" twice — once
+ * reading the caption, once naming the group.
  */
 export function PanelSection({
   label,
@@ -25,14 +35,19 @@ export function PanelSection({
   span?: 1 | 2;
   className?: string;
 }) {
+  const labelId = useId();
+
   return (
     <div
       className={`flex flex-col gap-2${span === 2 ? " md:col-span-2" : ""}${className ? ` ${className}` : ""}`}
     >
-      <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.3em] text-[#8e899e]">
+      <span
+        id={labelId}
+        className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.3em] text-[#8e899e]"
+      >
         {label}
       </span>
-      {children}
+      <FieldLabelProvider id={labelId}>{children}</FieldLabelProvider>
     </div>
   );
 }

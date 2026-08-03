@@ -39,7 +39,6 @@ export function AwardsBand({
     <PanelBand label="Awards" activeCount={activeCount}>
       <PanelSection label="Award Category">
         <MultiSelect
-          ariaLabel="Award category"
           selected={filters.categories}
           onChange={(vals) => setFilters({ categories: vals, page: 1 })}
           placeholder="Any category"
@@ -56,7 +55,6 @@ export function AwardsBand({
             setFilters({ awardYear: val === ANY_YEAR ? null : Number(val), page: 1 })
           }
           placeholder="Any year"
-          ariaLabel="Ceremony year"
           className={`${CONTROL_WIDTH} text-[#b8b5c8]`}
           options={[
             { value: ANY_YEAR, label: "Any year" },

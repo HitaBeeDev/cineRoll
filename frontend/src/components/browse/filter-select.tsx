@@ -6,6 +6,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { useFieldLabelling } from "@/components/ui/field-label-context";
 
 // Constant look shared by every filter dropdown trigger. Deliberately omits the
 // utilities that vary per instance (width, text colour, uppercase/tracking) —
@@ -39,7 +40,7 @@ export function FilterSelect({
 }) {
   return (
     <Select value={value} onValueChange={onValueChange}>
-      <SelectTrigger aria-label={ariaLabel} className={cn(SELECT_TRIGGER_BASE, className)}>
+      <SelectTrigger {...useFieldLabelling(ariaLabel)} className={cn(SELECT_TRIGGER_BASE, className)}>
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
       <SelectContent className="border-white/10 bg-[#101019]">

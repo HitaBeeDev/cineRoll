@@ -3,6 +3,7 @@
 import * as React from "react";
 import { Check, ChevronDown, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useFieldLabelling } from "@/components/ui/field-label-context";
 
 export type MultiSelectOption = {
   value: string;
@@ -58,6 +59,7 @@ export function MultiSelect({
    *  inline with the other facet pills instead of as a boxed select. */
   variant?: "default" | "pill";
 }) {
+  const labelling = useFieldLabelling(ariaLabel);
   const [open, setOpen] = React.useState(false);
   const [query, setQuery] = React.useState("");
   // What was already selected when the panel opened — those options are pinned
@@ -216,7 +218,7 @@ export function MultiSelect({
     <div ref={containerRef} className={cn("relative", isPill && "inline-flex")}>
       <button
         type="button"
-        aria-label={ariaLabel}
+        {...labelling}
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-controls={listboxId}

@@ -33,7 +33,6 @@ export function DetailsBand({
     <PanelBand label="Details" activeCount={activeCount}>
       <PanelSection label="Language">
         <MultiSelect
-          ariaLabel="Language"
           selected={filters.languages}
           onChange={(vals) => setFilters({ languages: vals, page: 1 })}
           placeholder="Any language"
@@ -45,7 +44,6 @@ export function DetailsBand({
 
       <PanelSection label="Country">
         <MultiSelect
-          ariaLabel="Country"
           selected={filters.countries}
           onChange={(vals) => setFilters({ countries: vals, page: 1 })}
           placeholder="Any country"
@@ -60,9 +58,8 @@ export function DetailsBand({
           to search for. A lone toggle, not a two-chip radio — "any director" was
           never a filter, only the absence of this one. */}
       <PanelSection label="Directed by">
-        <ChipGroup label="Directed by" multiple>
+        <ChipGroup>
           <FilterChip
-            multiple
             active={filters.femaleDirectorOnly}
             onClick={() => setFilters({ femaleDirectorOnly: !filters.femaleDirectorOnly, page: 1 })}
           >

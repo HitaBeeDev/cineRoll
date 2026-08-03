@@ -1,18 +1,25 @@
 import { cn } from "@/lib/utils";
 import { compactCount } from "@/lib/browse/facet-options";
 
+/**
+ * One filter chip: a toggle button, announced with `aria-pressed`.
+ *
+ * Never a radio. Chips in a single-choice row (the rating and runtime scales)
+ * clear themselves when the active one is clicked again, and ARIA radios cannot
+ * be deselected — the old `role="radio"` told screen-reader users the selection
+ * was permanent while the mouse behaviour said otherwise. `aria-pressed` states
+ * exactly what the chip does either way, and the row's own semantics (one choice
+ * or several) live in the handler that owns them.
+ */
 export function FilterChip({
   active,
   onClick,
   children,
-  multiple = false,
   count,
 }: {
   active: boolean;
   onClick: () => void;
   children: React.ReactNode;
-  /** Render as a toggle (aria-pressed) rather than a single-choice radio. */
-  multiple?: boolean;
   /** Films behind this chip under the other filters. `0` disables it. */
   count?: number;
 }) {
@@ -25,9 +32,7 @@ export function FilterChip({
   return (
     <button
       type="button"
-      role={multiple ? undefined : "radio"}
-      aria-pressed={multiple ? active : undefined}
-      aria-checked={multiple ? undefined : active}
+      aria-pressed={active}
       disabled={unreachable}
       onClick={onClick}
       className={cn(
