@@ -64,7 +64,6 @@ export interface Film {
   berlinNominations: number;
   berlinWins: number;
   berlinCategories: AwardRecord[];
-  watchProviders: Record<string, unknown> | null;
   isPickOfDay: boolean;
   pickOfDayDate: string | null;
 }
@@ -106,6 +105,8 @@ export interface FilterState {
   genres: string[];
   countries: string[];
   contentTypes: string[];
+  // Runtime bounds in minutes, inclusive; null on either side means "no bound".
+  runtimeMin: number | null;
   runtimeMax: number | null;
   // Release-year bounds, inclusive; null on either side means "no bound". The
   // Decade control is a shortcut that writes a whole decade into this one pair
@@ -115,6 +116,9 @@ export interface FilterState {
   yearMin: number | null;
   yearMax: number | null;
   nominationCount: number | null;
+  /** How many of the four ceremonies recognised the film, at least this many —
+   *  consensus across juries, not volume at one of them (see nominationCount). */
+  ceremonyCount: number | null;
   imdbRatingMin: number;
   imdbRatingMax: number | null;
   rtScoreMin: number;

@@ -26,9 +26,12 @@ export function filtersFromSearchParams(params: URLSearchParams): FilterState {
   const yearMin        = numberParam(params.get("yearMin")) ?? numberParam(params.get("decadeMin"));
   const yearMax        = numberParam(params.get("yearMax")) ?? numberParam(params.get("decadeMax"));
   const imdbRatingMin  = numberParam(params.get("imdbRatingMin"));
+  const runtimeMin     = numberParam(params.get("runtimeMin"));
   const runtimeMax     = numberParam(params.get("runtimeMax"));
   const nominationCount = numberParam(params.get("nominationCount"));
+  const ceremonyCount  = numberParam(params.get("ceremonyCount"));
   const winsMin        = numberParam(params.get("winsMin"));
+  const winsMax        = numberParam(params.get("winsMax"));
   const rtScoreMin     = numberParam(params.get("rtScoreMin"));
   const page           = numberParam(params.get("page"));
   const sort           = params.get("sort");
@@ -56,11 +59,14 @@ export function filtersFromSearchParams(params: URLSearchParams): FilterState {
     languages:     listParam(params.get("language")),
     countries:     listParam(params.get("country")),
     contentTypes:  listParam(params.get("contentType")),
+    runtimeMin,
     runtimeMax,
     yearMin,
     yearMax,
     nominationCount,
+    ceremonyCount,
     winsMin,
+    winsMax,
     imdbRatingMin: imdbRatingMin ?? DEFAULT_FILTERS.imdbRatingMin,
     rtScoreMin:    rtScoreMin ?? DEFAULT_FILTERS.rtScoreMin,
     imdbTopMoviesOnly: params.get("imdbTopMoviesOnly") === "true",

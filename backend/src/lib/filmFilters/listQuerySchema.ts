@@ -29,6 +29,10 @@ export const listQueryBaseSchema = z.object({
   // ("romantic musical drama" → Romance ∧ Music ∧ Drama). `genre` stays OR.
   genreAll: createCsvParamSchema(80),
   country: createCsvParamSchema(80),
+  // Inclusive runtime bounds, in minutes. A film with no recorded runtime is out
+  // of the set the moment either bound is set — an unknown length cannot satisfy
+  // a length constraint.
+  runtimeMin: z.coerce.number().int().min(1).max(1000).optional(),
   runtimeMax: z.coerce.number().int().min(1).max(1000).optional(),
   // Inclusive release-year bounds. `decadeMin`/`decadeMax` are the pre-rename
   // names for the same two comparisons, accepted so older links keep resolving
@@ -38,6 +42,10 @@ export const listQueryBaseSchema = z.object({
   decadeMin: yearBoundSchema,
   decadeMax: yearBoundSchema,
   nominationCount: z.coerce.number().int().min(0).max(1000).optional(),
+  // How many of the four ceremonies recognised the film at all (nominated or
+  // won). Not a count of anything stored — it is derived from the four
+  // nomination counts, so its ceiling is the number of bodies in the catalogue.
+  ceremonyCount: z.coerce.number().int().min(1).max(4).optional(),
   // Inclusive ceremony-year bounds. `awardYear` is the single-year form other
   // surfaces still speak (see foldAwardYear); it is folded into these before
   // anything reads the query.

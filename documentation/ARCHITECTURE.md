@@ -189,7 +189,7 @@ One table, 15 event types, `variant`‑tagged at write time — so A/B analysis,
 
 ~17 models, grouped by purpose:
 
-- **Catalog:** `Film` (one canonical row; award arrays + counts for all four bodies, `posterColor`, `watchProviders`), `Person`.
+- **Catalog:** `Film` (one canonical row; award arrays + counts for all four bodies, `posterColor`), `Person`.
 - **Identity / auth:** `User` (+ `onboardingGenres` for cold‑start), `Account`, `Session`, `VerificationToken`, `PasswordResetToken`.
 - **Raw signals:** `WatchedFilm` (+ `WatchedSentiment` enum), `Watchlist`, `Event` (+ `EventType` enum — the analytics spine, §8), `RollEvent`.
 - **Derived / cached:** `UserTasteProfile` (the materialized taste vectors, with `staleAt`), `RollLaneBandit` (per‑user Beta posteriors for the Safe/Gem/Wild lanes), `PickOfDayHistory` (one row/day, auditable + repeat‑avoiding).

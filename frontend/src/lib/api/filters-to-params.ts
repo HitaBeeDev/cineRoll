@@ -45,10 +45,12 @@ function appendRangeFilters(
   params: URLSearchParams,
   filters: Partial<FilterState>,
 ): void {
+  setNumber(params, "runtimeMin", filters.runtimeMin);
   setNumber(params, "runtimeMax", filters.runtimeMax);
   setNumber(params, "yearMin", filters.yearMin);
   setNumber(params, "yearMax", filters.yearMax);
   setNumber(params, "nominationCount", filters.nominationCount);
+  setNumber(params, "ceremonyCount", filters.ceremonyCount);
   setPositiveNumber(params, "imdbRatingMin", filters.imdbRatingMin);
   setPositiveNumber(params, "rtScoreMin", filters.rtScoreMin);
   setNumber(params, "imdbRatingMax", filters.imdbRatingMax);

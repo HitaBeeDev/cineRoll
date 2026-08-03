@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { AppHeader } from "@/components/app-header";
 import { ShareBanner } from "@/components/share-banner";
-import { WhereToWatch } from "@/components/where-to-watch";
 import { buildFilmMetadata } from "@/features/film-detail/build-film-metadata";
 import { FALLBACK_FILM_ACCENT } from "@/features/film-detail/config";
 import { computeAwardSummary } from "@/features/film-detail/compute-award-summary";
@@ -84,10 +83,6 @@ export default async function FilmPage({ params }: FilmPageProps) {
           <CastSection cast={film.cast} accent={accent} />
           <SimilarFilmsSection films={similarFilms} />
           <TrailerSection film={film} />
-          <WhereToWatch
-            watchProviders={film.watchProviders ?? null}
-            accent={accent}
-          />
         </div>
       </div>
     </main>

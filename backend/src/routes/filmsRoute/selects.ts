@@ -75,7 +75,6 @@ export const filmDetailSelect = {
   berlinNominations: true,
   berlinWins: true,
   berlinCategories: true,
-  watchProviders: true,
   isPickOfDay: true,
   pickOfDayDate: true,
 } satisfies Prisma.FilmSelect;

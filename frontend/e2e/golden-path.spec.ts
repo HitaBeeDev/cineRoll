@@ -61,7 +61,6 @@ function film(overrides: Record<string, unknown> = {}) {
     berlinNominations: 0,
     berlinWins: 0,
     berlinCategories: [],
-    watchProviders: null,
     isPickOfDay: false,
     pickOfDayDate: null,
     ...overrides,

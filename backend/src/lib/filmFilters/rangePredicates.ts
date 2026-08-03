@@ -13,12 +13,7 @@ export function rangePredicates(query: ListQuery): Prisma.Sql[] {
 }
 
 function runtimePredicates(query: ListQuery): Prisma.Sql[] {
-  if (query.runtimeMax === undefined) return [];
-
-  return [
-    Prisma.sql`"Film"."runtime" IS NOT NULL`,
-    lessThanOrEqualPredicate("runtime", query.runtimeMax),
-  ];
+  return nullableNumberRangePredicates("runtime", query.runtimeMin, query.runtimeMax);
 }
 
 function imdbRatingPredicates(query: ListQuery): Prisma.Sql[] {

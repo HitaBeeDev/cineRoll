@@ -19,10 +19,12 @@ export const DEFAULT_FILTERS: FilterState = {
   genres: [],
   countries: [],
   contentTypes: [],
+  runtimeMin: null,
   runtimeMax: null,
   yearMin: null,
   yearMax: null,
   nominationCount: null,
+  ceremonyCount: null,
   imdbRatingMin: 0,
   imdbRatingMax: null,
   rtScoreMin: 0,
@@ -56,14 +58,17 @@ export function computeHasActiveFilters(filters: FilterState): boolean {
     filters.genres.length > 0 ||
     filters.countries.length > 0 ||
     filters.contentTypes.length > 0 ||
+    filters.runtimeMin != null ||
     filters.runtimeMax != null ||
     filters.yearMin != null ||
     filters.yearMax != null ||
     filters.nominationCount != null ||
+    filters.ceremonyCount != null ||
     filters.imdbRatingMin > 0 ||
     filters.imdbRatingMax != null ||
     !!filters.certificate ||
     filters.winsMin != null ||
+    filters.winsMax != null ||
     filters.imdbTopMoviesOnly ||
     filters.imdbTopTvOnly ||
     !!filters.tvType ||

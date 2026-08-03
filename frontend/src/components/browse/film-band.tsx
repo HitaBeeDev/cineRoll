@@ -9,6 +9,7 @@ import { FilterSelect } from "@/components/browse/filter-select";
 import { ThresholdChips } from "@/components/browse/threshold-chips";
 import { CONTENT_TYPE_OPTIONS } from "@/lib/browse/options";
 import { toggleValue } from "@/lib/browse/filter-updates";
+import { setRuntimeMax, setRuntimeMin } from "@/lib/browse/bounds";
 import { countOf, reachableOptions, reachableYears } from "@/lib/browse/facet-options";
 import {
   ANY_YEAR,
@@ -25,11 +26,25 @@ const IMDB_OPTIONS = [6, 6.5, 7, 7.5, 8, 8.5, 9].map((r) => ({ value: r, label: 
 
 const RT_OPTIONS = [50, 60, 70, 80, 90, 95].map((s) => ({ value: s, label: `${s}%+` }));
 
-const RUNTIME_OPTIONS = [
+const RUNTIME_MAX_OPTIONS = [
   { value: 90, label: "≤ 90m" },
   { value: 120, label: "≤ 2h" },
   { value: 150, label: "≤ 2h30" },
   { value: 180, label: "≤ 3h" },
+];
+
+/**
+ * The floor the cap never had. It starts at 40m because that is where the
+ * catalogue's shorts end and its features begin — "≥ 40m" is how you ask for a
+ * film rather than a nominated short, which no other control here says. Above
+ * that it mirrors the caps, so a min and a max chosen from the two rows read as
+ * one range.
+ */
+const RUNTIME_MIN_OPTIONS = [
+  { value: 40, label: "≥ 40m" },
+  { value: 90, label: "≥ 90m" },
+  { value: 120, label: "≥ 2h" },
+  { value: 150, label: "≥ 2h30" },
 ];
 
 /** What the film IS: format, subject, era, and how well it scored. */
@@ -151,12 +166,25 @@ export function FilmBand({
         </div>
       </PanelSection>
 
+      {/* Two bounds, one length: the cap alone could only ask for something
+          short, and "a proper long one, but not a four-hour one" is the other
+          half of the same question. They move each other out of the way rather
+          than crossing into a range nothing can satisfy (see bounds.ts). */}
+      <PanelSection label="Min Runtime">
+        <ThresholdChips
+          ariaLabel="Minimum runtime"
+          options={RUNTIME_MIN_OPTIONS}
+          value={filters.runtimeMin}
+          onSelect={(next) => setFilters({ ...setRuntimeMin(filters, next), page: 1 })}
+        />
+      </PanelSection>
+
       <PanelSection label="Max Runtime">
         <ThresholdChips
           ariaLabel="Maximum runtime"
-          options={RUNTIME_OPTIONS}
+          options={RUNTIME_MAX_OPTIONS}
           value={filters.runtimeMax}
-          onSelect={(next) => setFilters({ runtimeMax: next, page: 1 })}
+          onSelect={(next) => setFilters({ ...setRuntimeMax(filters, next), page: 1 })}
         />
       </PanelSection>
 

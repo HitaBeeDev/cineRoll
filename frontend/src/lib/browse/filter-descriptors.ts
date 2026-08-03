@@ -105,12 +105,29 @@ const FILTER_DESCRIPTORS: FilterDescriptor[] = [
     toChips: (f, set) => [{ key: "rt", label: `RT ${f.rtScoreMin}%+`, onRemove: () => set({ rtScoreMin: 0, page: 1 }) }] },
   { band: "film", isActive: hasYearRange,
     toChips: (f, set) => [{ key: "year-range", label: formatYearRange(f), onRemove: () => set({ yearMin: null, yearMax: null, page: 1 }) }] },
+  { band: "film", isActive: (f) => f.runtimeMin != null,
+    toChips: (f, set) => [{ key: "runtime-min", label: `≥ ${f.runtimeMin}m`, onRemove: () => set({ runtimeMin: null, page: 1 }) }] },
   { band: "film", isActive: (f) => f.runtimeMax != null,
     toChips: (f, set) => [{ key: "runtime", label: `≤ ${f.runtimeMax}m`, onRemove: () => set({ runtimeMax: null, page: 1 }) }] },
   { band: "awards", isActive: (f) => f.winsMin != null && f.winsMin > 0,
     toChips: (f, set) => [{ key: "wins", label: `${f.winsMin}+ wins`, onRemove: () => set({ winsMin: null, page: 1 }) }] },
+  // 0 is a value here, not an absence: "never won anything" is the sharpest cut
+  // this control makes, so the test is `!= null` rather than truthiness.
+  { band: "awards", isActive: (f) => f.winsMax != null,
+    toChips: (f, set) => [{
+      key: "wins-max",
+      label: f.winsMax === 0 ? "No wins" : `≤ ${f.winsMax} wins`,
+      onRemove: () => set({ winsMax: null, page: 1 }),
+    }] },
   { band: "awards", isActive: (f) => f.nominationCount != null && f.nominationCount > 0,
     toChips: (f, set) => [{ key: "noms", label: `${f.nominationCount}+ noms`, onRemove: () => set({ nominationCount: null, page: 1 }) }] },
+  { band: "awards", isActive: (f) => f.ceremonyCount != null && f.ceremonyCount > 1,
+    toChips: (f, set) => [{
+      key: "ceremonies",
+      // "at 4 ceremonies" reads as a place; "by" is what a jury does.
+      label: f.ceremonyCount === 4 ? "Recognised by all 4 ceremonies" : `Recognised by ${f.ceremonyCount}+ ceremonies`,
+      onRemove: () => set({ ceremonyCount: null, page: 1 }),
+    }] },
 ];
 
 /** Does any browse filter differ from its default? Derived from the same table

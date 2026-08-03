@@ -11,6 +11,7 @@ import {
   setCeremonyYearMax,
   setCeremonyYearMin,
 } from "@/lib/browse/year-range";
+import { setWinsMax, setWinsMin } from "@/lib/browse/bounds";
 import type { SetFilters } from "@/lib/browse/filter-descriptors";
 
 /**
@@ -28,6 +29,36 @@ const NOMINATION_OPTIONS = [2, 3, 5, 10, 20].map((n) => ({ value: n, label: `${n
  * of the range is lower too, because 10+ wins is already only 28 films.
  */
 const WIN_OPTIONS = [1, 2, 3, 5, 10].map((n) => ({ value: n, label: `${n}+` }));
+
+/**
+ * The other end of the wins scale — and where the interesting question is asked
+ * from below rather than above. "None" is the whole point of it: 54% of the
+ * catalogue was nominated and went home empty, a set nothing else in the panel
+ * can name. The caps above it are for narrowing that idea rather than dropping
+ * it — "won a little, not everything".
+ */
+const WIN_MAX_OPTIONS = [
+  { value: 0, label: "None" },
+  { value: 1, label: "≤ 1" },
+  { value: 2, label: "≤ 2" },
+  { value: 5, label: "≤ 5" },
+];
+
+/**
+ * Consensus across juries, which is the one question a four-ceremony catalogue
+ * can answer and a single-ceremony list cannot: the Oscars, the Golden Globes,
+ * Cannes and Berlin do not share a taste, so a title all of them noticed was
+ * noticed for something other than the thing any one of them rewards.
+ *
+ * No "1+": every film here was recognised by at least one ceremony, so it would
+ * select the catalogue. The scale ends at 4 because there are four bodies — and
+ * the last step is a real one, with 315 films at three and exactly 2 at all four.
+ */
+const CEREMONY_COUNT_OPTIONS = [
+  { value: 2, label: "2+" },
+  { value: 3, label: "3+" },
+  { value: 4, label: "All 4" },
+];
 
 /**
  * The award band comes first because the awards ARE the catalogue — everything
@@ -124,7 +155,29 @@ export function AwardsBand({
           ariaLabel="Minimum total award wins across all ceremonies"
           options={WIN_OPTIONS}
           value={filters.winsMin}
-          onSelect={(next) => setFilters({ winsMin: next, page: 1 })}
+          onSelect={(next) => setFilters({ ...setWinsMin(filters, next), page: 1 })}
+        />
+      </PanelSection>
+
+      {/* The cap completes the pair the floor started, and turns this row from
+          "how decorated" into "how decorated, between here and here" — which is
+          how a nominee that never won gets found at all. The two bounds move each
+          other out of the way rather than crossing (see bounds.ts). */}
+      <PanelSection label="Max. Wins" hint="across all ceremonies">
+        <ThresholdChips
+          ariaLabel="Maximum total award wins across all ceremonies"
+          options={WIN_MAX_OPTIONS}
+          value={filters.winsMax}
+          onSelect={(next) => setFilters({ ...setWinsMax(filters, next), page: 1 })}
+        />
+      </PanelSection>
+
+      <PanelSection label="Recognised By" hint="how many of the four ceremonies" startsRow>
+        <ThresholdChips
+          ariaLabel="Minimum number of ceremonies that recognised the film"
+          options={CEREMONY_COUNT_OPTIONS}
+          value={filters.ceremonyCount}
+          onSelect={(next) => setFilters({ ceremonyCount: next, page: 1 })}
         />
       </PanelSection>
     </PanelBand>
