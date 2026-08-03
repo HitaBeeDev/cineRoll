@@ -7,6 +7,7 @@ export const filmListSelect = Prisma.sql`
   "Film"."originalTitle",
   "Film"."year" AS "releaseYear",
   "Film"."year",
+  "Film"."runtime",
   "Film"."genres",
   "Film"."contentType",
   "Film"."types",

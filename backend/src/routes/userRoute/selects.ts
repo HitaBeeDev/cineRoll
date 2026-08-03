@@ -6,6 +6,7 @@ export const filmSummarySelect = {
   title: true,
   originalTitle: true,
   releaseYear: true,
+  runtime: true,
   genres: true,
   contentType: true,
   types: true,
