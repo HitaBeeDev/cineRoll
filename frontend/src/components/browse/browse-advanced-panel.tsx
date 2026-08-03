@@ -1,12 +1,11 @@
 import { useEffect } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
-import type { FilterState } from "@cineroll/types";
+import type { FacetCounts, FilterState } from "@cineroll/types";
 import { cn } from "@/lib/utils";
 import { AwardsBand } from "@/components/browse/awards-band";
 import { FilmBand } from "@/components/browse/film-band";
 import { DetailsBand } from "@/components/browse/details-band";
-import type { BrowseFacets } from "@/hooks/useBrowseFacetCounts";
 import { countFiltersByBand, type SetFilters } from "@/lib/browse/filter-descriptors";
 
 /**
@@ -62,7 +61,7 @@ export function BrowseAdvancedPanel({
 }: {
   filters: FilterState;
   setFilters: SetFilters;
-  facets: BrowseFacets;
+  facets: FacetCounts;
   activeCount: number;
   onClearAll: () => void;
   /** Render as a bottom sheet — the viewport is too narrow for the inline panel. */
@@ -128,21 +127,21 @@ export function BrowseAdvancedPanel({
           filters={filters}
           setFilters={setFilters}
           activeCount={bandCounts.awards}
-          counts={facets.counts}
+          counts={facets}
           collapsible={compact}
         />
         <FilmBand
           filters={filters}
           setFilters={setFilters}
           activeCount={bandCounts.film}
-          counts={facets.counts}
+          counts={facets}
           collapsible={compact}
         />
         <DetailsBand
           filters={filters}
           setFilters={setFilters}
           activeCount={bandCounts.details}
-          counts={facets.counts}
+          counts={facets}
           collapsible={compact}
         />
 

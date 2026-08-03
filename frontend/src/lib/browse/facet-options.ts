@@ -1,10 +1,9 @@
 import type { CategoryFacetCount, FacetCount } from "@cineroll/types";
 import { AWARD_BODY_OPTIONS } from "@/lib/browse/options";
 
-export type CountedOption = {
+export type FacetOption = {
   value: string;
   label: string;
-  count: number;
   group?: string;
 };
 
@@ -30,10 +29,11 @@ export function countOf(counts: FacetCount[], value: string): number | undefined
  * Options for a variable-length list control — genres, categories, countries,
  * languages.
  *
- * Unreachable values are dropped rather than dimmed. Dimming works for a row of
- * five chips; for a two-hundred-item category list where a chosen ceremony makes
- * nine tenths of it unreachable, it would leave the user scrolling a list that is
- * mostly noise. What remains is exactly what can still be picked.
+ * The counts decide membership and are then discarded: an option that would
+ * return nothing is dropped, and the rest are listed with no number attached.
+ * Dropping rather than dimming, because dimming works for a row of five chips but
+ * a two-hundred-item category list where a chosen ceremony makes nine tenths
+ * unreachable would leave the user scrolling a list that is mostly noise.
  *
  * A value the user has already selected always survives, whatever its count.
  * Filters can combine into an empty result, and an option that vanished from the
@@ -43,10 +43,10 @@ export function reachableOptions(
   counts: FacetCount[],
   selected: string[],
   label: (value: string) => string,
-): CountedOption[] {
+): FacetOption[] {
   return counts
     .filter((c) => c.count > 0 || selected.includes(c.value))
-    .map((c) => ({ value: c.value, label: label(c.value), count: c.count }));
+    .map((c) => ({ value: c.value, label: label(c.value) }));
 }
 
 /**
@@ -57,21 +57,21 @@ export function reachableOptions(
  * ceremony order is the one the sticky strip uses, so the dropdown's sections
  * read in the same order as the toggles above it.
  *
- * The seven names two ceremonies both award are listed under each of them, with
- * the same count: the filter matches the NAME across every selected ceremony, so
- * this is one selection shown twice, not two — and it ticks in both places, which
- * is precisely what selecting it does.
+ * The seven names two ceremonies both award are listed under each of them: the
+ * filter matches the NAME across every selected ceremony, so this is one
+ * selection shown twice, not two — and it ticks in both places, which is
+ * precisely what selecting it does.
  */
 export function categoryOptions(
   counts: CategoryFacetCount[],
   selected: string[],
-): CountedOption[] {
+): FacetOption[] {
   const reachable = counts.filter((c) => c.count > 0 || selected.includes(c.value));
 
   return AWARD_BODY_OPTIONS.flatMap(({ value: body, label }) =>
     reachable
       .filter((c) => c.bodies.includes(body))
-      .map((c) => ({ value: c.value, label: c.value, count: c.count, group: label })),
+      .map((c) => ({ value: c.value, label: c.value, group: label })),
   );
 }
 

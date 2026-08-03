@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { SlidersHorizontal } from "lucide-react";
-import type { FilterState } from "@cineroll/types";
+import type { FacetCounts, FilterState } from "@cineroll/types";
 import { cn } from "@/lib/utils";
 import { BrowseSearchBox } from "@/components/browse/browse-search-box";
 import { ToggleStrip } from "@/components/browse/toggle-strip";
@@ -17,7 +17,6 @@ import {
   type SetFilters,
 } from "@/lib/browse/filter-descriptors";
 import { countOf } from "@/lib/browse/facet-options";
-import type { BrowseFacets } from "@/hooks/useBrowseFacetCounts";
 import { useIsCompactViewport } from "@/hooks/useIsCompactViewport";
 import type { BrowseAutocomplete } from "@/hooks/useBrowseAutocomplete";
 
@@ -48,7 +47,7 @@ export function BrowseFilterBar({
   searchDraft: string;
   setSearchDraft: (value: string) => void;
   autocomplete: BrowseAutocomplete;
-  facets: BrowseFacets;
+  facets: FacetCounts;
   /** Films matching the current filters; null until the first result lands. */
   resultCount: number | null;
   isCounting: boolean;
@@ -72,15 +71,7 @@ export function BrowseFilterBar({
   };
 
   return (
-    <div
-      className={cn(
-        "sticky top-14 z-40 max-w-[100vw] border-b border-[#1c1a25] bg-[#08080d]/92 shadow-[0_18px_50px_rgba(0,0,0,0.28)] backdrop-blur-xl",
-        // Every facet count in the bar and the panel dims together while the next
-        // set is in flight — the same "stale, not gone" treatment the result count
-        // gets, applied once here rather than threaded through six controls.
-        facets.stale && "[&_[data-facet-count]]:opacity-30",
-      )}
-    >
+    <div className="sticky top-14 z-40 max-w-[100vw] border-b border-[#1c1a25] bg-[#08080d]/92 shadow-[0_18px_50px_rgba(0,0,0,0.28)] backdrop-blur-xl">
       <div className="mx-auto w-full max-w-[100vw] px-4 sm:max-w-screen-2xl sm:px-6 lg:px-8 xl:px-12">
 
         {/* Primary row — search + ceremony on the left; result and the Advanced
@@ -101,7 +92,7 @@ export function BrowseFilterBar({
               // Each ceremony's count is measured with the ceremony filter itself
               // lifted, so these read as "what switching to Cannes would leave",
               // not "0 for every ceremony you have not selected".
-              count: countOf(facets.counts.awardBodies, opt.value),
+              count: countOf(facets.awardBodies, opt.value),
               onToggle: () => setFilters({ awardBodies: toggleValue(filters.awardBodies, opt.value), page: 1 }),
             }))}
           />
