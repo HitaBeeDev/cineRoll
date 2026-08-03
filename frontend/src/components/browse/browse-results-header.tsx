@@ -41,11 +41,25 @@ export function BrowseResultsHeader({
   // Keep the last count on screen (dimmed) while a new query is in flight.
   const isStaleCount = status === "loading" && hasResult;
 
+  function resultsHeading(): string {
+    if (!hasResult) return status === "loading" ? "Loading films" : "Browse results";
+    // The grid's own empty state carries the advice ("try adjusting your
+    // filters"); the heading only has to name the state.
+    if (total === 0) return "No films match";
+
+    return `Showing ${showingStart.toLocaleString()}–${showingEnd.toLocaleString()} of ${total.toLocaleString()}`;
+  }
+
   return (
     <div
       ref={resultsTopRef}
       className="mb-6 flex scroll-mt-[var(--browse-scroll-offset)] flex-col gap-4 border-b border-white/10 pb-5 lg:flex-row lg:items-center lg:justify-between"
     >
+      {/* The set's size is the sticky bar's job (see MatchCount) — it has to stay
+          on screen while filters are edited, which a heading in the results
+          section cannot. So this heading answers what the bar can't: where in
+          that set the current page sits. Between them the total is stated once,
+          in one wording, instead of twice in two. */}
       <div>
         <h2
           aria-live="polite"
@@ -54,22 +68,8 @@ export function BrowseResultsHeader({
             isStaleCount && "opacity-40",
           )}
         >
-          {hasResult
-            ? `${total.toLocaleString()} ${total === 1 ? "film" : "films"}`
-            : status === "loading"
-              ? "Loading films"
-              : "Browse results"}
+          {resultsHeading()}
         </h2>
-        {hasResult && total > 0 && (
-          <p
-            className={cn(
-              "mt-1 font-[family-name:var(--font-geist-mono)] text-[12px] tabular-nums text-[#817c91] transition-opacity duration-200",
-              isStaleCount && "opacity-40",
-            )}
-          >
-            Showing {showingStart.toLocaleString()}-{showingEnd.toLocaleString()} of {total.toLocaleString()}
-          </p>
-        )}
       </div>
 
       {/* Roll is the product's signature, so its entry point is always present —

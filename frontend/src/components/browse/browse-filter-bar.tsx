@@ -6,6 +6,7 @@ import { BrowseSearchBox } from "@/components/browse/browse-search-box";
 import { ToggleStrip } from "@/components/browse/toggle-strip";
 import { SegmentedControl } from "@/components/browse/segmented-control";
 import { ActiveFilterChips } from "@/components/browse/active-filter-chips";
+import { MatchCount } from "@/components/browse/match-count";
 import { BrowseAdvancedPanel } from "@/components/browse/browse-advanced-panel";
 import { AWARD_BODY_OPTIONS, STATUS_OPTIONS, type AwardStatus } from "@/lib/browse/options";
 import { statusFromFilters, statusToUpdates, toggleValue } from "@/lib/browse/filter-updates";
@@ -113,6 +114,10 @@ export function BrowseFilterBar({
             className="xl:shrink-0"
           />
 
+          {/* Sits with the disclosure it belongs to: the number the panel is
+              there to move, beside the control that opens the panel. */}
+          <MatchCount resultCount={resultCount} isCounting={isCounting} />
+
           <button
             type="button"
             onClick={() => setShowMore((v) => !v)}
@@ -142,8 +147,6 @@ export function BrowseFilterBar({
           filters={filters}
           setFilters={setFilters}
           facets={facets}
-          resultCount={resultCount}
-          isCounting={isCounting}
           activeCount={activeCount}
           // Unlike the chip bar's Clear all, this one leaves the panel open: it
           // is a "start over" in the middle of building a set, not a way out.

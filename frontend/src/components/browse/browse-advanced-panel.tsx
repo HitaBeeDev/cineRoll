@@ -1,20 +1,9 @@
 import type { FilterState } from "@cineroll/types";
-import { cn } from "@/lib/utils";
 import { AwardsBand } from "@/components/browse/awards-band";
 import { FilmBand } from "@/components/browse/film-band";
 import { DetailsBand } from "@/components/browse/details-band";
 import type { BrowseFacets } from "@/hooks/useBrowseFacetCounts";
 import { countFiltersByBand, type SetFilters } from "@/lib/browse/filter-descriptors";
-
-const plural = (n: number, word: string) => `${n.toLocaleString()} ${word}${n === 1 ? "" : "s"}`;
-
-/** "1,284 films match 3 filters" — or what the whole catalogue holds when none are set. */
-function matchSummary(resultCount: number | null, activeCount: number): string {
-  if (resultCount == null) return "Counting films…";
-  if (activeCount === 0) return `${plural(resultCount, "film")} in the catalogue`;
-
-  return `${plural(resultCount, "film")} match ${plural(activeCount, "filter")}`;
-}
 
 /**
  * The expanded "Advanced" filter panel: three labelled bands, ordered by what
@@ -27,17 +16,12 @@ export function BrowseAdvancedPanel({
   filters,
   setFilters,
   facets,
-  resultCount,
-  isCounting,
   activeCount,
   onClearAll,
 }: {
   filters: FilterState;
   setFilters: SetFilters;
   facets: BrowseFacets;
-  /** Films matching the current filters; null until the first result lands. */
-  resultCount: number | null;
-  isCounting: boolean;
   activeCount: number;
   onClearAll: () => void;
 }) {
@@ -65,22 +49,11 @@ export function BrowseAdvancedPanel({
           counts={facets.counts}
         />
 
-        {/* The panel covers the results header, so the count comes to the filters
-            instead: what the set you are building currently holds, updated as
-            you build it, with the escape hatch beside it. */}
-        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/[0.09] pt-4">
-          <p
-            aria-live="polite"
-            className={cn(
-              "font-[family-name:var(--font-geist-mono)] text-[12px] tabular-nums text-[#8e899e] transition-opacity duration-200",
-              // Keep the last count on screen, dimmed, while the next one loads —
-              // a number that blanks on every click is worse than a stale one.
-              isCounting && "opacity-40",
-            )}
-          >
-            {matchSummary(resultCount, activeCount)}
-          </p>
-
+        {/* The live count used to sit here, at the bottom of ~800px of controls
+            where a chip clicked in the top band changed a number off-screen. It
+            now rides the sticky primary row (see MatchCount), leaving this row
+            as what it always was: the escape hatch. */}
+        <div className="flex flex-wrap items-center justify-end gap-3 border-t border-white/[0.09] pt-4">
           <button
             type="button"
             onClick={onClearAll}
