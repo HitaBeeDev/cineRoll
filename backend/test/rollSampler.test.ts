@@ -76,9 +76,12 @@ describe("softmaxWeights", () => {
     const weights = softmaxWeights(scores);
     const counts = tally(() => weightedSample([0, 1, 2, 3], weights), N);
 
-    // The top-scoring film is drawn far more than any other …
+    // The top-scoring film is drawn far more than any other … `?? 0` because a
+    // film this starved (p ≈ 4.5e-5, so ~1.8 draws expected) misses out entirely
+    // in 16% of runs, and an absent key would compare against NaN — failing the
+    // assertion precisely when the bias under test is at its strongest.
     const top = counts.get(0)!;
-    for (const i of [1, 2, 3]) expect(top).toBeGreaterThan(counts.get(i)! * 3);
+    for (const i of [1, 2, 3]) expect(top).toBeGreaterThan((counts.get(i) ?? 0) * 3);
     // … while a much lower score is nearly starved under exploit alone.
     expect((counts.get(3) ?? 0) / N).toBeLessThan(0.02);
   });
