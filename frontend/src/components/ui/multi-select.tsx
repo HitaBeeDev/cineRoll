@@ -10,8 +10,10 @@ export type MultiSelectOption = { value: string; label: string };
  * A lightweight multi-select dropdown (Radix's Select is single-value only). A
  * trigger button opens an absolutely-positioned checkbox panel; clicking an
  * option toggles it in/out of `selected`. For long lists (genres, countries) the
- * optional `searchable` flag adds a type-to-filter input. Closes on outside click
- * or Escape. Styles are inline/Tailwind only — nothing leaks to global CSS.
+ * optional `searchable` flag adds a type-to-filter input. Already-selected
+ * options open pinned above the rest, so unticking one never means scrolling an
+ * alphabetical list to hunt for it. Closes on outside click or Escape. Styles
+ * are inline/Tailwind only — nothing leaks to global CSS.
  */
 export function MultiSelect({
   options,
@@ -36,7 +38,23 @@ export function MultiSelect({
 }) {
   const [open, setOpen] = React.useState(false);
   const [query, setQuery] = React.useState("");
+  // What was already selected when the panel opened — those options are pinned
+  // to the top so a chosen genre isn't buried alphabetically. Captured on open
+  // and NOT recomputed as the user clicks: repartitioning live would slide the
+  // list under the cursor mid-scan and the next click would land on a different
+  // option than the one aimed at.
+  const [pinnedValues, setPinnedValues] = React.useState<string[]>([]);
   const containerRef = React.useRef<HTMLDivElement>(null);
+
+  // The trigger is the only way in, so opening is where both per-session bits of
+  // panel state get set: a cleared filter box and a fresh pin order.
+  function togglePanel() {
+    if (!open) {
+      setQuery("");
+      setPinnedValues(selected);
+    }
+    setOpen(v => !v);
+  }
 
   React.useEffect(() => {
     if (!open) return;
@@ -54,11 +72,6 @@ export function MultiSelect({
       document.removeEventListener("mousedown", handleClick);
       document.removeEventListener("keydown", handleKey);
     };
-  }, [open]);
-
-  // Reset the filter each time the panel reopens so a stale query never hides options.
-  React.useEffect(() => {
-    if (!open) setQuery("");
   }, [open]);
 
   const selectedSet = React.useMemo(() => new Set(selected), [selected]);
@@ -82,7 +95,46 @@ export function MultiSelect({
     ? options.filter(o => o.label.toLowerCase().includes(query.trim().toLowerCase()))
     : options;
 
+  // Two groups, each keeping the source list's order. A pinned option that has
+  // since been unchecked stays put until the panel is reopened, so unticking
+  // something never makes it jump away from under the pointer.
+  const { pinned, rest } = React.useMemo(() => {
+    const pinnedSet = new Set(pinnedValues);
+    return {
+      pinned: filtered.filter(o => pinnedSet.has(o.value)),
+      rest: filtered.filter(o => !pinnedSet.has(o.value)),
+    };
+  }, [filtered, pinnedValues]);
+
   const isPill = variant === "pill";
+
+  const renderOption = (opt: MultiSelectOption) => {
+    const isSelected = selectedSet.has(opt.value);
+    return (
+      <button
+        key={opt.value}
+        type="button"
+        role="option"
+        aria-selected={isSelected}
+        onClick={() => toggle(opt.value)}
+        className={cn(
+          "flex w-full items-center gap-2.5 px-3 py-1.5 text-left text-[12px] transition-colors",
+          isSelected ? "text-[#f1eff8]" : "text-[#a9a5bc] hover:bg-white/[0.05] hover:text-[#f1eff8]",
+        )}
+      >
+        <span
+          className={cn(
+            "flex h-4 w-4 shrink-0 items-center justify-center rounded border",
+            isSelected ? "border-[#d8d8e2] bg-[#d8d8e2]" : "border-white/20",
+          )}
+          aria-hidden
+        >
+          {isSelected && <Check className="h-3 w-3 text-[#0c0c14]" />}
+        </span>
+        <span className="min-w-0 truncate">{opt.label}</span>
+      </button>
+    );
+  };
 
   return (
     <div ref={containerRef} className={cn("relative", isPill && "inline-flex")}>
@@ -91,7 +143,7 @@ export function MultiSelect({
         aria-label={ariaLabel}
         aria-haspopup="listbox"
         aria-expanded={open}
-        onClick={() => setOpen(v => !v)}
+        onClick={togglePanel}
         className={cn(
           isPill
             ? "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] focus-visible:ring-offset-1 focus-visible:ring-offset-[#09090f]"
@@ -133,33 +185,13 @@ export function MultiSelect({
             {filtered.length === 0 ? (
               <p className="px-3 py-2 font-[family-name:var(--font-geist-mono)] text-[11px] text-[#6f6b80]">No matches</p>
             ) : (
-              filtered.map(opt => {
-                const isSelected = selectedSet.has(opt.value);
-                return (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    role="option"
-                    aria-selected={isSelected}
-                    onClick={() => toggle(opt.value)}
-                    className={cn(
-                      "flex w-full items-center gap-2.5 px-3 py-1.5 text-left text-[12px] transition-colors",
-                      isSelected ? "text-[#f1eff8]" : "text-[#a9a5bc] hover:bg-white/[0.05] hover:text-[#f1eff8]",
-                    )}
-                  >
-                    <span
-                      className={cn(
-                        "flex h-4 w-4 shrink-0 items-center justify-center rounded border",
-                        isSelected ? "border-[#d8d8e2] bg-[#d8d8e2]" : "border-white/20",
-                      )}
-                      aria-hidden
-                    >
-                      {isSelected && <Check className="h-3 w-3 text-[#0c0c14]" />}
-                    </span>
-                    <span className="min-w-0 truncate">{opt.label}</span>
-                  </button>
-                );
-              })
+              <>
+                {pinned.map(renderOption)}
+                {pinned.length > 0 && rest.length > 0 && (
+                  <div role="separator" className="my-1 h-px bg-white/[0.09]" />
+                )}
+                {rest.map(renderOption)}
+              </>
             )}
           </div>
         </div>
