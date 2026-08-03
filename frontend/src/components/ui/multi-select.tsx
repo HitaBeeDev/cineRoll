@@ -11,6 +11,11 @@ export type MultiSelectOption = {
    *  caller has no count to show; never rendered as 0, since an option that would
    *  return nothing is dropped from the list before it gets here. */
   count?: number;
+  /** Section this option is listed under. Sections appear in the order the
+   *  options arrive in; one value may appear under several (see the categories
+   *  facet, where a name is awarded by two ceremonies) and ticks in all of them,
+   *  because selecting it filters on the name across every ceremony. */
+  group?: string;
 };
 
 /** How many labels the trigger spells out before collapsing the rest into "+N". */
@@ -133,13 +138,38 @@ export function MultiSelect({
   // Two groups, each keeping the source list's order. A pinned option that has
   // since been unchecked stays put until the panel is reopened, so unticking
   // something never makes it jump away from under the pointer.
+  //
+  // Pinned entries are deduped by value: an option listed under several sections
+  // is still one selection, and pinning it once per section would show the same
+  // tick two or three times at the top of the list.
   const { pinned, rest } = React.useMemo(() => {
     const pinnedSet = new Set(pinnedValues);
+    const seen = new Set<string>();
     return {
-      pinned: filtered.filter(o => pinnedSet.has(o.value)),
+      pinned: filtered.filter(o => {
+        if (!pinnedSet.has(o.value) || seen.has(o.value)) return false;
+        seen.add(o.value);
+        return true;
+      }),
       rest: filtered.filter(o => !pinnedSet.has(o.value)),
     };
   }, [filtered, pinnedValues]);
+
+  // Sections for the unpinned remainder, in first-appearance order. A single
+  // section means the grouping tells the user nothing they can't see, so the
+  // headers are dropped rather than captioning the whole list with one label.
+  const sections = React.useMemo(() => {
+    const byGroup = new Map<string, MultiSelectOption[]>();
+    for (const option of rest) {
+      const key = option.group ?? "";
+      const existing = byGroup.get(key);
+      if (existing) existing.push(option);
+      else byGroup.set(key, [option]);
+    }
+
+    return [...byGroup.entries()].map(([label, options]) => ({ label, options }));
+  }, [rest]);
+  const showGroupHeadings = sections.length > 1;
 
   const isPill = variant === "pill";
 
@@ -147,7 +177,7 @@ export function MultiSelect({
     const isSelected = selectedSet.has(opt.value);
     return (
       <button
-        key={opt.value}
+        key={opt.group ? `${opt.group}:${opt.value}` : opt.value}
         type="button"
         role="option"
         aria-selected={isSelected}
@@ -272,7 +302,16 @@ export function MultiSelect({
                 {pinned.length > 0 && rest.length > 0 && (
                   <div className="my-1 border-t border-white/[0.07]" aria-hidden />
                 )}
-                {rest.map(renderOption)}
+                {sections.map((section) => (
+                  <div key={section.label || "_ungrouped"} role="group" aria-label={section.label || undefined}>
+                    {showGroupHeadings && section.label && (
+                      <div className="sticky top-0 bg-[#0e0d18] px-3 pb-1 pt-2 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest text-[#6f6b80]">
+                        {section.label}
+                      </div>
+                    )}
+                    {section.options.map(renderOption)}
+                  </div>
+                ))}
               </>
             )}
           </div>

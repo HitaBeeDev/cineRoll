@@ -148,6 +148,19 @@ export interface FacetCount {
 }
 
 /**
+ * A category, plus the ceremonies that award it — the dropdown groups by them,
+ * since "Best Director" alone does not say whose.
+ *
+ * Usually one body. A handful of names are awarded by two (Cannes and Berlinale
+ * both give a "Special Mention"), and since the filter matches the NAME across
+ * every selected ceremony, such a category is one selectable value that appears
+ * under each of its groups rather than two independent options.
+ */
+export interface CategoryFacetCount extends FacetCount {
+  bodies: AwardBodyFilter[];
+}
+
+/**
  * The browse panel's option lists, counted against the current filter set.
  *
  * Lists whose membership varies (categories, genres, countries, languages,
@@ -157,7 +170,7 @@ export interface FacetCount {
  */
 export interface FacetCounts {
   awardBodies: FacetCount[];
-  categories: FacetCount[];
+  categories: CategoryFacetCount[];
   awardYears: FacetCount[];
   contentTypes: FacetCount[];
   genres: FacetCount[];

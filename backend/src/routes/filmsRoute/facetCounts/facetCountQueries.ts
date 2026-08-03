@@ -1,10 +1,12 @@
 import { Prisma } from "@prisma/client";
-import type { FacetCount } from "@cineroll/types";
+import type { CategoryFacetCount, FacetCount } from "@cineroll/types";
 
 import {
   awardElementConditions,
+  awardJsonSourceEntries,
   awardJsonSources,
   AWARD_BODY_VALUES,
+  type AwardBodyValue,
 } from "../../../lib/filmFilters/awardSql";
 import { CONTENT_TYPE_FACET_VALUES } from "../../../lib/filmFilters/constants";
 import { contentTypeSql } from "../../../lib/filmFilters/contentTypeSql";
@@ -26,6 +28,7 @@ import { scopeQueryToFacet } from "./facetScope";
  */
 
 type CountRow = { value: string | null; count: number };
+type CategoryCountRow = CountRow & { bodies: string[] | null };
 type AggregateRow = Record<string, number>;
 
 /** Counts for values held in a TEXT[] column (genres, origin countries). */
@@ -157,29 +160,52 @@ export async function countAwardBodies(query: ListQuery): Promise<FacetCount[]> 
  * film that WON Best Director and was only nominated for Best Picture contributes
  * to Best Director alone, exactly as the filter would resolve it.
  */
-export async function countCategories(query: ListQuery): Promise<FacetCount[]> {
+export async function countCategories(query: ListQuery): Promise<CategoryFacetCount[]> {
   const scoped = scopeQueryToFacet(query, "categories");
   const where = buildWhereClause(scoped, [
     Prisma.sql`award->>'category' IS NOT NULL`,
     ...awardElementConditions(scoped),
   ]);
 
-  const sources = awardJsonSources(scoped.awardBody).map(
-    source => Prisma.sql`
-      SELECT "Film"."id" AS "filmId", award->>'category' AS "category"
+  // Each arm carries its ceremony through the union so the grouped dropdown can
+  // say which body awards a category — "Best Director" alone does not.
+  const sources = awardJsonSourceEntries(scoped.awardBody).map(
+    ({ body, source }) => Prisma.sql`
+      SELECT
+        "Film"."id" AS "filmId",
+        award->>'category' AS "category",
+        -- Cast required: a bound parameter arrives untyped, and array_agg over an
+        -- unknown-typed column is a planner error, not a runtime surprise.
+        ${body}::TEXT AS "awardBody"
       FROM "Film", jsonb_array_elements(${source}) AS award
       ${where}
     `,
   );
 
-  const rows = await prisma.$queryRaw<CountRow[]>`
-    SELECT "category" AS "value", COUNT(DISTINCT "filmId")::INT AS "count"
+  const rows = await prisma.$queryRaw<CategoryCountRow[]>`
+    SELECT
+      "category" AS "value",
+      COUNT(DISTINCT "filmId")::INT AS "count",
+      array_agg(DISTINCT "awardBody") AS "bodies"
     FROM (${Prisma.join(sources, " UNION ALL ")}) AS "awardRows"
     GROUP BY "category"
     ORDER BY "category" ASC
   `;
 
-  return toFacetCounts(rows);
+  // The count stays per category, not per (category, ceremony): one value is one
+  // checkbox matching across every selected ceremony, so a per-ceremony number
+  // would promise less than ticking it actually returns.
+  return rows
+    .filter((row): row is CategoryCountRow & { value: string } => row.value !== null)
+    .map(row => ({
+      value: row.value,
+      count: Number(row.count),
+      bodies: (row.bodies ?? []).filter(isAwardBody),
+    }));
+}
+
+function isAwardBody(body: string): body is AwardBodyValue {
+  return (AWARD_BODY_VALUES as readonly string[]).includes(body);
 }
 
 /** Ceremony years, over the same enumerated award rows as the categories. */

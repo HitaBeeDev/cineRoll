@@ -6,19 +6,28 @@ import { ListQuery } from "./listQuerySchema";
 // The JSON columns to search for an award match. With no bodies selected (empty
 // or undefined) every corpus is searched; otherwise only the chosen ones are,
 // unioned with OR by the caller.
+const AWARD_JSON_COLUMNS: Record<AwardBodyValue, Prisma.Sql> = {
+  oscar: Prisma.sql`"Film"."oscarCategories"`,
+  goldenglobe: Prisma.sql`"Film"."ggCategories"`,
+  cannes: Prisma.sql`"Film"."cannesCategories"`,
+  berlin: Prisma.sql`"Film"."berlinCategories"`,
+};
+
+/**
+ * The same sources paired with the body they belong to, for callers that have to
+ * report which ceremony a row came from rather than just match against it.
+ */
+export function awardJsonSourceEntries(
+  awardBodies: ListQuery["awardBody"],
+): { body: AwardBodyValue; source: Prisma.Sql }[] {
+  const bodies =
+    !awardBodies || awardBodies.length === 0 ? [...AWARD_BODY_VALUES] : awardBodies;
+
+  return bodies.map(body => ({ body, source: AWARD_JSON_COLUMNS[body] }));
+}
+
 export function awardJsonSources(awardBodies: ListQuery["awardBody"]) {
-  const byBody: Record<AwardBodyValue, Prisma.Sql> = {
-    oscar: Prisma.sql`"Film"."oscarCategories"`,
-    goldenglobe: Prisma.sql`"Film"."ggCategories"`,
-    cannes: Prisma.sql`"Film"."cannesCategories"`,
-    berlin: Prisma.sql`"Film"."berlinCategories"`,
-  };
-
-  if (!awardBodies || awardBodies.length === 0) {
-    return Object.values(byBody);
-  }
-
-  return awardBodies.map(body => byBody[body]);
+  return awardJsonSourceEntries(awardBodies).map(entry => entry.source);
 }
 
 export function awardExists(

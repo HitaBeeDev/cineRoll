@@ -4,7 +4,7 @@ import { PanelBand } from "@/components/browse/panel-band";
 import { CONTROL_WIDTH, PanelSection } from "@/components/browse/panel-section";
 import { FilterSelect } from "@/components/browse/filter-select";
 import { ThresholdChips } from "@/components/browse/threshold-chips";
-import { reachableOptions, reachableYears } from "@/lib/browse/facet-options";
+import { categoryOptions, reachableYears } from "@/lib/browse/facet-options";
 import { ANY_YEAR } from "@/lib/browse/year-range";
 import type { SetFilters } from "@/lib/browse/filter-descriptors";
 
@@ -28,10 +28,11 @@ export function AwardsBand({
   counts: FacetCounts;
 }) {
   // The category list is what the facet counts change most. It used to hold every
-  // category of every ceremony at once, so with Cannes selected most of it was a
-  // choice that could only return nothing; it now holds what the selected
-  // ceremonies actually award, each with the films behind it.
-  const categoryOptions = reachableOptions(counts.categories, filters.categories, (c) => c);
+  // category of every ceremony at once in one flat alphabetical run, so with
+  // Cannes selected most of it was a choice that could only return nothing. It
+  // now holds what the selected ceremonies actually award, grouped under them and
+  // counted.
+  const categories = categoryOptions(counts.categories, filters.categories);
   const awardYears = reachableYears(counts.awardYears, filters.awardYear);
 
   return (
@@ -44,7 +45,7 @@ export function AwardsBand({
           placeholder="Any category"
           searchable
           triggerClassName={CONTROL_WIDTH}
-          options={categoryOptions}
+          options={categories}
         />
       </PanelSection>
 
