@@ -41,7 +41,18 @@ export function awardExists(
   return Prisma.sql`(${Prisma.join(existsClauses, " OR ")})`;
 }
 
-export function awardFilter(query: ListQuery) {
+/**
+ * The conditions a single award row must satisfy, over an `award` alias bound by
+ * `jsonb_array_elements`. They all live inside one EXISTS, so they describe ONE
+ * award: "winner, in 1994, of Best Picture" never matches a film that won
+ * something else in 1994 and was merely nominated for Best Picture.
+ *
+ * Exported because the facet counts enumerate the same award rows to count them
+ * (see facetCounts/). Deriving both from this one function is what lets a facet
+ * drop its own filter simply by deleting that key from the query — the award-level
+ * conditions then rebuild themselves without it, with no second list to keep in sync.
+ */
+export function awardElementConditions(query: ListQuery): Prisma.Sql[] {
   const awardConditions: Prisma.Sql[] = [];
 
   if (query.awardYear !== undefined) {
@@ -59,6 +70,12 @@ export function awardFilter(query: ListQuery) {
   if (query.winnerOnly === true) {
     awardConditions.push(Prisma.sql`(award->>'won')::BOOLEAN = true`);
   }
+
+  return awardConditions;
+}
+
+export function awardFilter(query: ListQuery) {
+  const awardConditions = awardElementConditions(query);
 
   const noBodies = !query.awardBody || query.awardBody.length === 0;
   if (noBodies && query.nominatedOnly !== true && awardConditions.length === 0) {

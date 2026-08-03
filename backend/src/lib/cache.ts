@@ -88,6 +88,8 @@ export const cacheKeys = {
    *  raw user text). */
   naturalRollFilters: (promptHash: string) => `nlr:filters:${promptHash}`,
   randomCount: (signature: string) => `random:count:${signature}`,
+  /** Every browse facet's options + counts for one filter set (see getFacetCounts). */
+  facetCounts: (signature: string) => `facets:counts:${signature}`,
   /** Full-catalog count for a filter set — the "reel pool" number the UI shows.
    *  Kept on a distinct key from randomCount so the eligibility-gated roll count
    *  and the ungated display count never collide under the same filter signature. */

@@ -134,6 +134,38 @@ export interface PaginatedFilms {
   pageSize: number;
 }
 
+/**
+ * One selectable option and how many films sit behind it under the filters
+ * currently applied — with this facet's own filter excluded, so the number reads
+ * as "what picking this would leave", not "what it already matched".
+ *
+ * `value` is always a string, years included, because it is the value a control
+ * round-trips through the URL.
+ */
+export interface FacetCount {
+  value: string;
+  count: number;
+}
+
+/**
+ * The browse panel's option lists, counted against the current filter set.
+ *
+ * Lists whose membership varies (categories, genres, countries, languages,
+ * years) only contain reachable values. Fixed control rows (award bodies,
+ * content types) always contain every value, counted — a chip row that dropped
+ * its members would reflow under the pointer.
+ */
+export interface FacetCounts {
+  awardBodies: FacetCount[];
+  categories: FacetCount[];
+  awardYears: FacetCount[];
+  contentTypes: FacetCount[];
+  genres: FacetCount[];
+  releaseYears: FacetCount[];
+  languages: FacetCount[];
+  countries: FacetCount[];
+}
+
 export interface ApiError {
   error: string;
   code: string;

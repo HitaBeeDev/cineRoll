@@ -14,6 +14,13 @@ import { cn } from "@/lib/utils";
 const SELECT_TRIGGER_BASE =
   "h-10 rounded-md border-white/10 bg-white/[0.045] text-[12px] transition-colors hover:border-white/20 focus:ring-[#e8453c]/60 focus:ring-offset-0";
 
+export type FilterSelectOption = {
+  value: string;
+  label: string;
+  /** Films behind this option; rendered beside it, never inside the trigger. */
+  count?: number;
+};
+
 /** A filter dropdown with the shared trigger styling, content panel, and option mapping baked in. */
 export function FilterSelect({
   value,
@@ -25,7 +32,7 @@ export function FilterSelect({
 }: {
   value: string;
   onValueChange: (value: string) => void;
-  options: { value: string; label: string }[];
+  options: FilterSelectOption[];
   placeholder?: string;
   ariaLabel?: string;
   className?: string;
@@ -37,7 +44,22 @@ export function FilterSelect({
       </SelectTrigger>
       <SelectContent className="border-white/10 bg-[#101019]">
         {options.map((o) => (
-          <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+          <SelectItem
+            key={o.value}
+            value={o.value}
+            trailing={
+              o.count != null && (
+                <span
+                  data-facet-count
+                  className="font-[family-name:var(--font-geist-mono)] text-[11px] tabular-nums text-[#6f6b80] transition-opacity duration-200"
+                >
+                  {o.count.toLocaleString()}
+                </span>
+              )
+            }
+          >
+            {o.label}
+          </SelectItem>
         ))}
       </SelectContent>
     </Select>

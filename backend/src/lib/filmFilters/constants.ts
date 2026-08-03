@@ -28,3 +28,19 @@ export const FEMALE_DIRECTORS = [
 
 export const AWARD_BODY_VALUES = ["oscar", "goldenglobe", "cannes", "berlin"] as const;
 export type AwardBodyValue = (typeof AWARD_BODY_VALUES)[number];
+
+/**
+ * The content-type facet values, in chip order. `types` is a derived set that
+ * crosses two axes, so these are not simply the distinct values in the column —
+ * they are the five buckets the UI offers, each resolved by `contentTypeSql`
+ * (notably "movie" = feature, excluding shorts). Enumerated here rather than
+ * queried because a facet the catalogue happens to have zero of this week must
+ * still appear as an option showing 0, not vanish.
+ */
+export const CONTENT_TYPE_FACET_VALUES = [
+  "movie",
+  "short",
+  "animation",
+  "documentary",
+  "tv-series",
+] as const;

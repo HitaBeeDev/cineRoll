@@ -4,7 +4,14 @@ import * as React from "react";
 import { Check, ChevronDown, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export type MultiSelectOption = { value: string; label: string };
+export type MultiSelectOption = {
+  value: string;
+  label: string;
+  /** Films behind this option under the other active filters. Omitted where the
+   *  caller has no count to show; never rendered as 0, since an option that would
+   *  return nothing is dropped from the list before it gets here. */
+  count?: number;
+};
 
 /** How many labels the trigger spells out before collapsing the rest into "+N". */
 const SUMMARY_LABEL_LIMIT = 2;
@@ -159,7 +166,18 @@ export function MultiSelect({
         >
           {isSelected && <Check className="h-3 w-3 text-[#0c0c14]" />}
         </span>
-        <span className="min-w-0 truncate">{opt.label}</span>
+        <span className="min-w-0 flex-1 truncate">{opt.label}</span>
+        {opt.count != null && (
+          <span
+            data-facet-count
+            className={cn(
+              "shrink-0 font-[family-name:var(--font-geist-mono)] text-[11px] tabular-nums transition-opacity duration-200",
+              isSelected ? "text-[#a9a5bc]" : "text-[#6f6b80]",
+            )}
+          >
+            {opt.count.toLocaleString()}
+          </span>
+        )}
       </button>
     );
   };

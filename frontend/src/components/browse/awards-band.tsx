@@ -1,9 +1,10 @@
-import type { FilterState } from "@cineroll/types";
+import type { FacetCounts, FilterState } from "@cineroll/types";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { PanelBand } from "@/components/browse/panel-band";
 import { CONTROL_WIDTH, PanelSection } from "@/components/browse/panel-section";
 import { FilterSelect } from "@/components/browse/filter-select";
 import { ThresholdChips } from "@/components/browse/threshold-chips";
+import { reachableOptions, reachableYears } from "@/lib/browse/facet-options";
 import { ANY_YEAR } from "@/lib/browse/year-range";
 import type { SetFilters } from "@/lib/browse/filter-descriptors";
 
@@ -19,15 +20,20 @@ export function AwardsBand({
   filters,
   setFilters,
   activeCount,
-  categories,
-  awardYears,
+  counts,
 }: {
   filters: FilterState;
   setFilters: SetFilters;
   activeCount: number;
-  categories: string[];
-  awardYears: number[];
+  counts: FacetCounts;
 }) {
+  // The category list is what the facet counts change most. It used to hold every
+  // category of every ceremony at once, so with Cannes selected most of it was a
+  // choice that could only return nothing; it now holds what the selected
+  // ceremonies actually award, each with the films behind it.
+  const categoryOptions = reachableOptions(counts.categories, filters.categories, (c) => c);
+  const awardYears = reachableYears(counts.awardYears, filters.awardYear);
+
   return (
     <PanelBand label="Awards" activeCount={activeCount}>
       <PanelSection label="Award Category">
@@ -38,7 +44,7 @@ export function AwardsBand({
           placeholder="Any category"
           searchable
           triggerClassName={CONTROL_WIDTH}
-          options={categories.map((c) => ({ value: c, label: c }))}
+          options={categoryOptions}
         />
       </PanelSection>
 
@@ -53,7 +59,11 @@ export function AwardsBand({
           className={`${CONTROL_WIDTH} text-[#b8b5c8]`}
           options={[
             { value: ANY_YEAR, label: "Any year" },
-            ...awardYears.map((y) => ({ value: String(y), label: String(y) })),
+            ...awardYears.map(({ year, count }) => ({
+              value: String(year),
+              label: String(year),
+              count,
+            })),
           ]}
         />
       </PanelSection>

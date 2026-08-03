@@ -1,4 +1,4 @@
-import type { FilterState } from "@cineroll/types";
+import type { FacetCounts, FilterState } from "@cineroll/types";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { formatGenre } from "@/lib/format";
 import { PanelBand } from "@/components/browse/panel-band";
@@ -9,6 +9,7 @@ import { FilterSelect } from "@/components/browse/filter-select";
 import { ThresholdChips } from "@/components/browse/threshold-chips";
 import { CONTENT_TYPE_OPTIONS } from "@/lib/browse/options";
 import { toggleValue } from "@/lib/browse/filter-updates";
+import { countOf, reachableOptions, reachableYears } from "@/lib/browse/facet-options";
 import {
   ANY_YEAR,
   decadeToYearRange,
@@ -36,18 +37,26 @@ export function FilmBand({
   filters,
   setFilters,
   activeCount,
-  genres,
-  releaseYears,
+  counts,
 }: {
   filters: FilterState;
   setFilters: SetFilters;
   activeCount: number;
-  genres: string[];
-  releaseYears: number[];
+  counts: FacetCounts;
 }) {
-  const decades = decadesFromYears(releaseYears);
+  const genreOptions = reachableOptions(counts.genres, filters.genres, formatGenre);
+
+  // Both bounds read from one list, so both are protected: narrowing one must
+  // never strand the other on a year that has left the list holding it.
+  const releaseYears = reachableYears(counts.releaseYears, filters.yearMin, filters.yearMax);
+  const decades = decadesFromYears(releaseYears.map(({ year }) => year));
   const selectedDecade = yearRangeToDecade(filters);
-  const yearOptions = releaseYears.map((y) => ({ value: String(y), label: String(y) }));
+  // No per-year counts on the bounds: these pick the ends of a range, and a count
+  // for the single year 1994 says nothing about what "1994 – 2003" would return.
+  const yearOptions = releaseYears.map(({ year }) => ({
+    value: String(year),
+    label: String(year),
+  }));
 
   return (
     <PanelBand label="Film" activeCount={activeCount}>
@@ -60,6 +69,7 @@ export function FilmBand({
               key={value}
               multiple
               active={filters.contentTypes.includes(value)}
+              count={countOf(counts.contentTypes, value)}
               onClick={() =>
                 setFilters({ contentTypes: toggleValue(filters.contentTypes, value), page: 1 })
               }
@@ -78,7 +88,7 @@ export function FilmBand({
           placeholder="Any genre"
           searchable
           triggerClassName={CONTROL_WIDTH}
-          options={genres.map((g) => ({ value: g, label: formatGenre(g) }))}
+          options={genreOptions}
         />
       </PanelSection>
 

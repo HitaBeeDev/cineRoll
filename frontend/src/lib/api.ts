@@ -37,6 +37,7 @@ export {
   fetchOnboardingTasteCards,
 } from "./api/films-client";
 export { fetchPickOfDay } from "./api/pick-of-day-client";
+export { EMPTY_FACET_COUNTS, fetchFacetCounts } from "./api/facets-client";
 export {
   fetchAwardYears,
   fetchCategories,

@@ -1,7 +1,41 @@
+import type { FacetCounts, FilterState } from "@cineroll/types";
 import { API_URL } from "./constants";
+import { filtersToParams } from "./filters-to-params";
 import { getCachedPromise } from "./promise-cache";
 
 type StringFacet = "genres" | "countries" | "languages" | "categories";
+
+/** Empty lists — what a caller renders from before the first response lands, or if it fails. */
+export const EMPTY_FACET_COUNTS: FacetCounts = {
+  awardBodies: [],
+  categories: [],
+  awardYears: [],
+  contentTypes: [],
+  genres: [],
+  releaseYears: [],
+  languages: [],
+  countries: [],
+};
+
+/**
+ * Every browse facet's reachable options and their counts under `filters`.
+ *
+ * Unlike the fixed lists below this is filter-dependent, so it is deliberately
+ * uncached here: the response changes with every filter edit, and the server
+ * already caches it per filter set.
+ */
+export async function fetchFacetCounts(
+  filters: Partial<FilterState>,
+  signal: AbortSignal,
+): Promise<FacetCounts> {
+  const params = filtersToParams(filters);
+  const response = await fetch(`${API_URL}/api/films/facets?${params}`, {
+    cache: "no-store",
+    signal,
+  });
+  if (!response.ok) throw new Error(`facets ${response.status}`);
+  return response.json() as Promise<FacetCounts>;
+}
 
 export function fetchGenres(): Promise<string[]> {
   return fetchStringFacet("genres");

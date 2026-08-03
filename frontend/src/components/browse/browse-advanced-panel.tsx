@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import { AwardsBand } from "@/components/browse/awards-band";
 import { FilmBand } from "@/components/browse/film-band";
 import { DetailsBand } from "@/components/browse/details-band";
-import type { BrowseFacetOptions } from "@/hooks/useBrowseFacetOptions";
+import type { BrowseFacets } from "@/hooks/useBrowseFacetCounts";
 import { countFiltersByBand, type SetFilters } from "@/lib/browse/filter-descriptors";
 
 const plural = (n: number, word: string) => `${n.toLocaleString()} ${word}${n === 1 ? "" : "s"}`;
@@ -34,14 +34,13 @@ export function BrowseAdvancedPanel({
 }: {
   filters: FilterState;
   setFilters: SetFilters;
-  facets: BrowseFacetOptions;
+  facets: BrowseFacets;
   /** Films matching the current filters; null until the first result lands. */
   resultCount: number | null;
   isCounting: boolean;
   activeCount: number;
   onClearAll: () => void;
 }) {
-  const { genres, countries, languages, categories, awardYears, releaseYears } = facets;
   const bandCounts = countFiltersByBand(filters);
 
   return (
@@ -51,22 +50,19 @@ export function BrowseAdvancedPanel({
           filters={filters}
           setFilters={setFilters}
           activeCount={bandCounts.awards}
-          categories={categories}
-          awardYears={awardYears}
+          counts={facets.counts}
         />
         <FilmBand
           filters={filters}
           setFilters={setFilters}
           activeCount={bandCounts.film}
-          genres={genres}
-          releaseYears={releaseYears}
+          counts={facets.counts}
         />
         <DetailsBand
           filters={filters}
           setFilters={setFilters}
           activeCount={bandCounts.details}
-          languages={languages}
-          countries={countries}
+          counts={facets.counts}
         />
 
         {/* The panel covers the results header, so the count comes to the filters

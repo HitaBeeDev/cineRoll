@@ -1,5 +1,6 @@
 import { Fragment } from "react";
 import { cn } from "@/lib/utils";
+import { compactCount } from "@/lib/browse/facet-options";
 
 /**
  * Same bordered look as SegmentedControl, but every item is an independent
@@ -12,7 +13,15 @@ export function ToggleStrip({
   label,
   className,
 }: {
-  items: { key: string; label: string; active: boolean; onToggle: () => void; groupStart?: boolean }[];
+  items: {
+    key: string;
+    label: string;
+    active: boolean;
+    onToggle: () => void;
+    groupStart?: boolean;
+    /** Films behind this toggle under the other filters. `0` disables it. */
+    count?: number;
+  }[];
   ariaLabel: string;
   /** Visible caption above the strip — without it users must infer what the row means. */
   label?: string;
@@ -30,29 +39,48 @@ export function ToggleStrip({
         aria-label={ariaLabel}
         className="flex w-full max-w-full flex-wrap items-center gap-1 rounded-md border border-white/10 bg-white/[0.025] p-1 sm:w-auto xl:flex-nowrap"
       >
-        {items.map((item, i) => (
-          <Fragment key={item.key}>
-            {i > 0 && (
-              <span
-                aria-hidden
-                className={cn("w-px shrink-0", item.groupStart ? "mx-1 h-5 bg-white/20" : "h-4 bg-white/10")}
-              />
-            )}
-            <button
-              type="button"
-              aria-pressed={item.active}
-              onClick={item.onToggle}
-              className={cn(
-                "h-8 shrink-0 rounded px-3 font-[family-name:var(--font-geist-mono)] text-[12px] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40",
-                item.active
-                  ? "bg-[#e8453c] text-[#09090f] shadow-[0_0_24px_rgba(232,69,60,0.24)]"
-                  : "text-[#7f7a91] hover:bg-white/[0.055] hover:text-[#f1eff8]",
+        {items.map((item, i) => {
+          // Same rule as the filter chips: dim in place, never remove — and an
+          // active toggle stays clickable so it can always be turned back off.
+          const unreachable = item.count === 0 && !item.active;
+          return (
+            <Fragment key={item.key}>
+              {i > 0 && (
+                <span
+                  aria-hidden
+                  className={cn("w-px shrink-0", item.groupStart ? "mx-1 h-5 bg-white/20" : "h-4 bg-white/10")}
+                />
               )}
-            >
-              {item.label}
-            </button>
-          </Fragment>
-        ))}
+              <button
+                type="button"
+                aria-pressed={item.active}
+                disabled={unreachable}
+                onClick={item.onToggle}
+                className={cn(
+                  "h-8 shrink-0 rounded px-3 font-[family-name:var(--font-geist-mono)] text-[12px] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40",
+                  item.active
+                    ? "bg-[#e8453c] text-[#09090f] shadow-[0_0_24px_rgba(232,69,60,0.24)]"
+                    : unreachable
+                      ? "cursor-not-allowed text-[#4b4757]"
+                      : "text-[#7f7a91] hover:bg-white/[0.055] hover:text-[#f1eff8]",
+                )}
+              >
+                {item.label}
+                {item.count != null && (
+                  <span
+                    data-facet-count
+                    className={cn(
+                      "ml-1.5 text-[11px] tabular-nums transition-opacity duration-200",
+                      item.active ? "text-[#09090f]/60" : unreachable ? "text-[#413e4c]" : "text-[#615d70]",
+                    )}
+                  >
+                    {compactCount(item.count)}
+                  </span>
+                )}
+              </button>
+            </Fragment>
+          );
+        })}
       </div>
     </div>
   );

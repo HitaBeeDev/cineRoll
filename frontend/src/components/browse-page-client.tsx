@@ -8,7 +8,7 @@ import { BrowseFilterBar } from "@/components/browse/browse-filter-bar";
 import { BrowseResultsHeader } from "@/components/browse/browse-results-header";
 import { BrowseGrid } from "@/components/browse/browse-grid";
 import { useBrowseFilters } from "@/hooks/useBrowseFilters";
-import { useBrowseFacetOptions } from "@/hooks/useBrowseFacetOptions";
+import { useBrowseFacetCounts } from "@/hooks/useBrowseFacetCounts";
 import { useBrowseResults } from "@/hooks/useBrowseResults";
 import { useBrowseAutocomplete } from "@/hooks/useBrowseAutocomplete";
 import { useBrowseRoll } from "@/hooks/useBrowseRoll";
@@ -22,7 +22,7 @@ export function BrowsePageClient() {
   const shouldReduceMotion = useReducedMotion();
 
   const { filters, hasActiveFilters, searchDraft, setSearchDraft, setFilters, resetFilters } = useBrowseFilters();
-  const facets = useBrowseFacetOptions();
+  const facets = useBrowseFacetCounts(filters);
   const { result, status, slowLoad, firstGridPaint, retry } = useBrowseResults(filters);
   const autocomplete = useBrowseAutocomplete(filters.search, setFilters);
   const { rolling, roll } = useBrowseRoll(filters);
