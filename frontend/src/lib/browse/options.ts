@@ -1,4 +1,4 @@
-import type { AwardBodyFilter, FilterState } from "@cineroll/types";
+import type { AwardBodyFilter } from "@cineroll/types";
 
 // 25 tiles fill the 5-column desktop browse grid cleanly, so the last row does
 // not end one card short on the common laptop/desktop layout.
@@ -33,20 +33,7 @@ export const STATUS_OPTIONS: { value: AwardStatus; label: string }[] = [
   { value: "nom", label: "Nominated" },
 ];
 
-/**
- * Wins and nominations are separate orderings because they rank differently:
- * a film nominated eleven times that won once leads on one and trails on the
- * other, and "Awards" alone could only ever answer one of the two. Each still
- * breaks its ties on the other number.
- *
- * The order/newest pair is not duplicated as "Oldest" — the direction toggle
- * beside this select reverses whichever ordering is chosen.
- */
-export const SORT_OPTIONS: { value: FilterState["sort"]; label: string }[] = [
-  { value: "wins",   label: "Most wins" },
-  { value: "noms",   label: "Most nominations" },
-  { value: "newest", label: "Newest" },
-  { value: "rating", label: "IMDb" },
-  { value: "rt",     label: "RT" },
-  { value: "title",  label: "A-Z" },
-];
+// Sorting moved to `sort-choices.ts`, where each option is a direction as well
+// as a column: wins and nominations rank differently (a film nominated eleven
+// times that won once leads on one and trails on the other), and each ordering
+// only has to be listed in the directions that mean anything.

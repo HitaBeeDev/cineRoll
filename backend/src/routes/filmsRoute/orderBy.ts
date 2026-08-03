@@ -24,7 +24,18 @@ export function filmListOrderBy(
   search?: ListQuery["search"],
   awardBodies: AwardBodyValue[] = [],
 ): Prisma.Sql {
-  const base = baseOrderBy(sort, sortOrder, awardBodies);
+  // "Relevance" is not a column, it is the tiers below leading the ordering —
+  // which they already do for every sort while a query is present. What the
+  // option actually chooses is the tiebreaker *inside* a tier, and it picks the
+  // most decorated of an equally-good set of matches. Without a query there is
+  // nothing to be relevant to, so it degrades to the catalogue's default order
+  // rather than silently ranking by nothing.
+  //
+  // Direction is fixed too: reversing relevance would ask for the worst match
+  // first, which is not a thing anyone wants ordered.
+  const base = sort === "relevance"
+    ? baseOrderBy(search ? "wins" : "newest", "desc", awardBodies)
+    : baseOrderBy(sort, sortOrder, awardBodies);
 
   // When the user is searching, relevance to the query leads and the chosen
   // sort (Awards / Rating / …) becomes the tiebreaker within a relevance tier.

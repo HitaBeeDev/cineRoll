@@ -1,6 +1,7 @@
 import type { AwardBodyFilter, FilterState } from "@cineroll/types";
 import { DEFAULT_FILTERS } from "@/hooks/useFilters";
 import { filtersToParams } from "@/lib/api";
+import { resolveSortChoice } from "@/lib/browse/sort-choices";
 
 const VALID_AWARD_BODIES: AwardBodyFilter[] = ["oscar", "goldenglobe", "cannes", "berlin"];
 
@@ -15,7 +16,9 @@ function listParam(value: string | null): string[] {
   return value ? value.split(",").map((s) => s.trim()).filter(Boolean) : [];
 }
 
-const SORT_VALUES: FilterState["sort"][] = ["newest", "title", "rating", "rt", "wins", "noms"];
+const SORT_VALUES: FilterState["sort"][] = [
+  "relevance", "newest", "title", "rating", "rt", "wins", "noms",
+];
 
 /**
  * The sort from a link. `awards` is the pre-split name for `wins` — it ordered
@@ -27,6 +30,27 @@ function parseSort(value: string | null): FilterState["sort"] {
   if (value === "awards") return "wins";
 
   return SORT_VALUES.find((sort) => sort === value) ?? DEFAULT_FILTERS.sort;
+}
+
+/**
+ * The ordering a link asks for, snapped to one the sort control can name.
+ *
+ * Two links need fixing on the way in. `sortOrder=asc` on a sort with no listed
+ * reversal is a combination the old direction toggle could produce and the new
+ * select cannot say — it would render "Most wins" over the films that won least.
+ * And `sort=relevance` without a `search` is relevant to nothing; the API
+ * degrades it to the default ordering, so the control has to agree.
+ */
+function parseSortChoice(params: URLSearchParams): Pick<FilterState, "sort" | "sortOrder"> {
+  const sort = parseSort(params.get("sort"));
+  const order = params.get("sortOrder");
+  const sortOrder = order === "asc" || order === "desc" ? order : DEFAULT_FILTERS.sortOrder;
+
+  if (sort === "relevance" && !params.get("search")?.trim()) {
+    return { sort: DEFAULT_FILTERS.sort, sortOrder: DEFAULT_FILTERS.sortOrder };
+  }
+
+  return resolveSortChoice(sort, sortOrder);
 }
 
 export function filtersFromSearchParams(params: URLSearchParams): FilterState {
@@ -48,8 +72,6 @@ export function filtersFromSearchParams(params: URLSearchParams): FilterState {
   const winsMax        = numberParam(params.get("winsMax"));
   const rtScoreMin     = numberParam(params.get("rtScoreMin"));
   const page           = numberParam(params.get("page"));
-  const sort           = params.get("sort");
-  const sortOrder      = params.get("sortOrder");
 
   // The genres arrive under one of two names, and which one they came under IS
   // the mode: `genreAll` means the film must carry every one of them.
@@ -93,8 +115,7 @@ export function filtersFromSearchParams(params: URLSearchParams): FilterState {
     imdbTopMoviesOnly: params.get("imdbTopMoviesOnly") === "true",
     imdbTopTvOnly:     params.get("imdbTopTvOnly")     === "true",
     excludeWatched:    params.get("excludeWatched")    === "true",
-    sort: parseSort(sort),
-    sortOrder: sortOrder === "asc" || sortOrder === "desc" ? sortOrder : DEFAULT_FILTERS.sortOrder,
+    ...parseSortChoice(params),
     page:          page && page > 0 ? page : DEFAULT_FILTERS.page,
   };
 }

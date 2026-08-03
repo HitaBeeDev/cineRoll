@@ -75,7 +75,9 @@ export const listQueryBaseSchema = z.object({
   // `awards` is the pre-split name for `wins` — it ordered by wins and broke ties
   // on nominations, which is exactly what `wins` does — kept so shared links and
   // the stats page's leaderboard link keep resolving.
-  sort: z.enum(["newest", "title", "rating", "rt", "awards", "wins", "noms"]).default("newest"),
+  sort: z
+    .enum(["relevance", "newest", "title", "rating", "rt", "awards", "wins", "noms"])
+    .default("newest"),
   sortOrder: z.enum(["asc", "desc"]).default("desc"),
   sample: z.enum(["onboarding"]).optional(),
   page: z.coerce.number().int().min(1).default(1),

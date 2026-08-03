@@ -79,8 +79,13 @@ export interface RollEvent {
 export type AwardBody = "oscar" | "goldenglobe" | "cannes" | "berlin" | "all";
 /** A concrete award corpus selectable in the multi-select award filter (no "all" sentinel — an empty array means "all"). */
 export type AwardBodyFilter = Exclude<AwardBody, "all">;
-/** `awards` is the pre-split name for `wins`; the API still accepts it. */
-export type FilmSort = "newest" | "title" | "rating" | "rt" | "awards" | "wins" | "noms";
+/**
+ * `awards` is the pre-split name for `wins`; the API still accepts it.
+ * `relevance` is only an ordering while a search query is present — it ranks by
+ * how well the title matches, and degrades to the default ordering without one.
+ */
+export type FilmSort =
+  | "relevance" | "newest" | "title" | "rating" | "rt" | "awards" | "wins" | "noms";
 export type SortOrder = "asc" | "desc";
 
 export interface FilterState {

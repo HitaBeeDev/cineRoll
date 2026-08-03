@@ -25,6 +25,7 @@ export function FilterSelect({
   placeholder,
   ariaLabel,
   className,
+  align = "start",
 }: {
   value: string;
   onValueChange: (value: string) => void;
@@ -32,13 +33,25 @@ export function FilterSelect({
   placeholder?: string;
   ariaLabel?: string;
   className?: string;
+  /** Which trigger edge the menu hangs from — `end` for a right-aligned control. */
+  align?: "start" | "end";
 }) {
   return (
     <Select value={value} onValueChange={onValueChange}>
       <SelectTrigger {...useFieldLabelling(ariaLabel)} className={cn(SELECT_TRIGGER_BASE, className)}>
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
-      <SelectContent className="border-white/10 bg-[#101019]">
+      {/* Below the trigger by preference, and only above it when the viewport
+          genuinely has no room — a menu that flips up over the controls it was
+          opened from reads as a misplacement rather than a fit. `collisionPadding`
+          leaves a gutter so "fits" doesn't mean "flush against the edge". */}
+      <SelectContent
+        side="bottom"
+        align={align}
+        sideOffset={6}
+        collisionPadding={12}
+        className="border-white/10 bg-[#101019]"
+      >
         {options.map((o) => (
           <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
         ))}

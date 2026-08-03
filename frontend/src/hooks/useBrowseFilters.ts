@@ -8,6 +8,7 @@ import { trackEvent } from "@/lib/analytics";
 import { filtersFromSearchParams, serializeFilters } from "@/lib/browse/filter-params";
 import { DEFAULT_FILTERS } from "@/hooks/useFilters";
 import { anyFilterActive } from "@/lib/browse/filter-descriptors";
+import { withSearchSort } from "@/lib/browse/sort-choices";
 
 /**
  * The URL query string is the single source of truth for browse filters:
@@ -44,9 +45,13 @@ export function useBrowseFilters() {
     setSearchDraft(filters.search);
   }
 
+  // Every edit funnels through here — the search box, the autocomplete, the
+  // chips, the panel — which is why the search/sort coupling lives at this
+  // level rather than on the input: picking a suggestion has to move the order
+  // the same way typing does.
   const commitFilters = useCallback(
     (updates: Partial<FilterState>) => {
-      const next = { ...filters, ...updates };
+      const next = { ...filters, ...withSearchSort(filters, updates) };
       const query = serializeFilters(next);
       router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
     },
@@ -58,14 +63,13 @@ export function useBrowseFilters() {
   // survives the reset. At the default order there is nothing to carry, and the
   // URL goes back to bare.
   const resetFilters = useCallback(() => {
-    const keepsSort =
-      filters.sort !== DEFAULT_FILTERS.sort || filters.sortOrder !== DEFAULT_FILTERS.sortOrder;
+    // …with one exception: a reset clears the search, and Relevance without a
+    // query is an ordering relative to nothing. It goes back with the search.
+    const sort = filters.sort === "relevance" ? DEFAULT_FILTERS.sort : filters.sort;
+    const sortOrder = filters.sort === "relevance" ? DEFAULT_FILTERS.sortOrder : filters.sortOrder;
+    const keepsSort = sort !== DEFAULT_FILTERS.sort || sortOrder !== DEFAULT_FILTERS.sortOrder;
     const query = keepsSort
-      ? serializeFilters({
-          ...DEFAULT_FILTERS,
-          sort: filters.sort,
-          sortOrder: filters.sortOrder,
-        })
+      ? serializeFilters({ ...DEFAULT_FILTERS, sort, sortOrder })
       : "";
 
     router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
