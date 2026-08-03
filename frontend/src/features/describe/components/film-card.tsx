@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { MouseEvent } from "react";
 import type { RollFilm } from "@/lib/api";
-import { filmGenreList, formatContentType, formatGenre } from "@/lib/format";
+import { formatContentType, formatGenres } from "@/lib/format";
 import { getFilmAwards } from "../get-film-awards";
 import { trackNaturalRollClick } from "../natural-roll-analytics";
 import { FilmAwardBadges } from "./film-award-badges";
@@ -14,8 +14,7 @@ type FilmCardProps = {
 
 export function FilmCard({ film, shouldPreventNavigation }: FilmCardProps) {
   const imageUrl = film.posterUrl ?? film.backdropUrl;
-  const contentType = formatContentType(film);
-  const genres = filmGenreList(film);
+  const typeAndGenres = [formatContentType(film), formatGenres(film)].filter(Boolean).join(" · ");
 
   function handleClick(event: MouseEvent<HTMLAnchorElement>) {
     if (shouldPreventNavigation?.()) {
@@ -54,20 +53,15 @@ export function FilmCard({ film, shouldPreventNavigation }: FilmCardProps) {
         <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase leading-4 tracking-widest text-[#b6b6c6]">
           {film.year}{film.director ? ` · ${film.director}` : ""}
         </p>
+        {/* Type and genres read as one quiet line here, not as chips — this card
+            is a fifth of a row wide, and a chip per genre would stack three deep
+            over the poster. */}
+        {typeAndGenres && (
+          <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase leading-4 tracking-widest text-[#8f8fa2]">
+            {typeAndGenres}
+          </p>
+        )}
         <div className="flex flex-wrap gap-1.5">
-          {contentType && (
-            <span className="rounded-full border border-[#F5F5F0]/35 bg-[#09090f]/70 px-2 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-widest text-[#F5F5F0]">
-              {contentType}
-            </span>
-          )}
-          {genres.map((genre) => (
-            <span
-              key={genre}
-              className="rounded-full border border-[#F5F5F0]/20 bg-[#09090f]/70 px-2 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#F5F5F0]"
-            >
-              {formatGenre(genre)}
-            </span>
-          ))}
           {film.imdbRating != null && (
             <span className="rounded-full border border-[#e8453c]/35 bg-[#09090f]/70 px-2 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-widest text-[#e8453c]">
               IMDb {film.imdbRating.toFixed(1)}
