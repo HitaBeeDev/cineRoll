@@ -1,6 +1,6 @@
 import type { FilterState } from "@cineroll/types";
 import { formatYearRange, hasYearRange } from "@/lib/browse/year-range";
-import { awardBodyLabel, contentTypeLabel, countryLabel, languageLabel, sortLabel } from "@/lib/browse/labels";
+import { awardBodyLabel, contentTypeLabel, countryLabel, languageLabel } from "@/lib/browse/labels";
 import { formatGenre } from "@/lib/format";
 
 export type ActiveChip = { key: string; label: string; onRemove: () => void };
@@ -14,6 +14,13 @@ export type SetFilters = (u: Partial<FilterState>) => void;
 export type FilterBand = "primary" | "awards" | "film" | "details";
 
 /**
+ * Sorting is deliberately absent. It reorders the result set without changing
+ * which films are in it, so listing it here made every derived number wrong at
+ * once: switching to "Newest" lit the Advanced badge, added a "Sort: Newest" ✕
+ * chip to a row that otherwise means "constraints you can remove", enabled Clear
+ * all, and reported one more active filter beside a total that had not moved.
+ * The sort control in the results header is where sorting is shown and changed.
+ *
  * Single source of truth for "what does a non-default filter look like." Each
  * descriptor knows whether the filter is active (vs. its default in
  * DEFAULT_FILTERS), which band its control sits in, and how to render/clear its
@@ -74,8 +81,6 @@ const FILTER_DESCRIPTORS: FilterDescriptor[] = [
     toChips: (_f, set) => [{ key: "imdbMovies", label: "IMDb Top 250 Films", onRemove: () => set({ imdbTopMoviesOnly: false, page: 1 }) }] },
   { band: "primary", isActive: (f) => f.imdbTopTvOnly,
     toChips: (_f, set) => [{ key: "imdbTv", label: "IMDb Top 250 TV", onRemove: () => set({ imdbTopTvOnly: false, page: 1 }) }] },
-  { band: "primary", isActive: (f) => f.sort !== "awards",
-    toChips: (f, set) => [{ key: "sort", label: `Sort: ${sortLabel(f.sort)}`, onRemove: () => set({ sort: "awards", page: 1 }) }] },
   { band: "film", isActive: (f) => f.imdbRatingMin > 0,
     toChips: (f, set) => [{ key: "imdb", label: `IMDb ${f.imdbRatingMin}+`, onRemove: () => set({ imdbRatingMin: 0, page: 1 }) }] },
   { band: "film", isActive: (f) => f.rtScoreMin > 0,

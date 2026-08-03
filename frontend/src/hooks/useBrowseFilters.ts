@@ -5,6 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { FilterState } from "@cineroll/types";
 import { trackEvent } from "@/lib/analytics";
 import { filtersFromSearchParams, serializeFilters } from "@/lib/browse/filter-params";
+import { DEFAULT_FILTERS } from "@/hooks/useFilters";
 import { anyFilterActive } from "@/lib/browse/filter-descriptors";
 
 /**
@@ -42,9 +43,23 @@ export function useBrowseFilters() {
     [filters, pathname, router],
   );
 
+  // Clearing filters must not silently reorder the results: sorting is not one of
+  // the things "Clear all filters" is offering to clear, so a chosen order
+  // survives the reset. At the default order there is nothing to carry, and the
+  // URL goes back to bare.
   const resetFilters = useCallback(() => {
-    router.replace(pathname, { scroll: false });
-  }, [pathname, router]);
+    const keepsSort =
+      filters.sort !== DEFAULT_FILTERS.sort || filters.sortOrder !== DEFAULT_FILTERS.sortOrder;
+    const query = keepsSort
+      ? serializeFilters({
+          ...DEFAULT_FILTERS,
+          sort: filters.sort,
+          sortOrder: filters.sortOrder,
+        })
+      : "";
+
+    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+  }, [filters.sort, filters.sortOrder, pathname, router]);
 
   // Search is tracked separately by the autocomplete hook (one event per settled
   // query, not one per keystroke), so it is excluded from filter_apply here.

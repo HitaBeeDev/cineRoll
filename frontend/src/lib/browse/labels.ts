@@ -1,5 +1,5 @@
-import type { AwardBodyFilter, FilterState } from "@cineroll/types";
-import { AWARD_BODY_OPTIONS, CONTENT_TYPE_OPTIONS, SORT_OPTIONS } from "@/lib/browse/options";
+import type { AwardBodyFilter } from "@cineroll/types";
+import { AWARD_BODY_OPTIONS, CONTENT_TYPE_OPTIONS } from "@/lib/browse/options";
 
 /**
  * Display-only overrides for verbose/awkward country names. The stored value
@@ -38,8 +38,4 @@ export function awardBodyLabel(awardBody: AwardBodyFilter): string {
 
 export function contentTypeLabel(value: string): string {
   return CONTENT_TYPE_OPTIONS.find((o) => o.value === value)?.label ?? value;
-}
-
-export function sortLabel(sort: FilterState["sort"]): string {
-  return SORT_OPTIONS.find((option) => option.value === sort)?.label ?? "Newest";
 }
