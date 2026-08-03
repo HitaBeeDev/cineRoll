@@ -29,14 +29,14 @@ export function CardIdentity({
           bordered box that does nothing on click reads as a broken button. */}
       <div className="flex flex-col gap-1.5">
         <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5">
-          <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.2em] text-[#9494a6]">
-            {meta}
-          </p>
           {contentType && (
             <span className="rounded-[3px] border border-white/25 bg-white/[0.07] px-2 py-[3px] font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.16em] text-[#dcdce6]">
               {contentType}
             </span>
           )}
+          <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.2em] text-[#9494a6]">
+            {meta}
+          </p>
         </div>
 
         {genres && (
