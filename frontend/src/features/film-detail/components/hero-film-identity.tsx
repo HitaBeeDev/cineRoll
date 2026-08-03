@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Sparkles } from "lucide-react";
-import { filmGenreList, formatFilmLength, formatLanguage, formatSeriesEpisodes } from "@/lib/format";
+import { filmGenreList, formatContentType, formatFilmLength, formatLanguage, formatSeriesEpisodes } from "@/lib/format";
 import { displayTitle, nameToSlug } from "@/lib/utils";
 import { getTitleFontSize } from "../title-font-size";
 import { HeroGenreTag } from "./hero-genre-tag";
@@ -54,10 +54,15 @@ export function HeroFilmIdentity({
           .join(" · ")}
         language={formatLanguage(film.language)}
       />
-      {/* Every genre, not a top-3 slice — the tags wrap, so there is no reason
-          to hide two thirds of what a title actually is. */}
-      {filmGenreList(film).length > 0 && (
+      {/* Type first, then every genre — not a top-3 slice, since the tags wrap
+          and there is no reason to hide two thirds of what a title actually is. */}
+      {(formatContentType(film) || filmGenreList(film).length > 0) && (
         <div className="mt-4 flex flex-wrap items-center gap-2">
+          {formatContentType(film) && (
+            <span className="inline-flex items-center rounded-[3px] border border-white/30 bg-white/[0.08] px-2.5 py-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em] text-white/90 backdrop-blur-sm">
+              {formatContentType(film)}
+            </span>
+          )}
           {filmGenreList(film).map((genre) => (
             <HeroGenreTag key={genre} genre={genre} />
           ))}

@@ -28,15 +28,17 @@ export function PickRatingsRow({ film }: { film: PickOfDayFilm }) {
           🍅 No RT Score
         </span>
       )}
+      {/* Rectangular mono tags — the same type-then-genres row the roll card and
+          the film-detail hero use, so one title reads the same on every surface. */}
       {contentType && (
-        <span className="rounded-full border border-zinc-500 px-2.5 py-0.5 text-xs font-semibold text-zinc-200">
+        <span className="rounded-[3px] border border-white/25 bg-white/[0.07] px-2 py-[3px] font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.16em] text-[#dcdce6]">
           {contentType}
         </span>
       )}
       {filmGenreList(film).map((g) => (
         <span
           key={g}
-          className="rounded-full border border-zinc-700 px-2.5 py-0.5 text-xs text-zinc-300"
+          className="rounded-[3px] border border-white/[0.09] bg-white/[0.03] px-2 py-[3px] font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.16em] text-[#8b8b9d]"
         >
           {formatGenre(g)}
         </span>

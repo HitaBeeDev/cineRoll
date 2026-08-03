@@ -15,13 +15,11 @@ export function CardIdentity({
   film: RollFilm;
   awardHighlights: AwardHighlight[];
 }) {
-  // The facts strip stays three short tokens — year · type · length. Genres are
-  // deliberately NOT in here: at this letter-spacing a full genre run wraps and
-  // orphans the runtime on a second line. They get their own tag row below,
-  // the same way the film-detail hero handles them.
-  const meta = [formatFilmYear(film), formatContentType(film), formatFilmLength(film)]
-    .filter(Boolean)
-    .join(" · ");
+  // The facts strip holds only the two numbers — year and length. What the title
+  // IS (type, then genres) is a row of tags below: at this letter-spacing a run
+  // of words in the strip wraps and orphans the runtime on a second line.
+  const meta = [formatFilmYear(film), formatFilmLength(film)].filter(Boolean).join(" · ");
+  const contentType = formatContentType(film);
   const genres = filmGenreList(film);
 
   return (
@@ -45,8 +43,16 @@ export function CardIdentity({
         </p>
       )}
 
-      {genres.length > 0 && (
+      {(contentType || genres.length > 0) && (
         <div className="mt-0.5 flex flex-wrap items-center gap-1.5">
+          {/* The type leads the row and carries a brighter border than the
+              genres beside it — it says what the title is, they say what it's
+              about. */}
+          {contentType && (
+            <span className="rounded-[3px] border border-white/25 bg-white/[0.07] px-2 py-[3px] font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.16em] text-[#dcdce6]">
+              {contentType}
+            </span>
+          )}
           {genres.map((genre) => (
             <span
               key={genre}

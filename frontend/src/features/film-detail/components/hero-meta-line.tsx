@@ -1,19 +1,13 @@
-import { formatContentType, formatFilmYear } from "@/lib/format";
+import { formatFilmYear } from "@/lib/format";
 import { MetaDot } from "./meta-dot";
 import type { HeroMetaLineProps } from "../component-props";
 
+// The type is NOT here — it leads the tag row below, where it reads as a label
+// rather than as one more fact in a run of them.
 export function HeroMetaLine(props: HeroMetaLineProps) {
-  const contentType = formatContentType(props.film);
-
   return (
     <div className="mt-4 flex flex-wrap items-center gap-x-2.5 gap-y-1.5 font-[family-name:var(--font-geist-mono)] text-[13px] tracking-[0.02em] text-white/65">
       <span>{formatFilmYear(props.film)}</span>
-      {contentType && (
-        <>
-          <MetaDot />
-          <span>{contentType}</span>
-        </>
-      )}
       {props.runtime && (
         <>
           <MetaDot />
