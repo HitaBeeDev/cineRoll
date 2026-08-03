@@ -46,6 +46,8 @@ const FACET_OWNED_KEYS: Record<FacetKey, readonly OwnedFilterKey[]> = {
   tvTypes: ["tvType"],
   // One control writes both, so one control has to clear both: `genre` is the
   // OR-semantics facet, `genreAll` the AND-semantics one over the same column.
+  // countGenres puts `genreAll` back afterwards when it is set — under AND the
+  // other selections are the context an option must survive, not rivals to it.
   genres: ["genre", "genreAll"],
   releaseYears: ["yearMin", "yearMax"],
   languages: ["language"],

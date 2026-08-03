@@ -33,11 +33,9 @@ type AggregateRow = Record<string, number>;
 
 /** Counts for values held in a TEXT[] column (genres, origin countries). */
 async function countArrayColumn(
-  query: ListQuery,
-  facet: "genres" | "countries",
+  scoped: ListQuery,
   column: string,
 ): Promise<FacetCount[]> {
-  const scoped = scopeQueryToFacet(query, facet);
   const arrayColumn = Prisma.raw(`"Film"."${column}"`);
 
   const rows = await prisma.$queryRaw<CountRow[]>`
@@ -51,14 +49,35 @@ async function countArrayColumn(
   return toFacetCounts(rows);
 }
 
+/**
+ * Genres, counted the way the genre control is currently combining them.
+ *
+ * In the default OR mode the picked genres are scoped away like any other facet:
+ * each option answers "how many films would this ADD".
+ *
+ * Match-all mode inverts what the other selections are. They are no longer rival
+ * options to be counted independently — they are the context every remaining
+ * option has to survive, so `genreAll` is put back after the scoping. Without
+ * that, the list is filtered by "are there any Horror films here" when the
+ * question the user is about to ask is "are there any romantic musical Horror
+ * films here" — and it would keep offering options that empty the grid. With it,
+ * an option that cannot combine drops out of the list before it can be picked.
+ *
+ * The genres already selected are unaffected either way: they are what
+ * `genreAll` matches on, so they count themselves, and the client keeps a
+ * selected value in the list whatever its count.
+ */
 export function countGenres(query: ListQuery): Promise<FacetCount[]> {
-  return countArrayColumn(query, "genres", "genres");
+  const scoped = scopeQueryToFacet(query, "genres");
+  const matchAll = query.genreAll !== undefined && query.genreAll.length > 0;
+
+  return countArrayColumn(matchAll ? { ...scoped, genreAll: query.genreAll } : scoped, "genres");
 }
 
 export function countCountries(query: ListQuery): Promise<FacetCount[]> {
   // originCountries, not countries — the facet has to count what the filter
   // matches on, or every number here would be a promise the filter breaks.
-  return countArrayColumn(query, "countries", "originCountries");
+  return countArrayColumn(scopeQueryToFacet(query, "countries"), "originCountries");
 }
 
 export async function countLanguages(query: ListQuery): Promise<FacetCount[]> {
