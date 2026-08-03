@@ -1,25 +1,10 @@
-import Link from "next/link";
-import {
-  contentTypeFilterValue,
-  filmGenreList,
-  formatContentType,
-  formatCreditLabel,
-  formatFilmLength,
-  formatFilmYear,
-  formatGenre,
-} from "@/lib/format";
+import { formatContentType, formatCreditLabel, formatFilmLength, formatFilmYear, formatGenres } from "@/lib/format";
 import { AwardsPanel } from "@/components/home/film-card/awards-panel";
 import type { AwardHighlight } from "@/components/home/film-card/awards";
 import type { RollFilm } from "@/lib/api";
 
-/** Shared chip shell. Every chip here is a browse link, so they all get the
- *  same hover/focus treatment — a bordered box that does nothing on click is
- *  the one thing this row must never be. */
-const CHIP_BASE =
-  "inline-flex items-center rounded-[3px] border px-2 py-[3px] font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.16em] transition-colors hover:border-[#e8453c]/45 hover:bg-[#e8453c]/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]";
-
 /**
- * The identity column beside the poster: meta line → title → credit →
+ * The identity column beside the poster: facts strip → genres → title → credit →
  * Recognition. The award record leads as the headline credential — it's why the
  * film is in CineRoll — above the plot and ratings that merely support it.
  */
@@ -30,19 +15,36 @@ export function CardIdentity({
   film: RollFilm;
   awardHighlights: AwardHighlight[];
 }) {
-  // The facts strip holds only the two numbers — year and length. What the title
-  // IS (type, then genres) is a row of tags below: at this letter-spacing a run
-  // of words in the strip wraps and orphans the runtime on a second line.
   const meta = [formatFilmYear(film), formatFilmLength(film)].filter(Boolean).join(" · ");
+  // What the title IS — only the surprising kinds (series, short, documentary,
+  // animation) get a label; a plain feature film returns "".
   const contentType = formatContentType(film);
-  const contentTypeFilter = contentTypeFilterValue(film);
-  const genres = filmGenreList(film);
+  const genres = formatGenres(film);
 
   return (
     <div className="flex min-w-0 flex-1 flex-col gap-2">
-      <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.2em] text-[#9494a6]">
-        {meta}
-      </p>
+      {/* The facts a viewer decides on — year, length, and what kind of thing
+          this is — read as one group above the title. The type keeps a border
+          because it names a category; the genres below are plain text, since a
+          bordered box that does nothing on click reads as a broken button. */}
+      <div className="flex flex-col gap-1.5">
+        <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5">
+          <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.2em] text-[#9494a6]">
+            {meta}
+          </p>
+          {contentType && (
+            <span className="rounded-[3px] border border-white/25 bg-white/[0.07] px-2 py-[3px] font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.16em] text-[#dcdce6]">
+              {contentType}
+            </span>
+          )}
+        </div>
+
+        {genres && (
+          <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-[#9292a4]">
+            {genres}
+          </p>
+        )}
+      </div>
 
       {/* Title — the payoff of the roll, at display scale so it reads as the
           loudest element in the result column. */}
@@ -61,33 +63,6 @@ export function CardIdentity({
           <span className="tracking-[0.2em] text-[#82828f]">{formatCreditLabel(film)}</span>{" "}
           {film.director}
         </p>
-      )}
-
-      {(contentType || genres.length > 0) && (
-        <div className="mt-0.5 flex flex-wrap items-center gap-1.5">
-          {/* The type leads the row and carries a brighter border than the
-              genres beside it — it says what the title is, they say what it's
-              about. Both filter browse to themselves. */}
-          {contentType && contentTypeFilter && (
-            <Link
-              href={`/browse?contentType=${encodeURIComponent(contentTypeFilter)}`}
-              className={`${CHIP_BASE} border-white/25 bg-white/[0.07] text-[#dcdce6]`}
-            >
-              {contentType}
-            </Link>
-          )}
-          {genres.map((genre) => (
-            <Link
-              key={genre}
-              // The link carries the stored genre (what the browse filter matches
-              // on); only the label is shortened.
-              href={`/browse?genre=${encodeURIComponent(genre)}`}
-              className={`${CHIP_BASE} border-white/[0.12] bg-white/[0.03] text-[#9d9db0]`}
-            >
-              {formatGenre(genre)}
-            </Link>
-          ))}
-        </div>
       )}
 
       {awardHighlights.length > 0 && <AwardsPanel highlights={awardHighlights} />}
