@@ -10,7 +10,6 @@ import {
   ANY_YEAR,
   decadeToYearRange,
   decadesFromYears,
-  hasYearRange,
   parseYear,
   setYearMax,
   setYearMin,
@@ -212,38 +211,31 @@ export function BrowseAdvancedPanel({
               sitting in unrelated grid cells. A chip writes a whole decade into the
               bounds; editing the bounds by hand releases the chip. */}
           <div className="grid grid-cols-1 gap-x-8 gap-y-6 sm:col-span-2 sm:grid-cols-3 lg:col-span-3 xl:col-span-4">
-            <PanelSection label="Decade" className="sm:col-span-2">
-              <ChipGroup label="Decade">
-                <FilterChip
-                  active={!hasYearRange(filters)}
-                  onClick={() => setFilters({ yearMin: null, yearMax: null, page: 1 })}
-                >
-                  Any
-                </FilterChip>
-                {decades.map((decade) => (
-                  <FilterChip
-                    key={decade}
-                    active={selectedDecade === decade}
-                    // Clicking the active decade clears it, matching every other
-                    // single-choice chip row in this panel.
-                    onClick={() =>
-                      setFilters({
-                        ...(selectedDecade === decade
-                          ? { yearMin: null, yearMax: null }
-                          : decadeToYearRange(decade)),
-                        page: 1,
-                      })
-                    }
-                  >
-                    {decade}s
-                  </FilterChip>
-                ))}
-              </ChipGroup>
+            <PanelSection label="Decade">
+              <FilterSelect
+                value={selectedDecade != null ? String(selectedDecade) : ANY_YEAR}
+                // Picking a decade writes its ten years into the range below;
+                // "Any decade" clears the bounds outright.
+                onValueChange={(val) => {
+                  const decade = parseYear(val);
+                  setFilters({
+                    ...(decade == null ? { yearMin: null, yearMax: null } : decadeToYearRange(decade)),
+                    page: 1,
+                  });
+                }}
+                placeholder="Any decade"
+                ariaLabel="Decade"
+                className="w-full text-[#b8b5c8]"
+                options={[
+                  { value: ANY_YEAR, label: "Any decade" },
+                  ...decades.map((d) => ({ value: String(d), label: `${d}s` })),
+                ]}
+              />
             </PanelSection>
 
             {/* The heading and the dash convey the range, so the selects need no
                 From/To captions (kept as aria-labels). */}
-            <PanelSection label="Year Range">
+            <PanelSection label="Year Range" className="sm:col-span-2">
               <div className="flex items-center gap-2">
                 <FilterSelect
                   value={filters.yearMin != null ? String(filters.yearMin) : ANY_YEAR}
