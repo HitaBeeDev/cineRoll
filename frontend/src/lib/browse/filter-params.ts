@@ -37,11 +37,16 @@ export function filtersFromSearchParams(params: URLSearchParams): FilterState {
   const sort           = params.get("sort");
   const sortOrder      = params.get("sortOrder");
 
+  // The genres arrive under one of two names, and which one they came under IS
+  // the mode: `genreAll` means the film must carry every one of them.
+  const genresAll = listParam(params.get("genreAll"));
+  const genres = genresAll.length > 0 ? genresAll : listParam(params.get("genre"));
+
   // Browse intentionally reads only the filters its UI can set. The remaining
-  // FilterState fields (director, certificate, tvType, imdbRatingMax) belong to
-  // other surfaces (e.g. /ask-ai) and have no browse control, so they're left
-  // at their DEFAULT_FILTERS values rather than parsed into a filter nobody here
-  // could see or clear.
+  // FilterState fields (director, certificate, imdbRatingMax) belong to other
+  // surfaces (e.g. /ask-ai) and have no browse control, so they're left at their
+  // DEFAULT_FILTERS values rather than parsed into a filter nobody here could
+  // see or clear.
   return {
     ...DEFAULT_FILTERS,
     search:           params.get("search")   ?? "",
@@ -55,10 +60,12 @@ export function filtersFromSearchParams(params: URLSearchParams): FilterState {
     awardYear: null,
     awardYearMin,
     awardYearMax,
-    genres:        listParam(params.get("genre")),
+    genres,
+    genresMatchAll: genresAll.length > 0,
     languages:     listParam(params.get("language")),
     countries:     listParam(params.get("country")),
     contentTypes:  listParam(params.get("contentType")),
+    tvType:        params.get("tvType") ?? "",
     runtimeMin,
     runtimeMax,
     yearMin,

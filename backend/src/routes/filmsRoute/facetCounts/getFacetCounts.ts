@@ -11,6 +11,7 @@ import {
   countGenres,
   countLanguages,
   countReleaseYears,
+  countTvTypes,
 } from "./facetCountQueries";
 
 /** Five minutes, matching the list route's public cache on the same data. */
@@ -19,11 +20,11 @@ const FACET_COUNTS_TTL_MS = 5 * 60 * 1000;
 /**
  * Every browse facet's options and counts for one filter set, in one round trip.
  *
- * The eight queries are independent — each scopes the filters differently — so
+ * The nine queries are independent — each scopes the filters differently — so
  * they run concurrently and the response costs roughly the slowest one. They are
  * all read-only aggregates over a catalogue that changes on a seed, so a short
  * TTL absorbs the repeat traffic from a user working through the panel: toggling
- * a filter off and back on is a cache hit, not eight more scans.
+ * a filter off and back on is a cache hit, not nine more scans.
  */
 export function getFacetCounts(query: ListQuery): Promise<FacetCounts> {
   return cache.getOrSet(cacheKeys.facetCounts(facetSignature(query)), FACET_COUNTS_TTL_MS, run);
@@ -34,6 +35,7 @@ export function getFacetCounts(query: ListQuery): Promise<FacetCounts> {
       categories,
       awardYears,
       contentTypes,
+      tvTypes,
       genres,
       releaseYears,
       languages,
@@ -43,6 +45,7 @@ export function getFacetCounts(query: ListQuery): Promise<FacetCounts> {
       countCategories(query),
       countAwardYears(query),
       countContentTypes(query),
+      countTvTypes(query),
       countGenres(query),
       countReleaseYears(query),
       countLanguages(query),
@@ -54,6 +57,7 @@ export function getFacetCounts(query: ListQuery): Promise<FacetCounts> {
       categories,
       awardYears,
       contentTypes,
+      tvTypes,
       genres,
       releaseYears,
       languages,

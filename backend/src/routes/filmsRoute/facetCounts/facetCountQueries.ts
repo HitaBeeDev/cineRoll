@@ -78,6 +78,28 @@ export async function countLanguages(query: ListQuery): Promise<FacetCount[]> {
   return toFacetCounts(rows);
 }
 
+/**
+ * What kind of television a series is — miniseries, scripted, documentary, talk
+ * show. Only series carry a `tvType`, so this list is empty for a movies-only
+ * filter set, which is exactly when the control that reads it stays hidden.
+ */
+export async function countTvTypes(query: ListQuery): Promise<FacetCount[]> {
+  const scoped = scopeQueryToFacet(query, "tvTypes");
+  const where = buildWhereClause(scoped, [
+    Prisma.sql`"Film"."tvType" IS NOT NULL AND "Film"."tvType" <> ''`,
+  ]);
+
+  const rows = await prisma.$queryRaw<CountRow[]>`
+    SELECT "Film"."tvType" AS "value", COUNT(*)::INT AS "count"
+    FROM "Film"
+    ${where}
+    GROUP BY "Film"."tvType"
+    ORDER BY "Film"."tvType" ASC
+  `;
+
+  return toFacetCounts(rows);
+}
+
 export async function countReleaseYears(query: ListQuery): Promise<FacetCount[]> {
   const scoped = scopeQueryToFacet(query, "releaseYears");
   const where = buildWhereClause(scoped, [Prisma.sql`"Film"."year" IS NOT NULL`]);

@@ -9,6 +9,7 @@ export const FACET_KEYS = [
   "categories",
   "awardYears",
   "contentTypes",
+  "tvTypes",
   "genres",
   "releaseYears",
   "languages",
@@ -24,6 +25,7 @@ type OwnedFilterKey =
   | "awardYearMin"
   | "awardYearMax"
   | "contentType"
+  | "tvType"
   | "genre"
   | "genreAll"
   | "yearMin"
@@ -41,6 +43,7 @@ const FACET_OWNED_KEYS: Record<FacetKey, readonly OwnedFilterKey[]> = {
   // One control writing two bounds, so both go — same as the release-year pair.
   awardYears: ["awardYearMin", "awardYearMax"],
   contentTypes: ["contentType"],
+  tvTypes: ["tvType"],
   // One control writes both, so one control has to clear both: `genre` is the
   // OR-semantics facet, `genreAll` the AND-semantics one over the same column.
   genres: ["genre", "genreAll"],

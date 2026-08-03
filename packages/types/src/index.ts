@@ -103,6 +103,13 @@ export interface FilterState {
   awardYearMax: number | null;
   languages: string[];
   genres: string[];
+  /**
+   * How the selected genres combine. false (the default) is OR — any of them,
+   * the `genre` query param. true is AND — every one of them, the `genreAll`
+   * param, which is what makes "romantic musical drama" a single askable thing
+   * rather than a list of three separate moods.
+   */
+  genresMatchAll: boolean;
   countries: string[];
   contentTypes: string[];
   // Runtime bounds in minutes, inclusive; null on either side means "no bound".
@@ -186,6 +193,9 @@ export interface FacetCounts {
   categories: CategoryFacetCount[];
   awardYears: FacetCount[];
   contentTypes: FacetCount[];
+  /** Kinds of television (Miniseries, Scripted, Documentary …) — empty for a
+   *  filter set that matches no series, which is when its control is hidden. */
+  tvTypes: FacetCount[];
   genres: FacetCount[];
   releaseYears: FacetCount[];
   languages: FacetCount[];

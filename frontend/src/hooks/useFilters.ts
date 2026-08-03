@@ -17,6 +17,7 @@ export const DEFAULT_FILTERS: FilterState = {
   awardYearMax: null,
   languages: [],
   genres: [],
+  genresMatchAll: false,
   countries: [],
   contentTypes: [],
   runtimeMin: null,

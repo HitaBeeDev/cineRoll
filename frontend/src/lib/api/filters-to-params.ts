@@ -35,7 +35,9 @@ function appendFacetFilters(
   setNumber(params, "awardYear", filters.awardYear);
   setNumber(params, "awardYearMin", filters.awardYearMin);
   setNumber(params, "awardYearMax", filters.awardYearMax);
-  setList(params, "genre", filters.genres);
+  // One selection, two params: `genre` is OR, `genreAll` is AND. Only ever one of
+  // them is written — sending both would AND the list against itself.
+  setList(params, filters.genresMatchAll ? "genreAll" : "genre", filters.genres);
   setList(params, "language", filters.languages);
   setList(params, "country", filters.countries);
   setList(params, "contentType", filters.contentTypes);

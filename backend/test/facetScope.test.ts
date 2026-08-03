@@ -33,6 +33,16 @@ describe("scopeQueryToFacet", () => {
     expect(scopeQueryToFacet(fullQuery(), "awardYears").awardYearMax).toBeUndefined();
     expect(scopeQueryToFacet(fullQuery(), "awardBodies").awardBody).toBeUndefined();
     expect(scopeQueryToFacet(fullQuery(), "contentTypes").contentType).toBeUndefined();
+    expect(scopeQueryToFacet(fullQuery({ tvType: "Miniseries" }), "tvTypes").tvType).toBeUndefined();
+  });
+
+  // The kind-of-series list is counted under everything else, so picking
+  // "Miniseries" must not be what decides which kinds are on offer.
+  it("keeps the content type when counting TV types", () => {
+    const scoped = scopeQueryToFacet(fullQuery({ contentType: "tv-series", tvType: "Miniseries" }), "tvTypes");
+
+    expect(scoped.contentType).toEqual(["tv-series"]);
+    expect(scoped.tvType).toBeUndefined();
   });
 
   // Both write the same column from one control, so leaving either behind would

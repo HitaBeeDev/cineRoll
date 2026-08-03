@@ -11,6 +11,7 @@ export const EMPTY_FACET_COUNTS: FacetCounts = {
   categories: [],
   awardYears: [],
   contentTypes: [],
+  tvTypes: [],
   genres: [],
   releaseYears: [],
   languages: [],

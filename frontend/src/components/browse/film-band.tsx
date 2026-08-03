@@ -6,6 +6,7 @@ import { CONTROL_WIDTH, PanelSection } from "@/components/browse/panel-section";
 import { ChipGroup } from "@/components/browse/chip-group";
 import { FilterChip } from "@/components/browse/filter-chip";
 import { FilterSelect } from "@/components/browse/filter-select";
+import { SegmentedControl } from "@/components/browse/segmented-control";
 import { ThresholdChips } from "@/components/browse/threshold-chips";
 import { CONTENT_TYPE_OPTIONS } from "@/lib/browse/options";
 import { toggleValue } from "@/lib/browse/filter-updates";
@@ -25,6 +26,17 @@ import type { SetFilters } from "@/lib/browse/filter-descriptors";
 const IMDB_OPTIONS = [6, 6.5, 7, 7.5, 8, 8.5, 9].map((r) => ({ value: r, label: `${r}+` }));
 
 const RT_OPTIONS = [50, 60, 70, 80, 90, 95].map((s) => ({ value: s, label: `${s}%+` }));
+
+/** The content-type value the TV Type control hangs off (see CONTENT_TYPE_OPTIONS). */
+const TV_SERIES_TYPE = "tv-series";
+
+/** Select-option value standing in for "no constraint" — a select can't hold "". */
+const ANY_TV_TYPE = "_any";
+
+const GENRE_MATCH_OPTIONS: { value: "any" | "all"; label: string }[] = [
+  { value: "any", label: "Any of these" },
+  { value: "all", label: "All of these" },
+];
 
 const RUNTIME_MAX_OPTIONS = [
   { value: 90, label: "≤ 90m" },
@@ -62,6 +74,26 @@ export function FilmBand({
   collapsible?: boolean;
 }) {
   const genreOptions = reachableOptions(counts.genres, filters.genres, formatGenre);
+  const tvTypeOptions = reachableOptions(
+    counts.tvTypes,
+    filters.tvType ? [filters.tvType] : [],
+    (value) => value,
+  );
+
+  // The kind-of-television control only exists while television is in the result
+  // set. Shown next to a movies-only selection it would be a dropdown that can
+  // only empty the grid, and hiding it is also what makes the content-type chip
+  // the thing that reveals it.
+  const showTvType = filters.contentTypes.includes(TV_SERIES_TYPE);
+
+  /** Leaving TV behind takes the TV-only filter with it, rather than leaving a
+   *  constraint running under a control nobody can see any more. */
+  const toggleContentType = (value: string) => {
+    const contentTypes = toggleValue(filters.contentTypes, value);
+    const droppedTv = value === TV_SERIES_TYPE && !contentTypes.includes(TV_SERIES_TYPE);
+
+    setFilters({ contentTypes, ...(droppedTv ? { tvType: "" } : {}), page: 1 });
+  };
 
   // Both bounds read from one list, so both are protected: narrowing one must
   // never strand the other on a year that has left the list holding it.
@@ -93,9 +125,7 @@ export function FilmBand({
               key={value}
               active={filters.contentTypes.includes(value)}
               count={countOf(counts.contentTypes, value)}
-              onClick={() =>
-                setFilters({ contentTypes: toggleValue(filters.contentTypes, value), page: 1 })
-              }
+              onClick={() => toggleContentType(value)}
             >
               {label}
             </FilterChip>
@@ -103,16 +133,46 @@ export function FilmBand({
         </ChipGroup>
       </PanelSection>
 
+      {/* Two genres can be asked for two ways and the difference is the whole
+          question: Romance OR Musical is a wide net, Romance AND Musical is a
+          romantic musical. The switch appears only once a second genre makes the
+          distinction real — before that both readings return the same films, and
+          a control with no effect is one more thing to work out. */}
       <PanelSection label="Genre">
-        <MultiSelect
-          selected={filters.genres}
-          onChange={(vals) => setFilters({ genres: vals, page: 1 })}
-          placeholder="Any genre"
-          searchable
-          triggerClassName={CONTROL_WIDTH}
-          options={genreOptions}
-        />
+        <div className={`flex flex-col gap-2 ${CONTROL_WIDTH}`}>
+          <MultiSelect
+            selected={filters.genres}
+            onChange={(vals) => setFilters({ genres: vals, page: 1 })}
+            placeholder="Any genre"
+            searchable
+            triggerClassName="w-full"
+            options={genreOptions}
+          />
+
+          {filters.genres.length > 1 && (
+            <SegmentedControl
+              options={GENRE_MATCH_OPTIONS}
+              value={filters.genresMatchAll ? "all" : "any"}
+              onChange={(mode) => setFilters({ genresMatchAll: mode === "all", page: 1 })}
+              ariaLabel="How the selected genres combine"
+              neutralValue="any"
+            />
+          )}
+        </div>
       </PanelSection>
+
+      {showTvType && (
+        <PanelSection label="TV Type" hint="kind of series">
+          <FilterSelect
+            value={filters.tvType || ANY_TV_TYPE}
+            onValueChange={(value) =>
+              setFilters({ tvType: value === ANY_TV_TYPE ? "" : value, page: 1 })
+            }
+            className={`${CONTROL_WIDTH} text-[#b8b5c8]`}
+            options={[{ value: ANY_TV_TYPE, label: "Any kind" }, ...tvTypeOptions]}
+          />
+        </PanelSection>
+      )}
 
       {/* Time — when it is from, and how much of yours it takes. One heading for
           the era, because there is one filter: yearMin/yearMax. The decade select

@@ -64,6 +64,27 @@ function facetChips<T extends string>(
   }));
 }
 
+/**
+ * Genres, as one chip or several depending on how they combine.
+ *
+ * In the default OR mode each genre is its own constraint and gets its own
+ * removable chip. Match-all is a single question — "romantic musical drama" —
+ * and three separate chips would render it as the three-way OR it is not; so it
+ * becomes one chip that reads the way the filter runs, and removing it drops the
+ * whole phrase. Individual genres are still removable in the picker itself.
+ */
+function genreChips(f: FilterState, set: SetFilters): ActiveChip[] {
+  if (f.genresMatchAll && f.genres.length > 1) {
+    return [{
+      key: "genre-all",
+      label: f.genres.map(formatGenre).join(" + "),
+      onRemove: () => set({ genres: [], page: 1 }),
+    }];
+  }
+
+  return facetChips("genre", f.genres, formatGenre, (genres) => ({ genres }), set);
+}
+
 const FILTER_DESCRIPTORS: FilterDescriptor[] = [
   { band: "primary", isActive: (f) => !!f.search.trim(),
     toChips: (f, set) => [{ key: "search", label: `"${f.search.trim()}"`, onRemove: () => set({ search: "", page: 1 }) }] },
@@ -77,8 +98,7 @@ const FILTER_DESCRIPTORS: FilterDescriptor[] = [
     toChips: (f, set) => [f.winnerOnly
       ? { key: "won", label: "Winner", onRemove: () => set({ winnerOnly: false, page: 1 }) }
       : { key: "nom", label: "Nominated", onRemove: () => set({ nominatedOnly: false, page: 1 }) }] },
-  { band: "film", isActive: (f) => f.genres.length > 0,
-    toChips: (f, set) => facetChips("genre", f.genres, formatGenre, (genres) => ({ genres }), set) },
+  { band: "film", isActive: (f) => f.genres.length > 0, toChips: genreChips },
   { band: "details", isActive: (f) => f.languages.length > 0,
     toChips: (f, set) => facetChips("language", f.languages, languageLabel, (languages) => ({ languages }), set) },
   { band: "details", isActive: (f) => f.countries.length > 0,
@@ -95,6 +115,8 @@ const FILTER_DESCRIPTORS: FilterDescriptor[] = [
     }] },
   { band: "film", isActive: (f) => f.contentTypes.length > 0,
     toChips: (f, set) => facetChips("type", f.contentTypes, contentTypeLabel, (contentTypes) => ({ contentTypes }), set) },
+  { band: "film", isActive: (f) => !!f.tvType,
+    toChips: (f, set) => [{ key: "tvType", label: f.tvType, onRemove: () => set({ tvType: "", page: 1 }) }] },
   { band: "primary", isActive: (f) => f.imdbTopMoviesOnly,
     toChips: (_f, set) => [{ key: "imdbMovies", label: "IMDb Top 250 Films", onRemove: () => set({ imdbTopMoviesOnly: false, page: 1 }) }] },
   { band: "primary", isActive: (f) => f.imdbTopTvOnly,
