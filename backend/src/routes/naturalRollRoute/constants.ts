@@ -24,6 +24,6 @@ export const RELAX_PRIORITY = [
   "category",
   "language",
   "awardYear",
-  "decadeMin",
-  "decadeMax",
+  "yearMin",
+  "yearMax",
 ] as const;

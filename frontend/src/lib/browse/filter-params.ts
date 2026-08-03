@@ -17,8 +17,10 @@ function listParam(value: string | null): string[] {
 
 export function filtersFromSearchParams(params: URLSearchParams): FilterState {
   const awardYear      = numberParam(params.get("awardYear"));
-  const decadeMin      = numberParam(params.get("decadeMin"));
-  const decadeMax      = numberParam(params.get("decadeMax"));
+  // decadeMin/decadeMax are the pre-rename names for the same year bounds; links
+  // shared or bookmarked before the rename must still resolve.
+  const yearMin        = numberParam(params.get("yearMin")) ?? numberParam(params.get("decadeMin"));
+  const yearMax        = numberParam(params.get("yearMax")) ?? numberParam(params.get("decadeMax"));
   const imdbRatingMin  = numberParam(params.get("imdbRatingMin"));
   const runtimeMax     = numberParam(params.get("runtimeMax"));
   const nominationCount = numberParam(params.get("nominationCount"));
@@ -48,8 +50,8 @@ export function filtersFromSearchParams(params: URLSearchParams): FilterState {
     countries:     listParam(params.get("country")),
     contentTypes:  listParam(params.get("contentType")),
     runtimeMax,
-    decadeMin:     decadeMin ?? DEFAULT_FILTERS.decadeMin,
-    decadeMax:     decadeMax ?? DEFAULT_FILTERS.decadeMax,
+    yearMin,
+    yearMax,
     nominationCount,
     imdbRatingMin: imdbRatingMin ?? DEFAULT_FILTERS.imdbRatingMin,
     rtScoreMin:    rtScoreMin ?? DEFAULT_FILTERS.rtScoreMin,

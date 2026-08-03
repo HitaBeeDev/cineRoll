@@ -7,6 +7,7 @@ import {
   fetchCountries,
   fetchGenres,
   fetchLanguages,
+  fetchReleaseYears,
 } from "@/lib/api";
 
 export type BrowseFacetOptions = {
@@ -15,6 +16,8 @@ export type BrowseFacetOptions = {
   languages: string[];
   categories: string[];
   awardYears: number[];
+  /** Every release year present in the catalogue — the year-range selects are built from it. */
+  releaseYears: number[];
 };
 
 /** Loads the static facet option lists that populate the advanced filter panel. */
@@ -24,6 +27,7 @@ export function useBrowseFacetOptions(): BrowseFacetOptions {
   const [languages,  setLanguages]  = useState<string[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [awardYears, setAwardYears] = useState<number[]>([]);
+  const [releaseYears, setReleaseYears] = useState<number[]>([]);
 
   useEffect(() => {
     void fetchGenres().then(setGenres);
@@ -31,7 +35,8 @@ export function useBrowseFacetOptions(): BrowseFacetOptions {
     void fetchLanguages().then(setLanguages);
     void fetchCategories().then(setCategories);
     void fetchAwardYears().then(setAwardYears);
+    void fetchReleaseYears().then(setReleaseYears);
   }, []);
 
-  return { genres, countries, languages, categories, awardYears };
+  return { genres, countries, languages, categories, awardYears, releaseYears };
 }

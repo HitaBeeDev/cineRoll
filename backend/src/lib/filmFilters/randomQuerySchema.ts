@@ -1,14 +1,13 @@
 import { z } from "zod";
 
-import { listQueryBaseSchema } from "./listQuerySchema";
+import { listQueryBaseSchema, withYearRange } from "./listQuerySchema";
 import { excludedFilmIdsParam } from "./queryParams/excludedFilmIdsParam";
 import { laneBanditFeedbackParam } from "./queryParams/laneBanditFeedbackParam";
 import { laneBanditParam } from "./queryParams/laneBanditParam";
 import { queryFlagSchema } from "./queryParams/queryFlagSchema";
 import { rerollPenaltyParam } from "./queryParams/rerollPenaltyParam";
-import { decadeRangeError, validDecadeRange } from "./queryRefinements";
 
-export const randomQuerySchema = listQueryBaseSchema.extend({
+export const randomQueryBaseSchema = listQueryBaseSchema.extend({
   userId: z.string().trim().min(1).max(180).optional(),
   personalized: queryFlagSchema.optional(),
   excludeIds: excludedFilmIdsParam,
@@ -29,6 +28,8 @@ export const randomQuerySchema = listQueryBaseSchema.extend({
   // curated set for a given day, rolling over when the seed (a date key)
   // changes — instead of a fresh random roll per visitor.
   seed: z.string().trim().min(1).max(80).optional(),
-}).refine(validDecadeRange, decadeRangeError);
+});
+
+export const randomQuerySchema = withYearRange(randomQueryBaseSchema);
 
 export type RandomQuery = z.infer<typeof randomQuerySchema>;

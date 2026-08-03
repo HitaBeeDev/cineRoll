@@ -1,5 +1,4 @@
 import type { FilterState } from "@cineroll/types";
-import { DEFAULT_DECADE_MAX, DEFAULT_DECADE_MIN } from "./constants";
 
 export function filtersToParams(
   filters: Partial<FilterState>,
@@ -45,8 +44,8 @@ function appendRangeFilters(
   filters: Partial<FilterState>,
 ): void {
   setNumber(params, "runtimeMax", filters.runtimeMax);
-  setNonDefaultNumber(params, "decadeMin", filters.decadeMin, DEFAULT_DECADE_MIN);
-  setNonDefaultNumber(params, "decadeMax", filters.decadeMax, DEFAULT_DECADE_MAX);
+  setNumber(params, "yearMin", filters.yearMin);
+  setNumber(params, "yearMax", filters.yearMax);
   setNumber(params, "nominationCount", filters.nominationCount);
   setPositiveNumber(params, "imdbRatingMin", filters.imdbRatingMin);
   setPositiveNumber(params, "rtScoreMin", filters.rtScoreMin);
@@ -114,11 +113,3 @@ function setPositiveNumber(
   if (value != null && value > 0) params.set(key, String(value));
 }
 
-function setNonDefaultNumber(
-  params: URLSearchParams,
-  key: string,
-  value: number | null | undefined,
-  defaultValue: number,
-): void {
-  if (value != null && value !== defaultValue) params.set(key, String(value));
-}

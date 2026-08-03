@@ -15,8 +15,8 @@ export type NaturalRollFilters = {
   genreAll?: string[];
   country?: string;
   contentType?: string;
-  decadeMin?: number;
-  decadeMax?: number;
+  yearMin?: number;
+  yearMax?: number;
   runtimeMax?: number;
   imdbRatingMin?: number;
   rtScoreMin?: number;

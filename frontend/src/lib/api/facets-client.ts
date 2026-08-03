@@ -29,6 +29,16 @@ export function fetchAwardYears(): Promise<number[]> {
   }).catch(() => []);
 }
 
+export function fetchReleaseYears(): Promise<number[]> {
+  return getCachedPromise("releaseYears", async () => {
+    const response = await fetch(`${API_URL}/api/films/release-years`, {
+      cache: "force-cache",
+    });
+    if (!response.ok) throw new Error(`release-years ${response.status}`);
+    return ((await response.json()) as { releaseYears: number[] }).releaseYears;
+  }).catch(() => []);
+}
+
 function fetchStringFacet(facet: StringFacet): Promise<string[]> {
   return getCachedPromise(facet, async () => {
     const response = await fetch(`${API_URL}/api/films/${facet}`, {

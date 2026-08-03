@@ -1,8 +1,5 @@
 import type { AwardBodyFilter } from "@cineroll/types";
 
-export const DECADE_MIN = 1900;
-export const DECADE_MAX = 2030;
-
 export const AWARD_BODIES: { value: AwardBodyFilter; label: string }[] = [
   { value: "oscar", label: "Oscar" },
   { value: "goldenglobe", label: "Golden Globe" },

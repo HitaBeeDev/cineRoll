@@ -40,7 +40,7 @@ function findPeakDecade(stats: StatsResponse): number {
 function buildDecadeData(stats: StatsResponse): DecadeDatum[] {
   return stats.decadeBreakdown.map((decade) => ({
     ...decade,
-    href: `/browse?decadeMin=${decade.decade}&decadeMax=${decade.decade + 9}`,
+    href: `/browse?yearMin=${decade.decade}&yearMax=${decade.decade + 9}`,
   }));
 }
 

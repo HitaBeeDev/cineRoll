@@ -5,8 +5,8 @@ export type StructuralFilters = {
   awardBody?: string | null | undefined;
   category?: string | null | undefined;
   awardYear?: number | null | undefined;
-  decadeMin?: number | null | undefined;
-  decadeMax?: number | null | undefined;
+  yearMin?: number | null | undefined;
+  yearMax?: number | null | undefined;
   [key: string]: unknown;
 };
 

@@ -17,7 +17,7 @@ function formatAwardFilter(filters: NaturalRollFilters): string | null {
 }
 
 function formatYearFilter(filters: NaturalRollFilters): string | null {
-  const { decadeMin: min, decadeMax: max } = filters;
+  const { yearMin: min, yearMax: max } = filters;
 
   if (min !== undefined && max === min + 9 && min % 10 === 0) {
     return `${min}s`;

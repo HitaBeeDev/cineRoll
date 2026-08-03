@@ -1,6 +1,6 @@
 import type { AllowedFilterValues } from "../allowedFilterValues";
 
-export const resolveDecade = (
+export const resolveYearBound = (
   value: unknown,
   allowed: AllowedFilterValues,
 ): number | null => {

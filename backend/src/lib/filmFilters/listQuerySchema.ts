@@ -3,7 +3,14 @@ import { z } from "zod";
 import { awardBodiesParam } from "./queryParams/awardBodiesParam";
 import { createCsvParamSchema } from "./queryParams/createCsvParamSchema";
 import { queryBooleanSchema } from "./queryParams/queryBooleanSchema";
-import { decadeRangeError, validDecadeRange } from "./queryRefinements";
+import {
+  foldLegacyYearRange,
+  type LegacyYearRangeQuery,
+  validYearRange,
+  yearRangeError,
+} from "./queryRefinements";
+
+const yearBoundSchema = z.coerce.number().int().min(1800).max(2200).optional();
 
 export const listQueryBaseSchema = z.object({
   search: z.string().trim().min(1).max(120).optional(),
@@ -19,8 +26,13 @@ export const listQueryBaseSchema = z.object({
   genreAll: createCsvParamSchema(80),
   country: createCsvParamSchema(80),
   runtimeMax: z.coerce.number().int().min(1).max(1000).optional(),
-  decadeMin: z.coerce.number().int().min(1800).max(2200).optional(),
-  decadeMax: z.coerce.number().int().min(1800).max(2200).optional(),
+  // Inclusive release-year bounds. `decadeMin`/`decadeMax` are the pre-rename
+  // names for the same two comparisons, accepted so older links keep resolving
+  // and folded away before anything reads the query (see foldLegacyYearRange).
+  yearMin: yearBoundSchema,
+  yearMax: yearBoundSchema,
+  decadeMin: yearBoundSchema,
+  decadeMax: yearBoundSchema,
   nominationCount: z.coerce.number().int().min(0).max(1000).optional(),
   awardYear: z.coerce.number().int().min(1800).max(2200).optional(),
   imdbRatingMin: z.coerce.number().min(0).max(10).optional(),
@@ -44,6 +56,17 @@ export const listQueryBaseSchema = z.object({
   limit: z.coerce.number().int().min(1).max(100).default(12),
 });
 
-export const listQuerySchema = listQueryBaseSchema.refine(validDecadeRange, decadeRangeError);
+/**
+ * Seal a query schema's year bounds: fold the legacy names in, THEN validate the
+ * range — checking first would wave through `decadeMin=2000&decadeMax=1990`.
+ *
+ * Applied at the leaves rather than inside the base schema, because a transform
+ * returns a pipe and pipes can't be `.extend()`ed — random and marathon both
+ * build on the base object and seal it themselves.
+ */
+export const withYearRange = <O extends LegacyYearRangeQuery>(schema: z.ZodType<O>) =>
+  schema.transform(foldLegacyYearRange).refine(validYearRange, yearRangeError);
+
+export const listQuerySchema = withYearRange(listQueryBaseSchema);
 
 export type ListQuery = z.infer<typeof listQuerySchema>;

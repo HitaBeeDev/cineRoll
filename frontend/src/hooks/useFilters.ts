@@ -3,8 +3,6 @@
 import { useState, useCallback, useMemo } from "react";
 import type { FilterState } from "@cineroll/types";
 
-const DEFAULT_DECADE_MIN = 1900;
-const DEFAULT_DECADE_MAX = 2030;
 export const DEFAULT_FILTERS: FilterState = {
   search: "",
   person: "",
@@ -20,8 +18,8 @@ export const DEFAULT_FILTERS: FilterState = {
   countries: [],
   contentTypes: [],
   runtimeMax: null,
-  decadeMin: DEFAULT_DECADE_MIN,
-  decadeMax: DEFAULT_DECADE_MAX,
+  yearMin: null,
+  yearMax: null,
   nominationCount: null,
   imdbRatingMin: 0,
   imdbRatingMax: null,
@@ -54,8 +52,8 @@ export function computeHasActiveFilters(filters: FilterState): boolean {
     filters.countries.length > 0 ||
     filters.contentTypes.length > 0 ||
     filters.runtimeMax != null ||
-    filters.decadeMin !== DEFAULT_DECADE_MIN ||
-    filters.decadeMax !== DEFAULT_DECADE_MAX ||
+    filters.yearMin != null ||
+    filters.yearMax != null ||
     filters.nominationCount != null ||
     filters.imdbRatingMin > 0 ||
     filters.imdbRatingMax != null ||

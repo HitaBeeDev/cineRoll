@@ -35,7 +35,7 @@ export async function extractStructuralFilters(prompt: string): Promise<Stage1Fi
 // recall — the deterministic regex extraction backfills whatever the model
 // omitted, field by field (this bit in production twice: first Gemini dropped
 // "romance" entirely, then the merge lost the locally-extracted "modern" →
-// decadeMin). The model's own value wins wherever it answered — it sees
+// yearMin). The model's own value wins wherever it answered — it sees
 // context regexes can't ("not a movie") — and the local pass fills every gap.
 export function withLocalBackstop(prompt: string, filters: Stage1Filters): Stage1Filters {
   const local = extractLocalStructuralFilters(prompt);

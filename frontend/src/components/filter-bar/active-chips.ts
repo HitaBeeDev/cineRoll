@@ -1,6 +1,7 @@
 import type { FilterState } from "@cineroll/types";
 import { nameToSlug } from "@/lib/utils";
-import { DECADE_MAX, DECADE_MIN, awardBodyName } from "@/components/filter-bar/constants";
+import { awardBodyName } from "@/components/filter-bar/constants";
+import { formatYearRange, hasYearRange } from "@/lib/browse/year-range";
 
 export type ActiveFilterChip = {
   key: string;
@@ -108,12 +109,11 @@ export function getActiveFilterChips(
     });
   }
 
-  if (filters.decadeMin !== DECADE_MIN || filters.decadeMax !== DECADE_MAX) {
+  if (hasYearRange(filters)) {
     chips.push({
-      key: "decade",
-      label: `${filters.decadeMin}–${filters.decadeMax}`,
-      onRemove: () =>
-        onFiltersChange({ decadeMin: DECADE_MIN, decadeMax: DECADE_MAX, page: 1 }),
+      key: "year-range",
+      label: formatYearRange(filters),
+      onRemove: () => onFiltersChange({ yearMin: null, yearMax: null, page: 1 }),
     });
   }
 

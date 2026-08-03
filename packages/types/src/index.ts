@@ -100,8 +100,13 @@ export interface FilterState {
   countries: string[];
   contentTypes: string[];
   runtimeMax: number | null;
-  decadeMin: number;
-  decadeMax: number;
+  // Release-year bounds, inclusive; null on either side means "no bound". The
+  // Decade control is a shortcut that writes a whole decade into this one pair
+  // rather than a filter of its own, so a decade and a year range can never
+  // disagree. (Was decadeMin/decadeMax, which held years but read as decades and
+  // used 1900/2030 sentinels for "unset".)
+  yearMin: number | null;
+  yearMax: number | null;
   nominationCount: number | null;
   imdbRatingMin: number;
   imdbRatingMax: number | null;

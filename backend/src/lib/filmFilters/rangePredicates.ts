@@ -5,8 +5,8 @@ import { ListQuery } from "./listQuerySchema";
 export function rangePredicates(query: ListQuery): Prisma.Sql[] {
   return [
     ...runtimePredicates(query),
-    minimumPredicate("year", query.decadeMin),
-    maximumPredicate("year", query.decadeMax),
+    minimumPredicate("year", query.yearMin),
+    maximumPredicate("year", query.yearMax),
     ...imdbRatingPredicates(query),
     ...rtScorePredicates(query),
   ].filter((predicate): predicate is Prisma.Sql => predicate !== undefined);

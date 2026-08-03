@@ -5,11 +5,11 @@ const VALIDATED_FILTER_KEYS = new Set<string>([
   "awardYear",
   "category",
   "contentType",
-  "decadeMax",
-  "decadeMin",
   "genres",
   "genresAll",
   "language",
+  "yearMax",
+  "yearMin",
 ]);
 
 export const isValidatedFilterKey = (key: string): key is ValidatedFilterKey =>

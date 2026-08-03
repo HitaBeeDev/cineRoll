@@ -9,7 +9,7 @@ Hard constraint fields (become database filters — extract only when explicit):
 - contentType: "movie" only if user says film/movie explicitly. "series" only if user says series/show/TV explicitly.
 - awardBody: oscar, goldenglobe, cannes, or all. Only when user mentions an award.
 - winnerOnly/nominatedOnly: only when explicitly asked.
-- decadeMin/decadeMax: for explicit decades AND era words. 1990s → 1990/1999. "modern"/"recent"/"contemporary" → decadeMin 2000. "classic"/"old"/"golden age" → decadeMax 1979.
+- yearMin/yearMax: release-year bounds, for explicit decades AND era words. 1990s → 1990/1999. "modern"/"recent"/"contemporary" → yearMin 2000. "classic"/"old"/"golden age" → yearMax 1979.
 - director/person: only when user names a specific person.
 - awardYear/category: only when the user names an award category ("won best cinematography"). Praise of craft ("stunning cinematography", "great acting") is a keyword, never a category.
 - femaleDirectorOnly: only when user asks for female or woman director.

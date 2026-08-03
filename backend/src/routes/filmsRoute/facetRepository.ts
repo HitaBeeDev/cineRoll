@@ -94,3 +94,20 @@ export async function listCategories(): Promise<string[]> {
 
   return rows.map(row => row.category);
 }
+
+/**
+ * Every release year present in the catalogue, ascending. The browse year-range
+ * selects are built from this rather than a hardcoded span, so they can't offer
+ * empty years at either end (the old decade list started at 1900 for a catalogue
+ * that begins in 1925).
+ */
+export async function listReleaseYears(): Promise<number[]> {
+  const rows = await prisma.$queryRaw<{ year: number }[]>`
+    SELECT DISTINCT "Film"."year"
+    FROM "Film"
+    WHERE "Film"."year" IS NOT NULL
+    ORDER BY "Film"."year" ASC
+  `;
+
+  return rows.map(row => row.year);
+}

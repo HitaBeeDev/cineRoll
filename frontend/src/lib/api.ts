@@ -43,6 +43,7 @@ export {
   fetchCountries,
   fetchGenres,
   fetchLanguages,
+  fetchReleaseYears,
 } from "./api/facets-client";
 export {
   fetchAutocomplete,

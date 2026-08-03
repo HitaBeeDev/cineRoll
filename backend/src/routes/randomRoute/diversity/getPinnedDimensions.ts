@@ -4,7 +4,7 @@ import type { PinnedDimensions } from "./types";
 export const getPinnedDimensions = (query: RandomQuery): PinnedDimensions => ({
   genre: hasValues(query.genre),
   contentType: hasValues(query.contentType),
-  decade: query.decadeMin != null || query.decadeMax != null,
+  decade: query.yearMin != null || query.yearMax != null,
   director: query.director != null,
 });
 

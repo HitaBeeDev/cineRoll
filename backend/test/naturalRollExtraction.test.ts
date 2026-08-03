@@ -62,7 +62,7 @@ describe("natural roll extraction — required vs preferred genres", () => {
     expect(filters.resultCount).toBe(1);
     expect(filters.requiredGenres).toEqual(expect.arrayContaining(["Romance", "Music", "Drama"]));
     // "modern" is an era, not a mood.
-    expect(filters.decadeMin).toBe(2000);
+    expect(filters.yearMin).toBe(2000);
   });
 
   it("keeps series vs movie as a deterministic constraint", () => {

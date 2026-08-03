@@ -8,6 +8,7 @@ import {
   listCountries,
   listGenres,
   listLanguages,
+  listReleaseYears,
   listTvTypes,
 } from "./facetRepository";
 
@@ -41,6 +42,11 @@ facetRouter.get("/countries", async (_req, res) => {
 facetRouter.get("/award-years", async (_req, res) => {
   setPublicCache(res, 3600);
   res.json({ awardYears: await listAwardYears() });
+});
+
+facetRouter.get("/release-years", async (_req, res) => {
+  setPublicCache(res, 3600);
+  res.json({ releaseYears: await listReleaseYears() });
 });
 
 facetRouter.get("/categories", async (_req, res) => {

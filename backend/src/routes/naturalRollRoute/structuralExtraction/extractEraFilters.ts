@@ -1,16 +1,16 @@
 import type { Stage1Filters } from "../schemas";
 
-type EraFilters = Pick<Stage1Filters, "decadeMin" | "decadeMax">;
+type EraFilters = Pick<Stage1Filters, "yearMin" | "yearMax">;
 
 export const extractEraFilters = (prompt: string): EraFilters => {
   const lastYears = prompt.match(/\blast\s+(\d{1,2})\s+years?\b/i);
   if (lastYears) return createLastYearsRange(Number(lastYears[1]));
 
   if (/\b(modern|recent|contemporary|new(er)?)\b/i.test(prompt)) {
-    return { decadeMin: 2000 };
+    return { yearMin: 2000 };
   }
   if (/\b(classic|old|golden age|vintage)\b/i.test(prompt)) {
-    return { decadeMax: 1979 };
+    return { yearMax: 1979 };
   }
 
   return extractExplicitEra(prompt);
@@ -24,21 +24,21 @@ const extractExplicitEra = (prompt: string): EraFilters => {
   if (shorthand) return createShorthandDecadeRange(Number(shorthand[1]));
 
   const afterYear = matchFourDigitYear(prompt, /\b(?:after|since|from)\s+(18|19|20)\d{2}\b/i);
-  if (afterYear) return { decadeMin: afterYear };
+  if (afterYear) return { yearMin: afterYear };
 
   const beforeYear = matchFourDigitYear(prompt, /\b(?:before|pre)\s+(18|19|20)\d{2}\b/i);
-  return beforeYear ? { decadeMax: beforeYear } : {};
+  return beforeYear ? { yearMax: beforeYear } : {};
 };
 
 const createLastYearsRange = (years: number): EraFilters => {
   const currentYear = new Date().getFullYear();
 
-  return { decadeMin: currentYear - years, decadeMax: currentYear };
+  return { yearMin: currentYear - years, yearMax: currentYear };
 };
 
 const createDecadeRange = (start: number): EraFilters => ({
-  decadeMin: start,
-  decadeMax: start + 9,
+  yearMin: start,
+  yearMax: start + 9,
 });
 
 const createShorthandDecadeRange = (value: number): EraFilters => {

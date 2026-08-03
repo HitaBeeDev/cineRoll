@@ -1,15 +1,16 @@
 import { Router } from "express";
 import { z } from "zod";
-import { RandomQuery, randomQuerySchema } from "../lib/filmFilters/randomQuerySchema";
+import { RandomQuery, randomQueryBaseSchema } from "../lib/filmFilters/randomQuerySchema";
+import { withYearRange } from "../lib/filmFilters/listQuerySchema";
 import { setPublicCache } from "../lib/cache";
 import { getRandomFilms } from "./random";
 import { getValidated, validate } from "../middleware/validate";
 
 export const marathonRouter = Router();
 
-const marathonQuerySchema = randomQuerySchema.extend({
+const marathonQuerySchema = withYearRange(randomQueryBaseSchema.extend({
   count: z.coerce.number().int().min(1).max(5).default(3),
-});
+}));
 
 type MarathonQuery = z.infer<typeof marathonQuerySchema>;
 

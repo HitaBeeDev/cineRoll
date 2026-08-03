@@ -1,5 +1,5 @@
 import type { FilterState } from "@cineroll/types";
-import { DECADE_MIN, DECADE_MAX } from "@/lib/browse/options";
+import { formatYearRange, hasYearRange } from "@/lib/browse/year-range";
 import { awardBodyLabel, contentTypeLabel, countryLabel, languageLabel, sortLabel } from "@/lib/browse/labels";
 import { formatGenre } from "@/lib/format";
 
@@ -74,8 +74,8 @@ const FILTER_DESCRIPTORS: FilterDescriptor[] = [
     toChips: (f, set) => [{ key: "imdb", label: `IMDb ${f.imdbRatingMin}+`, onRemove: () => set({ imdbRatingMin: 0, page: 1 }) }] },
   { advanced: true, isActive: (f) => f.rtScoreMin > 0,
     toChips: (f, set) => [{ key: "rt", label: `RT ${f.rtScoreMin}%+`, onRemove: () => set({ rtScoreMin: 0, page: 1 }) }] },
-  { advanced: true, isActive: (f) => f.decadeMin !== DECADE_MIN || f.decadeMax !== DECADE_MAX,
-    toChips: (f, set) => [{ key: "decade", label: `${f.decadeMin}–${f.decadeMax}`, onRemove: () => set({ decadeMin: DECADE_MIN, decadeMax: DECADE_MAX, page: 1 }) }] },
+  { advanced: true, isActive: hasYearRange,
+    toChips: (f, set) => [{ key: "year-range", label: formatYearRange(f), onRemove: () => set({ yearMin: null, yearMax: null, page: 1 }) }] },
   { advanced: true, isActive: (f) => f.runtimeMax != null,
     toChips: (f, set) => [{ key: "runtime", label: `≤ ${f.runtimeMax}m`, onRemove: () => set({ runtimeMax: null, page: 1 }) }] },
   { advanced: true, isActive: (f) => f.nominationCount != null && f.nominationCount > 0,

@@ -5,12 +5,17 @@ import { PanelSection } from "@/components/browse/panel-section";
 import { ChipGroup } from "@/components/browse/chip-group";
 import { FilterChip } from "@/components/browse/filter-chip";
 import { FilterSelect } from "@/components/browse/filter-select";
+import { CONTENT_TYPE_OPTIONS } from "@/lib/browse/options";
 import {
-  BROWSE_DECADE_OPTIONS,
-  CONTENT_TYPE_OPTIONS,
-  DECADE_MAX,
-  DECADE_MIN,
-} from "@/lib/browse/options";
+  ANY_YEAR,
+  decadeToYearRange,
+  decadesFromYears,
+  hasYearRange,
+  parseYear,
+  setYearMax,
+  setYearMin,
+  yearRangeToDecade,
+} from "@/lib/browse/year-range";
 import { countryLabel, languageLabel } from "@/lib/browse/labels";
 import { toggleValue } from "@/lib/browse/filter-updates";
 import type { BrowseFacetOptions } from "@/hooks/useBrowseFacetOptions";
@@ -29,7 +34,10 @@ export function BrowseAdvancedPanel({
   setFilters: SetFilters;
   facets: BrowseFacetOptions;
 }) {
-  const { genres, countries, languages, categories, awardYears } = facets;
+  const { genres, countries, languages, categories, awardYears, releaseYears } = facets;
+  const decades = decadesFromYears(releaseYears);
+  const selectedDecade = yearRangeToDecade(filters);
+  const yearOptions = releaseYears.map((y) => ({ value: String(y), label: String(y) }));
 
   return (
     <div className="border-t border-white/10 bg-[#090910]/98">
@@ -199,27 +207,62 @@ export function BrowseAdvancedPanel({
             />
           </PanelSection>
 
-          {/* Decade — heading and the dash convey the range, so the two selects
-              need no From/To captions (kept as aria-labels). */}
-          <PanelSection label="Decade range">
-            <div className="flex items-center gap-2">
-              <FilterSelect
-                value={String(filters.decadeMin)}
-                onValueChange={(val) => setFilters({ decadeMin: Number(val), page: 1 })}
-                ariaLabel="Decade from"
-                className="w-full flex-1 text-[#b8b5c8]"
-                options={BROWSE_DECADE_OPTIONS.map((d) => ({ value: String(d), label: d === DECADE_MIN ? "Earliest" : `${d}s` }))}
-              />
-              <span className="font-[family-name:var(--font-geist-mono)] text-[12px] text-[#56515f]" aria-hidden>–</span>
-              <FilterSelect
-                value={String(filters.decadeMax)}
-                onValueChange={(val) => setFilters({ decadeMax: Number(val), page: 1 })}
-                ariaLabel="Decade to"
-                className="w-full flex-1 text-[#b8b5c8]"
-                options={BROWSE_DECADE_OPTIONS.map((d) => ({ value: String(d), label: d === DECADE_MAX ? "Latest" : `${d}s` }))}
-              />
-            </div>
-          </PanelSection>
+          {/* Release date is ONE filter (yearMin/yearMax) with two ways in, so the
+              decade chips and the year selects share a full-width band instead of
+              sitting in unrelated grid cells. A chip writes a whole decade into the
+              bounds; editing the bounds by hand releases the chip. */}
+          <div className="grid grid-cols-1 gap-x-8 gap-y-6 sm:col-span-2 sm:grid-cols-3 lg:col-span-3 xl:col-span-4">
+            <PanelSection label="Decade" className="sm:col-span-2">
+              <ChipGroup label="Decade">
+                <FilterChip
+                  active={!hasYearRange(filters)}
+                  onClick={() => setFilters({ yearMin: null, yearMax: null, page: 1 })}
+                >
+                  Any
+                </FilterChip>
+                {decades.map((decade) => (
+                  <FilterChip
+                    key={decade}
+                    active={selectedDecade === decade}
+                    // Clicking the active decade clears it, matching every other
+                    // single-choice chip row in this panel.
+                    onClick={() =>
+                      setFilters({
+                        ...(selectedDecade === decade
+                          ? { yearMin: null, yearMax: null }
+                          : decadeToYearRange(decade)),
+                        page: 1,
+                      })
+                    }
+                  >
+                    {decade}s
+                  </FilterChip>
+                ))}
+              </ChipGroup>
+            </PanelSection>
+
+            {/* The heading and the dash convey the range, so the selects need no
+                From/To captions (kept as aria-labels). */}
+            <PanelSection label="Year Range">
+              <div className="flex items-center gap-2">
+                <FilterSelect
+                  value={filters.yearMin != null ? String(filters.yearMin) : ANY_YEAR}
+                  onValueChange={(val) => setFilters({ ...setYearMin(filters, parseYear(val)), page: 1 })}
+                  ariaLabel="Year from"
+                  className="w-full flex-1 text-[#b8b5c8]"
+                  options={[{ value: ANY_YEAR, label: "Any" }, ...yearOptions]}
+                />
+                <span className="font-[family-name:var(--font-geist-mono)] text-[12px] text-[#56515f]" aria-hidden>–</span>
+                <FilterSelect
+                  value={filters.yearMax != null ? String(filters.yearMax) : ANY_YEAR}
+                  onValueChange={(val) => setFilters({ ...setYearMax(filters, parseYear(val)), page: 1 })}
+                  ariaLabel="Year to"
+                  className="w-full flex-1 text-[#b8b5c8]"
+                  options={[{ value: ANY_YEAR, label: "Any" }, ...yearOptions]}
+                />
+              </div>
+            </PanelSection>
+          </div>
         </div>
       </div>
     </div>

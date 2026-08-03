@@ -3,8 +3,8 @@ export type ValidatedFilterKey =
   | "awardYear"
   | "category"
   | "contentType"
-  | "decadeMax"
-  | "decadeMin"
+  | "yearMax"
+  | "yearMin"
   | "genres"
   | "genresAll"
   | "language";

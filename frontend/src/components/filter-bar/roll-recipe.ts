@@ -1,5 +1,6 @@
 import type { FilterState } from "@cineroll/types";
-import { DECADE_MAX, DECADE_MIN, awardBodyName } from "@/components/filter-bar/constants";
+import { awardBodyName } from "@/components/filter-bar/constants";
+import { formatYearRange, hasYearRange } from "@/lib/browse/year-range";
 
 const CONTENT_RECIPE_LABELS: Record<string, string> = {
   movie: "movies",
@@ -34,11 +35,7 @@ export function buildRollRecipe(filters: FilterState): string {
   if (filters.genres.length > 0) parts.push(filters.genres.join(" & "));
   if (filters.categories.length > 0) parts.push(filters.categories.join(" & "));
 
-  const minSet = filters.decadeMin !== DECADE_MIN;
-  const maxSet = filters.decadeMax !== DECADE_MAX;
-  if (minSet && maxSet) parts.push(`${filters.decadeMin}s–${filters.decadeMax}s`);
-  else if (minSet) parts.push(`${filters.decadeMin}s onwards`);
-  else if (maxSet) parts.push(`up to ${filters.decadeMax}s`);
+  if (hasYearRange(filters)) parts.push(formatYearRange(filters));
 
   if (filters.awardYear != null) parts.push(`${filters.awardYear} ceremony`);
   if (filters.nominationCount != null) parts.push(`${filters.nominationCount}+ nominations`);
