@@ -125,6 +125,8 @@ export interface FilterState {
   // famous canon); `winsMax` caps total major award wins (a sweep signals fame,
   // not obscurity). Together they express "acclaimed but overlooked".
   imdbTopExclude: boolean;
+  /** Total major award wins, at least this many — the counterpart to nominationCount. */
+  winsMin: number | null;
   winsMax: number | null;
   tvType: string;
   sort: FilmSort;

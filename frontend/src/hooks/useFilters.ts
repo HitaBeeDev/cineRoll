@@ -30,6 +30,7 @@ export const DEFAULT_FILTERS: FilterState = {
   imdbTopMoviesOnly: false,
   imdbTopTvOnly: false,
   imdbTopExclude: false,
+  winsMin: null,
   winsMax: null,
   tvType: "",
   sort: "awards",
@@ -62,6 +63,7 @@ export function computeHasActiveFilters(filters: FilterState): boolean {
     filters.imdbRatingMin > 0 ||
     filters.imdbRatingMax != null ||
     !!filters.certificate ||
+    filters.winsMin != null ||
     filters.imdbTopMoviesOnly ||
     filters.imdbTopTvOnly ||
     !!filters.tvType ||

@@ -22,6 +22,14 @@ import type { SetFilters } from "@/lib/browse/filter-descriptors";
 const NOMINATION_OPTIONS = [2, 3, 5, 10, 20].map((n) => ({ value: n, label: `${n}+` }));
 
 /**
+ * Wins start at 1+, where nominations cannot: 54% of the catalogue never won
+ * anything, so "at least one win" is the single most discriminating cut on this
+ * band — and the reason the two scales don't share a set of thresholds. The top
+ * of the range is lower too, because 10+ wins is already only 28 films.
+ */
+const WIN_OPTIONS = [1, 2, 3, 5, 10].map((n) => ({ value: n, label: `${n}+` }));
+
+/**
  * The award band comes first because the awards ARE the catalogue — everything
  * below it narrows an award-defined set rather than defining one. It continues
  * the question the sticky row starts (which ceremony? winner or nominee?) with:
@@ -51,7 +59,7 @@ export function AwardsBand({
 
   return (
     <PanelBand label="Awards" activeCount={activeCount} collapsible={collapsible}>
-      <PanelSection label="Award Category">
+      <PanelSection label="Award Category" startsRow>
         <MultiSelect
           selected={filters.categories}
           onChange={(vals) => setFilters({ categories: vals, page: 1 })}
@@ -95,16 +103,28 @@ export function AwardsBand({
         </div>
       </PanelSection>
 
-      {/* The hint is not decoration. This counts nominations across all four
-          ceremonies whatever is selected above, so "5+" with Cannes selected
-          means "a Cannes film with five nominations anywhere", not five at
-          Cannes. Unsaid, the number is quietly the wrong one. */}
-      <PanelSection label="Min. Nominations" hint="across all ceremonies">
+      {/* Nominated how often, and won how often — one question about a film's
+          standing asked twice, so the two scales sit side by side in the same
+          control, like the IMDb and Rotten Tomatoes pair in the band below.
+          The hints are not decoration: both count across all four ceremonies
+          whatever is selected above, so "5+" with Cannes selected means "a Cannes
+          film with five nominations anywhere", not five at Cannes. Unsaid, the
+          number is quietly the wrong one. */}
+      <PanelSection label="Min. Nominations" hint="across all ceremonies" startsRow>
         <ThresholdChips
           ariaLabel="Minimum total award nominations across all ceremonies"
           options={NOMINATION_OPTIONS}
           value={filters.nominationCount}
           onSelect={(next) => setFilters({ nominationCount: next, page: 1 })}
+        />
+      </PanelSection>
+
+      <PanelSection label="Min. Wins" hint="across all ceremonies">
+        <ThresholdChips
+          ariaLabel="Minimum total award wins across all ceremonies"
+          options={WIN_OPTIONS}
+          value={filters.winsMin}
+          onSelect={(next) => setFilters({ winsMin: next, page: 1 })}
         />
       </PanelSection>
     </PanelBand>

@@ -8,6 +8,7 @@ export function rankingPredicates(query: ListQuery): Prisma.Sql[] {
     imdbTopMoviesPredicate(query),
     imdbTopTvPredicate(query),
     imdbTopExcludePredicate(query),
+    winsMinPredicate(query),
     winsMaxPredicate(query),
   ].filter((predicate): predicate is Prisma.Sql => predicate !== undefined);
 }
@@ -43,6 +44,28 @@ function imdbTopExcludePredicate(query: ListQuery): Prisma.Sql | undefined {
   if (query.imdbTopExclude !== true) return undefined;
 
   return Prisma.sql`"Film"."imdbTopMovieRank" IS NULL AND "Film"."imdbTopTvRank" IS NULL`;
+}
+
+/**
+ * Total major award wins, at least this many — the counterpart to the nomination
+ * floor. Nominations measure how often a film was in the room; wins measure how
+ * often it left with something, and 54% of the catalogue never did, so this is
+ * the sharper of the two.
+ *
+ * Summed across all four bodies for the same reason nominationCount is: the
+ * stored counts are per body, and a film's standing is the total.
+ */
+function winsMinPredicate(query: ListQuery): Prisma.Sql | undefined {
+  if (query.winsMin === undefined) return undefined;
+
+  return Prisma.sql`
+    (
+      "Film"."oscarWins"
+      + "Film"."ggWins"
+      + "Film"."cannesWins"
+      + "Film"."berlinWins"
+    ) >= ${query.winsMin}
+  `;
 }
 
 // Obscurity: cap total major award wins. A film that swept the Oscars/Cannes is

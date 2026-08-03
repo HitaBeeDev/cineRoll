@@ -28,6 +28,7 @@ export function filtersFromSearchParams(params: URLSearchParams): FilterState {
   const imdbRatingMin  = numberParam(params.get("imdbRatingMin"));
   const runtimeMax     = numberParam(params.get("runtimeMax"));
   const nominationCount = numberParam(params.get("nominationCount"));
+  const winsMin        = numberParam(params.get("winsMin"));
   const rtScoreMin     = numberParam(params.get("rtScoreMin"));
   const page           = numberParam(params.get("page"));
   const sort           = params.get("sort");
@@ -59,6 +60,7 @@ export function filtersFromSearchParams(params: URLSearchParams): FilterState {
     yearMin,
     yearMax,
     nominationCount,
+    winsMin,
     imdbRatingMin: imdbRatingMin ?? DEFAULT_FILTERS.imdbRatingMin,
     rtScoreMin:    rtScoreMin ?? DEFAULT_FILTERS.rtScoreMin,
     imdbTopMoviesOnly: params.get("imdbTopMoviesOnly") === "true",

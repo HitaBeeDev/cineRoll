@@ -107,6 +107,8 @@ const FILTER_DESCRIPTORS: FilterDescriptor[] = [
     toChips: (f, set) => [{ key: "year-range", label: formatYearRange(f), onRemove: () => set({ yearMin: null, yearMax: null, page: 1 }) }] },
   { band: "film", isActive: (f) => f.runtimeMax != null,
     toChips: (f, set) => [{ key: "runtime", label: `≤ ${f.runtimeMax}m`, onRemove: () => set({ runtimeMax: null, page: 1 }) }] },
+  { band: "awards", isActive: (f) => f.winsMin != null && f.winsMin > 0,
+    toChips: (f, set) => [{ key: "wins", label: `${f.winsMin}+ wins`, onRemove: () => set({ winsMin: null, page: 1 }) }] },
   { band: "awards", isActive: (f) => f.nominationCount != null && f.nominationCount > 0,
     toChips: (f, set) => [{ key: "noms", label: `${f.nominationCount}+ noms`, onRemove: () => set({ nominationCount: null, page: 1 }) }] },
 ];

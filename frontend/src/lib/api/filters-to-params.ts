@@ -52,6 +52,7 @@ function appendRangeFilters(
   setPositiveNumber(params, "imdbRatingMin", filters.imdbRatingMin);
   setPositiveNumber(params, "rtScoreMin", filters.rtScoreMin);
   setNumber(params, "imdbRatingMax", filters.imdbRatingMax);
+  setNumber(params, "winsMin", filters.winsMin);
   setNumber(params, "winsMax", filters.winsMax);
 }
 
