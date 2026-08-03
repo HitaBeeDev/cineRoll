@@ -18,10 +18,14 @@ import type { BrowseFacetOptions } from "@/hooks/useBrowseFacetOptions";
 import type { BrowseAutocomplete } from "@/hooks/useBrowseAutocomplete";
 
 /**
- * The sticky filter bar: search + scope + award status + the Advanced
+ * The sticky filter bar: search + award ceremony + award result + the Advanced
  * disclosure on the primary row, the removable chips beneath it, and the
  * expanded advanced panel. Owns only the panel's open/closed state; every
  * filter value flows through `setFilters`.
+ *
+ * Ceremony and result stay out here rather than joining the panel's Awards band:
+ * they are the catalogue's primary axis, and burying the two most-used controls
+ * behind a disclosure would cost a click on nearly every session.
  */
 export function BrowseFilterBar({
   filters,
@@ -60,13 +64,16 @@ export function BrowseFilterBar({
     <div className="sticky top-14 z-40 max-w-[100vw] border-b border-[#1c1a25] bg-[#08080d]/92 shadow-[0_18px_50px_rgba(0,0,0,0.28)] backdrop-blur-xl">
       <div className="mx-auto w-full max-w-[100vw] px-4 sm:max-w-screen-2xl sm:px-6 lg:px-8 xl:px-12">
 
-        {/* Primary row — search + scope on the left; award status and the
-            Advanced disclosure grouped at the right edge. */}
-        <div className="flex flex-wrap items-center gap-x-2 gap-y-2 pt-3 pb-2.5 xl:flex-nowrap">
+        {/* Primary row — search + ceremony on the left; result and the Advanced
+            disclosure grouped at the right edge. Aligned to the bottom, so the
+            captioned strips sit on the same baseline as the uncaptioned search
+            box and Advanced button. */}
+        <div className="flex flex-wrap items-end gap-x-2 gap-y-2 pt-3 pb-2.5 xl:flex-nowrap">
           <BrowseSearchBox value={searchDraft} onValueChange={onSearchChange} autocomplete={autocomplete} />
 
           <ToggleStrip
-            ariaLabel="Browse scope"
+            label="Award Ceremony"
+            ariaLabel="Award ceremony"
             className="xl:shrink-0"
             items={AWARD_BODY_OPTIONS.map((opt) => ({
               key: opt.value,
@@ -77,9 +84,11 @@ export function BrowseFilterBar({
           />
 
           <SegmentedControl<AwardStatus>
-            ariaLabel="Award status"
+            label="Award Result"
+            ariaLabel="Award result"
             options={STATUS_OPTIONS}
             value={awardStatus}
+            neutralValue="any"
             onChange={(value) => setFilters(statusToUpdates(value))}
             className="xl:shrink-0"
           />

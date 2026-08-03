@@ -28,9 +28,9 @@ export const CONTENT_TYPE_OPTIONS: { value: string; label: string }[] = [
 ];
 
 export const STATUS_OPTIONS: { value: AwardStatus; label: string }[] = [
-  { value: "any", label: "Any"  },
-  { value: "won", label: "Won"  },
-  { value: "nom", label: "Nom." },
+  { value: "any", label: "All"       },
+  { value: "won", label: "Winner"    },
+  { value: "nom", label: "Nominated" },
 ];
 
 export const SORT_OPTIONS: { value: FilterState["sort"]; label: string }[] = [

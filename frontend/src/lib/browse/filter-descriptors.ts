@@ -50,7 +50,7 @@ const FILTER_DESCRIPTORS: FilterDescriptor[] = [
     toChips: (f, set) => facetChips("body", f.awardBodies, awardBodyLabel, (awardBodies) => ({ awardBodies }), set) },
   { advanced: false, isActive: (f) => f.winnerOnly || f.nominatedOnly,
     toChips: (f, set) => [f.winnerOnly
-      ? { key: "won", label: "Won", onRemove: () => set({ winnerOnly: false, page: 1 }) }
+      ? { key: "won", label: "Winner", onRemove: () => set({ winnerOnly: false, page: 1 }) }
       : { key: "nom", label: "Nominated", onRemove: () => set({ nominatedOnly: false, page: 1 }) }] },
   { advanced: true, isActive: (f) => f.genres.length > 0,
     toChips: (f, set) => facetChips("genre", f.genres, formatGenre, (genres) => ({ genres }), set) },

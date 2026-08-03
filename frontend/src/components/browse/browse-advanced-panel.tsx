@@ -1,28 +1,15 @@
 import type { FilterState } from "@cineroll/types";
-import { MultiSelect } from "@/components/ui/multi-select";
-import { formatGenre } from "@/lib/format";
-import { PanelSection } from "@/components/browse/panel-section";
-import { ChipGroup } from "@/components/browse/chip-group";
-import { FilterChip } from "@/components/browse/filter-chip";
-import { FilterSelect } from "@/components/browse/filter-select";
-import { CONTENT_TYPE_OPTIONS } from "@/lib/browse/options";
-import {
-  ANY_YEAR,
-  decadeToYearRange,
-  decadesFromYears,
-  parseYear,
-  setYearMax,
-  setYearMin,
-  yearRangeToDecade,
-} from "@/lib/browse/year-range";
-import { countryLabel, languageLabel } from "@/lib/browse/labels";
-import { toggleValue } from "@/lib/browse/filter-updates";
+import { AwardsBand } from "@/components/browse/awards-band";
+import { FilmBand } from "@/components/browse/film-band";
+import { DetailsBand } from "@/components/browse/details-band";
 import type { BrowseFacetOptions } from "@/hooks/useBrowseFacetOptions";
 import type { SetFilters } from "@/lib/browse/filter-descriptors";
 
 /**
- * The expanded "Advanced" filter panel: one dense grid ordered so related
- * filters sit together — ratings → format/origin → people → awards/time.
+ * The expanded "Advanced" filter panel: three labelled bands, ordered by what
+ * the app is. Awards define the catalogue, so they lead; Film narrows that set;
+ * Details holds the long tail. Each band owns its own controls (see
+ * awards-band / film-band / details-band) — this file is only the composition.
  */
 export function BrowseAdvancedPanel({
   filters,
@@ -34,228 +21,28 @@ export function BrowseAdvancedPanel({
   facets: BrowseFacetOptions;
 }) {
   const { genres, countries, languages, categories, awardYears, releaseYears } = facets;
-  const decades = decadesFromYears(releaseYears);
-  const selectedDecade = yearRangeToDecade(filters);
-  const yearOptions = releaseYears.map((y) => ({ value: String(y), label: String(y) }));
 
   return (
     <div className="border-t border-white/10 bg-[#090910]/98">
-      <div className="mx-auto w-full max-w-[100vw] px-4 py-6 sm:max-w-screen-2xl sm:px-6 lg:px-8 xl:px-12">
-        <div className="grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-
-          <PanelSection label="IMDb Rating">
-            <ChipGroup label="Minimum IMDb rating">
-              {[0, 6, 6.5, 7, 7.5, 8, 8.5, 9].map((r) => (
-                <FilterChip
-                  key={r}
-                  active={filters.imdbRatingMin === r}
-                  onClick={() => setFilters({ imdbRatingMin: r, page: 1 })}
-                >
-                  {r === 0 ? "Any" : `${r}+`}
-                </FilterChip>
-              ))}
-            </ChipGroup>
-          </PanelSection>
-
-          <PanelSection label="Rotten Tomatoes">
-            <ChipGroup label="Minimum Rotten Tomatoes score">
-              {[0, 50, 60, 70, 80, 90, 95].map((s) => (
-                <FilterChip
-                  key={s}
-                  active={filters.rtScoreMin === s}
-                  onClick={() => setFilters({ rtScoreMin: s, page: 1 })}
-                >
-                  {s === 0 ? "Any" : `${s}%+`}
-                </FilterChip>
-              ))}
-            </ChipGroup>
-          </PanelSection>
-
-          <PanelSection label="Genre">
-            <MultiSelect
-              ariaLabel="Genre"
-              selected={filters.genres}
-              onChange={(vals) => setFilters({ genres: vals, page: 1 })}
-              placeholder="Any genre"
-              searchable
-              triggerClassName="w-full"
-              options={genres.map((g) => ({ value: g, label: formatGenre(g) }))}
-            />
-          </PanelSection>
-
-          <PanelSection label="Content Type">
-            <ChipGroup label="Content type" multiple>
-              <FilterChip
-                multiple
-                active={filters.contentTypes.length === 0}
-                onClick={() => setFilters({ contentTypes: [], page: 1 })}
-              >
-                All
-              </FilterChip>
-              {CONTENT_TYPE_OPTIONS.map(({ value, label }) => (
-                <FilterChip
-                  key={value}
-                  multiple
-                  active={filters.contentTypes.includes(value)}
-                  onClick={() => setFilters({ contentTypes: toggleValue(filters.contentTypes, value), page: 1 })}
-                >
-                  {label}
-                </FilterChip>
-              ))}
-            </ChipGroup>
-          </PanelSection>
-
-          <PanelSection label="Max Runtime">
-            <ChipGroup label="Maximum runtime">
-              {([
-                { value: null, label: "Any"   },
-                { value: 90,   label: "≤ 90m" },
-                { value: 120,  label: "≤ 2h"  },
-                { value: 150,  label: "≤ 2h30" },
-                { value: 180,  label: "≤ 3h"  },
-              ] as { value: number | null; label: string }[]).map(({ value, label }) => (
-                <FilterChip
-                  key={label}
-                  active={filters.runtimeMax === value}
-                  onClick={() => setFilters({ runtimeMax: value, page: 1 })}
-                >
-                  {label}
-                </FilterChip>
-              ))}
-            </ChipGroup>
-          </PanelSection>
-
-          <PanelSection label="Language">
-            <MultiSelect
-              ariaLabel="Language"
-              selected={filters.languages}
-              onChange={(vals) => setFilters({ languages: vals, page: 1 })}
-              placeholder="Any language"
-              searchable
-              triggerClassName="w-full"
-              options={languages
-                .map((c) => ({ value: c, label: languageLabel(c) }))
-                .sort((a, b) => a.label.localeCompare(b.label))}
-            />
-          </PanelSection>
-
-          <PanelSection label="Country">
-            <MultiSelect
-              ariaLabel="Country"
-              selected={filters.countries}
-              onChange={(vals) => setFilters({ countries: vals, page: 1 })}
-              placeholder="Any country"
-              searchable
-              triggerClassName="w-full"
-              options={countries.map((c) => ({ value: c, label: countryLabel(c) }))}
-            />
-          </PanelSection>
-
-          <PanelSection label="Director">
-            <ChipGroup label="Director">
-              <FilterChip active={!filters.femaleDirectorOnly} onClick={() => setFilters({ femaleDirectorOnly: false, page: 1 })}>
-                Any
-              </FilterChip>
-              <FilterChip active={filters.femaleDirectorOnly} onClick={() => setFilters({ femaleDirectorOnly: true, page: 1 })}>
-                Female-directed
-              </FilterChip>
-            </ChipGroup>
-          </PanelSection>
-
-          <PanelSection label="Award Nominations">
-            <ChipGroup label="Minimum total award nominations">
-              {([
-                { value: null, label: "Any" },
-                { value: 1,    label: "1+"  },
-                { value: 3,    label: "3+"  },
-                { value: 5,    label: "5+"  },
-                { value: 10,   label: "10+" },
-                { value: 20,   label: "20+" },
-              ] as { value: number | null; label: string }[]).map(({ value, label }) => (
-                <FilterChip
-                  key={label}
-                  active={(filters.nominationCount ?? null) === value}
-                  onClick={() => setFilters({ nominationCount: value, page: 1 })}
-                >
-                  {label}
-                </FilterChip>
-              ))}
-            </ChipGroup>
-          </PanelSection>
-
-          <PanelSection label="Award Category">
-            <MultiSelect
-              ariaLabel="Award category"
-              selected={filters.categories}
-              onChange={(vals) => setFilters({ categories: vals, page: 1 })}
-              placeholder="Any category"
-              searchable
-              triggerClassName="w-full"
-              options={categories.map((c) => ({ value: c, label: c }))}
-            />
-          </PanelSection>
-
-          <PanelSection label="Ceremony Year">
-            <FilterSelect
-              value={filters.awardYear != null ? String(filters.awardYear) : "_any"}
-              onValueChange={(val) => setFilters({ awardYear: val === "_any" ? null : Number(val), page: 1 })}
-              placeholder="Any year"
-              ariaLabel="Ceremony year"
-              className="w-full text-[#b8b5c8]"
-              options={[{ value: "_any", label: "Any year" }, ...awardYears.map((y) => ({ value: String(y), label: String(y) }))]}
-            />
-          </PanelSection>
-
-          {/* Release date is ONE filter (yearMin/yearMax) with two ways in, so the
-              decade chips and the year selects share a full-width band instead of
-              sitting in unrelated grid cells. A chip writes a whole decade into the
-              bounds; editing the bounds by hand releases the chip. */}
-          <div className="grid grid-cols-1 gap-x-8 gap-y-6 sm:col-span-2 sm:grid-cols-3 lg:col-span-3 xl:col-span-4">
-            <PanelSection label="Decade">
-              <FilterSelect
-                value={selectedDecade != null ? String(selectedDecade) : ANY_YEAR}
-                // Picking a decade writes its ten years into the range below;
-                // "Any decade" clears the bounds outright.
-                onValueChange={(val) => {
-                  const decade = parseYear(val);
-                  setFilters({
-                    ...(decade == null ? { yearMin: null, yearMax: null } : decadeToYearRange(decade)),
-                    page: 1,
-                  });
-                }}
-                placeholder="Any decade"
-                ariaLabel="Decade"
-                className="w-full text-[#b8b5c8]"
-                options={[
-                  { value: ANY_YEAR, label: "Any decade" },
-                  ...decades.map((d) => ({ value: String(d), label: `${d}s` })),
-                ]}
-              />
-            </PanelSection>
-
-            {/* The heading and the dash convey the range, so the selects need no
-                From/To captions (kept as aria-labels). */}
-            <PanelSection label="Year Range" className="sm:col-span-2">
-              <div className="flex items-center gap-2">
-                <FilterSelect
-                  value={filters.yearMin != null ? String(filters.yearMin) : ANY_YEAR}
-                  onValueChange={(val) => setFilters({ ...setYearMin(filters, parseYear(val)), page: 1 })}
-                  ariaLabel="Year from"
-                  className="w-full flex-1 text-[#b8b5c8]"
-                  options={[{ value: ANY_YEAR, label: "Any" }, ...yearOptions]}
-                />
-                <span className="font-[family-name:var(--font-geist-mono)] text-[12px] text-[#56515f]" aria-hidden>–</span>
-                <FilterSelect
-                  value={filters.yearMax != null ? String(filters.yearMax) : ANY_YEAR}
-                  onValueChange={(val) => setFilters({ ...setYearMax(filters, parseYear(val)), page: 1 })}
-                  ariaLabel="Year to"
-                  className="w-full flex-1 text-[#b8b5c8]"
-                  options={[{ value: ANY_YEAR, label: "Any" }, ...yearOptions]}
-                />
-              </div>
-            </PanelSection>
-          </div>
-        </div>
+      <div className="mx-auto flex w-full max-w-[100vw] flex-col gap-7 px-4 py-6 sm:max-w-screen-2xl sm:px-6 lg:px-8 xl:px-12">
+        <AwardsBand
+          filters={filters}
+          setFilters={setFilters}
+          categories={categories}
+          awardYears={awardYears}
+        />
+        <FilmBand
+          filters={filters}
+          setFilters={setFilters}
+          genres={genres}
+          releaseYears={releaseYears}
+        />
+        <DetailsBand
+          filters={filters}
+          setFilters={setFilters}
+          languages={languages}
+          countries={countries}
+        />
       </div>
     </div>
   );

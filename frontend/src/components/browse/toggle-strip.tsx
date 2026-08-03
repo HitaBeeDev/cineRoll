@@ -9,14 +9,22 @@ import { cn } from "@/lib/utils";
 export function ToggleStrip({
   items,
   ariaLabel,
+  label,
   className,
 }: {
   items: { key: string; label: string; active: boolean; onToggle: () => void; groupStart?: boolean }[];
   ariaLabel: string;
+  /** Visible caption above the strip — without it users must infer what the row means. */
+  label?: string;
   className?: string;
 }) {
   return (
     <div className={cn("flex w-full flex-col gap-1 sm:w-auto", className)}>
+      {label && (
+        <span className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.2em] text-[#8e899e]">
+          {label}
+        </span>
+      )}
       <div
         role="group"
         aria-label={ariaLabel}
