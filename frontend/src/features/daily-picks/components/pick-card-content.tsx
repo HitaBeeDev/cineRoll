@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
+import { FilmLink } from "@/components/film-link";
 import { formatCreditLabel } from "@/lib/format";
 import type { PickCardContentProps } from "../component-props";
 import { getPickRationale } from "../pick-rationale";
@@ -30,13 +30,13 @@ export function PickCardContent({ pick }: PickCardContentProps) {
           {getPickRationale(film, slot)}
         </p>
         <div className="mt-7 flex items-center gap-2.5">
-          <Link
-            href={`/film/${film.slug}`}
+          <FilmLink
+            slug={film.slug}
             className="group/btn inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/[0.04] px-6 py-3 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.2em] text-[#F5F5F0] backdrop-blur-sm transition-colors duration-150 hover:border-white/50 hover:bg-white/[0.1]"
           >
             <span>Watch Tonight</span>
             <ArrowUpRight className="h-3.5 w-3.5 transition-transform duration-150 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5" />
-          </Link>
+          </FilmLink>
           <PickActions film={film} />
         </div>
       </div>

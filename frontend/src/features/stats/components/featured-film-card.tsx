@@ -1,6 +1,6 @@
 import Image from "next/image";
-import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
+import { FilmLink } from "@/components/film-link";
 import { cn } from "@/lib/utils";
 import type { Accent, FilmStat } from "../types";
 
@@ -10,7 +10,7 @@ export function FeaturedFilmCard({ film, rank, unit, accent }: FeaturedFilmCardP
   const accentClass = accent === "red" ? "text-[#ff766d]" : "text-[#78b7ff]";
   const glow = accent === "red" ? "rgba(232,69,60,0.22)" : "rgba(74,158,255,0.20)";
   return (
-    <Link href={`/film/${film.slug}`} className="group relative grid overflow-hidden rounded-2xl border border-white/12 bg-white/[0.04] shadow-[0_28px_80px_rgba(0,0,0,0.4)] transition-colors hover:border-white/30 sm:grid-cols-[210px_minmax(0,1fr)]">
+    <FilmLink slug={film.slug} className="group relative grid overflow-hidden rounded-2xl border border-white/12 bg-white/[0.04] shadow-[0_28px_80px_rgba(0,0,0,0.4)] transition-colors hover:border-white/30 sm:grid-cols-[210px_minmax(0,1fr)]">
       <div className="relative min-h-72 bg-[#11111a] sm:min-h-full">
         {film.posterUrl ? <Image src={film.posterUrl} alt={`${film.title} poster`} fill sizes="(max-width: 640px) 100vw, 210px" className="object-cover transition-transform duration-500 group-hover:scale-[1.04]" /> : <div className="absolute inset-0 bg-[linear-gradient(135deg,#151520,#0b0b12)]" />}
         <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_45%,rgba(8,8,13,0.7)_100%)]" />
@@ -22,6 +22,6 @@ export function FeaturedFilmCard({ film, rank, unit, accent }: FeaturedFilmCardP
         <h4 className="relative mt-5 line-clamp-3 font-[family-name:var(--font-display)] text-3xl font-bold leading-[1.02] text-[#f4f0f7] sm:text-4xl">{film.title}</h4>
         <div className="relative mt-6 flex items-end justify-between gap-4"><p className="pb-2 font-[family-name:var(--font-geist-mono)] text-sm uppercase tracking-[0.16em] text-[#b6b2c6]">{film.releaseYear}</p><p className="text-right leading-[0.8]"><span className={cn("font-[family-name:var(--font-display)] text-6xl font-bold sm:text-7xl", accentClass)}>{film.count}</span><span className="mt-1 block font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-[0.18em] text-[#b6b2c6]">{unit}</span></p></div>
       </div>
-    </Link>
+    </FilmLink>
   );
 }

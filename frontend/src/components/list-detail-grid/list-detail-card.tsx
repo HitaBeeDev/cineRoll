@@ -1,8 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { Trash2 } from "lucide-react";
+import { FilmLink } from "@/components/film-link";
 import { blurDataUrl, tmdbImageUrl } from "@/lib/images";
 import { cn } from "@/lib/utils";
 import type { SavedFilm } from "@/types/saved-film";
@@ -22,8 +22,8 @@ export function ListDetailCard({
 
   return (
     <div className="group relative min-w-0">
-      <Link
-        href={`/film/${film.slug}`}
+      <FilmLink
+        slug={film.slug}
         aria-label={`${film.title}${film.year ? ` (${film.year})` : ""}`}
         className="block outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/50 focus-visible:ring-offset-4 focus-visible:ring-offset-[#08080d]"
       >
@@ -47,7 +47,7 @@ export function ListDetailCard({
           )}
           <div className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-white/[0.04]" />
         </div>
-      </Link>
+      </FilmLink>
 
       <button
         type="button"

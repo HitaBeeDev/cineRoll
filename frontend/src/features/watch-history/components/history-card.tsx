@@ -1,6 +1,6 @@
 import Image from "next/image";
-import Link from "next/link";
 import { ThumbsDown, ThumbsUp, Trash2 } from "lucide-react";
+import { FilmLink } from "@/components/film-link";
 import { blurDataUrl, tmdbImageUrl } from "@/lib/images";
 import { cn } from "@/lib/utils";
 import { TileMetaLine } from "@/components/film-tile/tile-meta-line";
@@ -17,8 +17,8 @@ export function HistoryCard({
 
   return (
     <div className="group relative min-w-0">
-      <Link
-        href={`/film/${film.slug}`}
+      <FilmLink
+        slug={film.slug}
         aria-label={`${film.title}${film.year ? ` (${film.year})` : ""}`}
         className="block outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/50 focus-visible:ring-offset-4 focus-visible:ring-offset-[#08080d]"
       >
@@ -40,7 +40,7 @@ export function HistoryCard({
           )}
           <div className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-white/[0.04]" />
         </div>
-      </Link>
+      </FilmLink>
       <button
         type="button"
         aria-label={`Remove ${film.title} from history`}

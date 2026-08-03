@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import Image from "next/image";
 import type { AwardBodyFilter, Film } from "@cineroll/types";
+import { FilmLink } from "@/components/film-link";
 import { cn } from "@/lib/utils";
 import { formatFilmYear } from "@/lib/format";
 import { blurDataUrl, tmdbImageUrl } from "@/lib/images";
@@ -30,9 +30,9 @@ export function FilmTile({ film, className, awardBodies, awardStatus = "any" }: 
   const listBadge = getListBadge(film);
 
   return (
-    <Link
+    <FilmLink
       ref={cardRef}
-      href={`/film/${film.slug}`}
+      slug={film.slug}
       onClick={() => {
         trackEvent({
           type: "film_click",
@@ -113,6 +113,6 @@ export function FilmTile({ film, className, awardBodies, awardStatus = "any" }: 
         </h3>
         <TileMetaLine film={film} />
       </div>
-    </Link>
+    </FilmLink>
   );
 }

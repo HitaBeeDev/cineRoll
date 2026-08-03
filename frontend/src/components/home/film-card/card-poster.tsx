@@ -1,6 +1,6 @@
 import Image from "next/image";
-import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
+import { FilmLink } from "@/components/film-link";
 import { trackEvent } from "@/lib/analytics";
 import { tmdbImageUrl } from "@/lib/images";
 import type { RollFilm } from "@/lib/api";
@@ -23,8 +23,8 @@ export function CardPoster({
   const { posterUrl, backdropUrl } = film;
 
   return (
-    <Link
-      href={`/film/${film.slug}`}
+    <FilmLink
+      slug={film.slug}
       onClick={() => {
         onEngage?.();
         trackEvent({
@@ -90,6 +90,6 @@ export function CardPoster({
           </div>
         )}
       </motion.div>
-    </Link>
+    </FilmLink>
   );
 }

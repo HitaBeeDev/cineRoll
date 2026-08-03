@@ -1,8 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { useState } from "react";
+import { FilmLink } from "@/components/film-link";
 import { blurDataUrl, tmdbImageUrl } from "@/lib/images";
 import { cn } from "@/lib/utils";
 import type { RecommendationPosterProps } from "../recommendation-component-types";
@@ -38,8 +38,8 @@ export function RecommendationPoster({
           {recommendation.title}
         </div>
       )}
-      <Link
-        href={`/film/${recommendation.slug}`}
+      <FilmLink
+        slug={recommendation.slug}
         aria-label={recommendation.title}
         className="absolute inset-0 z-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#e8453c]"
       />

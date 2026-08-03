@@ -1,6 +1,6 @@
 import Image from "next/image";
-import Link from "next/link";
 import type { MouseEvent } from "react";
+import { FilmLink } from "@/components/film-link";
 import type { RollFilm } from "@/lib/api";
 import { formatContentType, formatGenres } from "@/lib/format";
 import { getFilmAwards } from "../get-film-awards";
@@ -25,8 +25,8 @@ export function FilmCard({ film, shouldPreventNavigation }: FilmCardProps) {
   }
 
   return (
-    <Link
-      href={`/film/${film.slug}`}
+    <FilmLink
+      slug={film.slug}
       draggable={false}
       onDragStart={(event) => event.preventDefault()}
       onClick={handleClick}
@@ -70,6 +70,6 @@ export function FilmCard({ film, shouldPreventNavigation }: FilmCardProps) {
         </div>
         <FilmAwardBadges awards={getFilmAwards(film)} />
       </div>
-    </Link>
+    </FilmLink>
   );
 }

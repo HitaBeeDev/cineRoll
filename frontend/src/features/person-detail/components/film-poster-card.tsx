@@ -1,13 +1,13 @@
 import Image from "next/image";
-import Link from "next/link";
+import { FilmLink } from "@/components/film-link";
 import { blurDataUrl, tmdbImageUrl } from "@/lib/images";
 import { getNameInitials } from "@/lib/name-avatar";
 import type { FilmPosterCardProps } from "../component-props";
 
 export function FilmPosterCard({ film }: FilmPosterCardProps) {
   return (
-    <Link
-      href={`/film/${film.slug}`}
+    <FilmLink
+      slug={film.slug}
       className="group relative flex flex-col overflow-hidden border border-[#1e1e30] bg-[#0d0d18] transition-all duration-300 hover:border-[#e8453c]/30 hover:shadow-lg hover:shadow-[#e8453c]/5"
     >
       <div className="relative overflow-hidden" style={{ aspectRatio: "2/3" }}>
@@ -56,6 +56,6 @@ export function FilmPosterCard({ film }: FilmPosterCardProps) {
           {film.releaseYear}
         </p>
       </div>
-    </Link>
+    </FilmLink>
   );
 }

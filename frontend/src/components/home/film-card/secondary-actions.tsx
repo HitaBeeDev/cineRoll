@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { Share2 } from "lucide-react";
+import { FilmLink } from "@/components/film-link";
 import { SharePopover } from "@/components/share-popover";
 import { SaveToListButton } from "@/components/save-to-list-dialog";
 import { trackEvent } from "@/lib/analytics";
@@ -18,8 +18,8 @@ export function SecondaryActions({
 }) {
   return (
     <div className="flex items-center gap-2 mt-1">
-      <Link
-        href={`/film/${film.slug}`}
+      <FilmLink
+        slug={film.slug}
         onClick={() => {
           onEngage?.();
           trackEvent({
@@ -37,7 +37,7 @@ export function SecondaryActions({
         )}
       >
         View details
-      </Link>
+      </FilmLink>
       <SaveToListButton
         filmId={film.id}
         filmTitle={film.title}

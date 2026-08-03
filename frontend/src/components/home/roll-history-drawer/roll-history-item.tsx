@@ -1,6 +1,6 @@
 import Image from "next/image";
-import Link from "next/link";
 import { ArrowUpRight, Film } from "lucide-react";
+import { FilmLink } from "@/components/film-link";
 import { cn } from "@/lib/utils";
 import { trackEvent } from "@/lib/analytics";
 import type { RollFilm } from "@/lib/api";
@@ -18,8 +18,8 @@ export function RollHistoryItem({
   onNavigate: () => void;
 }) {
   return (
-    <Link
-      href={`/film/${film.slug}`}
+    <FilmLink
+      slug={film.slug}
       onClick={() => {
         trackEvent({
           type: "film_click",
@@ -73,6 +73,6 @@ export function RollHistoryItem({
         className="h-4 w-4 shrink-0 text-[#2a2a3e] transition-all duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-[#e8453c]"
         aria-hidden
       />
-    </Link>
+    </FilmLink>
   );
 }

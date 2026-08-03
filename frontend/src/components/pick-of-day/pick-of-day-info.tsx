@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { Clock, ExternalLink } from "lucide-react";
+import { FilmLink } from "@/components/film-link";
 import type { PickOfDayFilm } from "@/lib/api";
 import { trackEvent } from "@/lib/analytics";
 import { formatCreditLabel, formatFilmLength } from "@/lib/format";
@@ -60,8 +60,8 @@ export function PickOfDayInfo({ film }: { film: PickOfDayFilm }) {
       <WhyPickedNote text={getWhyPicked(film)} />
       <PickOscarAccolade film={film} />
 
-      <Link
-        href={`/film/${film.slug}`}
+      <FilmLink
+        slug={film.slug}
         onClick={() => {
           trackEvent({
             type: "pick_of_day_click",
@@ -77,7 +77,7 @@ export function PickOfDayInfo({ film }: { film: PickOfDayFilm }) {
       >
         View full details
         <ExternalLink className="h-3.5 w-3.5" aria-hidden />
-      </Link>
+      </FilmLink>
     </div>
   );
 }

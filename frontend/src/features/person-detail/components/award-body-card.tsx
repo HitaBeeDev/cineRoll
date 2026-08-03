@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { FilmLink } from "@/components/film-link";
 import { sortAwardRows } from "../sort-award-rows";
 import type { AwardBodyCardProps } from "../component-props";
 
@@ -55,15 +55,15 @@ export function AwardBodyCard({ body }: AwardBodyCardProps) {
               <p className={`text-[0.8rem] font-medium leading-5 ${record.won ? "text-[#e8ddb8]" : "text-[#9090a8]"}`}>
                 {record.category}
               </p>
-              <Link
-                href={`/film/${record.filmSlug}`}
+              <FilmLink
+                slug={record.filmSlug}
                 className="group mt-0.5 inline-flex items-center gap-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-[#555570] transition-colors hover:text-[#e8453c]"
               >
                 {record.filmTitle}
                 <span className="text-[#2a2a3a] transition-colors group-hover:text-[#e8453c]">
                   ({record.releaseYear})
                 </span>
-              </Link>
+              </FilmLink>
             </div>
             <span className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.3em] text-[#444460]">
               {record.awardYear}
