@@ -1,12 +1,11 @@
 import { Prisma } from "@prisma/client";
 
+import { contentTypeSql } from "./contentTypeSql";
 import { ListQuery } from "./listQuerySchema";
 
 export function facetPredicates(query: ListQuery): Prisma.Sql[] {
   return [
-    // A film carries a SET of types ("documentary" + "short"), so this overlaps
-    // rather than compares — selecting Short returns short docs and short fiction alike.
-    arrayOverlapPredicate("types", query.contentType),
+    contentTypePredicate(query.contentType),
     equalsAnyPredicate("language", query.language),
     // Origin, not co-financing: `countries` holds every country that put money in, which
     // filed Norwegian "Sentimental Value" under Turkey. That list stays for display.
@@ -16,6 +15,19 @@ export function facetPredicates(query: ListQuery): Prisma.Sql[] {
     exactValuePredicate("certificate", query.certificate),
     tvTypePredicate(query),
   ].filter((predicate): predicate is Prisma.Sql => predicate !== undefined);
+}
+
+/**
+ * A film carries a SET of types ("documentary" + "short"), so each requested
+ * value is matched by overlap and the arms are OR'd — picking Movie + Short
+ * still returns features and shorts alike. The per-value rules (notably that
+ * "movie" means the feature) live in `contentTypeSql`.
+ */
+function contentTypePredicate(values: string[] | undefined): Prisma.Sql | undefined {
+  if (!values || values.length === 0) return undefined;
+
+  const arms = values.map(value => contentTypeSql(filmColumn("types"), value));
+  return Prisma.sql`(${Prisma.join(arms, " OR ")})`;
 }
 
 function equalsAnyPredicate(column: string, values: string[] | undefined): Prisma.Sql | undefined {
