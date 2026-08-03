@@ -1,5 +1,4 @@
 import { cn } from "@/lib/utils";
-import { compactCount } from "@/lib/browse/facet-options";
 
 /**
  * One filter chip: a toggle button, announced with `aria-pressed`.
@@ -20,8 +19,10 @@ export function FilterChip({
   active: boolean;
   onClick: () => void;
   children: React.ReactNode;
-  /** Films behind this chip under the other filters. `0` disables it;
-   *  `undefined` means not counted (yet), which must not. */
+  /** Films behind this chip under the other filters. Never rendered — a number
+   *  on every chip turned a row of choices into a row of statistics. It is read
+   *  only to decide reachability: `0` disables the chip, `undefined` (not counted
+   *  yet) must not. */
   count?: number | undefined;
 }) {
   // A chip row is a fixed set, so an unreachable value is dimmed in place rather
@@ -35,6 +36,8 @@ export function FilterChip({
       type="button"
       aria-pressed={active}
       disabled={unreachable}
+      // The chip is dimmed with no number to explain it, so the reason is here.
+      title={unreachable ? "No films match your other filters" : undefined}
       onClick={onClick}
       className={cn(
         "h-8 rounded-md border px-3 font-[family-name:var(--font-geist-mono)] text-[12px] tabular-nums transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/35",
@@ -46,17 +49,6 @@ export function FilterChip({
       )}
     >
       {children}
-      {count != null && (
-        <span
-          data-facet-count
-          className={cn(
-            "ml-1.5 text-[11px] transition-opacity duration-200",
-            active ? "text-[#09090f]/60" : unreachable ? "text-[#413e4c]" : "text-[#6f6b80]",
-          )}
-        >
-          {compactCount(count)}
-        </span>
-      )}
     </button>
   );
 }

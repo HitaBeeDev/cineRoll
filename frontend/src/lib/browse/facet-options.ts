@@ -91,18 +91,3 @@ export function reachableYears(
     .map((c) => ({ year: Number(c.value), count: c.count }))
     .filter(({ year, count }) => Number.isFinite(year) && (count > 0 || kept.has(year)));
 }
-
-/**
- * Counts as they appear inside chips and toggle strips: "1.2k", not "1,204".
- *
- * Those controls are laid out in fixed rows, so a count that grows with the size
- * of the catalogue would wrap the row. The dropdown lists have a column to
- * themselves and use full numbers.
- */
-export function compactCount(count: number): string {
-  if (count < 1000) return String(count);
-
-  const thousands = count / 1000;
-  // 1.2k up to 9.9k, then whole thousands — "12.4k" reads as noise at this size.
-  return thousands < 10 ? `${thousands.toFixed(1)}k` : `${Math.round(thousands)}k`;
-}

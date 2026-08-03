@@ -1,6 +1,5 @@
 import { Fragment } from "react";
 import { cn } from "@/lib/utils";
-import { compactCount } from "@/lib/browse/facet-options";
 import { useFieldLabelling } from "@/components/ui/field-label-context";
 
 /**
@@ -20,8 +19,8 @@ export function ToggleStrip({
     active: boolean;
     onToggle: () => void;
     groupStart?: boolean;
-    /** Films behind this toggle under the other filters. `0` disables it;
-     *  `undefined` means not counted (yet), which must not. */
+    /** Films behind this toggle. Never rendered — read only to decide
+     *  reachability: `0` disables it, `undefined` (not counted yet) must not. */
     count?: number | undefined;
   }[];
   ariaLabel: string;
@@ -57,6 +56,7 @@ export function ToggleStrip({
                 type="button"
                 aria-pressed={item.active}
                 disabled={unreachable}
+                title={unreachable ? "No films match your other filters" : undefined}
                 onClick={item.onToggle}
                 className={cn(
                   "h-8 shrink-0 rounded px-3 font-[family-name:var(--font-geist-mono)] text-[12px] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40",
@@ -68,17 +68,6 @@ export function ToggleStrip({
                 )}
               >
                 {item.label}
-                {item.count != null && (
-                  <span
-                    data-facet-count
-                    className={cn(
-                      "ml-1.5 text-[11px] tabular-nums transition-opacity duration-200",
-                      item.active ? "text-[#09090f]/60" : unreachable ? "text-[#413e4c]" : "text-[#615d70]",
-                    )}
-                  >
-                    {compactCount(item.count)}
-                  </span>
-                )}
               </button>
             </Fragment>
           );
