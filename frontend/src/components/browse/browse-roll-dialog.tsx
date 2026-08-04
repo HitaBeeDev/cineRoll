@@ -1,11 +1,14 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useSession } from "next-auth/react";
-import { Shuffle } from "lucide-react";
+import { Shuffle, X } from "lucide-react";
 import { Dialog } from "@/components/ui/dialog/dialog";
+import { DialogClose } from "@/components/ui/dialog/dialog-close";
 import { DialogContent } from "@/components/ui/dialog/dialog-content";
 import { DialogTitle } from "@/components/ui/dialog/dialog-title";
+import { ChannelPill } from "@/components/home/film-card/channel-pill";
 import { FilmCard } from "@/components/home/film-card";
 import { RollProjector } from "@/components/browse/roll-projector";
 import { cn } from "@/lib/utils/cn";
@@ -47,6 +50,18 @@ export function BrowseRollDialog({
   const reducedMotion = useReducedMotion() ?? false;
   const isAuthenticated = useSession().status === "authenticated";
 
+  const scrollRef = useRef<HTMLDivElement>(null);
+  // Whether the hero has scrolled out from under the header, which is when the
+  // header takes over stating what you are looking at.
+  const [condensed, setCondensed] = useState(false);
+
+  // Every draw starts at the top of its own card. Without this a reroll from
+  // halfway down the previous one opens the next film mid-plot.
+  useEffect(() => {
+    if (scrollRef.current) scrollRef.current.scrollTop = 0;
+    setCondensed(false);
+  }, [film?.id, rolling]);
+
   const fade = reducedMotion
     ? { duration: 0 }
     : { type: "spring" as const, stiffness: 260, damping: 22, mass: 0.9 };
@@ -59,8 +74,12 @@ export function BrowseRollDialog({
           scores down lived below the fold of a box with empty page on either side
           of it. A roll is a payoff and wanted the room. */}
       <DialogContent
+        showCloseButton={false}
         className={cn(
-          "flex max-h-[90dvh] w-[calc(100vw-1.5rem)] max-w-md flex-col overflow-hidden p-0 sm:max-w-3xl",
+          // Short of the viewport on purpose. At 90dvh the dialog met the
+          // browser chrome top and bottom and stopped reading as a panel over
+          // the page — it read as the page, with its own scrollbar.
+          "flex max-h-[85dvh] w-[calc(100vw-1.5rem)] max-w-md flex-col overflow-hidden p-0 sm:max-w-3xl",
           "border-[#1c1a25] bg-[#0b0b12]",
         )}
       >
@@ -68,11 +87,69 @@ export function BrowseRollDialog({
             own name exists for the screen reader and the reader alone. */}
         <DialogTitle className="sr-only">Your roll</DialogTitle>
 
+        {/* Pinned header. Taller content has to scroll — that is what a dialog
+            with a fixed ceiling does — but scrolling used to slice the top of
+            the card off mid-title, leaving a poster with no name on it and a
+            close button floating over whatever had slid under it. The header is
+            the part that does not move: it holds the close, and once the hero
+            leaves it picks the title back up so the frame always says what you
+            are looking at. */}
+        <div className="relative z-10 flex shrink-0 items-center gap-3 border-b border-[#17171f] bg-[#0b0b12] px-4 py-2.5">
+          <div className="flex min-h-[26px] min-w-0 flex-1 items-center">
+            <AnimatePresence mode="wait" initial={false}>
+              {film && condensed ? (
+                <motion.p
+                  key="title"
+                  initial={{ opacity: 0, y: reducedMotion ? 0 : -6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: reducedMotion ? 0 : 6 }}
+                  transition={{ duration: reducedMotion ? 0 : 0.16 }}
+                  className="truncate font-[family-name:var(--font-display)] text-[15px] font-bold tracking-tight text-[#F5F5F0]"
+                >
+                  {film.title}
+                </motion.p>
+              ) : (
+                <motion.div
+                  key="pill"
+                  initial={{ opacity: 0, y: reducedMotion ? 0 : -6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: reducedMotion ? 0 : 6 }}
+                  transition={{ duration: reducedMotion ? 0 : 0.16 }}
+                  className="min-w-0"
+                >
+                  <ChannelPill title={film?.title ?? "cineroll"} />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          <DialogClose
+            aria-label="Close dialog"
+            className={cn(
+              "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[#8e899e]",
+              "transition-colors duration-150 hover:bg-white/10 hover:text-white",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40",
+            )}
+          >
+            <X className="h-[18px] w-[18px]" aria-hidden />
+          </DialogClose>
+        </div>
+
         {/* Scrollbar hidden, not styled: the site's is a red thumb on a dark
             track, which reads as a design element rather than a scrollbar when it
             runs down the inside edge of a card. The content fits at this width in
             the common case; wheel, drag and keyboard all still scroll. */}
-        <div className="min-h-0 flex-1 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:w-0">
+        <div
+          ref={scrollRef}
+          onScroll={(event) => {
+            // Two thresholds, not one: a single line to cross means a card
+            // parked right on it flickers between the two headers on every
+            // stray wheel tick.
+            const { scrollTop } = event.currentTarget;
+            setCondensed((was) => (was ? scrollTop > 60 : scrollTop > 104));
+          }}
+          className="min-h-0 flex-1 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:w-0"
+        >
           <AnimatePresence mode="wait">
             {rolling ? (
               <motion.div

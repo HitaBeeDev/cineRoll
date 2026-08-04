@@ -90,7 +90,10 @@ export function FilmCard({
 
   return (
     <div className="flex flex-col">
-      <ChannelPill title={film.title} />
+      {/* In `split` the dialog around the card owns the pill: it belongs to the
+          sticky header there, where it stays legible after the hero scrolls
+          away. Printing it here too would state the same tag twice. */}
+      {!split && <ChannelPill title={film.title} className="-mx-1 -mt-1 mb-2" />}
 
       <CardHeader
         film={film}
