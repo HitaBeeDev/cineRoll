@@ -41,7 +41,7 @@ export function AwardsPanel({ highlights }: { highlights: AwardHighlight[] }) {
               <span
                 className={cn(
                   "flex min-w-0 items-center gap-2.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.16em]",
-                  honored ? "text-[#ECE7D6]" : "text-[#8a8a9c]",
+                  honored ? "text-[#ECE7D6]" : "text-[#b0b0c0]",
                 )}
               >
                 <span
@@ -57,14 +57,14 @@ export function AwardsPanel({ highlights }: { highlights: AwardHighlight[] }) {
               {item.rank != null ? (
                 <span className="flex shrink-0 items-baseline gap-1 font-[family-name:var(--font-geist-mono)]">
                   <span className="text-base font-bold leading-none text-[#D4AF37]">#{item.rank}</span>
-                  <span className="text-[11px] uppercase tracking-[0.12em] text-[#D4AF37]/60">rank</span>
+                  <span className="text-[11px] uppercase tracking-[0.12em] text-[#D4AF37]/85">rank</span>
                 </span>
               ) : (
                 <span className="flex shrink-0 items-baseline gap-3 font-[family-name:var(--font-geist-mono)]">
                   {item.wins > 0 && (
                     <span className="flex items-baseline gap-1">
                       <span className="text-base font-bold leading-none text-[#D4AF37]">{item.wins}</span>
-                      <span className="text-[11px] uppercase tracking-[0.14em] text-[#D4AF37]/65">won</span>
+                      <span className="text-[11px] uppercase tracking-[0.14em] text-[#D4AF37]/85">won</span>
                     </span>
                   )}
                   {item.nominations > 0 && (
@@ -77,7 +77,7 @@ export function AwardsPanel({ highlights }: { highlights: AwardHighlight[] }) {
                       >
                         {item.nominations}
                       </span>
-                      <span className="text-[11px] uppercase tracking-[0.14em] text-[#6c6c80]">nom</span>
+                      <span className="text-[11px] uppercase tracking-[0.14em] text-[#b0b0c0]">nom</span>
                     </span>
                   )}
                 </span>

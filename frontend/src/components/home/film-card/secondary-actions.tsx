@@ -33,7 +33,7 @@ export function SecondaryActions({
         className={cn(
           "flex flex-1 items-center justify-center rounded-xl py-3",
           "border border-[#2a2a3e] text-[#F5F5F0]",
-          "font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.2em]",
+          "font-[family-name:var(--font-geist-mono)] text-[12px] font-bold uppercase tracking-[0.2em]",
           "transition-colors hover:border-[#6a6a85] hover:text-[#F5F5F0]",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
         )}
@@ -48,7 +48,7 @@ export function SecondaryActions({
         label="Add to list"
         className={cn(
           "flex h-11 items-center justify-center rounded-xl px-3",
-          "border border-[#1e1e2a] text-[#888899]",
+          "border border-[#1e1e2a] text-[#a8a8ba]",
           "transition-colors hover:border-[#2a2a3e] hover:text-[#F5F5F0]",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
         )}
@@ -61,7 +61,7 @@ export function SecondaryActions({
         triggerAriaLabel="Share this film"
         triggerClassName={cn(
           "flex h-11 items-center justify-center rounded-xl px-3",
-          "border border-[#1e1e2a] text-[#888899]",
+          "border border-[#1e1e2a] text-[#a8a8ba]",
           "transition-colors hover:border-[#2a2a3e] hover:text-[#F5F5F0]",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
         )}

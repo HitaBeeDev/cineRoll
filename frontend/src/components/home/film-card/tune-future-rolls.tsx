@@ -86,7 +86,7 @@ export function TuneFutureRolls({
           does both too. The weights behind the four still differ; the interface
           no longer asks anyone to guess which side of the data model a button
           falls on. */}
-      <h3 className="mb-2 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.2em] text-[#888899]">
+      <h3 className="mb-2 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.2em] text-[#a8a8ba]">
         Improve your recommendations
       </h3>
       {/* Four distinct signals, each teaching the roll differently:
@@ -144,10 +144,10 @@ export function TuneFutureRolls({
       {signalRecorded && (
         <p
           aria-live="polite"
-          className="mt-2.5 flex items-center gap-1.5 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.14em] text-[#6c6c80]"
+          className="mt-2.5 flex items-center gap-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-[#a4a5b6]"
         >
           {saving ? (
-            <Loader2 aria-hidden className="h-2.5 w-2.5 animate-spin text-[#6c6c80]" />
+            <Loader2 aria-hidden className="h-2.5 w-2.5 animate-spin text-[#9a9aad]" />
           ) : (
             <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-[#3fb950]" />
           )}

@@ -116,7 +116,12 @@ export function FilmCard({
           {film.plot && (
             <p
               className={cn(
-                "text-xs leading-relaxed text-[#888899]",
+                // The synopsis is prose, and it was set like a caption: 12px in
+                // the same grey as the labels around it, which made the one
+                // paragraph on the card look disabled. It gets a reading size,
+                // a reading line height, and the brightest of the supporting
+                // greys.
+                "text-[15px] leading-[1.6] text-[#c6c6d2]",
                 // Given a column of its own the plot can afford to finish its
                 // thought; squeezed into the narrow rail it still gets three lines.
                 split ? "line-clamp-6" : "line-clamp-3",

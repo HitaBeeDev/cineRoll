@@ -34,17 +34,17 @@ export function CardIdentity({
       <div className="flex flex-col gap-1.5">
         <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5">
           {contentType && (
-            <span className="rounded-[3px] border border-white/25 bg-white/[0.07] px-2 py-[3px] font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.16em] text-[#dcdce6]">
+            <span className="rounded-[3px] border border-white/25 bg-white/[0.07] px-2 py-[3px] font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.16em] text-[#e6e6ee]">
               {contentType}
             </span>
           )}
-          <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.2em] text-[#9494a6]">
+          <p className="font-[family-name:var(--font-geist-mono)] text-[12px] uppercase tracking-[0.2em] text-[#b6b6c4]">
             {meta}
           </p>
         </div>
 
         {genres && (
-          <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-[#9292a4]">
+          <p className="font-[family-name:var(--font-geist-mono)] text-[12px] uppercase tracking-[0.14em] text-[#b6b6c4]">
             {genres}
           </p>
         )}
@@ -63,8 +63,8 @@ export function CardIdentity({
           tighter tracking, while the credit word beside it keeps the wide
           label spacing of the strip above. */}
       {film.director && (
-        <p className="font-[family-name:var(--font-geist-mono)] text-[12px] uppercase tracking-[0.08em] text-[#a3a3b4]">
-          <span className="tracking-[0.2em] text-[#82828f]">{formatCreditLabel(film)}</span>{" "}
+        <p className="font-[family-name:var(--font-geist-mono)] text-[13px] uppercase tracking-[0.08em] text-[#d6d6e2]">
+          <span className="tracking-[0.2em] text-[#a4a4b4]">{formatCreditLabel(film)}</span>{" "}
           {film.director}
         </p>
       )}

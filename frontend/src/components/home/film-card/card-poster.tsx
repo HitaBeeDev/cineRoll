@@ -84,7 +84,7 @@ export function CardPoster({
           />
         ) : (
           <div className="flex h-full items-center justify-center bg-gradient-to-br from-[#1a1a2e] to-[#0a0a18]">
-            <span className="font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-widest text-[#888899]">
+            <span className="font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-widest text-[#a8a8ba]">
               No image
             </span>
           </div>

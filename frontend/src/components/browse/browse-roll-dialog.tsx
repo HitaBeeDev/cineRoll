@@ -154,7 +154,7 @@ export function BrowseRollDialog({
           <DialogClose
             aria-label="Close dialog"
             className={cn(
-              "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[#8e899e]",
+              "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[#a8a8ba]",
               "transition-colors duration-150 hover:bg-white/10 hover:text-white",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40",
             )}
@@ -232,7 +232,7 @@ export function BrowseRollDialog({
                     ? "No films match these filters."
                     : "The roll didn't come back."}
                 </p>
-                <p className="text-xs leading-relaxed text-[#8e899e]">
+                <p className="text-[13px] leading-[1.6] text-[#b0b0c0]">
                   {error === "empty"
                     ? "Loosen a filter and roll again — or clear them and roll the whole catalogue."
                     : "Check your connection and try again."}
@@ -244,7 +244,7 @@ export function BrowseRollDialog({
                       onClearFilters();
                       onOpenChange(false);
                     }}
-                    className="mt-1 font-[family-name:var(--font-geist-mono)] text-[12px] text-[#a9a5bc] underline decoration-white/25 underline-offset-4 transition-colors hover:text-[#ff766d]"
+                    className="mt-1 font-[family-name:var(--font-geist-mono)] text-[12px] text-[#c2c2d0] underline decoration-white/25 underline-offset-4 transition-colors hover:text-[#ff766d]"
                   >
                     Clear all filters
                   </button>

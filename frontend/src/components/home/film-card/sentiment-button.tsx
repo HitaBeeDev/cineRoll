@@ -20,10 +20,10 @@ export function SentimentButton({
     tone === "like"
       ? active
         ? "border-[#3fb950]/45 bg-[#3fb950]/12 text-[#7ee787]"
-        : "border-[#1e1e2a] text-[#888899] hover:border-[#3fb950]/45 hover:text-[#7ee787]"
+        : "border-[#1e1e2a] text-[#a8a8ba] hover:border-[#3fb950]/45 hover:text-[#7ee787]"
       : active
         ? "border-[#46465e] bg-white/[0.06] text-[#F5F5F0]"
-        : "border-[#1e1e2a] text-[#888899] hover:border-[#6a6a85] hover:text-[#F5F5F0]";
+        : "border-[#1e1e2a] text-[#a8a8ba] hover:border-[#6a6a85] hover:text-[#F5F5F0]";
 
   return (
     <button

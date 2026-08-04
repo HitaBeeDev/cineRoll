@@ -24,7 +24,7 @@ export function QuickActionButton({
   label: string;
   activeLabel: string;
 }) {
-  const idle = "border-[#1e1e2a] text-[#888899]";
+  const idle = "border-[#1e1e2a] text-[#a8a8ba]";
   // One recorded look for all of them, in the same green as the confirmation
   // line below the grid, because they all mean the same thing once pressed:
   // this is on file. Which signal it was is what the label is for. A brighter
@@ -52,7 +52,7 @@ export function QuickActionButton({
       aria-pressed={tone === "skip" ? undefined : active}
       className={cn(
         "flex h-11 items-center justify-center gap-1.5 rounded-xl border px-2",
-        "whitespace-nowrap font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.06em]",
+        "whitespace-nowrap font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.06em]",
         "transition-colors",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
         "disabled:cursor-not-allowed disabled:opacity-60",

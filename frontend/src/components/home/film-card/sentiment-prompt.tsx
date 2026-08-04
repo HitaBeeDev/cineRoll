@@ -24,7 +24,7 @@ export function SentimentPrompt({
       className="overflow-hidden"
     >
       <div className="mt-2 flex items-center justify-between gap-3 rounded-xl border border-[#1e1e2a] bg-[#0d0d1a] px-3 py-2.5">
-        <span className="font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.18em] text-[#888899]">
+        <span className="font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.18em] text-[#a8a8ba]">
           How was it?
         </span>
         <div className="flex items-center gap-2">
@@ -48,7 +48,7 @@ export function SentimentPrompt({
             type="button"
             aria-label="Dismiss"
             onClick={onDismiss}
-            className="ml-1 shrink-0 text-[#888899] transition-colors hover:text-[#F5F5F0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
+            className="ml-1 shrink-0 text-[#a8a8ba] transition-colors hover:text-[#F5F5F0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
           >
             <X className="h-4 w-4" aria-hidden />
           </button>
