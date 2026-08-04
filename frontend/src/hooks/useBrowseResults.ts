@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { FilterState, PaginatedFilms } from "@cineroll/types";
 import { fetchFilms } from "@/lib/api";
-import { PAGE_SIZE, type LoadStatus } from "@/lib/browse/options";
+import { PAGE_SIZE } from "@/lib/browse/options/page-size";
+import type { LoadStatus } from "@/lib/browse/options/load-status";
 
 export type BrowseResults = {
   result: PaginatedFilms | null;

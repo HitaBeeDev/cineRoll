@@ -1,7 +1,8 @@
 import type { FilterState } from "@cineroll/types";
 import { FilterRow } from "@/components/filter-bar/filter-row";
 import { PillToggle } from "@/components/filter-bar/pill-toggle";
-import { CONTENT_TYPES, toggleValue } from "@/components/filter-bar/constants";
+import { CONTENT_TYPES } from "@/components/filter-bar/constants/content-types";
+import { toggleValue } from "@/components/filter-bar/constants/toggle-value";
 
 /** Type row — multi-select content types; "All" clears the selection. */
 export function TypeRow({

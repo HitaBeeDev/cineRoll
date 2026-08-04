@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/cn";
 import type { FilmRecordType, StatsResponse } from "../types";
 import { FilmRecordGroup } from "./film-record-group";
 import { SectionHeader } from "./section-header";

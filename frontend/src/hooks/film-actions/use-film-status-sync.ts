@@ -2,10 +2,8 @@
 
 import { useEffect, type Dispatch, type SetStateAction } from "react";
 import { fetchFilmStatus, type FilmStatus } from "@/lib/api";
-import {
-  showReplayedDecision,
-  showWatchlistAdded,
-} from "./film-action-toasts";
+import { showReplayedDecision } from "@/hooks/film-actions/film-action-toasts/show-replayed-decision";
+import { showWatchlistAdded } from "@/hooks/film-actions/film-action-toasts/show-watchlist-added";
 import { replayPendingFilmAction } from "./replay-pending-film-action";
 import type { FilmActionState, Sentiment, Toast } from "./types";
 

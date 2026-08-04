@@ -3,7 +3,7 @@
 import { useCallback, useMemo, useRef, useState } from "react";
 import type { PointerEvent } from "react";
 import type { RollFilm } from "@/lib/api";
-import { CAROUSEL_VISIBLE_COUNT } from "./carousel-config";
+import { CAROUSEL_VISIBLE_COUNT } from "@/features/describe/carousel-config/carousel-visible-count";
 import type { FilmCarouselController } from "./film-carousel-controller";
 
 const DRAG_DETECTION_DISTANCE = 8;

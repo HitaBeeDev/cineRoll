@@ -2,7 +2,7 @@
 
 import type { MouseEvent, ReactNode } from "react";
 import { animate, motion, useReducedMotion } from "framer-motion";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/cn";
 
 type AnimatedJumpLinkProps = {
   children: ReactNode;

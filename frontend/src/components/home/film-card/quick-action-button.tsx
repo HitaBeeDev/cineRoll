@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/cn";
 
 /** One of the four "Tune future rolls" signals. Its tone sets the active/hover
  *  palette; the label swaps to `activeLabel` once the signal is engaged. */

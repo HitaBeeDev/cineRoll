@@ -1,8 +1,8 @@
 "use client";
 
 import { CalendarCheck, Share2 } from "lucide-react";
-import { useToast } from "@/components/ui/toast";
-import { cn } from "@/lib/utils";
+import { useToast } from "@/components/ui/toast/use-toast";
+import { cn } from "@/lib/utils/cn";
 
 type WatchTonightButtonProps = {
   title: string;

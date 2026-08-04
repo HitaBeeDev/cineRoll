@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/cn";
 import type { RecommendationActionButtonProps } from "../recommendation-component-types";
 
 export function RecommendationActionButton({

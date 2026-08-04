@@ -11,11 +11,9 @@ import { ProfileRecommendations } from "@/features/profile-dashboard/components/
 import { ProfileStats } from "@/features/profile-dashboard/components/profile-stats";
 import { RecommendationsSkeleton } from "@/features/profile-dashboard/components/recommendations-skeleton";
 import { isNewProfile } from "@/features/profile-dashboard/is-new-profile";
-import {
-  fetchCompletionProgress,
-  fetchProfileSummary,
-  fetchRecommendations,
-} from "@/features/profile-dashboard/profile-repository";
+import { fetchCompletionProgress } from "@/features/profile-dashboard/profile-repository/fetch-completion-progress";
+import { fetchProfileSummary } from "@/features/profile-dashboard/profile-repository/fetch-profile-summary";
+import { fetchRecommendations } from "@/features/profile-dashboard/profile-repository/fetch-recommendations";
 
 export const metadata: Metadata = {
   title: "Your Profile",

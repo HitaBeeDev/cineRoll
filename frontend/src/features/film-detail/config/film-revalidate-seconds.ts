@@ -1,0 +1,1 @@
+export const FILM_REVALIDATE_SECONDS = 3600;

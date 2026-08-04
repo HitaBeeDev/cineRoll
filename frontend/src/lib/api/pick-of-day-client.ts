@@ -1,4 +1,4 @@
-import { API_URL } from "./constants";
+import { API_URL } from "@/lib/api/constants/api-url";
 import type { PickOfDayFilm } from "./discovery-types";
 
 export async function fetchPickOfDay(): Promise<PickOfDayFilm | null> {

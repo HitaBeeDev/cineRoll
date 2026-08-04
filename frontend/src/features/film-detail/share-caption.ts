@@ -1,5 +1,5 @@
 import type { Film } from "@cineroll/types";
-import { displayTitle } from "@/lib/utils";
+import { displayTitle } from "@/lib/utils/display-title";
 
 export function buildShareCaption(film: Film): string {
   const awards = getShareAwards(film);

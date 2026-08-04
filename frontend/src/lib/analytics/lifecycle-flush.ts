@@ -1,4 +1,4 @@
-import { flushEvents } from "./flush-events";
+import { flushEvents } from "@/lib/analytics/flush-events/flush-events";
 
 let listenersBound = false;
 

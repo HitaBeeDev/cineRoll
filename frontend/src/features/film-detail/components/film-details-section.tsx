@@ -1,5 +1,5 @@
 import { ExternalLink } from "lucide-react";
-import { formatGenre } from "@/lib/format";
+import { formatGenre } from "@/lib/format/format-genre";
 import type { FilmDetailsSectionProps } from "../component-props";
 import { EditorialSectionLabel } from "@/components/editorial-section-label";
 import { MetaHeading } from "./meta-heading";

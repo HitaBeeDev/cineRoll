@@ -1,0 +1,1 @@
+export const CAROUSEL_VISIBLE_COUNT = 2;

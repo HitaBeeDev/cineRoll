@@ -2,12 +2,15 @@
 
 import { Check, Share2, Shuffle } from "lucide-react";
 import type { FilterState, PaginatedFilms } from "@cineroll/types";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/cn";
 import { FilterSelect } from "@/components/browse/filter-select";
 import { useShareFilters } from "@/hooks/useShareFilters";
-import { PAGE_SIZE, type LoadStatus } from "@/lib/browse/options";
-import { sortChoiceFromKey, sortChoiceKey, sortOptionsFor } from "@/lib/browse/sort-choices";
-import type { SetFilters } from "@/lib/browse/filter-descriptors";
+import { PAGE_SIZE } from "@/lib/browse/options/page-size";
+import type { LoadStatus } from "@/lib/browse/options/load-status";
+import { sortChoiceFromKey } from "@/lib/browse/sort-choices/sort-choice-from-key";
+import { sortChoiceKey } from "@/lib/browse/sort-choices/sort-choice-key";
+import { sortOptionsFor } from "@/lib/browse/sort-choices/sort-options-for";
+import type { SetFilters } from "@/lib/browse/filter-descriptors/set-filters";
 
 /**
  * The results summary row: film count + "showing X–Y", the Roll entry point, and

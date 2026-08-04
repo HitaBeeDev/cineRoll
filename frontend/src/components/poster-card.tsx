@@ -1,5 +1,6 @@
 import Image from "next/image";
-import { blurDataUrl, tmdbImageUrl } from "@/lib/images";
+import { blurDataUrl } from "@/lib/images/blur-data-url";
+import { tmdbImageUrl } from "@/lib/images/tmdb-image-url";
 
 /**
  * The framed poster that floats on the right of the film detail hero

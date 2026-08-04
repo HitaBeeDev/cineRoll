@@ -1,4 +1,4 @@
-import { DAILY_PICKS_ACCENT } from "../config";
+import { DAILY_PICKS_ACCENT } from "@/features/daily-picks/config/daily-picks-accent";
 import type { PicksPageContextProps } from "../component-props";
 
 export function PicksPageContext({ dateLabel }: PicksPageContextProps) {

@@ -1,5 +1,5 @@
 import { Menu } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/cn";
 
 /** Mobile hamburger that opens the navigation sheet. */
 export function MenuToggleButton({

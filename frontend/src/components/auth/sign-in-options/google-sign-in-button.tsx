@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/cn";
 import { GoogleIcon } from "@/components/auth/sign-in-options/google-icon";
 
 export function GoogleSignInButton({

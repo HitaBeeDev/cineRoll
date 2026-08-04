@@ -1,5 +1,5 @@
 import type { DailyPick, PickDiversity } from "./domain-types";
-import { PICK_SLOTS } from "./pick-slots";
+import { PICK_SLOTS } from "@/features/daily-picks/pick-slots/pick-slots";
 import { selectPick } from "./select-pick";
 
 export async function selectDailyPicks(

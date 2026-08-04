@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { newTabPropsFor } from "@/lib/film-link";
+import { newTabPropsFor } from "@/lib/film-link/new-tab-props-for";
 
 type SmartLinkProps = {
   href: string;

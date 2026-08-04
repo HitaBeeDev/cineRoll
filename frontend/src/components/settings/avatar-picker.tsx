@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { AVATAR_OPTIONS, AVATAR_PREVIEW_COUNT } from "@/lib/avatars";
+import { AVATAR_OPTIONS } from "@/lib/avatars/avatar-options";
+import { AVATAR_PREVIEW_COUNT } from "@/lib/avatars/avatar-preview-count";
 import { AvatarTile } from "./avatar-tile";
 import { useAvatarPicker } from "./use-avatar-picker";
 

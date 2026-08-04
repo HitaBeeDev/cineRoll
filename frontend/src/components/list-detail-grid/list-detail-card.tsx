@@ -3,8 +3,9 @@
 import Image from "next/image";
 import { Trash2 } from "lucide-react";
 import { FilmLink } from "@/components/film-link";
-import { blurDataUrl, tmdbImageUrl } from "@/lib/images";
-import { cn } from "@/lib/utils";
+import { blurDataUrl } from "@/lib/images/blur-data-url";
+import { tmdbImageUrl } from "@/lib/images/tmdb-image-url";
+import { cn } from "@/lib/utils/cn";
 import type { SavedFilm } from "@/types/saved-film";
 import { TileMetaLine } from "@/components/film-tile/tile-meta-line";
 import { awardSummary } from "./award-summary";

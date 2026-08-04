@@ -1,12 +1,10 @@
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { cn } from "@/lib/utils";
-import { useFieldLabelling } from "@/components/ui/field-label-context";
+import { Select } from "@/components/ui/select/select";
+import { SelectContent } from "@/components/ui/select/select-content";
+import { SelectItem } from "@/components/ui/select/select-item";
+import { SelectTrigger } from "@/components/ui/select/select-trigger";
+import { SelectValue } from "@/components/ui/select/select-value";
+import { cn } from "@/lib/utils/cn";
+import { useFieldLabelling } from "@/components/ui/field-label-context/use-field-labelling";
 
 // Constant look shared by every filter dropdown trigger. Deliberately omits the
 // utilities that vary per instance (width, text colour, uppercase/tracking) —

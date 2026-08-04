@@ -1,8 +1,8 @@
 "use client";
 
 import { Fragment, useRef } from "react";
-import { cn } from "@/lib/utils";
-import { useFieldLabelling } from "@/components/ui/field-label-context";
+import { cn } from "@/lib/utils/cn";
+import { useFieldLabelling } from "@/components/ui/field-label-context/use-field-labelling";
 
 /**
  * A single-choice strip where one option is always chosen (award result: All /

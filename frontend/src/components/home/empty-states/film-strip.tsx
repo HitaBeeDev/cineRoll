@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/cn";
 
 /** Perforated film-strip edge used at the top and bottom of an empty state. */
 export function FilmStrip({ edge }: { edge: "top" | "bottom" }) {

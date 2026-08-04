@@ -1,55 +1,40 @@
-export {
-  changePassword,
-  deleteAccount,
-  updateAvatar,
-} from "./api/account-client";
-export type { ChangePasswordInput } from "./api/account-client";
+export { changePassword } from "@/lib/api/account-client/change-password";
+export { deleteAccount } from "@/lib/api/account-client/delete-account";
+export { updateAvatar } from "@/lib/api/account-client/update-avatar";
+export type { ChangePasswordInput } from "@/lib/api/account-client/change-password-input";
 export { fetchMarathon } from "./api/fetch-marathon";
-export {
-  fetchRandom,
-  fetchRandomCount,
-  fetchSeededRandom,
-} from "./api/fetch-random";
+export { fetchRandom } from "@/lib/api/fetch-random/fetch-random";
+export { fetchRandomCount } from "@/lib/api/fetch-random/fetch-random-count";
+export { fetchSeededRandom } from "@/lib/api/fetch-random/fetch-seeded-random";
 export { fetchNaturalRoll } from "./api/fetch-natural-roll";
-export {
-  addFilmToWatchlist,
-  removeFilmFromWatchlist,
-} from "./api/watchlist-client";
-export {
-  fetchFilmStatus,
-  markFilmWatched,
-  removeFilmWatched,
-} from "./api/watched-client";
+export { addFilmToWatchlist } from "@/lib/api/watchlist-client/add-film-to-watchlist";
+export { removeFilmFromWatchlist } from "@/lib/api/watchlist-client/remove-film-from-watchlist";
+export { fetchFilmStatus } from "@/lib/api/watched-client/fetch-film-status";
+export { markFilmWatched } from "@/lib/api/watched-client/mark-film-watched";
+export { removeFilmWatched } from "@/lib/api/watched-client/remove-film-watched";
 export { saveOnboardingGenres } from "./api/onboarding-client";
-export {
-  addFilmToList,
-  createUserList,
-  deleteUserList,
-  fetchListPage,
-  fetchUserLists,
-  removeFilmFromList,
-  renameUserList,
-} from "./api/user-lists-client";
-export type { ListPage } from "./api/user-lists-client";
-export {
-  fetchFilmBySlug,
-  fetchFilms,
-  fetchOnboardingTasteCards,
-} from "./api/films-client";
+export { addFilmToList } from "@/lib/api/user-lists-client/add-film-to-list";
+export { createUserList } from "@/lib/api/user-lists-client/create-user-list";
+export { deleteUserList } from "@/lib/api/user-lists-client/delete-user-list";
+export { fetchListPage } from "@/lib/api/user-lists-client/fetch-list-page";
+export { fetchUserLists } from "@/lib/api/user-lists-client/fetch-user-lists";
+export { removeFilmFromList } from "@/lib/api/user-lists-client/remove-film-from-list";
+export { renameUserList } from "@/lib/api/user-lists-client/rename-user-list";
+export type { ListPage } from "@/lib/api/user-lists-client/list-page";
+export { fetchFilmBySlug } from "@/lib/api/films-client/fetch-film-by-slug";
+export { fetchFilms } from "@/lib/api/films-client/fetch-films";
+export { fetchOnboardingTasteCards } from "@/lib/api/films-client/fetch-onboarding-taste-cards";
 export { fetchPickOfDay } from "./api/pick-of-day-client";
-export { EMPTY_FACET_COUNTS, fetchFacetCounts } from "./api/facets-client";
-export {
-  fetchAwardYears,
-  fetchCategories,
-  fetchCountries,
-  fetchGenres,
-  fetchLanguages,
-  fetchReleaseYears,
-} from "./api/facets-client";
-export {
-  fetchAutocomplete,
-  fetchPersonSuggestions,
-} from "./api/search-client";
+export { EMPTY_FACET_COUNTS } from "@/lib/api/facets-client/empty-facet-counts";
+export { fetchFacetCounts } from "@/lib/api/facets-client/fetch-facet-counts";
+export { fetchAwardYears } from "@/lib/api/facets-client/fetch-award-years";
+export { fetchCategories } from "@/lib/api/facets-client/fetch-categories";
+export { fetchCountries } from "@/lib/api/facets-client/fetch-countries";
+export { fetchGenres } from "@/lib/api/facets-client/fetch-genres";
+export { fetchLanguages } from "@/lib/api/facets-client/fetch-languages";
+export { fetchReleaseYears } from "@/lib/api/facets-client/fetch-release-years";
+export { fetchAutocomplete } from "@/lib/api/search-client/fetch-autocomplete";
+export { fetchPersonSuggestions } from "@/lib/api/search-client/fetch-person-suggestions";
 export { filtersToParams } from "./api/filters-to-params";
 export type {
   BanditLane,

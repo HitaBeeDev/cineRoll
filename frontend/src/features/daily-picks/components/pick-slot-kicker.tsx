@@ -1,4 +1,4 @@
-import { DAILY_PICKS_ACCENT } from "../config";
+import { DAILY_PICKS_ACCENT } from "@/features/daily-picks/config/daily-picks-accent";
 import type { PickSlotKickerProps } from "../component-props";
 import { PickSlotIcon } from "./pick-slot-icon";
 

@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/cn";
 
 /** A rounded toggle pill used throughout the filter rows. */
 export function PillToggle({

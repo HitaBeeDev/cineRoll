@@ -2,8 +2,8 @@
 
 import * as React from "react";
 import { Check, ChevronDown, Search } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { useFieldLabelling } from "@/components/ui/field-label-context";
+import { cn } from "@/lib/utils/cn";
+import { useFieldLabelling } from "@/components/ui/field-label-context/use-field-labelling";
 
 export type MultiSelectOption = {
   value: string;

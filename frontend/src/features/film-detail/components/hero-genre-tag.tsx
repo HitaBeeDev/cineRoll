@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Tag } from "lucide-react";
-import { formatGenre } from "@/lib/format";
+import { formatGenre } from "@/lib/format/format-genre";
 import type { HeroGenreTagProps } from "../component-props";
 
 export function HeroGenreTag({ genre }: HeroGenreTagProps) {

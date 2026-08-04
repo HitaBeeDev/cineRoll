@@ -1,6 +1,6 @@
 import type { AwardRecord } from "@cineroll/types";
-import { cn } from "@/lib/utils";
-import { AWARD_BODY_LABEL } from "@/components/home/film-card/awards";
+import { cn } from "@/lib/utils/cn";
+import { AWARD_BODY_LABEL } from "@/components/home/film-card/awards/award-body-label";
 
 /** The itemised award record beneath the scores — the "receipts" behind the
  *  header badge's at-a-glance count, capped with a "+N more" pointer. */

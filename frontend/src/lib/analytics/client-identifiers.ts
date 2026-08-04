@@ -1,4 +1,5 @@
-import { ANON_ID_KEY, SESSION_ID_KEY } from "./constants";
+import { ANON_ID_KEY } from "@/lib/analytics/constants/anon-id-key";
+import { SESSION_ID_KEY } from "@/lib/analytics/constants/session-id-key";
 
 function createId(): string {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {

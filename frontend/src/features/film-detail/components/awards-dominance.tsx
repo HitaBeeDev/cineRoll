@@ -1,9 +1,7 @@
 import type { AwardSummaryProps } from "../component-props";
-import {
-  getAwardBreakdown,
-  getHighlightedAwardRecords,
-} from "../award-view-model";
-import { HERO_AWARD_GOLD } from "../config";
+import { getAwardBreakdown } from "@/features/film-detail/award-view-model/get-award-breakdown";
+import { getHighlightedAwardRecords } from "@/features/film-detail/award-view-model/get-highlighted-award-records";
+import { HERO_AWARD_GOLD } from "@/features/film-detail/config/hero-award-gold";
 
 export function AwardsDominance({ summary }: AwardSummaryProps) {
   if (summary.ceremonies.length === 0) return null;

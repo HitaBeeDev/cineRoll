@@ -1,7 +1,7 @@
 import Image from "next/image";
 import type { PickOfDayFilm } from "@/lib/api";
-import { tmdbImageUrl } from "@/lib/images";
-import { cn } from "@/lib/utils";
+import { tmdbImageUrl } from "@/lib/images/tmdb-image-url";
+import { cn } from "@/lib/utils/cn";
 
 /** The pick card's poster, with a placeholder when the film has no poster. */
 export function PickPoster({

@@ -1,6 +1,7 @@
 import Image from "next/image";
-import { blurDataUrl, tmdbImageUrl } from "@/lib/images";
-import { cn } from "@/lib/utils";
+import { blurDataUrl } from "@/lib/images/blur-data-url";
+import { tmdbImageUrl } from "@/lib/images/tmdb-image-url";
+import { cn } from "@/lib/utils/cn";
 import type { FilmHeroBackgroundProps } from "../component-props";
 
 export function FilmHeroBackground({

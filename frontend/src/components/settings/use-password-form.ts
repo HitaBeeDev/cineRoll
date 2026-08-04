@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { changePassword } from "@/lib/api";
-import { useToast } from "@/components/ui/toast";
+import { useToast } from "@/components/ui/toast/use-toast";
 import { validatePasswordForm } from "./password-form-validation";
 
 /**

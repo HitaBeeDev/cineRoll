@@ -1,5 +1,6 @@
 import type { NaturalRollFilters } from "@/lib/api";
-import { AWARD_LABELS, LANGUAGE_LABELS } from "./filter-labels";
+import { AWARD_LABELS } from "@/features/describe/filter-labels/award-labels";
+import { LANGUAGE_LABELS } from "@/features/describe/filter-labels/language-labels";
 
 function formatAwardFilter(filters: NaturalRollFilters): string | null {
   const awardBody = filters.awardBody;

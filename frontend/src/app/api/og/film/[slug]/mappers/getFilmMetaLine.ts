@@ -1,5 +1,5 @@
 import type { Film } from "@cineroll/types";
-import { formatFilmLength } from "@/lib/format";
+import { formatFilmLength } from "@/lib/format/format-film-length";
 
 export function getFilmMetaLine(film: Film): string {
   return [

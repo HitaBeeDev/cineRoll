@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/cn";
 import { PasswordInput } from "@/components/auth/password-input";
 import type { Mode } from "@/components/auth/sign-in-options/types";
-import { inputClass, labelClass } from "@/components/auth/sign-in-options/styles";
+import { inputClass } from "@/components/auth/sign-in-options/styles/input-class";
+import { labelClass } from "@/components/auth/sign-in-options/styles/label-class";
 
 interface CredentialsFormProps {
   mode: Mode;

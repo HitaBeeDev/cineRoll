@@ -2,10 +2,10 @@
 
 import { useCallback, useMemo, useRef, useState } from "react";
 import { fetchNaturalRoll } from "@/lib/api";
-import { PROMPT_MAX_LENGTH } from "./prompt-config";
+import { PROMPT_MAX_LENGTH } from "@/features/describe/prompt-config/prompt-max-length";
 import { getNaturalRollFailure } from "./get-natural-roll-error";
 import { getNaturalRollStatus } from "./get-natural-roll-status";
-import { trackNaturalRollResults } from "./natural-roll-analytics";
+import { trackNaturalRollResults } from "@/features/describe/natural-roll-analytics/track-natural-roll-results";
 import type { NaturalRollController } from "./natural-roll-controller";
 import type {
   NaturalRollFilters,

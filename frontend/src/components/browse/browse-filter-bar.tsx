@@ -1,21 +1,23 @@
 import { useState } from "react";
 import { SlidersHorizontal } from "lucide-react";
 import type { FacetCounts, FilterState } from "@cineroll/types";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/cn";
 import { BrowseSearchBox } from "@/components/browse/browse-search-box";
 import { ToggleStrip } from "@/components/browse/toggle-strip";
 import { SegmentedControl } from "@/components/browse/segmented-control";
 import { ActiveFilterChips } from "@/components/browse/active-filter-chips";
 import { BrowseAdvancedPanel } from "@/components/browse/browse-advanced-panel";
-import { AWARD_BODY_OPTIONS, STATUS_OPTIONS, type AwardStatus } from "@/lib/browse/options";
-import { statusFromFilters, statusToUpdates, toggleValue } from "@/lib/browse/filter-updates";
-import {
-  buildActiveChips,
-  countActiveFilters,
-  countAdvancedFilters,
-  type SetFilters,
-} from "@/lib/browse/filter-descriptors";
-import { countOf } from "@/lib/browse/facet-options";
+import { AWARD_BODY_OPTIONS } from "@/lib/browse/options/award-body-options";
+import { STATUS_OPTIONS } from "@/lib/browse/options/status-options";
+import type { AwardStatus } from "@/lib/browse/options/award-status";
+import { statusFromFilters } from "@/lib/browse/filter-updates/status-from-filters";
+import { statusToUpdates } from "@/lib/browse/filter-updates/status-to-updates";
+import { toggleValue } from "@/lib/browse/filter-updates/toggle-value";
+import { buildActiveChips } from "@/lib/browse/filter-descriptors/build-active-chips";
+import { countActiveFilters } from "@/lib/browse/filter-descriptors/count-active-filters";
+import { countAdvancedFilters } from "@/lib/browse/filter-descriptors/count-advanced-filters";
+import type { SetFilters } from "@/lib/browse/filter-descriptors/set-filters";
+import { countOf } from "@/lib/browse/facet-options/count-of";
 import { useIsCompactViewport } from "@/hooks/useIsCompactViewport";
 import type { BrowseAutocomplete } from "@/hooks/useBrowseAutocomplete";
 

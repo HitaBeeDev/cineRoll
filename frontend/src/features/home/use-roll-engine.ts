@@ -3,7 +3,7 @@
 import { useCallback, useRef, useState } from "react";
 import type { FilterState } from "@cineroll/types";
 import type { RollFilm } from "@/lib/api";
-import { useToast } from "@/components/ui/toast";
+import { useToast } from "@/components/ui/toast/use-toast";
 import type { CurrentRoll } from "./domain-types";
 import { presentRollError } from "./present-roll-error";
 import { processOutgoingRoll } from "./process-outgoing-roll";

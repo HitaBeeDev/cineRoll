@@ -1,5 +1,6 @@
-import { hasAnalyticsConsent } from "./cookie-consent";
-import { hasRecordedImpression, recordImpression } from "./impression-store";
+import { hasAnalyticsConsent } from "@/lib/analytics/cookie-consent/has-analytics-consent";
+import { hasRecordedImpression } from "@/lib/analytics/impression-store/has-recorded-impression";
+import { recordImpression } from "@/lib/analytics/impression-store/record-impression";
 import { trackEvent } from "./track-event";
 
 export function trackFilmImpression(

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import type { FilterState } from "@cineroll/types";
 import { fetchRandomCount } from "@/lib/api";
-import { FILTER_COUNT_DEBOUNCE_MS } from "./constants";
+import { FILTER_COUNT_DEBOUNCE_MS } from "@/features/home/constants/filter-count-debounce-ms";
 
 export function useFilteredFilmCount(filters: FilterState, hasActiveFilters: boolean) {
   const [filteredCount, setFilteredCount] = useState<number | null>(null);

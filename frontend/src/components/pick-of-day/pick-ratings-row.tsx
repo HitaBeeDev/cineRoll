@@ -1,6 +1,8 @@
 import { Star } from "lucide-react";
 import type { PickOfDayFilm } from "@/lib/api";
-import { filmGenreList, formatContentType, formatGenre } from "@/lib/format";
+import { filmGenreList } from "@/lib/format/film-genre-list";
+import { formatContentType } from "@/lib/format/format-content-type";
+import { formatGenre } from "@/lib/format/format-genre";
 
 /** IMDb rating, RT score, the type (when it isn't a plain film), and every genre. */
 export function PickRatingsRow({ film }: { film: PickOfDayFilm }) {

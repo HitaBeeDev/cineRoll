@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { ACCOUNT_DELETED_TOAST_KEY } from "@/components/settings/account-deleted-toast-key";
-import { useToast } from "@/components/ui/toast";
+import { useToast } from "@/components/ui/toast/use-toast";
 
 export function AccountDeletedToast() {
   const { toast } = useToast();

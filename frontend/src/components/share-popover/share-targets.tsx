@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/cn";
 import { ShareGlyph } from "@/components/share-popover/share-glyphs";
 import type { ShareIntent } from "@/components/share-popover/share-intents";
 

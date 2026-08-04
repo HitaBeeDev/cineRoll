@@ -1,7 +1,7 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { Award } from "lucide-react";
-import { cn } from "@/lib/utils";
-import type { AwardHighlight } from "@/components/home/film-card/awards";
+import { cn } from "@/lib/utils/cn";
+import type { AwardHighlight } from "@/components/home/film-card/awards/award-highlight";
 
 /**
  * The header Recognition panel: a gold honors ledger, one row per award body the

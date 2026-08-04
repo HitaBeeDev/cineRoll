@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowUpRight, X } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/cn";
 import type { ActiveFilterChip } from "@/components/filter-bar/active-chips";
 
 /** The animated row of removable filter chips with a "Clear all" affordance. */

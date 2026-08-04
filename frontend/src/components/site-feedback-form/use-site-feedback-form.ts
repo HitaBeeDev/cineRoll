@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useToast } from "@/components/ui/toast";
+import { useToast } from "@/components/ui/toast/use-toast";
 import { submitFeedback } from "./submit-feedback";
 
 const MAX_BODY_LENGTH = 2000;

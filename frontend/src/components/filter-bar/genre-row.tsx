@@ -1,6 +1,6 @@
 import type { FilterState } from "@cineroll/types";
 import { MultiSelect } from "@/components/ui/multi-select";
-import { formatGenre } from "@/lib/format";
+import { formatGenre } from "@/lib/format/format-genre";
 import { FilterRow } from "@/components/filter-bar/filter-row";
 
 /** Genre row — a searchable multi-select of the available genres. */

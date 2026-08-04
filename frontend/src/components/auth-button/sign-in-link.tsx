@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/cn";
 
 /** Shown when signed out: a prominent "Sign In" link, styled for header or sheet. */
 export function SignInLink({

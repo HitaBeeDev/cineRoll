@@ -2,7 +2,7 @@
 
 import { useCallback } from "react";
 import type { FilterState } from "@cineroll/types";
-import { useFilters } from "@/hooks/useFilters";
+import { useFilters } from "@/hooks/useFilters/use-filters";
 import { trackEvent } from "@/lib/analytics";
 
 export function useHomeFilters() {

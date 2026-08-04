@@ -1,17 +1,17 @@
 import type { FacetCounts, FilterState } from "@cineroll/types";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { PanelBand } from "@/components/browse/panel-band";
-import { CONTROL_WIDTH, PanelSection } from "@/components/browse/panel-section";
+import { CONTROL_WIDTH } from "@/components/browse/panel-section/control-width";
+import { PanelSection } from "@/components/browse/panel-section/panel-section";
 import { FilterSelect } from "@/components/browse/filter-select";
 import { ThresholdChips } from "@/components/browse/threshold-chips";
-import { categoryOptions, reachableYears } from "@/lib/browse/facet-options";
-import {
-  ANY_YEAR,
-  parseYear,
-  setCeremonyYearMax,
-  setCeremonyYearMin,
-} from "@/lib/browse/year-range";
-import type { SetFilters } from "@/lib/browse/filter-descriptors";
+import { categoryOptions } from "@/lib/browse/facet-options/category-options";
+import { reachableYears } from "@/lib/browse/facet-options/reachable-years";
+import { ANY_YEAR } from "@/lib/browse/year-range/any-year";
+import { parseYear } from "@/lib/browse/year-range/parse-year";
+import { setCeremonyYearMax } from "@/lib/browse/year-range/set-ceremony-year-max";
+import { setCeremonyYearMin } from "@/lib/browse/year-range/set-ceremony-year-min";
+import type { SetFilters } from "@/lib/browse/filter-descriptors/set-filters";
 
 /**
  * There is no win-count control here, and there is no longer one anywhere in the

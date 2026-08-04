@@ -1,0 +1,1 @@
+export const FALLBACK_FILM_ACCENT = "#D4AF37";

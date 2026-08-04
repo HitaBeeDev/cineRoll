@@ -1,6 +1,7 @@
 import type { KeyboardEvent, RefObject } from "react";
-import { cn } from "@/lib/utils";
-import { PROMPT_MAX_LENGTH, PROMPT_PLACEHOLDER } from "../prompt-config";
+import { cn } from "@/lib/utils/cn";
+import { PROMPT_MAX_LENGTH } from "@/features/describe/prompt-config/prompt-max-length";
+import { PROMPT_PLACEHOLDER } from "@/features/describe/prompt-config/prompt-placeholder";
 
 type PromptTextareaProps = {
   disabled: boolean;

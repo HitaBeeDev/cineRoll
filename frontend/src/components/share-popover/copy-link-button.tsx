@@ -1,5 +1,5 @@
 import { Check, Link2 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/cn";
 
 /** The "Copy link" button that flips to a "Link copied" confirmation. */
 export function CopyLinkButton({ copied, onCopy }: { copied: boolean; onCopy: () => void }) {

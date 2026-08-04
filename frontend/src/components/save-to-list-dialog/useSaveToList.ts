@@ -8,7 +8,7 @@ import {
   fetchUserLists,
   removeFilmFromList,
 } from "@/lib/api";
-import { useToast } from "@/components/ui/toast";
+import { useToast } from "@/components/ui/toast/use-toast";
 import type { LoadState } from "@/components/save-to-list-dialog/types";
 
 /**

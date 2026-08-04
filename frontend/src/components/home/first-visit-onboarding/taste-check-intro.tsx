@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/cn";
 
 /** Left column: headline, the adaptive primary action, and the selection hint. */
 export function TasteCheckIntro({

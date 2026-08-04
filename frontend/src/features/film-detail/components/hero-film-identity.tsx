@@ -1,7 +1,14 @@
 import Link from "next/link";
 import { Sparkles } from "lucide-react";
-import { contentTypeFilterValue, filmGenreList, formatContentType, formatFilmLength, formatLanguage, formatSeriesEpisodes, isSeriesContentType } from "@/lib/format";
-import { displayTitle, nameToSlug } from "@/lib/utils";
+import { contentTypeFilterValue } from "@/lib/format/content-type-filter-value";
+import { filmGenreList } from "@/lib/format/film-genre-list";
+import { formatContentType } from "@/lib/format/format-content-type";
+import { formatFilmLength } from "@/lib/format/format-film-length";
+import { formatLanguage } from "@/lib/format/format-language";
+import { formatSeriesEpisodes } from "@/lib/format/format-series-episodes";
+import { isSeriesContentType } from "@/lib/format/is-series-content-type";
+import { displayTitle } from "@/lib/utils/display-title";
+import { nameToSlug } from "@/lib/utils/name-to-slug";
 import { getTitleFontSize } from "../title-font-size";
 import { HeroGenreTag } from "./hero-genre-tag";
 import { HeroMetaLine } from "./hero-meta-line";

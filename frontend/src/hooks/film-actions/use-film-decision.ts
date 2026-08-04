@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { markFilmWatched } from "@/lib/api";
 import { trackEvent } from "@/lib/analytics";
-import { showDecisionSaved, showSaveError } from "./film-action-toasts";
+import { showDecisionSaved } from "@/hooks/film-actions/film-action-toasts/show-decision-saved";
+import { showSaveError } from "@/hooks/film-actions/film-action-toasts/show-save-error";
 import type {
   AuthGate,
   FilmActionState,

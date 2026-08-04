@@ -1,4 +1,4 @@
-import type { useToast } from "@/components/ui/toast";
+import type { useToast } from "@/components/ui/toast/use-toast";
 
 export type FilmActionState = "none" | "watched" | "not-interested";
 export type FilmDecision = Exclude<FilmActionState, "none">;

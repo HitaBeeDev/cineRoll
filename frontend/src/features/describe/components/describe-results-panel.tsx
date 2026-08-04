@@ -3,7 +3,7 @@ import type {
   NaturalRollInterpreted,
   NaturalRollResult,
 } from "@/lib/api";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/cn";
 import { DescribeIntroPanel } from "./describe-intro-panel";
 import { NoMatchPanel } from "./no-match-panel";
 import { ProcessingPanel } from "./processing-panel";

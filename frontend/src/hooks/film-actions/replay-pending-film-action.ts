@@ -3,7 +3,7 @@ import {
   markFilmWatched,
   type FilmStatus,
 } from "@/lib/api";
-import { takePendingFilmAction } from "@/lib/pending-intent";
+import { takePendingFilmAction } from "@/lib/pending-intent/take-pending-film-action";
 import type { FilmDecision } from "./types";
 
 export type ReplayedFilmAction =

@@ -1,8 +1,10 @@
 import { getClientIdentifiers } from "./client-identifiers";
-import { MAX_BATCH_SIZE } from "./constants";
-import { hasAnalyticsConsent } from "./cookie-consent";
-import { addEvent, getEventCount } from "./event-queue";
-import { flushEvents, scheduleEventFlush } from "./flush-events";
+import { MAX_BATCH_SIZE } from "@/lib/analytics/constants/max-batch-size";
+import { hasAnalyticsConsent } from "@/lib/analytics/cookie-consent/has-analytics-consent";
+import { addEvent } from "@/lib/analytics/event-queue/add-event";
+import { getEventCount } from "@/lib/analytics/event-queue/get-event-count";
+import { flushEvents } from "@/lib/analytics/flush-events/flush-events";
+import { scheduleEventFlush } from "@/lib/analytics/flush-events/schedule-event-flush";
 import { bindLifecycleFlush } from "./lifecycle-flush";
 import type { TrackEventInput } from "./types";
 

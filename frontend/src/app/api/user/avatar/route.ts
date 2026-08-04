@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/auth";
-import { isValidAvatarId } from "@/lib/avatars";
+import { isValidAvatarId } from "@/lib/avatars/is-valid-avatar-id";
 import { prisma } from "@/lib/prisma";
 
 export const runtime = "nodejs";

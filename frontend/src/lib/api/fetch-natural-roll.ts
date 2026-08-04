@@ -1,4 +1,5 @@
-import { API_URL, JSON_HEADERS } from "./constants";
+import { API_URL } from "@/lib/api/constants/api-url";
+import { JSON_HEADERS } from "@/lib/api/constants/json-headers";
 import type {
   NaturalRollError,
   NaturalRollEvent,

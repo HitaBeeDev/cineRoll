@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ArrowUpRight } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/cn";
 import type { ReelItem } from "../types";
 import { SmartLink } from "./smart-link";
 import { usePrefersReducedMotion } from "./use-prefers-reduced-motion";

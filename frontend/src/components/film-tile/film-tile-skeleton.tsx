@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/cn";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export function FilmTileSkeleton({ className }: { className?: string | undefined }) {

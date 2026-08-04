@@ -1,7 +1,7 @@
 "use client";
 
 import { UserAvatar } from "@/components/user-avatar";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/cn";
 
 export function AvatarTile({
   id,

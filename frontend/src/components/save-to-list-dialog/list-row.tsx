@@ -2,8 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight, Check, Film, Loader2 } from "lucide-react";
 import type { UserListSummary } from "@cineroll/types";
-import { tmdbImageUrl } from "@/lib/images";
-import { cn } from "@/lib/utils";
+import { tmdbImageUrl } from "@/lib/images/tmdb-image-url";
+import { cn } from "@/lib/utils/cn";
 
 /** One list row: a toggle button (cover, name, count, membership tick) plus a
  *  link to open the list. */

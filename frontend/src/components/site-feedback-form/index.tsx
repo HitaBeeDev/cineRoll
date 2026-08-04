@@ -2,7 +2,7 @@
 
 import { Loader2, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/cn";
 import { useSiteFeedbackForm } from "./use-site-feedback-form";
 
 export function SiteFeedbackForm({ onSuccess }: { onSuccess?: () => void }) {

@@ -2,11 +2,12 @@ import { useEffect } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import type { FacetCounts, FilterState } from "@cineroll/types";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/cn";
 import { AwardsBand } from "@/components/browse/awards-band";
 import { FilmBand } from "@/components/browse/film-band";
 import { DetailsBand } from "@/components/browse/details-band";
-import { countFiltersByBand, type SetFilters } from "@/lib/browse/filter-descriptors";
+import { countFiltersByBand } from "@/lib/browse/filter-descriptors/count-filters-by-band";
+import type { SetFilters } from "@/lib/browse/filter-descriptors/set-filters";
 
 /**
  * The expanded "Advanced" filter panel: three labelled bands, ordered by what

@@ -4,11 +4,13 @@ import { useSession } from "next-auth/react";
 import type { FacetCounts, FilterState } from "@cineroll/types";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { PanelBand } from "@/components/browse/panel-band";
-import { CONTROL_WIDTH, PanelSection } from "@/components/browse/panel-section";
+import { CONTROL_WIDTH } from "@/components/browse/panel-section/control-width";
+import { PanelSection } from "@/components/browse/panel-section/panel-section";
 import { FilterCheckbox } from "@/components/browse/filter-checkbox";
-import { countryLabel, languageLabel } from "@/lib/browse/labels";
-import { reachableOptions } from "@/lib/browse/facet-options";
-import type { SetFilters } from "@/lib/browse/filter-descriptors";
+import { countryLabel } from "@/lib/browse/labels/country-label";
+import { languageLabel } from "@/lib/browse/labels/language-label";
+import { reachableOptions } from "@/lib/browse/facet-options/reachable-options";
+import type { SetFilters } from "@/lib/browse/filter-descriptors/set-filters";
 
 /** The long tail: where a film comes from, and who made it. */
 export function DetailsBand({

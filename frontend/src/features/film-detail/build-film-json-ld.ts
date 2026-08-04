@@ -1,5 +1,5 @@
 import type { Film } from "@cineroll/types";
-import { SITE_URL } from "./config";
+import { SITE_URL } from "@/features/film-detail/config/site-url";
 
 export function buildFilmJsonLd(film: Film): Record<string, unknown> {
   const pageUrl = new URL(`/film/${film.slug}`, SITE_URL).toString();

@@ -1,6 +1,6 @@
 import { HeroAwards } from "@/components/hero-awards";
 import { HeroRatings } from "@/components/hero-ratings";
-import { HERO_AWARD_GOLD } from "../config";
+import { HERO_AWARD_GOLD } from "@/features/film-detail/config/hero-award-gold";
 import type { HeroAccoladesProps } from "../component-props";
 
 export function HeroAccolades({

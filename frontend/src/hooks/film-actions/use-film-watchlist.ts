@@ -2,12 +2,10 @@
 
 import { useState } from "react";
 import { addFilmToWatchlist, removeFilmFromWatchlist } from "@/lib/api";
-import {
-  showAlreadySaved,
-  showSaveError,
-  showWatchlistAdded,
-  showWatchlistRemoved,
-} from "./film-action-toasts";
+import { showAlreadySaved } from "@/hooks/film-actions/film-action-toasts/show-already-saved";
+import { showSaveError } from "@/hooks/film-actions/film-action-toasts/show-save-error";
+import { showWatchlistAdded } from "@/hooks/film-actions/film-action-toasts/show-watchlist-added";
+import { showWatchlistRemoved } from "@/hooks/film-actions/film-action-toasts/show-watchlist-removed";
 import type { AuthGate, Toast, UseFilmActionsOptions } from "./types";
 
 export function useFilmWatchlist(

@@ -1,11 +1,12 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { Clapperboard } from "lucide-react";
 import type { FilterState, PaginatedFilms } from "@cineroll/types";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/cn";
 import { FilmTile, FilmTileSkeleton } from "@/components/film-tile";
 import { BrowsePagination } from "@/components/browse/browse-pagination";
-import { PAGE_SIZE, type LoadStatus } from "@/lib/browse/options";
-import { statusFromFilters } from "@/lib/browse/filter-updates";
+import { PAGE_SIZE } from "@/lib/browse/options/page-size";
+import type { LoadStatus } from "@/lib/browse/options/load-status";
+import { statusFromFilters } from "@/lib/browse/filter-updates/status-from-filters";
 
 const GRID_CLASS =
   "grid min-w-0 grid-cols-2 gap-x-3 gap-y-6 [&>*]:min-w-0 sm:grid-cols-3 sm:gap-x-5 sm:gap-y-9 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6";

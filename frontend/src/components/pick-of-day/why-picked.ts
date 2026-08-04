@@ -1,5 +1,5 @@
 import type { PickOfDayFilm } from "@/lib/api";
-import { formatGenre } from "@/lib/format";
+import { formatGenre } from "@/lib/format/format-genre";
 
 /**
  * The "Why this pick" rationale copy, chosen by the strongest credential the

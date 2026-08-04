@@ -1,4 +1,4 @@
-import { formatFilmYear } from "@/lib/format";
+import { formatFilmYear } from "@/lib/format/format-film-year";
 import { MetaDot } from "./meta-dot";
 import type { HeroMetaLineProps } from "../component-props";
 

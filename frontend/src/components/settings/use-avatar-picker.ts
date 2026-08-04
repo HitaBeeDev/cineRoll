@@ -3,8 +3,8 @@
 import { useSession } from "next-auth/react";
 import { useState } from "react";
 import { updateAvatar } from "@/lib/api";
-import { useToast } from "@/components/ui/toast";
-import { DEFAULT_AVATAR } from "@/lib/avatars";
+import { useToast } from "@/components/ui/toast/use-toast";
+import { DEFAULT_AVATAR } from "@/lib/avatars/default-avatar";
 
 /**
  * Tracks the selected avatar and persists a new pick optimistically, refreshing

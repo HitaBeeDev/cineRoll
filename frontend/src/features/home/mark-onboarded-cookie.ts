@@ -1,4 +1,4 @@
-import { ONBOARDED_COOKIE } from "./constants";
+import { ONBOARDED_COOKIE } from "@/features/home/constants/onboarded-cookie";
 
 export function markOnboardedCookie(): void {
   try {

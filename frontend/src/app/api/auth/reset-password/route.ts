@@ -2,7 +2,8 @@ import { createHash } from "crypto";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { hashPassword, passwordIssue } from "@/lib/password";
+import { hashPassword } from "@/lib/password/hash-password";
+import { passwordIssue } from "@/lib/password/password-issue";
 
 export const runtime = "nodejs";
 

@@ -1,13 +1,11 @@
 import type { CookieConsentChoice } from "@/lib/analytics";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog } from "@/components/ui/dialog/dialog";
+import { DialogContent } from "@/components/ui/dialog/dialog-content";
+import { DialogDescription } from "@/components/ui/dialog/dialog-description";
+import { DialogFooter } from "@/components/ui/dialog/dialog-footer";
+import { DialogHeader } from "@/components/ui/dialog/dialog-header";
+import { DialogTitle } from "@/components/ui/dialog/dialog-title";
 
 /** Dialog for reviewing essential vs. analytics storage and updating the choice. */
 export function PreferencesDialog({

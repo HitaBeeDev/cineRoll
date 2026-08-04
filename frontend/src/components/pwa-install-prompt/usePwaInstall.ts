@@ -2,15 +2,11 @@
 
 import { useCallback, useEffect, useState } from "react";
 import type { BeforeInstallPromptEvent, Platform } from "@/components/pwa-install-prompt/types";
-import {
-  isIosSafari,
-  isStandalone,
-  isTouchDevice,
-} from "@/components/pwa-install-prompt/platform-detection";
-import {
-  markDismissed,
-  recentlyDismissed,
-} from "@/components/pwa-install-prompt/dismissal";
+import { isIosSafari } from "@/components/pwa-install-prompt/platform-detection/is-ios-safari";
+import { isStandalone } from "@/components/pwa-install-prompt/platform-detection/is-standalone";
+import { isTouchDevice } from "@/components/pwa-install-prompt/platform-detection/is-touch-device";
+import { markDismissed } from "@/components/pwa-install-prompt/dismissal/mark-dismissed";
+import { recentlyDismissed } from "@/components/pwa-install-prompt/dismissal/recently-dismissed";
 
 const SHOW_DELAY_MS = 2500;
 

@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import { AppHeader } from "@/components/app-header";
 import { ShareBanner } from "@/components/share-banner";
 import { buildFilmMetadata } from "@/features/film-detail/build-film-metadata";
-import { FALLBACK_FILM_ACCENT } from "@/features/film-detail/config";
+import { FALLBACK_FILM_ACCENT } from "@/features/film-detail/config/fallback-film-accent";
 import { computeAwardSummary } from "@/features/film-detail/compute-award-summary";
 import { CastSection } from "@/features/film-detail/components/cast-section";
 import { FilmAwardsSection } from "@/features/film-detail/components/film-awards-section";
@@ -14,10 +14,8 @@ import { FilmStructuredData } from "@/features/film-detail/components/film-struc
 import { SimilarFilmsSection } from "@/features/film-detail/components/similar-films-section";
 import { SynopsisSection } from "@/features/film-detail/components/synopsis-section";
 import { TrailerSection } from "@/features/film-detail/components/trailer-section";
-import {
-  fetchFilm,
-  fetchSimilarFilms,
-} from "@/features/film-detail/film-repository";
+import { fetchFilm } from "@/features/film-detail/film-repository/fetch-film";
+import { fetchSimilarFilms } from "@/features/film-detail/film-repository/fetch-similar-films";
 import { getRankTags } from "@/features/film-detail/get-rank-tags";
 import { pickHeadlineAccolade } from "@/features/film-detail/pick-headline-accolade";
 type FilmPageProps = { params: Promise<{ slug: string }> };

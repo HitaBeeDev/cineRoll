@@ -1,4 +1,4 @@
-import { ONBOARDED_STORAGE_KEY } from "./constants";
+import { ONBOARDED_STORAGE_KEY } from "@/features/home/constants/onboarded-storage-key";
 
 export function persistOnboardingFlag(): void {
   try {

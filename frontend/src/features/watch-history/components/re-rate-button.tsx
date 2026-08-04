@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/cn";
 import type { ReRateButtonProps } from "../component-props";
 
 export function ReRateButton(props: ReRateButtonProps) {

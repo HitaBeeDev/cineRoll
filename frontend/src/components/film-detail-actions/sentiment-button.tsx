@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/cn";
 
 /** A single 👍 / 👎 toggle in the post-watch sentiment prompt. */
 export function SentimentButton({

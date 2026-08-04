@@ -3,28 +3,31 @@
 import { useEffect, useState } from "react";
 import type { FacetCounts, FilterState } from "@cineroll/types";
 import { MultiSelect } from "@/components/ui/multi-select";
-import { formatGenre } from "@/lib/format";
+import { formatGenre } from "@/lib/format/format-genre";
 import { PanelBand } from "@/components/browse/panel-band";
-import { CONTROL_WIDTH, PanelSection } from "@/components/browse/panel-section";
+import { CONTROL_WIDTH } from "@/components/browse/panel-section/control-width";
+import { PanelSection } from "@/components/browse/panel-section/panel-section";
 import { ChipGroup } from "@/components/browse/chip-group";
 import { FilterChip } from "@/components/browse/filter-chip";
 import { FilterSelect } from "@/components/browse/filter-select";
 import { SegmentedControl } from "@/components/browse/segmented-control";
 import { ThresholdChips } from "@/components/browse/threshold-chips";
-import { CONTENT_TYPE_OPTIONS } from "@/lib/browse/options";
-import { toggleValue } from "@/lib/browse/filter-updates";
-import { setRuntimeMax, setRuntimeMin, type RuntimeBounds } from "@/lib/browse/bounds";
-import { countOf, reachableOptions, reachableYears } from "@/lib/browse/facet-options";
-import {
-  ANY_YEAR,
-  decadeToYearRange,
-  decadesFromYears,
-  parseYear,
-  setYearMax,
-  setYearMin,
-  yearRangeToDecade,
-} from "@/lib/browse/year-range";
-import type { SetFilters } from "@/lib/browse/filter-descriptors";
+import { CONTENT_TYPE_OPTIONS } from "@/lib/browse/options/content-type-options";
+import { toggleValue } from "@/lib/browse/filter-updates/toggle-value";
+import { setRuntimeMax } from "@/lib/browse/bounds/set-runtime-max";
+import { setRuntimeMin } from "@/lib/browse/bounds/set-runtime-min";
+import type { RuntimeBounds } from "@/lib/browse/bounds/runtime-bounds";
+import { countOf } from "@/lib/browse/facet-options/count-of";
+import { reachableOptions } from "@/lib/browse/facet-options/reachable-options";
+import { reachableYears } from "@/lib/browse/facet-options/reachable-years";
+import { ANY_YEAR } from "@/lib/browse/year-range/any-year";
+import { decadeToYearRange } from "@/lib/browse/year-range/decade-to-year-range";
+import { decadesFromYears } from "@/lib/browse/year-range/decades-from-years";
+import { parseYear } from "@/lib/browse/year-range/parse-year";
+import { setYearMax } from "@/lib/browse/year-range/set-year-max";
+import { setYearMin } from "@/lib/browse/year-range/set-year-min";
+import { yearRangeToDecade } from "@/lib/browse/year-range/year-range-to-decade";
+import type { SetFilters } from "@/lib/browse/filter-descriptors/set-filters";
 
 const IMDB_OPTIONS = [6, 6.5, 7, 7.5, 8, 8.5, 9].map((r) => ({ value: r, label: `${r}+` }));
 

@@ -1,0 +1,1 @@
+export const ROLL_RESULT_SCROLL_DELAY_MS = 100;

@@ -1,5 +1,5 @@
 import { FilterBar } from "@/components/filter-bar";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/cn";
 import type { HomeHeroFiltersProps } from "../component-props";
 
 export function HomeHeroFilters({ hero, filters, genres, hasActiveFilters, onFiltersChange, onClearFilters }: HomeHeroFiltersProps) {

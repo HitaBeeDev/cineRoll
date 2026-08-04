@@ -1,7 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { POPOVER_WIDTH, VIEWPORT_MARGIN, type Coords } from "@/components/share-popover/constants";
+import { POPOVER_WIDTH } from "@/components/share-popover/constants/popover-width";
+import { VIEWPORT_MARGIN } from "@/components/share-popover/constants/viewport-margin";
+import type { Coords } from "@/components/share-popover/constants/coords";
 
 /**
  * Owns the share popover's open state and anchoring. The trigger prefers the

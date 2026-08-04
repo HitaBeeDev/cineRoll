@@ -1,7 +1,8 @@
 import Image from "next/image";
 import type { PickOfDayFilm } from "@/lib/api";
-import { blurDataUrl, tmdbImageUrl } from "@/lib/images";
-import { cn } from "@/lib/utils";
+import { blurDataUrl } from "@/lib/images/blur-data-url";
+import { tmdbImageUrl } from "@/lib/images/tmdb-image-url";
+import { cn } from "@/lib/utils/cn";
 import { PickPoster } from "@/components/pick-of-day/pick-poster";
 import { PickOfDayInfo } from "@/components/pick-of-day/pick-of-day-info";
 

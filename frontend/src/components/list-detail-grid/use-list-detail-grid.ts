@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { fetchListPage, removeFilmFromList } from "@/lib/api";
-import { useToast } from "@/components/ui/toast";
+import { useToast } from "@/components/ui/toast/use-toast";
 import type { SavedFilm, SavedFilmEntry } from "@/types/saved-film";
 
 const PAGE_SIZE = 20;

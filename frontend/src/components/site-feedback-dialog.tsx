@@ -1,14 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Dialog } from "@/components/ui/dialog/dialog";
+import { DialogContent } from "@/components/ui/dialog/dialog-content";
+import { DialogDescription } from "@/components/ui/dialog/dialog-description";
+import { DialogHeader } from "@/components/ui/dialog/dialog-header";
+import { DialogTitle } from "@/components/ui/dialog/dialog-title";
+import { DialogTrigger } from "@/components/ui/dialog/dialog-trigger";
 import { SiteFeedbackForm } from "@/components/site-feedback-form";
 
 export function SiteFeedbackDialog() {

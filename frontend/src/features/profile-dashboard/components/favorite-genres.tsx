@@ -1,4 +1,4 @@
-import { formatGenre } from "@/lib/format";
+import { formatGenre } from "@/lib/format/format-genre";
 import type { FavoriteGenresProps } from "../profile-component-types";
 
 export function FavoriteGenres({ genres }: FavoriteGenresProps) {

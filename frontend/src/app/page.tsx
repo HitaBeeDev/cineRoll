@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { HomeClient } from "@/features/home/components/home-client";
-import { ONBOARDED_COOKIE } from "@/features/home/constants";
+import { ONBOARDED_COOKIE } from "@/features/home/constants/onboarded-cookie";
 import { HomeHero } from "./home-hero";
 
 export const metadata: Metadata = {

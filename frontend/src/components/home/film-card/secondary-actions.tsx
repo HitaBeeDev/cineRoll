@@ -3,7 +3,7 @@ import { FilmLink } from "@/components/film-link";
 import { SharePopover } from "@/components/share-popover";
 import { SaveToListButton } from "@/components/save-to-list-dialog";
 import { trackEvent } from "@/lib/analytics";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/cn";
 import type { RollFilm } from "@/lib/api";
 
 /** The bottom action row: View details, Add to list, and Share. */

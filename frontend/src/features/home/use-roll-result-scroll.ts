@@ -2,7 +2,7 @@
 
 import { useEffect, type RefObject } from "react";
 import type { RollFilm } from "@/lib/api";
-import { ROLL_RESULT_SCROLL_DELAY_MS } from "./constants";
+import { ROLL_RESULT_SCROLL_DELAY_MS } from "@/features/home/constants/roll-result-scroll-delay-ms";
 
 export function useRollResultScroll(
   film: RollFilm | null,

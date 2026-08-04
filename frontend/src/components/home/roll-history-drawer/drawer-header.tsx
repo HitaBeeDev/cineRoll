@@ -1,5 +1,5 @@
 import { X } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/cn";
 import { MAX_ROLL_HISTORY_ITEMS } from "@/lib/home-storage";
 
 /** Drawer header: eyebrow, title, roll count, and close button. Compact so the

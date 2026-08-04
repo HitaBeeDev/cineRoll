@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { fetchAutocomplete, type AutocompleteResult } from "@/lib/api";
 import { trackEvent } from "@/lib/analytics";
-import type { SetFilters } from "@/lib/browse/filter-descriptors";
+import type { SetFilters } from "@/lib/browse/filter-descriptors/set-filters";
 
 export type BrowseAutocomplete = {
   results: AutocompleteResult | null;

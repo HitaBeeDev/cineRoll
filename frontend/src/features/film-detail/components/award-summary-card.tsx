@@ -1,6 +1,7 @@
-import { cn } from "@/lib/utils";
-import { getAwardYearLabel, sortAwardRecords } from "../award-view-model";
-import { HERO_AWARD_GOLD } from "../config";
+import { cn } from "@/lib/utils/cn";
+import { getAwardYearLabel } from "@/features/film-detail/award-view-model/get-award-year-label";
+import { sortAwardRecords } from "@/features/film-detail/award-view-model/sort-award-records";
+import { HERO_AWARD_GOLD } from "@/features/film-detail/config/hero-award-gold";
 import type { AwardSummaryCardProps } from "../component-props";
 
 export function AwardSummaryCard(props: AwardSummaryCardProps) {

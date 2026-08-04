@@ -1,5 +1,5 @@
-import { cn } from "@/lib/utils";
-import { EXAMPLE_PROMPTS } from "../prompt-config";
+import { cn } from "@/lib/utils/cn";
+import { EXAMPLE_PROMPTS } from "@/features/describe/prompt-config/example-prompts";
 
 type ExamplePromptListProps = {
   disabled: boolean;

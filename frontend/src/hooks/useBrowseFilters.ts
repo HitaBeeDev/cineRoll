@@ -5,10 +5,11 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import type { FilterState } from "@cineroll/types";
 import { trackEvent } from "@/lib/analytics";
-import { filtersFromSearchParams, serializeFilters } from "@/lib/browse/filter-params";
-import { DEFAULT_FILTERS } from "@/hooks/useFilters";
-import { anyFilterActive } from "@/lib/browse/filter-descriptors";
-import { withSearchSort } from "@/lib/browse/sort-choices";
+import { filtersFromSearchParams } from "@/lib/browse/filter-params/filters-from-search-params";
+import { serializeFilters } from "@/lib/browse/filter-params/serialize-filters";
+import { DEFAULT_FILTERS } from "@/hooks/useFilters/default-filters";
+import { anyFilterActive } from "@/lib/browse/filter-descriptors/any-filter-active";
+import { withSearchSort } from "@/lib/browse/sort-choices/with-search-sort";
 
 /**
  * The URL query string is the single source of truth for browse filters:

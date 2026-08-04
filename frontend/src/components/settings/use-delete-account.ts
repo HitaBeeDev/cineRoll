@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { signOut } from "next-auth/react";
 import { deleteAccount as deleteAccountRequest } from "@/lib/api";
-import { useToast } from "@/components/ui/toast";
+import { useToast } from "@/components/ui/toast/use-toast";
 import { ACCOUNT_DELETED_TOAST_KEY } from "./account-deleted-toast-key";
 
 /**

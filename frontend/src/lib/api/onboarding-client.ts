@@ -1,4 +1,4 @@
-import { JSON_HEADERS } from "./constants";
+import { JSON_HEADERS } from "@/lib/api/constants/json-headers";
 
 export async function saveOnboardingGenres(genres: string[]): Promise<void> {
   const response = await fetch("/api/user/onboarding", {

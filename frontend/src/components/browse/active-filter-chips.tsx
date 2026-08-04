@@ -1,5 +1,5 @@
 import { X } from "lucide-react";
-import type { ActiveChip } from "@/lib/browse/filter-descriptors";
+import type { ActiveChip } from "@/lib/browse/filter-descriptors/active-chip";
 
 /** The removable filter chips plus the "Clear all" control below the filter bar. */
 export function ActiveFilterChips({

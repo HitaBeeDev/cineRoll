@@ -9,7 +9,7 @@ import { PersonStructuredData } from "@/features/person-detail/components/person
 import { getAwardBodies } from "@/features/person-detail/get-award-bodies";
 type PersonPageProps = { params: Promise<{ slug: string }> };
 import { fetchPerson } from "@/features/person-detail/person-repository";
-import { getNameHue } from "@/lib/name-avatar";
+import { getNameHue } from "@/lib/name-avatar/get-name-hue";
 
 export async function generateMetadata({
   params,

@@ -1,7 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
-import { nameToSlug } from "@/lib/utils";
-import { getNameHue, getNameInitials } from "@/lib/name-avatar";
+import { nameToSlug } from "@/lib/utils/name-to-slug";
+import { getNameHue } from "@/lib/name-avatar/get-name-hue";
+import { getNameInitials } from "@/lib/name-avatar/get-name-initials";
 import type { CastCardProps } from "../component-props";
 
 export function CastCard({ member, accent }: CastCardProps) {

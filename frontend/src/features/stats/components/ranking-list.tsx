@@ -1,7 +1,7 @@
 import Image from "next/image";
 import type { ReactNode } from "react";
 import { FilmLink } from "@/components/film-link";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/cn";
 import type { Accent, FilmStat } from "../types";
 import { Panel } from "./panel";
 

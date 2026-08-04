@@ -1,7 +1,7 @@
 import { fetchSeededRandom, type RollFilm } from "@/lib/api";
-import { PICK_SEED_VARIANTS } from "./config";
+import { PICK_SEED_VARIANTS } from "@/features/daily-picks/config/pick-seed-variants";
 import type { DailyPick, PickDiversity, PickSlot } from "./domain-types";
-import { SLOT_FALLBACK_FILTERS } from "./pick-slots";
+import { SLOT_FALLBACK_FILTERS } from "@/features/daily-picks/pick-slots/slot-fallback-filters";
 
 export async function selectPick(
   slot: PickSlot,

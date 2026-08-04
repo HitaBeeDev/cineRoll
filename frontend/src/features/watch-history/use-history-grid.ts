@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { markFilmWatched, removeFilmWatched } from "@/lib/api";
-import { useToast } from "@/components/ui/toast";
+import { useToast } from "@/components/ui/toast/use-toast";
 import type { HistoryGridController } from "./history-grid-controller";
 import type { WatchedEntry, WatchedFilm } from "./domain-types";
 import { fetchWatchedPage } from "./watched-page-repository";

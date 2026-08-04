@@ -2,7 +2,7 @@ import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
 import { FilmLink } from "@/components/film-link";
 import { trackEvent } from "@/lib/analytics";
-import { tmdbImageUrl } from "@/lib/images";
+import { tmdbImageUrl } from "@/lib/images/tmdb-image-url";
 import type { RollFilm } from "@/lib/api";
 
 /**

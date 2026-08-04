@@ -6,8 +6,8 @@ import { usePathname } from "next/navigation";
 import { AuthDialog } from "@/components/auth/auth-dialog";
 import { ShareButton } from "@/components/share-button";
 import { AUTH_GATE_TITLE, useFilmActions } from "@/hooks/useFilmActions";
-import { cn } from "@/lib/utils";
-import { DAILY_PICKS_SITE_URL } from "../config";
+import { cn } from "@/lib/utils/cn";
+import { DAILY_PICKS_SITE_URL } from "@/features/daily-picks/config/daily-picks-site-url";
 import type { PickActionsProps } from "../component-props";
 
 export function PickActions({ film }: PickActionsProps) {

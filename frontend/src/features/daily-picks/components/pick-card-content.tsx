@@ -1,6 +1,6 @@
 import { ArrowUpRight } from "lucide-react";
 import { FilmLink } from "@/components/film-link";
-import { formatCreditLabel } from "@/lib/format";
+import { formatCreditLabel } from "@/lib/format/format-credit-label";
 import type { PickCardContentProps } from "../component-props";
 import { getPickRationale } from "../pick-rationale";
 import { PickActions } from "./pick-actions";

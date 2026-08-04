@@ -1,7 +1,8 @@
 import Image from "next/image";
 import { FilmLink } from "@/components/film-link";
-import { blurDataUrl, tmdbImageUrl } from "@/lib/images";
-import { getNameInitials } from "@/lib/name-avatar";
+import { blurDataUrl } from "@/lib/images/blur-data-url";
+import { tmdbImageUrl } from "@/lib/images/tmdb-image-url";
+import { getNameInitials } from "@/lib/name-avatar/get-name-initials";
 import type { FilmPosterCardProps } from "../component-props";
 
 export function FilmPosterCard({ film }: FilmPosterCardProps) {

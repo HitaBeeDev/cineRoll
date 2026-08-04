@@ -3,10 +3,12 @@
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useSession } from "next-auth/react";
 import { Shuffle } from "lucide-react";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Dialog } from "@/components/ui/dialog/dialog";
+import { DialogContent } from "@/components/ui/dialog/dialog-content";
+import { DialogTitle } from "@/components/ui/dialog/dialog-title";
 import { FilmCard } from "@/components/home/film-card";
 import { RollProjector } from "@/components/browse/roll-projector";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/cn";
 import type { RollFilm } from "@/lib/api";
 import type { BrowseRollError } from "@/hooks/useBrowseRoll";
 

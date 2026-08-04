@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import { AppHeader } from "@/components/app-header";
 import { PicksList } from "@/features/daily-picks/components/picks-list";
 import { PicksLoading } from "@/features/daily-picks/components/picks-loading";
-import { formatPicksDate } from "@/features/daily-picks/picks-date";
+import { formatPicksDate } from "@/features/daily-picks/picks-date/format-picks-date";
 import { useDailyPicks } from "@/features/daily-picks/use-daily-picks";
 
 export default function PicksPage() {

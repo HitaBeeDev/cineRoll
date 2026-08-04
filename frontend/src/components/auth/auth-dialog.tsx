@@ -1,12 +1,10 @@
 "use client";
 
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog } from "@/components/ui/dialog/dialog";
+import { DialogContent } from "@/components/ui/dialog/dialog-content";
+import { DialogDescription } from "@/components/ui/dialog/dialog-description";
+import { DialogHeader } from "@/components/ui/dialog/dialog-header";
+import { DialogTitle } from "@/components/ui/dialog/dialog-title";
 import { SignInOptions } from "@/components/auth/sign-in-options";
 
 type AuthDialogProps = {

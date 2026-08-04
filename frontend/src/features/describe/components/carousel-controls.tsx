@@ -1,5 +1,5 @@
-import { cn } from "@/lib/utils";
-import { CAROUSEL_VISIBLE_COUNT } from "../carousel-config";
+import { cn } from "@/lib/utils/cn";
+import { CAROUSEL_VISIBLE_COUNT } from "@/features/describe/carousel-config/carousel-visible-count";
 import { CarouselArrow } from "./carousel-arrow";
 
 type CarouselControlsProps = {

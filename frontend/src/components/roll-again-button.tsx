@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Play } from "lucide-react";
 import { fetchRandom } from "@/lib/api";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/cn";
 
 export function RollAgainButton({ className }: { className?: string }) {
   const router = useRouter();

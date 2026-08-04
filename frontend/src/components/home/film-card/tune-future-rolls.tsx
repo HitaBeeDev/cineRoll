@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Bookmark, Eye, EyeOff, Moon } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/cn";
 import { AuthDialog } from "@/components/auth/auth-dialog";
 import { AUTH_GATE_TITLE } from "@/hooks/useFilmActions";
 import { QuickActionButton } from "@/components/home/film-card/quick-action-button";

@@ -1,6 +1,7 @@
 import type { FilterState } from "@cineroll/types";
-import { awardBodyName } from "@/components/filter-bar/constants";
-import { formatYearRange, hasYearRange } from "@/lib/browse/year-range";
+import { awardBodyName } from "@/components/filter-bar/constants/award-body-name";
+import { formatYearRange } from "@/lib/browse/year-range/format-year-range";
+import { hasYearRange } from "@/lib/browse/year-range/has-year-range";
 
 const CONTENT_RECIPE_LABELS: Record<string, string> = {
   movie: "movies",

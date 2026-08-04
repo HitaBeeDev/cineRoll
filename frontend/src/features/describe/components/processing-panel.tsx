@@ -1,5 +1,5 @@
 import type { NaturalRollInterpreted } from "@/lib/api";
-import { CAROUSEL_VISIBLE_COUNT } from "../carousel-config";
+import { CAROUSEL_VISIBLE_COUNT } from "@/features/describe/carousel-config/carousel-visible-count";
 import { formatFilterChips } from "../format-filter-chips";
 import { FilterChipList } from "./filter-chip-list";
 import { SkeletonCard } from "./skeleton-card";

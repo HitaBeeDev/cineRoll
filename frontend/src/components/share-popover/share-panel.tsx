@@ -3,8 +3,9 @@
 import { createPortal } from "react-dom";
 import Image from "next/image";
 import { X } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { POPOVER_WIDTH, type Coords } from "@/components/share-popover/constants";
+import { cn } from "@/lib/utils/cn";
+import { POPOVER_WIDTH } from "@/components/share-popover/constants/popover-width";
+import type { Coords } from "@/components/share-popover/constants/coords";
 import { useCopyLink } from "@/components/share-popover/useCopyLink";
 import { buildShareIntents } from "@/components/share-popover/share-intents";
 import { CopyLinkButton } from "@/components/share-popover/copy-link-button";

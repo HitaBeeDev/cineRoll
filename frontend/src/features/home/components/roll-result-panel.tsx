@@ -4,14 +4,12 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useRef } from "react";
 import { FilmCard } from "@/components/home/film-card";
 import { FilmCardEmpty, FilmCardSkeleton, ZeroResultsEmpty } from "@/components/home/empty-states";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/cn";
 import type { RollResultPanelProps } from "../component-props";
 import { useRollResultScroll } from "../use-roll-result-scroll";
-import {
-  buildEmptyStateTransition,
-  buildFadeInTransition,
-  buildFadeOutTransition,
-} from "../roll-result-motion";
+import { buildEmptyStateTransition } from "@/features/home/roll-result-motion/build-empty-state-transition";
+import { buildFadeInTransition } from "@/features/home/roll-result-motion/build-fade-in-transition";
+import { buildFadeOutTransition } from "@/features/home/roll-result-motion/build-fade-out-transition";
 
 export function RollResultPanel(props: RollResultPanelProps) {
   const containerRef = useRef<HTMLDivElement>(null);

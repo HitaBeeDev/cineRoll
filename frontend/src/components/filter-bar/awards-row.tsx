@@ -2,7 +2,8 @@ import type { FilterState } from "@cineroll/types";
 import { FilterRow } from "@/components/filter-bar/filter-row";
 import { PillToggle } from "@/components/filter-bar/pill-toggle";
 import { AwardBodyIcon } from "@/components/filter-bar/award-body-icon";
-import { AWARD_BODIES, toggleValue } from "@/components/filter-bar/constants";
+import { AWARD_BODIES } from "@/components/filter-bar/constants/award-bodies";
+import { toggleValue } from "@/components/filter-bar/constants/toggle-value";
 
 /** Awards row — bodies are multi-select (combine Oscar + Golden Globe, etc.);
  *  "All" clears the selection. */

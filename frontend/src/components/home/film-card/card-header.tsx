@@ -1,8 +1,8 @@
 import Image from "next/image";
-import { tmdbImageUrl } from "@/lib/images";
+import { tmdbImageUrl } from "@/lib/images/tmdb-image-url";
 import { CardPoster } from "@/components/home/film-card/card-poster";
 import { CardIdentity } from "@/components/home/film-card/card-identity";
-import type { AwardHighlight } from "@/components/home/film-card/awards";
+import type { AwardHighlight } from "@/components/home/film-card/awards/award-highlight";
 import type { RollFilm } from "@/lib/api";
 
 /**

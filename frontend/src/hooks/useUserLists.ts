@@ -3,7 +3,7 @@
 import { useState } from "react";
 import type { UserListSummary } from "@cineroll/types";
 import { createUserList, deleteUserList, renameUserList } from "@/lib/api";
-import { useToast } from "@/components/ui/toast";
+import { useToast } from "@/components/ui/toast/use-toast";
 
 /**
  * Owns the user's collection list and its create/rename/delete mutations.

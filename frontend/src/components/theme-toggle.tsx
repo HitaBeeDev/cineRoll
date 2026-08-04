@@ -2,7 +2,7 @@
 
 import { Moon, Sun } from "lucide-react";
 import { useEffect, useSyncExternalStore } from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/cn";
 
 const STORAGE_KEY = "cineroll-theme";
 const THEME_CHANGED_EVENT = "cineroll:theme-changed";

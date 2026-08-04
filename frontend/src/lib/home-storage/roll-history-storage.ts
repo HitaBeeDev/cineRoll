@@ -1,8 +1,6 @@
 import type { RollFilm } from "@/lib/api";
-import {
-  MAX_ROLL_HISTORY_ITEMS,
-  ROLL_HISTORY_STORAGE_KEY,
-} from "./roll-history-constants";
+import { MAX_ROLL_HISTORY_ITEMS } from "@/lib/home-storage/roll-history-constants/max-roll-history-items";
+import { ROLL_HISTORY_STORAGE_KEY } from "@/lib/home-storage/roll-history-constants/roll-history-storage-key";
 
 export function pushRollHistory(film: RollFilm): void {
   try {

@@ -2,11 +2,9 @@
 
 import { useState } from "react";
 import { markFilmWatched } from "@/lib/api";
-import {
-  showSaveError,
-  showSentimentSaved,
-  showSignInTasteNudge,
-} from "./film-action-toasts";
+import { showSaveError } from "@/hooks/film-actions/film-action-toasts/show-save-error";
+import { showSentimentSaved } from "@/hooks/film-actions/film-action-toasts/show-sentiment-saved";
+import { showSignInTasteNudge } from "@/hooks/film-actions/film-action-toasts/show-sign-in-taste-nudge";
 import type {
   Sentiment,
   SentimentChoice,

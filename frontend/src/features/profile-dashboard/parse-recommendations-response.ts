@@ -1,6 +1,6 @@
 import type { Recommendation } from "@/types/recommendation";
 import type { RecommendationsResult } from "./domain-types";
-import { EMPTY_RECOMMENDATIONS_RESULT } from "./empty-profile-data";
+import { EMPTY_RECOMMENDATIONS_RESULT } from "@/features/profile-dashboard/empty-profile-data/empty-recommendations-result";
 
 export function parseRecommendationsResponse(
   data: unknown,

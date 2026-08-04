@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { ONBOARDED_STORAGE_KEY } from "./constants";
+import { ONBOARDED_STORAGE_KEY } from "@/features/home/constants/onboarded-storage-key";
 import type { OnboardingState } from "./domain-types";
 import { markOnboardedCookie } from "./mark-onboarded-cookie";
 

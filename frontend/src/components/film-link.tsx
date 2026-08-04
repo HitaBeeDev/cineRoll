@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ComponentProps } from "react";
-import { NEW_TAB_PROPS, filmHref } from "@/lib/film-link";
+import { NEW_TAB_PROPS } from "@/lib/film-link/new-tab-props";
+import { filmHref } from "@/lib/film-link/film-href";
 
 type FilmLinkProps = Omit<ComponentProps<typeof Link>, "href"> & {
   /** The film's slug — this component owns the path it turns into. */

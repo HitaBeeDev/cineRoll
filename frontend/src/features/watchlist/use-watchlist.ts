@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { removeFilmFromWatchlist } from "@/lib/api";
-import { useToast } from "@/components/ui/toast";
+import { useToast } from "@/components/ui/toast/use-toast";
 import type { WatchlistGridProps } from "./component-props";
 import type { WatchlistController } from "./watchlist-controller";
 import type { WatchlistFilm } from "./domain-types";

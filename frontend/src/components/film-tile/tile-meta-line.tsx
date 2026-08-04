@@ -1,4 +1,7 @@
-import { formatContentType, formatFilmLength, formatFilmYear, formatGenres } from "@/lib/format";
+import { formatContentType } from "@/lib/format/format-content-type";
+import { formatFilmLength } from "@/lib/format/format-film-length";
+import { formatFilmYear } from "@/lib/format/format-film-year";
+import { formatGenres } from "@/lib/format/format-genres";
 
 type TileMetaFilm = {
   year?: number | null;

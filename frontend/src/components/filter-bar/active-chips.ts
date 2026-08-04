@@ -1,7 +1,8 @@
 import type { FilterState } from "@cineroll/types";
-import { nameToSlug } from "@/lib/utils";
-import { awardBodyName } from "@/components/filter-bar/constants";
-import { formatYearRange, hasYearRange } from "@/lib/browse/year-range";
+import { nameToSlug } from "@/lib/utils/name-to-slug";
+import { awardBodyName } from "@/components/filter-bar/constants/award-body-name";
+import { formatYearRange } from "@/lib/browse/year-range/format-year-range";
+import { hasYearRange } from "@/lib/browse/year-range/has-year-range";
 
 export type ActiveFilterChip = {
   key: string;

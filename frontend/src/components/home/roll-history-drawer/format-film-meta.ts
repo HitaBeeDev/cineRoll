@@ -1,5 +1,7 @@
 import type { RollFilm } from "@/lib/api";
-import { formatContentType, formatFilmYear, formatGenres } from "@/lib/format";
+import { formatContentType } from "@/lib/format/format-content-type";
+import { formatFilmYear } from "@/lib/format/format-film-year";
+import { formatGenres } from "@/lib/format/format-genres";
 
 /** Compact "year · type · genres · ★ rating" line for a history row; skips missing parts. */
 export function formatFilmMeta(film: RollFilm): string {

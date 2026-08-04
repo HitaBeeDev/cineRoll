@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/cn";
 import type { RollButtonProps } from "../component-props";
 
 export function RollButton({ disabled, effectiveCount, effectiveCountLoading, hasActiveFilters, isRolling, shouldPulse, onRoll }: RollButtonProps) {

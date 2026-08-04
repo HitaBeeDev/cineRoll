@@ -1,13 +1,11 @@
 "use client";
 
 import { Loader2 } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog } from "@/components/ui/dialog/dialog";
+import { DialogContent } from "@/components/ui/dialog/dialog-content";
+import { DialogDescription } from "@/components/ui/dialog/dialog-description";
+import { DialogHeader } from "@/components/ui/dialog/dialog-header";
+import { DialogTitle } from "@/components/ui/dialog/dialog-title";
 import { useSaveToList } from "@/components/save-to-list-dialog/useSaveToList";
 import { ListRow } from "@/components/save-to-list-dialog/list-row";
 import { CreateListInline } from "@/components/save-to-list-dialog/create-list-inline";

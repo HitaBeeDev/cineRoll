@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/cn";
 
 const shimmerCSS = `@keyframes cineroll-shimmer{0%{background-position:200% center}100%{background-position:-200% center}}@media (prefers-reduced-motion: reduce){.cineroll-skeleton{animation:none!important;background-size:100% 100%!important}}`;
 

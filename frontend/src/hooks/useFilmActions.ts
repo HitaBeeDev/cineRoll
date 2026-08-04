@@ -1,6 +1,6 @@
 "use client";
 
-import { useToast } from "@/components/ui/toast";
+import { useToast } from "@/components/ui/toast/use-toast";
 import { useAuthGate } from "./film-actions/use-auth-gate";
 import { useFilmDecision } from "./film-actions/use-film-decision";
 import { useFilmSentiment } from "./film-actions/use-film-sentiment";

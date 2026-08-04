@@ -1,17 +1,15 @@
 "use client";
 
 import { Trash2 } from "lucide-react";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { cn } from "@/lib/utils";
+import { Dialog } from "@/components/ui/dialog/dialog";
+import { DialogClose } from "@/components/ui/dialog/dialog-close";
+import { DialogContent } from "@/components/ui/dialog/dialog-content";
+import { DialogDescription } from "@/components/ui/dialog/dialog-description";
+import { DialogFooter } from "@/components/ui/dialog/dialog-footer";
+import { DialogHeader } from "@/components/ui/dialog/dialog-header";
+import { DialogTitle } from "@/components/ui/dialog/dialog-title";
+import { DialogTrigger } from "@/components/ui/dialog/dialog-trigger";
+import { cn } from "@/lib/utils/cn";
 import { useDeleteAccount } from "./use-delete-account";
 
 export function DeleteAccountCard() {

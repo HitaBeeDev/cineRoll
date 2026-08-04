@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { ListPlus } from "lucide-react";
-import { useToast } from "@/components/ui/toast";
+import { useToast } from "@/components/ui/toast/use-toast";
 import { SaveToListDialog } from "@/components/save-to-list-dialog/save-to-list-dialog";
 
 /**

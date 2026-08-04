@@ -3,10 +3,11 @@
 import { AnimatePresence } from "framer-motion";
 import { usePathname } from "next/navigation";
 import { useFilmActions } from "@/hooks/useFilmActions";
-import { cn } from "@/lib/utils";
-import { blurDataUrl } from "@/lib/images";
+import { cn } from "@/lib/utils/cn";
+import { blurDataUrl } from "@/lib/images/blur-data-url";
 import type { RollFilm } from "@/lib/api";
-import { getAwardHighlights, getRecognitionRecords } from "@/components/home/film-card/awards";
+import { getAwardHighlights } from "@/components/home/film-card/awards/get-award-highlights";
+import { getRecognitionRecords } from "@/components/home/film-card/awards/get-recognition-records";
 import { ChannelPill } from "@/components/home/film-card/channel-pill";
 import { CardHeader } from "@/components/home/film-card/card-header";
 import { FilmScores } from "@/components/home/film-card/film-scores";

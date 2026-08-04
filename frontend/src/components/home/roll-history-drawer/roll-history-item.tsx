@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { ArrowUpRight, Film } from "lucide-react";
 import { FilmLink } from "@/components/film-link";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/cn";
 import { trackEvent } from "@/lib/analytics";
 import type { RollFilm } from "@/lib/api";
 import { formatFilmMeta } from "@/components/home/roll-history-drawer/format-film-meta";

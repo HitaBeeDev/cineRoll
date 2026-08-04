@@ -1,10 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import {
-  clearPendingFilmAction,
-  setPendingFilmAction,
-} from "@/lib/pending-intent";
+import { clearPendingFilmAction } from "@/lib/pending-intent/clear-pending-film-action";
+import { setPendingFilmAction } from "@/lib/pending-intent/set-pending-film-action";
 import type { AuthGate } from "./types";
 
 export function useAuthGate(filmId: string) {

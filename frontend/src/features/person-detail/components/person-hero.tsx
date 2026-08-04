@@ -1,4 +1,4 @@
-import { getNameInitials } from "@/lib/name-avatar";
+import { getNameInitials } from "@/lib/name-avatar/get-name-initials";
 import type { PersonHeroProps } from "../component-props";
 import { PersonAvatar } from "./person-avatar";
 import { PersonInfo } from "./person-info";

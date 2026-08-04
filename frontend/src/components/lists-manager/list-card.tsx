@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Check } from "lucide-react";
 import type { UserListSummary } from "@cineroll/types";
-import { tmdbImageUrl } from "@/lib/images";
+import { tmdbImageUrl } from "@/lib/images/tmdb-image-url";
 import { CardMenu } from "@/components/lists-manager/card-menu";
 import { MAX_NAME } from "@/components/lists-manager/constants";
 

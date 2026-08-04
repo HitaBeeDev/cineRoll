@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { X } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/cn";
 import { AuthButton } from "@/components/auth-button";
 import { primaryNavItems } from "@/components/site-navigation/nav-items";
 import { isActiveRoute } from "@/components/site-navigation/is-active-route";

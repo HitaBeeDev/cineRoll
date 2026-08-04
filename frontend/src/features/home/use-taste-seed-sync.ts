@@ -3,7 +3,8 @@
 import { useEffect } from "react";
 import { saveOnboardingGenres } from "@/lib/api";
 import { readTasteSeedGenres } from "./read-taste-seed-genres";
-import { isTasteSeedSynced, markTasteSeedSynced } from "./taste-seed-sync-storage";
+import { isTasteSeedSynced } from "@/features/home/taste-seed-sync-storage/is-taste-seed-synced";
+import { markTasteSeedSynced } from "@/features/home/taste-seed-sync-storage/mark-taste-seed-synced";
 
 export function useTasteSeedSync(userId: string | undefined): void {
   useEffect(() => {

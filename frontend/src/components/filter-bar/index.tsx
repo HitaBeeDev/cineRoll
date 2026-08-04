@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/cn";
 import type { FilterState } from "@cineroll/types";
 import { getActiveFilterChips } from "@/components/filter-bar/active-chips";
 import { buildRollRecipe } from "@/components/filter-bar/roll-recipe";

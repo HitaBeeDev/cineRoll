@@ -1,7 +1,7 @@
 "use client";
 
 import { PasswordInput } from "@/components/auth/password-input";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/cn";
 import { usePasswordForm } from "./use-password-form";
 
 /**

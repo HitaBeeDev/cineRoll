@@ -1,7 +1,8 @@
 import Image from "next/image";
 import { Check } from "lucide-react";
-import { blurDataUrl, tmdbImageUrl } from "@/lib/images";
-import { cn } from "@/lib/utils";
+import { blurDataUrl } from "@/lib/images/blur-data-url";
+import { tmdbImageUrl } from "@/lib/images/tmdb-image-url";
+import { cn } from "@/lib/utils/cn";
 import type { TasteCardFilm } from "@/lib/api";
 
 /** A single poster the visitor can toggle as "seen". */

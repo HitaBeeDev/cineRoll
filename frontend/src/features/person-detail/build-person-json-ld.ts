@@ -1,4 +1,4 @@
-import { PERSON_SITE_URL } from "./config";
+import { PERSON_SITE_URL } from "@/features/person-detail/config/person-site-url";
 import type { PersonData } from "./domain-types";
 
 export function buildPersonJsonLd(

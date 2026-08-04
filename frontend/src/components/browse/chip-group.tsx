@@ -1,6 +1,6 @@
 "use client";
 
-import { useFieldLabelling } from "@/components/ui/field-label-context";
+import { useFieldLabelling } from "@/components/ui/field-label-context/use-field-labelling";
 
 /**
  * Wraps a set of FilterChips as one group.

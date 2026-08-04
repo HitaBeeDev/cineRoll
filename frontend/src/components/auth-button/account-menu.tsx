@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/cn";
 import { UserAvatar } from "@/components/user-avatar";
 import type { AuthUser } from "@/components/auth-button/types";
 import { ACCOUNT_LINKS } from "@/components/auth-button/account-links";

@@ -1,6 +1,10 @@
-import { formatContentType, formatCreditLabel, formatFilmLength, formatFilmYear, formatGenres } from "@/lib/format";
+import { formatContentType } from "@/lib/format/format-content-type";
+import { formatCreditLabel } from "@/lib/format/format-credit-label";
+import { formatFilmLength } from "@/lib/format/format-film-length";
+import { formatFilmYear } from "@/lib/format/format-film-year";
+import { formatGenres } from "@/lib/format/format-genres";
 import { AwardsPanel } from "@/components/home/film-card/awards-panel";
-import type { AwardHighlight } from "@/components/home/film-card/awards";
+import type { AwardHighlight } from "@/components/home/film-card/awards/award-highlight";
 import type { RollFilm } from "@/lib/api";
 
 /**

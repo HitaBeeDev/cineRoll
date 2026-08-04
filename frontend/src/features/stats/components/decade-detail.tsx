@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { FilmLink } from "@/components/film-link";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/cn";
 import type { DecadeDatum } from "../types";
 
 type DecadeDetailProps = {

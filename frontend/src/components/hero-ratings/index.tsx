@@ -1,9 +1,7 @@
 import { Star } from "lucide-react";
-import {
-  IMDB_GOLD,
-  RT_FRESH,
-  RT_ROTTEN,
-} from "@/components/hero-ratings/constants";
+import { IMDB_GOLD } from "@/components/hero-ratings/constants/imdb-gold";
+import { RT_FRESH } from "@/components/hero-ratings/constants/rt-fresh";
+import { RT_ROTTEN } from "@/components/hero-ratings/constants/rt-rotten";
 import { ScoreStat } from "@/components/hero-ratings/score-stat";
 import { TomatoGlyph } from "@/components/hero-ratings/tomato-glyph";
 

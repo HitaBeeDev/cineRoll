@@ -1,7 +1,8 @@
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import type { KeyboardEvent, PointerEventHandler } from "react";
 import type { RollFilm } from "@/lib/api";
-import { FADE_VARIANTS, FLIP_VARIANTS } from "../carousel-config";
+import { FADE_VARIANTS } from "@/features/describe/carousel-config/fade-variants";
+import { FLIP_VARIANTS } from "@/features/describe/carousel-config/flip-variants";
 import { FilmCard } from "./film-card";
 
 type FilmCarouselViewportProps = {

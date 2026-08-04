@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { FilmLink } from "@/components/film-link";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/cn";
 import type { Accent, FilmStat } from "../types";
 
 type RunnerUpFilmCardProps = { film: FilmStat; rank: number; unit: string; accent: Accent };

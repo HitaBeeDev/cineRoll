@@ -1,5 +1,6 @@
-import { avatarInitials, resolveAvatar } from "@/lib/avatars";
-import { cn } from "@/lib/utils";
+import { avatarInitials } from "@/lib/avatars/avatar-initials";
+import { resolveAvatar } from "@/lib/avatars/resolve-avatar";
+import { cn } from "@/lib/utils/cn";
 
 /**
  * Renders a user's chosen avatar: a static same-origin SVG (from /public/avatars)

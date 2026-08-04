@@ -3,9 +3,10 @@
 import Image from "next/image";
 import type { AwardBodyFilter, Film } from "@cineroll/types";
 import { FilmLink } from "@/components/film-link";
-import { cn } from "@/lib/utils";
-import { formatFilmYear } from "@/lib/format";
-import { blurDataUrl, tmdbImageUrl } from "@/lib/images";
+import { cn } from "@/lib/utils/cn";
+import { formatFilmYear } from "@/lib/format/format-film-year";
+import { blurDataUrl } from "@/lib/images/blur-data-url";
+import { tmdbImageUrl } from "@/lib/images/tmdb-image-url";
 import { trackEvent } from "@/lib/analytics";
 import { useFilmImpression } from "@/hooks/useFilmImpression";
 import { getAwardBadge, type AwardBadgeStatus } from "@/components/film-tile/award-badge";

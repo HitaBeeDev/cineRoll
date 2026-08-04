@@ -1,0 +1,1 @@
+export const PERSON_REVALIDATE_SECONDS = 86400;

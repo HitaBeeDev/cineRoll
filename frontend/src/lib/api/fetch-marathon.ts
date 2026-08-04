@@ -1,6 +1,6 @@
 import type { FilterState } from "@cineroll/types";
-import { createApiError } from "./api-error";
-import { API_URL } from "./constants";
+import { createApiError } from "@/lib/api/api-error/create-api-error";
+import { API_URL } from "@/lib/api/constants/api-url";
 import { filtersToParams } from "./filters-to-params";
 import type { MarathonResult } from "./roll-types";
 import { withQuery } from "./url";

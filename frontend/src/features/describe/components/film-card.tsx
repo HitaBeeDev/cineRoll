@@ -2,9 +2,10 @@ import Image from "next/image";
 import type { MouseEvent } from "react";
 import { FilmLink } from "@/components/film-link";
 import type { RollFilm } from "@/lib/api";
-import { formatContentType, formatGenres } from "@/lib/format";
+import { formatContentType } from "@/lib/format/format-content-type";
+import { formatGenres } from "@/lib/format/format-genres";
 import { getFilmAwards } from "../get-film-awards";
-import { trackNaturalRollClick } from "../natural-roll-analytics";
+import { trackNaturalRollClick } from "@/features/describe/natural-roll-analytics/track-natural-roll-click";
 import { FilmAwardBadges } from "./film-award-badges";
 
 type FilmCardProps = {

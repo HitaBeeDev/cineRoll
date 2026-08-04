@@ -1,0 +1,1 @@
+export const LANE_BANDIT_MAX_STRENGTH = 60;

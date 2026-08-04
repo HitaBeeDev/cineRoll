@@ -1,8 +1,9 @@
 import { Check, ThumbsDown } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/cn";
 import { HoverTooltip } from "@/components/hover-tooltip";
 import type { FilmActionState } from "@/hooks/film-actions/types";
-import { ICON_BUTTON, ICON_IDLE } from "@/components/film-detail-actions/styles";
+import { ICON_BUTTON } from "@/components/film-detail-actions/styles/icon-button";
+import { ICON_IDLE } from "@/components/film-detail-actions/styles/icon-idle";
 
 /** Tertiary icon row: the quiet "Watched" / "Not interested" decisions, each
  *  carrying a hover/focus label so the icons aren't a guessing game. */

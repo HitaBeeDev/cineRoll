@@ -1,4 +1,5 @@
-import { PERSON_API_URL, PERSON_REVALIDATE_SECONDS } from "./config";
+import { PERSON_API_URL } from "@/features/person-detail/config/person-api-url";
+import { PERSON_REVALIDATE_SECONDS } from "@/features/person-detail/config/person-revalidate-seconds";
 import type { PersonData } from "./domain-types";
 
 export async function fetchPerson(slug: string): Promise<PersonData | null> {

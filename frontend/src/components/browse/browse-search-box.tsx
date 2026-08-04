@@ -1,6 +1,6 @@
 import { Clapperboard, Search } from "lucide-react";
-import { formatFilmYear } from "@/lib/format";
-import { cn } from "@/lib/utils";
+import { formatFilmYear } from "@/lib/format/format-film-year";
+import { cn } from "@/lib/utils/cn";
 import type { BrowseAutocomplete } from "@/hooks/useBrowseAutocomplete";
 
 /**
