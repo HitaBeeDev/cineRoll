@@ -11,6 +11,7 @@ import { getRecognitionRecords } from "@/components/home/film-card/awards/get-re
 import { ChannelPill } from "@/components/home/film-card/channel-pill";
 import { CardHeader } from "@/components/home/film-card/card-header";
 import { FilmScores } from "@/components/home/film-card/film-scores";
+import { FilmSynopsis } from "@/components/home/film-card/film-synopsis";
 import { RecognizedFor } from "@/components/home/film-card/recognized-for";
 import { TuneFutureRolls } from "@/components/home/film-card/tune-future-rolls";
 import { SentimentPrompt } from "@/components/home/film-card/sentiment-prompt";
@@ -113,23 +114,10 @@ export function FilmCard({
         )}
       >
         <div className="flex min-w-0 flex-col gap-2">
-          {film.plot && (
-            <p
-              className={cn(
-                // The synopsis is prose, and it was set like a caption: 12px in
-                // the same grey as the labels around it, which made the one
-                // paragraph on the card look disabled. It gets a reading size,
-                // a reading line height, and the brightest of the supporting
-                // greys.
-                "text-[15px] leading-[1.6] text-[#c6c6d2]",
-                // Given a column of its own the plot can afford to finish its
-                // thought; squeezed into the narrow rail it still gets three lines.
-                split ? "line-clamp-6" : "line-clamp-3",
-              )}
-            >
-              {film.plot}
-            </p>
-          )}
+          {/* Given a column of its own the plot can afford to finish its
+              thought; squeezed into the narrow rail it still gets three lines.
+              Either way it can be opened in place if it does not fit. */}
+          {film.plot && <FilmSynopsis plot={film.plot} lines={split ? 6 : 3} />}
 
           <FilmScores film={film} />
 
