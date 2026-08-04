@@ -242,8 +242,16 @@ export function BrowseRollDialog({
 
         {/* Pinned, not scrolled with the card: the whole point of rolling in place
             is that another draw is one click away, and a button that is one click
-            away only if you scroll back down is not. */}
-        <div className="relative shrink-0 border-t border-[#17171f] bg-[#08080d] p-3">
+            away only if you scroll back down is not.
+
+            Rolling stays the primary action — it is the mechanic the site is
+            named for — but it is no longer the loudest thing in the dialog. It
+            used to sit on a black slab of its own, a full-width pill under a red
+            glow, which made a modal whose subject is a film look like a modal for
+            discarding one. Same colour, same place, a third of the presence: one
+            shade off the dialog's own background rather than a separate black
+            band, and a button sized to a button. */}
+        <div className="relative shrink-0 border-t border-[#17171f] bg-[#0b0b12] px-4 py-2.5">
           {/* Sits above the footer, not over the card's last line: while there
               is more to scroll the content fades out into the footer, and the
               fade clears the moment the end is reached, so a half-cut line
@@ -261,17 +269,18 @@ export function BrowseRollDialog({
             onClick={onRoll}
             disabled={rolling}
             className={cn(
-              // Capped and centred rather than edge to edge: a pill the full
-              // width of a 768px dialog stops reading as a button.
-              "mx-auto flex w-full max-w-sm items-center justify-center gap-2.5 rounded-full bg-[#e8453c] px-5 py-3",
-              "font-[family-name:var(--font-geist-mono)] text-[12px] font-semibold uppercase tracking-[0.16em] text-[#09090f]",
-              "shadow-[0_10px_30px_-14px_rgba(232,69,60,0.9)] transition-all duration-200",
+              // Sized to its label, centred. Full width of a 768px dialog it
+              // stopped reading as a button and started reading as the point of
+              // the dialog.
+              "mx-auto flex w-full max-w-[15rem] items-center justify-center gap-2 rounded-full bg-[#e8453c] px-5 py-2",
+              "font-[family-name:var(--font-geist-mono)] text-[11px] font-semibold uppercase tracking-[0.14em] text-[#09090f]",
+              "transition-colors duration-200",
               "hover:bg-[#ff5c52] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff766d]",
-              "focus-visible:ring-offset-2 focus-visible:ring-offset-[#08080d]",
-              "disabled:cursor-not-allowed disabled:bg-[#e8453c]/35 disabled:text-[#09090f]/60 disabled:shadow-none",
+              "focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b0b12]",
+              "disabled:cursor-not-allowed disabled:bg-[#e8453c]/35 disabled:text-[#09090f]/60",
             )}
           >
-            <Shuffle className={cn("h-4 w-4", rolling && "animate-spin")} aria-hidden />
+            <Shuffle className={cn("h-3.5 w-3.5", rolling && "animate-spin")} aria-hidden />
             {rolling ? "Rolling…" : "Roll again"}
           </button>
         </div>
