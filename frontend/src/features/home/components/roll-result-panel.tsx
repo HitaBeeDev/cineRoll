@@ -25,7 +25,10 @@ export function RollResultPanel(props: RollResultPanelProps) {
           </motion.div>
         ) : props.film ? (
           <motion.div key={props.film.id} layout={!props.reducedMotion} initial={{ opacity: 0, y: props.reducedMotion ? 0 : 24, scale: props.reducedMotion ? 1 : 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, transition: buildFadeOutTransition(props.reducedMotion) }} transition={props.reducedMotion ? { duration: 0 } : { type: "spring", stiffness: 260, damping: 19, mass: 0.9 }}>
-            <FilmCard film={props.film} isAuthenticated={props.isAuthenticated} onNotInterested={props.onNotInterested} onNotTonight={props.onRoll} onWatched={props.onRoll} onSaved={props.onRoll} onEngage={props.onEngage} />
+            {/* Only "not tonight" rolls on: rolling away is how that skip's
+                weak penalty is applied. The three that record something keep
+                the film on screen so the card can confirm it. */}
+            <FilmCard film={props.film} isAuthenticated={props.isAuthenticated} onNotInterested={props.onNotInterested} onNotTonight={props.onRoll} onEngage={props.onEngage} />
           </motion.div>
         ) : props.effectiveCount === 0 ? (
           <motion.div key="zero" layout={!props.reducedMotion} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, transition: buildFadeOutTransition(props.reducedMotion) }} transition={buildEmptyStateTransition(props.reducedMotion)} className="flex flex-1 flex-col">

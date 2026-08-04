@@ -51,6 +51,6 @@ export function HomeClient({ initialOnboarded, hero }: HomeClientProps) {
   });
 
   return (
-    <HomeExperience hero={hero} filters={homeFilters.filters} genres={catalog.genres} hasActiveFilters={homeFilters.hasActiveFilters} pool={pool} film={rollEngine.film} isRolling={rollEngine.isRolling} isSearching={rollEngine.isSearching} reducedMotion={reducedMotion} userId={userId} personalizedRoll={personalization.personalizedRoll} onApplyFilters={homeFilters.applyFilters} onClearTrackedFilters={homeFilters.clearTrackedFilters} onResetFilters={homeFilters.resetFilters} onClearAndRoll={() => { homeFilters.resetFilters(); requestAutoRoll(); }} onTogglePersonalizedRoll={personalization.togglePersonalizedRoll} onRoll={rollEngine.roll} onEngage={rollEngine.markCurrentEngaged} onNotInterested={rollEngine.rejectAndRoll} />
+    <HomeExperience hero={hero} filters={homeFilters.filters} genres={catalog.genres} hasActiveFilters={homeFilters.hasActiveFilters} pool={pool} film={rollEngine.film} isRolling={rollEngine.isRolling} isSearching={rollEngine.isSearching} reducedMotion={reducedMotion} userId={userId} personalizedRoll={personalization.personalizedRoll} onApplyFilters={homeFilters.applyFilters} onClearTrackedFilters={homeFilters.clearTrackedFilters} onResetFilters={homeFilters.resetFilters} onClearAndRoll={() => { homeFilters.resetFilters(); requestAutoRoll(); }} onTogglePersonalizedRoll={personalization.togglePersonalizedRoll} onRoll={rollEngine.roll} onEngage={rollEngine.markCurrentEngaged} onNotInterested={rollEngine.markCurrentRejected} />
   );
 }

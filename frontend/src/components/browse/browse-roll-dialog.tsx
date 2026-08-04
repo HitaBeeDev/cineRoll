@@ -26,8 +26,7 @@ import type { BrowseRollError } from "@/hooks/useBrowseRoll";
  * to be rolling from, which is not a distinction the engine should be able to see.
  *
  * What is smaller is the frame around it: one column at dialog width instead of
- * the home page's side-by-side, and the four signals double as the reroll — each
- * of them answers "not this one" and so each of them rolls again on its way out.
+ * the home page's side-by-side.
  */
 export function BrowseRollDialog({
   open,
@@ -207,14 +206,16 @@ export function BrowseRollDialog({
                 // footer instead of stopping flush against it.
                 className="p-4 pb-8"
               >
+                {/* Only "not tonight" draws again. The other three record
+                    something about this film, and a card that vanishes the
+                    instant you record something never gets to show you that it
+                    did — the tick, the confirmation and the failure rollback
+                    were all invisible. Rolling on is the footer's job. */}
                 <FilmCard
                   film={film}
                   isAuthenticated={isAuthenticated}
                   layout="split"
                   onNotTonight={onRoll}
-                  onNotInterested={onRoll}
-                  onWatched={onRoll}
-                  onSaved={onRoll}
                 />
               </motion.div>
             ) : (

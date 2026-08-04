@@ -70,10 +70,12 @@ export function useRollEngine(input: UseRollEngineInput) {
   const markCurrentEngaged = useCallback(() => {
     if (currentRollRef.current) currentRollRef.current.engaged = true;
   }, []);
-  const rejectAndRoll = useCallback(() => {
+  // Marks only. The penalty is spent by `processOutgoingRoll` whenever the next
+  // roll happens, so rejecting no longer has to trigger that roll itself — the
+  // card stays put and confirms what it recorded.
+  const markCurrentRejected = useCallback(() => {
     if (currentRollRef.current) currentRollRef.current.rejected = true;
-    void roll();
-  }, [roll]);
+  }, []);
 
-  return { film, isRolling, isSearching, roll, markCurrentEngaged, rejectAndRoll };
+  return { film, isRolling, isSearching, roll, markCurrentEngaged, markCurrentRejected };
 }
