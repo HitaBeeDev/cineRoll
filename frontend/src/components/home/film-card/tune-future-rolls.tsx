@@ -6,10 +6,10 @@ import { AUTH_GATE_TITLE } from "@/hooks/useFilmActions";
 import { QuickActionButton } from "@/components/home/film-card/quick-action-button";
 
 /**
- * The demoted "Tune future rolls" maintenance tier: four distinct signals that
- * each teach the roll differently, plus the confirmation footnote and the guest
- * auth gate. Every signal is a ready-made callback; the only state here is
- * whether this card has recorded one.
+ * The demoted feedback tier: four signals that each teach the roll differently,
+ * presented as one group under one heading, plus the confirmation footnote and
+ * the guest auth gate. Every signal is a ready-made callback; the only state
+ * here is whether this card has recorded one.
  */
 export function TuneFutureRolls({
   isAuthenticated,
@@ -57,14 +57,16 @@ export function TuneFutureRolls({
 
   return (
     <section className={cn(!flush && "mt-4 border-t border-[#17171f] pt-4")}>
-      <div className="mb-2 flex items-center justify-between gap-3">
-        <h3 className="font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.2em] text-[#888899]">
-          Tune future rolls
-        </h3>
-        <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em] text-[#5a5a6a]">
-          {isAuthenticated ? "Account signal" : "Session signal"}
-        </span>
-      </div>
+      {/* One heading over all four, stating what the group is for rather than
+          how it is stored. "Tune future rolls" beside "Account signal" split
+          them along a line the engine cares about and the reader does not:
+          already seen tunes the roll AND writes to the account, not interested
+          does both too. The weights behind the four still differ; the interface
+          no longer asks anyone to guess which side of the data model a button
+          falls on. */}
+      <h3 className="mb-2 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.2em] text-[#888899]">
+        Improve your recommendations
+      </h3>
       {/* Four distinct signals, each teaching the roll differently:
           • Not tonight    — session-only weak skip (guest-friendly, no hide)
           • Already seen   — hide + 👍/👎 taste (strong-positive if liked)
