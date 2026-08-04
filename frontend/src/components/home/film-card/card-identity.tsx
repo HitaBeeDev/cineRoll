@@ -3,14 +3,16 @@ import { formatCreditLabel } from "@/lib/format/format-credit-label";
 import { formatFilmLength } from "@/lib/format/format-film-length";
 import { formatFilmYear } from "@/lib/format/format-film-year";
 import { formatGenres } from "@/lib/format/format-genres";
-import { AwardsPanel } from "@/components/home/film-card/awards-panel";
+import { RecognitionSummary } from "@/components/home/film-card/recognition-summary";
 import type { AwardHighlight } from "@/components/home/film-card/awards/award-highlight";
 import type { RollFilm } from "@/lib/api";
 
 /**
  * The identity column beside the poster: facts strip → genres → title → credit →
- * Recognition. The award record leads as the headline credential — it's why the
- * film is in CineRoll — above the plot and ratings that merely support it.
+ * recognition. Recognition still leads — it's why the film is in CineRoll — but
+ * as one line of summary, with the categories and years it stands on kept for
+ * "Recognized for" further down. Stating both at full size made the first screen
+ * of the card mostly award furniture.
  */
 export function CardIdentity({
   film,
@@ -69,7 +71,7 @@ export function CardIdentity({
         </p>
       )}
 
-      {awardHighlights.length > 0 && <AwardsPanel highlights={awardHighlights} />}
+      {awardHighlights.length > 0 && <RecognitionSummary highlights={awardHighlights} />}
     </div>
   );
 }

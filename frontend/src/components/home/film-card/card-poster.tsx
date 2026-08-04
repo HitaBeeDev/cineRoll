@@ -37,7 +37,10 @@ export function CardPoster({
       // self-stretch lets the poster grow to match a tall identity column (long
       // titles) instead of leaving dead space below it; the 2/3 aspect ratio
       // acts as the minimum height when the column is short.
-      className="group relative z-20 w-[42%] max-w-[180px] shrink-0 self-stretch rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090f]"
+      // Sized down with the identity column beside it: once recognition became
+      // one line instead of a panel, a 180px poster was the only thing holding
+      // the header at full height, with dead column beside it.
+      className="group relative z-20 w-[38%] max-w-[150px] shrink-0 self-stretch rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090f]"
       style={{ aspectRatio: "2/3" }}
     >
       <motion.div
