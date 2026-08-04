@@ -104,7 +104,12 @@ export function BrowseRollDialog({
           // browser chrome top and bottom and stopped reading as a panel over
           // the page — it read as the page, with its own scrollbar.
           "flex max-h-[85dvh] w-[calc(100vw-1.5rem)] max-w-md flex-col overflow-hidden p-0 sm:max-w-3xl",
-          "border-[#1c1a25] bg-[#0b0b12]",
+          // No background of its own: `cn` here is a plain join, not a
+          // tailwind-merge, so a second bg- class does not replace the base
+          // one — it only loses or wins on stylesheet order. The dialog keeps
+          // DialogContent's surface, and header and footer inherit it, which is
+          // the only way the three parts are guaranteed to be one colour.
+          "border-[#1c1a25]",
         )}
       >
         {/* The card states the title in full a few lines down, so the dialog's
@@ -118,7 +123,7 @@ export function BrowseRollDialog({
             the part that does not move: it holds the close, and once the hero
             leaves it picks the title back up so the frame always says what you
             are looking at. */}
-        <div className="relative z-10 flex shrink-0 items-center gap-3 border-b border-[#17171f] bg-[#0b0b12] px-4 py-2.5">
+        <div className="relative z-10 flex shrink-0 items-center gap-3 border-b border-white/[0.06] px-4 py-2.5">
           <div className="flex min-h-[26px] min-w-0 flex-1 items-center">
             <AnimatePresence mode="wait" initial={false}>
               {film && condensed ? (
@@ -166,7 +171,15 @@ export function BrowseRollDialog({
         <div
           ref={scrollRef}
           onScroll={readScroll}
-          className="min-h-0 flex-1 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:w-0"
+          className={cn(
+            "min-h-0 flex-1 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:w-0",
+            // The end-of-content cue fades the content itself rather than laying
+            // a coloured gradient over it — nothing here has to know what colour
+            // the dialog is, so the fade cannot show up as a band.
+            !atEnd &&
+              "[-webkit-mask-image:linear-gradient(to_bottom,black_calc(100%-3rem),transparent)]",
+            !atEnd && "[mask-image:linear-gradient(to_bottom,black_calc(100%-3rem),transparent)]",
+          )}
         >
           <AnimatePresence mode="wait">
             {rolling ? (
@@ -248,22 +261,10 @@ export function BrowseRollDialog({
             named for — but it is no longer the loudest thing in the dialog. It
             used to sit on a black slab of its own, a full-width pill under a red
             glow, which made a modal whose subject is a film look like a modal for
-            discarding one. Same colour, same place, a third of the presence: one
-            shade off the dialog's own background rather than a separate black
-            band, and a button sized to a button. */}
-        <div className="relative shrink-0 border-t border-[#17171f] bg-[#0b0b12] px-4 py-2.5">
-          {/* Sits above the footer, not over the card's last line: while there
-              is more to scroll the content fades out into the footer, and the
-              fade clears the moment the end is reached, so a half-cut line
-              always reads as "keep scrolling" rather than as covered content. */}
-          <div
-            aria-hidden
-            className={cn(
-              "pointer-events-none absolute inset-x-0 bottom-full h-12",
-              "bg-gradient-to-t from-[#0b0b12] to-transparent transition-opacity duration-200",
-              atEnd ? "opacity-0" : "opacity-100",
-            )}
-          />
+            discarding one. Same colour, same place, a third of the presence: no
+            band of its own, only a hairline rule, and a button sized to a
+            button. */}
+        <div className="shrink-0 border-t border-white/[0.06] px-4 py-2.5">
           <button
             type="button"
             onClick={onRoll}
@@ -276,7 +277,7 @@ export function BrowseRollDialog({
               "font-[family-name:var(--font-geist-mono)] text-[11px] font-semibold uppercase tracking-[0.14em] text-[#09090f]",
               "transition-colors duration-200",
               "hover:bg-[#ff5c52] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff766d]",
-              "focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b0b12]",
+              "focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-900",
               "disabled:cursor-not-allowed disabled:bg-[#e8453c]/35 disabled:text-[#09090f]/60",
             )}
           >
