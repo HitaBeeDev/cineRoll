@@ -66,7 +66,8 @@ export function BrowseAdvancedPanel({
   onClearAll: () => void;
   /** Render as a bottom sheet — the viewport is too narrow for the inline panel. */
   compact?: boolean;
-  /** Films matching the current filters; only the sheet shows them, on its close button. */
+  /** Films matching the current filters; null until the first result lands. The
+   *  sheet puts it on its close button, the inline panel in its footer. */
   resultCount?: number | null;
   onClose?: () => void;
 }) {
@@ -147,9 +148,22 @@ export function BrowseAdvancedPanel({
 
         {/* Inline, the escape hatch closes the band stack. Full-screen it belongs
             in the footer beside the way out — on a tall empty menu a link left
-            floating under three collapsed rows reads as unattached to anything. */}
+            floating under three collapsed rows reads as unattached to anything.
+            Inline it now has the running total for company: three bands of
+            controls is a long way from the results header that states it, and
+            the answer to "did that last chip help?" should be at the bottom of
+            the thing that asked. Same number the header shows, so it is stated
+            twice on screen only while the panel is open over it. */}
         {!compact && (
-          <div className="flex flex-wrap items-center justify-end gap-3 border-t border-white/[0.09] pt-4">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/[0.09] pt-4">
+            <span
+              aria-live="polite"
+              className="font-[family-name:var(--font-geist-mono)] text-[12px] text-[#a9a5bc]"
+            >
+              {resultCount == null
+                ? "Counting films…"
+                : `${resultCount.toLocaleString()} ${resultCount === 1 ? "film matches" : "films match"}`}
+            </span>
             <ClearAllButton onClearAll={onClearAll} disabled={activeCount === 0} />
           </div>
         )}

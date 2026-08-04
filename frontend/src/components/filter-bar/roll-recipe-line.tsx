@@ -1,6 +1,6 @@
 import { Check, Link2 } from "lucide-react";
 import type { FilterState } from "@cineroll/types";
-import { useShareFilters } from "@/components/filter-bar/useShareFilters";
+import { useShareFilters } from "@/hooks/useShareFilters";
 
 /** The "Rolling from: …" recipe summary with a one-tap share/copy affordance.
  *  Renders nothing when no filters are active (empty recipe). */

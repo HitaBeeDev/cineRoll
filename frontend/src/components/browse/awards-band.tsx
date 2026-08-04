@@ -14,58 +14,27 @@ import {
 import type { SetFilters } from "@/lib/browse/filter-descriptors";
 
 /**
- * One row for how decorated a film is, where there used to be three — minimum
- * nominations, minimum wins, maximum wins, fourteen chips and three captions for
- * what is really one axis running from "won nothing" upward.
+ * There is no win-count control here, and there is no longer one anywhere in the
+ * panel. It arrived as three rows (minimum nominations, minimum wins, maximum
+ * wins), was folded to one, and is now gone — each step for the same reason,
+ * which is that every question it could ask is already asked better elsewhere:
  *
- * What each of the three was actually worth:
+ * - How many nominations is what the "Most nominations" sort is for. Every film
+ *   in the catalogue was nominated for something, so the filter could only ever
+ *   be a ladder, and page one of that sort is the top of the ladder, ranked.
+ * - At least N wins repeats the Award Result strip in the sticky bar, and repeats
+ *   it inexactly: `winnerOnly` means "won at the selected ceremony", a win count
+ *   sums every body. Two different questions, told apart by a grey 11px hint.
+ * - Never won was the last one standing, and it is a genuine question (54% of the
+ *   catalogue) — but a five-chip row whose only load-bearing chip is the first is
+ *   four chips of decoration, and it sat in a band about which award, from whom,
+ *   in which year, saying something about arithmetic instead.
  *
- * - Nominations answered a question the "Most nominations" sort answers better.
- *   Every film here was nominated for something (0 of 9,180 were not), so the row
- *   could only ever be a ladder, and a ladder is what an ordering is for: page one
- *   of that sort IS the "most nominated" answer, already ranked.
- *
- * - Minimum wins repeated the Award Result strip in the sticky bar. Not exactly,
- *   which was the problem: `winnerOnly` lives inside the award-row EXISTS and so
- *   means "won at the selected ceremony", while `winsMin` sums every body — two
- *   different questions on one screen, told apart by a grey 11px hint. With no
- *   ceremony selected they are the same filter, twice. The top of the ladder was
- *   sort territory besides: 10+ wins is 28 films out of 9,180.
- *
- * - The cap was the one worth keeping, and only at zero. "Nominated and went home
- *   empty" is 54% of the catalogue and nothing else in the UI can name it — not
- *   even the Nominated segment, which matches any film with an award row, i.e.
- *   all of them. The ≤1 / ≤2 / ≤5 steps above it are hidden-gem tuning, too fine
- *   for a browse panel; `winsMax` still takes them from the API.
- *
- * So: never-won at one end, a short ladder above it, and "at least one win" left
- * to the Winner segment that already says it — which is what stops the two
- * controls meaning subtly different things side by side.
+ * `winsMin` / `winsMax` still exist end to end — in FilterState, in the URL, in
+ * the API, and on the daily picks, which uses `winsMax: 0` to build its
+ * never-won slot. A link carrying them still filters, and the active-filter chip
+ * bar still shows and removes them. What is gone is a control in the panel.
  */
-const AWARDS_WON_OPTIONS = [
-  { value: 0, label: "Never won" },
-  { value: 2, label: "2+" },
-  { value: 3, label: "3+" },
-  { value: 5, label: "5+" },
-  { value: 10, label: "10+" },
-];
-
-/**
- * The row's single value, folded out of the two fields behind it: 0 is the cap at
- * zero, anything else is the floor. They are never both set, so the pair cannot
- * contradict itself and there is no crossing to guard against.
- */
-function awardsWonValue(filters: FilterState): number | null {
-  if (filters.winsMax === 0) return 0;
-  return filters.winsMin ?? null;
-}
-
-function setAwardsWon(next: number | null): Partial<FilterState> {
-  if (next === null) return { winsMin: null, winsMax: null };
-  if (next === 0) return { winsMin: null, winsMax: 0 };
-
-  return { winsMin: next, winsMax: null };
-}
 
 /**
  * Consensus across juries, which is the one question a four-ceremony catalogue
@@ -112,15 +81,14 @@ export function AwardsBand({
   const yearOptions = awardYears.map(({ year }) => ({ value: String(year), label: String(year) }));
 
   return (
-    /* Two rows of three, and which control gets which slot is the argument the
-       band is making.
+    /* One row of three, which is the whole band now that the counting is gone.
 
-       "Recognised by" leads. It was last here — bottom left, alone in a row two
-       thirds empty — while "how many nominations / wins / at most wins" took the
-       middle. That had it backwards twice over: consensus across four juries is
-       the one question this catalogue can answer that a single-ceremony list
-       cannot, and the win-count trio is the most specialist thing in the band.
-       The differentiator now opens the panel, and the counting follows it. */
+       "Recognised by" leads it. It used to be last — bottom left, alone in a row
+       two thirds empty — while "how many nominations / wins / at most wins" took
+       the middle. That had it backwards: consensus across four juries is the one
+       question this catalogue can answer that a single-ceremony list cannot, and
+       the win counts were the most specialist thing on the panel. The
+       differentiator opens the band; the arithmetic left the building. */
     <PanelBand label="Awards" activeCount={activeCount} collapsible={collapsible}>
       <PanelSection
         label="Recognised By"
@@ -178,19 +146,6 @@ export function AwardsBand({
             options={[{ value: ANY_YEAR, label: "Any" }, ...yearOptions]}
           />
         </div>
-      </PanelSection>
-
-      {/* The hint is not decoration: this counts across all four ceremonies
-          whatever is selected above, so "5+" with Cannes selected means "a Cannes
-          film with five wins anywhere", not five at Cannes. Unsaid, the number is
-          quietly the wrong one. */}
-      <PanelSection label="Awards Won" hint="across all ceremonies" startsRow>
-        <ThresholdChips
-          ariaLabel="Total award wins across all ceremonies"
-          options={AWARDS_WON_OPTIONS}
-          value={awardsWonValue(filters)}
-          onSelect={(next) => setFilters({ ...setAwardsWon(next), page: 1 })}
-        />
       </PanelSection>
     </PanelBand>
   );

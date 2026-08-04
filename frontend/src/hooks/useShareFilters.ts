@@ -8,8 +8,14 @@ import { filtersToParams } from "@/lib/api";
  * Shares the current filter set as a /browse deep link — via the native share
  * sheet when available, falling back to copying the URL to the clipboard (with
  * a brief `isCopied` acknowledgement).
+ *
+ * It lives here rather than beside the home filter bar because both pages that
+ * hold a filter set can now hand it out: home shares the recipe it is rolling
+ * from, browse shares the view being read. The link is the same either way —
+ * every filter already round-trips through the URL, so sharing is `filtersToParams`
+ * and nothing else.
  */
-export function useShareFilters(filters: FilterState, recipe: string) {
+export function useShareFilters(filters: FilterState, recipe = "") {
   const [isCopied, setIsCopied] = useState(false);
 
   async function share() {

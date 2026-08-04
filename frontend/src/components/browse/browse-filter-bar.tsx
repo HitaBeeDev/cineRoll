@@ -47,8 +47,8 @@ export function BrowseFilterBar({
   autocomplete: BrowseAutocomplete;
   facets: FacetCounts;
   /** Films matching the current filters; null until the first result lands.
-   *  Only the compact sheet shows it, on its close button — the sticky bar
-   *  itself states no total, since the results header already does. */
+   *  Shown by the advanced panel, not by the sticky bar itself — the results
+   *  header already states the total whenever the panel is shut. */
   resultCount: number | null;
 }) {
   const [showMore, setShowMore] = useState(false);

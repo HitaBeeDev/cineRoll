@@ -84,8 +84,14 @@ export function PanelSection({
         className={`font-[family-name:var(--font-geist-mono)] uppercase ${LABEL_LEVELS[emphasis]}`}
       >
         {label}
+        {/* #7a7689 rather than the #6f6b80 this was: 4.6:1 on #08080d instead of
+            3.9:1, which is the AA floor rather than just under it. The hint is
+            not decoration — "across all ceremonies" changes what the control
+            below it means — so it had no business being the least legible text
+            on the page. It stays a step under the caption; the step is just no
+            longer taken out of readable range. */}
         {hint && (
-          <span className="ml-2 font-normal normal-case tracking-normal text-[#6f6b80]">{hint}</span>
+          <span className="ml-2 font-normal normal-case tracking-normal text-[#7a7689]">{hint}</span>
         )}
       </span>
       <FieldLabelProvider id={labelId}>{children}</FieldLabelProvider>

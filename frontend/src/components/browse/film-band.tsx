@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import type { FacetCounts, FilterState } from "@cineroll/types";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { formatGenre } from "@/lib/format";
@@ -10,7 +13,7 @@ import { SegmentedControl } from "@/components/browse/segmented-control";
 import { ThresholdChips } from "@/components/browse/threshold-chips";
 import { CONTENT_TYPE_OPTIONS } from "@/lib/browse/options";
 import { toggleValue } from "@/lib/browse/filter-updates";
-import { setRuntimeMax, setRuntimeMin } from "@/lib/browse/bounds";
+import { setRuntimeMax, setRuntimeMin, type RuntimeBounds } from "@/lib/browse/bounds";
 import { countOf, reachableOptions, reachableYears } from "@/lib/browse/facet-options";
 import {
   ANY_YEAR,
@@ -59,6 +62,14 @@ const RUNTIME_MIN_OPTIONS = [
   { value: 150, label: "≥ 2h30" },
 ];
 
+/** How long the runtime note stays up. Long enough to read a short sentence
+ *  after the eye has gone back to the chip it just clicked. */
+const RUNTIME_NOTE_MS = 5000;
+
+function chipLabel(options: { value: number; label: string }[], value: number): string {
+  return options.find((option) => option.value === value)?.label ?? `${value}m`;
+}
+
 /** What the film IS: format, subject, era, and how well it scored. */
 export function FilmBand({
   filters,
@@ -73,6 +84,44 @@ export function FilmBand({
   counts: FacetCounts;
   collapsible?: boolean;
 }) {
+  // Keyed rather than a bare string: picking the same contradicting chip twice
+  // must re-arm the timer, and two identical strings are the same state.
+  const [runtimeNote, setRuntimeNote] = useState<{ text: string; key: number } | null>(null);
+
+  useEffect(() => {
+    if (!runtimeNote) return;
+    const timer = window.setTimeout(() => setRuntimeNote(null), RUNTIME_NOTE_MS);
+    return () => window.clearTimeout(timer);
+  }, [runtimeNote]);
+
+  /** Applies one end of the runtime range, and says so when setting it dropped
+   *  the other end (see bounds.ts). Only the bound the user did not touch can be
+   *  dropped this way, so clearing a chip on purpose never triggers the note. */
+  const applyRuntime = (next: RuntimeBounds, dropped: string | null) => {
+    setRuntimeNote(dropped ? { text: `Cleared ${dropped} — no film is both.`, key: Date.now() } : null);
+    setFilters({ ...next, page: 1 });
+  };
+
+  const onRuntimeMin = (value: number | null) => {
+    const next = setRuntimeMin(filters, value);
+    const dropped =
+      filters.runtimeMax != null && next.runtimeMax == null
+        ? chipLabel(RUNTIME_MAX_OPTIONS, filters.runtimeMax)
+        : null;
+
+    applyRuntime(next, dropped);
+  };
+
+  const onRuntimeMax = (value: number | null) => {
+    const next = setRuntimeMax(filters, value);
+    const dropped =
+      filters.runtimeMin != null && next.runtimeMin == null
+        ? chipLabel(RUNTIME_MIN_OPTIONS, filters.runtimeMin)
+        : null;
+
+    applyRuntime(next, dropped);
+  };
+
   const genreOptions = reachableOptions(counts.genres, filters.genres, formatGenre);
   const tvTypeOptions = reachableOptions(
     counts.tvTypes,
@@ -247,22 +296,30 @@ export function FilmBand({
 
           The cap alone could only ask for something short, and "a proper long
           one, but not a four-hour one" is the other half of the same question.
-          The two move each other out of the way rather than crossing into a range
-          nothing can satisfy (see bounds.ts). */}
+          Two ends that contradict each other cannot both stand, so setting one
+          drops the other (see bounds.ts) — and the line under the chips is what
+          keeps that from looking like a chip deselecting itself. It holds its
+          height empty so a note appearing does not shunt the rest of the row. */}
       <PanelSection label="Runtime" hint="at least / at most" startsRow>
         <div className="flex flex-col gap-1.5">
           <ThresholdChips
             ariaLabel="Minimum runtime"
             options={RUNTIME_MIN_OPTIONS}
             value={filters.runtimeMin}
-            onSelect={(next) => setFilters({ ...setRuntimeMin(filters, next), page: 1 })}
+            onSelect={onRuntimeMin}
           />
           <ThresholdChips
             ariaLabel="Maximum runtime"
             options={RUNTIME_MAX_OPTIONS}
             value={filters.runtimeMax}
-            onSelect={(next) => setFilters({ ...setRuntimeMax(filters, next), page: 1 })}
+            onSelect={onRuntimeMax}
           />
+          <p
+            aria-live="polite"
+            className="min-h-4 font-[family-name:var(--font-geist-mono)] text-[11px] leading-4 text-[#ff9a93]"
+          >
+            {runtimeNote?.text ?? ""}
+          </p>
         </div>
       </PanelSection>
 

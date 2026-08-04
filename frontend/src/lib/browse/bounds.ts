@@ -1,39 +1,32 @@
 /**
  * The non-year min/max pair — runtime in minutes.
  *
- * Same rule the year bounds follow (see year-range.ts): setting one end never
- * strands the pair on an impossible range. Picking "≥ 2h30" under a "≤ 90m" cap
- * would leave a filter that can only return nothing and no obvious way back, so
- * the far bound moves out of the way instead. Only ever widens toward the bound
- * being set — it never silently narrows the other one.
+ * Picking "≥ 2h" while a "≤ 90m" cap is set has to do something with the cap:
+ * kept, it is a filter that can only ever return nothing.
  *
- * Wins used to be a second pair here. It is one control now, and one that sets
- * either the floor or the cap and clears the other (see awards-band), so there
- * is no longer a crossing for these helpers to prevent.
+ * It used to be dragged up to meet the floor, which reads as helpful and is not.
+ * "≥ 2h" with the cap pulled to 2h asks for films of exactly 120 minutes — a
+ * narrower answer than the click asked for, and a strange one to explain. So the
+ * contradicting bound is dropped instead: the click is taken at face value, and
+ * the other end goes back to unset, the one state that cannot argue with it.
+ *
+ * Either way something the user chose disappears, which is the part that was
+ * actually wrong before — it happened in silence, so the chip looked like it had
+ * deselected itself. film-band now says which bound went and why.
  */
 
-export type NumberRange = { min: number | null; max: number | null };
+export type RuntimeBounds = { runtimeMin: number | null; runtimeMax: number | null };
 
-export function setRangeMin(range: NumberRange, value: number | null): NumberRange {
-  const max = value != null && range.max != null && value > range.max ? value : range.max;
-
-  return { min: value, max };
-}
-
-export function setRangeMax(range: NumberRange, value: number | null): NumberRange {
-  const min = value != null && range.min != null && value < range.min ? value : range.min;
-
-  return { min, max: value };
-}
-
-type RuntimeBounds = { runtimeMin: number | null; runtimeMax: number | null };
-
+/** Sets the floor, dropping a cap that sits below it. */
 export function setRuntimeMin(bounds: RuntimeBounds, value: number | null): RuntimeBounds {
-  const { min, max } = setRangeMin({ min: bounds.runtimeMin, max: bounds.runtimeMax }, value);
-  return { runtimeMin: min, runtimeMax: max };
+  const contradicts = value != null && bounds.runtimeMax != null && value > bounds.runtimeMax;
+
+  return { runtimeMin: value, runtimeMax: contradicts ? null : bounds.runtimeMax };
 }
 
+/** Sets the cap, dropping a floor that sits above it. */
 export function setRuntimeMax(bounds: RuntimeBounds, value: number | null): RuntimeBounds {
-  const { min, max } = setRangeMax({ min: bounds.runtimeMin, max: bounds.runtimeMax }, value);
-  return { runtimeMin: min, runtimeMax: max };
+  const contradicts = value != null && bounds.runtimeMin != null && value < bounds.runtimeMin;
+
+  return { runtimeMin: contradicts ? null : bounds.runtimeMin, runtimeMax: value };
 }
