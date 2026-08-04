@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useSession } from "next-auth/react";
 import { Shuffle, X } from "lucide-react";
@@ -54,13 +54,37 @@ export function BrowseRollDialog({
   // Whether the hero has scrolled out from under the header, which is when the
   // header takes over stating what you are looking at.
   const [condensed, setCondensed] = useState(false);
+  // Whether the card has been scrolled to its end. Until it has, the last line
+  // on screen is a line cut in half by the footer, which reads as the footer
+  // sitting on top of the card rather than as more card below.
+  const [atEnd, setAtEnd] = useState(true);
+
+  const readScroll = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const { scrollTop, scrollHeight, clientHeight } = el;
+    // Two thresholds, not one: a single line to cross means a card parked right
+    // on it flickers between the two headers on every stray wheel tick.
+    setCondensed((was) => (was ? scrollTop > 60 : scrollTop > 104));
+    setAtEnd(scrollTop + clientHeight >= scrollHeight - 8);
+  }, []);
 
   // Every draw starts at the top of its own card. Without this a reroll from
   // halfway down the previous one opens the next film mid-plot.
   useEffect(() => {
-    if (scrollRef.current) scrollRef.current.scrollTop = 0;
+    const el = scrollRef.current;
+    if (!el) return;
+    el.scrollTop = 0;
     setCondensed(false);
-  }, [film?.id, rolling]);
+    // Measured, not assumed: whether there is anything below the fold depends on
+    // the film — plot length, award count — and settles only once the card has
+    // mounted and its poster has taken up its space.
+    const observer = new ResizeObserver(readScroll);
+    observer.observe(el);
+    if (el.firstElementChild) observer.observe(el.firstElementChild);
+    readScroll();
+    return () => observer.disconnect();
+  }, [film?.id, rolling, readScroll]);
 
   const fade = reducedMotion
     ? { duration: 0 }
@@ -141,13 +165,7 @@ export function BrowseRollDialog({
             the common case; wheel, drag and keyboard all still scroll. */}
         <div
           ref={scrollRef}
-          onScroll={(event) => {
-            // Two thresholds, not one: a single line to cross means a card
-            // parked right on it flickers between the two headers on every
-            // stray wheel tick.
-            const { scrollTop } = event.currentTarget;
-            setCondensed((was) => (was ? scrollTop > 60 : scrollTop > 104));
-          }}
+          onScroll={readScroll}
           className="min-h-0 flex-1 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:w-0"
         >
           <AnimatePresence mode="wait">
@@ -171,7 +189,10 @@ export function BrowseRollDialog({
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, transition: { duration: reducedMotion ? 0 : 0.15 } }}
                 transition={fade}
-                className="p-4"
+                // Deeper at the foot than at the head so the last row of the
+                // card — details, list, share — comes to rest clear of the
+                // footer instead of stopping flush against it.
+                className="p-4 pb-8"
               >
                 <FilmCard
                   film={film}
@@ -222,7 +243,19 @@ export function BrowseRollDialog({
         {/* Pinned, not scrolled with the card: the whole point of rolling in place
             is that another draw is one click away, and a button that is one click
             away only if you scroll back down is not. */}
-        <div className="shrink-0 border-t border-[#17171f] bg-[#08080d] p-3">
+        <div className="relative shrink-0 border-t border-[#17171f] bg-[#08080d] p-3">
+          {/* Sits above the footer, not over the card's last line: while there
+              is more to scroll the content fades out into the footer, and the
+              fade clears the moment the end is reached, so a half-cut line
+              always reads as "keep scrolling" rather than as covered content. */}
+          <div
+            aria-hidden
+            className={cn(
+              "pointer-events-none absolute inset-x-0 bottom-full h-12",
+              "bg-gradient-to-t from-[#0b0b12] to-transparent transition-opacity duration-200",
+              atEnd ? "opacity-0" : "opacity-100",
+            )}
+          />
           <button
             type="button"
             onClick={onRoll}
