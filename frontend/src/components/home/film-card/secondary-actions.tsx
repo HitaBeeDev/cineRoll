@@ -11,13 +11,15 @@ export function SecondaryActions({
   film,
   isAuthenticated,
   onEngage,
+  className,
 }: {
   film: RollFilm;
   isAuthenticated: boolean;
   onEngage?: (() => void) | undefined;
+  className?: string | undefined;
 }) {
   return (
-    <div className="flex items-center gap-2 mt-1">
+    <div className={cn("flex items-center gap-2 mt-1", className)}>
       <FilmLink
         slug={film.slug}
         onClick={() => {

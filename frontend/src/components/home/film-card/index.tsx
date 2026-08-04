@@ -3,6 +3,7 @@
 import { AnimatePresence } from "framer-motion";
 import { usePathname } from "next/navigation";
 import { useFilmActions } from "@/hooks/useFilmActions";
+import { cn } from "@/lib/utils";
 import { blurDataUrl } from "@/lib/images";
 import type { RollFilm } from "@/lib/api";
 import { getAwardHighlights, getRecognitionRecords } from "@/components/home/film-card/awards";
@@ -27,6 +28,7 @@ export function FilmCard({
   onWatched,
   onSaved,
   onEngage,
+  layout = "column",
 }: {
   film: RollFilm;
   isAuthenticated: boolean;
@@ -41,6 +43,18 @@ export function FilmCard({
   // Fired when the user engages with this roll (opens details / saves / marks
   // seen), so reroll learning won't penalize its genre/type. See §6.
   onEngage?: () => void;
+  /**
+   * How the material under the header stacks.
+   *
+   * `column` is the home page's narrow result rail: everything in one file, top
+   * to bottom. `split` is for a container with real width — the roll dialog —
+   * where a single column would be a thin ribbon of content down the middle of a
+   * wide box, and the whole card two screens tall for no reason. It puts the
+   * evidence (plot, scores, what it was recognised for) beside the controls
+   * (tune, then the detail/list/share row) instead of above them, which is close
+   * to halving the height at no cost to either.
+   */
+  layout?: "column" | "split";
 }) {
   const pathname = usePathname();
   // The parent keys this card by film.id, so state resets for each new roll.
@@ -68,6 +82,7 @@ export function FilmCard({
     onSaved,
   });
 
+  const split = layout === "split";
   const posterBlur = blurDataUrl(film.posterColor);
   const awardHighlights = getAwardHighlights(film);
   const recognition = getRecognitionRecords(film);
@@ -83,58 +98,93 @@ export function FilmCard({
         onEngage={onEngage}
       />
 
-      <div className="flex flex-col gap-2 px-4 pb-4 pt-3">
-        {film.plot && (
-          <p className="line-clamp-3 text-xs leading-relaxed text-[#888899]">
-            {film.plot}
-          </p>
+      {/* Two groups either way — evidence, then controls. In `column` they sit in
+          one flow and read exactly as they always have; in `split` the same two
+          groups become the two columns, so there is one layout to reason about
+          rather than two arrangements of six children. */}
+      <div
+        className={cn(
+          "px-4 pb-4 pt-3",
+          split ? "grid gap-x-6 gap-y-3 sm:grid-cols-2" : "flex flex-col gap-2",
         )}
-
-        <FilmScores film={film} />
-
-        {recognition.records.length > 0 && (
-          <RecognizedFor records={recognition.records} more={recognition.more} />
-        )}
-
-        <TuneFutureRolls
-          isAuthenticated={isAuthenticated}
-          onNotTonight={() => onNotTonight?.()}
-          onAlreadySeen={() => {
-            onEngage?.();
-            // doNotSuggest=false → counted as watched (stats, history, archive
-            // progress). Watched films are excluded from future rolls regardless,
-            // and the 👍/👎 prompt below feeds taste.
-            void saveDecision("watched", false);
-          }}
-          seenActive={action === "watched"}
-          onNotInterested={() => void saveDecision("not-interested", true)}
-          notInterestedActive={action === "not-interested"}
-          actionsPending={pending}
-          onSave={() => {
-            onEngage?.();
-            void toggleWatchlist();
-          }}
-          savedActive={inWatchlist}
-          savePending={watchlistPending}
-          authPrompt={authPrompt}
-          onCloseAuthPrompt={closeAuthPrompt}
-          callbackUrl={pathname}
-        />
-
-        {/* One-tap 👍 / 👎 prompt, revealed after a film is marked watched.
-            Dismissible and never blocks the rest of the card. */}
-        <AnimatePresence initial={false}>
-          {action === "watched" && !sentimentDismissed && (
-            <SentimentPrompt
-              value={sentiment}
-              pending={sentimentPending}
-              onSelect={(value) => void saveSentiment(value)}
-              onDismiss={dismissSentiment}
-            />
+      >
+        <div className="flex min-w-0 flex-col gap-2">
+          {film.plot && (
+            <p
+              className={cn(
+                "text-xs leading-relaxed text-[#888899]",
+                // Given a column of its own the plot can afford to finish its
+                // thought; squeezed into the narrow rail it still gets three lines.
+                split ? "line-clamp-6" : "line-clamp-3",
+              )}
+            >
+              {film.plot}
+            </p>
           )}
-        </AnimatePresence>
 
-        <SecondaryActions film={film} isAuthenticated={isAuthenticated} onEngage={onEngage} />
+          <FilmScores film={film} />
+
+          {recognition.records.length > 0 && (
+            <RecognizedFor records={recognition.records} more={recognition.more} />
+          )}
+        </div>
+
+        <div className="flex min-w-0 flex-col gap-2">
+          <TuneFutureRolls
+            isAuthenticated={isAuthenticated}
+            // Its rule separates it from the plot above in one column. Beside
+            // that plot it would be a line starting halfway across the card,
+            // pointing at nothing.
+            flush={split}
+            onNotTonight={() => onNotTonight?.()}
+            onAlreadySeen={() => {
+              onEngage?.();
+              // doNotSuggest=false → counted as watched (stats, history, archive
+              // progress). Watched films are excluded from future rolls regardless,
+              // and the 👍/👎 prompt below feeds taste.
+              void saveDecision("watched", false);
+            }}
+            seenActive={action === "watched"}
+            onNotInterested={() => void saveDecision("not-interested", true)}
+            notInterestedActive={action === "not-interested"}
+            actionsPending={pending}
+            onSave={() => {
+              onEngage?.();
+              void toggleWatchlist();
+            }}
+            savedActive={inWatchlist}
+            savePending={watchlistPending}
+            authPrompt={authPrompt}
+            onCloseAuthPrompt={closeAuthPrompt}
+            callbackUrl={pathname}
+          />
+
+          {/* One-tap 👍 / 👎 prompt, revealed after a film is marked watched.
+              Dismissible and never blocks the rest of the card. */}
+          <AnimatePresence initial={false}>
+            {action === "watched" && !sentimentDismissed && (
+              <SentimentPrompt
+                value={sentiment}
+                pending={sentimentPending}
+                onSelect={(value) => void saveSentiment(value)}
+                onDismiss={dismissSentiment}
+              />
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Full width under both columns when split, and simply the next thing in
+            the flow when not — the reading order is the same either way. It reads
+            as a footer for the whole card because that is what it is: details,
+            list and share act on the film, not on the column they happen to sit
+            in. Pinning it to the foot of the controls column instead left a hole
+            the height of the evidence beside it. */}
+        <SecondaryActions
+          film={film}
+          isAuthenticated={isAuthenticated}
+          onEngage={onEngage}
+          className={split ? "sm:col-span-2" : undefined}
+        />
       </div>
     </div>
   );

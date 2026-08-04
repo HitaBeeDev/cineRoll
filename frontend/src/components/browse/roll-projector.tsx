@@ -62,7 +62,9 @@ export function RollProjector() {
 
   return (
     <div className="flex flex-col items-center gap-4 px-4 py-10">
-      <div className="relative flex h-44 w-full items-center justify-center overflow-hidden rounded-xl border border-[#15151f] bg-[#08080e]">
+      {/* Capped: the gate is a projector frame, and a frame stretched to the full
+          width of a wide dialog stops looking like one. */}
+      <div className="relative flex h-44 w-full max-w-md items-center justify-center overflow-hidden rounded-xl border border-[#15151f] bg-[#08080e]">
         <SprocketStrip side="left" animate={!reducedMotion} />
         <SprocketStrip side="right" animate={!reducedMotion} />
 

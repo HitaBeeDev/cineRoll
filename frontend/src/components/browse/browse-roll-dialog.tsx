@@ -51,9 +51,14 @@ export function BrowseRollDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
+      {/* Wide enough for the card to run in two columns (see FilmCard's `split`).
+          At dialog-default width the result was a thin ribbon: the title broke
+          across three lines, the plot clamped at three, and everything from the
+          scores down lived below the fold of a box with empty page on either side
+          of it. A roll is a payoff and wanted the room. */}
       <DialogContent
         className={cn(
-          "flex max-h-[90dvh] w-[calc(100vw-1.5rem)] max-w-md flex-col overflow-hidden p-0",
+          "flex max-h-[90dvh] w-[calc(100vw-1.5rem)] max-w-md flex-col overflow-hidden p-0 sm:max-w-3xl",
           "border-[#1c1a25] bg-[#0b0b12]",
         )}
       >
@@ -61,7 +66,11 @@ export function BrowseRollDialog({
             own name exists for the screen reader and the reader alone. */}
         <DialogTitle className="sr-only">Your roll</DialogTitle>
 
-        <div className="min-h-0 flex-1 overflow-y-auto">
+        {/* Scrollbar hidden, not styled: the site's is a red thumb on a dark
+            track, which reads as a design element rather than a scrollbar when it
+            runs down the inside edge of a card. The content fits at this width in
+            the common case; wheel, drag and keyboard all still scroll. */}
+        <div className="min-h-0 flex-1 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:w-0">
           <AnimatePresence mode="wait">
             {rolling ? (
               <motion.div
@@ -88,6 +97,7 @@ export function BrowseRollDialog({
                 <FilmCard
                   film={film}
                   isAuthenticated={isAuthenticated}
+                  layout="split"
                   onNotTonight={onRoll}
                   onNotInterested={onRoll}
                   onWatched={onRoll}
@@ -139,7 +149,9 @@ export function BrowseRollDialog({
             onClick={onRoll}
             disabled={rolling}
             className={cn(
-              "flex w-full items-center justify-center gap-2.5 rounded-full bg-[#e8453c] px-5 py-3",
+              // Capped and centred rather than edge to edge: a pill the full
+              // width of a 768px dialog stops reading as a button.
+              "mx-auto flex w-full max-w-sm items-center justify-center gap-2.5 rounded-full bg-[#e8453c] px-5 py-3",
               "font-[family-name:var(--font-geist-mono)] text-[12px] font-semibold uppercase tracking-[0.16em] text-[#09090f]",
               "shadow-[0_10px_30px_-14px_rgba(232,69,60,0.9)] transition-all duration-200",
               "hover:bg-[#ff5c52] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff766d]",

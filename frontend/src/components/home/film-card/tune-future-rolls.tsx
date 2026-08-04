@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Bookmark, Eye, EyeOff, Moon } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { AuthDialog } from "@/components/auth/auth-dialog";
 import { AUTH_GATE_TITLE } from "@/hooks/useFilmActions";
 import { QuickActionButton } from "@/components/home/film-card/quick-action-button";
@@ -24,6 +25,7 @@ export function TuneFutureRolls({
   authPrompt,
   onCloseAuthPrompt,
   callbackUrl,
+  flush = false,
 }: {
   isAuthenticated: boolean;
   onNotTonight: () => void;
@@ -38,6 +40,9 @@ export function TuneFutureRolls({
   authPrompt: keyof typeof AUTH_GATE_TITLE | null;
   onCloseAuthPrompt: () => void;
   callbackUrl: string;
+  /** Drops the top rule and its spacing — for a caller that already separates
+   *  this tier by putting it in a column of its own. */
+  flush?: boolean;
 }) {
   // Confirmation of a signal the user actually sent from THIS card — not a
   // standing status. Deliberately not derived from seenActive/savedActive:
@@ -51,7 +56,7 @@ export function TuneFutureRolls({
   };
 
   return (
-    <section className="mt-4 border-t border-[#17171f] pt-4">
+    <section className={cn(!flush && "mt-4 border-t border-[#17171f] pt-4")}>
       <div className="mb-2 flex items-center justify-between gap-3">
         <h3 className="font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.2em] text-[#888899]">
           Tune future rolls
