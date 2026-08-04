@@ -7,6 +7,7 @@ import { BrowseHero } from "@/components/browse/browse-hero";
 import { BrowseFilterBar } from "@/components/browse/browse-filter-bar";
 import { BrowseResultsHeader } from "@/components/browse/browse-results-header";
 import { BrowseGrid } from "@/components/browse/browse-grid";
+import { BrowseRollDialog } from "@/components/browse/browse-roll-dialog";
 import { useBrowseFilters } from "@/hooks/useBrowseFilters";
 import { useBrowseFacetCounts } from "@/hooks/useBrowseFacetCounts";
 import { useBrowseResults } from "@/hooks/useBrowseResults";
@@ -25,7 +26,7 @@ export function BrowsePageClient() {
   const facets = useBrowseFacetCounts(filters);
   const { result, status, slowLoad, firstGridPaint, retry } = useBrowseResults(filters);
   const autocomplete = useBrowseAutocomplete(filters.search, setFilters);
-  const { rolling, roll } = useBrowseRoll(filters);
+  const browseRoll = useBrowseRoll(filters);
 
   const resultsTopRef = useRef<HTMLDivElement>(null);
 
@@ -75,8 +76,8 @@ export function BrowsePageClient() {
             status={status}
             filters={filters}
             hasActiveFilters={hasActiveFilters}
-            rolling={rolling}
-            onRoll={() => { void roll(); }}
+            rolling={browseRoll.rolling}
+            onRoll={browseRoll.roll}
             setFilters={setFilters}
           />
 
@@ -92,6 +93,18 @@ export function BrowsePageClient() {
           />
         </section>
       </main>
+
+      {/* The roll result stays on this page rather than navigating to the film:
+          the filters that produced it are still here, and so is the next draw. */}
+      <BrowseRollDialog
+        open={browseRoll.isOpen}
+        rolling={browseRoll.rolling}
+        film={browseRoll.film}
+        error={browseRoll.error}
+        onOpenChange={(next) => { if (!next) browseRoll.close(); }}
+        onRoll={browseRoll.roll}
+        onClearFilters={resetFilters}
+      />
     </div>
   );
 }
