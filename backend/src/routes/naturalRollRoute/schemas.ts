@@ -33,6 +33,10 @@ export const stage1Schema = z.object({
   awardYear: nullableNumber.optional(),
   category: nullableString.optional(),
   femaleDirectorOnly: nullableBoolean.optional(),
+  // Films the user named as a reference ("similar to John Wick"). Not a filter
+  // and not a soft preference — it selects a different retrieval strategy
+  // entirely (nearest-neighbour), see referenceFilm/.
+  referenceTitles: nullableStringList.optional(),
   // Soft preferences — scored, never turned into SQL filters (see softPreferences.ts).
   tones: nullableStringList.optional(),
   themes: nullableStringList.optional(),

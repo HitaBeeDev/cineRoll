@@ -1,9 +1,16 @@
-import type { NaturalRollResult } from "@/lib/api";
+import type { NaturalRollInterpreted, NaturalRollResult } from "@/lib/api";
 import { formatFilterChips } from "../format-filter-chips";
 import { FilmCarousel } from "./film-carousel";
 import { FilterChipList } from "./filter-chip-list";
+import { InterpretationNote } from "./interpretation-note";
 
-export function ResultPanel({ result }: { result: NaturalRollResult }) {
+export function ResultPanel({
+  interpreted,
+  result,
+}: {
+  interpreted: NaturalRollInterpreted | null;
+  result: NaturalRollResult;
+}) {
   return (
     <div className="flex h-full min-h-0 min-w-0 flex-col p-4">
       <div className="mb-3 flex min-w-0 shrink-0 flex-wrap items-center gap-2">
@@ -19,6 +26,7 @@ export function ResultPanel({ result }: { result: NaturalRollResult }) {
           <FilterChipList chips={formatFilterChips(result.interpretedFilters)} />
         </div>
       </div>
+      <InterpretationNote interpreted={interpreted} />
       <FilmCarousel films={result.films} />
     </div>
   );

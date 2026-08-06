@@ -27,6 +27,7 @@ export const stage1ResponseSchema: ResponseSchema = {
     awardYear: { type: SchemaType.INTEGER, nullable: true },
     category: { type: SchemaType.STRING, nullable: true },
     femaleDirectorOnly: { type: SchemaType.BOOLEAN, nullable: true },
+    referenceTitles: nullableStringArray,
     tones: nullableStringArray,
     themes: nullableStringArray,
     keywords: nullableStringArray,

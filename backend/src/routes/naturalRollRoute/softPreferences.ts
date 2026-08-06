@@ -18,7 +18,8 @@ export type SoftPreferences = {
 
 // Stage-1 fields that must be stripped before filter validation — they are
 // ranking signals, not queryable columns. The genre split is stripped too:
-// filterPreparation folds it into the single effective `genres` filter first.
+// filterPreparation folds it into the single effective `genres` filter first,
+// and `referenceTitles` selects a retrieval strategy rather than filtering.
 const SOFT_KEYS = [
   "tones",
   "themes",
@@ -26,6 +27,7 @@ const SOFT_KEYS = [
   "resultCount",
   "requiredGenres",
   "preferredGenres",
+  "referenceTitles",
 ] as const;
 
 export function stripSoftFields<T extends Stage1Filters>(stage1: T): T {

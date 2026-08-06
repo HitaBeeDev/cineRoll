@@ -61,6 +61,8 @@ function toInterpreted(event: NaturalRollInterpreted): NaturalRollInterpreted {
     interpretedFilters: event.interpretedFilters,
     relaxed: event.relaxed,
     total: event.total,
+    referenceNote: event.referenceNote ?? null,
+    lowConfidence: event.lowConfidence ?? false,
   };
 }
 

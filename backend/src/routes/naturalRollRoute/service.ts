@@ -1,6 +1,10 @@
 import { loadCandidatesWithRelaxation, RelaxationResult } from "./candidateRelaxation";
 import { prepareNaturalRollFilters } from "./filterPreparation";
 import { selectFinalFilms } from "./finalFilms";
+import { hasInterpretationSignal } from "./interpretationSignal";
+import { referenceCandidateResult } from "./referenceFilm/referenceCandidateResult";
+import { withReferencePreferences } from "./referenceFilm/referencePreferences";
+import { resolveReference } from "./referenceFilm/resolveReference";
 import { NaturalRollBody } from "./schemas";
 import {
   resolveResultCount,
@@ -37,6 +41,13 @@ export type InterpretOutcome =
       // How many picks to return: the count stated in the prompt ("suggest
       // only one movie") wins over the client's requested count.
       resultCount: number;
+      // Plain-language account of what the request was read as — the anchor
+      // film, or why a named one couldn't be used. Null when none was named.
+      referenceNote: string | null;
+      // True when nothing in the request gave the ranker anything to work with,
+      // so the picks are the quality fallback rather than a match. Surfaced so
+      // the UI can say so instead of presenting them as an answer.
+      lowConfidence: boolean;
     };
 
 export type RankPayload = {
@@ -50,6 +61,10 @@ export type RankPayload = {
 /** Phase 1: extract structural filters and select candidates (with relaxation). */
 export async function interpretNaturalRoll(body: NaturalRollBody): Promise<InterpretOutcome> {
   const structuralFilters = await extractStructuralFilters(body.prompt);
+  // A named film ("similar to John Wick") is a nearest-neighbour question, not a
+  // filter one — resolved first because a hit replaces the retrieval strategy
+  // outright rather than narrowing it.
+  const reference = await resolveReference(structuralFilters.referenceTitles);
   const prepared = await prepareNaturalRollFilters(structuralFilters);
   // One line per roll so extraction failures are diagnosable from the server
   // log — when this pipeline misbehaves, the first question is always "what
@@ -60,15 +75,23 @@ export async function interpretNaturalRoll(body: NaturalRollBody): Promise<Inter
       extracted: structuralFilters,
       applied: prepared.appliedFilters,
       dropped: prepared.droppedFilters,
+      reference: reference.kind,
     }),
   );
-  const candidateResult = await loadCandidatesWithRelaxation(
-    prepared.effectiveFilters,
-    body.userId,
-    prepared.allowed,
-    prepared.appliedFilters,
-    prepared.droppedFilters,
-  );
+  const candidateResult =
+    (await referenceCandidateResult(
+      reference,
+      prepared.appliedFilters,
+      prepared.droppedFilters,
+      body.userId,
+    ))
+    ?? (await loadCandidatesWithRelaxation(
+      prepared.effectiveFilters,
+      body.userId,
+      prepared.allowed,
+      prepared.appliedFilters,
+      prepared.droppedFilters,
+    ));
 
   if (candidateResult.films.length === 0) {
     return {
@@ -82,13 +105,22 @@ export async function interpretNaturalRoll(body: NaturalRollBody): Promise<Inter
     };
   }
 
+  // Preferences read the pre-relaxation filters: even when a filter was
+  // relaxed away to fill the pool, the ranking should still honor it. The
+  // reference's own genres and tags ride along so the neighbourhood — or, for a
+  // film we couldn't resolve, the attributes standing in for one — orders well.
+  const preferences = withReferencePreferences(
+    softPreferencesFrom(structuralFilters, prepared.appliedFilters, prepared.allowed),
+    reference,
+  );
+
   return {
     ok: true,
     candidateResult,
-    // Preferences read the pre-relaxation filters: even when a filter was
-    // relaxed away to fill the pool, the ranking should still honor it.
-    preferences: softPreferencesFrom(structuralFilters, prepared.appliedFilters, prepared.allowed),
+    preferences,
     resultCount: resolveResultCount(body.count),
+    referenceNote: reference.kind === "none" ? null : reference.note,
+    lowConfidence: !hasInterpretationSignal(prepared.appliedFilters, preferences, reference),
   };
 }
 

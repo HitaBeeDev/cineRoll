@@ -38,6 +38,12 @@ export type NaturalRollInterpreted = {
   relaxed: boolean;
   total: number;
   resultCount?: number;
+  /** What a named reference film ("similar to X") was read as, or why one
+   *  couldn't be used. Null when the request named none. */
+  referenceNote?: string | null;
+  /** Nothing in the request gave the ranker anything to work with, so the picks
+   *  are the quality fallback rather than a match. */
+  lowConfidence?: boolean;
 };
 
 export type NaturalRollError = Error & {

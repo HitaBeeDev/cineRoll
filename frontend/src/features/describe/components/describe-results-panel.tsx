@@ -39,7 +39,7 @@ export function DescribeResultsPanel(props: DescribeResultsPanelProps) {
       ) : props.noMatchFilters ? (
         <NoMatchPanel filters={props.noMatchFilters} />
       ) : props.result ? (
-        <ResultPanel result={props.result} />
+        <ResultPanel interpreted={props.interpreted} result={props.result} />
       ) : (
         <DescribeIntroPanel />
       )}

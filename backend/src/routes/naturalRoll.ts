@@ -28,7 +28,8 @@ naturalRollRouter.post("/", validate(naturalRollBodySchema, "body"), async (req,
   const interpreted = await interpretNaturalRoll(body);
 
   // From here on the response is a stream of newline-delimited JSON events:
-  //   { type: "interpreted", interpretedFilters, relaxed, total, resultCount }
+  //   { type: "interpreted", interpretedFilters, relaxed, total, resultCount,
+  //     referenceNote, lowConfidence }
   //   { type: "result", films, total, interpretedFilters, droppedFilters, relaxed }
   //   { type: "error", error, code, interpretedFilters?, droppedFilters? }
   // Because the status line is already 200 once streaming starts, the no-match
@@ -44,13 +45,15 @@ naturalRollRouter.post("/", validate(naturalRollBodySchema, "body"), async (req,
     return;
   }
 
-  const { candidateResult, preferences, resultCount } = interpreted;
+  const { candidateResult, preferences, resultCount, referenceNote, lowConfidence } = interpreted;
   writeEvent(res, {
     type: "interpreted",
     interpretedFilters: candidateResult.appliedFilters,
     relaxed: candidateResult.relaxed,
     total: candidateResult.total,
     resultCount,
+    referenceNote,
+    lowConfidence,
   });
 
   try {

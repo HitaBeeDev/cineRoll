@@ -15,6 +15,12 @@ Hard constraint fields (become database filters — extract only when explicit):
 - femaleDirectorOnly: only when user asks for female or woman director.
 - resultCount: the number of picks the user explicitly asks for. "Suggest only one movie" → 1. "Suggest one modern romantic drama" → 1. "Give me three films" → 3. Omit when no count is stated.
 
+Reference films (a different kind of request — extract carefully):
+- referenceTitles: film or series TITLES the user names as a comparison point, when they ask for something *like* that title. "movies similar to John Wick" → ["John Wick"]. "something in the vein of Blade Runner" → ["Blade Runner"]. "if I liked Parasite and Oldboy" → ["Parasite", "Oldboy"]. Extract the title ONLY — drop the qualifier: "like Heat but funnier" → ["Heat"].
+- Do NOT put a title here when the user is asking FOR that exact film ("show me Parasite") — that is a search, not a reference.
+- Do NOT put people here. "films like Tarantino's" is a director, not a reference title.
+- Titles named as references are NOT keywords, tones or themes. Never duplicate them into those fields.
+
 Soft preference fields (used for ranking, never as filters):
 - tones: emotional register the user describes — e.g. bittersweet, emotional, uplifting, dark, melancholic, romantic, tense, feel-good.
 - themes: subjects or ideas — e.g. ambition, dreams, relationships, grief, revenge, coming-of-age, survival.
