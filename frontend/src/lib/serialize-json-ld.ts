@@ -1,12 +1,13 @@
-// A <script> element's contents are raw text: the parser ends the block at the
-// first "</script" it sees, wherever it appears. So a film title or synopsis
-// containing "</script>" would close the tag early and let the rest of the
-// string be parsed as markup.
+// Turns data into the hidden JSON text that search engines read.
 //
-// Escaping every "<" as a unicode escape removes the whole class of breakouts —
-// "</script", "<!--", "<script" — and stays valid JSON, so consumers parse the
-// identical object. "<" only ever appears inside string values (no JSON
-// structural character is "<"), which is why blanket-replacing it is safe.
+// The browser ends a <script> block at the first "</script" it finds, even in
+// the middle of a sentence. So a film title or plot containing "</script>"
+// would close the block early, and the rest would be read as page code.
+//
+// Swapping every "<" for its escaped form stops that. It also blocks "<!--"
+// and "<script", which cause the same trouble. The result is still valid JSON,
+// so search engines read exactly the same data. Only text values can contain
+// "<", never the JSON punctuation, so replacing all of them is safe.
 export function serializeJsonLd(data: unknown): string {
   return JSON.stringify(data).replace(/</g, "\\u003c");
 }
