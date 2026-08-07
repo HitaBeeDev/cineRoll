@@ -1,4 +1,4 @@
-import { PERSON_SITE_URL } from "@/features/person-detail/config/person-site-url";
+import { SITE_URL } from "@/lib/site-url";
 import type { PersonData } from "./domain-types";
 
 export function buildPersonJsonLd(
@@ -8,7 +8,7 @@ export function buildPersonJsonLd(
     "@context": "https://schema.org",
     "@type": "Person",
     name: person.name,
-    url: new URL(`/person/${person.slug}`, PERSON_SITE_URL).toString(),
+    url: new URL(`/person/${person.slug}`, SITE_URL).toString(),
     ...(person.photoUrl ? { image: person.photoUrl } : {}),
     ...(person.bio ? { description: person.bio } : {}),
   };

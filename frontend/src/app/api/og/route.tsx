@@ -1,4 +1,5 @@
 import { ImageResponse } from "next/og";
+import { SITE_URL } from "@/lib/site-url";
 
 // Node runtime (not "edge"): Vercel's multi-service deployments don't support
 // Edge Function output. next/og's ImageResponse runs fine on Node.
@@ -7,6 +8,8 @@ export const runtime = "nodejs";
 const WIDTH = 1200;
 const HEIGHT = 630;
 const ACCENT = "#D4AF37";
+// Bare host, so the card's footer shows the domain the card is served from.
+const SITE_HOST = new URL(SITE_URL).host;
 
 // Generic branded OG card used as the default social image for every page that
 // doesn't ship its own (the film route renders a richer, data-driven card).
@@ -93,7 +96,7 @@ export function GET(request: Request) {
         <div style={{ display: "flex", flex: 1 }} />
 
         <div style={{ display: "flex", position: "relative", zIndex: 1, color: "#8d8da0", fontSize: 22, fontWeight: 700, letterSpacing: 1 }}>
-          cineroll.app
+          {SITE_HOST}
         </div>
       </div>
     ),

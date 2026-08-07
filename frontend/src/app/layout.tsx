@@ -8,6 +8,7 @@ import { PageTransition } from "@/components/page-transition";
 import { Providers } from "@/components/providers";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteFooterGate } from "@/components/site-footer-gate";
+import { SITE_URL } from "@/lib/site-url";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -25,10 +26,6 @@ const playfairDisplay = Playfair_Display({
   subsets: ["latin"],
   weight: ["400", "600", "700"],
 });
-
-const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ??
-  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://cineroll.app");
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),

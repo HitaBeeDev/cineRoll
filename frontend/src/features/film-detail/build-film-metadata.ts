@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import type { Film } from "@cineroll/types";
 import { formatFilmYear } from "@/lib/format/format-film-year";
-import { SITE_URL } from "@/features/film-detail/config/site-url";
+import { SITE_URL } from "@/lib/site-url";
 import { getAwardSeoSummary } from "./award-seo-summary";
 
 export function buildFilmMetadata(film: Film, slug: string): Metadata {

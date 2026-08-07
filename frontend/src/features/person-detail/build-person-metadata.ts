@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { PERSON_SITE_URL } from "@/features/person-detail/config/person-site-url";
+import { SITE_URL } from "@/lib/site-url";
 import type { PersonData } from "./domain-types";
 import { getPersonBioPreview } from "./person-bio";
 
@@ -9,7 +9,7 @@ export function buildPersonMetadata(
 ): Metadata {
   const title = `${person.name} — Award History | CineRoll`;
   const description = buildDescription(person);
-  const pageUrl = new URL(`/person/${slug}`, PERSON_SITE_URL).toString();
+  const pageUrl = new URL(`/person/${slug}`, SITE_URL).toString();
 
   return {
     title,

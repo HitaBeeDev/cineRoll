@@ -1,7 +1,7 @@
 import { HeroCTAs } from "@/components/hero-ctas";
 import { buildShareCaption } from "../share-caption";
 import { displayTitle } from "@/lib/utils/display-title";
-import { SITE_URL } from "@/features/film-detail/config/site-url";
+import { SITE_URL } from "@/lib/site-url";
 import type { FilmHeroInfoProps } from "../component-props";
 import { HeroAccolades } from "./hero-accolades";
 import { HeroFilmIdentity } from "./hero-film-identity";

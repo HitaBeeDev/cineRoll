@@ -1,6 +1,7 @@
 import type { Film } from "@cineroll/types";
 
-import { FALLBACK_ACCENT, SITE_URL } from "./filmOgConfig";
+import { SITE_URL } from "@/lib/site-url";
+import { FALLBACK_ACCENT } from "./filmOgConfig";
 import type { FilmOgViewModel } from "./filmOgTypes";
 import { getAwardBadges } from "./mappers/getAwardBadges";
 import { getFilmMetaLine } from "./mappers/getFilmMetaLine";
