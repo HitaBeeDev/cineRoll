@@ -1,3 +1,4 @@
+import { JsonLd } from "@/components/json-ld";
 import { SITE_URL } from "@/lib/site-url";
 
 const structuredData = {
@@ -14,5 +15,5 @@ const structuredData = {
 };
 
 export function StatsStructuredData() {
-  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />;
+  return <JsonLd data={structuredData} />;
 }
