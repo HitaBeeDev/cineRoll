@@ -13,6 +13,8 @@ export { fetchFilmStatus } from "@/lib/api/watched-client/fetch-film-status";
 export { markFilmWatched } from "@/lib/api/watched-client/mark-film-watched";
 export { removeFilmWatched } from "@/lib/api/watched-client/remove-film-watched";
 export { saveOnboardingGenres } from "./api/onboarding-client";
+export { fetchNotifications } from "@/lib/api/notifications-client/fetch-notifications";
+export { markNotificationsRead } from "@/lib/api/notifications-client/mark-notifications-read";
 export { addFilmToList } from "@/lib/api/user-lists-client/add-film-to-list";
 export { createUserList } from "@/lib/api/user-lists-client/create-user-list";
 export { deleteUserList } from "@/lib/api/user-lists-client/delete-user-list";
@@ -58,4 +60,5 @@ export type {
   TasteCardFilm,
 } from "./api/discovery-types";
 export type { FilmStatus } from "./api/watched-types";
+export type { NotificationFeed } from "./api/notification-types";
 export type { UserListsResponse } from "./api/user-list-types";

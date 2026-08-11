@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { markFilmWatched, removeFilmWatched } from "@/lib/api";
 import { useToast } from "@/components/ui/toast/use-toast";
+import { showDecisionUndone } from "@/hooks/film-actions/film-action-toasts/show-decision-undone";
 import type { HistoryGridController } from "./history-grid-controller";
 import type { WatchedEntry, WatchedFilm } from "./domain-types";
 import { fetchWatchedPage } from "./watched-page-repository";
@@ -53,16 +54,38 @@ export function useHistoryGrid(
   async function removeFilm(film: WatchedFilm) {
     if (busyFilmIds.has(film.id)) return;
     const previous = entries;
+    const previousSentiment = getSentiment(entries, film.id);
     setFilmBusy(film.id, true);
     setEntries((current) => current.filter((entry) => entry.film.id !== film.id));
     try {
       await removeFilmWatched(film.id);
-      toast({ title: "Removed from history", description: film.title });
+      showDecisionUndone(toast, "watched", film.title, () =>
+        void restoreFilm(film, previous, previousSentiment),
+      );
     } catch {
       setEntries(previous);
       showError("Couldn't remove");
     } finally {
       setFilmBusy(film.id, false);
+    }
+  }
+
+  // Puts a removed entry back, rating included. The row returns to its old spot
+  // on screen because the whole previous list is restored — but the server
+  // stamps a fresh watchedAt, so a reload will sort it to the top.
+  async function restoreFilm(
+    film: WatchedFilm,
+    previous: WatchedEntry[],
+    sentiment: WatchedEntry["sentiment"],
+  ) {
+    setEntries(previous);
+    try {
+      await markFilmWatched(film.id, false, sentiment);
+    } catch {
+      setEntries((current) =>
+        current.filter((entry) => entry.film.id !== film.id),
+      );
+      showError("Couldn't restore");
     }
   }
 

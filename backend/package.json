@@ -26,6 +26,7 @@
     "enrich-persons": "npx tsx data/scripts/enrich-persons.ts",
     "build-master": "npx tsx data/scripts/build-master.ts",
     "db:seed-master": "npx tsx data/scripts/seed-master.ts",
+    "announce": "npx tsx data/scripts/announce.ts",
     "verify-seed": "npx tsx data/scripts/verifySeed.ts",
     "export-excel": "npx tsx data/scripts/export-excel.ts",
     "apply-overrides": "npx tsx data/scripts/apply-overrides.ts",

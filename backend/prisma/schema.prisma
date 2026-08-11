@@ -140,6 +140,10 @@ model User {
   // Genres captured from the first-visit onboarding taste cards, ranked
   // most-preferred first. Used to seed the taste profile on cold-start.
   onboardingGenres String[]          @default([])
+  // Last time the user opened the notification panel. Everything announced
+  // after it counts as unread. Null means "never opened", and the unread floor
+  // falls back to createdAt so a new account doesn't inherit years of backlog.
+  notificationsReadAt DateTime?
   accounts         Account[]
   events           Event[]
   sessions         Session[]
@@ -357,5 +361,23 @@ model SiteFeedback {
   createdAt DateTime @default(now())
 
   @@index([createdAt], map: "SiteFeedback_createdAt_idx")
+}
+
+// Site-wide announcements shown in the header bell: new films from a seed run,
+// award data corrections, feature notes. Deliberately NOT per-user rows — every
+// signed-in account reads the same list, and "read" is a single timestamp on
+// User. One row per event, not per user-per-event.
+model Notification {
+  id        String   @id @default(cuid())
+  // "films_added" | "awards_updated" | "announcement". A plain string rather
+  // than an enum so the data pipeline can add a kind without a migration.
+  kind      String
+  title     String
+  body      String?  @db.Text
+  // Optional in-app destination, e.g. "/browse?sort=newest".
+  href      String?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt], map: "Notification_createdAt_idx")
 }
 
