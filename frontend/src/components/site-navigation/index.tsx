@@ -6,7 +6,6 @@ import { useMobileMenu } from "@/components/site-navigation/useMobileMenu";
 import { DesktopNav } from "@/components/site-navigation/desktop-nav";
 import { MobileNavMenu } from "@/components/site-navigation/mobile-nav-menu";
 import { MenuToggleButton } from "@/components/site-navigation/menu-toggle-button";
-import { NotificationBell } from "@/components/notification-bell";
 
 type SiteNavigationProps = {
   focusRingClassName?: string;
@@ -21,13 +20,6 @@ export function SiteNavigation({
   return (
     <>
       <DesktopNav pathname={pathname} focusRingClassName={focusRingClassName} />
-
-      {/* On desktop the bell sits inside DesktopNav; on mobile it stays in the
-          header bar rather than the menu sheet, so the unread badge is visible
-          without opening anything. */}
-      <div className="md:hidden">
-        <NotificationBell focusRingClassName={focusRingClassName} />
-      </div>
 
       <MenuToggleButton
         isOpen={menu.isOpen}

@@ -4,16 +4,19 @@ import { UserAvatar } from "@/components/user-avatar";
 import type { AuthUser } from "@/components/auth-button/types";
 import { ACCOUNT_LINKS } from "@/components/auth-button/account-links";
 import { signOutToHome } from "@/components/auth-button/sign-out";
+import { WHATS_NEW_LINK } from "@/features/notifications/whats-new-link";
 
 /** Mobile: account links laid out directly (no dropdown to open off-screen). */
 export function InlineAccountList({
   user,
   focusRingClassName,
   onNavigate,
+  unreadCount,
 }: {
   user: AuthUser | undefined;
   focusRingClassName: string;
   onNavigate?: (() => void) | undefined;
+  unreadCount: number;
 }) {
   return (
     <div className="flex flex-col gap-1">
@@ -28,6 +31,23 @@ export function InlineAccountList({
           </p>
         </div>
       </div>
+      <Link
+        href={WHATS_NEW_LINK.href}
+        onClick={() => onNavigate?.()}
+        className={cn(
+          "flex items-center gap-2 rounded-xl px-3 py-3 font-[family-name:var(--font-geist-mono)] text-base font-bold uppercase tracking-[0.16em]",
+          "text-[#9b96aa] transition-colors hover:bg-[#10101a] hover:text-[#F5F5F0]",
+          "focus-visible:outline-none focus-visible:ring-2",
+          focusRingClassName,
+        )}
+      >
+        {WHATS_NEW_LINK.label}
+        {unreadCount > 0 && (
+          <span className="rounded-full bg-[#e8453c] px-2 py-0.5 text-[11px] font-bold leading-none tracking-normal text-[#0a0a14]">
+            {unreadCount}
+          </span>
+        )}
+      </Link>
       {ACCOUNT_LINKS.map((link) => (
         <Link
           key={link.href}

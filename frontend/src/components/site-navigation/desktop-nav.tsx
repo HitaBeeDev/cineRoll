@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils/cn";
 import { AuthButton } from "@/components/auth-button";
-import { NotificationBell } from "@/components/notification-bell";
 import { primaryNavItems } from "@/components/site-navigation/nav-items";
 import { isActiveRoute } from "@/components/site-navigation/is-active-route";
 
@@ -38,8 +37,6 @@ export function DesktopNav({
           </Link>
         ))}
       </div>
-
-      <NotificationBell focusRingClassName={focusRingClassName} />
 
       <AuthButton focusRingClassName={focusRingClassName} />
     </nav>

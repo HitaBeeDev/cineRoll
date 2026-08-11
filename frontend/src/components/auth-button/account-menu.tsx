@@ -7,14 +7,17 @@ import type { AuthUser } from "@/components/auth-button/types";
 import { ACCOUNT_LINKS } from "@/components/auth-button/account-links";
 import { signOutToHome } from "@/components/auth-button/sign-out";
 import { useAccountMenu } from "@/components/auth-button/useAccountMenu";
+import { WHATS_NEW_LINK } from "@/features/notifications/whats-new-link";
 
 /** Desktop: compact avatar trigger with an outside-click dropdown. */
 export function AccountMenu({
   user,
   focusRingClassName,
+  unreadCount,
 }: {
   user: AuthUser | undefined;
   focusRingClassName: string;
+  unreadCount: number;
 }) {
   const { open, setOpen, menuRef } = useAccountMenu();
 
@@ -66,6 +69,18 @@ export function AccountMenu({
               </p>
             </div>
           )}
+          <Link
+            href={WHATS_NEW_LINK.href}
+            onClick={() => setOpen(false)}
+            className="flex w-full items-center gap-2 border-b border-[#1e1e2a] px-4 py-3 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#888899] transition hover:bg-[#111120] hover:text-[#F5F5F0]"
+          >
+            {WHATS_NEW_LINK.label}
+            {unreadCount > 0 && (
+              <span className="ml-auto rounded-full bg-[#e8453c] px-1.5 py-0.5 text-[9px] font-bold leading-none tracking-normal text-[#0a0a14]">
+                {unreadCount}
+              </span>
+            )}
+          </Link>
           {ACCOUNT_LINKS.map((link, i) => (
             <Link
               key={link.href}
