@@ -103,10 +103,16 @@ export function FilmCard({
         onEngage={onEngage}
       />
 
-      {/* Two groups either way — evidence, then controls. In `column` they sit in
-          one flow and read exactly as they always have; in `split` the same two
-          groups become the two columns, so there is one layout to reason about
-          rather than two arrangements of six children. */}
+      {/* In `column` everything sits in one flow, top to bottom, exactly as it
+          always has.
+
+          In `split` the two columns are packed by HEIGHT, not by category. The
+          obvious division — all the evidence left, all the controls right — left
+          the right column four buttons tall beside a column three times that, so
+          the dialog scrolled while a third of it sat empty. The scores are a
+          fixed-height pair of boxes, so they go under the buttons: that keeps the
+          right column a predictable height and lets the left one absorb whatever
+          length a given film's plot and award list turn out to be. */}
       <div
         className={cn(
           "px-4 pb-4 pt-3",
@@ -119,7 +125,7 @@ export function FilmCard({
               Either way it can be opened in place if it does not fit. */}
           {film.plot && <FilmSynopsis plot={film.plot} lines={split ? 6 : 3} />}
 
-          <FilmScores film={film} />
+          {!split && <FilmScores film={film} />}
 
           {recognition.records.length > 0 && (
             <RecognizedFor records={recognition.records} more={recognition.more} />
@@ -168,6 +174,8 @@ export function FilmCard({
               />
             )}
           </AnimatePresence>
+
+          {split && <FilmScores film={film} />}
         </div>
 
         {/* Full width under both columns when split, and simply the next thing in
@@ -181,6 +189,7 @@ export function FilmCard({
           isAuthenticated={isAuthenticated}
           onEngage={onEngage}
           className={split ? "sm:col-span-2" : undefined}
+          showViewDetails={!split}
         />
       </div>
     </div>

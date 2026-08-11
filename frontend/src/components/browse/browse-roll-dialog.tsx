@@ -10,6 +10,7 @@ import { DialogContent } from "@/components/ui/dialog/dialog-content";
 import { DialogTitle } from "@/components/ui/dialog/dialog-title";
 import { ChannelPill } from "@/components/home/film-card/channel-pill";
 import { FilmCard } from "@/components/home/film-card";
+import { ViewDetailsLink } from "@/components/home/film-card/view-details-link";
 import { RollProjector } from "@/components/browse/roll-projector";
 import { cn } from "@/lib/utils/cn";
 import type { RollFilm } from "@/lib/api";
@@ -258,33 +259,44 @@ export function BrowseRollDialog({
             is that another draw is one click away, and a button that is one click
             away only if you scroll back down is not.
 
-            Rolling stays the primary action — it is the mechanic the site is
-            named for — but it is no longer the loudest thing in the dialog. It
-            used to sit on a black slab of its own, a full-width pill under a red
-            glow, which made a modal whose subject is a film look like a modal for
-            discarding one. Same colour, same place, a third of the presence: no
-            band of its own, only a hairline rule, and a button sized to a
-            button. */}
+            Both answers live here, because the dialog asks one question — is this
+            the film? — and it used to pin only the "no". View details sat at the
+            bottom of the scroll area, so on any film long enough to overflow, the
+            way to say yes was invisible and the way to say no was the loudest
+            thing on screen. Roll again keeps the colour, since it is the mechanic
+            the site is named for; it no longer keeps the monopoly. */}
         <div className="shrink-0 border-t border-white/[0.06] px-4 py-2.5">
-          <button
-            type="button"
-            onClick={onRoll}
-            disabled={rolling}
-            className={cn(
-              // Sized to its label, centred. Full width of a 768px dialog it
-              // stopped reading as a button and started reading as the point of
-              // the dialog.
-              "mx-auto flex w-full max-w-[15rem] items-center justify-center gap-2 rounded-full bg-[#e8453c] px-5 py-2",
-              "font-[family-name:var(--font-geist-mono)] text-[11px] font-semibold uppercase tracking-[0.14em] text-[#09090f]",
-              "transition-colors duration-200",
-              "hover:bg-[#ff5c52] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff766d]",
-              "focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-900",
-              "disabled:cursor-not-allowed disabled:bg-[#e8453c]/35 disabled:text-[#09090f]/60",
+          <div className="mx-auto flex w-full max-w-[26rem] items-center gap-2">
+            {film && !rolling && (
+              <ViewDetailsLink
+                film={film}
+                className={cn(
+                  "flex-1 rounded-full border border-[#2a2a3e] px-5 py-2",
+                  "text-[11px] tracking-[0.14em] hover:border-[#6a6a85]",
+                )}
+              />
             )}
-          >
-            <Shuffle className={cn("h-3.5 w-3.5", rolling && "animate-spin")} aria-hidden />
-            {rolling ? "Rolling…" : "Roll again"}
-          </button>
+
+            <button
+              type="button"
+              onClick={onRoll}
+              disabled={rolling}
+              className={cn(
+                // Sized to its label, centred. Full width of a 768px dialog it
+                // stopped reading as a button and started reading as the point of
+                // the dialog.
+                "mx-auto flex w-full max-w-[15rem] flex-1 items-center justify-center gap-2 rounded-full bg-[#e8453c] px-5 py-2",
+                "font-[family-name:var(--font-geist-mono)] text-[11px] font-semibold uppercase tracking-[0.14em] text-[#09090f]",
+                "transition-colors duration-200",
+                "hover:bg-[#ff5c52] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff766d]",
+                "focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-900",
+                "disabled:cursor-not-allowed disabled:bg-[#e8453c]/35 disabled:text-[#09090f]/60",
+              )}
+            >
+              <Shuffle className={cn("h-3.5 w-3.5", rolling && "animate-spin")} aria-hidden />
+              {rolling ? "Rolling…" : "Roll again"}
+            </button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

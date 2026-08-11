@@ -1,10 +1,9 @@
 import { Share2 } from "lucide-react";
-import { FilmLink } from "@/components/film-link";
 import { SharePopover } from "@/components/share-popover";
 import { SaveToListButton } from "@/components/save-to-list-dialog";
-import { trackEvent } from "@/lib/analytics";
 import { cn } from "@/lib/utils/cn";
 import type { RollFilm } from "@/lib/api";
+import { ViewDetailsLink } from "@/components/home/film-card/view-details-link";
 
 /** The bottom action row: View details, Add to list, and Share. */
 export function SecondaryActions({
@@ -12,34 +11,31 @@ export function SecondaryActions({
   isAuthenticated,
   onEngage,
   className,
+  showViewDetails = true,
 }: {
   film: RollFilm;
   isAuthenticated: boolean;
   onEngage?: (() => void) | undefined;
   className?: string | undefined;
+  /**
+   * False in the roll dialog, which carries View details in its pinned footer
+   * instead — the one place it is reachable without scrolling. Printing it here
+   * too would put the same destination on screen twice.
+   */
+  showViewDetails?: boolean;
 }) {
   return (
     <div className={cn("flex items-center gap-2 mt-1", className)}>
-      <FilmLink
-        slug={film.slug}
-        onClick={() => {
-          onEngage?.();
-          trackEvent({
-            type: "film_click",
-            filmId: film.id,
-            context: { source: "roll_card", slug: film.slug },
-          });
-        }}
-        className={cn(
-          "flex flex-1 items-center justify-center rounded-xl py-3",
-          "border border-[#2a2a3e] text-[#F5F5F0]",
-          "font-[family-name:var(--font-geist-mono)] text-[12px] font-bold uppercase tracking-[0.2em]",
-          "transition-colors hover:border-[#6a6a85] hover:text-[#F5F5F0]",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
-        )}
-      >
-        View details
-      </FilmLink>
+      {showViewDetails && (
+        <ViewDetailsLink
+          film={film}
+          onEngage={onEngage}
+          className={cn(
+            "flex-1 rounded-xl py-3 text-[12px] tracking-[0.2em]",
+            "border border-[#2a2a3e] hover:border-[#6a6a85]",
+          )}
+        />
+      )}
       <SaveToListButton
         filmId={film.id}
         filmTitle={film.title}
