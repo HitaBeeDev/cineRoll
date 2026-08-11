@@ -3,6 +3,7 @@ import { Award, Film, Megaphone } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import type { NotificationEntry } from "@/features/notifications/domain-types";
 import { formatNotificationTime } from "@/features/notifications/format-notification-time";
+import { notificationDestination } from "@/features/notifications/notification-destination";
 
 const KIND_ICONS = {
   films_added: Film,
@@ -53,13 +54,14 @@ export function NotificationItem({
     notification.unread && "bg-[#e8453c]/[0.04]",
   );
 
-  if (notification.href === null) {
+  const destination = notificationDestination(notification);
+  if (destination === null) {
     return <div className={className}>{body}</div>;
   }
 
   return (
     <Link
-      href={notification.href}
+      href={destination}
       className={cn(className, "transition-colors hover:bg-[#141420]")}
     >
       {body}

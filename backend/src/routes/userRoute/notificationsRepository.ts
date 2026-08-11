@@ -1,4 +1,6 @@
 import { prisma } from "../../lib/prisma";
+import { withYear } from "./filmMapper";
+import { filmSummarySelect } from "./selects";
 
 // The bell panel is a short list, not an archive — older announcements fall off
 // rather than paginate. Keeps the payload small enough to fetch on every mount.
@@ -10,6 +12,7 @@ type NotificationItem = {
   title: string;
   body: string | null;
   href: string | null;
+  filmSlugs: string[];
   createdAt: Date;
   unread: boolean;
 };
@@ -39,6 +42,7 @@ export async function listNotifications(userId: string): Promise<{
         title: true,
         body: true,
         href: true,
+        filmSlugs: true,
         createdAt: true,
       },
     }),
@@ -70,4 +74,37 @@ export async function markNotificationsRead(userId: string): Promise<void> {
     where: { id: userId },
     data: { notificationsReadAt: new Date() },
   });
+}
+
+/**
+ * One announcement and the films it is about, for the group page.
+ *
+ * Films are looked up by slug and re-sorted into the order the announcement
+ * stored them; `findMany` returns them in whatever order Postgres likes, and a
+ * seed announces films in catalogue order. Slugs with no matching film are
+ * dropped silently — a later seed can retire a title, and a missing poster is
+ * not worth failing the page over.
+ */
+export async function getNotificationFilms(notificationId: string) {
+  const notification = await prisma.notification.findUnique({
+    where: { id: notificationId },
+    select: { id: true, title: true, body: true, filmSlugs: true, createdAt: true },
+  });
+
+  if (!notification) return null;
+
+  const films = await prisma.film.findMany({
+    where: { slug: { in: notification.filmSlugs } },
+    select: filmSummarySelect,
+  });
+
+  const bySlug = new Map(films.map((film) => [film.slug, film]));
+
+  return {
+    notification,
+    films: notification.filmSlugs
+      .map((slug) => bySlug.get(slug))
+      .filter((film) => film !== undefined)
+      .map(withYear),
+  };
 }

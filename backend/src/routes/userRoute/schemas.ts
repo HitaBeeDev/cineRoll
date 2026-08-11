@@ -45,6 +45,12 @@ export const cursorQuerySchema = z.object({
   cursor: z.string().trim().min(1).optional(),
 });
 
+export const notificationIdParamsSchema = z.object({
+  notificationId: z.string().trim().min(1),
+});
+
+export type NotificationIdParams = z.infer<typeof notificationIdParamsSchema>;
+
 export type FilmIdBody = z.infer<typeof filmIdBodySchema>;
 export type WatchedBody = z.infer<typeof watchedBodySchema>;
 export type FilmIdParams = z.infer<typeof filmIdParamsSchema>;

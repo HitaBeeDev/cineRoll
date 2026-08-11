@@ -5,8 +5,13 @@ export type NotificationFeed = {
     kind: string;
     title: string;
     body: string | null;
-    /** In-app destination, or null when the item is news with nowhere to go. */
+    /** Fixed in-app destination, for announcements that are not about films. */
     href: string | null;
+    /**
+     * The films this item is about, by slug. One → the row links straight to
+     * that film; several → it links to a page listing exactly these films.
+     */
+    filmSlugs: string[];
     /** ISO string over the wire; the panel formats it for display. */
     createdAt: string;
     unread: boolean;

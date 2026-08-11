@@ -374,8 +374,13 @@ model Notification {
   kind      String
   title     String
   body      String?  @db.Text
-  // Optional in-app destination, e.g. "/browse?sort=newest".
+  // Optional in-app destination for announcements that point at a fixed page.
   href      String?
+  // The films this announcement is about. SLUGS, not ids: seed-master deletes
+  // and re-creates every Film row, so ids are regenerated on each seed and any
+  // stored id would dangle. One slug → the row links straight to that film;
+  // several → it links to a page listing exactly these films.
+  filmSlugs String[] @default([])
   createdAt DateTime @default(now())
 
   @@index([createdAt], map: "Notification_createdAt_idx")
