@@ -20,6 +20,15 @@ export function RecommendationsSection({
       onHidden={(id) => {
         setHiddenIds((currentIds) => new Set(currentIds).add(id));
       }}
+      // Undo puts the card back in its original position: the list order is
+      // untouched, only this id was being filtered out of it.
+      onRestored={(id) => {
+        setHiddenIds((currentIds) => {
+          const remaining = new Set(currentIds);
+          remaining.delete(id);
+          return remaining;
+        });
+      }}
     />
   );
 }

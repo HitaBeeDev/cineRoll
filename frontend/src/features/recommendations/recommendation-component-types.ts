@@ -12,6 +12,7 @@ export type RecommendationActionButtonProps = {
 export type RecommendationCardProps = {
   recommendation: Recommendation;
   onHidden: () => void;
+  onRestored: () => void;
 };
 
 export type RecommendationCardActions = {
@@ -46,4 +47,5 @@ export type RecommendationsSectionViewProps = {
   recommendations: Recommendation[];
   coldStart: boolean;
   onHidden: (id: string) => void;
+  onRestored: (id: string) => void;
 };

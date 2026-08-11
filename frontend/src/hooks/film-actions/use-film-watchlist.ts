@@ -63,11 +63,23 @@ function handleWatchlistError(
   setInWatchlist: (value: boolean) => void,
   toast: Toast,
 ): void {
-  if (getErrorCode(error) === "WATCHLIST_ALREADY_EXISTS") {
+  const code = getErrorCode(error);
+
+  // The server disagreeing about the STARTING state is not a failed save — the
+  // end state is already the one the user asked for. So the optimistic flip
+  // stands and we confirm it, the way the list dialog treats its own
+  // already-there / already-gone codes. Each code can only arise from one
+  // direction, so each branch checks the direction it belongs to.
+  if (attemptedAdd && code === "WATCHLIST_ALREADY_EXISTS") {
     showAlreadySaved(toast, options.filmTitle);
     options.onSaved?.();
     return;
   }
+  if (!attemptedAdd && code === "WATCHLIST_ENTRY_NOT_FOUND") {
+    showWatchlistRemoved(toast, options.filmTitle);
+    return;
+  }
+
   setInWatchlist(!attemptedAdd);
   showSaveError(toast, options.filmTitle);
 }

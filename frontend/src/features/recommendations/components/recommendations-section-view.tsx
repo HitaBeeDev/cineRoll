@@ -5,6 +5,7 @@ export function RecommendationsSectionView({
   recommendations,
   coldStart,
   onHidden,
+  onRestored,
 }: RecommendationsSectionViewProps) {
   return (
     <section className="mt-16">
@@ -23,6 +24,7 @@ export function RecommendationsSectionView({
               key={recommendation.id}
               recommendation={recommendation}
               onHidden={() => onHidden(recommendation.id)}
+              onRestored={() => onRestored(recommendation.id)}
             />
           ))}
         </div>

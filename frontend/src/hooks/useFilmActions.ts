@@ -18,8 +18,11 @@ export type {
 export function useFilmActions(options: UseFilmActionsOptions) {
   const { toast } = useToast();
   const authGate = useAuthGate(options.filmId);
-  const decision = useFilmDecision(options, authGate.triggerAuthGate, toast);
+  // Sentiment first: undoing a decision has to clear the rating that went with it.
   const sentiment = useFilmSentiment(options, toast);
+  const decision = useFilmDecision(options, authGate.triggerAuthGate, toast, () =>
+    sentiment.setSentiment(null),
+  );
   const watchlist = useFilmWatchlist(options, authGate.triggerAuthGate, toast);
 
   useFilmStatusSync({

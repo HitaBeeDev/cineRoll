@@ -42,16 +42,27 @@ export function useListDetailGrid(
 
   async function remove(film: SavedFilm) {
     if (removing.has(film.id)) return;
-    setRemoving((prev) => new Set(prev).add(film.id));
+    // Read the position before anything changes — it is what the rollback needs.
+    const index = films.findIndex((entry) => entry.film.id === film.id);
+    const removed = films[index];
+    if (!removed) return;
 
-    const previous = films;
+    setRemoving((prev) => new Set(prev).add(film.id));
     setFilms((prev) => prev.filter((entry) => entry.film.id !== film.id));
 
     try {
       await removeFilmFromList(listId, film.id);
       toast({ title: "Removed from list", description: film.title });
     } catch {
-      setFilms(previous);
+      // Re-insert just this entry, where it was. The per-id guard above only
+      // blocks a repeat removal of the SAME film, so restoring a whole snapshot
+      // would resurrect another film removed meanwhile — or drop a page that
+      // loadMore appended while this request was open.
+      setFilms((prev) => {
+        const next = [...prev];
+        next.splice(Math.min(index, next.length), 0, removed);
+        return next;
+      });
       toast({
         variant: "error",
         title: "Couldn't remove",

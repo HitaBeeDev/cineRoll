@@ -26,8 +26,8 @@ export function PickActions({ film }: PickActionsProps) {
       <button
         type="button"
         aria-pressed={seen}
-        aria-label={seen ? "Marked as seen" : "Mark as seen"}
-        title={seen ? "Seen — hidden from future picks" : "Mark as seen"}
+        aria-label={seen ? "Undo seen" : "Mark as seen"}
+        title={seen ? "Seen — tap again to undo" : "Mark as seen"}
         disabled={actions.pending}
         onClick={() => void actions.saveDecision("watched", false)}
         className={cn(

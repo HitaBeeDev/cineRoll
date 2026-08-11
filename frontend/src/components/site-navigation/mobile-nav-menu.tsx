@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { X } from "lucide-react";
+import { Heart, X } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { AuthButton } from "@/components/auth-button";
 import { primaryNavItems } from "@/components/site-navigation/nav-items";
@@ -66,6 +66,28 @@ export function MobileNavMenu({
               </Link>
             ))}
           </div>
+
+          {/* On desktop this lives in the footer. The home page hides the footer,
+              so the menu is the only place it can be reached on mobile. */}
+          <a
+            href="https://ko-fi.com/hitabeedev"
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={onClose}
+            className={cn(
+              "flex items-center gap-2 rounded-xl px-3 py-3",
+              "font-[family-name:var(--font-geist-mono)] text-sm font-bold uppercase tracking-[0.16em]",
+              "text-[#9b96aa] transition-colors hover:bg-[#10101a] hover:text-[#e8453c]",
+              "focus-visible:outline-none focus-visible:ring-2",
+              focusRingClassName,
+            )}
+          >
+            <Heart className="h-4 w-4" aria-hidden />
+            Support CineRoll
+            <span className="ml-auto tracking-normal" aria-hidden>
+              ↗
+            </span>
+          </a>
 
           <div className="mt-auto border-t border-[#222232] pt-5">
             <AuthButton

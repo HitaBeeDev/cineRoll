@@ -10,6 +10,7 @@ import { RecommendationCardView } from "./recommendation-card-view";
 export function RecommendationCard({
   recommendation,
   onHidden,
+  onRestored,
 }: RecommendationCardProps) {
   const { status } = useSession();
   const pathname = usePathname();
@@ -19,6 +20,9 @@ export function RecommendationCard({
     isAuthenticated: status === "authenticated",
     source: "recommendations",
     onNotInterested: onHidden,
+    // Hiding unmounts this card, so the Undo lives on in the toast — the
+    // callback only needs the id it already closed over.
+    onDecisionUndone: onRestored,
   });
 
   return (

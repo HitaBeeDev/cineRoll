@@ -21,6 +21,17 @@ const icons: Record<ToastVariant, React.ReactNode> = {
 // an action pass their own longer duration so the user has time to reach the CTA.
 const DEFAULT_TOAST_DURATION = 3200;
 
+// Shared by the link and button forms of the toast action so the two can't drift.
+function actionClassName(variant: ToastVariant): string {
+  return cn(
+    "mt-1.5 inline-flex w-fit items-center gap-1 rounded text-[13px] font-medium",
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
+    variant === "signin"
+      ? "rounded-md bg-[#e8453c] px-3 py-1.5 text-white transition-colors hover:bg-[#ff5247]"
+      : "text-[#e8695f] transition-colors hover:text-[#ff5247]",
+  );
+}
+
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = React.useState<ToastData[]>([]);
 
@@ -80,20 +91,28 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
                 )}
                 {t.action && (
                   <ToastPrimitive.Action asChild altText={t.action.label}>
-                    <Link
-                      href={t.action.href}
-                      className={cn(
-                        "mt-1.5 inline-flex w-fit items-center gap-1 rounded text-[13px] font-medium",
-                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
-                        variant === "signin"
-                          ? "rounded-md bg-[#e8453c] px-3 py-1.5 text-white transition-colors hover:bg-[#ff5247]"
-                          : "text-[#e8695f] transition-colors hover:text-[#ff5247]",
-                      )}
-                      onClick={() => dismiss(t.id)}
-                    >
-                      {t.action.label}
-                      {variant !== "signin" && <ArrowRight className="h-3 w-3" />}
-                    </Link>
+                    {t.action.href ? (
+                      <Link
+                        href={t.action.href}
+                        className={actionClassName(variant)}
+                        onClick={() => dismiss(t.id)}
+                      >
+                        {t.action.label}
+                        {variant !== "signin" && <ArrowRight className="h-3 w-3" />}
+                      </Link>
+                    ) : (
+                      // In-place action (Undo): no arrow, since nothing navigates.
+                      <button
+                        type="button"
+                        className={actionClassName(variant)}
+                        onClick={() => {
+                          t.action?.onClick?.();
+                          dismiss(t.id);
+                        }}
+                      >
+                        {t.action.label}
+                      </button>
+                    )}
                   </ToastPrimitive.Action>
                 )}
               </div>

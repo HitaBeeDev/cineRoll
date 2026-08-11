@@ -15,4 +15,7 @@ export type UseFilmActionsOptions = {
   onNotInterested?: (() => void) | undefined;
   onWatched?: (() => void) | undefined;
   onSaved?: (() => void) | undefined;
+  /** The decision was taken back. Surfaces that removed the film on
+   *  onNotInterested / onWatched use this to put it back. */
+  onDecisionUndone?: (() => void) | undefined;
 };

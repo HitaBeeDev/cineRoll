@@ -20,11 +20,11 @@ export function DecisionIconButtons({
 }) {
   return (
     <div className="flex items-center gap-2.5">
-      <HoverTooltip label={action === "watched" ? "Watched" : "Mark watched"}>
+      <HoverTooltip label={action === "watched" ? "Undo watched" : "Mark watched"}>
         <button
           type="button"
           aria-pressed={action === "watched"}
-          aria-label={action === "watched" ? "Marked watched" : "Mark watched"}
+          aria-label={action === "watched" ? "Undo watched" : "Mark watched"}
           disabled={pending}
           onClick={onMarkWatched}
           className={cn(
@@ -38,11 +38,11 @@ export function DecisionIconButtons({
         </button>
       </HoverTooltip>
 
-      <HoverTooltip label={action === "not-interested" ? "Hidden" : "Not interested"}>
+      <HoverTooltip label={action === "not-interested" ? "Undo hidden" : "Not interested"}>
         <button
           type="button"
           aria-pressed={action === "not-interested"}
-          aria-label={action === "not-interested" ? "Hidden" : "Not interested"}
+          aria-label={action === "not-interested" ? "Undo hidden" : "Not interested"}
           disabled={pending}
           onClick={onNotInterested}
           className={cn(
