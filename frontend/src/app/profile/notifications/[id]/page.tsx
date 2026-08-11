@@ -3,9 +3,10 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { apiFetch } from "@/lib/apiWithAuth";
+import type { Film } from "@cineroll/types";
 import { AppHeader } from "@/components/app-header";
-import { NotificationFilmCard } from "@/features/notifications/components/notification-film-card";
-import type { SavedFilm } from "@/types/saved-film";
+import { FilmTile } from "@/components/film-tile";
+import { FILM_GRID_CLASS } from "@/components/film-tile/film-grid-class";
 
 export const metadata: Metadata = {
   title: "What's New",
@@ -17,7 +18,7 @@ export const dynamic = "force-dynamic";
 type NotificationMeta = { id: string; title: string; body: string | null };
 
 type GroupResult =
-  | { status: "ok"; notification: NotificationMeta; films: SavedFilm[] }
+  | { status: "ok"; notification: NotificationMeta; films: Film[] }
   | { status: "not-found" }
   | { status: "error" };
 
@@ -30,7 +31,7 @@ async function fetchNotificationGroup(id: string): Promise<GroupResult> {
 
   const data = (await res.json().catch(() => null)) as {
     notification?: NotificationMeta;
-    films?: SavedFilm[];
+    films?: Film[];
   } | null;
   if (!data?.notification) return { status: "error" };
 
@@ -78,9 +79,9 @@ export default async function NotificationGroupPage({
               {result.films.length === 1 ? "film" : "films"}
             </p>
 
-            <div className="mt-8 grid grid-cols-2 gap-x-5 gap-y-8 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+            <div className={`mt-8 ${FILM_GRID_CLASS}`}>
               {result.films.map((film) => (
-                <NotificationFilmCard key={film.id} film={film} />
+                <FilmTile key={film.id} film={film} />
               ))}
             </div>
           </>
