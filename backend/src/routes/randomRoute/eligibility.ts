@@ -1,6 +1,7 @@
 import { Prisma } from "@prisma/client";
 
 import { contentTypeSql } from "../../lib/filmFilters/contentTypeSql";
+import { rtScoreIsTrustedSql } from "./ratingTrust";
 
 // Hard eligibility gate for the ROLL only. A title may be *rolled* (and is
 // counted in the reel pool) only if it clears these. Deliberately kept out of
@@ -54,7 +55,13 @@ function qualityGate(): Prisma.Sql {
   const isSeries = contentTypeSql(typesColumn, "tv-series");
 
   const clearsImdb = Prisma.sql`COALESCE("Film"."imdbRating" >= ${IMDB_FLOOR}, FALSE)`;
-  const clearsRt = Prisma.sql`COALESCE("Film"."rtScore" >= ${RT_FLOOR}, FALSE)`;
+  // RT only gets a vote when the score is believable — see ratingTrust.ts. Since
+  // either score can qualify a feature on its own, an inflated 100% off three
+  // reviews would otherwise be enough to admit a film IMDb rates in the 5s.
+  const clearsRt = Prisma.sql`COALESCE(
+    "Film"."rtScore" >= ${RT_FLOOR} AND ${rtScoreIsTrustedSql()},
+    FALSE
+  )`;
 
   return Prisma.sql`
     CASE

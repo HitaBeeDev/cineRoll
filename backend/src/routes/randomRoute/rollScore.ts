@@ -7,6 +7,7 @@ import type {
   RecentRoll,
   RerollPenalty,
 } from "./diversity/types";
+import { rtScoreIsTrusted } from "./ratingTrust";
 import type { RandomFilmRow } from "./types";
 
 // RollScorer (docs/smart-roll-engine.md §7). After the hard eligibility gate we
@@ -93,11 +94,18 @@ function laneAffinity(b: ScoreBreakdown, lane: RollLane): number {
   }
 }
 
-// Combined IMDb + RT in [0, 1]. The eligibility gate now requires BOTH, so the
-// average branch always runs; the fallbacks are defensive only.
+// Combined IMDb + RT in [0, 1]. The gate no longer requires both — RT covers
+// only 8% of series and 4% of shorts — so the single-score fallbacks are the
+// normal path for most of the catalogue, not a defensive edge case.
 function normalizedRating(film: RandomFilmRow): number {
   const imdb = film.imdbRating != null ? film.imdbRating / 10 : null;
-  const rt = film.rtScore != null ? film.rtScore / 100 : null;
+  // An RT score we don't believe is worse here than a missing one: averaged in,
+  // a three-review 100% pulls a mediocre title's quality signal up toward 1 and
+  // hands it the Safe lane, which is the lane that decides most rolls. Dropping
+  // it falls back to IMDb alone — the signal we do trust. See ratingTrust.ts.
+  const rt = rtScoreIsTrusted(film.imdbRating, film.rtScore)
+    ? (film.rtScore as number) / 100
+    : null;
   if (imdb != null && rt != null) return (imdb + rt) / 2;
   return imdb ?? rt ?? 0;
 }
