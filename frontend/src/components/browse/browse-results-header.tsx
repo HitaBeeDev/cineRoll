@@ -37,6 +37,7 @@ export function BrowseResultsHeader({
   hasActiveFilters,
   rolling,
   rollOpen,
+  rollButtonRef,
   onRoll,
   setFilters,
 }: {
@@ -46,8 +47,11 @@ export function BrowseResultsHeader({
   filters: FilterState;
   hasActiveFilters: boolean;
   rolling: boolean;
-  /** Whether the roll panel is showing a draw directly above this row. */
+  /** Whether the roll panel is showing a draw directly below this row. Changes
+   *  what the button says, not whether it is there. */
   rollOpen: boolean;
+  /** Held by the page so the panel can hand focus back here when it closes. */
+  rollButtonRef?: React.RefObject<HTMLButtonElement | null>;
   onRoll: () => void;
   setFilters: SetFilters;
 }) {
@@ -85,7 +89,7 @@ export function BrowseResultsHeader({
       <h2
         aria-live="polite"
         className={cn(
-          "text-xl font-semibold tracking-normal text-[#f2eff8] transition-opacity duration-200 sm:text-2xl",
+          "text-xl font-semibold tracking-normal text-fg transition-opacity duration-200 sm:text-2xl",
           isStaleCount && "opacity-40",
         )}
       >
@@ -106,28 +110,33 @@ export function BrowseResultsHeader({
           Lift and glow on hover, and nothing at all on disabled: a button that
           rises when there is nothing to roll is a promise it cannot keep.
 
-          It stands down while the roll panel is open. The panel sits directly
-          above this row and ends in its own Roll again, so leaving both on screen
-          put two accent buttons for the same act within a few hundred pixels of
-          each other, and made the reader work out whether they differed. They do
-          not. The empty cell stays so the heading and the view controls keep
-          their outer thirds. */}
-      {rollOpen ? (
-        <div aria-hidden />
-      ) : (
+          It stays put while the roll panel is open, and becomes "Roll again".
+          It used to stand down, on the argument that the panel carried its own
+          accent Roll again — but the panel opens directly under this row, so
+          standing down meant the button you had just pressed vanished from under
+          the cursor and the next draw was 500px away. One control, in one place,
+          that never moves; the panel is left to be about the film.
+
+          Disabled it says so in words rather than by contrast alone: the
+          dimmed fill was well under 3:1 against its own text, so "Rolling…"
+          was unreadable at the exact moment it mattered. */}
       <button
+        ref={rollButtonRef}
         type="button"
         disabled={rolling || status === "loading" || total === 0}
         onClick={onRoll}
+        aria-label={rollOpen && !rolling ? "Roll again" : undefined}
         className={cn(
-          "flex shrink-0 items-center justify-center gap-2.5 self-center rounded-full bg-[#e8453c] px-6 py-3",
-          "font-[family-name:var(--font-geist-mono)] text-[12px] font-semibold uppercase tracking-[0.16em] text-[#09090f]",
+          "flex shrink-0 items-center justify-center gap-2.5 self-center rounded-full bg-accent px-6 py-3",
+          "font-[family-name:var(--font-geist-mono)] text-[13px] font-semibold tracking-[0.01em] text-ink-900",
           "shadow-[0_10px_34px_-12px_rgba(232,69,60,0.9)] transition-all duration-200",
-          "hover:-translate-y-0.5 hover:bg-[#ff5c52] hover:shadow-[0_16px_44px_-12px_rgba(232,69,60,1)]",
+          "hover:-translate-y-0.5 hover:bg-accent-hi hover:shadow-[0_16px_44px_-12px_rgba(232,69,60,1)]",
           "active:translate-y-0 active:shadow-[0_6px_20px_-10px_rgba(232,69,60,0.9)]",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff766d] focus-visible:ring-offset-2 focus-visible:ring-offset-[#08080d]",
-          "disabled:cursor-not-allowed disabled:bg-[#e8453c]/35 disabled:text-[#09090f]/60 disabled:shadow-none",
-          "disabled:hover:translate-y-0 disabled:hover:bg-[#e8453c]/35",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-soft focus-visible:ring-offset-2 focus-visible:ring-offset-ink-950",
+          // Legible when off: a mid-grey fill with near-white text clears AA,
+          // where the 35%-accent fill under 60%-black text did not.
+          "disabled:cursor-not-allowed disabled:bg-edge disabled:text-fg-muted disabled:shadow-none",
+          "disabled:hover:translate-y-0 disabled:hover:bg-edge",
         )}
       >
         <Shuffle className={cn("h-4 w-4", rolling && "animate-spin")} aria-hidden />
@@ -135,11 +144,12 @@ export function BrowseResultsHeader({
           ? "Rolling…"
           : total === 0 && status === "success"
             ? "No matches"
-            : hasActiveFilters
-              ? (status === "success" ? `Roll from ${total.toLocaleString()} films` : "Roll from these results")
-              : "Roll a random film"}
+            : rollOpen
+              ? "Roll again"
+              : hasActiveFilters
+                ? (status === "success" ? `Roll from ${total.toLocaleString()} films` : "Roll from these results")
+                : "Roll a random film"}
       </button>
-      )}
 
       {/* View controls. Sort has always been here, where a list's ordering
           conventionally lives; Share joins it because handing the view to someone
@@ -155,10 +165,10 @@ export function BrowseResultsHeader({
           type="button"
           onClick={() => { void share(); }}
           aria-label="Copy a link to this view"
-          className="flex h-9 shrink-0 items-center gap-2 rounded-md border border-white/10 bg-white/[0.045] px-3 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.12em] text-[#b8b5c8] transition-colors hover:border-white/25 hover:text-[#f1eff8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40"
+          className="flex h-9 shrink-0 items-center gap-2 rounded-md border border-white/10 bg-white/[0.045] px-3 font-[family-name:var(--font-geist-mono)] text-[12px] tracking-[0.01em] text-fg-dim transition-colors hover:border-white/25 hover:text-fg-hi focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
         >
           {isCopied ? (
-            <Check className="h-3.5 w-3.5 text-[#7ee0a8]" aria-hidden />
+            <Check className="h-3.5 w-3.5 text-affirm-hi" aria-hidden />
           ) : (
             <Share2 className="h-3.5 w-3.5" aria-hidden />
           )}
@@ -171,7 +181,7 @@ export function BrowseResultsHeader({
         {/* The caption goes at the narrowest widths, not the control: the select
             names itself for a screen reader either way, and Share + caption +
             a 190px menu do not fit on a phone without one of them wrapping. */}
-        <span className="ml-auto hidden shrink-0 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em] text-[#8e899e] sm:inline lg:ml-2">
+        <span className="ml-auto hidden shrink-0 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em] text-fg-faint sm:inline lg:ml-2">
           Sort by
         </span>
         <FilterSelect
@@ -179,7 +189,7 @@ export function BrowseResultsHeader({
           onValueChange={(val) => setFilters({ ...sortChoiceFromKey(val), page: 1 })}
           ariaLabel="Sort films"
           align="end"
-          className="min-w-0 flex-1 text-[12px] text-[#e8e5f4] lg:w-[190px] lg:min-w-[190px] lg:flex-none"
+          className="min-w-0 flex-1 text-[12px] text-fg lg:w-[190px] lg:min-w-[190px] lg:flex-none"
           options={sortOptionsFor(filters.search.trim().length > 0)}
         />
       </div>

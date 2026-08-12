@@ -43,7 +43,7 @@ function ClearAllButton({
       type="button"
       onClick={onClearAll}
       disabled={disabled}
-      className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[12px] text-[#a9a5bc] underline decoration-white/25 underline-offset-4 transition-colors hover:text-[#ff766d] hover:decoration-[#e8453c]/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/30 disabled:cursor-not-allowed disabled:text-[#56515f] disabled:no-underline"
+      className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[12px] text-fg-muted underline decoration-white/25 underline-offset-4 transition-colors hover:text-accent-soft hover:decoration-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/30 disabled:cursor-not-allowed disabled:text-edge-hover disabled:no-underline"
     >
       Clear all filters
     </button>
@@ -94,10 +94,10 @@ export function BrowseAdvancedPanel({
   const panel = (
     <div
       className={cn(
-        "border-t border-white/10 bg-[#090910]/98",
+        "border-t border-white/10 bg-ink-900/98",
         // Above the app header (z-50) as well as the filter bar: "full height"
         // has to mean the whole viewport, not the part below the nav.
-        compact && "fixed inset-0 z-[60] flex flex-col border-t-0 bg-[#08080d]",
+        compact && "fixed inset-0 z-[60] flex flex-col border-t-0 bg-ink-950",
       )}
       role={compact ? "dialog" : undefined}
       aria-modal={compact || undefined}
@@ -105,14 +105,14 @@ export function BrowseAdvancedPanel({
     >
       {compact && (
         <div className="flex shrink-0 items-center justify-between border-b border-white/10 px-4 py-3">
-          <h2 className="font-[family-name:var(--font-geist-mono)] text-[13px] font-semibold uppercase tracking-[0.16em] text-[#f1eff8]">
+          <h2 className="font-[family-name:var(--font-geist-mono)] text-[13px] font-semibold uppercase tracking-[0.16em] text-fg-hi">
             Filters
           </h2>
           <button
             type="button"
             onClick={onClose}
             aria-label="Close filters"
-            className="flex h-8 w-8 items-center justify-center rounded-md text-[#a9a5bc] transition-colors hover:bg-white/[0.06] hover:text-[#f1eff8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40"
+            className="flex h-8 w-8 items-center justify-center rounded-md text-fg-muted transition-colors hover:bg-white/[0.06] hover:text-fg-hi focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
           >
             <X className="h-4 w-4" aria-hidden />
           </button>
@@ -159,7 +159,7 @@ export function BrowseAdvancedPanel({
           <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/[0.09] pt-4">
             <span
               aria-live="polite"
-              className="font-[family-name:var(--font-geist-mono)] text-[12px] text-[#a9a5bc]"
+              className="font-[family-name:var(--font-geist-mono)] text-[12px] text-fg-muted"
             >
               {resultCount == null
                 ? "Counting films…"
@@ -171,12 +171,12 @@ export function BrowseAdvancedPanel({
       </div>
 
       {compact && (
-        <div className="flex shrink-0 items-center gap-3 border-t border-white/10 bg-[#0b0b12] px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+        <div className="flex shrink-0 items-center gap-3 border-t border-white/10 bg-ink-900 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
           <ClearAllButton onClearAll={onClearAll} disabled={activeCount === 0} />
           <button
             type="button"
             onClick={onClose}
-            className="ml-auto flex h-11 flex-1 items-center justify-center rounded-lg bg-[#e8453c] px-5 font-[family-name:var(--font-geist-mono)] text-[13px] font-semibold text-[#09090f] transition-colors hover:bg-[#ff5c52] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40"
+            className="ml-auto flex h-11 flex-1 items-center justify-center rounded-lg bg-accent px-5 font-[family-name:var(--font-geist-mono)] text-[13px] font-semibold text-ink-900 transition-colors hover:bg-accent-hi focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
           >
             {resultCount == null
               ? "Show results"

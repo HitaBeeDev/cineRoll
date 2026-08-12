@@ -18,11 +18,14 @@ export function CardIdentity({
   film,
   awardHighlights,
   compact = false,
+  showRecognition = true,
 }: {
   film: RollFilm;
   awardHighlights: AwardHighlight[];
-  /** Dialog sizing — see the title note below. */
+  /** Panel sizing — see the title note below. */
   compact?: boolean;
+  /** Off where "Recognized for" lists the same awards in full below. */
+  showRecognition?: boolean;
 }) {
   const meta = [formatFilmYear(film), formatFilmLength(film)].filter(Boolean).join(" · ");
   // What the title IS — only the surprising kinds (series, short, documentary,
@@ -39,17 +42,17 @@ export function CardIdentity({
       <div className="flex flex-col gap-1.5">
         <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5">
           {contentType && (
-            <span className="rounded-[3px] border border-white/25 bg-white/[0.07] px-2 py-[3px] font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.16em] text-[#e6e6ee]">
+            <span className="rounded-[3px] border border-white/25 bg-white/[0.07] px-2 py-[3px] font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.16em] text-fg">
               {contentType}
             </span>
           )}
-          <p className="font-[family-name:var(--font-geist-mono)] text-[12px] uppercase tracking-[0.2em] text-[#b6b6c4]">
+          <p className="font-[family-name:var(--font-geist-mono)] text-[12px] uppercase tracking-[0.2em] text-fg-muted">
             {meta}
           </p>
         </div>
 
         {genres && (
-          <p className="font-[family-name:var(--font-geist-mono)] text-[12px] uppercase tracking-[0.14em] text-[#b6b6c4]">
+          <p className="font-[family-name:var(--font-geist-mono)] text-[12px] uppercase tracking-[0.14em] text-fg-muted">
             {genres}
           </p>
         )}
@@ -60,7 +63,7 @@ export function CardIdentity({
           compact too, just not at a size where a two-line title costs 90px of a
           dialog that has ~490px to spend in total. */}
       <h2
-        className="font-[family-name:var(--font-display)] font-bold leading-[1.05] tracking-tight text-[#F5F5F0]"
+        className="font-[family-name:var(--font-display)] font-bold leading-[1.05] tracking-tight text-fg-hi"
         style={{
           fontSize: compact
             ? "clamp(1.5rem, 2vw, 2.1rem)"
@@ -74,13 +77,15 @@ export function CardIdentity({
           tighter tracking, while the credit word beside it keeps the wide
           label spacing of the strip above. */}
       {film.director && (
-        <p className="font-[family-name:var(--font-geist-mono)] text-[13px] uppercase tracking-[0.08em] text-[#d6d6e2]">
-          <span className="tracking-[0.2em] text-[#a4a4b4]">{formatCreditLabel(film)}</span>{" "}
+        <p className="font-[family-name:var(--font-geist-mono)] text-[13px] uppercase tracking-[0.08em] text-fg-dim">
+          <span className="tracking-[0.2em] text-fg-muted">{formatCreditLabel(film)}</span>{" "}
           {film.director}
         </p>
       )}
 
-      {awardHighlights.length > 0 && <RecognitionSummary highlights={awardHighlights} />}
+      {showRecognition && awardHighlights.length > 0 && (
+        <RecognitionSummary highlights={awardHighlights} />
+      )}
     </div>
   );
 }

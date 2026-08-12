@@ -18,17 +18,21 @@ export function CardHeader({
   awardHighlights,
   onEngage,
   compact = false,
+  showRecognition = true,
 }: {
   film: RollFilm;
   posterBlur: string;
   awardHighlights: AwardHighlight[];
   onEngage?: (() => void) | undefined;
   /**
-   * The roll dialog's sizing: a smaller poster, a smaller title, tighter
-   * padding. The dialog gives the whole card a fixed box, and at full size this
-   * header alone took over half of it before the film had said anything.
+   * The roll panel's sizing: a smaller poster, a smaller title, tighter
+   * padding. The panel shares its height with the grid below it, and at full
+   * size this header alone took most of it before the film had said anything.
    */
   compact?: boolean;
+  /** Off where the itemised "Recognized for" list is also on screen — the
+   *  summary line and the list state the same awards. */
+  showRecognition?: boolean;
 }) {
   const { backdropUrl } = film;
 
@@ -50,9 +54,9 @@ export function CardHeader({
             className="scale-110 object-cover opacity-25 blur-2xl"
           />
         ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-[#15151f] to-[#0a0a14]" />
+          <div className="absolute inset-0 bg-gradient-to-br from-ink-750 to-ink-950" />
         )}
-        <div className="absolute inset-0 bg-[#09090f]/75" />
+        <div className="absolute inset-0 bg-ink-900/75" />
       </div>
 
       <div className={cn("relative flex", compact ? "gap-3 p-3" : "gap-4 p-4")}>
@@ -66,6 +70,7 @@ export function CardHeader({
           film={film}
           awardHighlights={awardHighlights}
           compact={compact}
+          showRecognition={showRecognition}
         />
       </div>
     </div>

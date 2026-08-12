@@ -19,11 +19,11 @@ export function SentimentButton({
   const toneClasses =
     tone === "like"
       ? active
-        ? "border-[#3fb950]/45 bg-[#3fb950]/12 text-[#7ee787]"
-        : "border-[#1e1e2a] text-[#a8a8ba] hover:border-[#3fb950]/45 hover:text-[#7ee787]"
+        ? "border-affirm/45 bg-affirm/12 text-affirm-hi"
+        : "border-edge text-fg-muted hover:border-affirm/45 hover:text-affirm-hi"
       : active
-        ? "border-[#46465e] bg-white/[0.06] text-[#F5F5F0]"
-        : "border-[#1e1e2a] text-[#a8a8ba] hover:border-[#6a6a85] hover:text-[#F5F5F0]";
+        ? "border-edge-hover bg-white/[0.06] text-fg-hi"
+        : "border-edge text-fg-muted hover:border-edge-hover hover:text-fg-hi";
 
   return (
     <button
@@ -35,7 +35,7 @@ export function SentimentButton({
       title={label}
       className={cn(
         "flex h-9 w-9 items-center justify-center rounded-lg border transition-colors",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
         "disabled:cursor-not-allowed disabled:opacity-60",
         toneClasses,
       )}

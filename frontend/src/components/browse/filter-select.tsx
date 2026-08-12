@@ -11,7 +11,7 @@ import { useFieldLabelling } from "@/components/ui/field-label-context/use-field
 // `cn` is a plain join with no tailwind-merge, so those must not be duplicated
 // in the base or the override couldn't win.
 const SELECT_TRIGGER_BASE =
-  "h-10 rounded-md border-white/10 bg-white/[0.045] text-[12px] transition-colors hover:border-white/20 focus:ring-[#e8453c]/60 focus:ring-offset-0";
+  "h-10 rounded-md border-white/10 bg-white/[0.045] text-[12px] transition-colors hover:border-white/20 focus:ring-accent/60 focus:ring-offset-0";
 
 export type FilterSelectOption = { value: string; label: string };
 
@@ -48,7 +48,7 @@ export function FilterSelect({
         align={align}
         sideOffset={6}
         collisionPadding={12}
-        className="border-white/10 bg-[#101019]"
+        className="border-white/10 bg-ink-800"
       >
         {options.map((o) => (
           <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>

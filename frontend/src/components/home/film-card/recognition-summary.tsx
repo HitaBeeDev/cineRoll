@@ -16,17 +16,17 @@ import type { AwardHighlight } from "@/components/home/film-card/awards/award-hi
 export function RecognitionSummary({ highlights }: { highlights: AwardHighlight[] }) {
   return (
     <p className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[13px] leading-[1.5]">
-      <Award className="h-4 w-4 shrink-0 text-[#D4AF37]" aria-hidden />
+      <Award className="h-4 w-4 shrink-0 text-gold" aria-hidden />
       {highlights.map((highlight, index) => (
         <span key={highlight.label} className="flex items-center gap-2">
           {index > 0 && (
-            <span aria-hidden className="text-[#6e6e80]">
+            <span aria-hidden className="text-edge-hover">
               ·
             </span>
           )}
           <span
             className={cn(
-              highlight.wins > 0 || highlight.rank != null ? "text-[#ECE7D6]" : "text-[#b6b6c4]",
+              highlight.wins > 0 || highlight.rank != null ? "text-fg-hi" : "text-fg-muted",
             )}
           >
             {formatAwardHighlight(highlight)}

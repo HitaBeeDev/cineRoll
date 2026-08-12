@@ -203,7 +203,7 @@ export function FilmBand({
                 setFilters({ tvType: value === ANY_TV_TYPE ? "" : value, page: 1 })
               }
               ariaLabel="Kind of series"
-              className="w-full text-[#b8b5c8]"
+              className="w-full text-fg-muted"
               options={[{ value: ANY_TV_TYPE, label: "Any kind of series" }, ...tvTypeOptions]}
             />
           )}
@@ -258,7 +258,7 @@ export function FilmBand({
             }}
             placeholder="Any decade"
             ariaLabel="Decade"
-            className="w-full text-[#b8b5c8]"
+            className="w-full text-fg-muted"
             options={[
               { value: ANY_YEAR, label: "Any decade" },
               ...decades.map((d) => ({ value: String(d), label: `${d}s` })),
@@ -270,11 +270,11 @@ export function FilmBand({
               value={filters.yearMin != null ? String(filters.yearMin) : ANY_YEAR}
               onValueChange={(val) => setFilters({ ...setYearMin(filters, parseYear(val)), page: 1 })}
               ariaLabel="Year from"
-              className="w-full flex-1 text-[#b8b5c8]"
+              className="w-full flex-1 text-fg-muted"
               options={[{ value: ANY_YEAR, label: "Any" }, ...yearOptions]}
             />
             <span
-              className="font-[family-name:var(--font-geist-mono)] text-[12px] text-[#56515f]"
+              className="font-[family-name:var(--font-geist-mono)] text-[12px] text-edge-hover"
               aria-hidden
             >
               –
@@ -283,7 +283,7 @@ export function FilmBand({
               value={filters.yearMax != null ? String(filters.yearMax) : ANY_YEAR}
               onValueChange={(val) => setFilters({ ...setYearMax(filters, parseYear(val)), page: 1 })}
               ariaLabel="Year to"
-              className="w-full flex-1 text-[#b8b5c8]"
+              className="w-full flex-1 text-fg-muted"
               options={[{ value: ANY_YEAR, label: "Any" }, ...yearOptions]}
             />
           </div>
@@ -319,7 +319,7 @@ export function FilmBand({
           />
           <p
             aria-live="polite"
-            className="min-h-4 font-[family-name:var(--font-geist-mono)] text-[11px] leading-4 text-[#ff9a93]"
+            className="min-h-4 font-[family-name:var(--font-geist-mono)] text-[11px] leading-4 text-caution"
           >
             {runtimeNote?.text ?? ""}
           </p>

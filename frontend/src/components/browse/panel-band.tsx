@@ -54,11 +54,11 @@ export function PanelBand({
             and less letterspaced. At 11px/0.25em against their 11px/0.3em the two
             were the same typographic voice, so "AWARDS" read as a peer of "AWARD
             CATEGORY" rather than as the heading over it. */}
-        <h3 className="font-[family-name:var(--font-geist-mono)] text-[13px] font-semibold uppercase tracking-[0.16em] text-[#f1eff8]">
+        <h3 className="font-[family-name:var(--font-geist-mono)] text-[13px] font-semibold uppercase tracking-[0.16em] text-fg-hi">
           {label}
         </h3>
         {activeCount > 0 && (
-          <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-[#e8453c] px-1 text-[10px] font-semibold leading-none text-white">
+          <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-semibold leading-none text-white">
             <span className="sr-only">active filters: </span>
             {activeCount}
           </span>
@@ -66,7 +66,7 @@ export function PanelBand({
       <span className="h-px flex-1 bg-white/[0.09]" aria-hidden />
       {collapsible && (
         <ChevronDown
-          className={cn("h-4 w-4 shrink-0 text-[#8e899e] transition-transform", open && "rotate-180")}
+          className={cn("h-4 w-4 shrink-0 text-fg-faint transition-transform", open && "rotate-180")}
           aria-hidden
         />
       )}
@@ -80,7 +80,7 @@ export function PanelBand({
           type="button"
           onClick={() => setOpen((v) => !v)}
           aria-expanded={open}
-          className="flex items-center gap-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40"
+          className="flex items-center gap-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
         >
           {heading}
         </button>

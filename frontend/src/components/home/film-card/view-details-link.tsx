@@ -7,9 +7,9 @@ import type { RollFilm } from "@/lib/api";
  * The way out of a roll card and into the whole film.
  *
  * Lives in its own file because it sits in two places: the card's action row on
- * the home page, and the roll dialog's pinned footer, where it has to be
- * reachable without scrolling. Both spell the destination and the tracking the
- * same way; only the shape differs, via `className`.
+ * the home page, and the roll panel's footer, where it is the primary action.
+ * Both spell the destination and the tracking the same way; only the shape
+ * differs, via `className`.
  */
 export function ViewDetailsLink({
   film,
@@ -32,9 +32,15 @@ export function ViewDetailsLink({
         });
       }}
       className={cn(
-        "flex items-center justify-center text-[#F5F5F0]",
-        "font-[family-name:var(--font-geist-mono)] font-bold uppercase",
-        "transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
+        "flex items-center justify-center",
+        // Sentence case: it is a phrase, not a label, and tracked capitals are
+        // the slowest way to set a phrase.
+        "font-[family-name:var(--font-geist-mono)] font-bold",
+        "transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
+        // Colour comes from the caller: this is a ghost on the card and a filled
+        // primary in the panel footer, and `cn` is a plain join — a default
+        // text colour here would sit in the class list beside the override and
+        // let stylesheet order decide which one wins.
         className,
       )}
     >

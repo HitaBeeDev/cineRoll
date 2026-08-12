@@ -72,7 +72,7 @@ export function BrowseFilterBar({
   };
 
   return (
-    <div className="sticky top-14 z-40 max-w-[100vw] border-b border-[#1c1a25] bg-[#08080d]/92 shadow-[0_18px_50px_rgba(0,0,0,0.28)] backdrop-blur-xl">
+    <div className="sticky top-14 z-40 max-w-[100vw] border-b border-edge bg-ink-950/92 shadow-[0_18px_50px_rgba(0,0,0,0.28)] backdrop-blur-xl">
       <div className="mx-auto w-full max-w-[100vw] px-4 sm:max-w-screen-2xl sm:px-6 lg:px-8 xl:px-12">
 
         {/* Primary row — search + ceremony on the left; result and the Advanced
@@ -113,16 +113,16 @@ export function BrowseFilterBar({
             onClick={() => setShowMore((v) => !v)}
             aria-expanded={showMore}
             className={cn(
-              "flex h-10 shrink-0 items-center gap-2 rounded-md border px-3.5 font-[family-name:var(--font-geist-mono)] text-[12px] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40",
+              "flex h-10 shrink-0 items-center gap-2 rounded-md border px-3.5 font-[family-name:var(--font-geist-mono)] text-[12px] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40",
               showMore || advancedCount > 0
-                ? "border-[#e8453c]/55 bg-[#e8453c]/12 text-[#ff766d]"
-                : "border-white/10 bg-white/[0.045] text-[#b8b5c8] hover:border-white/20 hover:text-[#f1eff8]",
+                ? "border-accent/55 bg-accent/12 text-accent-soft"
+                : "border-white/10 bg-white/[0.045] text-fg-muted hover:border-white/20 hover:text-fg-hi",
             )}
           >
             <SlidersHorizontal className="h-3.5 w-3.5" aria-hidden />
             Advanced
             {advancedCount > 0 && (
-              <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-[#e8453c] px-1 text-[10px] font-semibold leading-none text-white">
+              <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-semibold leading-none text-white">
                 {advancedCount}
               </span>
             )}

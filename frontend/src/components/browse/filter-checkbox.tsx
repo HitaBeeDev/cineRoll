@@ -20,7 +20,7 @@ export function FilterCheckbox({
   onChange: (checked: boolean) => void;
 }) {
   return (
-    <label className="group inline-flex cursor-pointer items-center gap-2.5 text-[12px] text-[#a9a5bc] transition-colors hover:text-[#f1eff8]">
+    <label className="group inline-flex cursor-pointer items-center gap-2.5 text-[12px] text-fg-muted transition-colors hover:text-fg-hi">
       <input
         type="checkbox"
         checked={checked}
@@ -31,15 +31,15 @@ export function FilterCheckbox({
         aria-hidden
         className={cn(
           "flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors",
-          "peer-focus-visible:ring-2 peer-focus-visible:ring-[#e8453c]/40",
+          "peer-focus-visible:ring-2 peer-focus-visible:ring-accent/40",
           checked
-            ? "border-[#e8453c] bg-[#e8453c]"
+            ? "border-accent bg-accent"
             : "border-white/20 group-hover:border-white/40",
         )}
       >
-        {checked && <Check className="h-3 w-3 text-[#09090f]" />}
+        {checked && <Check className="h-3 w-3 text-ink-900" />}
       </span>
-      <span className={cn("font-[family-name:var(--font-geist-mono)]", checked && "text-[#f1eff8]")}>
+      <span className={cn("font-[family-name:var(--font-geist-mono)]", checked && "text-fg-hi")}>
         {label}
       </span>
     </label>

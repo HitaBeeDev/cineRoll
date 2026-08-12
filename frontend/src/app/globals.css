@@ -1,10 +1,53 @@
 @import "tailwindcss";
 
+/**
+ * The palette, in one place.
+ *
+ * Fonts already travelled as variables while colours were copied as raw hex
+ * into every component, so the same near-black existed in a dozen files under a
+ * dozen values and no shade could be adjusted anywhere but everywhere. These are
+ * Tailwind v4 theme tokens, so each one also ships as a utility: `bg-ink-850`,
+ * `border-edge`, `text-fg-muted`.
+ *
+ * Named by role, not by hue — a surface is a surface whatever colour it turns.
+ */
+@theme {
+  /* Surfaces, from the page ground up to a raised panel. */
+  --color-ink-950: #08080d;
+  --color-ink-900: #09090f;
+  --color-ink-850: #0d0d15;
+  --color-ink-800: #11111b;
+  --color-ink-750: #15151f;
+
+  /* Hairlines and control edges. */
+  --color-edge-subtle: #17171f;
+  --color-edge: #1e1e2a;
+  --color-edge-strong: #2a2a3e;
+  --color-edge-hover: #6a6a85;
+
+  /* Text, brightest to quietest. */
+  --color-fg-hi: #f5f5f0;
+  --color-fg: #e8e5f4;
+  --color-fg-dim: #c6c6d2;
+  --color-fg-muted: #a8a8ba;
+  --color-fg-faint: #8e899e;
+
+  /* Accent and status. */
+  --color-accent: #e8453c;
+  --color-accent-hi: #ff5c52;
+  --color-accent-soft: #ff766d;
+  --color-gold: #d4af37;
+  --color-affirm: #3fb950;
+  --color-affirm-hi: #7ee787;
+  --color-caution: #ff9a93;
+  --color-cool: #9db4d0;
+}
+
 html,
 body {
   min-height: 100%;
-  background: #09090f;
-  color: #f5f5f0;
+  background: var(--color-ink-900);
+  color: var(--color-fg-hi);
 }
 
 html {

@@ -29,6 +29,8 @@ export function BrowsePageClient() {
   const browseRoll = useBrowseRoll(filters);
 
   const resultsTopRef = useRef<HTMLDivElement>(null);
+  // The Roll button, so the panel can hand focus back to it on close.
+  const rollButtonRef = useRef<HTMLButtonElement>(null);
 
   // Page changes (unlike filter edits, which deliberately stay put) scroll the
   // results back into view — landing just below the sticky bar via the target's
@@ -46,7 +48,7 @@ export function BrowsePageClient() {
 
   return (
     <div
-      className="flex min-h-screen flex-col overflow-x-hidden bg-[#08080d] text-[#F5F5F0]"
+      className="flex min-h-screen flex-col overflow-x-hidden bg-ink-950 text-fg-hi"
       // Single source for the in-page scroll offset (~app header 56px + sticky
       // filter bar). Named here so the results anchor's scroll-margin references
       // one value instead of a bare magic number.
@@ -64,27 +66,12 @@ export function BrowsePageClient() {
           setSearchDraft={setSearchDraft}
           autocomplete={autocomplete}
           facets={facets}
-          // The open panel covers the results header, so the count it would have
-          // read travels into the panel's footer instead.
+          // The sticky bar keeps its own count: the results heading scrolls away
+          // as soon as the reader is into the grid.
           resultCount={result?.total ?? null}
         />
 
         <section className="mx-auto w-full max-w-[100vw] flex-1 px-4 py-6 sm:max-w-screen-2xl sm:px-6 sm:py-8 lg:px-8 xl:px-12">
-          {/* The roll result opens here, at the head of the results and in the
-              flow of them: the filters that produced the draw stay live above it,
-              and the grid it was drawn from stays scrollable below. */}
-          <BrowseRollPanel
-            open={browseRoll.isOpen}
-            rolling={browseRoll.rolling}
-            film={browseRoll.film}
-            error={browseRoll.error}
-            onClose={browseRoll.close}
-            onRoll={browseRoll.roll}
-            onClearFilters={resetFilters}
-            onEngage={browseRoll.markEngaged}
-            onNotInterested={browseRoll.markRejected}
-          />
-
           <BrowseResultsHeader
             resultsTopRef={resultsTopRef}
             result={result}
@@ -93,8 +80,27 @@ export function BrowsePageClient() {
             hasActiveFilters={hasActiveFilters}
             rolling={browseRoll.rolling}
             rollOpen={browseRoll.isOpen}
+            rollButtonRef={rollButtonRef}
             onRoll={browseRoll.roll}
             setFilters={setFilters}
+          />
+
+          {/* Below the results header, not above it. The Roll button lives in
+              that header, so opening the panel above it shoved the control the
+              user had just clicked half a screen down; from here the panel only
+              ever displaces the grid. The filters that produced the draw stay
+              live above, and the results it came from stay right below. */}
+          <BrowseRollPanel
+            open={browseRoll.isOpen}
+            rolling={browseRoll.rolling}
+            film={browseRoll.film}
+            error={browseRoll.error}
+            returnFocusRef={rollButtonRef}
+            onClose={browseRoll.close}
+            onRoll={browseRoll.roll}
+            onClearFilters={resetFilters}
+            onEngage={browseRoll.markEngaged}
+            onNotInterested={browseRoll.markRejected}
           />
 
           <BrowseGrid

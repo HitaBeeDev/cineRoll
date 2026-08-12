@@ -6,7 +6,7 @@ const GRAIN_SVG = `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='h
  */
 export function BrowseHero() {
   return (
-    <section className="relative overflow-hidden border-b border-[#24202a] bg-[#0a0a10]">
+    <section className="relative overflow-hidden border-b border-edge bg-ink-900">
       <div
         className="pointer-events-none absolute inset-0 opacity-[0.035]"
         style={{ backgroundImage: GRAIN_SVG, backgroundSize: "256px 256px" }}
@@ -14,9 +14,9 @@ export function BrowseHero() {
 
       <div className="relative mx-auto w-full max-w-[100vw] px-4 sm:max-w-screen-2xl sm:px-6 lg:px-8 xl:px-12">
         <div className="py-5">
-          <div className="mb-2.5 h-px w-10 bg-[#e8453c]" aria-hidden />
+          <div className="mb-2.5 h-px w-10 bg-accent" aria-hidden />
           <h1
-            className="font-[family-name:var(--font-display)] font-bold leading-none tracking-tight text-[#f4f0f7]"
+            className="font-[family-name:var(--font-display)] font-bold leading-none tracking-tight text-fg-hi"
             style={{ fontSize: "clamp(1.9rem, 3.6vw, 3.25rem)" }}
           >
             Browse Films

@@ -56,13 +56,13 @@ export function BrowseGrid({
 
       {status === "error" && (
         <div className="flex min-h-80 flex-col items-center justify-center gap-5 rounded-lg border border-dashed border-white/12 bg-white/[0.025] px-6 py-16 text-center">
-          <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.32em] text-[#8e899e]">
+          <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.32em] text-fg-faint">
             Something went wrong
           </p>
           <button
             type="button"
             onClick={onRetry}
-            className="rounded-full border border-[#e8453c]/35 px-4 py-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.24em] text-[#ff766d] transition-colors hover:border-[#e8453c]/70 hover:text-white"
+            className="rounded-full border border-accent/35 px-4 py-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.24em] text-accent-soft transition-colors hover:border-accent/70 hover:text-white"
           >
             Try again →
           </button>
@@ -71,14 +71,14 @@ export function BrowseGrid({
 
       {status === "success" && result?.films.length === 0 && (
         <div className="flex min-h-80 flex-col items-center justify-center gap-5 rounded-lg border border-dashed border-white/12 bg-white/[0.025] px-6 py-16 text-center">
-          <Clapperboard className="h-10 w-10 text-[#555064]" aria-hidden />
-          <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.28em] text-[#8e899e]">
+          <Clapperboard className="h-10 w-10 text-edge-hover" aria-hidden />
+          <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.28em] text-fg-faint">
             No films match — try adjusting your filters
           </p>
           <button
             type="button"
             onClick={onResetFilters}
-            className="rounded-full border border-[#e8453c]/35 px-4 py-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.24em] text-[#ff766d] transition-colors hover:border-[#e8453c]/70 hover:text-white"
+            className="rounded-full border border-accent/35 px-4 py-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.24em] text-accent-soft transition-colors hover:border-accent/70 hover:text-white"
           >
             Reset filters →
           </button>

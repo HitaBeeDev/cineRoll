@@ -68,7 +68,7 @@ export function SegmentedControl<T extends string>({
   return (
     <div className={cn("flex w-full flex-col gap-1 sm:w-auto", className)}>
       {label && (
-        <span className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.2em] text-[#8e899e]">
+        <span className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.2em] text-fg-faint">
           {label}
         </span>
       )}
@@ -98,10 +98,10 @@ export function SegmentedControl<T extends string>({
               onKeyDown={(event) => handleKeyDown(event, i)}
               onClick={() => onChange(opt.value)}
               className={cn(
-                "h-8 shrink-0 rounded px-3 font-[family-name:var(--font-geist-mono)] text-[12px] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40",
-                restricting && "bg-[#e8453c] text-[#09090f] shadow-[0_0_24px_rgba(232,69,60,0.24)]",
-                active && !restricting && "bg-white/[0.09] text-[#f1eff8]",
-                !active && "text-[#7f7a91] hover:bg-white/[0.055] hover:text-[#f1eff8]",
+                "h-8 shrink-0 rounded px-3 font-[family-name:var(--font-geist-mono)] text-[12px] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40",
+                restricting && "bg-accent text-ink-900 shadow-[0_0_24px_rgba(232,69,60,0.24)]",
+                active && !restricting && "bg-white/[0.09] text-fg-hi",
+                !active && "text-fg-faint hover:bg-white/[0.055] hover:text-fg-hi",
               )}
             >
               {opt.label}

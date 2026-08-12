@@ -34,7 +34,7 @@ export function BrowsePagination({
   if (totalPages <= 1) return null;
 
   const arrowClass =
-    "flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-white/10 bg-white/[0.035] text-[#a9a5bc] transition-colors hover:border-[#e8453c]/35 hover:text-white disabled:cursor-not-allowed disabled:opacity-25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/30";
+    "flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-white/10 bg-white/[0.035] text-fg-muted transition-colors hover:border-accent/35 hover:text-white disabled:cursor-not-allowed disabled:opacity-25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/30";
 
   return (
     <nav
@@ -56,7 +56,7 @@ export function BrowsePagination({
           <span
             key={`ellipsis-${i}`}
             aria-hidden
-            className="flex h-9 w-7 items-center justify-center font-[family-name:var(--font-geist-mono)] text-[12px] text-[#817c91]"
+            className="flex h-9 w-7 items-center justify-center font-[family-name:var(--font-geist-mono)] text-[12px] text-fg-faint"
           >
             …
           </span>
@@ -68,10 +68,10 @@ export function BrowsePagination({
             aria-current={item === page ? "page" : undefined}
             onClick={() => onChange(item)}
             className={cn(
-              "flex h-9 min-w-9 shrink-0 items-center justify-center rounded-md border px-2 font-[family-name:var(--font-geist-mono)] text-[12px] tabular-nums transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/30",
+              "flex h-9 min-w-9 shrink-0 items-center justify-center rounded-md border px-2 font-[family-name:var(--font-geist-mono)] text-[12px] tabular-nums transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/30",
               item === page
-                ? "border-[#e8453c] bg-[#e8453c] text-white"
-                : "border-white/10 bg-white/[0.035] text-[#a9a5bc] hover:border-[#e8453c]/35 hover:text-white",
+                ? "border-accent bg-accent text-white"
+                : "border-white/10 bg-white/[0.035] text-fg-muted hover:border-accent/35 hover:text-white",
             )}
           >
             {item.toLocaleString()}

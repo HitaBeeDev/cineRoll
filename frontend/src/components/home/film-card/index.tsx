@@ -105,18 +105,21 @@ export function FilmCard({
         awardHighlights={awardHighlights}
         onEngage={onEngage}
         compact={split}
+        // "2 Oscar nominations" up here and the two nominations themselves a few
+        // lines below is the same fact told twice. Where the itemised record is
+        // shown, the summary of it is not.
+        showRecognition={!split || recognition.records.length === 0}
       />
 
       {/* In `column` everything sits in one flow, top to bottom, exactly as it
           always has.
 
-          In `split` the two columns are packed by HEIGHT, not by category. The
-          obvious division — all the evidence left, all the controls right — left
-          the right column four buttons tall beside a column three times that, so
-          the dialog scrolled while a third of it sat empty. The scores are a
-          fixed-height pair of boxes, so they go under the buttons: that keeps the
-          right column a predictable height and lets the left one absorb whatever
-          length a given film's plot and award list turn out to be. */}
+          In `split` it is evidence left, controls right — with the scores lifted
+          out of the right column and set as a strip under the header, where they
+          belong to the film rather than to the buttons. As a pair of tall boxes
+          at the foot of the controls they were the second-largest object on the
+          card for two numbers, and they anchored a column that should read as
+          the quietest thing here. */}
       <div
         className={cn(
           "px-4 pb-4 pt-3",
@@ -124,6 +127,8 @@ export function FilmCard({
         )}
       >
         <div className="flex min-w-0 flex-col gap-2">
+          {split && <FilmScores film={film} variant="strip" />}
+
           {/* Four lines in the dialog against the rail's three: enough to place
               the story, short of the six that pushed everything below it out of
               the box. "Read full synopsis" opens the rest in place either way. */}
@@ -179,22 +184,27 @@ export function FilmCard({
             )}
           </AnimatePresence>
 
-          {split && <FilmScores film={film} />}
+          {/* In `split`, list and share close the controls column instead of
+              floating as two unlabelled icons in the empty band under the
+              evidence, a screen's width from anything they act on. Labelled,
+              because a bookmark glyph alone does not say which of "save",
+              "list" and "watchlist" it is. */}
+          {split && (
+            <SecondaryActions
+              film={film}
+              isAuthenticated={isAuthenticated}
+              onEngage={onEngage}
+              showViewDetails={false}
+              showLabels
+            />
+          )}
         </div>
 
-        {/* Full width under both columns when split, and simply the next thing in
-            the flow when not — the reading order is the same either way. It reads
-            as a footer for the whole card because that is what it is: details,
-            list and share act on the film, not on the column they happen to sit
-            in. Pinning it to the foot of the controls column instead left a hole
-            the height of the evidence beside it. */}
-        <SecondaryActions
-          film={film}
-          isAuthenticated={isAuthenticated}
-          onEngage={onEngage}
-          className={split ? "sm:col-span-2" : undefined}
-          showViewDetails={!split}
-        />
+        {/* In `column` it is the card's own footer: details, list and share, in
+            the flow, acting on the film. */}
+        {!split && (
+          <SecondaryActions film={film} isAuthenticated={isAuthenticated} onEngage={onEngage} />
+        )}
       </div>
     </div>
   );

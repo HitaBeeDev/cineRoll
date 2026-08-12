@@ -31,7 +31,7 @@ export function ToggleStrip({
   return (
     <div className={cn("flex w-full flex-col gap-1 sm:w-auto", className)}>
       {label && (
-        <span className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.2em] text-[#8e899e]">
+        <span className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.2em] text-fg-faint">
           {label}
         </span>
       )}
@@ -59,12 +59,12 @@ export function ToggleStrip({
                 title={unreachable ? "No films match your other filters" : undefined}
                 onClick={item.onToggle}
                 className={cn(
-                  "h-8 shrink-0 rounded px-3 font-[family-name:var(--font-geist-mono)] text-[12px] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40",
+                  "h-8 shrink-0 rounded px-3 font-[family-name:var(--font-geist-mono)] text-[12px] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40",
                   item.active
-                    ? "bg-[#e8453c] text-[#09090f] shadow-[0_0_24px_rgba(232,69,60,0.24)]"
+                    ? "bg-accent text-ink-900 shadow-[0_0_24px_rgba(232,69,60,0.24)]"
                     : unreachable
-                      ? "cursor-not-allowed text-[#4b4757]"
-                      : "text-[#7f7a91] hover:bg-white/[0.055] hover:text-[#f1eff8]",
+                      ? "cursor-not-allowed text-edge-hover"
+                      : "text-fg-faint hover:bg-white/[0.055] hover:text-fg-hi",
                 )}
               >
                 {item.label}

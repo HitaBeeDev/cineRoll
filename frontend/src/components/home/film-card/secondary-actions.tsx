@@ -12,27 +12,46 @@ export function SecondaryActions({
   onEngage,
   className,
   showViewDetails = true,
+  showLabels = false,
 }: {
   film: RollFilm;
   isAuthenticated: boolean;
   onEngage?: (() => void) | undefined;
   className?: string | undefined;
   /**
-   * False in the roll dialog, which carries View details in its pinned footer
-   * instead — the one place it is reachable without scrolling. Printing it here
-   * too would put the same destination on screen twice.
+   * False in the roll panel, which carries View details in its footer instead —
+   * the one place it is reachable without scrolling. Printing it here too would
+   * put the same destination on screen twice.
    */
   showViewDetails?: boolean;
+  /**
+   * Spells the two out instead of leaving them as bare glyphs. On in the panel,
+   * where they sit alone at the end of a column with no neighbouring text to
+   * borrow meaning from; off in the page rail, where they flank a labelled
+   * View details in a row too narrow for three sets of words.
+   */
+  showLabels?: boolean;
 }) {
+  // Built by branch rather than by override: `cn` is a plain join, so a base
+  // `h-9` followed by an `h-11` would leave both in the class list.
+  const button = cn(
+    "flex items-center justify-center gap-2 px-3",
+    "border border-edge text-[12px] text-fg-muted",
+    "font-[family-name:var(--font-geist-mono)]",
+    "transition-colors hover:border-edge-strong hover:text-fg-hi",
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
+    showLabels ? "h-9 flex-1 rounded-lg" : "h-11 rounded-xl",
+  );
+
   return (
-    <div className={cn("flex items-center gap-2 mt-1", className)}>
+    <div className={cn("mt-1 flex items-center gap-2", className)}>
       {showViewDetails && (
         <ViewDetailsLink
           film={film}
           onEngage={onEngage}
           className={cn(
-            "flex-1 rounded-xl py-3 text-[12px] tracking-[0.2em]",
-            "border border-[#2a2a3e] hover:border-[#6a6a85]",
+            "flex-1 rounded-xl py-3 text-[13px] text-fg-hi",
+            "border border-edge-strong hover:border-edge-hover",
           )}
         />
       )}
@@ -40,14 +59,9 @@ export function SecondaryActions({
         filmId={film.id}
         filmTitle={film.title}
         isAuthenticated={isAuthenticated}
-        iconOnly
+        iconOnly={!showLabels}
         label="Add to list"
-        className={cn(
-          "flex h-11 items-center justify-center rounded-xl px-3",
-          "border border-[#1e1e2a] text-[#a8a8ba]",
-          "transition-colors hover:border-[#2a2a3e] hover:text-[#F5F5F0]",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
-        )}
+        className={button}
       />
       <SharePopover
         slug={film.slug}
@@ -55,14 +69,10 @@ export function SecondaryActions({
         url={`${typeof window !== "undefined" ? window.location.origin : ""}/film/${film.slug}?from=roll`}
         caption={film.plot ?? undefined}
         triggerAriaLabel="Share this film"
-        triggerClassName={cn(
-          "flex h-11 items-center justify-center rounded-xl px-3",
-          "border border-[#1e1e2a] text-[#a8a8ba]",
-          "transition-colors hover:border-[#2a2a3e] hover:text-[#F5F5F0]",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
-        )}
+        triggerClassName={button}
       >
         <Share2 className="h-4 w-4" aria-hidden />
+        {showLabels && "Share"}
       </SharePopover>
     </div>
   );

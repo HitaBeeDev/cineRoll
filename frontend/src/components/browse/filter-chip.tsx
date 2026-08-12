@@ -40,12 +40,12 @@ export function FilterChip({
       title={unreachable ? "No films match your other filters" : undefined}
       onClick={onClick}
       className={cn(
-        "h-8 rounded-md border px-3 font-[family-name:var(--font-geist-mono)] text-[12px] tabular-nums transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/35",
+        "h-8 rounded-md border px-3 font-[family-name:var(--font-geist-mono)] text-[12px] tabular-nums transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/35",
         active
-          ? "border-[#e8453c] bg-[#e8453c] text-[#09090f]"
+          ? "border-accent bg-accent text-ink-900"
           : unreachable
-            ? "cursor-not-allowed border-white/[0.06] bg-transparent text-[#4b4757]"
-            : "border-white/10 bg-white/[0.035] text-[#a9a5bc] hover:border-white/20 hover:text-white",
+            ? "cursor-not-allowed border-white/[0.06] bg-transparent text-edge-hover"
+            : "border-white/10 bg-white/[0.035] text-fg-muted hover:border-white/20 hover:text-white",
       )}
     >
       {children}

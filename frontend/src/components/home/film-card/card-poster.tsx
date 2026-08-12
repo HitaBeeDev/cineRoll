@@ -45,7 +45,7 @@ export function CardPoster({
       // one line instead of a panel, a 180px poster was the only thing holding
       // the header at full height, with dead column beside it.
       className={cn(
-        "group relative z-20 w-[38%] shrink-0 self-stretch rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090f]",
+        "group relative z-20 w-[38%] shrink-0 self-stretch rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-ink-900",
         // At 2/3 the width IS the height: 150px of poster is 225px of header,
         // which was over half the roll dialog's whole content budget before a
         // word of the film had been read. 100px puts it at 150px tall, level
@@ -98,8 +98,8 @@ export function CardPoster({
             priority
           />
         ) : (
-          <div className="flex h-full items-center justify-center bg-gradient-to-br from-[#1a1a2e] to-[#0a0a18]">
-            <span className="font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-widest text-[#a8a8ba]">
+          <div className="flex h-full items-center justify-center bg-gradient-to-br from-ink-750 to-ink-950">
+            <span className="font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-widest text-fg-muted">
               No image
             </span>
           </div>

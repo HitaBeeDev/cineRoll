@@ -40,8 +40,8 @@ import { FieldLabelProvider } from "@/components/ui/field-label-context/field-la
  * brightness going up rather than down.
  */
 const LABEL_LEVELS = {
-  primary: "text-[12px] font-semibold tracking-[0.1em] text-[#ded8ee]",
-  default: "text-[11px] tracking-[0.12em] text-[#8e899e]",
+  primary: "text-[12px] font-semibold tracking-[0.1em] text-fg",
+  default: "text-[11px] tracking-[0.12em] text-fg-faint",
 } as const;
 
 export function PanelSection({
@@ -81,7 +81,7 @@ export function PanelSection({
             on the page. It stays a step under the caption; the step is just no
             longer taken out of readable range. */}
         {hint && (
-          <span className="ml-2 font-normal normal-case tracking-normal text-[#7a7689]">{hint}</span>
+          <span className="ml-2 font-normal normal-case tracking-normal text-fg-faint">{hint}</span>
         )}
       </span>
       <FieldLabelProvider id={labelId}>{children}</FieldLabelProvider>

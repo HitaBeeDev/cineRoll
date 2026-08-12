@@ -127,11 +127,11 @@ export function AwardsBand({
               setFilters({ ...setCeremonyYearMin(filters, parseYear(val)), page: 1 })
             }
             ariaLabel="Ceremony year from"
-            className="w-full flex-1 text-[#b8b5c8]"
+            className="w-full flex-1 text-fg-muted"
             options={[{ value: ANY_YEAR, label: "Any" }, ...yearOptions]}
           />
           <span
-            className="font-[family-name:var(--font-geist-mono)] text-[12px] text-[#56515f]"
+            className="font-[family-name:var(--font-geist-mono)] text-[12px] text-edge-hover"
             aria-hidden
           >
             –
@@ -142,7 +142,7 @@ export function AwardsBand({
               setFilters({ ...setCeremonyYearMax(filters, parseYear(val)), page: 1 })
             }
             ariaLabel="Ceremony year to"
-            className="w-full flex-1 text-[#b8b5c8]"
+            className="w-full flex-1 text-fg-muted"
             options={[{ value: ANY_YEAR, label: "Any" }, ...yearOptions]}
           />
         </div>

@@ -3,36 +3,33 @@
 import { useEffect, useRef } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useSession } from "next-auth/react";
-import { Shuffle, X } from "lucide-react";
+import { X } from "lucide-react";
 import { ChannelPill } from "@/components/home/film-card/channel-pill";
 import { FilmCard } from "@/components/home/film-card";
 import { ViewDetailsLink } from "@/components/home/film-card/view-details-link";
-import { RollProjector } from "@/components/browse/roll-projector";
+import { RollSkeleton } from "@/components/browse/roll-skeleton";
+import { formatFilmYear } from "@/lib/format/format-film-year";
 import { cn } from "@/lib/utils/cn";
 import type { RollFilm } from "@/lib/api";
 import type { BrowseRollError } from "@/hooks/useBrowseRoll";
 
 /**
- * The roll result, on the browse page, in the page.
+ * The roll result, in the page, between the results header and the grid.
  *
- * It was a dialog. The argument for that was "keep the results behind you", but
- * a dialog cannot keep anything behind you: it dims the page, locks its scroll,
- * and traps focus, so the filters that produced the draw were visible and
- * useless at the same time. Everything that made the dialog work was there to
- * fight its own frame — a fixed ceiling, an inner scroll container, a mask fade
- * at the cut line, a header that swapped to the film's title once the hero
- * scrolled under it, a ResizeObserver to know when any of that applied. None of
- * it is needed by a panel that is simply part of the page and as tall as it
- * needs to be.
+ * It sits below the header on purpose: the Roll button lives up there and must
+ * not move under the cursor that just pressed it. So the panel only ever pushes
+ * the grid down, and the control that opened it stays exactly where it was —
+ * which is also the control that rolls again, so the panel needs no accent
+ * button of its own competing for the same act.
  *
- * What is left is the shape of the answer: what you drew, what you can do about
- * it, and the two ways out — the film, or another draw.
+ * What is left is the draw, the one way onward into the film, and a dismiss.
  */
 export function BrowseRollPanel({
   open,
   rolling,
   film,
   error,
+  returnFocusRef,
   onClose,
   onRoll,
   onClearFilters,
@@ -43,8 +40,11 @@ export function BrowseRollPanel({
   rolling: boolean;
   film: RollFilm | null;
   error: BrowseRollError | null;
+  /** Where keyboard focus goes when the panel closes — the Roll button that
+   *  opened it, rather than the top of the document. */
+  returnFocusRef?: React.RefObject<HTMLButtonElement | null>;
   onClose: () => void;
-  /** Draws again — the footer button, the retry, and every card signal share it. */
+  /** Draws again — "not tonight" is the only card signal that rolls onward. */
   onRoll: () => void;
   onClearFilters: () => void;
   /** Records that this draw landed (details, save, seen), so the next one is
@@ -57,167 +57,181 @@ export function BrowseRollPanel({
   const reducedMotion = useReducedMotion() ?? false;
   const isAuthenticated = useSession().status === "authenticated";
   const panelRef = useRef<HTMLElement>(null);
+  const wasOpen = useRef(false);
 
-  // The panel opens above the grid, which is where the eye already is — but not
-  // if the reader had scrolled down among the results before rolling. Bringing it
-  // into view is the one thing the dialog's overlay did for free.
+  // Once, on opening — not on every draw. Re-running it per film pulled the page
+  // out from under anyone who had scrolled into the grid to compare the draw
+  // against the results it came from.
   useEffect(() => {
-    if (!open) return;
-    panelRef.current?.scrollIntoView({
-      behavior: reducedMotion ? "auto" : "smooth",
-      block: "nearest",
-    });
-  }, [open, film?.id, reducedMotion]);
+    if (open && !wasOpen.current) {
+      panelRef.current?.scrollIntoView({
+        behavior: reducedMotion ? "auto" : "smooth",
+        block: "nearest",
+      });
+      // Non-modal, so focus is offered rather than trapped: the panel itself
+      // takes it, and Tab from there walks its contents in order.
+      panelRef.current?.focus({ preventScroll: true });
+    }
+
+    wasOpen.current = open;
+  }, [open, reducedMotion]);
+
+  /** What a screen reader is told, which is otherwise nothing: the panel is not
+   *  a dialog, so its arrival and the film inside it go unannounced. */
+  const announcement = rolling
+    ? "Rolling a film"
+    : film
+      ? `Rolled ${film.title}${formatFilmYear(film) ? `, ${formatFilmYear(film)}` : ""}`
+      : error === "empty"
+        ? "No films match these filters"
+        : error
+          ? "The roll failed"
+          : "";
 
   return (
-    <AnimatePresence initial={false}>
+    // Focus goes back to Roll once the panel is actually gone, not when it is
+    // asked to close: closing drops `?roll=` from the URL, and the router's own
+    // navigation moves focus to the document body some frames after the state
+    // change — anything focused before that lost it again immediately.
+    <AnimatePresence initial={false} onExitComplete={() => returnFocusRef?.current?.focus()}>
       {open && (
         <motion.section
           ref={panelRef}
           key="roll-panel"
+          tabIndex={-1}
           aria-label="Your roll"
-          initial={reducedMotion ? false : { opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: "auto" }}
-          exit={reducedMotion ? { opacity: 0 } : { opacity: 0, height: 0 }}
-          transition={{ duration: reducedMotion ? 0 : 0.28, ease: [0.22, 1, 0.36, 1] }}
-          // `overflow-hidden` is what lets the height animation clip its own
-          // content instead of spilling it over the grid on the way in.
-          className="overflow-hidden"
+          // Opacity and a short slide only. Animating `height: auto` on a panel
+          // this size relaid out the whole page on every frame of every open.
+          initial={reducedMotion ? false : { opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={reducedMotion ? { opacity: 0 } : { opacity: 0, y: -8 }}
+          transition={{ duration: reducedMotion ? 0 : 0.22, ease: [0.22, 1, 0.36, 1] }}
+          onKeyDown={(event) => {
+            if (event.key === "Escape") onClose();
+          }}
+          className={cn(
+            "mb-6 rounded-2xl border border-edge bg-ink-850 outline-none",
+            "shadow-[0_1px_0_0_rgba(255,255,255,0.03)_inset]",
+            "focus-visible:ring-2 focus-visible:ring-accent-soft/40",
+          )}
         >
-          <div
-            className={cn(
-              "mb-6 rounded-2xl border border-[#1c1a25] bg-[#0d0d15]",
-              // Sits above the grid without floating over it: a hairline and a
-              // slightly lifted surface are enough to read as its own object on
-              // a page this dark. No overlay, no drop shadow, no blur.
-              "shadow-[0_1px_0_0_rgba(255,255,255,0.03)_inset]",
-            )}
-          >
-            <div className="flex items-center gap-3 border-b border-white/[0.06] px-4 py-2.5">
-              <div className="flex min-h-[26px] min-w-0 flex-1 items-center">
-                <ChannelPill title={film?.title ?? "cineroll"} />
-              </div>
+          <p role="status" aria-live="polite" className="sr-only">
+            {announcement}
+          </p>
 
-              <button
-                type="button"
-                onClick={onClose}
-                aria-label="Dismiss roll"
-                className={cn(
-                  "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[#a8a8ba]",
-                  "transition-colors duration-150 hover:bg-white/10 hover:text-white",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40",
-                )}
-              >
-                <X className="h-[18px] w-[18px]" aria-hidden />
-              </button>
+          <div className="flex items-center gap-3 border-b border-white/[0.06] px-4 py-2.5">
+            {/* No placeholder tag while rolling: "REEL // CINEROLL" named
+                nothing, and the skeleton below already says a film is coming. */}
+            <div className="flex min-h-[26px] min-w-0 flex-1 items-center">
+              {film && !rolling && <ChannelPill title={film.title} />}
             </div>
 
-            <AnimatePresence mode="wait">
-              {rolling ? (
-                <motion.div
-                  key="rolling"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: reducedMotion ? 0 : 0.18 }}
-                >
-                  <RollProjector />
-                </motion.div>
-              ) : film ? (
-                /* Keyed by film id so the card remounts per roll: its action state
-                   (seen, saved, the sentiment prompt) belongs to one film and must
-                   not carry over to the next one drawn into the same panel. */
-                <motion.div
-                  key={film.id}
-                  initial={{ opacity: 0, y: reducedMotion ? 0 : 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, transition: { duration: reducedMotion ? 0 : 0.15 } }}
-                  transition={{ duration: reducedMotion ? 0 : 0.24 }}
-                  className="p-4"
-                >
-                  {/* Only "not tonight" draws again. The other three record
-                      something about this film, and a card that vanishes the
-                      instant you record something never gets to show you that it
-                      did. Rolling on is the footer's job. */}
-                  <FilmCard
-                    film={film}
-                    isAuthenticated={isAuthenticated}
-                    layout="split"
-                    onNotTonight={onRoll}
-                    onEngage={onEngage}
-                    onNotInterested={onNotInterested}
-                  />
-                </motion.div>
-              ) : (
-                <motion.div
-                  key={error ?? "idle"}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: reducedMotion ? 0 : 0.18 }}
-                  className="flex flex-col items-center gap-3 px-6 py-12 text-center"
-                >
-                  <p className="text-sm text-[#e8e5f4]">
-                    {error === "empty"
-                      ? "No films match these filters."
-                      : "The roll didn't come back."}
-                  </p>
-                  <p className="text-[13px] leading-[1.6] text-[#b0b0c0]">
-                    {error === "empty"
-                      ? "Loosen a filter and roll again — or clear them and roll the whole catalogue."
-                      : "Check your connection and try again."}
-                  </p>
-                  {error === "empty" && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        onClearFilters();
-                        onClose();
-                      }}
-                      className="mt-1 font-[family-name:var(--font-geist-mono)] text-[12px] text-[#c2c2d0] underline decoration-white/25 underline-offset-4 transition-colors hover:text-[#ff766d]"
-                    >
-                      Clear all filters
-                    </button>
-                  )}
-                </motion.div>
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Dismiss roll"
+              className={cn(
+                "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-fg-muted",
+                "transition-colors duration-150 hover:bg-white/10 hover:text-white",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40",
               )}
-            </AnimatePresence>
+            >
+              <X className="h-[18px] w-[18px]" aria-hidden />
+            </button>
+          </div>
 
-            {/* Both answers to the one question the panel asks — is this the film?
-                Roll again keeps the colour, since it is the mechanic the site is
-                named for; it no longer keeps the monopoly. */}
+          <AnimatePresence mode="wait">
+            {rolling ? (
+              <motion.div
+                key="rolling"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: reducedMotion ? 0 : 0.18 }}
+              >
+                <RollSkeleton />
+              </motion.div>
+            ) : film ? (
+              /* Keyed by film id so the card remounts per roll: its action state
+                 (seen, saved, the sentiment prompt) belongs to one film and must
+                 not carry over to the next one drawn into the same panel. */
+              <motion.div
+                key={film.id}
+                initial={{ opacity: 0, y: reducedMotion ? 0 : 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, transition: { duration: reducedMotion ? 0 : 0.12 } }}
+                transition={{ duration: reducedMotion ? 0 : 0.2 }}
+              >
+                <FilmCard
+                  film={film}
+                  isAuthenticated={isAuthenticated}
+                  layout="split"
+                  onNotTonight={onRoll}
+                  onEngage={onEngage}
+                  onNotInterested={onNotInterested}
+                />
+              </motion.div>
+            ) : (
+              <motion.div
+                key={error ?? "idle"}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: reducedMotion ? 0 : 0.18 }}
+                className="flex flex-col items-center gap-3 px-6 py-12 text-center"
+              >
+                <p className="text-sm text-fg">
+                  {error === "empty" ? "No films match these filters." : "The roll didn't come back."}
+                </p>
+                <p className="text-[13px] leading-[1.6] text-fg-muted">
+                  {error === "empty"
+                    ? "Loosen a filter and roll again — or clear them and roll the whole catalogue."
+                    : "Check your connection and try again."}
+                </p>
+                {error === "empty" && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onClearFilters();
+                      onClose();
+                    }}
+                    className="mt-1 font-[family-name:var(--font-geist-mono)] text-[12px] text-fg-dim underline decoration-white/25 underline-offset-4 transition-colors hover:text-accent-soft"
+                  >
+                    Clear all filters
+                  </button>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Always both states, never one button becoming two: the footer is
+              rendered whenever there is a draw in flight or on screen, so the
+              only thing that changes when the film lands is that it becomes
+              usable. Rolling again is the header's button, directly above. */}
+          {(rolling || film) && (
             <div className="border-t border-white/[0.06] px-4 py-2.5">
-              <div className="mx-auto flex w-full max-w-[26rem] items-center gap-2">
-                {film && !rolling && (
+              <div className="mx-auto flex w-full max-w-[22rem] items-center">
+                {film && !rolling ? (
                   <ViewDetailsLink
                     film={film}
                     onEngage={onEngage}
                     className={cn(
-                      "flex-1 rounded-full border border-[#2a2a3e] px-5 py-2",
-                      "text-[11px] tracking-[0.14em] hover:border-[#6a6a85]",
+                      "w-full rounded-full bg-accent px-5 py-2.5 text-[13px] text-ink-900",
+                      "transition-colors duration-200 hover:bg-accent-hi",
+                      "focus-visible:ring-offset-2 focus-visible:ring-offset-ink-850",
                     )}
                   />
+                ) : (
+                  <span
+                    aria-hidden
+                    className="w-full rounded-full bg-accent/30 px-5 py-2.5 text-center font-[family-name:var(--font-geist-mono)] text-[13px] font-bold text-ink-900/70"
+                  >
+                    View details
+                  </span>
                 )}
-
-                <button
-                  type="button"
-                  onClick={onRoll}
-                  disabled={rolling}
-                  className={cn(
-                    "mx-auto flex w-full max-w-[15rem] flex-1 items-center justify-center gap-2 rounded-full bg-[#e8453c] px-5 py-2",
-                    "font-[family-name:var(--font-geist-mono)] text-[11px] font-semibold uppercase tracking-[0.14em] text-[#09090f]",
-                    "transition-colors duration-200",
-                    "hover:bg-[#ff5c52] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff766d]",
-                    "focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-900",
-                    "disabled:cursor-not-allowed disabled:bg-[#e8453c]/35 disabled:text-[#09090f]/60",
-                  )}
-                >
-                  <Shuffle className={cn("h-3.5 w-3.5", rolling && "animate-spin")} aria-hidden />
-                  {rolling ? "Rolling…" : "Roll again"}
-                </button>
               </div>
             </div>
-          </div>
+          )}
         </motion.section>
       )}
     </AnimatePresence>

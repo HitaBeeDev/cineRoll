@@ -42,7 +42,7 @@ export function FilmSynopsis({ plot, lines }: { plot: string; lines: 3 | 4 }) {
       <p
         ref={ref}
         className={cn(
-          "text-[15px] leading-[1.6] text-[#c6c6d2]",
+          "text-[15px] leading-[1.6] text-fg-dim",
           // Spelled out, not interpolated: Tailwind only ships a class it can
           // find as a literal string in the source.
           !expanded && (lines === 4 ? "line-clamp-4" : "line-clamp-3"),
@@ -58,9 +58,9 @@ export function FilmSynopsis({ plot, lines }: { plot: string; lines: 3 | 4 }) {
           aria-expanded={expanded}
           className={cn(
             "font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.12em]",
-            "text-[#a8a8ba] underline decoration-white/25 underline-offset-4",
-            "transition-colors hover:text-[#F5F5F0] hover:decoration-white/50",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] focus-visible:ring-offset-2",
+            "text-fg-muted underline decoration-white/25 underline-offset-4",
+            "transition-colors hover:text-fg-hi hover:decoration-white/50",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2",
           )}
         >
           {expanded ? "Show less" : "Read full synopsis"}
