@@ -38,6 +38,8 @@ export function BrowseResultsHeader({
   rolling,
   rollOpen,
   rollButtonRef,
+  rollableCount,
+  isRollableCountLoading,
   onRoll,
   setFilters,
 }: {
@@ -52,6 +54,10 @@ export function BrowseResultsHeader({
   rollOpen: boolean;
   /** Held by the page so the panel can hand focus back here when it closes. */
   rollButtonRef?: React.RefObject<HTMLButtonElement | null>;
+  /** Films the roll can actually draw from — not `result.total`. Null while it
+   *  is unknown (no active filters, still loading, or the request failed). */
+  rollableCount: number | null;
+  isRollableCountLoading: boolean;
   onRoll: () => void;
   setFilters: SetFilters;
 }) {
@@ -67,6 +73,27 @@ export function BrowseResultsHeader({
   // Keep the last count on screen (dimmed) while a new query is in flight.
   const isStaleCount = status === "loading" && hasResult;
   const { isCopied, share } = useShareFilters(filters);
+
+  /**
+   * The button names the ROLLABLE count, never the list total.
+   *
+   * Browse lists the whole catalogue; the roll draws from the eligible set. The
+   * two differ a lot — 1,956 shorts on the page against 1,623 in the reel, 1,197
+   * Berlinale films against 792 — and the button used to quote the first while
+   * acting on the second. Until the count lands it says "these results" rather
+   * than guessing, because a number that corrects itself downward reads worse
+   * than no number at all.
+   */
+  function rollLabel(): string {
+    if (rolling) return "Rolling…";
+    if (rollableCount === 0) return "Nothing to roll";
+    if (total === 0 && status === "success") return "No matches";
+    if (rollOpen) return "Roll again";
+    if (!hasActiveFilters) return "Roll a random film";
+    if (rollableCount == null || isRollableCountLoading) return "Roll from these results";
+
+    return `Roll from ${rollableCount.toLocaleString()} films`;
+  }
 
   function resultsHeading(): string {
     if (!hasResult) return status === "loading" ? "Loading films" : "Browse results";
@@ -123,7 +150,7 @@ export function BrowseResultsHeader({
       <button
         ref={rollButtonRef}
         type="button"
-        disabled={rolling || status === "loading" || total === 0}
+        disabled={rolling || status === "loading" || total === 0 || rollableCount === 0}
         onClick={onRoll}
         aria-label={rollOpen && !rolling ? "Roll again" : undefined}
         className={cn(
@@ -140,15 +167,7 @@ export function BrowseResultsHeader({
         )}
       >
         <Shuffle className={cn("h-4 w-4", rolling && "animate-spin")} aria-hidden />
-        {rolling
-          ? "Rolling…"
-          : total === 0 && status === "success"
-            ? "No matches"
-            : rollOpen
-              ? "Roll again"
-              : hasActiveFilters
-                ? (status === "success" ? `Roll from ${total.toLocaleString()} films` : "Roll from these results")
-                : "Roll a random film"}
+        {rollLabel()}
       </button>
 
       {/* View controls. Sort has always been here, where a list's ordering

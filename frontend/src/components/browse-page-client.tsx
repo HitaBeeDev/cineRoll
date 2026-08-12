@@ -13,6 +13,7 @@ import { useBrowseFacetCounts } from "@/hooks/useBrowseFacetCounts";
 import { useBrowseResults } from "@/hooks/useBrowseResults";
 import { useBrowseAutocomplete } from "@/hooks/useBrowseAutocomplete";
 import { useBrowseRoll } from "@/hooks/useBrowseRoll";
+import { useBrowseRollableCount } from "@/hooks/useBrowseRollableCount";
 
 /**
  * Browse page composition root: wires the filter/results/autocomplete/roll hooks
@@ -27,6 +28,11 @@ export function BrowsePageClient() {
   const { result, status, slowLoad, firstGridPaint, retry } = useBrowseResults(filters);
   const autocomplete = useBrowseAutocomplete(filters.search, setFilters);
   const browseRoll = useBrowseRoll(filters);
+  // What the Roll button may promise: the eligible pool, not the list total.
+  const { rollableCount, isRollableCountLoading } = useBrowseRollableCount(
+    filters,
+    hasActiveFilters,
+  );
 
   const resultsTopRef = useRef<HTMLDivElement>(null);
   // The Roll button, so the panel can hand focus back to it on close.
@@ -81,6 +87,8 @@ export function BrowsePageClient() {
             rolling={browseRoll.rolling}
             rollOpen={browseRoll.isOpen}
             rollButtonRef={rollButtonRef}
+            rollableCount={rollableCount}
+            isRollableCountLoading={isRollableCountLoading}
             onRoll={browseRoll.roll}
             setFilters={setFilters}
           />
