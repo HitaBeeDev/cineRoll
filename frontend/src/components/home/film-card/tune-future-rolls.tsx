@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Bookmark, Eye, EyeOff, Loader2, Moon } from "lucide-react";
-import { cn } from "@/lib/utils/cn";
 import { AuthDialog } from "@/components/auth/auth-dialog";
 import { AUTH_GATE_TITLE } from "@/hooks/useFilmActions";
 import { QuickActionButton } from "@/components/home/film-card/quick-action-button";
@@ -47,7 +46,6 @@ export function TuneFutureRolls({
   authPrompt,
   onCloseAuthPrompt,
   callbackUrl,
-  flush = false,
 }: {
   isAuthenticated: boolean;
   onNotTonight: () => void;
@@ -62,9 +60,6 @@ export function TuneFutureRolls({
   authPrompt: keyof typeof AUTH_GATE_TITLE | null;
   onCloseAuthPrompt: () => void;
   callbackUrl: string;
-  /** Drops the top rule and its spacing — for a caller that already separates
-   *  this tier by putting it in a column of its own. */
-  flush?: boolean;
 }) {
   // Which signal the user actually sent from THIS card — not a standing status.
   // Deliberately not derived from seenActive/savedActive: those hydrate from the
@@ -84,7 +79,11 @@ export function TuneFutureRolls({
   const saving = actionsPending || savePending;
 
   return (
-    <section className={cn(!flush && "mt-4 border-t border-edge-subtle pt-4")}>
+    // The rule stays in both layouts. In the page rail it separates this tier
+    // from the plot above it; in the panel's control column it separates it from
+    // the two tiers above it — the way into the film, then the two utilities —
+    // which is the whole point of putting it last.
+    <section className="mt-1 border-t border-edge-subtle pt-3.5">
       {/* One heading over all four, stating what the group is for rather than
           how it is stored. "Tune future rolls" beside "Account signal" split
           them along a line the engine cares about and the reader does not:

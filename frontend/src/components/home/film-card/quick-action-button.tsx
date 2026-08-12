@@ -4,11 +4,16 @@ import { cn } from "@/lib/utils/cn";
 /**
  * One of the four roll signals.
  *
- * The four are not equals and no longer look it. `tone` sets both the resting
- * weight and the hover: what a signal costs the user is what decides how loud it
- * gets. A session skip is the cheapest thing on the card and reads that way; a
- * permanent hide is the most expensive and warms to a warning colour before it
- * is pressed.
+ * One shape, one weight, one resting state for all four: they are four buttons
+ * in one grid under one heading, and a reader takes that to mean four things of
+ * the same kind. Giving two of them borders and two of them none said the group
+ * was inconsistent long before it said anything about what the signals cost —
+ * the difference it was drawing (which ones write to your account) is not one
+ * anybody reads out of a border.
+ *
+ * `tone` survives as the hover only, where a difference costs nothing until the
+ * pointer is already on the button that is about to act: the permanent hide
+ * warms to a warning colour, the session skip goes cool, the rest confirm green.
  *
  * Sentence case, not tracked capitals: these are four short phrases read in a
  * glance, and spaced-out uppercase is the slowest way to set that.
@@ -46,17 +51,14 @@ export function QuickActionButton({
   // line below the grid, because they all mean the same thing once pressed:
   // this is on file. Which signal it was is what the label is for.
   const recorded = "border-affirm/50 bg-affirm/[0.14] text-affirm-hi";
-  const resting = {
-    // Written down, weighted normally.
-    confirm: "border-edge text-fg-muted hover:border-affirm/45 hover:text-affirm-hi",
-    save: "border-edge text-fg-muted hover:border-edge-hover hover:text-fg-hi",
-    // Permanent, so it is the one that changes colour on approach.
-    dismiss: "border-edge text-fg-muted hover:border-caution/50 hover:text-caution",
-    // Session-only and reversible by rolling on: the quietest of the four, so
-    // nothing at rest — no border, no fill. A tint here read as a pressed
-    // button beside three outlined ones, which is the opposite of quiet.
-    skip: "border-transparent text-fg-faint hover:bg-white/[0.05] hover:text-cool",
+  // Identical at rest; only the hover differs, and only in colour.
+  const hover = {
+    confirm: "hover:border-affirm/45 hover:text-affirm-hi",
+    save: "hover:border-edge-hover hover:text-fg-hi",
+    dismiss: "hover:border-caution/50 hover:text-caution",
+    skip: "hover:border-edge-hover hover:text-cool",
   }[tone];
+  const resting = `border-edge text-fg-muted ${hover}`;
 
   return (
     <button

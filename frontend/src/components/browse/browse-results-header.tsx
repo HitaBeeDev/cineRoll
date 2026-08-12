@@ -159,7 +159,13 @@ export function BrowseResultsHeader({
           Sharing was free: every filter, the page and the sort already round-trip
           through the URL, so the link is the address bar with a button on it. It
           says "Copied" in place rather than raising a toast, since the thing it
-          confirms is small and the confirmation belongs where the click was. */}
+          confirms is small and the confirmation belongs where the click was.
+
+          "Copy link", not "Share": the roll panel opens directly below this row
+          with a Share of its own, and that one hands over a film while this one
+          hands over a view of nine thousand. Two buttons a few hundred pixels
+          apart, both saying Share, both meaning something else. This is also the
+          more honest label — it copies, it does not open a share sheet. */}
       <div className="flex w-full items-center gap-2 lg:w-auto lg:justify-self-end">
         <button
           type="button"
@@ -172,7 +178,7 @@ export function BrowseResultsHeader({
           ) : (
             <Share2 className="h-3.5 w-3.5" aria-hidden />
           )}
-          {isCopied ? "Copied" : "Share"}
+          {isCopied ? "Copied" : "Copy link"}
         </button>
 
         {/* One control, and its options carry their own direction — see

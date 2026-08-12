@@ -6,10 +6,13 @@ import { AWARD_BODY_LABEL } from "@/components/home/film-card/awards/award-body-
  * The itemised award record — the receipts behind the header's at-a-glance
  * count, capped with a "+N more" pointer.
  *
- * Width-capped, because the category and its verdict are one statement and the
- * eye has to hold both. Across a full-width panel "Writing (Screenplay)" and
- * "Nominated" ended up ~700px apart with nothing in between, which is a table
- * without the rules that make a table readable.
+ * One award is one statement — this body, that year, this category, won or
+ * nominated — so it is set as one: the category on top, and the verdict on the
+ * line under it as the last term of the credit line it belongs to. Pushed to the
+ * far right of the row it was a third fragment floating in its own column,
+ * aligned to nothing and needing the eye to travel the width of the panel and
+ * back to read a single fact. Won stays gold and nominated recedes, which is
+ * what tells them apart at a glance either way.
  *
  * The year is the ceremony's, not the film's — a 1950 film winning at the 1952
  * ceremony is normal and looks like an error unless the heading says which
@@ -17,30 +20,25 @@ import { AWARD_BODY_LABEL } from "@/components/home/film-card/awards/award-body-
  */
 export function RecognizedFor({ records, more }: { records: AwardRecord[]; more: number }) {
   return (
-    <section className="mt-2 max-w-[34rem]">
+    <section className="max-w-[34rem]">
       <h3 className="flex flex-wrap items-baseline gap-x-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em] text-fg-faint">
         Recognized for
-        <span className="normal-case tracking-[0.04em] text-edge-hover">(ceremony years)</span>
+        {/* fg-faint, not edge-hover: a hairline colour used as type is 3.7:1 on
+            this surface, under AA for an 11px parenthetical. */}
+        <span className="normal-case tracking-[0.04em] text-fg-faint">(ceremony years)</span>
       </h3>
       <ul className="mt-1.5 flex flex-col">
         {records.map((rec, i) => (
           <li
             key={`${rec.awardBody}-${rec.awardYear}-${rec.category}-${i}`}
-            className="flex items-center justify-between gap-3 border-t border-edge-subtle py-2 first:border-t-0"
+            className="min-w-0 border-t border-edge-subtle py-2 first:border-t-0"
           >
-            <span className="min-w-0">
-              <span className="block truncate text-[13px] text-fg">{rec.category}</span>
-              <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-wide text-fg-faint">
-                {AWARD_BODY_LABEL[rec.awardBody]} · {rec.awardYear}
+            <span className="block truncate text-[13px] text-fg">{rec.category}</span>
+            <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-wide text-fg-faint">
+              {AWARD_BODY_LABEL[rec.awardBody]} · {rec.awardYear} ·{" "}
+              <span className={cn("font-bold", rec.won ? "text-gold" : "text-fg-muted")}>
+                {rec.won ? "Won" : "Nominated"}
               </span>
-            </span>
-            <span
-              className={cn(
-                "shrink-0 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.14em]",
-                rec.won ? "text-gold" : "text-fg-faint",
-              )}
-            >
-              {rec.won ? "Won" : "Nominated"}
             </span>
           </li>
         ))}

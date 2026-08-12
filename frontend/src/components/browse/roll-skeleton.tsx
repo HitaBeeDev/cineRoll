@@ -32,39 +32,42 @@ export function RollSkeleton() {
         />
       )}
 
-      {/* Header: poster, then the identity lines beside it. */}
+      {/* Header band: poster, the identity lines beside it, the ratings closing
+          the right edge — the full width, as the card uses it. */}
       <div className="flex gap-3 p-3">
         <div className="w-[38%] max-w-[100px] shrink-0" style={{ aspectRatio: "2/3" }}>
           <Block className="h-full w-full" />
         </div>
         <div className="flex min-w-0 flex-1 flex-col gap-2 py-1">
           <Block className="h-3 w-40" />
-          <Block className="h-3 w-32" />
           <Block className="h-7 w-3/5" />
           <Block className="h-3 w-44" />
         </div>
+        <div className="ml-auto hidden w-[13rem] shrink-0 grid-cols-2 gap-2 self-start pl-4 lg:grid">
+          <Block className="h-[62px]" />
+          <Block className="h-[62px]" />
+        </div>
       </div>
 
-      {/* Body: evidence left, controls right — the split the card itself uses. */}
-      <div className="grid gap-x-6 gap-y-3 px-4 pb-4 pt-3 sm:grid-cols-2">
+      {/* Body: evidence in the open column, controls in the rail. */}
+      <div className="grid gap-x-8 gap-y-4 px-4 pb-4 pt-3 lg:grid-cols-[minmax(0,1fr)_22rem]">
+        {/* The plot, which is all the evidence column carries here. */}
         <div className="flex min-w-0 flex-col gap-2">
-          <Block className="h-6 w-40" />
           <Block className="h-3 w-full" />
           <Block className="h-3 w-full" />
           <Block className="h-3 w-4/5" />
-          <Block className="mt-2 h-3 w-28" />
-          <Block className="h-3 w-2/3" />
         </div>
 
-        <div className="flex min-w-0 flex-col gap-2">
+        <div className="flex min-w-0 flex-col gap-3">
+          <Block className="h-[42px]" />
+          <div className="grid grid-cols-2 gap-2">
+            <Block className="h-8" />
+            <Block className="h-8" />
+          </div>
           <Block className="h-3 w-36" />
           <div className="grid grid-cols-2 gap-2">
             <Block className="h-9" />
             <Block className="h-9" />
-            <Block className="h-9" />
-            <Block className="h-9" />
-          </div>
-          <div className="mt-1 grid grid-cols-2 gap-2">
             <Block className="h-9" />
             <Block className="h-9" />
           </div>

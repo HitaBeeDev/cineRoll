@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils/cn";
  * how wide the card is, so it is measured rather than guessed: a short plot in a
  * wide card shows no control at all, which is the whole point of it being one.
  */
-export function FilmSynopsis({ plot, lines }: { plot: string; lines: 3 | 4 }) {
+export function FilmSynopsis({ plot, lines }: { plot: string; lines: 3 | 5 }) {
   const ref = useRef<HTMLParagraphElement>(null);
   const [expanded, setExpanded] = useState(false);
   const [overflows, setOverflows] = useState(false);
@@ -45,7 +45,7 @@ export function FilmSynopsis({ plot, lines }: { plot: string; lines: 3 | 4 }) {
           "text-[15px] leading-[1.6] text-fg-dim",
           // Spelled out, not interpolated: Tailwind only ships a class it can
           // find as a literal string in the source.
-          !expanded && (lines === 4 ? "line-clamp-4" : "line-clamp-3"),
+          !expanded && (lines === 5 ? "line-clamp-5" : "line-clamp-3"),
         )}
       >
         {plot}

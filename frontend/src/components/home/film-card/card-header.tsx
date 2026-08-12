@@ -19,11 +19,19 @@ export function CardHeader({
   onEngage,
   compact = false,
   showRecognition = true,
+  aside,
 }: {
   film: RollFilm;
   posterBlur: string;
   awardHighlights: AwardHighlight[];
   onEngage?: (() => void) | undefined;
+  /**
+   * What closes the band on the right, in a container wide enough that poster +
+   * identity do not reach the far edge. Optional because in a narrow column
+   * there is no far edge to reach: the identity fills the row on its own and
+   * anything beside it would be a third column in about 90px.
+   */
+  aside?: React.ReactNode;
   /**
    * The roll panel's sizing: a smaller poster, a smaller title, tighter
    * padding. The panel shares its height with the grid below it, and at full
@@ -72,6 +80,11 @@ export function CardHeader({
           compact={compact}
           showRecognition={showRecognition}
         />
+        {/* The band's right edge. In a wide container the poster and the title
+            settle in the first third and the remaining two thirds were empty —
+            the largest single object on the card was its blank half, and it was
+            the first thing the eye found. */}
+        {aside && <div className="ml-auto hidden shrink-0 self-start pl-4 lg:block">{aside}</div>}
       </div>
     </div>
   );

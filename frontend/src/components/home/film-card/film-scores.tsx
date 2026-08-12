@@ -4,11 +4,11 @@ import { StatBox } from "@/components/home/film-card/stat-box";
 /**
  * The IMDb and RT scores.
  *
- * Two shapes for two containers. `box` is the page rail's, where the card is a
- * narrow column and a pair of boxes fills a row that would otherwise be empty.
- * `strip` is for the wide panel, where those same two boxes were ~90px of card
- * carrying four characters of information — here they are one line under the
- * header, next to the film they describe.
+ * Two shapes for two containers. `box` is the pair of framed stats: it fills a
+ * row in the page rail's narrow column, and it closes the right edge of the roll
+ * panel's header band, where the title and the ratings read as one masthead.
+ * `strip` is the same two numbers as a line of text, for the narrow widths of
+ * that panel where the band has no right edge to spare.
  */
 export function FilmScores({
   film,
@@ -39,7 +39,7 @@ export function FilmScores({
   }
 
   return (
-    <div className="mt-2 grid grid-cols-2 gap-2">
+    <div className="grid grid-cols-2 gap-2">
       <StatBox label="IMDb" value={imdb} />
       <StatBox label="RT" value={rt} />
     </div>

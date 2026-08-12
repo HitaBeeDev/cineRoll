@@ -6,7 +6,6 @@ import { useSession } from "next-auth/react";
 import { X } from "lucide-react";
 import { ChannelPill } from "@/components/home/film-card/channel-pill";
 import { FilmCard } from "@/components/home/film-card";
-import { ViewDetailsLink } from "@/components/home/film-card/view-details-link";
 import { RollSkeleton } from "@/components/browse/roll-skeleton";
 import { formatFilmYear } from "@/lib/format/format-film-year";
 import { cn } from "@/lib/utils/cn";
@@ -19,10 +18,16 @@ import type { BrowseRollError } from "@/hooks/useBrowseRoll";
  * It sits below the header on purpose: the Roll button lives up there and must
  * not move under the cursor that just pressed it. So the panel only ever pushes
  * the grid down, and the control that opened it stays exactly where it was —
- * which is also the control that rolls again, so the panel needs no accent
- * button of its own competing for the same act.
+ * which is also the control that rolls again, so the panel needs no filled
+ * accent button of its own competing for the same act. Its own primary, View
+ * details, is outlined in the accent instead and lives inside the card, at the
+ * head of the control rail.
  *
- * What is left is the draw, the one way onward into the film, and a dismiss.
+ * Pushing the grid down is only worth doing if the grid survives it. A panel
+ * that runs 700px has not kept the results in view, it has replaced them — which
+ * is what a dialog would have done, at less cost. Everything here is measured
+ * against that: the card is one band and two columns, its own footer is gone,
+ * and what is left is the draw, the way onward into the film, and a dismiss.
  */
 export function BrowseRollPanel({
   open,
@@ -120,10 +125,15 @@ export function BrowseRollPanel({
           </p>
 
           <div className="flex items-center gap-3 border-b border-white/[0.06] px-4 py-2.5">
-            {/* No placeholder tag while rolling: "REEL // CINEROLL" named
-                nothing, and the skeleton below already says a film is coming. */}
+            {/* The channel alone, without the film's name: the title is set in
+                display type 40px below, and the tag could only ever hold a
+                clipped copy of it — "REEL // TO BE OR NO" for a film called To
+                Be or Not to Be.
+
+                No placeholder tag while rolling either: the skeleton below
+                already says a film is coming. */}
             <div className="flex min-h-[26px] min-w-0 flex-1 items-center">
-              {film && !rolling && <ChannelPill title={film.title} />}
+              {film && !rolling && <ChannelPill />}
             </div>
 
             <button
@@ -203,35 +213,6 @@ export function BrowseRollPanel({
               </motion.div>
             )}
           </AnimatePresence>
-
-          {/* Always both states, never one button becoming two: the footer is
-              rendered whenever there is a draw in flight or on screen, so the
-              only thing that changes when the film lands is that it becomes
-              usable. Rolling again is the header's button, directly above. */}
-          {(rolling || film) && (
-            <div className="border-t border-white/[0.06] px-4 py-2.5">
-              <div className="mx-auto flex w-full max-w-[22rem] items-center">
-                {film && !rolling ? (
-                  <ViewDetailsLink
-                    film={film}
-                    onEngage={onEngage}
-                    className={cn(
-                      "w-full rounded-full bg-accent px-5 py-2.5 text-[13px] text-ink-900",
-                      "transition-colors duration-200 hover:bg-accent-hi",
-                      "focus-visible:ring-offset-2 focus-visible:ring-offset-ink-850",
-                    )}
-                  />
-                ) : (
-                  <span
-                    aria-hidden
-                    className="w-full rounded-full bg-accent/30 px-5 py-2.5 text-center font-[family-name:var(--font-geist-mono)] text-[13px] font-bold text-ink-900/70"
-                  >
-                    View details
-                  </span>
-                )}
-              </div>
-            </div>
-          )}
         </motion.section>
       )}
     </AnimatePresence>
