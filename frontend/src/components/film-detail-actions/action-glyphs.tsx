@@ -1,33 +1,50 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { Check, Eye, EyeOff, Heart, ThumbsDown, ThumbsUp } from "lucide-react";
+import {
+  Check,
+  Eye,
+  EyeOff,
+  Heart,
+  ThumbsDown,
+  ThumbsUp,
+  type LucideIcon,
+} from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { HoverTooltip } from "@/components/hover-tooltip";
 import { ShareButton } from "@/components/share-button";
 import { GlyphButton } from "@/components/film-detail-actions/glyph-button";
-import { GLYPH_BUTTON } from "@/components/film-detail-actions/styles/glyph-button";
-import { GLYPH_IDLE } from "@/components/film-detail-actions/styles/glyph-idle";
+import { RatingGlyph } from "@/components/film-detail-actions/rating-glyph";
+import { SHARE_GLYPH } from "@/components/film-detail-actions/styles/share-glyph";
 import type {
   FilmActionState,
   Sentiment,
   SentimentChoice,
 } from "@/hooks/film-actions/types";
 
-// Watched inverts to the only solid white surface on the hero, which makes it
-// the brightest thing on the page. That is the right emphasis: of everything
-// here, "I have seen this" is the one fact that belongs to the viewer.
-const WATCHED_ACTIVE = "border-white bg-white text-[#0d0d14] hover:bg-white/90";
+// Watched fills solid in the accolade gold. It was pure white, which made it the
+// single brightest object in the hero — the eye reached it before Watch Trailer,
+// and the primary action has to win that contest. Gold's luminance sits well
+// under white's, so the fill still reads unmistakably as "done" without
+// outshouting the CTA.
+//
+// It also puts the page's award colour to the one personal fact that connects a
+// viewer to the award canon: I have seen this. The accolade medallions above are
+// gold rings on dark, so a solid gold disc reads as the same family in a
+// different weight, not as a second award badge. Dark ink on gold clears 9:1.
+const WATCHED_ACTIVE =
+  "border-[#d4af37] bg-[#d4af37] text-[#0d0d14] hover:bg-[#d4af37]/90";
 
 // The three verdicts climb a ladder of emphasis rather than picking three
-// unrelated colours: quiet ring → white ring → gold. Read left to right, the row
-// shows you how much you liked something without needing to read the icons.
+// unrelated colours: quiet ring → white ring → the brand coral. Read left to
+// right, the row shows how much you liked something without reading the icons.
 //
-// Gold belongs to "loved" specifically. It's the accolade colour, so the top of
-// the viewer's own scale lights in the same hue as the awards it sits under —
-// their own Best Picture. Spending it on "liked" would waste it on the middle.
+// Coral is the site's accent and the top of the viewer's own scale, so the ring
+// runs a step hotter than the watchlist's saved state (/70 and /20 against /50
+// and /15) and the heart fills solid. The filled shape is what separates the two
+// at a glance — the watchlist is a labelled rectangle, this is a full heart.
 const LOVED_ACTIVE =
-  "border-[#d4af37]/60 bg-[#d4af37]/15 text-[#d4af37] hover:bg-[#d4af37]/20";
+  "border-[#e8453c]/70 bg-[#e8453c]/20 text-[#e8453c] hover:bg-[#e8453c]/25";
 
 const LIKED_ACTIVE = "border-white/60 bg-white/[0.12] text-white";
 
@@ -48,8 +65,10 @@ const RATING_LADDER: readonly {
   value: SentimentChoice;
   label: string;
   activeClassName: string;
-  Icon: typeof ThumbsUp;
+  Icon: LucideIcon;
   fillWhenActive: boolean;
+  /** Only the heart pops. See RatingGlyph for why it's the one that does. */
+  pop: boolean;
 }[] = [
   {
     value: "dislike",
@@ -57,6 +76,7 @@ const RATING_LADDER: readonly {
     activeClassName: QUIET_ACTIVE,
     Icon: ThumbsDown,
     fillWhenActive: false,
+    pop: false,
   },
   {
     value: "like",
@@ -64,6 +84,7 @@ const RATING_LADDER: readonly {
     activeClassName: LIKED_ACTIVE,
     Icon: ThumbsUp,
     fillWhenActive: false,
+    pop: false,
   },
   {
     value: "love",
@@ -71,6 +92,7 @@ const RATING_LADDER: readonly {
     activeClassName: LOVED_ACTIVE,
     Icon: Heart,
     fillWhenActive: true,
+    pop: true,
   },
 ];
 
@@ -159,17 +181,21 @@ export function ActionGlyphs({
         <Check className={GLYPH} aria-hidden />
       </GlyphButton>
 
-      {/* The rating pair and the hide glyph occupy the same slot, each in its
-          own presence block — one ternary handing AnimatePresence sometimes an
-          array and sometimes an element confuses its child bookkeeping. */}
-      <AnimatePresence initial={false}>
-        {watched &&
+      {/* The rating glyphs and the hide glyph share a slot, and neither animates
+          out — they animate IN and vanish on the spot.
+
+          Both alternatives were worse. Fading them out holds their slot while
+          they go, so for ~180ms the row carries six items and bounces onto a
+          second line and back. AnimatePresence's popLayout fixes the width by
+          taking the leaver out of the flow, but then it sits on top of the glyph
+          arriving in its place. An instant swap keeps the promise that matters:
+          the row only ever grows sideways, and nothing under the cursor moves. */}
+      {watched &&
           RATING_LADDER.map((rung, index) => (
             <motion.div
               key={rung.value}
               initial={enter}
               animate={settled}
-              exit={enter}
               transition={{ duration: 0.18, delay: reduceMotion ? 0 : index * 0.05 }}
               className="shrink-0"
             >
@@ -180,27 +206,26 @@ export function ActionGlyphs({
                 disabled={sentimentPending}
                 onClick={() => onRate(rung.value)}
               >
-                <rung.Icon
+                {/* Only the heart fills. A verdict you feel strongly enough to
+                    call love should look different in kind, not just colour. */}
+                <RatingGlyph
+                  Icon={rung.Icon}
+                  active={sentiment === rung.value}
+                  pop={rung.pop}
+                  fillWhenActive={rung.fillWhenActive}
                   className={GLYPH}
-                  // Only the heart fills. A verdict you feel strongly enough to
-                  // call love should look different in kind, not just in colour.
-                  fill={rung.fillWhenActive && sentiment === rung.value ? "currentColor" : "none"}
-                  aria-hidden
                 />
               </GlyphButton>
             </motion.div>
           ))}
-      </AnimatePresence>
 
-      <AnimatePresence initial={false}>
-        {/* Nothing to hide once you've seen it, so this glyph only exists while
-            the decision is still open. */}
-        {!watched && (
+      {/* Nothing to hide once you've seen it, so this glyph only exists while
+          the decision is still open. */}
+      {!watched && (
           <motion.div
             key="hide"
             initial={enter}
             animate={settled}
-            exit={enter}
             transition={{ duration: 0.18 }}
             className="shrink-0"
           >
@@ -221,19 +246,22 @@ export function ActionGlyphs({
             </GlyphButton>
           </motion.div>
         )}
-      </AnimatePresence>
 
-      <HoverTooltip label="Share">
-        <ShareButton
-          url={shareUrl}
-          title={shareTitle}
-          caption={shareCaption}
-          label=""
-          ariaLabel="Share this film"
-          iconClassName={GLYPH}
-          className={cn(GLYPH_BUTTON, GLYPH_IDLE)}
-        />
-      </HoverTooltip>
+      {/* Set apart from the ladder: the extra left margin doubles the cluster's
+          own gap, which is the break that stops share reading as a rating. */}
+      <span className="ml-2.5 inline-flex">
+        <HoverTooltip label="Share">
+          <ShareButton
+            url={shareUrl}
+            title={shareTitle}
+            caption={shareCaption}
+            label=""
+            ariaLabel="Share this film"
+            iconClassName="h-3.5 w-3.5"
+            className={SHARE_GLYPH}
+          />
+        </HoverTooltip>
+      </span>
     </div>
   );
 }

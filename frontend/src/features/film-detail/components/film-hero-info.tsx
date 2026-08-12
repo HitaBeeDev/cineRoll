@@ -14,9 +14,17 @@ export function FilmHeroInfo({
   const title = displayTitle(film.title);
 
   return (
-    <div className="min-w-0 flex-1" style={{ maxWidth: "65ch" }}>
-      <HeroFilmIdentity film={film} accent={accent} />
-      <HeroAccolades film={film} summary={awardSummary} />
+    <div className="min-w-0 flex-1">
+      {/* 65ch is a reading measure: it exists so the title, credit and metadata
+          hold a comfortable line length. It has no business sizing the action
+          row, which is not prose — and while it did, the row sat a few pixels
+          from wrapping and any change to a control tipped it onto two lines. The
+          row is bounded by this column's flex width instead, so it can't collide
+          with the award panel beside it. */}
+      <div style={{ maxWidth: "65ch" }}>
+        <HeroFilmIdentity film={film} accent={accent} />
+        <HeroAccolades film={film} summary={awardSummary} />
+      </div>
       <div className="mt-10">
         <HeroCTAs
           trailerUrl={film.trailerUrl}
