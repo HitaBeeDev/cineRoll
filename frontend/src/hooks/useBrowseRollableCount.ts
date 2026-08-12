@@ -46,7 +46,7 @@ export function useBrowseRollableCount(
     const timer = window.setTimeout(() => {
       setIsFetching(true);
       void fetchRandomCount(filters)
-        .then(count => { if (!cancelled) setMeasured({ key, count }); })
+        .then(({ rollable }) => { if (!cancelled) setMeasured({ key, count: rollable }); })
         // A failed count must not disable the button — the roll itself may well
         // succeed. Falling back to the wordy label is the safe failure.
         .catch(() => { if (!cancelled) setMeasured(null); })

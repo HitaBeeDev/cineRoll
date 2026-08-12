@@ -79,17 +79,38 @@ export async function getQualityCandidates(
   );
 }
 
-// The number the UI shows as the "Reel Pool" — and the number the roll actually
-// draws from. These used to differ: the pool reported the full catalog for the
-// filters while the roll drew from the narrower eligible set, so the home page
-// advertised 9,180 films when 5,149 were rollable, and 1,956 shorts when 73
-// were. A count you cannot roll from is not a pool, so there is only one count
-// now, gated exactly like the draw.
+// How many films the roll can actually draw from, for these filters. This is the
+// number any control that PROMISES a draw must quote — browse's "Roll from N
+// films" is a claim about what pressing it will do.
 export async function getRandomCount(query: RandomQuery): Promise<number> {
   const { conditions, cacheable } = await rollConditions(query);
   const whereSql = buildWhereClause(query, conditions);
 
   return countFilms(query, whereSql, cacheable);
+}
+
+/**
+ * How big the catalogue is for these filters, ignoring the roll's quality gate.
+ *
+ * The home page states the size of the ARCHIVE — the same 9,180 browse and stats
+ * report — rather than the size of the reel, so the headline figure is one
+ * number across the whole product. The roll still draws from the narrower
+ * eligible set; that is a fact about the draw, not about the collection, and the
+ * label above the number says "archive" so the figure is not read as a promise.
+ *
+ * The one place the gate does leak in: when NOTHING is rollable this returns 0
+ * rather than the catalogue size. Callers use the same number to decide whether
+ * to disable the roll, and a filter set that lists films but can draw none has
+ * to read as "no matches" — otherwise the button offers a draw that 404s.
+ */
+export async function getCatalogCount(query: RandomQuery): Promise<number> {
+  const { conditions, cacheable } = await rollConditions(query);
+  const [catalog, rollable] = await Promise.all([
+    countFilms(query, buildWhereClause(query, []), true, "catalog"),
+    countFilms(query, buildWhereClause(query, conditions), cacheable),
+  ]);
+
+  return rollable === 0 ? 0 : catalog;
 }
 
 export async function getPersonalizedPool(query: RandomQuery, limit: number) {

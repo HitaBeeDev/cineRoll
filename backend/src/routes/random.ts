@@ -6,7 +6,7 @@ import { HttpError } from "../middleware/errorHandler";
 import { getValidated, validate } from "../middleware/validate";
 import { logRollEvent } from "./randomRoute/eventLogger";
 import { getPersonalizedRandomFilm } from "./randomRoute/personalizedService";
-import { getRandomCount } from "./randomRoute/randomRepository";
+import { getCatalogCount, getRandomCount } from "./randomRoute/randomRepository";
 import { getSessionRoll } from "./randomRoute/sessionRollService";
 import { RandomFilmResult, RandomFilmRow } from "./randomRoute/types";
 
@@ -54,12 +54,24 @@ randomRouter.get("/", validate(randomQuerySchema), async (req, res) => {
   });
 });
 
+// Two numbers, because two questions get asked of this endpoint and they have
+// different right answers:
+//
+//   total    the catalogue for these filters — what the home page states, and the
+//            same figure browse and stats report, so the product quotes one size
+//            for itself everywhere. 0 when nothing is rollable, so callers can
+//            still use it to disable the roll.
+//   rollable what a draw can actually land on. Any control that PROMISES a draw
+//            ("Roll from N films") has to quote this one instead.
 randomRouter.get("/count", validate(randomQuerySchema), async (req, res) => {
   const query = getValidated<RandomQuery>(req, "query");
-  const total = await getRandomCount(query);
+  const [total, rollable] = await Promise.all([
+    getCatalogCount(query),
+    getRandomCount(query),
+  ]);
 
   setPublicCache(res, 60);
-  res.json({ total });
+  res.json({ total, rollable });
 });
 
 type RandomFilmResponse = {

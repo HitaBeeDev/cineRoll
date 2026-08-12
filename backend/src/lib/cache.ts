@@ -90,6 +90,10 @@ export const cacheKeys = {
   randomCount: (signature: string) => `random:count:${signature}`,
   /** Every browse facet's options + counts for one filter set (see getFacetCounts). */
   facetCounts: (signature: string) => `facets:counts:${signature}`,
+  /** Catalogue size for a filter set — the archive figure the home page states.
+   *  A distinct key from randomCount because the two count the same filters over
+   *  different WHERE clauses; sharing a key would serve one as the other. */
+  catalogCount: (signature: string) => `catalog:count:${signature}`,
   /** Prefix covering all of one user's cached recommendations (any limit). */
   recommendationsPrefix: (userId: string) => `recs:${userId}:`,
   recommendations: (userId: string, limit: number) => `recs:${userId}:${limit}`,

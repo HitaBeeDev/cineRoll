@@ -14,14 +14,21 @@ export function PoolStatus({ displayCount, effectiveCount, effectiveCountLoading
     );
   }
 
-  // While a filtered count is in flight the pool is genuinely unknown, so the
+  // "The Archive", not "Reel Pool": the number below states how many films the
+  // catalogue holds for these filters — the same figure browse and stats report —
+  // while the roll draws from a narrower, quality-gated set. Under the old label
+  // that gap read as a broken promise, because "reel pool" names the thing you
+  // are about to draw from. Naming the collection instead makes the figure true,
+  // and lets one number stand for the product's size everywhere it appears.
+  //
+  // While a filtered count is in flight the size is genuinely unknown, so the
   // remark is withheld rather than replaced with a placeholder sentence. The
   // "···" already standing in for the number is the loading signal; a second one
   // in words only gives the line something else to swap out of.
   const { noun, comment } = getCountTagline(effectiveCountLoading ? null : displayCount);
   return (
     <div className="flex min-w-0 shrink-0 flex-col items-start gap-0.5">
-      <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#888899]">Reel Pool</span>
+      <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#888899]">The Archive</span>
       <AnimatedPoolCount value={poolCountLabel} />
       {/* One line, two lifetimes: the noun is plain text so it never animates,
           and only the remark after it is keyed into AnimatePresence. */}

@@ -15,7 +15,7 @@ export function useFilteredFilmCount(filters: FilterState, hasActiveFilters: boo
     const timer = window.setTimeout(() => {
       setIsLoading(true);
       void fetchRandomCount(filters)
-        .then((count) => { if (!cancelled) setFilteredCount(count); })
+        .then(({ total }) => { if (!cancelled) setFilteredCount(total); })
         .catch(() => { if (!cancelled) setFilteredCount(null); })
         .finally(() => { if (!cancelled) setIsLoading(false); });
     }, FILTER_COUNT_DEBOUNCE_MS);

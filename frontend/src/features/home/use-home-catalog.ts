@@ -9,7 +9,9 @@ export function useHomeCatalog() {
 
   useEffect(() => {
     void fetchGenres().then(setGenres).catch(() => setGenres([]));
-    void fetchRandomCount().then(setTotalCount).catch(() => setTotalCount(null));
+    void fetchRandomCount()
+      .then(({ total }) => setTotalCount(total))
+      .catch(() => setTotalCount(null));
   }, []);
 
   return { genres, totalCount };
