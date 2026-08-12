@@ -32,6 +32,7 @@ export function SaveToListButton({
       <button
         type="button"
         aria-label={iconOnly ? label : undefined}
+        title={iconOnly ? label : undefined}
         onClick={() => {
           if (!isAuthenticated) {
             toast({

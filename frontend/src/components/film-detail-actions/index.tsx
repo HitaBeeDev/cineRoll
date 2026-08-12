@@ -4,26 +4,30 @@ import { useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import { useFilmActions, AUTH_GATE_TITLE } from "@/hooks/useFilmActions";
 import { AuthDialog } from "@/components/auth/auth-dialog";
-import { SaveToListButton } from "@/components/save-to-list-dialog";
-import { cn } from "@/lib/utils/cn";
-import { SECONDARY_BUTTON } from "@/components/film-detail-actions/styles/secondary-button";
-import { SECONDARY_IDLE } from "@/components/film-detail-actions/styles/secondary-idle";
 import { WatchlistButton } from "@/components/film-detail-actions/watchlist-button";
-import { DecisionIconButtons } from "@/components/film-detail-actions/decision-icon-buttons";
-import { SentimentPrompt } from "@/components/film-detail-actions/sentiment-prompt";
+import { ActionGlyphs } from "@/components/film-detail-actions/action-glyphs";
 
 /**
- * The post-roll action set, rendered on the film detail hero. Shares all
- * behaviour with the roll card via `useFilmActions`; only the layout differs.
- * Returns a fragment so the buttons sit in the hero's flex-wrap row and the
- * sentiment prompt wraps onto its own line.
+ * The action set on the film detail hero: one labelled control for saving, then
+ * the circular glyph cluster for everything else.
+ *
+ * Behaviour is shared with the roll card through `useFilmActions`; only the
+ * layout differs. `inlineConfirmation` is the one behavioural difference, and
+ * it belongs to the layout: here the film stays on screen with its state lit,
+ * so the confirmation toasts would only repeat it.
  */
 export function FilmDetailActions({
   filmId,
   filmTitle,
+  shareUrl,
+  shareTitle,
+  shareCaption,
 }: {
   filmId: string;
   filmTitle: string;
+  shareUrl: string;
+  shareTitle: string;
+  shareCaption: string;
 }) {
   const { status } = useSession();
   const isAuthenticated = status === "authenticated";
@@ -33,9 +37,7 @@ export function FilmDetailActions({
     action,
     pending,
     sentiment,
-    sentimentDismissed,
     sentimentPending,
-    dismissSentiment,
     inWatchlist,
     watchlistPending,
     saveDecision,
@@ -43,35 +45,37 @@ export function FilmDetailActions({
     toggleWatchlist,
     authPrompt,
     closeAuthPrompt,
-  } = useFilmActions({ filmId, filmTitle, isAuthenticated, source: "film_detail" });
+  } = useFilmActions({
+    filmId,
+    filmTitle,
+    isAuthenticated,
+    source: "film_detail",
+    inlineConfirmation: true,
+  });
 
   return (
     <>
       <WatchlistButton
+        filmId={filmId}
+        filmTitle={filmTitle}
+        isAuthenticated={isAuthenticated}
         inWatchlist={inWatchlist}
         pending={watchlistPending}
         onToggle={() => void toggleWatchlist()}
       />
 
-      {/* Save to a custom list — same secondary weight as the watchlist button. */}
-      <SaveToListButton
-        filmId={filmId}
-        filmTitle={filmTitle}
-        isAuthenticated={isAuthenticated}
-        className={cn(SECONDARY_BUTTON, SECONDARY_IDLE)}
-      />
-
-      {/* Divider between the labelled primary CTAs and the quiet utility icons. */}
-      <span
-        aria-hidden
-        className="mx-1.5 hidden h-8 w-px self-center bg-white/20 sm:block"
-      />
-
-      <DecisionIconButtons
+      <ActionGlyphs
         action={action}
         pending={pending}
+        sentiment={sentiment}
+        sentimentPending={sentimentPending}
+        shareUrl={shareUrl}
+        shareTitle={shareTitle}
+        shareCaption={shareCaption}
         onMarkWatched={() => void saveDecision("watched", false)}
         onNotInterested={() => void saveDecision("not-interested", true)}
+        onLike={() => void saveSentiment("like")}
+        onDislike={() => void saveSentiment("dislike")}
       />
 
       {/* Guest auth gate: a guest tapping Watched / Watchlist raises the sign-in
@@ -83,15 +87,6 @@ export function FilmDetailActions({
         }}
         callbackUrl={pathname}
         title={authPrompt ? AUTH_GATE_TITLE[authPrompt] : undefined}
-      />
-
-      <SentimentPrompt
-        visible={action === "watched" && !sentimentDismissed}
-        sentiment={sentiment}
-        pending={sentimentPending}
-        onLike={() => void saveSentiment("like")}
-        onDislike={() => void saveSentiment("dislike")}
-        onDismiss={dismissSentiment}
       />
     </>
   );

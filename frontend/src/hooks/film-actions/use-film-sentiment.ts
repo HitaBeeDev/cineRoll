@@ -34,7 +34,9 @@ export function useFilmSentiment(
 
     try {
       await markFilmWatched(options.filmId, false, next);
-      showSentimentSaved(toast, next, options.filmTitle);
+      if (!options.inlineConfirmation) {
+        showSentimentSaved(toast, next, options.filmTitle);
+      }
     } catch {
       setSentiment(previous);
       showSaveError(toast);

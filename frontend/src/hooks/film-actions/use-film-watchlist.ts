@@ -49,9 +49,9 @@ function completeWatchlistChange(
   toast: Toast,
 ): void {
   if (added) {
-    showWatchlistAdded(toast, options.filmTitle);
+    if (!options.inlineConfirmation) showWatchlistAdded(toast, options.filmTitle);
     options.onSaved?.();
-  } else {
+  } else if (!options.inlineConfirmation) {
     showWatchlistRemoved(toast, options.filmTitle);
   }
 }
@@ -71,12 +71,12 @@ function handleWatchlistError(
   // already-there / already-gone codes. Each code can only arise from one
   // direction, so each branch checks the direction it belongs to.
   if (attemptedAdd && code === "WATCHLIST_ALREADY_EXISTS") {
-    showAlreadySaved(toast, options.filmTitle);
+    if (!options.inlineConfirmation) showAlreadySaved(toast, options.filmTitle);
     options.onSaved?.();
     return;
   }
   if (!attemptedAdd && code === "WATCHLIST_ENTRY_NOT_FOUND") {
-    showWatchlistRemoved(toast, options.filmTitle);
+    if (!options.inlineConfirmation) showWatchlistRemoved(toast, options.filmTitle);
     return;
   }
 

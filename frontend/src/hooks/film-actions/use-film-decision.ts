@@ -40,7 +40,9 @@ export function useFilmDecision(
     options.onDecisionUndone?.();
 
     if (await clearDecision(options.filmId)) {
-      showDecisionUndone(toast, decision, options.filmTitle);
+      if (!options.inlineConfirmation) {
+        showDecisionUndone(toast, decision, options.filmTitle);
+      }
       return;
     }
     setAction(decision);
@@ -117,7 +119,11 @@ function completeDecision(
     filmId: options.filmId,
     context: { source: options.source },
   });
-  showDecisionSaved(toast, decision, options.filmTitle, onUndo);
+  // Surfaces that light the button and keep it on screen confirm the decision
+  // themselves; the toast would just say it twice and hand out a second Undo.
+  if (!options.inlineConfirmation) {
+    showDecisionSaved(toast, decision, options.filmTitle, onUndo);
+  }
   if (decision === "watched") options.onWatched?.();
   else options.onNotInterested?.();
 }
