@@ -124,11 +124,6 @@ export function FilmCard({
           awardHighlights={awardHighlights}
           onEngage={onEngage}
           compact={split}
-          // "2 Oscar nominations" up here and the two nominations themselves a
-          // few lines below is the same fact told twice. Where the itemised
-          // record is shown, the summary of it is not — which in the panel,
-          // where the list is gone, means the summary always.
-          showRecognition={recognition === null || recognition.records.length === 0}
           // The ratings close the band on the right: the title and the two
           // numbers people judge it by, on one line of sight. They are also the
           // only thing on the card short enough to sit there without becoming a
@@ -147,9 +142,18 @@ export function FilmCard({
 
         {/* The evidence: in `column` the full flow, top to bottom, exactly as it
             always has been — plot, scores, the itemised award record. In `split`
-            it is the plot and nothing else. */}
+            it is the plot and nothing else.
+
+            Capped at a reading measure rather than run to the width of the cell.
+            A panel this wide set the synopsis as one ~180-character line, which
+            is roughly twice what an eye tracks back across reliably; at ~68
+            characters it lands as the two or three lines it was written as. The
+            cell keeps its width — the paragraph just stops using all of it. */}
         <div
-          className={cn("flex min-w-0 flex-col gap-2 px-4 pt-3", split ? "pb-4" : "pb-0")}
+          className={cn(
+            "flex min-w-0 flex-col gap-2 px-4 pt-3",
+            split ? "max-w-[68ch] pb-4" : "pb-0",
+          )}
         >
           {/* Only where the header band is too narrow to carry the boxes. */}
           {split && (
@@ -200,10 +204,12 @@ export function FilmCard({
           />
         )}
 
-        {/* List and share ride with View details as its two utilities — they
-              act on the film the same way it does. Under the feedback heading,
-              where they used to sit, they were two of six buttons below a line
-              that described four of them. */}
+        {/* List and share ride with View details as its utilities — they act on
+            the film the same way it does. Under the feedback heading, where they
+            used to sit, they were two of six buttons below a line that described
+            four of them. Share is a glyph rather than a labelled button: it is
+            the least reached-for thing in the rail, and the share mark is the
+            one icon on this card that needs no word. */}
         {split && (
           <SecondaryActions
             film={film}

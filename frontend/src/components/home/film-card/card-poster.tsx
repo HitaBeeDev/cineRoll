@@ -46,12 +46,14 @@ export function CardPoster({
       // the header at full height, with dead column beside it.
       className={cn(
         "group relative z-20 w-[38%] shrink-0 self-stretch rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-ink-900",
-        // At 2/3 the width IS the height: 150px of poster is 225px of header,
-        // which was over half the roll dialog's whole content budget before a
-        // word of the film had been read. 100px puts it at 150px tall, level
-        // with the identity column beside it, so neither one sets the height
-        // alone. Hovering still blows it up to 1.5x, so detail is a hover away.
-        compact ? "max-w-[100px]" : "max-w-[150px]",
+        // At 2/3 the width IS the height, so this number sets how much of the
+        // panel the poster takes: 150px of poster is 225px of header, which was
+        // over half the old dialog's content budget before a word of the film
+        // had been read. 120px is 180px tall — the artwork is the highest-value
+        // thing in a discovery interface and 100px was underselling it, while
+        // the identity column beside it is still what sets the band's height.
+        // Hovering blows it up to 1.5x, so detail stays a hover away.
+        compact ? "max-w-[120px]" : "max-w-[150px]",
       )}
       style={{ aspectRatio: "2/3" }}
     >

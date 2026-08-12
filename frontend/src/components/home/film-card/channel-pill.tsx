@@ -4,14 +4,14 @@ import { cn } from "@/lib/utils/cn";
 const MAX_TITLE_CHARS = 18;
 
 /**
- * The "REEL // …" channel tag that sits above the verdict header.
- *
- * Without a title it is the channel alone. That is what a caller wants when the
- * film's name is already set in display type a line below: a clipped second copy
- * of it adds nothing and, clipped badly, actively misreads.
+ * The "REEL // …" channel tag above the home page's verdict header, where the
+ * broadcast conceit is the frame the whole page is built on. The browse panel
+ * has no such frame and dropped it: a tag naming a channel you cannot tune to,
+ * carrying a clipped copy of a title set in display type just below it, was a
+ * strip of decoration on a panel whose height is what it is spending.
  */
-export function ChannelPill({ title, className }: { title?: string; className?: string }) {
-  const label = title ? `REEL // ${clipToWord(title.toUpperCase())}` : "REEL";
+export function ChannelPill({ title, className }: { title: string; className?: string }) {
+  const label = `REEL // ${clipToWord(title.toUpperCase())}`;
 
   return (
     <div className={cn("flex items-center", className)}>

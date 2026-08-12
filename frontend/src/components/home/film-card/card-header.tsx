@@ -18,7 +18,6 @@ export function CardHeader({
   awardHighlights,
   onEngage,
   compact = false,
-  showRecognition = true,
   aside,
 }: {
   film: RollFilm;
@@ -38,9 +37,6 @@ export function CardHeader({
    * size this header alone took most of it before the film had said anything.
    */
   compact?: boolean;
-  /** Off where the itemised "Recognized for" list is also on screen — the
-   *  summary line and the list state the same awards. */
-  showRecognition?: boolean;
 }) {
   const { backdropUrl } = film;
 
@@ -78,7 +74,7 @@ export function CardHeader({
           film={film}
           awardHighlights={awardHighlights}
           compact={compact}
-          showRecognition={showRecognition}
+          onEngage={onEngage}
         />
         {/* The band's right edge. In a wide container the poster and the title
             settle in the first third and the remaining two thirds were empty —

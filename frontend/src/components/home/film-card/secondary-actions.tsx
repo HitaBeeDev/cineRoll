@@ -23,11 +23,12 @@ export function SecondaryActions({
    *
    * `rail` is the roll panel's control column, where View details is already
    * carried above at full weight — printing it here too would put the same
-   * destination on screen twice. What is left are the two utilities, spelled out
-   * because a bookmark glyph alone does not say which of "save", "list" and
-   * "watchlist" it is, and set as quiet ghosts: they are the smallest thing a
-   * reader can do with a film they have just been handed, and they were sitting
-   * at the same weight as the buttons that teach the roll.
+   * destination on screen twice. What is left are the two utilities, as quiet
+   * ghosts: they are the smallest thing a reader can do with a film they have
+   * just been handed, and they were sitting at the same weight as the buttons
+   * that teach the roll. "Add to list" keeps its words, because a bookmark glyph
+   * alone does not say which of "save", "list" and "watchlist" it is; share does
+   * not need them.
    */
   variant?: "row" | "rail";
 }) {
@@ -74,10 +75,11 @@ export function SecondaryActions({
         url={`${typeof window !== "undefined" ? window.location.origin : ""}/film/${film.slug}?from=roll`}
         caption={film.plot ?? undefined}
         triggerAriaLabel="Share this film"
-        triggerClassName={button}
+        // Square in the rail — a glyph in a button as wide as its neighbour
+        // reads as a label that failed to load.
+        triggerClassName={cn(button, rail && "w-9 flex-none px-0")}
       >
         <Share2 className={rail ? "h-3.5 w-3.5" : "h-4 w-4"} aria-hidden />
-        {rail && "Share"}
       </SharePopover>
     </div>
   );

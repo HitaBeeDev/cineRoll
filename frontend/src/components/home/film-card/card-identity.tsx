@@ -8,24 +8,23 @@ import type { AwardHighlight } from "@/components/home/film-card/awards/award-hi
 import type { RollFilm } from "@/lib/api";
 
 /**
- * The identity column beside the poster: facts strip → genres → title → credit →
+ * The identity column beside the poster: facts strip → title → credit →
  * recognition. Recognition still leads — it's why the film is in CineRoll — but
- * as one line of summary, with the categories and years it stands on kept for
- * "Recognized for" further down. Stating both at full size made the first screen
- * of the card mostly award furniture.
+ * as one line of summary, linking to the categories and years it stands on
+ * rather than restating them. Stating both at full size made the first screen of
+ * the card mostly award furniture.
  */
 export function CardIdentity({
   film,
   awardHighlights,
   compact = false,
-  showRecognition = true,
+  onEngage,
 }: {
   film: RollFilm;
   awardHighlights: AwardHighlight[];
   /** Panel sizing — see the title note below. */
   compact?: boolean;
-  /** Off where "Recognized for" lists the same awards in full below. */
-  showRecognition?: boolean;
+  onEngage?: (() => void) | undefined;
 }) {
   // What the title IS — only the surprising kinds (series, short, documentary,
   // animation) get a label; a plain feature film returns "".
@@ -83,8 +82,13 @@ export function CardIdentity({
         </p>
       )}
 
-      {showRecognition && awardHighlights.length > 0 && (
-        <RecognitionSummary highlights={awardHighlights} />
+      {awardHighlights.length > 0 && (
+        <RecognitionSummary
+          highlights={awardHighlights}
+          slug={film.slug}
+          filmId={film.id}
+          onEngage={onEngage}
+        />
       )}
     </div>
   );

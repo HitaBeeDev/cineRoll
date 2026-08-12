@@ -6,6 +6,8 @@ import { filmHref } from "@/lib/film-link/film-href";
 type FilmLinkProps = Omit<ComponentProps<typeof Link>, "href"> & {
   /** The film's slug — this component owns the path it turns into. */
   slug: string;
+  /** A section of the detail page to land on, e.g. `awards`. */
+  hash?: string;
 };
 
 /**
@@ -20,6 +22,6 @@ type FilmLinkProps = Omit<ComponentProps<typeof Link>, "href"> & {
  * `ref` rides along in `props` (React 19 — no forwardRef), which the browse tiles
  * need for their impression observer.
  */
-export function FilmLink({ slug, ...props }: FilmLinkProps) {
-  return <Link href={filmHref(slug)} {...NEW_TAB_PROPS} {...props} />;
+export function FilmLink({ slug, hash, ...props }: FilmLinkProps) {
+  return <Link href={filmHref(slug, hash)} {...NEW_TAB_PROPS} {...props} />;
 }

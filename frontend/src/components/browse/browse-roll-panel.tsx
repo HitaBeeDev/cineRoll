@@ -4,7 +4,6 @@ import { useEffect, useRef } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useSession } from "next-auth/react";
 import { X } from "lucide-react";
-import { ChannelPill } from "@/components/home/film-card/channel-pill";
 import { FilmCard } from "@/components/home/film-card";
 import { RollSkeleton } from "@/components/browse/roll-skeleton";
 import { formatFilmYear } from "@/lib/format/format-film-year";
@@ -124,18 +123,13 @@ export function BrowseRollPanel({
             {announcement}
           </p>
 
-          <div className="flex items-center gap-3 border-b border-white/[0.06] px-4 py-2.5">
-            {/* The channel alone, without the film's name: the title is set in
-                display type 40px below, and the tag could only ever hold a
-                clipped copy of it — "REEL // TO BE OR NO" for a film called To
-                Be or Not to Be.
-
-                No placeholder tag while rolling either: the skeleton below
-                already says a film is coming. */}
-            <div className="flex min-h-[26px] min-w-0 flex-1 items-center">
-              {film && !rolling && <ChannelPill />}
-            </div>
-
+          {/* A dismiss bar, and nothing else. The "REEL // …" tag that used to
+              open it named no channel a reader could go to and could only ever
+              hold a clipped copy of the title set in display type just below it
+              — decoration taking a full strip of a panel whose height is the
+              thing being spent. The strip that remains is as short as a 32px
+              hit target allows. */}
+          <div className="flex items-center justify-end border-b border-white/[0.06] px-3 py-1.5">
             <button
               type="button"
               onClick={onClose}

@@ -91,8 +91,12 @@ export function TuneFutureRolls({
           does both too. The weights behind the four still differ; the interface
           no longer asks anyone to guess which side of the data model a button
           falls on. */}
+      {/* "Tune", not "Improve": improving your recommendations is something you
+          go to a settings screen to do, and this is not that — it is four
+          answers about the film currently on the card, which take effect on the
+          next roll. */}
       <h3 className="mb-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em] text-fg-faint">
-        Improve your recommendations
+        Tune your recommendations
       </h3>
       {/* Ordered by what the signal costs, keep before discard:
           • Save for later — watchlist, strong-positive signal
