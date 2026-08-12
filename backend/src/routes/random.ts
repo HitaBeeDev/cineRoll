@@ -6,7 +6,7 @@ import { HttpError } from "../middleware/errorHandler";
 import { getValidated, validate } from "../middleware/validate";
 import { logRollEvent } from "./randomRoute/eventLogger";
 import { getPersonalizedRandomFilm } from "./randomRoute/personalizedService";
-import { getDisplayCount } from "./randomRoute/randomRepository";
+import { getRandomCount } from "./randomRoute/randomRepository";
 import { getSessionRoll } from "./randomRoute/sessionRollService";
 import { RandomFilmResult, RandomFilmRow } from "./randomRoute/types";
 
@@ -32,10 +32,7 @@ randomRouter.get("/", validate(randomQuerySchema), async (req, res) => {
     throw new HttpError(404, "No films match the given filters", "NO_FILMS_FOUND");
   }
 
-  // The pool count reported to the client is the full catalog for these filters,
-  // not the eligibility-gated roll pool (see getDisplayCount). A film exists here,
-  // so the rollable pool is non-empty and this resolves to the real total X.
-  const total = await getDisplayCount(query);
+  const total = await getRandomCount(query);
 
   const drawId = await logRollEvent({
     query,
@@ -59,7 +56,7 @@ randomRouter.get("/", validate(randomQuerySchema), async (req, res) => {
 
 randomRouter.get("/count", validate(randomQuerySchema), async (req, res) => {
   const query = getValidated<RandomQuery>(req, "query");
-  const total = await getDisplayCount(query);
+  const total = await getRandomCount(query);
 
   setPublicCache(res, 60);
   res.json({ total });

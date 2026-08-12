@@ -9,7 +9,6 @@ export async function countFilms(
   query: RandomQuery,
   whereSql: Prisma.Sql,
   cacheable: boolean,
-  scope: "roll" | "catalog" = "roll",
 ): Promise<number> {
   const run = async () => {
     const rows = await prisma.$queryRaw<{ count: bigint }[]>`
@@ -20,12 +19,11 @@ export async function countFilms(
 
   if (!cacheable) return run();
 
-  const key =
-    scope === "catalog"
-      ? cacheKeys.catalogCount(filterSignature(query))
-      : cacheKeys.randomCount(filterSignature(query));
-
-  return cache.getOrSet(key, RANDOM_COUNT_TTL_MS, run);
+  return cache.getOrSet(
+    cacheKeys.randomCount(filterSignature(query)),
+    RANDOM_COUNT_TTL_MS,
+    run,
+  );
 }
 
 function filterSignature(query: RandomQuery): string {
