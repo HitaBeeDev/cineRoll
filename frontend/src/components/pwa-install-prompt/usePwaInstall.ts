@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
+import { COOKIE_CONSENT_CHANGED_EVENT, getCookieConsentChoice } from "@/lib/analytics";
 import type { BeforeInstallPromptEvent, Platform } from "@/components/pwa-install-prompt/types";
 import { isIosSafari } from "@/components/pwa-install-prompt/platform-detection/is-ios-safari";
 import { isStandalone } from "@/components/pwa-install-prompt/platform-detection/is-standalone";
@@ -9,6 +10,25 @@ import { markDismissed } from "@/components/pwa-install-prompt/dismissal/mark-di
 import { recentlyDismissed } from "@/components/pwa-install-prompt/dismissal/recently-dismissed";
 
 const SHOW_DELAY_MS = 2500;
+
+function subscribeToConsent(onChange: () => void): () => void {
+  window.addEventListener(COOKIE_CONSENT_CHANGED_EVENT, onChange);
+  return () => window.removeEventListener(COOKIE_CONSENT_CHANGED_EVENT, onChange);
+}
+
+/**
+ * Whether the cookie banner has been answered and given up the bottom of the
+ * screen. Both of these are fixed to that edge, so shown together the second one
+ * to mount is simply hidden behind the first — and the one that cannot be
+ * skipped has to go first. The install offer waits its turn.
+ */
+function useConsentAnswered(): boolean {
+  return useSyncExternalStore(
+    subscribeToConsent,
+    () => getCookieConsentChoice() !== null,
+    () => false,
+  );
+}
 
 interface PwaInstallState {
   platform: Platform | null;
@@ -27,6 +47,7 @@ export function usePwaInstall(): PwaInstallState {
   const [platform, setPlatform] = useState<Platform | null>(null);
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [visible, setVisible] = useState(false);
+  const consentAnswered = useConsentAnswered();
 
   const dismiss = useCallback(() => {
     setVisible(false);
@@ -91,5 +112,5 @@ export function usePwaInstall(): PwaInstallState {
     return () => window.removeEventListener("keydown", onKey);
   }, [visible, dismiss]);
 
-  return { platform, visible, install, dismiss };
+  return { platform, visible: visible && consentAnswered, install, dismiss };
 }
