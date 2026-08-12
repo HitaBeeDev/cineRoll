@@ -10,7 +10,7 @@ export function SimilarFilmsSection({ films }: SimilarFilmsProps) {
     <section id="similar" className="scroll-mt-24">
       <EditorialSectionLabel>You Might Also Like</EditorialSectionLabel>
       <p className="mt-3 max-w-2xl font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.22em] text-[#7c7ca0]">
-        Ranked by shared director, genre &amp; award era
+        Ranked by shared director, cast, genre, country &amp; era
       </p>
       <div className="mt-8">
         <SimilarFilmsSlider films={films as unknown as Film[]} />

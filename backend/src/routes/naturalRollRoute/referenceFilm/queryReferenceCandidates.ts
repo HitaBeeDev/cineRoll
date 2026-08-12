@@ -4,6 +4,7 @@ import { buildWhereClause } from "../../../lib/filmFilters/whereClause";
 import type { RandomQuery } from "../../../lib/filmFilters/randomQuerySchema";
 import { prisma } from "../../../lib/prisma";
 import { buildSimilaritySql } from "../../filmsRoute/buildSimilaritySql";
+import { hasNarrowingCriterion, narrowingSql, scoreSql } from "../../filmsRoute/similarityClauses";
 import { eligibilityConditions } from "../../randomRoute/eligibility";
 import { buildExclusionConditions } from "../../randomRoute/exclusions";
 import { randomSelect } from "../../randomRoute/selects";
@@ -29,21 +30,21 @@ export const queryReferenceCandidates = async (
   limit: number,
 ): Promise<RandomFilmRow[]> => {
   const similarity = buildSimilaritySql(film);
-  if (similarity.whereParts.length === 0) return [];
+  if (!hasNarrowingCriterion(similarity)) return [];
 
   const whereSql = buildWhereClause(query, [
     ...eligibilityConditions(),
     ...(await buildExclusionConditions(query)),
     Prisma.sql`"Film"."id" <> ${film.id}`,
     ...franchiseExclusion(film.title),
-    Prisma.sql`(${Prisma.join(similarity.whereParts, " OR ")})`,
+    narrowingSql(similarity),
   ]);
 
   return prisma.$queryRaw<RandomFilmRow[]>(Prisma.sql`
     SELECT ${randomSelect}
     FROM "Film"
     ${whereSql}
-    ORDER BY (${Prisma.join(similarity.scoreParts, " + ")}) DESC,
+    ORDER BY (${scoreSql(similarity)}) DESC,
       "Film"."imdbRating" DESC NULLS LAST
     LIMIT ${limit}
   `);
