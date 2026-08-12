@@ -2,6 +2,7 @@ import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
 import { FilmLink } from "@/components/film-link";
 import { trackEvent } from "@/lib/analytics";
+import { cn } from "@/lib/utils/cn";
 import { tmdbImageUrl } from "@/lib/images/tmdb-image-url";
 import type { RollFilm } from "@/lib/api";
 
@@ -14,10 +15,13 @@ export function CardPoster({
   film,
   posterBlur,
   onEngage,
+  compact = false,
 }: {
   film: RollFilm;
   posterBlur: string;
   onEngage?: (() => void) | undefined;
+  /** Dialog sizing — see the width note below. */
+  compact?: boolean;
 }) {
   const shouldReduceMotion = useReducedMotion();
   const { posterUrl, backdropUrl } = film;
@@ -40,7 +44,15 @@ export function CardPoster({
       // Sized down with the identity column beside it: once recognition became
       // one line instead of a panel, a 180px poster was the only thing holding
       // the header at full height, with dead column beside it.
-      className="group relative z-20 w-[38%] max-w-[150px] shrink-0 self-stretch rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090f]"
+      className={cn(
+        "group relative z-20 w-[38%] shrink-0 self-stretch rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090f]",
+        // At 2/3 the width IS the height: 150px of poster is 225px of header,
+        // which was over half the roll dialog's whole content budget before a
+        // word of the film had been read. 100px puts it at 150px tall, level
+        // with the identity column beside it, so neither one sets the height
+        // alone. Hovering still blows it up to 1.5x, so detail is a hover away.
+        compact ? "max-w-[100px]" : "max-w-[150px]",
+      )}
       style={{ aspectRatio: "2/3" }}
     >
       <motion.div

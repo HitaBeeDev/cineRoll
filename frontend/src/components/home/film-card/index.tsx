@@ -87,7 +87,10 @@ export function FilmCard({
   const split = layout === "split";
   const posterBlur = blurDataUrl(film.posterColor);
   const awardHighlights = getAwardHighlights(film);
-  const recognition = getRecognitionRecords(film);
+  // Two rows in the dialog, four in the page rail. The dialog's height is fixed
+  // and shared with the controls beside it, so rows five and six are paid for in
+  // scrolling; the count they'd have shown still reaches the reader via "+N more".
+  const recognition = getRecognitionRecords(film, split ? 2 : undefined);
 
   return (
     <div className="flex flex-col">
@@ -101,6 +104,7 @@ export function FilmCard({
         posterBlur={posterBlur}
         awardHighlights={awardHighlights}
         onEngage={onEngage}
+        compact={split}
       />
 
       {/* In `column` everything sits in one flow, top to bottom, exactly as it
@@ -120,10 +124,10 @@ export function FilmCard({
         )}
       >
         <div className="flex min-w-0 flex-col gap-2">
-          {/* Given a column of its own the plot can afford to finish its
-              thought; squeezed into the narrow rail it still gets three lines.
-              Either way it can be opened in place if it does not fit. */}
-          {film.plot && <FilmSynopsis plot={film.plot} lines={split ? 6 : 3} />}
+          {/* Four lines in the dialog against the rail's three: enough to place
+              the story, short of the six that pushed everything below it out of
+              the box. "Read full synopsis" opens the rest in place either way. */}
+          {film.plot && <FilmSynopsis plot={film.plot} lines={split ? 4 : 3} />}
 
           {!split && <FilmScores film={film} />}
 

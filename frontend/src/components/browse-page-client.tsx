@@ -7,7 +7,7 @@ import { BrowseHero } from "@/components/browse/browse-hero";
 import { BrowseFilterBar } from "@/components/browse/browse-filter-bar";
 import { BrowseResultsHeader } from "@/components/browse/browse-results-header";
 import { BrowseGrid } from "@/components/browse/browse-grid";
-import { BrowseRollDialog } from "@/components/browse/browse-roll-dialog";
+import { BrowseRollPanel } from "@/components/browse/browse-roll-panel";
 import { useBrowseFilters } from "@/hooks/useBrowseFilters";
 import { useBrowseFacetCounts } from "@/hooks/useBrowseFacetCounts";
 import { useBrowseResults } from "@/hooks/useBrowseResults";
@@ -70,6 +70,21 @@ export function BrowsePageClient() {
         />
 
         <section className="mx-auto w-full max-w-[100vw] flex-1 px-4 py-6 sm:max-w-screen-2xl sm:px-6 sm:py-8 lg:px-8 xl:px-12">
+          {/* The roll result opens here, at the head of the results and in the
+              flow of them: the filters that produced the draw stay live above it,
+              and the grid it was drawn from stays scrollable below. */}
+          <BrowseRollPanel
+            open={browseRoll.isOpen}
+            rolling={browseRoll.rolling}
+            film={browseRoll.film}
+            error={browseRoll.error}
+            onClose={browseRoll.close}
+            onRoll={browseRoll.roll}
+            onClearFilters={resetFilters}
+            onEngage={browseRoll.markEngaged}
+            onNotInterested={browseRoll.markRejected}
+          />
+
           <BrowseResultsHeader
             resultsTopRef={resultsTopRef}
             result={result}
@@ -77,6 +92,7 @@ export function BrowsePageClient() {
             filters={filters}
             hasActiveFilters={hasActiveFilters}
             rolling={browseRoll.rolling}
+            rollOpen={browseRoll.isOpen}
             onRoll={browseRoll.roll}
             setFilters={setFilters}
           />
@@ -94,17 +110,6 @@ export function BrowsePageClient() {
         </section>
       </main>
 
-      {/* The roll result stays on this page rather than navigating to the film:
-          the filters that produced it are still here, and so is the next draw. */}
-      <BrowseRollDialog
-        open={browseRoll.isOpen}
-        rolling={browseRoll.rolling}
-        film={browseRoll.film}
-        error={browseRoll.error}
-        onOpenChange={(next) => { if (!next) browseRoll.close(); }}
-        onRoll={browseRoll.roll}
-        onClearFilters={resetFilters}
-      />
     </div>
   );
 }

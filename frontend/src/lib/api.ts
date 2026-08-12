@@ -38,14 +38,18 @@ export { fetchReleaseYears } from "@/lib/api/facets-client/fetch-release-years";
 export { fetchAutocomplete } from "@/lib/api/search-client/fetch-autocomplete";
 export { fetchPersonSuggestions } from "@/lib/api/search-client/fetch-person-suggestions";
 export { filtersToParams } from "./api/filters-to-params";
+export type { RandomRequest } from "@/lib/api/fetch-random/fetch-random";
 export type {
+  BanditFeedback,
   BanditLane,
   BetaArm,
   LaneBandit,
   MarathonResult,
+  ParentDraw,
   RandomResult,
   RerollPenalty,
   RollFilm,
+  RollOutcome,
 } from "./api/roll-types";
 export type {
   NaturalRollError,

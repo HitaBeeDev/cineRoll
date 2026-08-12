@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { cn } from "@/lib/utils/cn";
 import { tmdbImageUrl } from "@/lib/images/tmdb-image-url";
 import { CardPoster } from "@/components/home/film-card/card-poster";
 import { CardIdentity } from "@/components/home/film-card/card-identity";
@@ -16,11 +17,18 @@ export function CardHeader({
   posterBlur,
   awardHighlights,
   onEngage,
+  compact = false,
 }: {
   film: RollFilm;
   posterBlur: string;
   awardHighlights: AwardHighlight[];
   onEngage?: (() => void) | undefined;
+  /**
+   * The roll dialog's sizing: a smaller poster, a smaller title, tighter
+   * padding. The dialog gives the whole card a fixed box, and at full size this
+   * header alone took over half of it before the film had said anything.
+   */
+  compact?: boolean;
 }) {
   const { backdropUrl } = film;
 
@@ -47,9 +55,18 @@ export function CardHeader({
         <div className="absolute inset-0 bg-[#09090f]/75" />
       </div>
 
-      <div className="relative flex gap-4 p-4">
-        <CardPoster film={film} posterBlur={posterBlur} onEngage={onEngage} />
-        <CardIdentity film={film} awardHighlights={awardHighlights} />
+      <div className={cn("relative flex", compact ? "gap-3 p-3" : "gap-4 p-4")}>
+        <CardPoster
+          film={film}
+          posterBlur={posterBlur}
+          onEngage={onEngage}
+          compact={compact}
+        />
+        <CardIdentity
+          film={film}
+          awardHighlights={awardHighlights}
+          compact={compact}
+        />
       </div>
     </div>
   );

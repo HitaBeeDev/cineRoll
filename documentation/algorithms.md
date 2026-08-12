@@ -26,6 +26,7 @@
 | 5 | **Maximal Marginal Relevance (MMR)** | Recommender diversity rerank | `backend/src/lib/recommender/ranking.ts` | ✅ shipped |
 | 6 | **Thompson sampling** multi-armed bandit | Roll lane selection (Safe/Gem/Wild) | `backend/src/routes/randomRoute/bandit.ts` | ✅ shipped |
 | 7 | **Softmax weighting + ε-greedy** + weighted sampling | Personalized roll + base lane weighting | `randomRoute/personalizedService.ts`, `weightedSample.ts` | ✅ shipped |
+| 8 | **Draw chain** (parent-linked roll log) | Measuring whether any of the above works | `randomRoute/eventLogger.ts`, `frontend/src/features/roll/` | ✅ shipped |
 
 Legend: ✅ shipped · 🔶 designed / proposed.
 
@@ -139,6 +140,25 @@ Relevance is the normalized recommender score; similarity is the **TF-IDF cosine
 **How it works.** The personalized roll scores a top-N-by-rating pool with `recommender.scoreFilm`, converts scores to weights via **softmax** (`exp((score − max)/T)`, `T = SOFTMAX_TEMPERATURE`), then draws with **weighted sampling** — with probability `EXPLORATION_EPSILON` it instead does a uniform **ε-greedy** explore draw. `weightedSample(items, weights)` is a standard cumulative-sum inverse-CDF draw. On the base roll, per-lane affinities are sharpened and multiplied by the session-diversity factor, then sampled the same way. (The lane *choice* itself is now the Thompson bandit of §6; ε-greedy survives on the personalized path.)
 
 **Why these algorithms.** Softmax turns scores into a temperature-controlled probability distribution (better titles win more often without going deterministic); ε-greedy is the baseline explore/exploit strategy; weighted sampling is the standard mechanism for "ranked but not fixed." All three are small, well-understood, and exactly enough — no ML added for the label.
+
+---
+
+## 8. Draw chain — how we tell whether any of this works
+
+**Feature:** every roll is a named decision that points back at the one before it.
+**Where:** `backend/src/routes/randomRoute/eventLogger.ts`, `backend/src/lib/filmFilters/queryParams/parentDrawParam.ts`, `frontend/src/features/roll/`.
+
+**How it works.** A roll writes one event and returns its id as a **draw id**. The client keeps that draw on screen as a *pending roll* (session storage, so it outlives the page you rolled on) and marks what the user does with it — opened, saved, marked seen, or pushed away. The next roll grades it: `engaged`, `rejected`, or `passed`, and sends that verdict up with the parent's draw id and the draw's position in the session. One reading of the verdict feeds three things at once — the decaying genre/type penalty (§6b of Appendix A), the lane bandit's reward (§6), and the chain link in the log.
+
+**What it buys.** The event log becomes a chain instead of a pile, so these are single queries and were previously unanswerable:
+
+- How many draws before one lands? (accept rate by `drawIndex`)
+- Which lane actually earns engagement? (outcome grouped by `lane`)
+- Do tighter filters produce longer reroll chains?
+
+That is the evaluation set any future ranking work needs. Without it, tuning the scorer is guesswork.
+
+**Note on caching.** A draw names one user's decision, so a response carrying a draw id is `private, no-store`. The one exception is the seeded daily pick, which is deliberately the same film for everyone, draws no lane, and stays publicly cacheable — it issues no draw id.
 
 ---
 

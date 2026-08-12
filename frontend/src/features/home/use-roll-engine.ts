@@ -1,16 +1,12 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import type { FilterState } from "@cineroll/types";
-import type { RollFilm } from "@/lib/api";
+import type { RandomResult } from "@/lib/api";
 import { useToast } from "@/components/ui/toast/use-toast";
-import type { CurrentRoll } from "./domain-types";
+import { useRollSession } from "@/features/roll/use-roll-session";
 import { presentRollError } from "./present-roll-error";
-import { processOutgoingRoll } from "./process-outgoing-roll";
 import { pulseSearching } from "./pulse-searching";
-import { recordRollResult } from "./record-roll-result";
-import { requestNextRoll } from "./request-next-roll";
-import { trackRollRequest } from "./track-roll-request";
 
 type UseRollEngineInput = {
   filters: FilterState;
@@ -21,6 +17,11 @@ type UseRollEngineInput = {
   onCountChange: (count: number) => void;
 };
 
+/**
+ * The home page's roll: the shared session plus the things only this page does —
+ * the searching pulse under a filtered pool, the pool count the result reports
+ * back, and a toast when a roll cannot be served.
+ */
 export function useRollEngine(input: UseRollEngineInput) {
   const {
     filters,
@@ -31,51 +32,48 @@ export function useRollEngine(input: UseRollEngineInput) {
     onCountChange,
   } = input;
   const { toast } = useToast();
-  const [film, setFilm] = useState<RollFilm | null>(null);
-  const [isRolling, setIsRolling] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
-  const currentRollRef = useRef<CurrentRoll | null>(null);
-  const rollingRef = useRef(false);
 
-  const roll = useCallback(async () => {
-    if (rollingRef.current) return;
-    rollingRef.current = true;
-    setIsRolling(true);
-    setFilm(null);
-    const feedback = processOutgoingRoll(currentRollRef.current);
-    currentRollRef.current = null;
-    const personalized = personalizedRoll && Boolean(userId);
-    trackRollRequest(personalized, filters, hasActiveFilters);
-    pulseSearching(hasActiveFilters, reducedMotion, setIsSearching);
+  const onRollStart = useCallback(
+    () => pulseSearching(hasActiveFilters, reducedMotion, setIsSearching),
+    [hasActiveFilters, reducedMotion],
+  );
+  const onResult = useCallback(
+    (result: RandomResult) => onCountChange(result.total),
+    [onCountChange],
+  );
+  const onError = useCallback(
+    (error: unknown) => presentRollError(error, onCountChange, toast),
+    [onCountChange, toast],
+  );
+  const requestContext = useMemo(() => ({ hasActiveFilters }), [hasActiveFilters]);
 
-    try {
-      const result = await requestNextRoll({
-        filters,
-        userId,
-        personalized,
-        banditFeedback: feedback,
-      });
-      recordRollResult(result, filters);
-      currentRollRef.current = { film: result.film, engaged: false, rejected: false, lane: result.lane };
-      setFilm(result.film);
-      onCountChange(result.total);
-    } catch (error) {
-      presentRollError(error, onCountChange, toast);
-    } finally {
-      rollingRef.current = false;
-      setIsRolling(false);
-    }
-  }, [filters, hasActiveFilters, userId, personalizedRoll, reducedMotion, onCountChange, toast]);
+  const session = useRollSession({
+    filters,
+    userId,
+    personalized: personalizedRoll,
+    source: "home_roll",
+    requestContext,
+    onRollStart,
+    onResult,
+    onError,
+  });
 
+  // The card fires these without an argument; the film on screen is the one the
+  // session is holding, so the id comes from here rather than the caller.
   const markCurrentEngaged = useCallback(() => {
-    if (currentRollRef.current) currentRollRef.current.engaged = true;
-  }, []);
-  // Marks only. The penalty is spent by `processOutgoingRoll` whenever the next
-  // roll happens, so rejecting no longer has to trigger that roll itself — the
-  // card stays put and confirms what it recorded.
+    if (session.film) session.markEngaged(session.film.id);
+  }, [session]);
   const markCurrentRejected = useCallback(() => {
-    if (currentRollRef.current) currentRollRef.current.rejected = true;
-  }, []);
+    if (session.film) session.markRejected(session.film.id);
+  }, [session]);
 
-  return { film, isRolling, isSearching, roll, markCurrentEngaged, markCurrentRejected };
+  return {
+    film: session.film,
+    isRolling: session.isRolling,
+    isSearching,
+    roll: session.roll,
+    markCurrentEngaged,
+    markCurrentRejected,
+  };
 }

@@ -11,9 +11,11 @@ function getPenaltyAmount(strength: "weak" | "strong"): number {
   return strength === "strong" ? REROLL_STRONG_PENALTY : REROLL_WEAK_PENALTY;
 }
 
+// Takes only the two dimensions the penalty tables key on, so a caller holding a
+// stored record of a past draw can spend it without carrying the whole film.
 export function applyFilmRerollPenalty(
   penalty: RerollPenalty,
-  film: RollFilm,
+  film: Pick<RollFilm, "genres" | "contentType">,
   strength: "weak" | "strong",
 ): RerollPenalty {
   const amount = getPenaltyAmount(strength);

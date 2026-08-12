@@ -71,6 +71,15 @@ export function sanitizeContext(context: unknown): Prisma.InputJsonObject {
   );
 }
 
+/**
+ * Writes one event and hands back its id.
+ *
+ * The id is what lets a caller name the thing that just happened, so a later
+ * event can point back at it — a roll returns its own event id as a draw id, and
+ * the next roll cites that id as its parent. Logging still never throws and never
+ * blocks the caller's real work, so the id is nullable: a lost row costs the
+ * chain one link, not the roll.
+ */
 export async function logEvent({
   type,
   userId = null,
@@ -79,9 +88,9 @@ export async function logEvent({
   filmId = null,
   context = {},
   variant = null,
-}: LogEventInput): Promise<void> {
+}: LogEventInput): Promise<string | null> {
   try {
-    await prisma.event.create({
+    const event = await prisma.event.create({
       data: {
         userId,
         anonId,
@@ -94,7 +103,9 @@ export async function logEvent({
       },
       select: { id: true },
     });
+    return event.id;
   } catch (error) {
     console.error("Failed to log event", error);
+    return null;
   }
 }

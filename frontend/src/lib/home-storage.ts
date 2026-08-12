@@ -6,6 +6,12 @@ export { ROLL_SEEN_STORAGE_KEY } from "@/lib/home-storage/rolled-bag-constants/r
 export { addToRolledBag } from "@/lib/home-storage/rolled-bag-storage/add-to-rolled-bag";
 export { getRolledBag } from "@/lib/home-storage/rolled-bag-storage/get-rolled-bag";
 export { resetRolledBag } from "@/lib/home-storage/rolled-bag-storage/reset-rolled-bag";
+export { PENDING_ROLL_STORAGE_KEY } from "@/lib/home-storage/pending-roll-constants/pending-roll-storage-key";
+export { clearPendingRoll } from "@/lib/home-storage/pending-roll-storage/clear-pending-roll";
+export { getPendingRoll } from "@/lib/home-storage/pending-roll-storage/get-pending-roll";
+export { markPendingRoll } from "@/lib/home-storage/pending-roll-storage/mark-pending-roll";
+export { writePendingRoll } from "@/lib/home-storage/pending-roll-storage/write-pending-roll";
+export type { PendingRoll } from "@/lib/home-storage/pending-roll-types";
 export { PENDING_WATCHED_STORAGE_KEY } from "./home-storage/pending-watched-constants";
 export { savePendingWatchedFilms } from "./home-storage/pending-watched-storage";
 export { TASTE_SEED_STORAGE_KEY } from "./home-storage/taste-seed-constants";

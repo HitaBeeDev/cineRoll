@@ -17,9 +17,12 @@ import type { RollFilm } from "@/lib/api";
 export function CardIdentity({
   film,
   awardHighlights,
+  compact = false,
 }: {
   film: RollFilm;
   awardHighlights: AwardHighlight[];
+  /** Dialog sizing — see the title note below. */
+  compact?: boolean;
 }) {
   const meta = [formatFilmYear(film), formatFilmLength(film)].filter(Boolean).join(" · ");
   // What the title IS — only the surprising kinds (series, short, documentary,
@@ -53,10 +56,16 @@ export function CardIdentity({
       </div>
 
       {/* Title — the payoff of the roll, at display scale so it reads as the
-          loudest element in the result column. */}
+          loudest element in the result column. It stays the loudest thing when
+          compact too, just not at a size where a two-line title costs 90px of a
+          dialog that has ~490px to spend in total. */}
       <h2
         className="font-[family-name:var(--font-display)] font-bold leading-[1.05] tracking-tight text-[#F5F5F0]"
-        style={{ fontSize: "clamp(1.85rem, 2.8vw, 2.85rem)" }}
+        style={{
+          fontSize: compact
+            ? "clamp(1.5rem, 2vw, 2.1rem)"
+            : "clamp(1.85rem, 2.8vw, 2.85rem)",
+        }}
       >
         {film.title}
       </h2>

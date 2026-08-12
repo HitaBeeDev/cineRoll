@@ -4,7 +4,7 @@ import { getRerollPenalty } from "./get-reroll-penalty";
 import { writeRerollPenalty } from "./write-reroll-penalty";
 
 export function addRerollPenalty(
-  film: RollFilm,
+  film: Pick<RollFilm, "genres" | "contentType">,
   strength: "weak" | "strong",
 ): void {
   const penalty = applyFilmRerollPenalty(

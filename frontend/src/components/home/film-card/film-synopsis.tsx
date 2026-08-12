@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils/cn";
  * how wide the card is, so it is measured rather than guessed: a short plot in a
  * wide card shows no control at all, which is the whole point of it being one.
  */
-export function FilmSynopsis({ plot, lines }: { plot: string; lines: 3 | 6 }) {
+export function FilmSynopsis({ plot, lines }: { plot: string; lines: 3 | 4 }) {
   const ref = useRef<HTMLParagraphElement>(null);
   const [expanded, setExpanded] = useState(false);
   const [overflows, setOverflows] = useState(false);
@@ -43,7 +43,9 @@ export function FilmSynopsis({ plot, lines }: { plot: string; lines: 3 | 6 }) {
         ref={ref}
         className={cn(
           "text-[15px] leading-[1.6] text-[#c6c6d2]",
-          !expanded && (lines === 6 ? "line-clamp-6" : "line-clamp-3"),
+          // Spelled out, not interpolated: Tailwind only ships a class it can
+          // find as a literal string in the source.
+          !expanded && (lines === 4 ? "line-clamp-4" : "line-clamp-3"),
         )}
       >
         {plot}

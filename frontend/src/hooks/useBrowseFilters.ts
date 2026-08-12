@@ -9,6 +9,7 @@ import { filtersFromSearchParams } from "@/lib/browse/filter-params/filters-from
 import { serializeFilters } from "@/lib/browse/filter-params/serialize-filters";
 import { DEFAULT_FILTERS } from "@/hooks/useFilters/default-filters";
 import { anyFilterActive } from "@/lib/browse/filter-descriptors/any-filter-active";
+import { ROLL_SEARCH_PARAM } from "@/lib/browse/filter-params/roll-search-param";
 import { withSearchSort } from "@/lib/browse/sort-choices/with-search-sort";
 
 /**
@@ -50,13 +51,28 @@ export function useBrowseFilters() {
   // chips, the panel — which is why the search/sort coupling lives at this
   // level rather than on the input: picking a suggestion has to move the order
   // the same way typing does.
+  // Serializing rebuilds the query from the filter state alone, which is exactly
+  // how a cleared filter disappears — and also how the rolled film would, on the
+  // next keystroke, if it were not carried across by name.
+  const withRolledFilm = useCallback(
+    (query: string) => {
+      const rolled = searchParams.get(ROLL_SEARCH_PARAM);
+      if (!rolled) return query;
+
+      const params = new URLSearchParams(query);
+      params.set(ROLL_SEARCH_PARAM, rolled);
+      return params.toString();
+    },
+    [searchParams],
+  );
+
   const commitFilters = useCallback(
     (updates: Partial<FilterState>) => {
       const next = { ...filters, ...withSearchSort(filters, updates) };
-      const query = serializeFilters(next);
+      const query = withRolledFilm(serializeFilters(next));
       router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
     },
-    [filters, pathname, router],
+    [filters, pathname, router, withRolledFilm],
   );
 
   // Clearing filters must not silently reorder the results: sorting is not one of
@@ -69,12 +85,12 @@ export function useBrowseFilters() {
     const sort = filters.sort === "relevance" ? DEFAULT_FILTERS.sort : filters.sort;
     const sortOrder = filters.sort === "relevance" ? DEFAULT_FILTERS.sortOrder : filters.sortOrder;
     const keepsSort = sort !== DEFAULT_FILTERS.sort || sortOrder !== DEFAULT_FILTERS.sortOrder;
-    const query = keepsSort
-      ? serializeFilters({ ...DEFAULT_FILTERS, sort, sortOrder })
-      : "";
+    const query = withRolledFilm(
+      keepsSort ? serializeFilters({ ...DEFAULT_FILTERS, sort, sortOrder }) : "",
+    );
 
     router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
-  }, [filters.sort, filters.sortOrder, pathname, router]);
+  }, [filters.sort, filters.sortOrder, pathname, router, withRolledFilm]);
 
   // Search is tracked separately by the autocomplete hook (one event per settled
   // query, not one per keystroke), so it is excluded from filter_apply here.

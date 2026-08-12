@@ -36,6 +36,7 @@ export function BrowseResultsHeader({
   filters,
   hasActiveFilters,
   rolling,
+  rollOpen,
   onRoll,
   setFilters,
 }: {
@@ -45,6 +46,8 @@ export function BrowseResultsHeader({
   filters: FilterState;
   hasActiveFilters: boolean;
   rolling: boolean;
+  /** Whether the roll panel is showing a draw directly above this row. */
+  rollOpen: boolean;
   onRoll: () => void;
   setFilters: SetFilters;
 }) {
@@ -101,7 +104,17 @@ export function BrowseResultsHeader({
           button, so the two primary actions match.
 
           Lift and glow on hover, and nothing at all on disabled: a button that
-          rises when there is nothing to roll is a promise it cannot keep. */}
+          rises when there is nothing to roll is a promise it cannot keep.
+
+          It stands down while the roll panel is open. The panel sits directly
+          above this row and ends in its own Roll again, so leaving both on screen
+          put two accent buttons for the same act within a few hundred pixels of
+          each other, and made the reader work out whether they differed. They do
+          not. The empty cell stays so the heading and the view controls keep
+          their outer thirds. */}
+      {rollOpen ? (
+        <div aria-hidden />
+      ) : (
       <button
         type="button"
         disabled={rolling || status === "loading" || total === 0}
@@ -126,6 +139,7 @@ export function BrowseResultsHeader({
               ? (status === "success" ? `Roll from ${total.toLocaleString()} films` : "Roll from these results")
               : "Roll a random film"}
       </button>
+      )}
 
       {/* View controls. Sort has always been here, where a list's ordering
           conventionally lives; Share joins it because handing the view to someone
