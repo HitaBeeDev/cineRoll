@@ -290,9 +290,18 @@ model UserListEntry {
   @@index([filmId], map: "UserListEntry_filmId_idx")
 }
 
+// A watched film's verdict. Three levels rather than two because binary can't
+// separate "good" from "great", and that top slice is the most useful input the
+// recommender gets. There is deliberately no "it was fine" level: a watched film
+// with no sentiment already means exactly that, and carries its own weight
+// (SENTIMENT_WEIGHT.watchedNeutral).
+//
+// Appended, not reordered — Postgres enum values keep their declaration order
+// and existing ones can't be moved without recreating the type.
 enum WatchedSentiment {
   like
   dislike
+  love
 }
 
 model WatchedFilm {
@@ -309,7 +318,6 @@ model WatchedFilm {
   @@index([userId], map: "WatchedFilm_userId_idx")
 }
 
-// Explicit numeric rating (half-star widget, 1.0–10.0 step 0.5). The richer
 // One row per day recording the deterministically-selected Pick of the Day, so
 // the algorithm can avoid recently-featured films and the choice is auditable.
 model PickOfDayHistory {

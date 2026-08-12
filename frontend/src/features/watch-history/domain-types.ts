@@ -1,3 +1,5 @@
+import type { FilmSentiment } from "@/lib/api/sentiment";
+
 export type WatchedFilm = {
   id: string;
   slug: string;
@@ -11,7 +13,7 @@ export type WatchedFilm = {
 
 export type WatchedEntry = {
   id: string;
-  sentiment: "like" | "dislike" | null;
+  sentiment: FilmSentiment | null;
   film: WatchedFilm;
 };
 

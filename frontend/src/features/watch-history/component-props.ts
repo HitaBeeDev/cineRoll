@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import type { FilmSentiment } from "@/lib/api/sentiment";
 import type {
   WatchedEntry,
   WatchedFilm,
@@ -17,7 +18,7 @@ export type HistoryGridProps = {
 export type HistoryCardProps = {
   busy: boolean;
   entry: WatchedEntry;
-  onRate: (film: WatchedFilm, value: "like" | "dislike") => void;
+  onRate: (film: WatchedFilm, value: FilmSentiment) => void;
   onRemove: (film: WatchedFilm) => void;
 };
 export type ReRateButtonProps = {
@@ -26,5 +27,5 @@ export type ReRateButtonProps = {
   icon: ReactNode;
   label: string;
   onClick: () => void;
-  tone: "like" | "dislike";
+  tone: FilmSentiment;
 };

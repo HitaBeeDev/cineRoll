@@ -1,4 +1,5 @@
 import { BASELINE_PARAMS, type RecommenderParams } from "../../lib/experiments";
+import { SENTIMENT_WEIGHT, type SentimentWeights } from "../../lib/tasteWeights";
 import { generateCandidatePool, rankCandidates } from "../../lib/recommender";
 import { aggregateTasteVectors } from "../../lib/tasteProfile";
 import { COLD_START_MIN } from "./config";
@@ -14,6 +15,7 @@ export async function evaluateUser(
   kValues: number[],
   maxK: number,
   params: RecommenderParams = BASELINE_PARAMS,
+  weights: SentimentWeights = SENTIMENT_WEIGHT,
 ): Promise<UserMetrics | null> {
   const rows = await loadUserSignalRows(userId);
   const liked = likedFilmRefs(rows.watched);
@@ -21,7 +23,7 @@ export async function evaluateUser(
   if (!hasEnoughLikedFilms(liked)) return null;
 
   const heldOutIds = holdoutFilmIds(liked);
-  const signals = buildTrainingSignals(rows.watched, rows.watchlist, heldOutIds);
+  const signals = buildTrainingSignals(rows.watched, rows.watchlist, heldOutIds, weights);
   const taste = aggregateTasteVectors(signals, rows.onboardingGenres);
 
   if (isColdStart(taste.positiveCount, rows.onboardingGenres)) return null;

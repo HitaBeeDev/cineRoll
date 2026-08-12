@@ -1,9 +1,13 @@
+import { isPositiveSentiment } from "../../lib/tasteWeights";
 import { HOLDOUT_FRACTION, HOLDOUT_MAX, MIN_LIKED } from "./config";
 import type { LikedFilmRef, WatchedRow } from "./types";
 
 export function likedFilmRefs(watched: WatchedRow[]): LikedFilmRef[] {
+  // Ground truth is every endorsement, both levels. Matching only "like" would
+  // drop loved films from the held-out set, which is the harness quietly
+  // grading the recommender on the weakest half of the user's taste.
   const positiveRows = watched
-    .filter(entry => entry.sentiment === "like" && !entry.doNotSuggest)
+    .filter(entry => isPositiveSentiment(entry.sentiment) && !entry.doNotSuggest)
     .map(entry => ({ filmId: entry.filmId, at: entry.watchedAt }))
     .sort((a, b) => b.at.getTime() - a.at.getTime());
 

@@ -6,6 +6,7 @@ export function showSentimentSaved(
   filmTitle: string,
 ): void {
   const titles: Record<Exclude<Sentiment, null>, string> = {
+    love: "Glad you loved it",
     like: "Glad you liked it",
     dislike: "Noted — not for you",
   };

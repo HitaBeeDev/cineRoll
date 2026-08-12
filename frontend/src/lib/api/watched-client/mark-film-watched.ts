@@ -1,8 +1,9 @@
 import { trackEvent } from "@/lib/analytics";
 import { createApiError } from "@/lib/api/api-error/create-api-error";
 import { JSON_HEADERS } from "@/lib/api/constants/json-headers";
+import type { FilmSentiment } from "@/lib/api/sentiment";
 
-function trackSentiment(filmId: string, sentiment: Exclude<Sentiment, null>): void {
+function trackSentiment(filmId: string, sentiment: FilmSentiment): void {
   trackEvent({
     type: "sentiment_set",
     filmId,
@@ -10,7 +11,7 @@ function trackSentiment(filmId: string, sentiment: Exclude<Sentiment, null>): vo
   });
 }
 
-type Sentiment = "like" | "dislike" | null;
+type Sentiment = FilmSentiment | null;
 
 function createWatchedBody(
   filmId: string,

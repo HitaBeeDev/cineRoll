@@ -1,0 +1,12 @@
+-- Adds a third verdict above "like". Binary thumbs can't separate a film someone
+-- thought was good from one they loved, and that top slice is the strongest
+-- signal the recommender has to work with.
+--
+-- Appended rather than inserted: Postgres enum values keep their declaration
+-- order, and reordering existing ones would mean recreating the type and
+-- rewriting every WatchedFilm row that references it.
+--
+-- No backfill. Existing "like" rows stay "like" — they were recorded against a
+-- two-level question and there is no honest way to tell which of them would
+-- have been "love".
+ALTER TYPE "WatchedSentiment" ADD VALUE 'love';

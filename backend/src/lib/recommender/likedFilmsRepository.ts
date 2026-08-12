@@ -1,8 +1,11 @@
 import { prisma } from "../prisma";
+import { POSITIVE_SENTIMENTS } from "../tasteWeights";
 
 export async function likedFilmsByGenre(userId: string): Promise<Map<string, string>> {
   const liked = await prisma.watchedFilm.findMany({
-    where: { userId, sentiment: "like" },
+    // Both endorsement levels, not just "like" — a loved film is the strongest
+    // example of a genre the user is into, so it must not be the one left out.
+    where: { userId, sentiment: { in: [...POSITIVE_SENTIMENTS] } },
     orderBy: { watchedAt: "desc" },
     select: { film: { select: { title: true, genres: true } } },
   });

@@ -1,30 +1,78 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { Check, Eye, EyeOff, ThumbsDown, ThumbsUp } from "lucide-react";
+import { Check, Eye, EyeOff, Heart, ThumbsDown, ThumbsUp } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { HoverTooltip } from "@/components/hover-tooltip";
 import { ShareButton } from "@/components/share-button";
 import { GlyphButton } from "@/components/film-detail-actions/glyph-button";
 import { GLYPH_BUTTON } from "@/components/film-detail-actions/styles/glyph-button";
 import { GLYPH_IDLE } from "@/components/film-detail-actions/styles/glyph-idle";
-import type { FilmActionState, Sentiment } from "@/hooks/film-actions/types";
+import type {
+  FilmActionState,
+  Sentiment,
+  SentimentChoice,
+} from "@/hooks/film-actions/types";
 
 // Watched inverts to the only solid white surface on the hero, which makes it
 // the brightest thing on the page. That is the right emphasis: of everything
 // here, "I have seen this" is the one fact that belongs to the viewer.
 const WATCHED_ACTIVE = "border-white bg-white text-[#0d0d14] hover:bg-white/90";
 
-// A thumbs-up is the viewer's own award for the film, so it lights in the same
-// gold as the accolades it sits under. No new hue enters the palette.
-const LIKED_ACTIVE =
+// The three verdicts climb a ladder of emphasis rather than picking three
+// unrelated colours: quiet ring → white ring → gold. Read left to right, the row
+// shows you how much you liked something without needing to read the icons.
+//
+// Gold belongs to "loved" specifically. It's the accolade colour, so the top of
+// the viewer's own scale lights in the same hue as the awards it sits under —
+// their own Best Picture. Spending it on "liked" would waste it on the middle.
+const LOVED_ACTIVE =
   "border-[#d4af37]/60 bg-[#d4af37]/15 text-[#d4af37] hover:bg-[#d4af37]/20";
+
+const LIKED_ACTIVE = "border-white/60 bg-white/[0.12] text-white";
 
 // Negative states don't get to glow. Both hiding a film and disliking it settle
 // into the same quiet lit ring; the glyph itself says which one happened.
 const QUIET_ACTIVE = "border-white/30 bg-white/[0.10] text-white/70";
 
 const GLYPH = "h-4 w-4";
+
+// Weakest to strongest, left to right. The order is data so the row can't drift
+// out of sync with the ladder of emphasis the classes above describe.
+//
+// Three rungs, not four: there is no "it was fine" button because a watched film
+// with nothing selected already says exactly that, and the recommender already
+// weights it (SENTIMENT_WEIGHT.watchedNeutral). An explicit neutral would cost a
+// slot in the row and buy a signal we hold either way.
+const RATING_LADDER: readonly {
+  value: SentimentChoice;
+  label: string;
+  activeClassName: string;
+  Icon: typeof ThumbsUp;
+  fillWhenActive: boolean;
+}[] = [
+  {
+    value: "dislike",
+    label: "Didn't like it",
+    activeClassName: QUIET_ACTIVE,
+    Icon: ThumbsDown,
+    fillWhenActive: false,
+  },
+  {
+    value: "like",
+    label: "Liked it",
+    activeClassName: LIKED_ACTIVE,
+    Icon: ThumbsUp,
+    fillWhenActive: false,
+  },
+  {
+    value: "love",
+    label: "Loved it",
+    activeClassName: LOVED_ACTIVE,
+    Icon: Heart,
+    fillWhenActive: true,
+  },
+];
 
 /**
  * The hero's circular glyph cluster.
@@ -33,8 +81,9 @@ const GLYPH = "h-4 w-4";
  * uses an eye, never the thumbs-down that means "I watched it and didn't care
  * for it", so the two can never appear side by side reading as the same thing.
  * And the set only ever grows sideways: marking a film watched retires the
- * hide glyph and admits the two rating glyphs in its place, so nothing below
- * the cursor moves the moment it's clicked.
+ * hide glyph and admits the rating glyphs in its place, so nothing below the
+ * cursor moves the moment it's clicked. Five glyphs is the ceiling that keeps
+ * that true on one line — ✓ · 👎 · 👍 · ♥ · share.
  */
 export function ActionGlyphs({
   action,
@@ -46,8 +95,7 @@ export function ActionGlyphs({
   shareCaption,
   onMarkWatched,
   onNotInterested,
-  onLike,
-  onDislike,
+  onRate,
 }: {
   action: FilmActionState;
   pending: boolean;
@@ -58,8 +106,7 @@ export function ActionGlyphs({
   shareCaption: string;
   onMarkWatched: () => void;
   onNotInterested: () => void;
-  onLike: () => void;
-  onDislike: () => void;
+  onRate: (value: SentimentChoice) => void;
 }) {
   const reduceMotion = useReducedMotion();
   const watched = action === "watched";
@@ -94,7 +141,10 @@ export function ActionGlyphs({
             transition={{ duration: 0.2, delay: reduceMotion ? 0 : 0.1 }}
             className="absolute bottom-full left-0 mb-2 whitespace-nowrap font-[family-name:var(--font-geist-mono)] text-[10px] font-semibold uppercase tracking-[0.2em] text-white/45"
           >
-            How was it?
+            {/* "How was it?" reads like a question you owe an answer to. "Rate
+                it?" offers rather than asks, which matches the truth: leaving
+                this alone is a valid, recorded outcome. */}
+            Rate it?
           </motion.span>
         )}
       </AnimatePresence>
@@ -114,26 +164,9 @@ export function ActionGlyphs({
           array and sometimes an element confuses its child bookkeeping. */}
       <AnimatePresence initial={false}>
         {watched &&
-          [
-            {
-              key: "like",
-              label: "Liked it",
-              active: sentiment === "like",
-              activeClassName: LIKED_ACTIVE,
-              onClick: onLike,
-              icon: <ThumbsUp className={GLYPH} aria-hidden />,
-            },
-            {
-              key: "dislike",
-              label: "Didn't like it",
-              active: sentiment === "dislike",
-              activeClassName: QUIET_ACTIVE,
-              onClick: onDislike,
-              icon: <ThumbsDown className={GLYPH} aria-hidden />,
-            },
-          ].map((glyph, index) => (
+          RATING_LADDER.map((rung, index) => (
             <motion.div
-              key={glyph.key}
+              key={rung.value}
               initial={enter}
               animate={settled}
               exit={enter}
@@ -141,13 +174,19 @@ export function ActionGlyphs({
               className="shrink-0"
             >
               <GlyphButton
-                label={glyph.label}
-                active={glyph.active}
-                activeClassName={glyph.activeClassName}
+                label={rung.label}
+                active={sentiment === rung.value}
+                activeClassName={rung.activeClassName}
                 disabled={sentimentPending}
-                onClick={glyph.onClick}
+                onClick={() => onRate(rung.value)}
               >
-                {glyph.icon}
+                <rung.Icon
+                  className={GLYPH}
+                  // Only the heart fills. A verdict you feel strongly enough to
+                  // call love should look different in kind, not just in colour.
+                  fill={rung.fillWhenActive && sentiment === rung.value ? "currentColor" : "none"}
+                  aria-hidden
+                />
               </GlyphButton>
             </motion.div>
           ))}

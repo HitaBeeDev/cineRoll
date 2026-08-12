@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { WatchedSentiment } from "@prisma/client";
 
 const PAGE_LIMIT_DEFAULT = 20;
 
@@ -8,7 +9,9 @@ export const filmIdBodySchema = z.object({
 
 export const watchedBodySchema = filmIdBodySchema.extend({
   doNotSuggest: z.boolean().default(false),
-  sentiment: z.enum(["like", "dislike"]).nullable().optional(),
+  // Derived from the Prisma enum, so adding a level can't leave the API
+  // rejecting a value the database already accepts.
+  sentiment: z.nativeEnum(WatchedSentiment).nullable().optional(),
 });
 
 export const filmIdParamsSchema = z.object({

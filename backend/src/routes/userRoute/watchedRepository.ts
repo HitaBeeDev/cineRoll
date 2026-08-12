@@ -1,3 +1,4 @@
+import type { WatchedSentiment } from "@prisma/client";
 import { prisma } from "../../lib/prisma";
 import { filmSummarySelect } from "./selects";
 
@@ -24,7 +25,7 @@ export function upsertWatchedFilm(
   userId: string,
   filmId: string,
   doNotSuggest: boolean,
-  sentiment: "like" | "dislike" | null | undefined,
+  sentiment: WatchedSentiment | null | undefined,
 ) {
   const sentimentData = sentiment === undefined ? {} : { sentiment };
 

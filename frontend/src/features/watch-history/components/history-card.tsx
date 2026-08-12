@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { ThumbsDown, ThumbsUp, Trash2 } from "lucide-react";
+import { Heart, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react";
 import { FilmLink } from "@/components/film-link";
 import { blurDataUrl } from "@/lib/images/blur-data-url";
 import { tmdbImageUrl } from "@/lib/images/tmdb-image-url";
@@ -61,6 +61,17 @@ export function HistoryCard({
         <h3 className="line-clamp-1 text-[14px] font-semibold leading-snug text-[#eeeaf6] sm:text-[15px]">{film.title}</h3>
         <TileMetaLine film={film} />
         <div className="mt-2 flex items-center gap-2">
+          {/* All three levels, in the hero's order. Two buttons would have made
+              a loved film's thumbs-up look active and then silently downgrade it
+              to "like" on the click meant to clear it. */}
+          <ReRateButton
+            tone="dislike"
+            active={sentiment === "dislike"}
+            disabled={busy}
+            onClick={() => onRate(film, "dislike")}
+            icon={<ThumbsDown className="h-3.5 w-3.5" aria-hidden />}
+            label="Disliked it"
+          />
           <ReRateButton
             tone="like"
             active={sentiment === "like"}
@@ -70,12 +81,18 @@ export function HistoryCard({
             label="Liked it"
           />
           <ReRateButton
-            tone="dislike"
-            active={sentiment === "dislike"}
+            tone="love"
+            active={sentiment === "love"}
             disabled={busy}
-            onClick={() => onRate(film, "dislike")}
-            icon={<ThumbsDown className="h-3.5 w-3.5" aria-hidden />}
-            label="Disliked it"
+            onClick={() => onRate(film, "love")}
+            icon={
+              <Heart
+                className="h-3.5 w-3.5"
+                fill={sentiment === "love" ? "currentColor" : "none"}
+                aria-hidden
+              />
+            }
+            label="Loved it"
           />
         </div>
       </div>

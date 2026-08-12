@@ -11,6 +11,10 @@
  * Read-only: it never mutates the database except writing local eval results.
  *
  * Run: `npx tsx src/scripts/evalRecommender.ts [--max-users=N] [--k=5,10,20]`
+ *
+ * Sweep one knob instead of a single run:
+ *   --mmr-lambda=0.7,0.55   relevance vs intra-list diversity
+ *   --love-weight=1,1.5,2   what a "loved" verdict is worth vs a "liked" one
  */
 import { prisma } from "../lib/prisma";
 import { MODEL_VERSION } from "../lib/recommender";
@@ -26,15 +30,21 @@ import {
 } from "./evalRecommender/reporter";
 import { saveRecord } from "./evalRecommender/resultStore";
 import { getEvaluationUserIds } from "./evalRecommender/userSignalRepository";
-import { runAbSweep } from "./evalRecommender/abSweep";
+import { runAbSweep, runLoveWeightSweep } from "./evalRecommender/abSweep";
 
 async function main(): Promise<void> {
-  const { maxUsers, kValues, mmrLambdas } = parseArgs(process.argv.slice(2));
+  const { maxUsers, kValues, mmrLambdas, loveWeights } = parseArgs(process.argv.slice(2));
   const maxK = Math.max(...kValues);
   const userIds = await getEvaluationUserIds();
+  const sweepInputs = { userIds, kValues, maxK, maxUsers };
 
   if (mmrLambdas && mmrLambdas.length > 0) {
-    await runAbSweep(userIds, kValues, maxK, maxUsers, mmrLambdas);
+    await runAbSweep(sweepInputs, mmrLambdas);
+    return;
+  }
+
+  if (loveWeights && loveWeights.length > 0) {
+    await runLoveWeightSweep(sweepInputs, loveWeights);
     return;
   }
 

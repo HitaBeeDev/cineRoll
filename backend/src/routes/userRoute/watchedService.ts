@@ -1,3 +1,4 @@
+import type { WatchedSentiment } from "@prisma/client";
 import { logEvent } from "../../lib/events";
 import { HttpError } from "../../middleware/errorHandler";
 import { assertFilmExists } from "./filmRepository";
@@ -31,7 +32,7 @@ export async function setWatchedFilm(
   userId: string,
   filmId: string,
   doNotSuggest: boolean,
-  sentiment: "like" | "dislike" | null | undefined,
+  sentiment: WatchedSentiment | null | undefined,
 ) {
   await assertFilmExists(filmId);
 
@@ -61,7 +62,7 @@ function logWatchedEvent(
   userId: string,
   filmId: string,
   doNotSuggest: boolean,
-  sentiment: "like" | "dislike" | null | undefined,
+  sentiment: WatchedSentiment | null | undefined,
 ) {
   return logEvent({
     type: doNotSuggest ? "not_interested" : "watched",
@@ -78,7 +79,7 @@ function logWatchedEvent(
 function logSentimentEvent(
   userId: string,
   filmId: string,
-  sentiment: "like" | "dislike" | null,
+  sentiment: WatchedSentiment | null,
 ) {
   return logEvent({
     type: "sentiment_set",

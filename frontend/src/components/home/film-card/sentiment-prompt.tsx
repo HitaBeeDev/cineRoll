@@ -1,16 +1,24 @@
 import { motion } from "framer-motion";
 import { ThumbsDown, ThumbsUp, X } from "lucide-react";
 import { SentimentButton } from "@/components/home/film-card/sentiment-button";
+import type { FilmSentiment } from "@/lib/api/sentiment";
 
-/** The one-tap 👍/👎 prompt revealed after a film is marked watched.
- *  Dismissible; the caller controls mount/unmount via AnimatePresence. */
+/**
+ * The one-tap 👍/👎 prompt revealed after a film is marked watched.
+ * Dismissible; the caller controls mount/unmount via AnimatePresence.
+ *
+ * Deliberately two levels where the film page offers three. The roll card is a
+ * triage surface — the film is on its way off screen — so it asks the cheapest
+ * useful question. "Loved it" is available on the film page, where you've chosen
+ * to linger. A film already loved still reads as positive here.
+ */
 export function SentimentPrompt({
   value,
   pending,
   onSelect,
   onDismiss,
 }: {
-  value: "like" | "dislike" | null;
+  value: FilmSentiment | null;
   pending?: boolean;
   onSelect: (value: "like" | "dislike") => void;
   onDismiss: () => void;
@@ -30,7 +38,9 @@ export function SentimentPrompt({
         <div className="flex items-center gap-2">
           <SentimentButton
             tone="like"
-            active={value === "like"}
+            // Love counts as a thumbs-up on this surface: it can't be set here,
+            // but a film rated on the film page must not come back looking blank.
+            active={value === "like" || value === "love"}
             disabled={pending}
             onClick={() => onSelect("like")}
             icon={<ThumbsUp className="h-4 w-4" aria-hidden />}

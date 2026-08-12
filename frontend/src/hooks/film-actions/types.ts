@@ -1,8 +1,11 @@
 import type { useToast } from "@/components/ui/toast/use-toast";
+import type { FilmSentiment } from "@/lib/api/sentiment";
 
 export type FilmActionState = "none" | "watched" | "not-interested";
 export type FilmDecision = Exclude<FilmActionState, "none">;
-export type SentimentChoice = "like" | "dislike";
+/** Three levels, ordered weakest to strongest. There is no "it was fine": a
+ *  watched film with a null sentiment already means that. */
+export type SentimentChoice = FilmSentiment;
 export type Sentiment = SentimentChoice | null;
 export type AuthGate = "watched" | "notInterested" | "watchlist";
 export type Toast = ReturnType<typeof useToast>["toast"];

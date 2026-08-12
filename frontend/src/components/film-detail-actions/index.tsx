@@ -74,8 +74,7 @@ export function FilmDetailActions({
         shareCaption={shareCaption}
         onMarkWatched={() => void saveDecision("watched", false)}
         onNotInterested={() => void saveDecision("not-interested", true)}
-        onLike={() => void saveSentiment("like")}
-        onDislike={() => void saveSentiment("dislike")}
+        onRate={(value) => void saveSentiment(value)}
       />
 
       {/* Guest auth gate: a guest tapping Watched / Watchlist raises the sign-in

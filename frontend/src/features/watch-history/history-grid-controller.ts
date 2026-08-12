@@ -1,3 +1,4 @@
+import type { FilmSentiment } from "@/lib/api/sentiment";
 import type { WatchedEntry, WatchedFilm } from "./domain-types";
 
 export type HistoryGridController = {
@@ -8,7 +9,7 @@ export type HistoryGridController = {
   loadMore: () => Promise<void>;
   rateFilm: (
     film: WatchedFilm,
-    sentiment: "like" | "dislike",
+    sentiment: FilmSentiment,
   ) => Promise<void>;
   removeFilm: (film: WatchedFilm) => Promise<void>;
 };

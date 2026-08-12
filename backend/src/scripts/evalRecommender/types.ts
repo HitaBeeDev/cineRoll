@@ -1,9 +1,11 @@
+import type { WatchedSentiment } from "@prisma/client";
 import type { Signal } from "../../lib/tasteProfile";
 
 export type Args = {
   maxUsers: number | null;
   kValues: number[];
   mmrLambdas: number[] | null;
+  loveWeights: number[] | null;
 };
 
 export type LikedFilmRef = {
@@ -13,7 +15,7 @@ export type LikedFilmRef = {
 
 export type WatchedRow = {
   filmId: string;
-  sentiment: "like" | "dislike" | null;
+  sentiment: WatchedSentiment | null;
   doNotSuggest: boolean;
   watchedAt: Date;
   film: Signal["film"];

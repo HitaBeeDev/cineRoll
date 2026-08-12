@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { markFilmWatched, removeFilmWatched } from "@/lib/api";
+import type { FilmSentiment } from "@/lib/api/sentiment";
 import { useToast } from "@/components/ui/toast/use-toast";
 import { showDecisionUndone } from "@/hooks/film-actions/film-action-toasts/show-decision-undone";
 import type { HistoryGridController } from "./history-grid-controller";
@@ -34,7 +35,7 @@ export function useHistoryGrid(
 
   async function rateFilm(
     film: WatchedFilm,
-    sentiment: "like" | "dislike",
+    sentiment: FilmSentiment,
   ) {
     if (busyFilmIds.has(film.id)) return;
     const previous = getSentiment(entries, film.id);
