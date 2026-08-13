@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { ExternalLink, Play, PlayCircle, X } from "lucide-react";
+import { ExternalLink, Play, X } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 type FilmTrailerProps = {
@@ -39,16 +39,10 @@ export function FilmTrailer({
     };
   }, [isOpen]);
 
+  // No heading of its own: the section that mounts this owns the "Trailer"
+  // label, and a second one rendered the word twice, in two styles.
   return (
-    <section>
-      <div className="mb-4 flex items-center gap-2.5">
-        <h2 className="flex shrink-0 items-center gap-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.28em] text-[#888899]">
-          <PlayCircle className="h-3 w-3 text-[#e8453c]" aria-hidden />
-          Trailer
-        </h2>
-        <div className="h-px flex-1 bg-[#1a1a28]" />
-      </div>
-
+    <>
       {youtubeId ? (
         <>
           <button
@@ -155,6 +149,6 @@ export function FilmTrailer({
           Watch Trailer
         </a>
       )}
-    </section>
+    </>
   );
 }
