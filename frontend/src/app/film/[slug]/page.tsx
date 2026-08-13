@@ -77,7 +77,7 @@ export default async function FilmPage({ params }: FilmPageProps) {
         <div className="relative mx-auto max-w-6xl space-y-20 px-6 py-20 lg:px-10">
           {film.plot && <SynopsisSection plot={film.plot} accent={accent} />}
           <FilmDetailsSection film={film} rankTags={getRankTags(film)} />
-          <FilmAwardsSection summary={awardSummary} />
+          <FilmAwardsSection summary={awardSummary} filmTitle={film.title} />
           <CastSection cast={film.cast} accent={accent} />
           <SimilarFilmsSection films={similarFilms} />
           <TrailerSection film={film} />

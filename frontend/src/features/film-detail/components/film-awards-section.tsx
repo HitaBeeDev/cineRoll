@@ -4,13 +4,13 @@ import type { AwardSummaryProps } from "../component-props";
 import { AwardSummaryCard } from "./award-summary-card";
 import { AwardsDominance } from "./awards-dominance";
 
-export function FilmAwardsSection({ summary }: AwardSummaryProps) {
+export function FilmAwardsSection({ summary, filmTitle }: AwardSummaryProps) {
   if (summary.totalNominations === 0) return null;
 
   return (
     <section id="awards" className="scroll-mt-24">
       <EditorialSectionLabel>Awards &amp; Recognition</EditorialSectionLabel>
-      <AwardsDominance summary={summary} />
+      <AwardsDominance summary={summary} filmTitle={filmTitle} />
       <details className="group mt-6">
         <summary className="flex w-fit cursor-pointer list-none items-center gap-2 font-[family-name:var(--font-geist-mono)] text-[11px] font-semibold uppercase tracking-[0.3em] text-[#9090b0] transition-colors hover:text-[#e8e8f0] [&::-webkit-details-marker]:hidden">
           Full award breakdown

@@ -5,7 +5,7 @@ import type { AwardSummary, HeroImage, SimilarFilm } from "./domain-types";
 
 export type FilmProps = { film: Film };
 export type ChildrenProps = { children: ReactNode };
-export type AwardSummaryProps = { summary: AwardSummary };
+export type AwardSummaryProps = { summary: AwardSummary; filmTitle: string };
 export type SimilarFilmsProps = { films: SimilarFilm[] };
 export type AccentProps = { accent: string };
 export type FilmAccentProps = FilmProps & AccentProps;

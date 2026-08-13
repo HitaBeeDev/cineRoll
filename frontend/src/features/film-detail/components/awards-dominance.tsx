@@ -1,9 +1,10 @@
 import type { AwardSummaryProps } from "../component-props";
 import { getAwardBreakdown } from "@/features/film-detail/award-view-model/get-award-breakdown";
+import { getAwardRecipient } from "@/features/film-detail/award-view-model/get-award-recipient";
 import { getHighlightedAwardRecords } from "@/features/film-detail/award-view-model/get-highlighted-award-records";
 import { HERO_AWARD_GOLD } from "@/features/film-detail/config/hero-award-gold";
 
-export function AwardsDominance({ summary }: AwardSummaryProps) {
+export function AwardsDominance({ summary, filmTitle }: AwardSummaryProps) {
   if (summary.ceremonies.length === 0) return null;
   const hasWins = summary.totalWins > 0;
   const records = getHighlightedAwardRecords(summary);
@@ -61,19 +62,28 @@ export function AwardsDominance({ summary }: AwardSummaryProps) {
               {hasWins ? "Won" : "Nominated"}
             </p>
             <ul className="mt-4 grid gap-x-8 gap-y-2.5 sm:grid-cols-2">
-              {records.map((record) => (
-                <li
-                  key={`${record.awardBody}-${record.awardYear}-${record.category}-${record.nominee}`}
-                  className="flex items-baseline gap-2.5"
-                >
-                  <span className="shrink-0 text-[11px]" style={{ color: HERO_AWARD_GOLD }} aria-hidden>
-                    ◆
-                  </span>
-                  <span className="text-[0.82rem] leading-5 text-[#e8ddb8]">
-                    {record.category}
-                  </span>
-                </li>
-              ))}
+              {records.map((record) => {
+                // An acting or directing category is about a person, and the
+                // name is the fact that makes the line worth reading — "Best
+                // Actress" alone could be anyone. Film-level categories name the
+                // film itself, which the page says at the top, so those stay bare.
+                const recipient = getAwardRecipient(record, filmTitle);
+
+                return (
+                  <li
+                    key={`${record.awardBody}-${record.awardYear}-${record.category}-${record.nominee}`}
+                    className="flex items-baseline gap-2.5"
+                  >
+                    <span className="shrink-0 text-[11px]" style={{ color: HERO_AWARD_GOLD }} aria-hidden>
+                      ◆
+                    </span>
+                    <span className="text-[0.82rem] leading-5 text-[#e8ddb8]">
+                      {record.category}
+                      {recipient && <span className="text-[#9a8a55]"> · {recipient}</span>}
+                    </span>
+                  </li>
+                );
+              })}
             </ul>
           </div>
         )}
