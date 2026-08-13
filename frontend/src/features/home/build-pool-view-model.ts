@@ -30,9 +30,21 @@ export function buildPoolViewModel(input: PoolViewModelInput): PoolViewModel {
   };
 }
 
+/**
+ * Every state of the count — loading, filtered, whole catalogue — is padded to
+ * one width, because the odometer next door animates per digit slot. A
+ * three-character placeholder standing in for a four-digit number re-slotted
+ * every digit the moment the count landed, which briefly stacked two glyphs in
+ * one slot and pushed them over the label above and the tagline below.
+ *
+ * Four digits covers the catalogue today, and the width follows the total on
+ * its own if the archive ever passes 9,999.
+ */
+const MIN_COUNT_WIDTH = 4;
+
 function formatPoolCount(loading: boolean, filtered: number | null, total: number | null): string {
-  if (loading) return "···";
-  if (filtered !== null) return String(filtered).padStart(3, "0");
-  if (total !== null) return String(total).padStart(3, "0");
-  return "···";
+  const width = Math.max(MIN_COUNT_WIDTH, String(total ?? "").length);
+  const value = loading ? null : (filtered ?? total);
+
+  return value === null ? "·".repeat(width) : String(value).padStart(width, "0");
 }
