@@ -47,7 +47,18 @@ export function FilmCard({ film, shouldPreventNavigation }: FilmCardProps) {
       )}
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#09090f] via-[#09090f]/58 to-transparent" />
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#09090f]/30 to-transparent" />
-      <div className="relative z-10 mt-auto flex min-w-0 flex-col gap-2 p-3 sm:p-4">
+      {/* The text sits on the poster, and a poster carries its own printed title
+          in roughly this band — two titles in two fonts on top of each other
+          (Tokyo Sonata, Fleabag). The card-wide wash above is not enough to
+          settle that, so the block carries its own scrim: solid behind every
+          line, fading out across the 44px lead-in above the title. Anchored to
+          the block rather than to a share of the card, so it still covers the
+          text on a short card (the 260px mobile minimum) and doesn't swallow
+          half the poster on a tall one. */}
+      {/* w-full because the card is a flex ROW and this is its only item: left
+          to size itself the block is only as wide as its longest line, and the
+          scrim would end mid-poster (visible on a short title like This Is Us). */}
+      <div className="relative z-10 mt-auto flex w-full min-w-0 flex-col gap-2 bg-[linear-gradient(to_top,#09090f_calc(100%_-_44px),transparent)] px-3 pb-3 pt-11 sm:px-4 sm:pb-4">
         <h3 className="line-clamp-2 font-[family-name:var(--font-display)] text-2xl font-bold leading-none text-[#F5F5F0]">
           {film.title}
         </h3>
