@@ -4,25 +4,20 @@ import { extractYouTubeId } from "../youtube-id";
 import type { FilmProps } from "../component-props";
 
 export function TrailerSection({ film }: FilmProps) {
+  // A section with nothing in it should not exist — no placeholder void.
+  if (!film.trailerUrl) return null;
+
   return (
     <section id="trailer" className="scroll-mt-24">
       <EditorialSectionLabel>Trailer</EditorialSectionLabel>
-      {film.trailerUrl ? (
-        <div className="mt-8">
-          <FilmTrailer
-            title={film.title}
-            trailerUrl={film.trailerUrl}
-            youtubeId={extractYouTubeId(film.trailerUrl)}
-            thumbnailUrl={film.backdropUrl ?? film.posterUrl}
-          />
-        </div>
-      ) : (
-        <div className="mt-8 flex aspect-video w-full items-center justify-center border border-[#111118] bg-[#07070c]">
-          <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.5em] text-[#555570]">
-            No trailer available
-          </p>
-        </div>
-      )}
+      <div className="mt-8">
+        <FilmTrailer
+          title={film.title}
+          trailerUrl={film.trailerUrl}
+          youtubeId={extractYouTubeId(film.trailerUrl)}
+          thumbnailUrl={film.backdropUrl ?? film.posterUrl}
+        />
+      </div>
     </section>
   );
 }
