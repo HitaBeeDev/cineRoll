@@ -46,8 +46,10 @@ export function filmListOrderBy(
   return Prisma.sql`${titleRelevance(search)} DESC, ${base}`;
 }
 
-// Relevance tiers for a matched title (every row already contains the query as a
-// substring — see textPredicates.ts): exact > prefix > whole-word > mid-string.
+// Relevance tiers: exact > prefix > whole-word > mid-string > matched on a
+// person's name instead of the title. A row reaches the list by matching the
+// title OR someone credited on it (see textPredicates.ts), and the film you
+// typed the name of has to beat the film someone of that name acted in.
 function titleRelevance(search: string): Prisma.Sql {
   const wordBoundary = `\\y${escapeRegex(search)}\\y`;
 
@@ -56,7 +58,8 @@ function titleRelevance(search: string): Prisma.Sql {
       WHEN lower("Film"."title") = lower(${search}) THEN 4
       WHEN lower("Film"."title") LIKE lower(${search}) || '%' THEN 3
       WHEN "Film"."title" ~* ${wordBoundary} THEN 2
-      ELSE 1
+      WHEN "Film"."title" ILIKE '%' || ${search} || '%' THEN 1
+      ELSE 0
     END
   `;
 }

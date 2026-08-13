@@ -1,6 +1,8 @@
 import { Router } from "express";
 import { z } from "zod";
 import { setPublicCache } from "../lib/cache";
+import { searchPeople } from "../lib/people/searchPeople";
+import type { CreditSource } from "../lib/people/types";
 import { prisma } from "../lib/prisma";
 import { getValidated, validate } from "../middleware/validate";
 
@@ -10,12 +12,20 @@ const schema = z.object({
   q: z.string().trim().min(1).max(80),
 });
 
+const PEOPLE_SOURCES: CreditSource[] = ["director", "nominee"];
+const PEOPLE_LIMIT = 5;
+const ROLE_LABELS: Record<CreditSource, string> = {
+  director: "director",
+  cast: "cast",
+  nominee: "nominee",
+};
+
 autocompleteRouter.get("/", validate(schema, "query"), async (req, res) => {
   const { q } = getValidated<z.infer<typeof schema>>(req, "query");
   const queryLike = `%${q}%`;
   const queryPrefix = `${q}%`;
 
-  const [filmRows, peopleRows] = await Promise.all([
+  const [filmRows, people] = await Promise.all([
     prisma.$queryRaw<{ slug: string; title: string; year: number; posterUrl: string | null }[]>`
       SELECT slug, title, year, "posterUrl"
       FROM "Film"
@@ -26,39 +36,16 @@ autocompleteRouter.get("/", validate(schema, "query"), async (req, res) => {
         title ASC
       LIMIT 5
     `,
-    prisma.$queryRaw<{ name: string; roles: string[]; count: bigint }[]>`
-      WITH names AS (
-        SELECT "Film"."director" AS name, 'director' AS role
-        FROM "Film"
-        WHERE "Film"."director" IS NOT NULL AND "Film"."director" <> ''
-        UNION ALL
-        SELECT award->>'nominee', 'nominee'
-        FROM "Film", jsonb_array_elements("Film"."oscarCategories") AS award
-        WHERE award->>'nominee' IS NOT NULL AND award->>'nominee' <> '' AND award->>'nominee' <> 'NaN'
-        UNION ALL
-        SELECT award->>'nominee', 'nominee'
-        FROM "Film", jsonb_array_elements("Film"."ggCategories") AS award
-        WHERE award->>'nominee' IS NOT NULL AND award->>'nominee' <> '' AND award->>'nominee' <> 'NaN'
-        UNION ALL
-        SELECT award->>'nominee', 'nominee'
-        FROM "Film", jsonb_array_elements("Film"."cannesCategories") AS award
-        WHERE award->>'nominee' IS NOT NULL AND award->>'nominee' <> '' AND award->>'nominee' <> 'NaN'
-      )
-      SELECT name, ARRAY_AGG(DISTINCT role ORDER BY role) AS roles, COUNT(*)::BIGINT AS count
-      FROM names
-      WHERE name ILIKE ${queryLike}
-      GROUP BY name
-      ORDER BY
-        CASE WHEN name ILIKE ${queryPrefix} THEN 0 ELSE 1 END,
-        count DESC,
-        name ASC
-      LIMIT 5
-    `,
+    searchPeople(q, PEOPLE_SOURCES, PEOPLE_LIMIT),
   ]);
 
   setPublicCache(res, 60);
   res.json({
     films: filmRows.map((r) => ({ slug: r.slug, title: r.title, year: r.year, posterUrl: r.posterUrl })),
-    people: peopleRows.map((r) => ({ name: r.name, roles: r.roles, count: Number(r.count) })),
+    people: people.map((person) => ({
+      name: person.name,
+      roles: person.sources.map((source) => ROLE_LABELS[source]),
+      count: person.count,
+    })),
   });
 });

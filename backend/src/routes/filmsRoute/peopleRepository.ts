@@ -1,4 +1,5 @@
-import { prisma } from "../../lib/prisma";
+import { searchPeople as searchPeopleCredits } from "../../lib/people/searchPeople";
+import type { CreditSource } from "../../lib/people/types";
 
 export type PersonSuggestion = {
   name: string;
@@ -6,56 +7,19 @@ export type PersonSuggestion = {
   count: number;
 };
 
+const SOURCES: CreditSource[] = ["director", "cast", "nominee"];
+const ROLE_LABELS: Record<CreditSource, string> = {
+  director: "Director",
+  cast: "Cast",
+  nominee: "Award nominee",
+};
+
 export async function searchPeople(query: string, limit: number): Promise<PersonSuggestion[]> {
-  const queryLike = `%${query}%`;
-  const queryPrefix = `${query}%`;
-  const rows = await prisma.$queryRaw<{ name: string; roles: string[]; count: bigint }[]>`
-    WITH names AS (
-      SELECT "Film"."director" AS name, 'Director' AS role
-      FROM "Film"
-      WHERE "Film"."director" IS NOT NULL AND "Film"."director" <> ''
+  const people = await searchPeopleCredits(query, SOURCES, limit);
 
-      UNION ALL
-
-      SELECT "castName" AS name, 'Cast' AS role
-      FROM "Film", jsonb_array_elements_text("Film"."cast") AS "castName"
-      WHERE "castName" IS NOT NULL AND "castName" <> ''
-
-      UNION ALL
-
-      SELECT award->>'nominee' AS name, 'Award nominee' AS role
-      FROM "Film", jsonb_array_elements("Film"."oscarCategories") AS award
-      WHERE award->>'nominee' IS NOT NULL AND award->>'nominee' <> ''
-
-      UNION ALL
-
-      SELECT award->>'nominee' AS name, 'Award nominee' AS role
-      FROM "Film", jsonb_array_elements("Film"."ggCategories") AS award
-      WHERE award->>'nominee' IS NOT NULL AND award->>'nominee' <> ''
-
-      UNION ALL
-
-      SELECT award->>'nominee' AS name, 'Award nominee' AS role
-      FROM "Film", jsonb_array_elements("Film"."cannesCategories") AS award
-      WHERE award->>'nominee' IS NOT NULL AND award->>'nominee' <> ''
-    )
-    SELECT
-      name,
-      ARRAY_AGG(DISTINCT role ORDER BY role) AS roles,
-      COUNT(*)::BIGINT AS count
-    FROM names
-    WHERE name ILIKE ${queryLike}
-    GROUP BY name
-    ORDER BY
-      CASE WHEN name ILIKE ${queryPrefix} THEN 0 ELSE 1 END,
-      count DESC,
-      name ASC
-    LIMIT ${limit}
-  `;
-
-  return rows.map(row => ({
-    name: row.name,
-    roles: row.roles,
-    count: Number(row.count),
+  return people.map(person => ({
+    name: person.name,
+    roles: person.sources.map(source => ROLE_LABELS[source]),
+    count: person.count,
   }));
 }
