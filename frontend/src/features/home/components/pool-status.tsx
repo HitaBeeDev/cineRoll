@@ -40,7 +40,9 @@ export function PoolStatus({ displayCount, effectiveCount, effectiveCountLoading
           )}
         </AnimatePresence>
       </p>
-      <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#888899]">Press [Space] to spin</span>
+      {/* Only where there is a key to press: a phone has no space bar, so the
+          hint was an instruction the device could not carry out. */}
+      <span className="hidden font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#888899] [@media(hover:hover)_and_(pointer:fine)]:block">Press [Space] to spin</span>
     </div>
   );
 }

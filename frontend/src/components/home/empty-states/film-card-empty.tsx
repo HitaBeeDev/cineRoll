@@ -32,7 +32,10 @@ export function FilmCardEmpty() {
 
       <StandbyMarquee />
 
-      <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.16em] text-[#888899]">
+      {/* Keyboard-only hint — hidden where there is no keyboard to offer it to.
+          Roll itself is a button on every device; this line just names the
+          shortcut that sits beside it. */}
+      <p className="hidden font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.16em] text-[#888899] [@media(hover:hover)_and_(pointer:fine)]:block">
         Press{" "}
         <kbd className="mx-0.5 rounded border border-[#2a2a3e] bg-[#11111b] px-1.5 py-0.5 text-[11px] font-bold not-italic text-[#cfcfe0]">
           Space
