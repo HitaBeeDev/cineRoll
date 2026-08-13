@@ -9,6 +9,7 @@ import { getCatalogIdf } from "./recommender/idf";
 import { likedFilmsByGenre } from "./recommender/likedFilmsRepository";
 import { toRecommendation } from "./recommender/mapper";
 import { rankCandidates } from "./recommender/ranking";
+import { createReasonVariety } from "./recommender/reason/reasonVariety";
 import { Recommendation, RecommendationResult } from "./recommender/types";
 
 export { generateCandidates, generateCandidatePool } from "./recommender/candidateRepository";
@@ -33,10 +34,12 @@ export async function recommend(
   const params = recommenderParams(variant);
   const [candidates, likedByGenre, idf] = await Promise.all([
     generateCandidates(userId, taste),
-    coldStart ? Promise.resolve(new Map<string, string>()) : likedFilmsByGenre(userId),
+    coldStart ? Promise.resolve(new Map<string, string[]>()) : likedFilmsByGenre(userId),
     getCatalogIdf(),
   ]);
 
+  // Shared across the whole response so no two cards repeat the same sentence.
+  const variety = createReasonVariety();
   const recommendations: Recommendation[] = rankCandidates(
     candidates,
     taste,
@@ -44,7 +47,9 @@ export async function recommend(
     new Date().getFullYear(),
     params,
     idf,
-  ).map((scored, index) => toRecommendation(scored, taste, likedByGenre, coldStart, index));
+  ).map((scored, index) =>
+    toRecommendation(scored, taste, likedByGenre, coldStart, index, variety),
+  );
 
   return { modelVersion: MODEL_VERSION, coldStart, variant, recommendations };
 }

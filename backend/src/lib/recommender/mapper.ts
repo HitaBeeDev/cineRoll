@@ -1,13 +1,15 @@
 import { TasteProfileVectors } from "../tasteProfile";
+import type { ReasonVariety } from "./reason/reasonVariety";
 import { buildReason } from "./reasonBuilder";
 import { Recommendation, Scored } from "./types";
 
 export function toRecommendation(
   scored: Scored,
   taste: TasteProfileVectors,
-  likedByGenre: Map<string, string>,
+  likedByGenre: Map<string, string[]>,
   coldStart: boolean,
   index: number,
+  variety: ReasonVariety,
 ): Recommendation {
   const { film, score } = scored;
 
@@ -22,6 +24,6 @@ export function toRecommendation(
     imdbRating: film.imdbRating,
     rtScore: film.rtScore,
     score: Math.round(score * 1000) / 1000,
-    reason: buildReason(film, taste, likedByGenre, coldStart, index),
+    reason: buildReason(film, taste, likedByGenre, coldStart, index, variety),
   };
 }
