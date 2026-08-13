@@ -33,7 +33,11 @@ export function RecognizedFor({ records, more }: { records: AwardRecord[]; more:
             key={`${rec.awardBody}-${rec.awardYear}-${rec.category}-${i}`}
             className="min-w-0 border-t border-edge-subtle py-2 first:border-t-0"
           >
-            <span className="block truncate text-[13px] text-fg">{rec.category}</span>
+            {/* Wraps rather than truncates. The category IS the award — cutting
+                it at "…Television Series - Musical or Co…" leaves the one line
+                nobody can finish reading, and a panel that already scrolls has
+                no width to defend. */}
+            <span className="block text-[13px] text-fg [overflow-wrap:anywhere]">{rec.category}</span>
             <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-wide text-fg-faint">
               {AWARD_BODY_LABEL[rec.awardBody]} · {rec.awardYear} ·{" "}
               <span className={cn("font-bold", rec.won ? "text-gold" : "text-fg-muted")}>
