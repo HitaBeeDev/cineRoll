@@ -8,5 +8,5 @@
  */
 export const PROMPT_PLACEHOLDER = [
   "Describe the film you want tonight...",
-  "Or: Ein ruhiger Oscar-Gewinner mit Drama",
+  "Or: Une comédie française des années 90",
 ].join("\n");
