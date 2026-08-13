@@ -7,7 +7,9 @@ export function buildPersonMetadata(
   person: PersonData,
   slug: string,
 ): Metadata {
-  const title = `${person.name} — Award History | CineRoll`;
+  // No brand suffix: the root layout's title template appends "| CineRoll"
+  // (app/layout.tsx), and openGraph carries it as siteName.
+  const title = `${person.name} — Award History`;
   const description = buildDescription(person);
   const pageUrl = new URL(`/person/${slug}`, SITE_URL).toString();
 
