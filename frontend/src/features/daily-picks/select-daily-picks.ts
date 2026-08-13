@@ -5,6 +5,12 @@ import { selectPick } from "./select-pick";
 export async function selectDailyPicks(
   day: string,
   userId: string | undefined,
+  /** Called as each slot lands. The slots have to resolve in order — every one
+   *  excludes the films the ones before it took — so waiting for all three put
+   *  the hero, and therefore the hero's image request, several seconds behind a
+   *  pick that was already decided. Handing them over one at a time costs
+   *  nothing and lets pick 01 paint as soon as it exists. */
+  onPick?: (pick: DailyPick) => void,
 ): Promise<DailyPick[]> {
   const picks: DailyPick[] = [];
   const usedIds: string[] = [];
@@ -18,6 +24,7 @@ export async function selectDailyPicks(
     if (!pick) continue;
     picks.push(pick);
     recordSelection(pick, usedIds, diversity);
+    onPick?.(pick);
   }
   return picks;
 }

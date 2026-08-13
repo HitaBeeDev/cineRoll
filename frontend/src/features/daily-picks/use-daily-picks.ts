@@ -21,7 +21,16 @@ export function useDailyPicks(
     if (!enabled) return;
     let active = true;
     const timeoutId = window.setTimeout(async () => {
-      const picks = await loadDailyPicks(userId, getBrowserStorage());
+      // Show each pick the moment it is chosen rather than after all three: the
+      // slots resolve one after another, and holding the finished ones back put
+      // the first hero image four seconds behind the page.
+      const picks = await loadDailyPicks(userId, getBrowserStorage(), (pick) => {
+        if (!active) return;
+        setLoaded((prev) => ({
+          picks: prev?.userKey === userKey ? [...prev.picks, pick] : [pick],
+          userKey,
+        }));
+      });
       if (active) setLoaded({ picks, userKey });
     }, 0);
 
