@@ -1,4 +1,5 @@
 import { HttpError } from "../../middleware/errorHandler";
+import { getCastHeadshot } from "./getCastHeadshot";
 import {
   findCandidateNames,
   getPersonAwardRows,
@@ -17,11 +18,14 @@ export async function getPersonProfile(slug: string) {
       getPersonRecord(slug),
     ]);
   const allRecords = [...oscarRows, ...ggRows, ...cannesRows];
+  // Only when the Person row has no picture of its own — the film data is a
+  // stand-in for a field that should be filled, not the source of record.
+  const photoUrl = personRecord?.photoUrl ?? (await getCastHeadshot(canonicalName));
 
   return {
     name: canonicalName,
     slug,
-    photoUrl: personRecord?.photoUrl ?? null,
+    photoUrl,
     bio: personRecord?.bio ?? null,
     totalNominations: allRecords.length,
     totalWins: allRecords.filter(record => record.won).length,
