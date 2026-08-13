@@ -100,6 +100,10 @@ export function BrowseResultsHeader({
     // The grid's own empty state carries the advice ("try adjusting your
     // filters"); the heading only has to name the state.
     if (total === 0) return "No films match";
+    // A page holding no rows has no window to state. The API clamps a page past
+    // the end to the last real one, so this only catches a client sitting on an
+    // older, unclamped response — never an inverted "9,169–9,168 of 9,180".
+    if (showingEnd < showingStart) return `${total.toLocaleString()} films`;
 
     return `Showing ${showingStart.toLocaleString()}–${showingEnd.toLocaleString()} of ${total.toLocaleString()}`;
   }
