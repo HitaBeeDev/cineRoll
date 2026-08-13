@@ -44,7 +44,10 @@ export function PromptTextarea({
         maxLength={PROMPT_MAX_LENGTH}
         placeholder={PROMPT_PLACEHOLDER}
         className={cn(
-          "min-h-[180px] flex-1 resize-none bg-transparent px-4 py-4 outline-none sm:px-5 sm:py-5 lg:min-h-0",
+          // The lg floor is the two-line placeholder plus its padding: below
+          // that the pane would start clipping the hint again on a very short
+          // window, and it is low enough that no normal viewport is pushed.
+          "min-h-[180px] flex-1 resize-none bg-transparent px-4 py-4 outline-none sm:px-5 sm:py-5 lg:min-h-[6.5rem]",
           "font-[family-name:var(--font-geist-mono)] text-[0.8rem] leading-7 tracking-normal text-[#8d8da1] lg:text-[0.8rem] lg:leading-8",
           "placeholder:text-[#888899]",
           "focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#e8453c]",
