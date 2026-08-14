@@ -6,7 +6,10 @@ import { useFilmDecision } from "./film-actions/use-film-decision";
 import { useFilmSentiment } from "./film-actions/use-film-sentiment";
 import { useFilmStatusSync } from "./film-actions/use-film-status-sync";
 import { useFilmWatchlist } from "./film-actions/use-film-watchlist";
-import type { UseFilmActionsOptions } from "./film-actions/types";
+import type {
+  SentimentChoice,
+  UseFilmActionsOptions,
+} from "./film-actions/types";
 
 export { AUTH_GATE_TITLE } from "./film-actions/auth-gate-title";
 export type {
@@ -24,6 +27,14 @@ export function useFilmActions(options: UseFilmActionsOptions) {
     sentiment.setSentiment(null),
   );
   const watchlist = useFilmWatchlist(options, authGate.triggerAuthGate, toast);
+
+  // A rating is an answer about a film you have seen, and the request that
+  // records it marks the film watched server-side. The surfaces that show both
+  // controls at once have to say so, or rating an unwatched film would leave a
+  // lit verdict beside an unlit "Watched" and the page would be lying.
+  async function saveSentiment(value: SentimentChoice): Promise<void> {
+    if (await sentiment.saveSentiment(value)) decision.setAction("watched");
+  }
 
   useFilmStatusSync({
     filmId: options.filmId,
@@ -45,7 +56,7 @@ export function useFilmActions(options: UseFilmActionsOptions) {
     inWatchlist: watchlist.inWatchlist,
     watchlistPending: watchlist.watchlistPending,
     saveDecision: decision.saveDecision,
-    saveSentiment: sentiment.saveSentiment,
+    saveSentiment,
     toggleWatchlist: watchlist.toggleWatchlist,
     authPrompt: authGate.authPrompt,
     closeAuthPrompt: authGate.closeAuthPrompt,

@@ -2,7 +2,6 @@
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
-  Check,
   Eye,
   EyeOff,
   Heart,
@@ -15,6 +14,7 @@ import { HoverTooltip } from "@/components/hover-tooltip";
 import { ShareButton } from "@/components/share-button";
 import { GlyphButton } from "@/components/film-detail-actions/glyph-button";
 import { RatingGlyph } from "@/components/film-detail-actions/rating-glyph";
+import { WatchedPill } from "@/components/film-detail-actions/watched-pill";
 import { GLYPH_BUTTON } from "@/components/film-detail-actions/styles/glyph-button";
 import { GLYPH_IDLE } from "@/components/film-detail-actions/styles/glyph-idle";
 import type {
@@ -23,28 +23,29 @@ import type {
   SentimentChoice,
 } from "@/hooks/film-actions/types";
 
-// Watched fills solid in affirm green — the colour this app already uses for a
-// recorded personal fact (the film card's quick actions and sentiment buttons
-// both light up in it). The hero is simply catching up with the rest of the app.
+// The three verdicts sit on one shell: a single pill holding three glyphs, the
+// way a segmented control does. That shell is the whole point — it says these
+// three are one question with three answers, and that the labelled Watched
+// beside it is a different kind of thing (what happened, not how you felt).
 //
-// It was gold, and gold is the accolade colour: the medallions sit inches above
-// this row, so a gold disc here asked the reader to hold two meanings for one
-// colour in a single viewport. Gold now means award and nothing else.
-//
-// The fill still has to lose the brightness contest to Watch Trailer, and it
-// does — affirm's luminance sits under white's, the same reason gold was chosen
-// over the original pure white. Dark ink on affirm clears 7:1.
-const WATCHED_ACTIVE =
-  "border-affirm bg-affirm text-ink-950 hover:bg-affirm/90";
+// Horizontal padding only, so the group stands 42px against the pill's 40 and
+// the row still reads as one line.
+const LADDER_GROUP =
+  "flex shrink-0 items-center gap-1 rounded-full border border-white/10 bg-black/25 px-1 backdrop-blur-sm";
+
+// Inside the shell the glyphs drop their own ring and scrim — the group carries
+// both — and light on hover against it instead.
+const LADDER_IDLE =
+  "border-transparent text-white/50 hover:bg-white/[0.10] hover:text-white";
 
 // The three verdicts climb a ladder of emphasis rather than picking three
-// unrelated colours: quiet ring → white ring → the brand coral. Read left to
-// right, the row shows how much you liked something without reading the icons.
+// unrelated colours: quiet → white ring → the brand coral. Read left to right,
+// the row shows how much you liked something without reading the icons.
 //
 // Coral is the site's accent and the top of the viewer's own scale, so the ring
 // runs a step hotter than the watchlist's saved state (/70 and /20 against /50
 // and /15) and the heart fills solid. The filled shape is what separates the two
-// at a glance — the watchlist is a labelled rectangle, this is a full heart.
+// at a glance — a bookmark is not a heart.
 const LOVED_ACTIVE =
   "border-accent/70 bg-accent/20 text-accent hover:bg-accent/25";
 
@@ -99,16 +100,26 @@ const RATING_LADDER: readonly {
 ];
 
 /**
- * The hero's circular glyph cluster.
+ * The hero's watched control and glyph cluster.
  *
- * Two rules hold the layout still. Only one meaning per glyph: hiding a film
- * uses an eye, never the thumbs-down that means "I watched it and didn't care
- * for it", so the two can never appear side by side reading as the same thing.
- * And the set only ever grows sideways: marking a film watched retires the
- * hide glyph and admits the rating glyphs in its place, so nothing below the
- * cursor moves the moment it's clicked. Five glyphs is the ceiling that keeps
- * that true on one line — ✓ · 👎 · 👍 · ♥ · share — with the two save glyphs
- * ahead of them making seven across the row at its widest.
+ * The row reads as three things, not seven: the labelled fact (Watched), the
+ * grouped opinion (the three-step ladder on its own shell), and then the two
+ * loose glyphs that belong to neither — hiding the film, and sharing it.
+ *
+ * The ladder is rendered from the start, unlit. It used to appear only once a
+ * film was marked watched, which meant the shape of the row changed under the
+ * cursor at the exact moment someone was reaching into it, and the heart in
+ * particular looked like a reward for clicking rather than the top of a scale
+ * that had been there all along. Rating an unwatched film is a real answer —
+ * the server records it as watched either way — so there is nothing to gate.
+ *
+ * What still changes: the hide glyph retires once a film is watched, because
+ * there is nothing to hide once you have seen it. It sits after the ladder so
+ * that when it goes, nothing to its left moves.
+ *
+ * One meaning per glyph holds throughout: hiding uses an eye, never the
+ * thumbs-down that means "I watched it and didn't care for it", so the two can
+ * never sit side by side reading as the same thing.
  */
 export function ActionGlyphs({
   action,
@@ -156,71 +167,56 @@ export function ActionGlyphs({
         asking && "mt-5 sm:mt-0",
       )}
     >
-      <AnimatePresence>
-        {asking && (
-          <motion.span
-            aria-hidden
-            initial={{ opacity: 0, y: reduceMotion ? 0 : 4 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2, delay: reduceMotion ? 0 : 0.1 }}
-            className="absolute bottom-full left-0 mb-2 whitespace-nowrap font-[family-name:var(--font-geist-mono)] text-[10px] font-semibold uppercase tracking-[0.2em] text-white/45"
-          >
-            {/* "How was it?" reads like a question you owe an answer to. "Rate
-                it?" offers rather than asks, which matches the truth: leaving
-                this alone is a valid, recorded outcome. */}
-            Rate it?
-          </motion.span>
-        )}
-      </AnimatePresence>
+      <WatchedPill watched={watched} pending={pending} onToggle={onMarkWatched} />
 
-      <GlyphButton
-        label={watched ? "Undo watched" : "Mark watched"}
-        active={watched}
-        activeClassName={WATCHED_ACTIVE}
-        disabled={pending}
-        onClick={onMarkWatched}
-      >
-        <Check className={GLYPH} aria-hidden />
-      </GlyphButton>
-
-      {/* The rating glyphs and the hide glyph share a slot, and neither animates
-          out — they animate IN and vanish on the spot.
-
-          Both alternatives were worse. Fading them out holds their slot while
-          they go, so for ~180ms the row carries six items and bounces onto a
-          second line and back. AnimatePresence's popLayout fixes the width by
-          taking the leaver out of the flow, but then it sits on top of the glyph
-          arriving in its place. An instant swap keeps the promise that matters:
-          the row only ever grows sideways, and nothing under the cursor moves. */}
-      {watched &&
-          RATING_LADDER.map((rung, index) => (
-            <motion.div
-              key={rung.value}
-              initial={enter}
-              animate={settled}
-              transition={{ duration: 0.18, delay: reduceMotion ? 0 : index * 0.05 }}
-              className="shrink-0"
+      {/* One shell, three answers, and the invitation anchored over the shell
+          rather than over the row — it is asking about these three and nothing
+          else. `role="group"` with a name is what carries the "these belong
+          together" reading to a screen reader, which cannot see the pill drawn
+          around them. */}
+      <div className="relative flex shrink-0">
+        <AnimatePresence>
+          {asking && (
+            <motion.span
+              aria-hidden
+              initial={{ opacity: 0, y: reduceMotion ? 0 : 4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2, delay: reduceMotion ? 0 : 0.1 }}
+              className="absolute bottom-full left-0 mb-2 whitespace-nowrap font-[family-name:var(--font-geist-mono)] text-[10px] font-semibold uppercase tracking-[0.2em] text-white/45"
             >
-              <GlyphButton
-                label={rung.label}
+              {/* "How was it?" reads like a question you owe an answer to.
+                  "Rate it?" offers rather than asks, which matches the truth:
+                  leaving this alone is a valid, recorded outcome. */}
+              Rate it?
+            </motion.span>
+          )}
+        </AnimatePresence>
+
+        <div className={LADDER_GROUP} role="group" aria-label="Rate this film">
+          {RATING_LADDER.map((rung) => (
+            <GlyphButton
+              key={rung.value}
+              label={rung.label}
+              active={sentiment === rung.value}
+              activeClassName={rung.activeClassName}
+              idleClassName={LADDER_IDLE}
+              disabled={sentimentPending}
+              onClick={() => onRate(rung.value)}
+            >
+              {/* Only the heart fills. A verdict you feel strongly enough to
+                  call love should look different in kind, not just colour. */}
+              <RatingGlyph
+                Icon={rung.Icon}
                 active={sentiment === rung.value}
-                activeClassName={rung.activeClassName}
-                disabled={sentimentPending}
-                onClick={() => onRate(rung.value)}
-              >
-                {/* Only the heart fills. A verdict you feel strongly enough to
-                    call love should look different in kind, not just colour. */}
-                <RatingGlyph
-                  Icon={rung.Icon}
-                  active={sentiment === rung.value}
-                  pop={rung.pop}
-                  fillWhenActive={rung.fillWhenActive}
-                  className={GLYPH}
-                />
-              </GlyphButton>
-            </motion.div>
+                pop={rung.pop}
+                fillWhenActive={rung.fillWhenActive}
+                className={GLYPH}
+              />
+            </GlyphButton>
           ))}
+        </div>
+      </div>
 
       {/* Nothing to hide once you've seen it, so this glyph only exists while
           the decision is still open. */}

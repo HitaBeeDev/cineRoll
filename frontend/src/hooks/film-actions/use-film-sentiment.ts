@@ -20,11 +20,13 @@ export function useFilmSentiment(
   const [sentimentDismissed, setSentimentDismissed] = useState(false);
   const [sentimentPending, setSentimentPending] = useState(false);
 
-  async function saveSentiment(value: SentimentChoice): Promise<void> {
-    if (sentimentPending) return;
+  /** Resolves true when the rating reached the server — the caller uses that to
+   *  light "watched" alongside it, since the same request records both. */
+  async function saveSentiment(value: SentimentChoice): Promise<boolean> {
+    if (sentimentPending) return false;
     if (!options.isAuthenticated) {
       showSignInTasteNudge(toast);
-      return;
+      return false;
     }
 
     const previous = sentiment;
@@ -37,9 +39,11 @@ export function useFilmSentiment(
       if (!options.inlineConfirmation) {
         showSentimentSaved(toast, next, options.filmTitle);
       }
+      return true;
     } catch {
       setSentiment(previous);
       showSaveError(toast);
+      return false;
     } finally {
       setSentimentPending(false);
     }
