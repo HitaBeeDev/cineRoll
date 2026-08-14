@@ -14,7 +14,7 @@ const icons: Record<ToastVariant, React.ReactNode> = {
   default: <Info className="h-3.5 w-3.5 text-[#7f7f92]" />,
   success: <Check className="h-3.5 w-3.5 text-[#5fbf72]" />,
   error: <AlertCircle className="h-3.5 w-3.5 text-[#e8695f]" />,
-  signin: <SlidersHorizontal className="h-3.5 w-3.5 text-gold" />,
+  signin: <SlidersHorizontal className="h-3.5 w-3.5 text-accent" />,
 };
 
 // Plain feedback should clear quickly and quietly; conversion nudges that carry

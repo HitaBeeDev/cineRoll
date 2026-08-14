@@ -14,7 +14,9 @@ export function TasteCheckIntro({
 
   return (
     <section className="flex max-w-xl flex-col items-start">
-      <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.35em] text-gold">
+      {/* Accent, the app's eyebrow colour everywhere else. Gold is reserved for
+          accolades, and nothing on this screen is one. */}
+      <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.35em] text-accent">
         {"// Taste check"}
       </p>
 

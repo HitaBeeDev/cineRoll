@@ -22,18 +22,19 @@ import type {
   SentimentChoice,
 } from "@/hooks/film-actions/types";
 
-// Watched fills solid in the accolade gold. It was pure white, which made it the
-// single brightest object in the hero — the eye reached it before Watch Trailer,
-// and the primary action has to win that contest. Gold's luminance sits well
-// under white's, so the fill still reads unmistakably as "done" without
-// outshouting the CTA.
+// Watched fills solid in affirm green — the colour this app already uses for a
+// recorded personal fact (the film card's quick actions and sentiment buttons
+// both light up in it). The hero is simply catching up with the rest of the app.
 //
-// It also puts the page's award colour to the one personal fact that connects a
-// viewer to the award canon: I have seen this. The accolade medallions above are
-// gold rings on dark, so a solid gold disc reads as the same family in a
-// different weight, not as a second award badge. Dark ink on gold clears 9:1.
+// It was gold, and gold is the accolade colour: the medallions sit inches above
+// this row, so a gold disc here asked the reader to hold two meanings for one
+// colour in a single viewport. Gold now means award and nothing else.
+//
+// The fill still has to lose the brightness contest to Watch Trailer, and it
+// does — affirm's luminance sits under white's, the same reason gold was chosen
+// over the original pure white. Dark ink on affirm clears 7:1.
 const WATCHED_ACTIVE =
-  "border-gold bg-gold text-[#0d0d14] hover:bg-gold/90";
+  "border-affirm bg-affirm text-ink-950 hover:bg-affirm/90";
 
 // The three verdicts climb a ladder of emphasis rather than picking three
 // unrelated colours: quiet ring → white ring → the brand coral. Read left to

@@ -90,9 +90,12 @@ export function PasswordForm({ hasPassword }: { hasPassword: boolean }) {
           type="submit"
           disabled={pending}
           className={cn(
-            "h-11 rounded-xl bg-gold px-5 text-sm font-semibold text-[#0b0b12]",
-            "transition-colors hover:bg-[#e0bd4d] disabled:cursor-not-allowed disabled:opacity-60",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/40",
+            // Accent, like every other primary submit in the app. It was gold,
+            // which is the accolade colour and has no business on a routine
+            // form action.
+            "h-11 rounded-xl bg-accent px-5 text-sm font-semibold text-white",
+            "transition-colors hover:bg-[#d5342b] disabled:cursor-not-allowed disabled:opacity-60",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40",
           )}
         >
           {pending ? "Saving…" : hasPassword ? "Change password" : "Set password"}
