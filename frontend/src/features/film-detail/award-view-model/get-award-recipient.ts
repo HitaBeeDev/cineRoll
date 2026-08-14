@@ -1,4 +1,5 @@
 import type { AwardRecord } from "@cineroll/types";
+import { formatPersonName } from "@/lib/format/format-person-name";
 
 /**
  * The person the award line is about, or null when the record names the film.
@@ -13,7 +14,7 @@ export function getAwardRecipient(record: AwardRecord, filmTitle: string): strin
   const nominee = record.nominee?.trim();
   if (!nominee) return null;
 
-  return normalize(nominee) === normalize(filmTitle) ? null : nominee;
+  return normalize(nominee) === normalize(filmTitle) ? null : formatPersonName(nominee);
 }
 
 function normalize(value: string): string {

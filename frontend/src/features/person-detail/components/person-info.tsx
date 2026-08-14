@@ -25,9 +25,9 @@ export function PersonInfo({ person }: PersonInfoProps) {
       <div className="mt-8">
         <Link
           href={`/browse?person=${encodeURIComponent(person.name)}`}
-          className="inline-flex items-center gap-2 border border-[#e8453c]/30 bg-[#e8453c]/8 px-5 py-2.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.3em] text-[#e8453c]/80 transition-all hover:border-[#e8453c]/60 hover:bg-[#e8453c]/14 hover:text-[#e8453c]"
+          className="inline-flex max-w-full items-center gap-2 border border-[#e8453c]/30 bg-[#e8453c]/8 px-5 py-2.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.3em] text-[#e8453c]/80 transition-all hover:border-[#e8453c]/60 hover:bg-[#e8453c]/14 hover:text-[#e8453c]"
         >
-          Browse films with {person.name.trim().split(/\s+/)[0] ?? person.name}
+          Browse films with {person.name}
           <ArrowUpRight className="h-3 w-3" aria-hidden />
         </Link>
       </div>
