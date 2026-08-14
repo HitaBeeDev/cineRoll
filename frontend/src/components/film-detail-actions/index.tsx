@@ -4,12 +4,14 @@ import { useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import { useFilmActions, AUTH_GATE_TITLE } from "@/hooks/useFilmActions";
 import { AuthDialog } from "@/components/auth/auth-dialog";
-import { WatchlistButton } from "@/components/film-detail-actions/watchlist-button";
+import { SaveGlyphs } from "@/components/film-detail-actions/save-glyphs";
 import { ActionGlyphs } from "@/components/film-detail-actions/action-glyphs";
 
 /**
- * The action set on the film detail hero: one labelled control for saving, then
- * the circular glyph cluster for everything else.
+ * The action set on the film detail hero: the two save glyphs, then the glyph
+ * cluster for watching, rating and sharing. One shape for all of them — the
+ * only control in the row that looks like anything else is the filled primary
+ * beside them.
  *
  * Behaviour is shared with the roll card through `useFilmActions`; only the
  * layout differs. `inlineConfirmation` is the one behavioural difference, and
@@ -55,7 +57,7 @@ export function FilmDetailActions({
 
   return (
     <>
-      <WatchlistButton
+      <SaveGlyphs
         filmId={filmId}
         filmTitle={filmTitle}
         isAuthenticated={isAuthenticated}

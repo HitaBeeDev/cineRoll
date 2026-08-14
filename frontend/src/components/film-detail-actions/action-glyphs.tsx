@@ -15,7 +15,8 @@ import { HoverTooltip } from "@/components/hover-tooltip";
 import { ShareButton } from "@/components/share-button";
 import { GlyphButton } from "@/components/film-detail-actions/glyph-button";
 import { RatingGlyph } from "@/components/film-detail-actions/rating-glyph";
-import { SHARE_GLYPH } from "@/components/film-detail-actions/styles/share-glyph";
+import { GLYPH_BUTTON } from "@/components/film-detail-actions/styles/glyph-button";
+import { GLYPH_IDLE } from "@/components/film-detail-actions/styles/glyph-idle";
 import type {
   FilmActionState,
   Sentiment,
@@ -106,7 +107,8 @@ const RATING_LADDER: readonly {
  * And the set only ever grows sideways: marking a film watched retires the
  * hide glyph and admits the rating glyphs in its place, so nothing below the
  * cursor moves the moment it's clicked. Five glyphs is the ceiling that keeps
- * that true on one line — ✓ · 👎 · 👍 · ♥ · share.
+ * that true on one line — ✓ · 👎 · 👍 · ♥ · share — with the two save glyphs
+ * ahead of them making seven across the row at its widest.
  */
 export function ActionGlyphs({
   action,
@@ -248,8 +250,12 @@ export function ActionGlyphs({
           </motion.div>
         )}
 
-      {/* Set apart from the ladder: the extra left margin doubles the cluster's
-          own gap, which is the break that stops share reading as a rating. */}
+      {/* Set apart from the ladder by the gap alone: the extra left margin
+          doubles the cluster's own, which is the break that stops share reading
+          as a rating. It used to also drop the ring and shrink to 36px, and that
+          cost more than it bought — a bare icon beside seven ringed ones reads
+          as decoration rather than a control. Same ring, same size, different
+          position. */}
       <span className="ml-2.5 inline-flex">
         <HoverTooltip label="Share">
           <ShareButton
@@ -258,8 +264,8 @@ export function ActionGlyphs({
             caption={shareCaption}
             label=""
             ariaLabel="Share this film"
-            iconClassName="h-3.5 w-3.5"
-            className={SHARE_GLYPH}
+            iconClassName={GLYPH}
+            className={cn(GLYPH_BUTTON, GLYPH_IDLE)}
           />
         </HoverTooltip>
       </span>
