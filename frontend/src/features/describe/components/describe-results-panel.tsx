@@ -16,6 +16,7 @@ type DescribeResultsPanelProps = {
   isProcessing: boolean;
   noMatchFilters: NaturalRollFilters | null;
   result: NaturalRollResult | null;
+  showingResults: boolean;
   statusMessage: string;
 };
 
@@ -25,7 +26,9 @@ export function DescribeResultsPanel(props: DescribeResultsPanelProps) {
       aria-live="polite"
       aria-busy={props.isProcessing}
       className={cn(
-        "min-h-[420px] min-w-0 rounded-lg border border-[#1a1a28] bg-[#0d0d16] lg:col-span-5 lg:min-h-0",
+        "min-h-[420px] min-w-0 rounded-lg border border-[#1a1a28] bg-[#0d0d16] lg:min-h-0",
+        // The intro sits beside a full-width form; the answer takes the room.
+        props.showingResults ? "lg:col-span-8" : "lg:col-span-5",
         props.result
           ? "lg:overflow-y-auto lg:[scrollbar-width:none] lg:[&::-webkit-scrollbar]:w-0"
           : "lg:overflow-hidden",

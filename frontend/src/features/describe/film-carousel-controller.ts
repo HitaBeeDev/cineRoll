@@ -12,4 +12,5 @@ export type FilmCarouselController = {
   maxPage: number;
   page: number;
   slots: RollFilm[];
+  visibleCount: number;
 };

@@ -8,6 +8,11 @@ import { useNaturalRoll } from "@/features/describe/use-natural-roll";
 
 export default function DescribePage() {
   const naturalRoll = useNaturalRoll();
+  // The form only needs the larger half while it is the whole task. From the
+  // moment a roll is sent the answer is what the page is for, so the two panels
+  // trade places — and the swap happens on submit, not on arrival, so the layout
+  // moves once instead of shifting under the picks as they land.
+  const showingResults = naturalRoll.isProcessing || naturalRoll.hasOutcome;
 
   return (
     <div className="flex min-h-screen w-full min-w-0 max-w-full flex-1 flex-col overflow-x-hidden bg-[#09090f] text-[#F5F5F0] lg:min-h-0 lg:overflow-hidden">
@@ -23,6 +28,7 @@ export default function DescribePage() {
               onReset={naturalRoll.reset}
               onSubmit={() => void naturalRoll.submit()}
               prompt={naturalRoll.prompt}
+              showingResults={showingResults}
               textareaRef={naturalRoll.textareaRef}
             />
             <DescribeResultsPanel
@@ -31,6 +37,7 @@ export default function DescribePage() {
               isProcessing={naturalRoll.isProcessing}
               noMatchFilters={naturalRoll.noMatchFilters}
               result={naturalRoll.result}
+              showingResults={showingResults}
               statusMessage={naturalRoll.statusMessage}
             />
           </div>

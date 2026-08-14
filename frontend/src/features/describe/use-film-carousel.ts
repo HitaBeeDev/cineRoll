@@ -3,28 +3,30 @@
 import { useCallback, useMemo, useRef, useState } from "react";
 import type { PointerEvent } from "react";
 import type { RollFilm } from "@/lib/api";
-import { CAROUSEL_VISIBLE_COUNT } from "@/features/describe/carousel-config/carousel-visible-count";
+import { useCarouselVisibleCount } from "@/features/describe/carousel-config/use-carousel-visible-count";
 import type { FilmCarouselController } from "./film-carousel-controller";
 
 const DRAG_DETECTION_DISTANCE = 8;
 const PAGE_CHANGE_DISTANCE = 48;
 
 export function useFilmCarousel(films: RollFilm[]): FilmCarouselController {
-  const [page, setPage] = useState(0);
+  const visibleCount = useCarouselVisibleCount();
+  const [requestedPage, setRequestedPage] = useState(0);
   const [direction, setDirection] = useState(1);
   const dragStartX = useRef(0);
   const isDragging = useRef(false);
   const pointerMoved = useRef(false);
-  const maxPage = Math.max(
-    0,
-    Math.ceil(films.length / CAROUSEL_VISIBLE_COUNT) - 1,
-  );
+  const maxPage = Math.max(0, Math.ceil(films.length / visibleCount) - 1);
+  // Widening the window fits more cards per page and so drops the page count:
+  // the page being read has to fall back into range rather than slice past the
+  // end of the list and leave the viewport blank.
+  const page = Math.min(requestedPage, maxPage);
 
   const goToPage = useCallback((nextPage: number) => {
     const clampedPage = Math.min(Math.max(nextPage, 0), maxPage);
     if (clampedPage === page) return;
     setDirection(clampedPage > page ? 1 : -1);
-    setPage(clampedPage);
+    setRequestedPage(clampedPage);
   }, [maxPage, page]);
 
   const handlePointerDown = useCallback((event: PointerEvent<HTMLDivElement>) => {
@@ -56,9 +58,9 @@ export function useFilmCarousel(films: RollFilm[]): FilmCarouselController {
   }, []);
 
   const slots = useMemo(() => {
-    const start = page * CAROUSEL_VISIBLE_COUNT;
-    return films.slice(start, start + CAROUSEL_VISIBLE_COUNT);
-  }, [films, page]);
+    const start = page * visibleCount;
+    return films.slice(start, start + visibleCount);
+  }, [films, page, visibleCount]);
 
   return {
     direction,
@@ -71,5 +73,6 @@ export function useFilmCarousel(films: RollFilm[]): FilmCarouselController {
     maxPage,
     page,
     slots,
+    visibleCount,
   };
 }

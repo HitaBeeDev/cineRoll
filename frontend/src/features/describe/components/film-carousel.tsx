@@ -24,6 +24,7 @@ export function FilmCarousel({ films }: { films: RollFilm[] }) {
       <CarouselControls
         maxPage={carousel.maxPage}
         page={carousel.page}
+        visibleCount={carousel.visibleCount}
         onPageChange={carousel.goToPage}
       />
     </div>

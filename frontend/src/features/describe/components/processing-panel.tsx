@@ -1,5 +1,7 @@
+"use client";
+
 import type { NaturalRollInterpreted } from "@/lib/api";
-import { CAROUSEL_VISIBLE_COUNT } from "@/features/describe/carousel-config/carousel-visible-count";
+import { useCarouselVisibleCount } from "@/features/describe/carousel-config/use-carousel-visible-count";
 import { formatFilterChips } from "../format-filter-chips";
 import { FilterChipList } from "./filter-chip-list";
 import { SkeletonCard } from "./skeleton-card";
@@ -9,6 +11,9 @@ export function ProcessingPanel({
 }: {
   interpreted: NaturalRollInterpreted | null;
 }) {
+  // Same count as the carousel that replaces it, so the wait and the answer
+  // occupy the same grid and the panel doesn't reflow when the picks land.
+  const visibleCount = useCarouselVisibleCount();
   const chips = interpreted
     ? formatFilterChips(interpreted.interpretedFilters)
     : [];
@@ -30,8 +35,11 @@ export function ProcessingPanel({
           </div>
         )}
       </div>
-      <div className="grid min-h-0 flex-1 grid-cols-2 gap-3">
-        {Array.from({ length: CAROUSEL_VISIBLE_COUNT }).map((_, index) => (
+      <div
+        className="grid min-h-0 flex-1 gap-3"
+        style={{ gridTemplateColumns: `repeat(${visibleCount}, minmax(0, 1fr))` }}
+      >
+        {Array.from({ length: visibleCount }).map((_, index) => (
           <SkeletonCard key={index} />
         ))}
       </div>

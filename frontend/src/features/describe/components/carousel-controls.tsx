@@ -1,16 +1,17 @@
 import { cn } from "@/lib/utils/cn";
-import { CAROUSEL_VISIBLE_COUNT } from "@/features/describe/carousel-config/carousel-visible-count";
 import { CarouselArrow } from "./carousel-arrow";
 
 type CarouselControlsProps = {
   maxPage: number;
   page: number;
+  visibleCount: number;
   onPageChange: (page: number) => void;
 };
 
 export function CarouselControls({
   maxPage,
   page,
+  visibleCount,
   onPageChange,
 }: CarouselControlsProps) {
   if (maxPage === 0) return null;
@@ -29,7 +30,7 @@ export function CarouselControls({
             type="button"
             role="tab"
             aria-selected={index === page}
-            aria-label={`Show picks ${index * CAROUSEL_VISIBLE_COUNT + 1}–${index * CAROUSEL_VISIBLE_COUNT + CAROUSEL_VISIBLE_COUNT}`}
+            aria-label={`Show picks ${index * visibleCount + 1}–${index * visibleCount + visibleCount}`}
             onClick={() => onPageChange(index)}
             className={cn(
               "h-1.5 rounded-full transition-all",
