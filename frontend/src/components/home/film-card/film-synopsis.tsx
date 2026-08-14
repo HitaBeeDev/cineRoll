@@ -57,7 +57,7 @@ export function FilmSynopsis({ plot, lines }: { plot: string; lines: 3 | 5 }) {
           onClick={() => setExpanded((was) => !was)}
           aria-expanded={expanded}
           className={cn(
-            "font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.12em]",
+            "font-[family-name:var(--font-geist-mono)] text-[12px] uppercase tracking-[0.12em]",
             "text-fg-muted underline decoration-white/25 underline-offset-4",
             "transition-colors hover:text-fg-hi hover:decoration-white/50",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2",

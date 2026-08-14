@@ -212,7 +212,10 @@ export function MultiSelect({
         onClick={togglePanel}
         className={cn(
           isPill
-            ? "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 focus-visible:ring-offset-ink-900"
+            // 12px to match the PillToggle it sits in a row with — both are
+            // controls, and a genre pill a step smaller than the Type pill
+            // beside it reads as a different, lesser kind of thing.
+            ? "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 font-[family-name:var(--font-geist-mono)] text-[12px] uppercase tracking-widest transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 focus-visible:ring-offset-ink-900"
             // Fixed height, single line: the field is a summary, so adding a
             // fifth genre must not push the rest of the filter grid down.
             : "flex h-10 w-full items-center justify-between gap-2 rounded-md border px-3 text-left text-[12px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40",
@@ -229,7 +232,7 @@ export function MultiSelect({
         <span className="min-w-0 truncate">{isPill ? pillLabel : summaryLabel}</span>
         <span className="flex shrink-0 items-center gap-1.5">
           {!isPill && selected.length > 1 && (
-            <span className="rounded-full bg-white/10 px-1.5 py-px font-[family-name:var(--font-geist-mono)] text-[10px] leading-4 text-[#cfcbdd]">
+            <span className="rounded-full bg-white/10 px-1.5 py-px font-[family-name:var(--font-geist-mono)] text-[11px] leading-4 text-[#cfcbdd]">
               {selected.length}
             </span>
           )}
@@ -268,13 +271,13 @@ export function MultiSelect({
               trigger that would otherwise carry it. */}
           {selected.length > 0 && (
             <div className="flex items-center justify-between gap-2 border-b border-white/[0.07] px-3 py-1.5">
-              <span className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest text-[#857f95]">
+              <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#857f95]">
                 {selected.length} selected
               </span>
               <button
                 type="button"
                 onClick={() => onChange([])}
-                className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest text-[#a9a5bc] transition-colors hover:text-accent-soft focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
+                className="font-[family-name:var(--font-geist-mono)] text-[12px] uppercase tracking-widest text-[#a9a5bc] transition-colors hover:text-accent-soft focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
               >
                 Clear
               </button>
@@ -282,7 +285,7 @@ export function MultiSelect({
           )}
           <div className="max-h-60 overflow-y-auto py-1">
             {filtered.length === 0 ? (
-              <p className="px-3 py-2 font-[family-name:var(--font-geist-mono)] text-[11px] text-[#6f6b80]">No matches</p>
+              <p className="px-3 py-2 font-[family-name:var(--font-geist-mono)] text-[12px] text-[#6f6b80]">No matches</p>
             ) : (
               <>
                 {pinned.map(renderOption)}
@@ -292,7 +295,7 @@ export function MultiSelect({
                 {sections.map((section) => (
                   <div key={section.label || "_ungrouped"} role="group" aria-label={section.label || undefined}>
                     {showGroupHeadings && section.label && (
-                      <div className="sticky top-0 bg-[#0e0d18] px-3 pb-1 pt-2 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest text-[#6f6b80]">
+                      <div className="sticky top-0 bg-[#0e0d18] px-3 pb-1 pt-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#6f6b80]">
                         {section.label}
                       </div>
                     )}

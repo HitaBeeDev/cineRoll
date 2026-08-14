@@ -9,7 +9,7 @@ export function PoolStatus({ displayCount, effectiveCount, effectiveCountLoading
   if (effectiveCount === 0) {
     return (
       <div className="flex min-w-0 shrink-0 flex-col items-start gap-0.5">
-        <p className="max-w-full font-[family-name:var(--font-geist-mono)] text-[11px] leading-relaxed tracking-wide text-[#9090a8] sm:max-w-[180px]">No films match —<br />even we couldn&apos;t find that.<br />Try relaxing a filter.</p>
+        <p className="max-w-full font-[family-name:var(--font-geist-mono)] text-[12px] leading-relaxed tracking-wide text-[#9090a8] sm:max-w-[180px]">No films match —<br />even we couldn&apos;t find that.<br />Try relaxing a filter.</p>
       </div>
     );
   }
@@ -32,7 +32,7 @@ export function PoolStatus({ displayCount, effectiveCount, effectiveCountLoading
       <AnimatedPoolCount value={poolCountLabel} />
       {/* One line, two lifetimes: the noun is plain text so it never animates,
           and only the remark after it is keyed into AnimatePresence. */}
-      <p className="font-[family-name:var(--font-geist-mono)] text-[11px] tracking-wide text-[#9090a8]">
+      <p className="font-[family-name:var(--font-geist-mono)] text-[12px] tracking-wide text-[#9090a8]">
         {noun}.{" "}
         <AnimatePresence mode="wait" initial={false}>
           {comment && (

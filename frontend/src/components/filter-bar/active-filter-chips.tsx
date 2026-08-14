@@ -36,7 +36,7 @@ export function ActiveFilterChips({
                   className={cn(
                     "inline-flex h-6 items-center gap-0 rounded-full",
                     "border border-[#25253a] bg-[#0d0d1a]",
-                    "font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-wide text-[#9898b8]",
+                    "font-[family-name:var(--font-geist-mono)] text-[12px] uppercase tracking-wide text-[#9898b8]",
                   )}
                 >
                   {chip.href && (
@@ -67,7 +67,7 @@ export function ActiveFilterChips({
             <button
               type="button"
               onClick={onClearFilters}
-              className="ml-1 shrink-0 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#9090a8] transition-colors hover:text-accent focus-visible:outline-none"
+              className="ml-1 shrink-0 font-[family-name:var(--font-geist-mono)] text-[12px] uppercase tracking-widest text-[#9090a8] transition-colors hover:text-accent focus-visible:outline-none"
             >
               Clear all
             </button>

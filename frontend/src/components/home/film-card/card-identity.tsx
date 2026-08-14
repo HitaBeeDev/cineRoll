@@ -46,7 +46,7 @@ export function CardIdentity({
           broken button. */}
       <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5">
         {contentType && (
-          <span className="rounded-[3px] border border-white/25 bg-white/[0.07] px-2 py-[3px] font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.16em] text-fg">
+          <span className="rounded-[3px] border border-white/25 bg-white/[0.07] px-2 py-[3px] font-[family-name:var(--font-geist-mono)] text-[12px] uppercase tracking-[0.16em] text-fg">
             {contentType}
           </span>
         )}

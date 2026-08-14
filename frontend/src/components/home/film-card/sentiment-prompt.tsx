@@ -32,7 +32,7 @@ export function SentimentPrompt({
       className="overflow-hidden"
     >
       <div className="mt-2 flex items-center justify-between gap-3 rounded-xl border border-edge bg-ink-850 px-3 py-2.5">
-        <span className="font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.18em] text-fg-muted">
+        <span className="font-[family-name:var(--font-geist-mono)] text-[12px] font-bold uppercase tracking-[0.18em] text-fg-muted">
           How was it?
         </span>
         <div className="flex items-center gap-2">

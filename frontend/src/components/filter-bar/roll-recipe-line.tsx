@@ -16,7 +16,7 @@ export function RollRecipeLine({
   if (!recipe) return null;
 
   return (
-    <p className="flex min-w-0 items-center gap-2 font-[family-name:var(--font-geist-mono)] text-[11px] tracking-wide text-[#686880]">
+    <p className="flex min-w-0 items-center gap-2 font-[family-name:var(--font-geist-mono)] text-[12px] tracking-wide text-[#686880]">
       <span className="min-w-0 break-words">
         <span className="text-[#444458]">Rolling from:</span>{" "}{recipe}
       </span>
