@@ -60,7 +60,7 @@ export function FilmDetailsSection({
                   IMDb
                 </span>
                 <ExternalLink
-                  className="h-3.5 w-3.5 text-[#555570] transition-colors group-hover:text-accent"
+                  className="h-3.5 w-3.5 text-fg-faint transition-colors group-hover:text-accent"
                   aria-hidden
                 />
               </a>

@@ -24,13 +24,13 @@ export function AwardBodyCard({ body }: AwardBodyCardProps) {
             >
               {body.wins}
             </span>
-            <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.4em] text-[#555570]">Wins</span>
+            <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.4em] text-fg-faint">Wins</span>
           </div>
           <div className="text-right">
-            <span className="block font-[family-name:var(--font-display)] text-xl font-bold leading-none tabular-nums text-[#555570]">
+            <span className="block font-[family-name:var(--font-display)] text-xl font-bold leading-none tabular-nums text-fg-faint">
               {body.records.length}
             </span>
-            <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.4em] text-[#555570]">Noms</span>
+            <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.4em] text-fg-faint">Noms</span>
           </div>
         </div>
       </div>
@@ -57,7 +57,7 @@ export function AwardBodyCard({ body }: AwardBodyCardProps) {
               </p>
               <FilmLink
                 slug={record.filmSlug}
-                className="group mt-0.5 inline-flex items-center gap-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-[#555570] transition-colors hover:text-accent"
+                className="group mt-0.5 inline-flex items-center gap-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-fg-faint transition-colors hover:text-accent"
               >
                 {record.filmTitle}
                 <span className="text-[#2a2a3a] transition-colors group-hover:text-accent">

@@ -12,7 +12,7 @@ export function PersonStat({ value, label, accent }: PersonStatProps) {
       >
         {value}
       </span>
-      <p className="mt-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.5em] text-[#555570]">
+      <p className="mt-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.5em] text-fg-faint">
         {label}
       </p>
     </div>
