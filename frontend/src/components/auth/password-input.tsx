@@ -37,8 +37,8 @@ export function PasswordInput({
         required={required}
         className={cn(
           "h-12 w-full rounded-xl border border-[#2b2b3d] bg-[#10101d] pl-4 pr-12",
-          "text-sm text-[#F5F5F0] placeholder:text-[#777789]",
-          "transition-colors focus:border-[#e8453c]/70 focus:outline-none focus:ring-2 focus:ring-[#e8453c]/15",
+          "text-sm text-fg-hi placeholder:text-[#777789]",
+          "transition-colors focus:border-accent/70 focus:outline-none focus:ring-2 focus:ring-accent/15",
         )}
       />
       <button
@@ -50,8 +50,8 @@ export function PasswordInput({
         aria-label={visible ? "Hide password" : "Show password"}
         className={cn(
           "absolute right-1 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-lg",
-          "text-[#8f8fa0] transition-colors hover:text-[#F5F5F0]",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40",
+          "text-[#8f8fa0] transition-colors hover:text-fg-hi",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40",
         )}
       >
         {visible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}

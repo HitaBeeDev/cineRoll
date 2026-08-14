@@ -36,7 +36,7 @@ export function RollHistoryDrawer({
             role="dialog"
             aria-modal="true"
             aria-labelledby="roll-history-title"
-            className="fixed right-0 top-0 z-[90] flex h-screen w-full max-w-[440px] flex-col overflow-hidden bg-[#05050a] text-[#F5F5F0]"
+            className="fixed right-0 top-0 z-[90] flex h-screen w-full max-w-[440px] flex-col overflow-hidden bg-[#05050a] text-fg-hi"
             style={{
               boxShadow:
                 "-1px 0 0 rgba(232,69,60,0.12), -40px 0 120px rgba(0,0,0,0.98)",
@@ -48,11 +48,11 @@ export function RollHistoryDrawer({
           >
             {/* Atmospheric glows */}
             <div
-              className="pointer-events-none absolute -left-24 -top-24 z-0 h-72 w-72 rounded-full bg-[#e8453c] opacity-[0.09] blur-[80px]"
+              className="pointer-events-none absolute -left-24 -top-24 z-0 h-72 w-72 rounded-full bg-accent opacity-[0.09] blur-[80px]"
               aria-hidden
             />
             <div
-              className="pointer-events-none absolute bottom-0 right-0 z-0 h-56 w-56 rounded-full bg-[#D4AF37] opacity-[0.04] blur-[90px]"
+              className="pointer-events-none absolute bottom-0 right-0 z-0 h-56 w-56 rounded-full bg-gold opacity-[0.04] blur-[90px]"
               aria-hidden
             />
 

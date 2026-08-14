@@ -8,7 +8,7 @@ import { SmartLink } from "./smart-link";
 import { usePrefersReducedMotion } from "./use-prefers-reduced-motion";
 
 const ACCENT_TEXT: Record<ReelItem["accent"], string> = {
-  red: "text-[#ff766d]",
+  red: "text-accent-soft",
   blue: "text-[#78b7ff]",
   gold: "text-[#f2d86f]",
 };
@@ -31,15 +31,15 @@ export function HeroRecordReel({ items, intervalMs = 4200 }: HeroRecordReelProps
 
   return (
     <div
-      className="group relative flex min-h-[280px] flex-col justify-between overflow-hidden rounded-xl border border-[#e8453c]/25 bg-[#100b10] p-6 shadow-[0_24px_70px_rgba(0,0,0,0.4)] sm:p-7"
+      className="group relative flex min-h-[280px] flex-col justify-between overflow-hidden rounded-xl border border-accent/25 bg-[#100b10] p-6 shadow-[0_24px_70px_rgba(0,0,0,0.4)] sm:p-7"
       onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}
       onFocusCapture={() => setPaused(true)} onBlurCapture={() => setPaused(false)}
     >
       <style>{`@keyframes reelEnter { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }`}</style>
       <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(ellipse 80% 70% at 80% 0%, rgba(232,69,60,0.18), transparent 60%)" }} />
       <SmartLink href={item.href} className="relative flex items-start justify-between gap-4" ariaLabel={`${item.eyebrow}: ${item.title}`}>
-        <p className="font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-[0.22em] text-[#ff766d]">{item.eyebrow}</p>
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-white/10 bg-white/[0.05] text-[#ff766d] transition-colors group-hover:bg-[#e8453c] group-hover:text-white"><ArrowUpRight className="h-4 w-4" /></span>
+        <p className="font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-[0.22em] text-accent-soft">{item.eyebrow}</p>
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-white/10 bg-white/[0.05] text-accent-soft transition-colors group-hover:bg-accent group-hover:text-white"><ArrowUpRight className="h-4 w-4" /></span>
       </SmartLink>
       <div key={index} className="relative mt-4" style={reduced ? undefined : { animation: "reelEnter 600ms ease-out" }}>
         <p className="font-[family-name:var(--font-display)] text-3xl font-bold leading-[1.05] text-[#f4f0f7] sm:text-4xl">{item.title}</p>
@@ -50,7 +50,7 @@ export function HeroRecordReel({ items, intervalMs = 4200 }: HeroRecordReelProps
       </div>
       <div className="relative mt-6 flex items-center gap-2" role="tablist" aria-label="Featured records">
         {items.map((entry, itemIndex) => (
-          <button key={entry.eyebrow} type="button" role="tab" aria-selected={itemIndex === index} aria-label={entry.eyebrow} onClick={() => setIndex(itemIndex)} className={cn("h-1.5 rounded-full transition-all", itemIndex === index ? "w-7 bg-[#e8453c]" : "w-2.5 bg-white/20 hover:bg-white/40")} />
+          <button key={entry.eyebrow} type="button" role="tab" aria-selected={itemIndex === index} aria-label={entry.eyebrow} onClick={() => setIndex(itemIndex)} className={cn("h-1.5 rounded-full transition-all", itemIndex === index ? "w-7 bg-accent" : "w-2.5 bg-white/20 hover:bg-white/40")} />
         ))}
       </div>
     </div>

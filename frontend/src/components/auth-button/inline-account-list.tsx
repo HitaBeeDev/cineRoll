@@ -36,14 +36,14 @@ export function InlineAccountList({
         onClick={() => onNavigate?.()}
         className={cn(
           "flex items-center gap-2 rounded-xl px-3 py-3 font-[family-name:var(--font-geist-mono)] text-base font-bold uppercase tracking-[0.16em]",
-          "text-[#9b96aa] transition-colors hover:bg-[#10101a] hover:text-[#F5F5F0]",
+          "text-[#9b96aa] transition-colors hover:bg-[#10101a] hover:text-fg-hi",
           "focus-visible:outline-none focus-visible:ring-2",
           focusRingClassName,
         )}
       >
         {WHATS_NEW_LINK.label}
         {unreadCount > 0 && (
-          <span className="rounded-full bg-[#e8453c] px-2 py-0.5 text-[11px] font-bold leading-none tracking-normal text-[#0a0a14]">
+          <span className="rounded-full bg-accent px-2 py-0.5 text-[11px] font-bold leading-none tracking-normal text-[#0a0a14]">
             {unreadCount}
           </span>
         )}
@@ -55,7 +55,7 @@ export function InlineAccountList({
           onClick={() => onNavigate?.()}
           className={cn(
             "rounded-xl px-3 py-3 font-[family-name:var(--font-geist-mono)] text-base font-bold uppercase tracking-[0.16em]",
-            "text-[#9b96aa] transition-colors hover:bg-[#10101a] hover:text-[#F5F5F0]",
+            "text-[#9b96aa] transition-colors hover:bg-[#10101a] hover:text-fg-hi",
             "focus-visible:outline-none focus-visible:ring-2",
             focusRingClassName,
           )}
@@ -71,7 +71,7 @@ export function InlineAccountList({
         }}
         className={cn(
           "rounded-xl px-3 py-3 text-left font-[family-name:var(--font-geist-mono)] text-base font-bold uppercase tracking-[0.16em]",
-          "text-[#e8453c]/80 transition-colors hover:bg-[#1a1013] hover:text-[#ff5247]",
+          "text-accent/80 transition-colors hover:bg-[#1a1013] hover:text-[#ff5247]",
           "focus-visible:outline-none focus-visible:ring-2",
           focusRingClassName,
         )}

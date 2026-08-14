@@ -50,8 +50,8 @@ export function ThemeToggle() {
       }}
       className={cn(
         "hidden h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#222232] bg-[#101019]",
-        "text-[#9b96aa] transition-colors hover:border-[#e8453c]/60 hover:text-[#F5F5F0]",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] md:inline-flex",
+        "text-[#9b96aa] transition-colors hover:border-accent/60 hover:text-fg-hi",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent md:inline-flex",
       )}
     >
       {theme === "dark" ? (

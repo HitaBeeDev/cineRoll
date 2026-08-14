@@ -24,7 +24,7 @@ export function NotificationItem({
       <Icon
         className={cn(
           "mt-0.5 h-4 w-4 shrink-0",
-          notification.unread ? "text-[#e8453c]" : "text-[#555568]",
+          notification.unread ? "text-accent" : "text-[#555568]",
         )}
         aria-hidden
       />
@@ -32,7 +32,7 @@ export function NotificationItem({
         <p
           className={cn(
             "text-[14px] leading-snug",
-            notification.unread ? "text-[#F5F5F0]" : "text-[#b4b0c2]",
+            notification.unread ? "text-fg-hi" : "text-[#b4b0c2]",
           )}
         >
           {notification.title}
@@ -51,7 +51,7 @@ export function NotificationItem({
 
   const className = cn(
     "block border-b border-[#16161f] px-5 py-4 last:border-b-0",
-    notification.unread && "bg-[#e8453c]/[0.04]",
+    notification.unread && "bg-accent/[0.04]",
   );
 
   const destination = notificationDestination(notification);

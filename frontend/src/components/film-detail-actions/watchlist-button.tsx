@@ -5,7 +5,7 @@ import { SPLIT_HALF } from "@/components/film-detail-actions/styles/split-half";
 import { SPLIT_SHELL } from "@/components/film-detail-actions/styles/split-shell";
 
 const SHELL_IDLE = "border-white/30 bg-white/[0.12] text-white";
-const SHELL_SAVED = "border-[#e8453c]/50 bg-[#e8453c]/15 text-white";
+const SHELL_SAVED = "border-accent/50 bg-accent/15 text-white";
 
 /**
  * Saving, as one control with two halves: the label toggles the watchlist, the

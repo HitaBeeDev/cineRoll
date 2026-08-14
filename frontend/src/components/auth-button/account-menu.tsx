@@ -33,9 +33,9 @@ export function AccountMenu({
           "border bg-[#101019]",
           "font-[family-name:var(--font-geist-mono)] text-[12px] font-semibold uppercase tracking-[0.08em] text-[#c9c9d4]",
           "transition-colors duration-200",
-          "hover:border-[#e8453c]/60 hover:text-[#F5F5F0]",
+          "hover:border-accent/60 hover:text-fg-hi",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0a14]",
-          open ? "border-[#e8453c]/60 text-[#F5F5F0]" : "border-[#22222e]",
+          open ? "border-accent/60 text-fg-hi" : "border-[#22222e]",
           focusRingClassName,
         )}
       >
@@ -44,8 +44,8 @@ export function AccountMenu({
           aria-hidden
           viewBox="0 0 12 12"
           className={cn(
-            "h-2.5 w-2.5 text-[#666676] transition-transform duration-200 group-hover:text-[#e8453c]",
-            open && "rotate-180 text-[#e8453c]",
+            "h-2.5 w-2.5 text-[#666676] transition-transform duration-200 group-hover:text-accent",
+            open && "rotate-180 text-accent",
           )}
           fill="none"
           stroke="currentColor"
@@ -58,9 +58,9 @@ export function AccountMenu({
       </button>
 
       {open && (
-        <div className="absolute right-0 top-10 z-50 min-w-[180px] overflow-hidden rounded-xl border border-[#1e1e2a] bg-[#0d0d1a] shadow-xl">
+        <div className="absolute right-0 top-10 z-50 min-w-[180px] overflow-hidden rounded-xl border border-edge bg-[#0d0d1a] shadow-xl">
           {user?.email != null && (
-            <div className="border-b border-[#1e1e2a] px-4 py-3">
+            <div className="border-b border-edge px-4 py-3">
               <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#444458]">
                 Signed in as
               </p>
@@ -72,11 +72,11 @@ export function AccountMenu({
           <Link
             href={WHATS_NEW_LINK.href}
             onClick={() => setOpen(false)}
-            className="flex w-full items-center gap-2 border-b border-[#1e1e2a] px-4 py-3 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#888899] transition hover:bg-[#111120] hover:text-[#F5F5F0]"
+            className="flex w-full items-center gap-2 border-b border-edge px-4 py-3 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#888899] transition hover:bg-[#111120] hover:text-fg-hi"
           >
             {WHATS_NEW_LINK.label}
             {unreadCount > 0 && (
-              <span className="ml-auto rounded-full bg-[#e8453c] px-1.5 py-0.5 text-[9px] font-bold leading-none tracking-normal text-[#0a0a14]">
+              <span className="ml-auto rounded-full bg-accent px-1.5 py-0.5 text-[9px] font-bold leading-none tracking-normal text-[#0a0a14]">
                 {unreadCount}
               </span>
             )}
@@ -87,8 +87,8 @@ export function AccountMenu({
               href={link.href}
               onClick={() => setOpen(false)}
               className={cn(
-                "flex w-full items-center px-4 py-3 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#888899] transition hover:bg-[#111120] hover:text-[#F5F5F0]",
-                i === ACCOUNT_LINKS.length - 1 && "border-b border-[#1e1e2a]",
+                "flex w-full items-center px-4 py-3 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#888899] transition hover:bg-[#111120] hover:text-fg-hi",
+                i === ACCOUNT_LINKS.length - 1 && "border-b border-edge",
               )}
             >
               {link.label}
@@ -97,7 +97,7 @@ export function AccountMenu({
           <button
             type="button"
             onClick={signOutToHome}
-            className="flex w-full items-center px-4 py-3 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#888899] transition hover:bg-[#111120] hover:text-[#F5F5F0]"
+            className="flex w-full items-center px-4 py-3 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#888899] transition hover:bg-[#111120] hover:text-fg-hi"
           >
             Sign Out
           </button>

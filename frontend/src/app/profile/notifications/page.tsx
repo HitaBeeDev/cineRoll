@@ -45,7 +45,7 @@ function NotificationsSkeleton() {
           key={index}
           className="border-b border-[#16161f] px-5 py-4 last:border-b-0"
         >
-          <div className="h-3 w-1/2 animate-pulse rounded bg-[#15151f]" />
+          <div className="h-3 w-1/2 animate-pulse rounded bg-ink-750" />
           <div className="mt-3 h-3 w-3/4 animate-pulse rounded bg-[#111119]" />
         </div>
       ))}

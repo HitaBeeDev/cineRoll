@@ -26,7 +26,7 @@ export function ListDetailCard({
       <FilmLink
         slug={film.slug}
         aria-label={`${film.title}${film.year ? ` (${film.year})` : ""}`}
-        className="block outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/50 focus-visible:ring-offset-4 focus-visible:ring-offset-[#08080d]"
+        className="block outline-none focus-visible:ring-2 focus-visible:ring-accent/50 focus-visible:ring-offset-4 focus-visible:ring-offset-ink-950"
       >
         <div className="relative aspect-[2/3] overflow-hidden rounded-md border border-white/[0.08] bg-[#11111a] shadow-[0_18px_40px_rgba(0,0,0,0.34)] transition-all duration-300 group-hover:-translate-y-1 group-hover:border-white/[0.18]">
           {film.posterUrl ? (
@@ -58,8 +58,8 @@ export function ListDetailCard({
         className={cn(
           "absolute right-2 top-2 inline-flex h-8 w-8 items-center justify-center rounded-full",
           "border border-white/15 bg-black/65 text-white/70 backdrop-blur-md",
-          "transition-colors hover:border-[#e8453c]/60 hover:text-[#e8453c]",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
+          "transition-colors hover:border-accent/60 hover:text-accent",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
           "disabled:cursor-not-allowed disabled:opacity-50",
         )}
       >
@@ -72,7 +72,7 @@ export function ListDetailCard({
         </h3>
         <TileMetaLine film={film} />
         {summary ? (
-          <p className="mt-1 line-clamp-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-[#D4AF37]">
+          <p className="mt-1 line-clamp-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-gold">
             {summary}
           </p>
         ) : null}

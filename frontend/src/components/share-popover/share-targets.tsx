@@ -24,7 +24,7 @@ export function ShareTargets({
           className={cn(
             "flex h-10 flex-1 items-center justify-center rounded-lg border border-white/12 bg-white/[0.04] text-[#c8c8d8]",
             "transition-colors hover:border-white/25 hover:bg-white/[0.08] hover:text-white",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
           )}
         >
           <ShareGlyph intent={intent.key} />

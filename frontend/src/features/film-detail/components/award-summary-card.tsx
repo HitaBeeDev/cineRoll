@@ -49,14 +49,14 @@ export function AwardSummaryCard(props: AwardSummaryCardProps) {
               className={cn(
                 "grid grid-cols-[auto_1fr_auto] items-center gap-4 border-l-2 px-5 py-3.5",
                 record.won
-                  ? "border-l-[#D4AF37] bg-[#16130b]"
+                  ? "border-l-gold bg-[#16130b]"
                   : "border-l-transparent bg-[#080810]",
               )}
             >
               <span
                 className={cn(
                   "shrink-0 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.4em]",
-                  record.won ? "text-[#D4AF37]" : "text-[#2a2a3a]",
+                  record.won ? "text-gold" : "text-[#2a2a3a]",
                 )}
               >
                 {record.won ? "◆ Won" : "Nom"}

@@ -17,7 +17,7 @@ export function RetryButton({ label = "Try again" }: { label?: string }) {
       type="button"
       disabled={isPending}
       onClick={() => startTransition(() => router.refresh())}
-      className="inline-flex items-center rounded-xl bg-[#e8453c] px-6 py-3 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.2em] text-[#F5F5F0] transition-colors hover:bg-[#d5342b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] disabled:cursor-not-allowed disabled:opacity-60"
+      className="inline-flex items-center rounded-xl bg-accent px-6 py-3 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.2em] text-fg-hi transition-colors hover:bg-[#d5342b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:cursor-not-allowed disabled:opacity-60"
     >
       {isPending ? "Retrying…" : label}
     </button>

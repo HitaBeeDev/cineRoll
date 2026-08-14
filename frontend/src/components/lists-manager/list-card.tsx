@@ -36,7 +36,7 @@ export function ListCard({
     <li className="group relative flex flex-col rounded-2xl border border-[#26262f] bg-[#101019] transition-colors hover:border-[#3a3a4c] hover:bg-[#14141c]">
       {/* Cover: up to three recent posters filling the card width, with a
           gradient base to unify the artwork against the dark card. */}
-      <div className="relative flex aspect-[16/10] gap-px overflow-hidden rounded-t-2xl bg-[#08080d]">
+      <div className="relative flex aspect-[16/10] gap-px overflow-hidden rounded-t-2xl bg-ink-950">
         {posters.length > 0 ? (
           posters.map((poster, i) => (
             <div key={i} className="relative h-full flex-1 overflow-hidden">
@@ -75,12 +75,12 @@ export function ListCard({
               onBlur={commitRename}
               maxLength={MAX_NAME}
               aria-label="List name"
-              className="min-h-[40px] min-w-0 flex-1 rounded-lg border border-[#2a2a35] bg-[#16161f] px-3 font-[family-name:var(--font-geist-sans)] text-[15px] text-[#F7F7F2] focus:border-[#e8453c]/60 focus:outline-none"
+              className="min-h-[40px] min-w-0 flex-1 rounded-lg border border-[#2a2a35] bg-[#16161f] px-3 font-[family-name:var(--font-geist-sans)] text-[15px] text-[#F7F7F2] focus:border-accent/60 focus:outline-none"
             />
             <button
               type="submit"
               aria-label="Save name"
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-[#7ee787] hover:bg-white/5"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-affirm-hi hover:bg-white/5"
             >
               <Check className="h-4 w-4" aria-hidden />
             </button>
@@ -114,7 +114,7 @@ export function ListCard({
         <Link
           href={`/profile/lists/${list.id}`}
           aria-label={`Open ${list.name}`}
-          className="absolute inset-0 z-10 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#e8453c]"
+          className="absolute inset-0 z-10 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent"
         />
       )}
     </li>

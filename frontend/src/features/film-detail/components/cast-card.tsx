@@ -12,7 +12,7 @@ export function CastCard({ member, accent }: CastCardProps) {
   return (
     <Link
       href={`/person/${nameToSlug(member.name)}`}
-      className="group relative flex flex-col overflow-hidden border border-[#1e1e30] bg-[#0d0d18] transition-colors hover:border-[#e8453c]/30"
+      className="group relative flex flex-col overflow-hidden border border-[#1e1e30] bg-[#0d0d18] transition-colors hover:border-accent/30"
     >
       <div className="relative w-full overflow-hidden" style={{ aspectRatio: "2/3" }}>
         {member.photoUrl ? (
@@ -36,7 +36,7 @@ export function CastCard({ member, accent }: CastCardProps) {
             </div>
           </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#08080d] via-[#08080d]/30 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-ink-950 via-ink-950/30 to-transparent" />
       </div>
       <div className="px-3 pb-4 pt-2.5">
         <p className="truncate text-[0.8rem] font-semibold leading-5 text-[#d4d4e8]">

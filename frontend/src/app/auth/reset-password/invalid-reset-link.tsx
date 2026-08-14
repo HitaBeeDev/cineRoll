@@ -4,7 +4,7 @@ export function InvalidResetLink() {
   return (
     <div>
       <h1 className="font-[family-name:var(--font-display)] text-3xl font-bold leading-tight sm:text-4xl">
-        Invalid <span className="text-[#e8453c]">link</span>
+        Invalid <span className="text-accent">link</span>
       </h1>
       <p className="mt-3 text-sm leading-6 text-[#c8c8d4]">
         This reset link is missing or malformed. Request a new one to continue.

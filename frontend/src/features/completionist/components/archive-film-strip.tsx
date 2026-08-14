@@ -34,7 +34,7 @@ export function ArchiveFilmStrip({
           index < filled ? (
             <motion.span
               key={index}
-              className="h-4 flex-1 rounded-[2px] bg-gradient-to-b from-[#e8453c] to-[#9e2924] shadow-[0_0_8px_rgba(232,69,60,0.35)]"
+              className="h-4 flex-1 rounded-[2px] bg-gradient-to-b from-accent to-[#9e2924] shadow-[0_0_8px_rgba(232,69,60,0.35)]"
               initial={
                 reduceMotion
                   ? { opacity: 1, scaleY: 1 }
@@ -51,7 +51,7 @@ export function ArchiveFilmStrip({
           ) : (
             <span
               key={index}
-              className="h-4 flex-1 rounded-[2px] bg-[#15151f]"
+              className="h-4 flex-1 rounded-[2px] bg-ink-750"
             />
           ),
         )}

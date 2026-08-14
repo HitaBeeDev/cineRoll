@@ -45,7 +45,7 @@ export function FilmTile({ film, className, awardBodies, awardStatus = "any" }: 
         });
       }}
       aria-label={`${film.title} (${formatFilmYear(film)})`}
-      className={cn("group block w-full min-w-0 rounded-md outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/50 focus-visible:ring-offset-4 focus-visible:ring-offset-[#08080d]", className)}
+      className={cn("group block w-full min-w-0 rounded-md outline-none focus-visible:ring-2 focus-visible:ring-accent/50 focus-visible:ring-offset-4 focus-visible:ring-offset-ink-950", className)}
     >
       {/* Poster */}
       <div className="relative aspect-[2/3] overflow-hidden rounded-md border border-white/[0.08] bg-[#11111a] shadow-[0_18px_40px_rgba(0,0,0,0.34)] transition-all duration-300 group-hover:-translate-y-1 group-hover:border-white/[0.18] group-hover:shadow-[0_26px_60px_rgba(0,0,0,0.48)]">
@@ -76,7 +76,7 @@ export function FilmTile({ film, className, awardBodies, awardStatus = "any" }: 
             {listBadge && (
               <span
                 aria-label={`${listBadge.label} ${listBadge.detail}`}
-                className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-[#D4AF37]/45 bg-black/70 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] font-semibold uppercase tracking-[0.14em] text-[#f2d86f] shadow-lg shadow-black/25 backdrop-blur-sm"
+                className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-gold/45 bg-black/70 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] font-semibold uppercase tracking-[0.14em] text-[#f2d86f] shadow-lg shadow-black/25 backdrop-blur-sm"
               >
                 <span className="truncate">{listBadge.label}</span>
                 <span className="shrink-0 text-[#f8f0b3]">{listBadge.detail}</span>

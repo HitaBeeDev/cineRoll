@@ -55,12 +55,12 @@ export function CreateListForm({
           disabled={atLimit || creating}
           maxLength={MAX_NAME}
           placeholder="e.g. Weekend classics"
-          className="min-h-[48px] min-w-0 flex-1 rounded-xl border border-[#2a2a35] bg-[#16161f] px-3.5 font-[family-name:var(--font-geist-sans)] text-[15px] text-[#F7F7F2] placeholder:text-[#6f6f82] focus:border-[#e8453c]/60 focus:outline-none disabled:opacity-50"
+          className="min-h-[48px] min-w-0 flex-1 rounded-xl border border-[#2a2a35] bg-[#16161f] px-3.5 font-[family-name:var(--font-geist-sans)] text-[15px] text-[#F7F7F2] placeholder:text-[#6f6f82] focus:border-accent/60 focus:outline-none disabled:opacity-50"
         />
         <button
           type="submit"
           disabled={!newName.trim() || atLimit || creating}
-          className="inline-flex min-h-[48px] shrink-0 items-center gap-1.5 rounded-xl bg-[#e8453c] px-5 font-[family-name:var(--font-geist-sans)] text-[15px] font-semibold text-white transition-colors hover:bg-[#d5342b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] disabled:cursor-not-allowed disabled:bg-[#26262f] disabled:text-[#7a7a8c]"
+          className="inline-flex min-h-[48px] shrink-0 items-center gap-1.5 rounded-xl bg-accent px-5 font-[family-name:var(--font-geist-sans)] text-[15px] font-semibold text-white transition-colors hover:bg-[#d5342b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:cursor-not-allowed disabled:bg-[#26262f] disabled:text-[#7a7a8c]"
         >
           {creating ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : null}
           Create list

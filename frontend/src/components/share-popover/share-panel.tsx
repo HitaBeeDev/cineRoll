@@ -65,14 +65,14 @@ export function SharePanel({
 
       <div className="flex flex-col gap-3 p-4">
         <div className="flex items-start justify-between gap-3">
-          <p className="font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.16em] text-[#F5F5F0]">
+          <p className="font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.16em] text-fg-hi">
             Share {title}
           </p>
           <button
             type="button"
             aria-label="Close"
             onClick={onClose}
-            className="shrink-0 rounded-md p-0.5 text-[#666680] transition-colors hover:bg-white/[0.06] hover:text-[#F5F5F0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
+            className="shrink-0 rounded-md p-0.5 text-[#666680] transition-colors hover:bg-white/[0.06] hover:text-fg-hi focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           >
             <X className="h-3.5 w-3.5" aria-hidden />
           </button>

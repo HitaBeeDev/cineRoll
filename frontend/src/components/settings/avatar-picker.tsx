@@ -57,7 +57,7 @@ export function AvatarPicker({
             type="button"
             onClick={() => setShowAll((v) => !v)}
             aria-expanded={showAll}
-            className="mt-1 self-start text-[13px] font-medium text-[#9a9aae] underline-offset-4 transition-colors hover:text-[#F5F5F0] hover:underline focus-visible:outline-none focus-visible:underline"
+            className="mt-1 self-start text-[13px] font-medium text-[#9a9aae] underline-offset-4 transition-colors hover:text-fg-hi hover:underline focus-visible:outline-none focus-visible:underline"
           >
             {showAll ? "Show fewer" : `Show all avatars (${rest.length} more)`}
           </button>

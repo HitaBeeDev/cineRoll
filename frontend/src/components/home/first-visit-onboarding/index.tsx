@@ -26,7 +26,7 @@ export function FirstVisitOnboarding({
   });
 
   return (
-    <div className="relative flex min-h-screen flex-col overflow-hidden bg-[#09090f] text-[#F5F5F0]">
+    <div className="relative flex min-h-screen flex-col overflow-hidden bg-ink-900 text-fg-hi">
       <OnboardingBackdrop />
 
       <OnboardingHeader onSkip={skip} />

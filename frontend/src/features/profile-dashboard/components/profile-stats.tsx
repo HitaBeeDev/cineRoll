@@ -9,7 +9,7 @@ export function ProfileStats({ summary }: ProfileStatsProps) {
     summary.genresFromSignals && summary.favoriteGenres.length > 0;
 
   return (
-    <div className="mt-8 border-t border-[#1e1e2a] pt-7">
+    <div className="mt-8 border-t border-edge pt-7">
       <div className="flex flex-wrap gap-x-12 gap-y-5">
         <ProfileStat label="Watchlist" value={summary.watchlist} />
         <ProfileStat label="Watched" value={summary.watched} />

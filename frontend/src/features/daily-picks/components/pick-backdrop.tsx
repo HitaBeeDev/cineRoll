@@ -16,10 +16,10 @@ export function PickBackdrop({ film, priority }: PickBackdropProps) {
           priority={priority}
         />
       ) : (
-        <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a2e] to-[#09090f]" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a2e] to-ink-900" />
       )}
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#09090f] via-[#09090f]/35 to-[#09090f]/10" />
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#09090f]/85 via-[#09090f]/30 to-transparent" />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink-900 via-ink-900/35 to-ink-900/10" />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-ink-900/85 via-ink-900/30 to-transparent" />
     </>
   );
 }

@@ -19,7 +19,7 @@ export function RecommendationPoster({
     : null;
 
   return (
-    <div className="group relative aspect-[2/3] w-full overflow-hidden rounded-lg border border-[#1e1e2a] bg-[#111120] transition-colors hover:border-[#e8453c]/60">
+    <div className="group relative aspect-[2/3] w-full overflow-hidden rounded-lg border border-edge bg-[#111120] transition-colors hover:border-accent/60">
       {posterUrl ? (
         <Image
           src={posterUrl}
@@ -42,7 +42,7 @@ export function RecommendationPoster({
       <FilmLink
         slug={recommendation.slug}
         aria-label={recommendation.title}
-        className="absolute inset-0 z-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#e8453c]"
+        className="absolute inset-0 z-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent"
       />
       <RecommendationActionBar actions={actions} />
     </div>

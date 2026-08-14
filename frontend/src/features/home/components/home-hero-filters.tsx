@@ -28,7 +28,7 @@ export function HomeHeroFilters({ hero, filters, genres, hasActiveFilters, onFil
       <div
         aria-hidden
         className={cn(
-          "pointer-events-none absolute inset-x-0 bottom-0 hidden h-14 bg-gradient-to-t from-[#09090f] via-[#09090f]/70 to-transparent transition-opacity duration-200 lg:block",
+          "pointer-events-none absolute inset-x-0 bottom-0 hidden h-14 bg-gradient-to-t from-ink-900 via-ink-900/70 to-transparent transition-opacity duration-200 lg:block",
           filterScroll.hasMore ? "opacity-100" : "opacity-0",
         )}
       />

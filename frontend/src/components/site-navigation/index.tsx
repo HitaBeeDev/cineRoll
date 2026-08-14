@@ -12,7 +12,7 @@ type SiteNavigationProps = {
 };
 
 export function SiteNavigation({
-  focusRingClassName = "focus-visible:ring-[#e8453c]",
+  focusRingClassName = "focus-visible:ring-accent",
 }: SiteNavigationProps) {
   const pathname = usePathname();
   const menu = useMobileMenu();

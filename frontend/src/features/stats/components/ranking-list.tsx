@@ -8,7 +8,7 @@ import { Panel } from "./panel";
 type RankingListProps = { icon: ReactNode; title: string; films: FilmStat[]; unit: string; accent: Accent };
 
 export function RankingList({ icon, title, films, unit, accent }: RankingListProps) {
-  const accentClass = accent === "red" ? "text-[#ff766d]" : "text-[#78b7ff]";
+  const accentClass = accent === "red" ? "text-accent-soft" : "text-[#78b7ff]";
   return (
     <Panel className="min-w-0 overflow-hidden">
       <div className="mb-2 flex items-center gap-3"><span className={cn("flex h-9 w-9 items-center justify-center rounded-md border border-white/10 bg-white/[0.045]", accentClass)}>{icon}</span><h3 className="text-xl font-semibold tracking-normal text-[#f2eff8]">{title}</h3></div>

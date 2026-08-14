@@ -9,7 +9,7 @@ export function FilmPosterCard({ film }: FilmPosterCardProps) {
   return (
     <FilmLink
       slug={film.slug}
-      className="group relative flex flex-col overflow-hidden border border-[#1e1e30] bg-[#0d0d18] transition-all duration-300 hover:border-[#e8453c]/30 hover:shadow-lg hover:shadow-[#e8453c]/5"
+      className="group relative flex flex-col overflow-hidden border border-[#1e1e30] bg-[#0d0d18] transition-all duration-300 hover:border-accent/30 hover:shadow-lg hover:shadow-accent/5"
     >
       <div className="relative overflow-hidden" style={{ aspectRatio: "2/3" }}>
         {film.posterUrl ? (
@@ -34,7 +34,7 @@ export function FilmPosterCard({ film }: FilmPosterCardProps) {
           <span
             className={`px-1.5 py-0.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.3em] ${
               film.role === "director"
-                ? "bg-[#e8453c]/80 text-white"
+                ? "bg-accent/80 text-white"
                 : "bg-black/60 text-white/50"
             }`}
           >

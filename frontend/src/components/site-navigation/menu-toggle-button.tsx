@@ -17,7 +17,7 @@ export function MenuToggleButton({
       className={cn(
         "inline-flex h-10 w-10 items-center justify-center rounded-full",
         "border border-[#222232] text-[#888899]",
-        "transition-colors hover:text-[#F5F5F0] focus-visible:outline-none focus-visible:ring-2 md:hidden",
+        "transition-colors hover:text-fg-hi focus-visible:outline-none focus-visible:ring-2 md:hidden",
         focusRingClassName,
       )}
       aria-label="Open navigation menu"

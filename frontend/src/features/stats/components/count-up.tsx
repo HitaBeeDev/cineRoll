@@ -24,7 +24,6 @@ export function CountUp({
   const [display, setDisplay] = useState(value);
   const elementRef = useRef<HTMLSpanElement>(null);
   const startedRef = useRef(false);
-  const frameRef = useRef(0);
 
   useEffect(() => {
     // The ramp is an entrance flourish: it runs once, the first time the number
@@ -40,12 +39,15 @@ export function CountUp({
     const element = elementRef.current;
     if (!element) return;
 
+    // The frame handle belongs to this run of the effect, so the cleanup cancels
+    // the loop it actually started.
+    const animation = { frame: 0 };
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (!entry?.isIntersecting) return;
         startedRef.current = true;
         observer.disconnect();
-        animateCount(value, durationMs, setDisplay, frameRef);
+        animateCount(value, durationMs, setDisplay, animation);
       },
       { threshold: 0.35 },
     );
@@ -53,7 +55,7 @@ export function CountUp({
 
     return () => {
       observer.disconnect();
-      cancelAnimationFrame(frameRef.current);
+      cancelAnimationFrame(animation.frame);
     };
   }, [value, durationMs, reduced]);
 
@@ -69,17 +71,17 @@ function animateCount(
   value: number,
   durationMs: number,
   setDisplay: React.Dispatch<React.SetStateAction<number>>,
-  frameRef: React.RefObject<number>,
+  animation: { frame: number },
 ): void {
   const start = performance.now();
   setDisplay(0);
-  // Every frame handle goes through the ref, so an unmount mid-ramp cancels the
-  // loop instead of leaving it running against a gone component.
+  // Every frame handle is written back, so an unmount mid-ramp cancels the loop
+  // instead of leaving it running against a gone component.
   const tick = (now: number) => {
     const progress = Math.min(1, (now - start) / durationMs);
     setDisplay(value * (1 - Math.pow(1 - progress, 3)));
-    if (progress < 1) frameRef.current = requestAnimationFrame(tick);
+    if (progress < 1) animation.frame = requestAnimationFrame(tick);
     else setDisplay(value);
   };
-  frameRef.current = requestAnimationFrame(tick);
+  animation.frame = requestAnimationFrame(tick);
 }

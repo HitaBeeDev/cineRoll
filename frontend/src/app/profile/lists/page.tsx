@@ -49,7 +49,7 @@ export default async function ListsPage() {
       <div className="mx-auto w-full max-w-[1120px] px-6 py-12 lg:px-10">
         <Link
           href="/profile"
-          className="inline-flex items-center gap-1.5 rounded font-[family-name:var(--font-geist-sans)] text-[13px] text-[#b4b4c4] underline-offset-4 transition-colors hover:text-[#e8453c] hover:underline focus-visible:text-[#e8453c] focus-visible:underline focus-visible:outline-none"
+          className="inline-flex items-center gap-1.5 rounded font-[family-name:var(--font-geist-sans)] text-[13px] text-[#b4b4c4] underline-offset-4 transition-colors hover:text-accent hover:underline focus-visible:text-accent focus-visible:underline focus-visible:outline-none"
         >
           <span aria-hidden>←</span> Back to profile
         </Link>
@@ -67,7 +67,7 @@ async function ListsBody({ resultPromise }: { resultPromise: Promise<ListsResult
 
   if (result.status === "error") {
     return (
-      <div className="mt-10 flex flex-col items-center gap-5 rounded-2xl border border-[#e8453c]/25 bg-[#0d0d1a] px-6 py-20 text-center">
+      <div className="mt-10 flex flex-col items-center gap-5 rounded-2xl border border-accent/25 bg-[#0d0d1a] px-6 py-20 text-center">
         <p className="max-w-sm font-[family-name:var(--font-geist-sans)] text-[15px] leading-relaxed text-[#c2c2ce]">
           We couldn’t load your lists. This is usually a hiccup on our end — check
           your connection and try again.

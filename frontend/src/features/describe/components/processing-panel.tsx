@@ -21,11 +21,11 @@ export function ProcessingPanel({
   return (
     <div className="flex h-full min-h-0 flex-col p-4">
       <div className="mb-3 flex shrink-0 flex-wrap items-center gap-2">
-        <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.24em] text-[#e8453c]/80 motion-safe:animate-pulse">
+        <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.24em] text-accent/80 motion-safe:animate-pulse">
           {interpreted ? "Ranking picks" : "Reading description"}
         </p>
         {interpreted?.relaxed && (
-          <span className="rounded-full border border-[#2a2a3e] px-2 py-0.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#888899]">
+          <span className="rounded-full border border-edge-strong px-2 py-0.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#888899]">
             Relaxed filters
           </span>
         )}

@@ -23,7 +23,7 @@ export function FilmDetailsSection({
               {film.genres.map((genre) => (
                 <span
                   key={genre}
-                  className="border border-[#25253a] px-3.5 py-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.35em] text-[#8888a8] transition-colors hover:border-[#e8453c]/40 hover:text-[#d0d0e8]"
+                  className="border border-[#25253a] px-3.5 py-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.35em] text-[#8888a8] transition-colors hover:border-accent/40 hover:text-[#d0d0e8]"
                 >
                   {formatGenre(genre)}
                 </span>
@@ -54,13 +54,13 @@ export function FilmDetailsSection({
                 href={`https://www.imdb.com/title/${film.imdbId}/`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group flex items-center justify-between gap-8 border border-[#25253a] bg-[#0d0d18] px-5 py-4 transition-colors hover:border-[#e8453c]/40"
+                className="group flex items-center justify-between gap-8 border border-[#25253a] bg-[#0d0d18] px-5 py-4 transition-colors hover:border-accent/40"
               >
                 <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.4em] text-[#9898b8] transition-colors group-hover:text-[#f4f4f5]">
                   IMDb
                 </span>
                 <ExternalLink
-                  className="h-3.5 w-3.5 text-[#555570] transition-colors group-hover:text-[#e8453c]"
+                  className="h-3.5 w-3.5 text-[#555570] transition-colors group-hover:text-accent"
                   aria-hidden
                 />
               </a>

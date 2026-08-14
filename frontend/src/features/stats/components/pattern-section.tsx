@@ -7,7 +7,7 @@ export function PatternSection({ viewModel }: { viewModel: StatsViewModel }) {
     <section className="border-t border-white/10 pt-12">
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-12">
         <div>
-          <div className="flex items-center gap-2 font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-[0.22em] text-[#e8453c]"><Sparkles className="h-3.5 w-3.5" />The pattern</div>
+          <div className="flex items-center gap-2 font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-[0.22em] text-accent"><Sparkles className="h-3.5 w-3.5" />The pattern</div>
           <h2 className="mt-4 font-[family-name:var(--font-display)] text-3xl font-bold leading-[1.1] text-[#f4f0f7] sm:text-[2.75rem]">The archive is not evenly distributed.</h2>
           <p className="mt-4 font-[family-name:var(--font-display)] text-xl leading-relaxed text-[#b6b2c6] sm:text-2xl">{viewModel.conclusionPoints.join(" ")}</p>
         </div>

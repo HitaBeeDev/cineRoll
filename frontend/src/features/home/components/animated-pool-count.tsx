@@ -6,11 +6,11 @@ import type { AnimatedPoolCountProps } from "../component-props";
 export function AnimatedPoolCount({ value }: AnimatedPoolCountProps) {
   const reducedMotion = useReducedMotion();
   if (reducedMotion) {
-    return <span className="font-[family-name:var(--font-geist-mono)] text-[2rem] font-bold leading-none text-[#F5F5F0]">{value}</span>;
+    return <span className="font-[family-name:var(--font-geist-mono)] text-[2rem] font-bold leading-none text-fg-hi">{value}</span>;
   }
 
   return (
-    <span aria-live="polite" aria-atomic="true" className="inline-flex font-[family-name:var(--font-geist-mono)] text-[2rem] font-bold leading-none text-[#F5F5F0]">
+    <span aria-live="polite" aria-atomic="true" className="inline-flex font-[family-name:var(--font-geist-mono)] text-[2rem] font-bold leading-none text-fg-hi">
       <span className="sr-only">{value}</span>
       {/* Keyed from the RIGHT: digits keep their slot as the number changes
           length, the way an odometer does. Keying from the left renamed every

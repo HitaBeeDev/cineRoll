@@ -17,7 +17,7 @@ export function CompletionProgressBar({
       aria-hidden
     >
       <motion.div
-        className="h-full rounded-full bg-gradient-to-r from-[#9e2924] to-[#e8453c]"
+        className="h-full rounded-full bg-gradient-to-r from-[#9e2924] to-accent"
         initial={reduceMotion ? { width } : { width: 0 }}
         whileInView={{ width }}
         viewport={{ once: true, amount: 0.5 }}

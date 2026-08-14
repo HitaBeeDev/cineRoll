@@ -8,7 +8,7 @@ type StatsPageShellProps = { stats: StatsResponse | null };
 
 export function StatsPageShell({ stats }: StatsPageShellProps) {
   return (
-    <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-[#08080d] text-[#F5F5F0]">
+    <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-ink-950 text-fg-hi">
       <StatsStructuredData />
       <AppHeader />
       {stats ? <StatsContent stats={stats} /> : <StatsUnavailable />}

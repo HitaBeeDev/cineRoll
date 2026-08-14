@@ -51,7 +51,7 @@ export function WatchTonightButton({ title, year }: WatchTonightButtonProps) {
         className={cn(
           "mx-auto flex h-13 w-full max-w-sm items-center justify-center gap-3 rounded-lg border",
           "border-[color:color-mix(in_srgb,var(--film-accent,#D4AF37)_48%,rgb(63_63_70))]",
-          "bg-[#09090f]/92 px-5 text-sm font-semibold text-[#F5F5F0] shadow-2xl shadow-black/50 backdrop-blur-[20px]",
+          "bg-ink-900/92 px-5 text-sm font-semibold text-fg-hi shadow-2xl shadow-black/50 backdrop-blur-[20px]",
           "transition-colors hover:text-[var(--film-accent,#D4AF37)]",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--film-accent,#D4AF37)]",
           "md:h-12 md:w-auto md:max-w-none"

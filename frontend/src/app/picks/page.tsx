@@ -17,7 +17,7 @@ export default function PicksPage() {
   );
 
   return (
-    <div className="min-h-screen bg-[#09090f] text-[#F5F5F0]">
+    <div className="min-h-screen bg-ink-900 text-fg-hi">
       <AppHeader />
       <main>
         <AnimatePresence mode="wait">

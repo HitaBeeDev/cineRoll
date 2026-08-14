@@ -25,7 +25,7 @@ export function RollRecipeLine({
         onClick={() => void share()}
         title="Share these filters"
         aria-label="Share these filters"
-        className="shrink-0 text-[#444458] transition-colors hover:text-[#e8453c] focus-visible:outline-none focus-visible:text-[#e8453c]"
+        className="shrink-0 text-[#444458] transition-colors hover:text-accent focus-visible:outline-none focus-visible:text-accent"
       >
         {isCopied
           ? <Check className="h-3 w-3" aria-hidden />

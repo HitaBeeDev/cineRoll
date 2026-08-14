@@ -16,7 +16,7 @@ export default function Loading() {
         </div>
 
         {/* Stats row */}
-        <div className="mt-8 flex flex-wrap gap-x-12 gap-y-5 border-t border-[#1e1e2a] pt-7">
+        <div className="mt-8 flex flex-wrap gap-x-12 gap-y-5 border-t border-edge pt-7">
           {Array.from({ length: 3 }).map((_, i) => (
             <div key={i} className="space-y-2">
               <div className="h-7 w-10 animate-pulse rounded bg-[#111120]" />
@@ -30,14 +30,14 @@ export default function Loading() {
           {Array.from({ length: 3 }).map((_, i) => (
             <div
               key={i}
-              className="h-40 animate-pulse rounded-xl border border-[#1e1e2a] bg-[#0d0d1a]"
+              className="h-40 animate-pulse rounded-xl border border-edge bg-[#0d0d1a]"
             />
           ))}
         </div>
 
         {/* Completionist tracker */}
         <div className="mt-16">
-          <div className="flex items-end justify-between border-b border-[#1e1e2a] pb-6">
+          <div className="flex items-end justify-between border-b border-edge pb-6">
             <div className="space-y-3">
               <div className="h-2.5 w-24 animate-pulse rounded bg-[#171722]" />
               <div className="h-6 w-56 animate-pulse rounded bg-[#111120]" />

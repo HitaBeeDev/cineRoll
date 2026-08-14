@@ -23,9 +23,9 @@ export function HeroFilmIdentity({
   return (
     <>
       {film.isPickOfDay && (
-        <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#e8453c]/40 bg-[#e8453c]/14 px-3.5 py-2 backdrop-blur-sm">
-          <Sparkles className="h-3 w-3 text-[#e8453c]" aria-hidden />
-          <span className="font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.28em] text-[#e8453c]">
+        <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-accent/40 bg-accent/14 px-3.5 py-2 backdrop-blur-sm">
+          <Sparkles className="h-3 w-3 text-accent" aria-hidden />
+          <span className="font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.28em] text-accent">
             Pick of the Day
           </span>
         </div>
@@ -80,7 +80,7 @@ export function HeroFilmIdentity({
           {formatContentType(film) && contentTypeFilterValue(film) && (
             <Link
               href={`/browse?contentType=${encodeURIComponent(contentTypeFilterValue(film))}`}
-              className="inline-flex items-center rounded-[3px] border border-white/30 bg-white/[0.08] px-2.5 py-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em] text-white/90 backdrop-blur-sm transition-colors hover:border-[#e8453c]/45 hover:bg-[#e8453c]/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
+              className="inline-flex items-center rounded-[3px] border border-white/30 bg-white/[0.08] px-2.5 py-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em] text-white/90 backdrop-blur-sm transition-colors hover:border-accent/45 hover:bg-accent/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             >
               {formatContentType(film)}
             </Link>

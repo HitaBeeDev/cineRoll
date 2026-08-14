@@ -11,7 +11,7 @@ export function StandbyMarqueeRow({ ariaHidden = false }: { ariaHidden?: boolean
       {STANDBY_LINEUP.map((title) => (
         <span key={title} className="flex shrink-0 items-center gap-6 whitespace-nowrap">
           {title}
-          <span className="text-[#D4AF37]/55">◆</span>
+          <span className="text-gold/55">◆</span>
         </span>
       ))}
     </div>

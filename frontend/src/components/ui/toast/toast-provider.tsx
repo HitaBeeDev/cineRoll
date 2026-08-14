@@ -14,7 +14,7 @@ const icons: Record<ToastVariant, React.ReactNode> = {
   default: <Info className="h-3.5 w-3.5 text-[#7f7f92]" />,
   success: <Check className="h-3.5 w-3.5 text-[#5fbf72]" />,
   error: <AlertCircle className="h-3.5 w-3.5 text-[#e8695f]" />,
-  signin: <SlidersHorizontal className="h-3.5 w-3.5 text-[#D4AF37]" />,
+  signin: <SlidersHorizontal className="h-3.5 w-3.5 text-gold" />,
 };
 
 // Plain feedback should clear quickly and quietly; conversion nudges that carry
@@ -25,9 +25,9 @@ const DEFAULT_TOAST_DURATION = 3200;
 function actionClassName(variant: ToastVariant): string {
   return cn(
     "mt-1.5 inline-flex w-fit items-center gap-1 rounded text-[13px] font-medium",
-    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
     variant === "signin"
-      ? "rounded-md bg-[#e8453c] px-3 py-1.5 text-white transition-colors hover:bg-[#ff5247]"
+      ? "rounded-md bg-accent px-3 py-1.5 text-white transition-colors hover:bg-[#ff5247]"
       : "text-[#e8695f] transition-colors hover:text-[#ff5247]",
   );
 }
@@ -80,7 +80,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
               </span>
               <div className="flex min-w-0 flex-1 flex-col gap-0.5">
                 {t.title && (
-                  <ToastPrimitive.Title className="text-[13px] font-medium leading-snug text-[#F5F5F0]">
+                  <ToastPrimitive.Title className="text-[13px] font-medium leading-snug text-fg-hi">
                     {t.title}
                   </ToastPrimitive.Title>
                 )}
@@ -121,7 +121,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
                   // Subtle by default, only firms up on hover — non-intrusive.
                   "-mr-1 -mt-0.5 shrink-0 rounded p-0.5 text-white/25",
                   "transition-colors duration-150 hover:text-white/70",
-                  "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#e8453c]",
+                  "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent",
                   hasAction && "self-start",
                 )}
               >

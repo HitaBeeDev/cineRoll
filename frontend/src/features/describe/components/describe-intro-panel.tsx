@@ -6,7 +6,7 @@ export function DescribeIntroPanel() {
   return (
     <div className="flex h-full min-w-0 flex-col p-5 sm:p-6">
       <div>
-        <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.16em] text-[#e8453c]/70 sm:text-[11px] sm:tracking-[0.24em]">
+        <p className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.16em] text-accent/70 sm:text-[11px] sm:tracking-[0.24em]">
           Channel 04 · Ask AI
         </p>
         <p className="mt-2 font-[family-name:var(--font-display)] text-2xl leading-tight text-[#b6b6c6]">
@@ -24,7 +24,7 @@ export function DescribeIntroPanel() {
           <span className="shrink-0 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em] text-[#888899] sm:tracking-[0.24em]">
             We read
           </span>
-          <span className="h-px flex-1 bg-[#1e1e2a]" />
+          <span className="h-px flex-1 bg-edge" />
         </div>
         <div className="flex min-w-0 flex-wrap items-center gap-2">
           <FilterChipList chips={EXAMPLE_FILTERS} />

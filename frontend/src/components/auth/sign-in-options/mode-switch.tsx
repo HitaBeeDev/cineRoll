@@ -15,7 +15,7 @@ export function ModeSwitch({
       <button
         type="button"
         onClick={() => onSwitch(isSignin ? "signup" : "signin")}
-        className="font-medium text-[#c8c8d4] underline-offset-2 transition-colors hover:text-[#F5F5F0] hover:underline"
+        className="font-medium text-[#c8c8d4] underline-offset-2 transition-colors hover:text-fg-hi hover:underline"
       >
         {isSignin ? "Create an account" : "Sign in"}
       </button>

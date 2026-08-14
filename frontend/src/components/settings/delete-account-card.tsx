@@ -18,7 +18,7 @@ export function DeleteAccountCard() {
   return (
     <section className="rounded-2xl border border-[#3a1f22] bg-[#130d10] px-6 py-6">
       <div className="flex items-start gap-3">
-        <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#e8453c]/30 bg-[#e8453c]/10 text-[#f0736a]">
+        <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-accent/30 bg-accent/10 text-[#f0736a]">
           <Trash2 className="h-4 w-4" aria-hidden />
         </div>
         <div className="min-w-0">
@@ -37,9 +37,9 @@ export function DeleteAccountCard() {
           <button
             type="button"
             className={cn(
-              "mt-5 inline-flex h-11 items-center justify-center rounded-xl border border-[#e8453c]/40 px-4",
-              "text-sm font-semibold text-[#f0736a] transition-colors hover:border-[#e8453c]/70 hover:bg-[#e8453c]/10",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/50",
+              "mt-5 inline-flex h-11 items-center justify-center rounded-xl border border-accent/40 px-4",
+              "text-sm font-semibold text-[#f0736a] transition-colors hover:border-accent/70 hover:bg-accent/10",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50",
             )}
           >
             Delete My Account
@@ -57,7 +57,7 @@ export function DeleteAccountCard() {
             <DialogClose asChild disabled={pending}>
               <button
                 type="button"
-                className="h-10 rounded-xl border border-white/10 px-4 text-sm font-medium text-[#c8c8d4] transition-colors hover:border-white/20 hover:text-[#F5F5F0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20"
+                className="h-10 rounded-xl border border-white/10 px-4 text-sm font-medium text-[#c8c8d4] transition-colors hover:border-white/20 hover:text-fg-hi focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20"
               >
                 Cancel
               </button>
@@ -66,7 +66,7 @@ export function DeleteAccountCard() {
               type="button"
               disabled={pending}
               onClick={() => void confirmDelete()}
-              className="h-10 rounded-xl bg-[#e8453c] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#f2554c] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] disabled:cursor-not-allowed disabled:opacity-60"
+              className="h-10 rounded-xl bg-accent px-4 text-sm font-semibold text-white transition-colors hover:bg-[#f2554c] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:cursor-not-allowed disabled:opacity-60"
             >
               {pending ? "Deleting..." : "Delete account"}
             </button>

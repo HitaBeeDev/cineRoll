@@ -11,8 +11,8 @@ export function FilterChipList({ chips, compact = false }: FilterChipListProps) 
           key={chip}
           className={
             compact
-              ? "rounded-full border border-[#2a2a3e] bg-[#09090f]/70 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-widest text-[#F5F5F0]"
-              : "max-w-full break-words rounded-full border border-[#2a2a3e] bg-[#09090f]/70 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.12em] text-[#F5F5F0] sm:text-[11px] sm:tracking-widest"
+              ? "rounded-full border border-edge-strong bg-ink-900/70 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-widest text-fg-hi"
+              : "max-w-full break-words rounded-full border border-edge-strong bg-ink-900/70 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.12em] text-fg-hi sm:text-[11px] sm:tracking-widest"
           }
         >
           {chip}

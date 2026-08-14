@@ -4,7 +4,7 @@ export function ProfileStat({ label, value }: ProfileStatProps) {
   return (
     <div>
       <div className="flex h-8 items-end">
-        <span className="font-[family-name:var(--font-display)] text-2xl font-bold leading-none text-[#F5F5F0]">
+        <span className="font-[family-name:var(--font-display)] text-2xl font-bold leading-none text-fg-hi">
           {value}
         </span>
       </div>

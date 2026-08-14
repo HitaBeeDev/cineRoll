@@ -42,7 +42,7 @@ export function ActiveFilterChips({
                   {chip.href && (
                     <Link
                       href={chip.href}
-                      className="flex h-full items-center pl-2.5 pr-1 transition-colors hover:text-[#e8453c]"
+                      className="flex h-full items-center pl-2.5 pr-1 transition-colors hover:text-accent"
                       title="View profile"
                     >
                       <ArrowUpRight className="h-3 w-3" aria-hidden />
@@ -52,8 +52,8 @@ export function ActiveFilterChips({
                     type="button"
                     onClick={chip.onRemove}
                     className={cn(
-                      "flex h-full items-center gap-1 transition-colors hover:text-[#F5F5F0]",
-                      "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#e8453c] focus-visible:rounded-full",
+                      "flex h-full items-center gap-1 transition-colors hover:text-fg-hi",
+                      "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent focus-visible:rounded-full",
                       chip.href ? "pr-2.5" : "px-2.5",
                     )}
                     aria-label={`Remove ${chip.label} filter`}
@@ -67,7 +67,7 @@ export function ActiveFilterChips({
             <button
               type="button"
               onClick={onClearFilters}
-              className="ml-1 shrink-0 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#9090a8] transition-colors hover:text-[#e8453c] focus-visible:outline-none"
+              className="ml-1 shrink-0 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#9090a8] transition-colors hover:text-accent focus-visible:outline-none"
             >
               Clear all
             </button>

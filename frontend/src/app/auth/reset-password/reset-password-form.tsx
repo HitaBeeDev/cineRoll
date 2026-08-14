@@ -21,7 +21,7 @@ export function ResetPasswordForm() {
   return (
     <div>
       <h1 className="font-[family-name:var(--font-display)] text-3xl font-bold leading-tight sm:text-4xl">
-        Set a new <span className="text-[#e8453c]">password</span>
+        Set a new <span className="text-accent">password</span>
       </h1>
       <p className="mt-3 text-sm leading-6 text-[#c8c8d4]">
         Choose a new password for your CineRoll account.

@@ -25,7 +25,7 @@ export function DescribeInputPanel(props: DescribeInputPanelProps) {
         props.showingResults ? "lg:col-span-4" : "lg:col-span-7",
       )}
     >
-      <div className="flex min-h-0 w-full min-w-0 max-w-full flex-1 flex-col rounded-lg border border-[#1e1e2a] bg-[#0d0d16] shadow-[0_18px_70px_rgba(0,0,0,0.28)]">
+      <div className="flex min-h-0 w-full min-w-0 max-w-full flex-1 flex-col rounded-lg border border-edge bg-[#0d0d16] shadow-[0_18px_70px_rgba(0,0,0,0.28)]">
         <PromptTextarea
           disabled={props.isProcessing}
           onChange={props.onPromptChange}
@@ -33,7 +33,7 @@ export function DescribeInputPanel(props: DescribeInputPanelProps) {
           prompt={props.prompt}
           textareaRef={props.textareaRef}
         />
-        <div className="shrink-0 border-t border-[#1e1e2a] px-4 py-4 sm:px-5">
+        <div className="shrink-0 border-t border-edge px-4 py-4 sm:px-5">
           <ExamplePromptList
             disabled={props.isProcessing}
             onSelect={props.onPromptChange}

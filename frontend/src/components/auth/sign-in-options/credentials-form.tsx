@@ -99,10 +99,10 @@ export function CredentialsForm({
         type="submit"
         disabled={busy}
         className={cn(
-          "h-12 w-full rounded-xl bg-[#e8453c]",
-          "text-sm font-semibold text-[#F5F5F0]",
+          "h-12 w-full rounded-xl bg-accent",
+          "text-sm font-semibold text-fg-hi",
           "shadow-[0_10px_28px_rgba(232,69,60,0.16)] transition hover:bg-[#f2554c]",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
           "disabled:cursor-not-allowed disabled:bg-[#8f302b] disabled:text-[#c9a1a0] disabled:shadow-none",
         )}
       >

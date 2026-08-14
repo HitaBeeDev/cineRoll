@@ -212,17 +212,17 @@ export function MultiSelect({
         onClick={togglePanel}
         className={cn(
           isPill
-            ? "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] focus-visible:ring-offset-1 focus-visible:ring-offset-[#09090f]"
+            ? "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 focus-visible:ring-offset-ink-900"
             // Fixed height, single line: the field is a summary, so adding a
             // fifth genre must not push the rest of the filter grid down.
-            : "flex h-10 w-full items-center justify-between gap-2 rounded-md border px-3 text-left text-[12px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]/40",
+            : "flex h-10 w-full items-center justify-between gap-2 rounded-md border px-3 text-left text-[12px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40",
           selected.length === 0
             ? isPill
-              ? "border-[#34344d] bg-[#0e0e1a] text-[#aaaac6] hover:border-[#6a6a85] hover:text-[#F5F5F0]"
+              ? "border-[#34344d] bg-[#0e0e1a] text-[#aaaac6] hover:border-edge-hover hover:text-fg-hi"
               : "border-white/10 bg-white/[0.045] text-[#b8b5c8] hover:border-white/20"
             : isPill
               ? "border-[#d8d8e2] bg-[#d8d8e2] text-[#0c0c14]"
-              : "border-[#5a5a72] bg-white/[0.08] text-[#F5F5F0]",
+              : "border-[#5a5a72] bg-white/[0.08] text-fg-hi",
           triggerClassName,
         )}
       >
@@ -274,7 +274,7 @@ export function MultiSelect({
               <button
                 type="button"
                 onClick={() => onChange([])}
-                className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest text-[#a9a5bc] transition-colors hover:text-[#ff766d] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#e8453c]"
+                className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-widest text-[#a9a5bc] transition-colors hover:text-accent-soft focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
               >
                 Clear
               </button>

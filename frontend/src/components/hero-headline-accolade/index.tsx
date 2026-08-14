@@ -82,7 +82,7 @@ export function HeroHeadlineAccolade({
 
         <a
           href="#awards"
-          className="group mt-5 inline-flex items-center gap-2 font-[family-name:var(--font-geist-mono)] text-[10px] font-semibold uppercase tracking-[0.3em] text-white/50 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
+          className="group mt-5 inline-flex items-center gap-2 font-[family-name:var(--font-geist-mono)] text-[10px] font-semibold uppercase tracking-[0.3em] text-white/50 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
         >
           See full breakdown
           <span aria-hidden className="transition-transform group-hover:translate-x-0.5">

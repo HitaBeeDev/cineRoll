@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 
 export default function PrivacyPage() {
   return (
-    <main className="min-h-screen bg-[#08080d] text-[#f4f4f5]">
+    <main className="min-h-screen bg-ink-950 text-[#f4f4f5]">
       <AppHeader />
       <LegalHero title="Privacy Policy" updatedAt={PRIVACY_POLICY_UPDATED_AT} />
       <PrivacyPolicyContent />

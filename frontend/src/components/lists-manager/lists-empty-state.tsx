@@ -14,7 +14,7 @@ export function ListsEmptyState({ onNewList }: { onNewList: () => void }) {
       <button
         type="button"
         onClick={onNewList}
-        className="mt-2 inline-flex min-h-[44px] items-center gap-2 rounded-xl bg-[#e8453c] px-5 font-[family-name:var(--font-geist-sans)] text-[14px] font-semibold text-white transition-colors hover:bg-[#d5342b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
+        className="mt-2 inline-flex min-h-[44px] items-center gap-2 rounded-xl bg-accent px-5 font-[family-name:var(--font-geist-sans)] text-[14px] font-semibold text-white transition-colors hover:bg-[#d5342b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
       >
         <Plus className="h-[18px] w-[18px]" aria-hidden />
         New list

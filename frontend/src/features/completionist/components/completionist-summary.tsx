@@ -3,14 +3,14 @@ import type { CompletionistSummaryProps } from "../completionist-component-types
 
 export function CompletionistSummary({ overall }: CompletionistSummaryProps) {
   return (
-    <div className="flex flex-col gap-4 border-b border-[#1e1e2a] pb-6 sm:flex-row sm:items-end sm:justify-between">
+    <div className="flex flex-col gap-4 border-b border-edge pb-6 sm:flex-row sm:items-end sm:justify-between">
       <div>
-        <p className="font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.2em] text-[#e8453c]">
+        <p className="font-[family-name:var(--font-geist-mono)] text-[10px] font-bold uppercase tracking-[0.2em] text-accent">
           Completionist
         </p>
         <h2
           id="completionist-heading"
-          className="mt-2 font-[family-name:var(--font-display)] text-2xl font-bold text-[#F5F5F0]"
+          className="mt-2 font-[family-name:var(--font-display)] text-2xl font-bold text-fg-hi"
         >
           Your archive progress
         </h2>
@@ -24,7 +24,7 @@ export function CompletionistSummary({ overall }: CompletionistSummaryProps) {
           value={overall.percentage}
           decimals={Number.isInteger(overall.percentage) ? 0 : 1}
           suffix="%"
-          className="font-[family-name:var(--font-display)] text-5xl font-bold tabular-nums text-[#F5F5F0]"
+          className="font-[family-name:var(--font-display)] text-5xl font-bold tabular-nums text-fg-hi"
         />
         <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[12px] uppercase tracking-[0.08em] text-[#b4b4c4]">
           <CountUp value={overall.watched} /> of{" "}

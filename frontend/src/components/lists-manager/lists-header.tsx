@@ -26,7 +26,7 @@ export function ListsHeader({
           type="button"
           onClick={onNewList}
           disabled={atLimit}
-          className="inline-flex min-h-[44px] shrink-0 items-center gap-2 rounded-xl bg-[#e8453c] px-5 font-[family-name:var(--font-geist-sans)] text-[15px] font-semibold text-white transition-colors hover:bg-[#d5342b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] focus-visible:ring-offset-2 focus-visible:ring-offset-[#07070b] disabled:cursor-not-allowed disabled:bg-[#26262f] disabled:text-[#7a7a8c]"
+          className="inline-flex min-h-[44px] shrink-0 items-center gap-2 rounded-xl bg-accent px-5 font-[family-name:var(--font-geist-sans)] text-[15px] font-semibold text-white transition-colors hover:bg-[#d5342b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-[#07070b] disabled:cursor-not-allowed disabled:bg-[#26262f] disabled:text-[#7a7a8c]"
         >
           <Plus className="h-[18px] w-[18px]" aria-hidden />
           New list

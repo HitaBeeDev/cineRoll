@@ -14,7 +14,7 @@ export default function Loading() {
         <div className="h-8 w-40 animate-pulse rounded bg-[#111120]" />
 
         {/* Account */}
-        <section className="mt-10 rounded-xl border border-[#1e1e2a] bg-[#0d0d1a] px-6 py-7">
+        <section className="mt-10 rounded-xl border border-edge bg-[#0d0d1a] px-6 py-7">
           <div className="h-3 w-20 animate-pulse rounded bg-[#111120]" />
           <div className="mt-5 flex items-center gap-4">
             <div className="h-14 w-14 animate-pulse rounded-full bg-[#12121c]" />
@@ -27,7 +27,7 @@ export default function Loading() {
         </section>
 
         {/* Avatar */}
-        <section className="mt-6 rounded-xl border border-[#1e1e2a] bg-[#0d0d1a] px-6 py-7">
+        <section className="mt-6 rounded-xl border border-edge bg-[#0d0d1a] px-6 py-7">
           <div className="h-3 w-16 animate-pulse rounded bg-[#111120]" />
           <div className="mt-2 h-3 w-64 animate-pulse rounded bg-[#0f0f18]" />
           <div className="mt-5 flex flex-wrap gap-3">
@@ -41,7 +41,7 @@ export default function Loading() {
         </section>
 
         {/* Password */}
-        <section className="mt-6 rounded-xl border border-[#1e1e2a] bg-[#0d0d1a] px-6 py-7">
+        <section className="mt-6 rounded-xl border border-edge bg-[#0d0d1a] px-6 py-7">
           <div className="h-3 w-32 animate-pulse rounded bg-[#111120]" />
           <div className="mt-2 h-3 w-56 animate-pulse rounded bg-[#0f0f18]" />
           <div className="mt-4 space-y-4">

@@ -22,7 +22,7 @@ export function SectionHeader({
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
       <div>
-        <p className="font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-[0.22em] text-[#e8453c]">
+        <p className="font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-[0.22em] text-accent">
           {eyebrow}
         </p>
         <h2
@@ -38,7 +38,7 @@ export function SectionHeader({
       {actionHref && actionLabel && (
         <Link
           href={actionHref}
-          className="inline-flex w-fit items-center gap-2 rounded-md border border-white/10 bg-white/[0.045] px-3.5 py-2 font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-[0.14em] text-[#c4c1d2] transition-colors hover:border-[#e8453c]/45 hover:text-[#ff766d]"
+          className="inline-flex w-fit items-center gap-2 rounded-md border border-white/10 bg-white/[0.045] px-3.5 py-2 font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-[0.14em] text-[#c4c1d2] transition-colors hover:border-accent/45 hover:text-accent-soft"
         >
           {actionLabel}
           <ArrowUpRight className="h-3.5 w-3.5" />

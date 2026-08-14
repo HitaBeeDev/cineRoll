@@ -15,9 +15,9 @@ export function GoogleSignInButton({
       disabled={disabled}
       className={cn(
         "flex h-12 w-full items-center justify-center gap-3 rounded-xl border border-white/10",
-        "text-sm font-semibold text-[#F5F5F0]",
+        "text-sm font-semibold text-fg-hi",
         "transition hover:border-white/20 hover:bg-white/5",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
         "disabled:cursor-not-allowed disabled:opacity-50",
       )}
     >

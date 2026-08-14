@@ -74,7 +74,7 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} ${playfairDisplay.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-[#09090f] text-[#F5F5F0]">
+      <body className="min-h-full flex flex-col bg-ink-900 text-fg-hi">
         <Providers>
           <Suspense fallback={null}>
             <AnalyticsPageView />

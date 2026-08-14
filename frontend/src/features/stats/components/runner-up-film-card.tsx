@@ -6,7 +6,7 @@ import type { Accent, FilmStat } from "../types";
 type RunnerUpFilmCardProps = { film: FilmStat; rank: number; unit: string; accent: Accent };
 
 export function RunnerUpFilmCard({ film, rank, unit, accent }: RunnerUpFilmCardProps) {
-  const accentClass = accent === "red" ? "text-[#ff766d]" : "text-[#78b7ff]";
+  const accentClass = accent === "red" ? "text-accent-soft" : "text-[#78b7ff]";
   return (
     <FilmLink slug={film.slug} className="group flex min-w-0 gap-3 rounded-lg border border-white/10 bg-white/[0.025] p-3 transition-colors hover:border-white/20 hover:bg-white/[0.04]">
       <div className="relative h-20 w-[54px] shrink-0 overflow-hidden rounded bg-[#11111a]">

@@ -15,7 +15,7 @@ export default function DescribePage() {
   const showingResults = naturalRoll.isProcessing || naturalRoll.hasOutcome;
 
   return (
-    <div className="flex min-h-screen w-full min-w-0 max-w-full flex-1 flex-col overflow-x-hidden bg-[#09090f] text-[#F5F5F0] lg:min-h-0 lg:overflow-hidden">
+    <div className="flex min-h-screen w-full min-w-0 max-w-full flex-1 flex-col overflow-x-hidden bg-ink-900 text-fg-hi lg:min-h-0 lg:overflow-hidden">
       <AppHeader />
       <main className="min-h-0 w-full min-w-0 max-w-full flex-1 overflow-x-hidden px-4 py-4 sm:px-8 lg:flex lg:flex-col lg:overflow-hidden lg:px-10 lg:py-5">
         <section className="grid min-h-0 w-full min-w-0 max-w-full gap-4 lg:flex-1 lg:grid-rows-[auto_minmax(0,1fr)]">

@@ -34,7 +34,7 @@ export function HeroCTAs({
             // same baseline as the watchlist control beside it. Full width on a
             // phone, where the three groups can't share a line anyway — better
             // a deliberate stack led by the primary than an accidental wrap.
-            "flex h-12 w-full items-center justify-center gap-2.5 bg-[#e8453c] px-7 font-bold tracking-[0.22em] text-white sm:w-auto sm:justify-start shadow-lg shadow-[#e8453c]/20 transition-all hover:bg-[#d5342b] hover:shadow-[#e8453c]/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
+            "flex h-12 w-full items-center justify-center gap-2.5 bg-accent px-7 font-bold tracking-[0.22em] text-white sm:w-auto sm:justify-start shadow-lg shadow-accent/20 transition-all hover:bg-[#d5342b] hover:shadow-accent/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
           )}
         >
           <Play className="h-3.5 w-3.5 fill-current" aria-hidden />

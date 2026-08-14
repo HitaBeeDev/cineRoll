@@ -11,11 +11,11 @@ export function ForgotPasswordForm() {
     return (
       <div>
         <h1 className="font-[family-name:var(--font-display)] text-3xl font-bold leading-tight sm:text-4xl">
-          Check your <span className="text-[#e8453c]">email</span>
+          Check your <span className="text-accent">email</span>
         </h1>
         <p className="mt-3 text-sm leading-6 text-[#c8c8d4]">
           If an account exists for{" "}
-          <span className="text-[#F5F5F0]">{email}</span>, we&apos;ve sent a link to
+          <span className="text-fg-hi">{email}</span>, we&apos;ve sent a link to
           reset your password. It expires in 30 minutes.
         </p>
         <Link
@@ -31,7 +31,7 @@ export function ForgotPasswordForm() {
   return (
     <div>
       <h1 className="font-[family-name:var(--font-display)] text-3xl font-bold leading-tight sm:text-4xl">
-        Reset your <span className="text-[#e8453c]">password</span>
+        Reset your <span className="text-accent">password</span>
       </h1>
       <p className="mt-3 text-sm leading-6 text-[#c8c8d4]">
         Enter your email and we&apos;ll send you a link to set a new password.
@@ -58,8 +58,8 @@ export function ForgotPasswordForm() {
             required
             className={cn(
               "h-12 w-full rounded-xl border border-[#2b2b3d] bg-[#10101d] px-4",
-              "text-sm text-[#F5F5F0] placeholder:text-[#777789]",
-              "transition-colors focus:border-[#e8453c]/70 focus:outline-none focus:ring-2 focus:ring-[#e8453c]/15",
+              "text-sm text-fg-hi placeholder:text-[#777789]",
+              "transition-colors focus:border-accent/70 focus:outline-none focus:ring-2 focus:ring-accent/15",
             )}
           />
         </div>
@@ -67,10 +67,10 @@ export function ForgotPasswordForm() {
           type="submit"
           disabled={isLoading}
           className={cn(
-            "h-12 w-full rounded-xl bg-[#e8453c]",
-            "text-sm font-semibold text-[#F5F5F0]",
+            "h-12 w-full rounded-xl bg-accent",
+            "text-sm font-semibold text-fg-hi",
             "shadow-[0_10px_28px_rgba(232,69,60,0.16)] transition hover:bg-[#f2554c]",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
             "disabled:cursor-not-allowed disabled:bg-[#8f302b] disabled:text-[#c9a1a0] disabled:shadow-none",
           )}
         >

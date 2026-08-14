@@ -14,7 +14,7 @@ export function TasteCheckIntro({
 
   return (
     <section className="flex max-w-xl flex-col items-start">
-      <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.35em] text-[#D4AF37]">
+      <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.35em] text-gold">
         {"// Taste check"}
       </p>
 
@@ -38,10 +38,10 @@ export function TasteCheckIntro({
           className={cn(
             "min-w-[220px] px-7 py-4",
             "font-[family-name:var(--font-geist-mono)] text-sm font-bold uppercase tracking-[0.2em] transition",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090f]",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-ink-900",
             hasSelection
-              ? "bg-[#F5F5F0] text-[#09090f] hover:bg-white hover:shadow-[0_18px_50px_rgba(245,245,240,0.16)]"
-              : "border border-[#2a2a3e] bg-[#11111b]/70 text-[#a6a6b5] hover:border-[#4b4b60] hover:text-[#F5F5F0]",
+              ? "bg-fg-hi text-ink-900 hover:bg-white hover:shadow-[0_18px_50px_rgba(245,245,240,0.16)]"
+              : "border border-edge-strong bg-ink-800/70 text-[#a6a6b5] hover:border-[#4b4b60] hover:text-fg-hi",
           )}
         >
           {hasSelection ? `Done · ${selectedCount}` : "Continue"}
@@ -49,7 +49,7 @@ export function TasteCheckIntro({
       </div>
 
       <div className="mt-5 flex items-center gap-3 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.22em] text-[#888899]">
-        <span className="h-px w-9 bg-[#e8453c]/55" />
+        <span className="h-px w-9 bg-accent/55" />
         {hasSelection ? `${selectedCount} selected` : "Tap any poster you've seen"}
       </div>
     </section>

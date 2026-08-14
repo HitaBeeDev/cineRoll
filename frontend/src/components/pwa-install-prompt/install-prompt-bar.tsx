@@ -46,7 +46,7 @@ export function InstallPromptBar({
       animate={reduced ? { opacity: 1 } : { opacity: 1, y: 0 }}
       exit={reduced ? { opacity: 0 } : { opacity: 0, y: 16 }}
       transition={{ duration: 0.28, ease: "easeOut" }}
-      className="fixed inset-x-3 bottom-3 z-30 mx-auto flex max-w-md items-center gap-3 rounded-2xl border border-[#2a2a3e] bg-[#0d0d1a]/97 px-3 py-2.5 shadow-[0_16px_40px_rgba(0,0,0,0.55)] backdrop-blur-md"
+      className="fixed inset-x-3 bottom-3 z-30 mx-auto flex max-w-md items-center gap-3 rounded-2xl border border-edge-strong bg-[#0d0d1a]/97 px-3 py-2.5 shadow-[0_16px_40px_rgba(0,0,0,0.55)] backdrop-blur-md"
       style={{ marginBottom: "env(safe-area-inset-bottom)" }}
     >
       <Image
@@ -55,17 +55,17 @@ export function InstallPromptBar({
         aria-hidden
         width={36}
         height={36}
-        className="h-9 w-9 shrink-0 rounded-lg border border-[#1e1e2a]"
+        className="h-9 w-9 shrink-0 rounded-lg border border-edge"
       />
 
-      <p className="min-w-0 flex-1 text-[13px] leading-[1.3] text-[#F5F5F0]">
+      <p className="min-w-0 flex-1 text-[13px] leading-[1.3] text-fg-hi">
         Add CineRoll to your home screen
       </p>
 
       <button
         type="button"
         onClick={android ? onInstall : onExpand}
-        className="shrink-0 rounded-lg bg-[#e8453c] px-3 py-2 font-[family-name:var(--font-geist-mono)] text-[12px] font-bold text-[#09090f] transition-colors hover:bg-[#ff5c52] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff766d]"
+        className="shrink-0 rounded-lg bg-accent px-3 py-2 font-[family-name:var(--font-geist-mono)] text-[12px] font-bold text-ink-900 transition-colors hover:bg-accent-hi focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-soft"
       >
         {android ? "Add" : "How"}
       </button>
@@ -74,7 +74,7 @@ export function InstallPromptBar({
         type="button"
         onClick={onDismiss}
         aria-label="Dismiss"
-        className="-mr-1 shrink-0 rounded-full p-1.5 text-[#8a8a9e] transition-colors hover:bg-white/5 hover:text-[#F5F5F0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+        className="-mr-1 shrink-0 rounded-full p-1.5 text-[#8a8a9e] transition-colors hover:bg-white/5 hover:text-fg-hi focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
       >
         <X className="h-4 w-4" aria-hidden />
       </button>

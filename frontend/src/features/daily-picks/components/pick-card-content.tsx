@@ -15,7 +15,7 @@ export function PickCardContent({ pick }: PickCardContentProps) {
       <div className="max-w-2xl">
         <PickSlotKicker slot={slot} />
         <h2
-          className="font-[family-name:var(--font-display)] text-4xl font-bold leading-[1.04] text-[#F5F5F0] sm:text-6xl"
+          className="font-[family-name:var(--font-display)] text-4xl font-bold leading-[1.04] text-fg-hi sm:text-6xl"
           style={{ textShadow: "0 2px 20px rgba(0,0,0,0.6)" }}
         >
           {film.title}
@@ -32,7 +32,7 @@ export function PickCardContent({ pick }: PickCardContentProps) {
         <div className="mt-7 flex items-center gap-2.5">
           <FilmLink
             slug={film.slug}
-            className="group/btn inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/[0.04] px-6 py-3 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.2em] text-[#F5F5F0] backdrop-blur-sm transition-colors duration-150 hover:border-white/50 hover:bg-white/[0.1]"
+            className="group/btn inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/[0.04] px-6 py-3 font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.2em] text-fg-hi backdrop-blur-sm transition-colors duration-150 hover:border-white/50 hover:bg-white/[0.1]"
           >
             <span>Watch Tonight</span>
             <ArrowUpRight className="h-3.5 w-3.5 transition-transform duration-150 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5" />

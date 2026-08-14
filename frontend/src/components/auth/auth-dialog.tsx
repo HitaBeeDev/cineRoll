@@ -30,9 +30,9 @@ export function AuthDialog({
 }: AuthDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-sm border-[#1e1e2a] bg-[#09090f]">
+      <DialogContent className="max-w-sm border-edge bg-ink-900">
         <DialogHeader>
-          <DialogTitle className="font-[family-name:var(--font-display)] text-2xl font-bold text-[#F5F5F0]">
+          <DialogTitle className="font-[family-name:var(--font-display)] text-2xl font-bold text-fg-hi">
             {title}
           </DialogTitle>
           <DialogDescription className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.18em] text-[#888899]">

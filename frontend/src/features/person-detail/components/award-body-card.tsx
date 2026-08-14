@@ -40,7 +40,7 @@ export function AwardBodyCard({ body }: AwardBodyCardProps) {
             key={`${record.awardYear}-${record.category}-${record.filmSlug}`}
             className={`grid grid-cols-[auto_1fr_auto] items-center gap-4 border-l-2 px-5 py-3.5 ${
               record.won
-                ? "border-l-[#D4AF37]/50 bg-[#0e0d09]"
+                ? "border-l-gold/50 bg-[#0e0d09]"
                 : "border-l-transparent bg-[#080810]"
             }`}
           >
@@ -57,10 +57,10 @@ export function AwardBodyCard({ body }: AwardBodyCardProps) {
               </p>
               <FilmLink
                 slug={record.filmSlug}
-                className="group mt-0.5 inline-flex items-center gap-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-[#555570] transition-colors hover:text-[#e8453c]"
+                className="group mt-0.5 inline-flex items-center gap-1 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-[#555570] transition-colors hover:text-accent"
               >
                 {record.filmTitle}
-                <span className="text-[#2a2a3a] transition-colors group-hover:text-[#e8453c]">
+                <span className="text-[#2a2a3a] transition-colors group-hover:text-accent">
                   ({record.releaseYear})
                 </span>
               </FilmLink>

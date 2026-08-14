@@ -14,10 +14,10 @@ export function ArchiveInvitation({ categories }: ArchiveInvitationProps) {
           <Link
             key={category.key}
             href={`/browse?${COMPLETIONIST_BROWSE_FILTERS[category.key]}`}
-            className="group inline-flex items-baseline gap-2 rounded-full border border-[#1e1e2a] bg-[#0d0d1a] px-4 py-2 font-[family-name:var(--font-geist-mono)] text-[13px] text-[#c8c8d2] transition-colors hover:border-[#e8453c]/60 hover:text-[#F5F5F0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
+            className="group inline-flex items-baseline gap-2 rounded-full border border-edge bg-[#0d0d1a] px-4 py-2 font-[family-name:var(--font-geist-mono)] text-[13px] text-[#c8c8d2] transition-colors hover:border-accent/60 hover:text-fg-hi focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           >
             {category.label}
-            <span className="text-[12px] tabular-nums text-[#9a9aac] transition-colors group-hover:text-[#e8453c]">
+            <span className="text-[12px] tabular-nums text-[#9a9aac] transition-colors group-hover:text-accent">
               {category.total.toLocaleString()}
             </span>
           </Link>

@@ -23,8 +23,8 @@ export function ListRow({
       className={cn(
         "group flex items-stretch overflow-hidden rounded-xl border transition-colors",
         list.containsFilm
-          ? "border-[#e8453c]/35 bg-[#15131a]"
-          : "border-[#22222e] bg-[#14141c] hover:border-[#2f2f3d] hover:bg-[#17171f]",
+          ? "border-accent/35 bg-[#15131a]"
+          : "border-[#22222e] bg-[#14141c] hover:border-[#2f2f3d] hover:bg-edge-subtle",
       )}
     >
       <button
@@ -32,9 +32,9 @@ export function ListRow({
         disabled={busy}
         aria-pressed={list.containsFilm}
         onClick={onToggle}
-        className="flex min-w-0 flex-1 items-center gap-3.5 p-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#e8453c] disabled:opacity-60"
+        className="flex min-w-0 flex-1 items-center gap-3.5 p-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent disabled:opacity-60"
       >
-        <span className="relative flex h-[68px] w-[48px] shrink-0 items-center justify-center overflow-hidden rounded-md bg-[#08080d] ring-1 ring-black/40">
+        <span className="relative flex h-[68px] w-[48px] shrink-0 items-center justify-center overflow-hidden rounded-md bg-ink-950 ring-1 ring-black/40">
           {cover ? (
             <Image
               src={tmdbImageUrl(cover, "w185") ?? cover}
@@ -60,7 +60,7 @@ export function ListRow({
           className={cn(
             "flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition-colors",
             list.containsFilm
-              ? "border-[#e8453c] bg-[#e8453c] text-white"
+              ? "border-accent bg-accent text-white"
               : "border-[#3a3a4c] text-transparent group-hover:border-[#4a4a5c]",
           )}
           aria-hidden
@@ -76,7 +76,7 @@ export function ListRow({
         href={`/profile/lists/${list.id}`}
         aria-label={`Open ${list.name}`}
         title="Open list"
-        className="flex w-12 shrink-0 items-center justify-center border-l border-[#22222e] text-[#8a8a9c] transition-colors hover:bg-[#e8453c]/10 hover:text-[#e8453c] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#e8453c]"
+        className="flex w-12 shrink-0 items-center justify-center border-l border-[#22222e] text-[#8a8a9c] transition-colors hover:bg-accent/10 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent"
       >
         <ArrowUpRight className="h-[18px] w-[18px]" aria-hidden />
       </Link>

@@ -33,7 +33,7 @@ import type {
 // gold rings on dark, so a solid gold disc reads as the same family in a
 // different weight, not as a second award badge. Dark ink on gold clears 9:1.
 const WATCHED_ACTIVE =
-  "border-[#d4af37] bg-[#d4af37] text-[#0d0d14] hover:bg-[#d4af37]/90";
+  "border-gold bg-gold text-[#0d0d14] hover:bg-gold/90";
 
 // The three verdicts climb a ladder of emphasis rather than picking three
 // unrelated colours: quiet ring → white ring → the brand coral. Read left to
@@ -44,7 +44,7 @@ const WATCHED_ACTIVE =
 // and /15) and the heart fills solid. The filled shape is what separates the two
 // at a glance — the watchlist is a labelled rectangle, this is a full heart.
 const LOVED_ACTIVE =
-  "border-[#e8453c]/70 bg-[#e8453c]/20 text-[#e8453c] hover:bg-[#e8453c]/25";
+  "border-accent/70 bg-accent/20 text-accent hover:bg-accent/25";
 
 const LIKED_ACTIVE = "border-white/60 bg-white/[0.12] text-white";
 

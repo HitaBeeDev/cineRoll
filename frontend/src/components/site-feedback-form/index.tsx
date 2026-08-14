@@ -46,7 +46,7 @@ export function SiteFeedbackForm({ onSuccess }: { onSuccess?: () => void }) {
         value={email}
         onChange={(event) => setEmail(event.target.value)}
         placeholder="Email optional"
-        className="h-11 w-full border border-[#242438] bg-[#080810] px-4 text-sm text-[#f4f4f5] outline-none transition-colors placeholder:text-[#606078] focus:border-[#e8453c]/60 focus:ring-1 focus:ring-[#e8453c]/50"
+        className="h-11 w-full border border-[#242438] bg-[#080810] px-4 text-sm text-[#f4f4f5] outline-none transition-colors placeholder:text-[#606078] focus:border-accent/60 focus:ring-1 focus:ring-accent/50"
       />
       <div>
         <label className="sr-only" htmlFor="feedback-message">
@@ -58,12 +58,12 @@ export function SiteFeedbackForm({ onSuccess }: { onSuccess?: () => void }) {
           onChange={(event) => setBody(event.target.value)}
           placeholder="What should CineRoll improve?"
           rows={3}
-          className="min-h-11 w-full resize-y border border-[#242438] bg-[#080810] px-4 py-3 text-sm leading-6 text-[#f4f4f5] outline-none transition-colors placeholder:text-[#606078] focus:border-[#e8453c]/60 focus:ring-1 focus:ring-[#e8453c]/50"
+          className="min-h-11 w-full resize-y border border-[#242438] bg-[#080810] px-4 py-3 text-sm leading-6 text-[#f4f4f5] outline-none transition-colors placeholder:text-[#606078] focus:border-accent/60 focus:ring-1 focus:ring-accent/50"
         />
         <p
           className={cn(
             "mt-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.24em]",
-            remaining < 120 ? "text-[#e8453c]" : "text-[#666680]",
+            remaining < 120 ? "text-accent" : "text-[#666680]",
           )}
         >
           {remaining}
@@ -73,7 +73,7 @@ export function SiteFeedbackForm({ onSuccess }: { onSuccess?: () => void }) {
         type="submit"
         size="md"
         disabled={!canSend}
-        className="h-11 rounded-none bg-[#e8453c] px-5 text-white hover:bg-[#d93d35]"
+        className="h-11 rounded-none bg-accent px-5 text-white hover:bg-[#d93d35]"
       >
         {isSending ? (
           <Loader2 className="h-4 w-4 animate-spin" aria-hidden />

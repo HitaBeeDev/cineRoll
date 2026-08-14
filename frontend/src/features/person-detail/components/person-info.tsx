@@ -7,7 +7,7 @@ import { PersonStats } from "./person-stats";
 export function PersonInfo({ person }: PersonInfoProps) {
   return (
     <div className="min-w-0 flex-1">
-      <p className="mb-3 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.5em] text-[#e8453c]">
+      <p className="mb-3 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.5em] text-accent">
         ◆ Award Profile
       </p>
       <h1
@@ -25,7 +25,7 @@ export function PersonInfo({ person }: PersonInfoProps) {
       <div className="mt-8">
         <Link
           href={`/browse?person=${encodeURIComponent(person.name)}`}
-          className="inline-flex max-w-full items-center gap-2 border border-[#e8453c]/30 bg-[#e8453c]/8 px-5 py-2.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.3em] text-[#e8453c]/80 transition-all hover:border-[#e8453c]/60 hover:bg-[#e8453c]/14 hover:text-[#e8453c]"
+          className="inline-flex max-w-full items-center gap-2 border border-accent/30 bg-accent/8 px-5 py-2.5 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.3em] text-accent/80 transition-all hover:border-accent/60 hover:bg-accent/14 hover:text-accent"
         >
           Browse films with {person.name}
           <ArrowUpRight className="h-3 w-3" aria-hidden />

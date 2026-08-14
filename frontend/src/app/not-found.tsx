@@ -15,13 +15,13 @@ export default function NotFound() {
         <div className="flex flex-col gap-3 sm:flex-row">
           <Link
             href="/"
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#e8453c] px-5 py-2.5 text-sm font-semibold text-[#09090f] transition-colors hover:bg-[#d5342b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-ink-900 transition-colors hover:bg-[#d5342b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           >
             Roll a random film
           </Link>
           <Link
             href="/browse"
-            className="inline-flex items-center justify-center gap-2 rounded-xl border border-[#222232] px-5 py-2.5 text-sm font-medium text-[#888899] transition-colors hover:border-[#e8453c]/40 hover:text-[#F5F5F0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]"
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-[#222232] px-5 py-2.5 text-sm font-medium text-[#888899] transition-colors hover:border-accent/40 hover:text-fg-hi focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           >
             <ArrowLeft className="h-4 w-4" aria-hidden />
             Back to Browse

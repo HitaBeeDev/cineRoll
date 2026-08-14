@@ -9,7 +9,7 @@ export function RecommendationsSectionView({
 }: RecommendationsSectionViewProps) {
   return (
     <section className="mt-16">
-      <h2 className="font-[family-name:var(--font-display)] text-2xl font-bold text-[#F5F5F0]">
+      <h2 className="font-[family-name:var(--font-display)] text-2xl font-bold text-fg-hi">
         Recommended for you
       </h2>
       <p className="mt-2 font-[family-name:var(--font-geist-mono)] text-[13px] text-[#b4b4c4]">

@@ -53,7 +53,7 @@ export function CardMenu({
         onClick={() => (open ? close() : setOpen(true))}
         className={cn(
           "flex h-9 w-9 items-center justify-center rounded-lg border border-[#2a2a35] bg-white/[0.03] text-[#b4b4c4] transition-colors",
-          "hover:border-[#3a3a4c] hover:bg-white/[0.08] hover:text-[#F7F7F2] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
+          "hover:border-[#3a3a4c] hover:bg-white/[0.08] hover:text-[#F7F7F2] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
           open && "border-[#3a3a4c] bg-white/[0.08] text-[#F7F7F2]",
         )}
       >
@@ -77,7 +77,7 @@ export function CardMenu({
                   close();
                   onDelete();
                 }}
-                className="flex w-full items-center rounded-lg px-2.5 py-2 text-left font-[family-name:var(--font-geist-sans)] text-[14px] font-medium text-[#f0857d] transition-colors hover:bg-[#e8453c]/12"
+                className="flex w-full items-center rounded-lg px-2.5 py-2 text-left font-[family-name:var(--font-geist-sans)] text-[14px] font-medium text-[#f0857d] transition-colors hover:bg-accent/12"
               >
                 Delete list
               </button>
@@ -107,7 +107,7 @@ export function CardMenu({
                 type="button"
                 role="menuitem"
                 onClick={() => setConfirming(true)}
-                className="flex w-full items-center rounded-lg px-2.5 py-2 text-left font-[family-name:var(--font-geist-sans)] text-[14px] text-[#e6e6ee] transition-colors hover:bg-[#e8453c]/12 hover:text-[#f0857d]"
+                className="flex w-full items-center rounded-lg px-2.5 py-2 text-left font-[family-name:var(--font-geist-sans)] text-[14px] text-[#e6e6ee] transition-colors hover:bg-accent/12 hover:text-[#f0857d]"
               >
                 Delete
               </button>

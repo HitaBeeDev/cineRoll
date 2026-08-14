@@ -16,7 +16,7 @@ export interface ButtonProps
 
 const variants: Record<Variant, string> = {
   primary: cn(
-    "bg-accent text-[#09090f] font-semibold",
+    "bg-accent text-ink-900 font-semibold",
     "hover:brightness-110",
     "active:brightness-95 active:scale-[0.97]",
     "disabled:bg-surface-muted disabled:text-muted"

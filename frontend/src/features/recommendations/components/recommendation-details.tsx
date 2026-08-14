@@ -5,7 +5,7 @@ export function RecommendationDetails({
 }: RecommendationDetailsProps) {
   return (
     <>
-      <h3 className="mt-3 line-clamp-1 font-[family-name:var(--font-display)] text-sm font-bold text-[#F5F5F0]">
+      <h3 className="mt-3 line-clamp-1 font-[family-name:var(--font-display)] text-sm font-bold text-fg-hi">
         {recommendation.title}
       </h3>
       <p className="font-[family-name:var(--font-geist-mono)] text-[12px] tracking-[0.08em] text-[#9a9aac]">

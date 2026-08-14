@@ -17,9 +17,9 @@ export function RecommendationActionButton({
       disabled={disabled}
       onClick={onClick}
       className={cn(
-        "pointer-events-auto flex h-8 w-8 items-center justify-center rounded-md border backdrop-blur-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c] disabled:cursor-not-allowed disabled:opacity-50",
+        "pointer-events-auto flex h-8 w-8 items-center justify-center rounded-md border backdrop-blur-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:cursor-not-allowed disabled:opacity-50",
         active
-          ? "border-[#e8453c]/60 bg-[#e8453c]/25 text-white"
+          ? "border-accent/60 bg-accent/25 text-white"
           : "border-white/25 bg-black/45 text-white/80 hover:border-white/45 hover:text-white",
       )}
     >

@@ -13,7 +13,7 @@ export function HomeExperience(props: HomeExperienceProps) {
   const announcement = buildRollAnnouncement(props.film, props.isRolling, props.pool.effectiveCount);
 
   return (
-    <div className="isolate flex min-h-dvh flex-col overflow-x-hidden bg-[#09090f] text-[#F5F5F0] lg:h-screen lg:overflow-hidden">
+    <div className="isolate flex min-h-dvh flex-col overflow-x-hidden bg-ink-900 text-fg-hi lg:h-screen lg:overflow-hidden">
       <AppHeader />
       <main className="flex min-w-0 flex-1 flex-col lg:grid lg:h-[calc(100vh-4rem)] lg:grid-cols-12 lg:overflow-hidden">
         <HomeControlPanel hero={props.hero} filters={props.filters} genres={props.genres} hasActiveFilters={props.hasActiveFilters} onFiltersChange={props.onApplyFilters} onClearFilters={props.onClearTrackedFilters} onOpenHistory={() => setHistoryOpen(true)} isRolling={props.isRolling} isSearching={props.isSearching} pool={props.pool} personalizedRoll={props.personalizedRoll} showPersonalizedRoll={Boolean(props.userId)} onRoll={props.onRoll} onTogglePersonalizedRoll={props.onTogglePersonalizedRoll} />

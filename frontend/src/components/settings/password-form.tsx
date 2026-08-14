@@ -90,9 +90,9 @@ export function PasswordForm({ hasPassword }: { hasPassword: boolean }) {
           type="submit"
           disabled={pending}
           className={cn(
-            "h-11 rounded-xl bg-[#d4af37] px-5 text-sm font-semibold text-[#0b0b12]",
+            "h-11 rounded-xl bg-gold px-5 text-sm font-semibold text-[#0b0b12]",
             "transition-colors hover:bg-[#e0bd4d] disabled:cursor-not-allowed disabled:opacity-60",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d4af37]/40",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/40",
           )}
         >
           {pending ? "Saving…" : hasPassword ? "Change password" : "Set password"}

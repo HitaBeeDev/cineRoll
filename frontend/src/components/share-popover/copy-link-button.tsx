@@ -10,9 +10,9 @@ export function CopyLinkButton({ copied, onCopy }: { copied: boolean; onCopy: ()
       className={cn(
         "flex items-center gap-2 rounded-lg border px-3 py-2.5 transition-colors",
         "font-[family-name:var(--font-geist-mono)] text-[11px] font-bold uppercase tracking-[0.14em]",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
         copied
-          ? "border-[#3fb950]/40 bg-[#3fb950]/12 text-[#7ee787]"
+          ? "border-affirm/40 bg-affirm/12 text-affirm-hi"
           : "border-white/12 bg-white/[0.04] text-[#d7d7e3] hover:border-white/25 hover:bg-white/[0.08] hover:text-white",
       )}
     >

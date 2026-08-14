@@ -53,7 +53,7 @@ export default async function SettingsPage() {
     <main className="flex-1 bg-[#07070b] text-[#f4f4f5]">
       <AppHeader />
       <div className="mx-auto max-w-5xl px-6 py-10 lg:px-10">
-        <h1 className="font-[family-name:var(--font-display)] text-3xl font-bold text-[#F5F5F0]">
+        <h1 className="font-[family-name:var(--font-display)] text-3xl font-bold text-fg-hi">
           Settings
         </h1>
 
@@ -75,7 +75,7 @@ export default async function SettingsPage() {
             />
             <div className="min-w-0">
               {name && (
-                <p className="truncate text-base font-semibold text-[#F5F5F0]">{name}</p>
+                <p className="truncate text-base font-semibold text-fg-hi">{name}</p>
               )}
               {email && <p className="truncate text-sm text-[#888899]">{email}</p>}
             </div>

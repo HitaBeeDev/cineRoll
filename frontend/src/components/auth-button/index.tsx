@@ -9,7 +9,7 @@ import { AccountMenu } from "@/components/auth-button/account-menu";
 import { useUnreadCount } from "@/features/notifications/use-unread-count";
 
 export function AuthButton({
-  focusRingClassName = "focus-visible:ring-[#e8453c]",
+  focusRingClassName = "focus-visible:ring-accent",
   variant = "menu",
   onNavigate,
 }: AuthButtonProps) {

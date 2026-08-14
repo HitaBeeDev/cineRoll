@@ -33,8 +33,8 @@ export function PickActions({ film }: PickActionsProps) {
         className={cn(
           "flex h-11 w-11 shrink-0 items-center justify-center rounded-full border transition-colors disabled:cursor-not-allowed disabled:opacity-60",
           seen
-            ? "border-white/30 bg-white/15 text-[#F5F5F0]"
-            : "border-white/20 text-[#cfcfdc] hover:border-white/40 hover:text-[#F5F5F0]",
+            ? "border-white/30 bg-white/15 text-fg-hi"
+            : "border-white/20 text-[#cfcfdc] hover:border-white/40 hover:text-fg-hi",
         )}
       >
         <Eye className="h-4 w-4" aria-hidden />
@@ -48,8 +48,8 @@ export function PickActions({ film }: PickActionsProps) {
         className={cn(
           "flex h-11 w-11 shrink-0 items-center justify-center rounded-full border transition-colors disabled:cursor-not-allowed disabled:opacity-60",
           actions.inWatchlist
-            ? "border-white/30 bg-white/15 text-[#F5F5F0]"
-            : "border-white/20 text-[#cfcfdc] hover:border-white/40 hover:text-[#F5F5F0]",
+            ? "border-white/30 bg-white/15 text-fg-hi"
+            : "border-white/20 text-[#cfcfdc] hover:border-white/40 hover:text-fg-hi",
         )}
       >
         <Bookmark
@@ -64,7 +64,7 @@ export function PickActions({ film }: PickActionsProps) {
         label=""
         ariaLabel="Share this pick"
         iconClassName="h-4 w-4"
-        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/20 text-[#cfcfdc] transition-colors hover:border-white/40 hover:text-[#F5F5F0]"
+        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/20 text-[#cfcfdc] transition-colors hover:border-white/40 hover:text-fg-hi"
       />
       <AuthDialog
         open={actions.authPrompt !== null}

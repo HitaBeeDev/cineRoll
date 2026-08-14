@@ -17,7 +17,7 @@ export function MobileNavMenu({
 }) {
   return (
     <div
-      className="fixed inset-0 z-[9999] bg-[#050508] text-[#F5F5F0] md:hidden"
+      className="fixed inset-0 z-[9999] bg-[#050508] text-fg-hi md:hidden"
       role="dialog"
       aria-modal="true"
       aria-label="Primary navigation"
@@ -28,7 +28,7 @@ export function MobileNavMenu({
         onClick={(event) => event.stopPropagation()}
       >
         <div className="flex shrink-0 items-center justify-between border-b border-[#1c1c2a] pb-4">
-          <span className="font-[family-name:var(--font-geist-mono)] text-base font-bold uppercase tracking-[0.15em] text-[#e8453c]">
+          <span className="font-[family-name:var(--font-geist-mono)] text-base font-bold uppercase tracking-[0.15em] text-accent">
             Cine·Roll
           </span>
           <button
@@ -36,7 +36,7 @@ export function MobileNavMenu({
             className={cn(
               "inline-flex h-10 w-10 items-center justify-center rounded-full",
               "border border-[#222232] text-[#888899]",
-              "transition-colors hover:text-[#F5F5F0] focus-visible:outline-none focus-visible:ring-2",
+              "transition-colors hover:text-fg-hi focus-visible:outline-none focus-visible:ring-2",
               focusRingClassName,
             )}
             aria-label="Close navigation menu"
@@ -55,8 +55,8 @@ export function MobileNavMenu({
                 className={cn(
                   "rounded-xl px-3 py-3 font-[family-name:var(--font-geist-mono)] text-lg font-bold uppercase tracking-[0.16em]",
                   isActiveRoute(pathname, item.href)
-                    ? "bg-[#141421] text-[#F5F5F0]"
-                    : "text-[#9b96aa] transition-colors hover:bg-[#10101a] hover:text-[#F5F5F0]",
+                    ? "bg-[#141421] text-fg-hi"
+                    : "text-[#9b96aa] transition-colors hover:bg-[#10101a] hover:text-fg-hi",
                   "focus-visible:outline-none focus-visible:ring-2",
                   focusRingClassName,
                 )}
@@ -77,7 +77,7 @@ export function MobileNavMenu({
             className={cn(
               "flex items-center gap-2 rounded-xl px-3 py-3",
               "font-[family-name:var(--font-geist-mono)] text-sm font-bold uppercase tracking-[0.16em]",
-              "text-[#9b96aa] transition-colors hover:bg-[#10101a] hover:text-[#e8453c]",
+              "text-[#9b96aa] transition-colors hover:bg-[#10101a] hover:text-accent",
               "focus-visible:outline-none focus-visible:ring-2",
               focusRingClassName,
             )}

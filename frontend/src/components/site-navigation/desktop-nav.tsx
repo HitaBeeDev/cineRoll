@@ -30,7 +30,7 @@ export function DesktopNav({
               focusRingClassName,
               isActiveRoute(pathname, item.href)
                 ? "text-[#ff554c]"
-                : "text-[#aaa6ba] hover:text-[#F5F5F0]",
+                : "text-[#aaa6ba] hover:text-fg-hi",
             )}
           >
             {item.label}

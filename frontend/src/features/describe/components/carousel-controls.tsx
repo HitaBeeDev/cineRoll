@@ -35,7 +35,7 @@ export function CarouselControls({
             className={cn(
               "h-1.5 rounded-full transition-all",
               index === page
-                ? "w-5 bg-[#e8453c]"
+                ? "w-5 bg-accent"
                 : "w-1.5 bg-[#3a3a48] hover:bg-[#55556a]",
             )}
           />

@@ -17,7 +17,7 @@ export function SignInLink({
       onClick={() => onNavigate?.()}
       className={cn(
         "font-[family-name:var(--font-geist-mono)] font-bold uppercase tracking-[0.13em]",
-        "bg-[#e8453c] text-white transition-colors duration-150 hover:bg-[#ff5247]",
+        "bg-accent text-white transition-colors duration-150 hover:bg-[#ff5247]",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0a14]",
         isInline
           ? "flex items-center justify-center rounded-xl px-4 py-3 text-sm shadow-none"

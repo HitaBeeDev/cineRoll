@@ -43,10 +43,10 @@ export function HallOfRecordsSection({ stats }: { stats: StatsResponse }) {
               onClick={() => setTab(key)}
               className={cn(
                 "rounded-full border px-4 py-1.5 font-[family-name:var(--font-geist-mono)] text-[12px] uppercase tracking-[0.08em] transition-colors",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8453c]",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
                 tab === key
-                  ? "border-[#e8453c]/60 bg-[#e8453c]/10 text-[#ff766d]"
-                  : "border-[#1e1e2a] text-[#aaa6ba] hover:border-white/25 hover:text-[#F5F5F0]",
+                  ? "border-accent/60 bg-accent/10 text-accent-soft"
+                  : "border-edge text-[#aaa6ba] hover:border-white/25 hover:text-fg-hi",
               )}
             >
               {label}

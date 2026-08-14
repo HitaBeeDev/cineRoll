@@ -11,7 +11,7 @@ export function AwardsDominance({ summary, filmTitle }: AwardSummaryProps) {
   const breakdown = getAwardBreakdown(summary);
 
   return (
-    <div className="relative mt-8 overflow-hidden border border-[#D4AF37]/20 bg-gradient-to-br from-[#16130b] via-[#0d0d14] to-[#0a0a10] p-7 sm:p-9">
+    <div className="relative mt-8 overflow-hidden border border-gold/20 bg-gradient-to-br from-[#16130b] via-[#0d0d14] to-[#0a0a10] p-7 sm:p-9">
       <div
         className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full blur-3xl"
         style={{ background: `radial-gradient(circle, ${HERO_AWARD_GOLD}24, transparent 70%)` }}

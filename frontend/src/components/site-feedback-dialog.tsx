@@ -14,12 +14,12 @@ export function SiteFeedbackDialog() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.24em] text-[#9a9aac] transition-colors hover:text-[#e8453c] focus-visible:outline-none focus-visible:text-[#e8453c]">
+      <DialogTrigger className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.24em] text-[#9a9aac] transition-colors hover:text-accent focus-visible:outline-none focus-visible:text-accent">
         Feedback
       </DialogTrigger>
       <DialogContent className="border-[#242438] bg-[#0b0b14]">
         <DialogHeader>
-          <DialogTitle className="font-[family-name:var(--font-geist-mono)] text-[11px] font-semibold uppercase tracking-[0.45em] text-[#e8453c]">
+          <DialogTitle className="font-[family-name:var(--font-geist-mono)] text-[11px] font-semibold uppercase tracking-[0.45em] text-accent">
             Share Your Thoughts
           </DialogTitle>
           <DialogDescription className="text-[#8f8fa6]">
