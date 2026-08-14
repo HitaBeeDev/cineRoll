@@ -28,7 +28,7 @@ export function PasswordForm({ hasPassword }: { hasPassword: boolean }) {
         e.preventDefault();
         void submit();
       }}
-      className="mt-4 flex flex-1 flex-col gap-4"
+      className="mt-4 flex flex-col gap-4"
     >
       {hasPassword && (
         <div className="space-y-1.5">
@@ -83,9 +83,10 @@ export function PasswordForm({ hasPassword }: { hasPassword: boolean }) {
 
       {error && <p className="text-sm text-[#f0736a]">{error}</p>}
 
-      {/* Actions pinned to the card bottom so the (stretched) card never shows a
-          dead gap — reads as an intentional form footer. */}
-      <div className="mt-auto flex items-center justify-end border-t border-white/[0.06] pt-4">
+      {/* A footer rule under the last field, not a button pushed to the bottom
+          of the card. The card no longer stretches, so there is no gap left to
+          absorb and mt-auto would only re-open one at a different width. */}
+      <div className="flex items-center justify-end border-t border-white/[0.06] pt-4">
         <button
           type="submit"
           disabled={pending}

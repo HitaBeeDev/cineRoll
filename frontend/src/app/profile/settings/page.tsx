@@ -57,7 +57,12 @@ export default async function SettingsPage() {
           Settings
         </h1>
 
-        <div className="mt-8 grid gap-6 lg:grid-cols-2 lg:items-stretch">
+        {/* items-start, not stretch. Matching the two columns' heights meant the
+            shorter one had to find ~300px of something to do, and a form has
+            nothing — it padded the gap between the last field and its button.
+            Cards that end where their content ends read as finished; a column
+            that ends higher than its neighbour is not a defect. */}
+        <div className="mt-8 grid gap-6 lg:grid-cols-2 lg:items-start">
           {/* Left column — account + avatar */}
           <div className="flex flex-col gap-6">
         {/* Account — a compact profile summary */}
@@ -106,8 +111,8 @@ export default async function SettingsPage() {
           </div>
         </section>
 
-        {/* Avatar — the playful one; grows to keep both columns equal height */}
-        <section className={`flex-1 bg-[#0d0d16] px-6 py-6 ${CARD} hover:border-[#3a2f2c]`}>
+        {/* Avatar — the playful one */}
+        <section className={`bg-[#0d0d16] px-6 py-6 ${CARD} hover:border-[#3a2f2c]`}>
           <div className="flex items-baseline justify-between gap-3">
             <h2 className={KICKER}>Avatar</h2>
             <span className="text-[11px] text-[#5a5a6c]">tap to change</span>
@@ -127,8 +132,8 @@ export default async function SettingsPage() {
 
           {/* Right column — password */}
           <div className="flex flex-col gap-6">
-            {/* Password — full form; grows to keep both columns equal height */}
-            <section className={`flex flex-1 flex-col bg-[#0d0d16] px-6 py-6 ${CARD}`}>
+            {/* Password — full form */}
+            <section className={`bg-[#0d0d16] px-6 py-6 ${CARD}`}>
               <h2 className={KICKER}>{hasPassword ? "Password" : "Set a password"}</h2>
               <p className="mt-2 text-sm text-[#888899]">
                 {hasPassword
