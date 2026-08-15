@@ -115,7 +115,11 @@ export default async function SettingsPage() {
         <section className={`bg-[#0d0d16] px-6 py-6 ${CARD} hover:border-[#3a2f2c]`}>
           <div className="flex items-baseline justify-between gap-3">
             <h2 className={KICKER}>Avatar</h2>
-            <span className="text-[11px] text-[#5a5a6c]">tap to change</span>
+            {/* Not "tap": this card is on desktop too, where there is nothing to
+                tap. The picker saves the moment you choose, so the slot is worth
+                more as a promise about what happens than as a naming of the
+                gesture — which the tiles already make obvious. */}
+            <span className="text-[11px] text-[#5a5a6c]">saves instantly</span>
           </div>
           <p className="mt-2 text-sm text-[#888899]">
             Pick an avatar. It shows up next to your name across CineRoll.
