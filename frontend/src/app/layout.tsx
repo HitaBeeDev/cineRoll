@@ -57,8 +57,14 @@ export const metadata: Metadata = {
   },
 };
 
+// CineRoll is a dark-only product, and says so where the browser can act on it:
+// `colorScheme` makes native UI the page cannot style — scrollbars, form
+// controls, the date picker — render dark instead of flashing a light default.
+// The matching `data-theme="dark"` on <html> below is the same statement for our
+// own CSS. Nothing flips either at runtime; there is no light palette to flip to.
 export const viewport: Viewport = {
   themeColor: "#09090f",
+  colorScheme: "dark",
 };
 
 export default function RootLayout({
