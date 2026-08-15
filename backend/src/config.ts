@@ -1,5 +1,6 @@
 import "dotenv/config";
 import { z } from "zod";
+import { requiresVerifiedSsl } from "./lib/verifiedDbSsl";
 
 const optionalNonEmptyString = z
   .union([z.string().min(1), z.literal("")])
@@ -13,7 +14,15 @@ const optionalEmail = z
 
 const envSchema = z.object({
   PORT: z.coerce.number().int().positive().default(4000),
-  DATABASE_URL: z.string().min(1, "DATABASE_URL is required"),
+  DATABASE_URL: z
+    .string()
+    .min(1, "DATABASE_URL is required")
+    .refine(requiresVerifiedSsl, {
+      message:
+        "a remote database must be reached with sslmode=verify-full — append ?sslmode=verify-full " +
+        "(or &sslmode=verify-full) to the connection string. Weaker modes are verified only by " +
+        "accident in the current pg release and stop being verified in pg v9",
+    }),
   DATABASE_POOL_SIZE: z.coerce.number().int().positive().default(25),
   SLOW_QUERY_THRESHOLD_MS: z.coerce.number().int().nonnegative().default(100),
   SLOW_REQUEST_THRESHOLD_MS: z.coerce.number().int().nonnegative().default(200),

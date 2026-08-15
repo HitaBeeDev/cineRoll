@@ -49,6 +49,12 @@ model Film {
   backdropUrl       String?
   trailerUrl        String?
   imdbRating        Float?
+  // The confidence behind imdbRating. Without it a score is unfalsifiable — 8.5
+  // from 500,000 votes and 8.5 from 40 votes are the same number — and every
+  // quality decision (the roll gate, the Safe lane, the Hall of Records) is made
+  // on a figure with no weight attached. Null means OMDB had no count, never
+  // "zero votes". Populated by data/scripts/omdb-votes-backfill.ts.
+  imdbVotes         Int?
   rtScore           Int?
   imdbTopMovieRank  Int?
   imdbTopTvRank     Int?
