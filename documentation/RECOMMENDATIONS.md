@@ -15,6 +15,7 @@ Positive pulls taste toward a film's features, negative pushes away.
 
 | Signal | Weight |
 |---|---|
+| Loved | +1.0 |
 | Liked (thumbs up) | +1.0 |
 | Watchlist add | +0.4 |
 | Watched (no thumb) | +0.25 |
@@ -23,6 +24,22 @@ Positive pulls taste toward a film's features, negative pushes away.
 
 Deliberate ordering: a thumb beats merely watching, and saving to the watchlist
 is intent, not a verdict.
+
+Only the **ratios** matter — every vector is normalized by its largest absolute
+weight, so scaling the whole table changes nothing. That leaves exactly one free
+parameter whenever a level is added, which is why `love` ships equal to `like`
+rather than above it: nobody has pressed a button that did not exist, so there is
+no love-labelled data to fit against, and any ratio above 1.0 would be invented
+by hand and baked into everyone's taste vectors. Equal-weighted it is a strict
+no-op for the model while it collects the data that settles the real ratio:
+
+```
+npx tsx src/scripts/evalRecommender.ts --love-weight=1,1.25,1.5,2
+```
+
+Anything reading "films this user liked" must go through `POSITIVE_SENTIMENTS`
+rather than comparing to `"like"`, or every loved film silently drops out of the
+set.
 
 Signals decay with a **90-day half-life** (`recencyDecay`): a like from six
 months ago counts ~25% of a like today, so current taste wins.
@@ -80,13 +97,14 @@ per A/B variant.
 ## 5. Diversity — MMR over TF-IDF similarity
 
 Pure score-ordering returns six near-identical films. `recommender/ranking.ts`
-re-ranks with **Maximal Marginal Relevance**: greedily pick the film maximizing
+(`rankCandidates`) re-ranks with **Maximal Marginal Relevance**: greedily pick
+the film maximizing
 
 ```
 mmr = λ · relevance − (1 − λ) · maxSimilarityToAlreadyPicked      (λ = 0.70)
 ```
 
-Similarity is **TF-IDF cosine** (`recommender/tfidf.ts`): each film is a bag of
+Similarity is **TF-IDF cosine** (`recommender/tfidf/`): each film is a bag of
 feature tokens (genres, director, decade, awards) weighted by rarity across the
 catalog. Sharing "Film-Noir" or a director means a lot; sharing "Drama" means
 almost nothing. The IDF table is built catalog-wide and cached.
@@ -112,7 +130,7 @@ instead of ranking:
   85% are a **softmax-weighted sample** over `scoreFilm` scores (temperature
   0.5) — better-fitting films come up more often, nothing is impossible.
 - **Lane bandit:** the roll's Safe/Gem/Wild lane split is a **Thompson-sampling
-  bandit** (`bandit.ts`) — Beta posterior per lane over "did this lane's roll
+  bandit** (`randomRoute/bandit/`) — Beta posterior per lane over "did this lane's roll
   earn engagement", updated by feedback, with capped evidence so it keeps
   adapting. Replaces the old fixed 70/20/10 split.
 
@@ -121,11 +139,14 @@ instead of ranking:
 `backend/src/scripts/evalRecommender.ts` — read-only, replays the production
 ranker. Leave-most-recent-out per user:
 
-1. Order the user's liked films by recency; hold out the most recent 5.
+1. Order the user's liked films by recency; hold out the most recent
+   `max(1, min(5, ⌊0.3 · liked⌋))` — 30% of their likes, capped at 5, so a
+   heavily-active user doesn't donate a disproportionate test set.
 2. Rebuild taste from the rest, using the live builder math.
 3. Generate candidates with the held-out films left eligible.
 4. Measure **recall@k / precision@k / MRR** (k = 5, 10, 20) over users with
-   enough signal (cold-start gate 3).
+   enough signal — at least 5 liked films, and the recommender's own cold-start
+   gate of 3.
 
 Results are stored per `modelVersion` so runs are comparable across changes.
 

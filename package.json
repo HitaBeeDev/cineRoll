@@ -7,6 +7,9 @@
     "backend",
     "packages/types"
   ],
+  "engines": {
+    "node": ">=20"
+  },
   "//dependencies": "jose is declared here ONLY to control npm hoisting. Vercel bundles the backend function from the ROOT node_modules and drops anything nested under backend/node_modules. next-auth pulls jose@6 (ESM-only), which would take the root slot and force the backend's CommonJS jose@5 to nest — where Vercel silently omits it, producing 'Cannot find module jose' on every backend route. Pinning v5 here gives it the root slot; @auth/core keeps its v6 nested, which is fine because Next.js bundles the frontend at build time instead of resolving at runtime. Do not remove without running scripts/check-build-inputs.mjs.",
   "dependencies": {
     "jose": "^5.10.0"

@@ -11,7 +11,7 @@
 > for the label. The deep-dive for the flagship roll feature is kept in full as
 > **Appendix A**.
 
-**Last updated:** 2026-07-02.
+**Last updated:** 2026-08-16.
 
 ---
 
@@ -20,15 +20,17 @@
 | # | Algorithm | Feature | File(s) | Status |
 |---|---|---|---|---|
 | 1 | Deterministic weighted scoring + **FNV-1a** seed | Pick of the Day | `backend/src/lib/pickOfDay/` | ✅ shipped |
-| 2 | **Two-stage retrieve-then-rerank** (+ query relaxation, LLM ↔ local fallback) | Describe It (natural-language roll) | `backend/src/routes/naturalRollRoute/` | ✅ shipped |
-| 3 | **BM25** term-weighted rerank | Describe It local reranker | `naturalRollRoute/localReranker.ts` | 🔶 proposed upgrade |
-| 4 | **TF-IDF + cosine similarity** | Content-based film similarity / taste centroid | `backend/src/lib/recommender/tfidf.ts` | ✅ shipped |
+| 2 | **Two-stage retrieve-then-rerank** (+ query relaxation, LLM ↔ local fallback) | Ask AI (natural-language roll) | `backend/src/routes/naturalRollRoute/` | ✅ shipped |
+| 3 | **BM25** term-weighted rerank | Ask AI local reranker | `naturalRollRoute/localReranker.ts` | 🔶 proposed upgrade |
+| 4 | **TF-IDF + cosine similarity** | Content-based film similarity / taste centroid | `backend/src/lib/recommender/tfidf/` | ✅ shipped |
 | 5 | **Maximal Marginal Relevance (MMR)** | Recommender diversity rerank | `backend/src/lib/recommender/ranking.ts` | ✅ shipped |
-| 6 | **Thompson sampling** multi-armed bandit | Roll lane selection (Safe/Gem/Wild) | `backend/src/routes/randomRoute/bandit.ts` | ✅ shipped |
+| 6 | **Thompson sampling** multi-armed bandit | Roll lane selection (Safe/Gem/Wild) | `backend/src/routes/randomRoute/bandit/` | ✅ shipped |
 | 7 | **Softmax weighting + ε-greedy** + weighted sampling | Personalized roll + base lane weighting | `randomRoute/personalizedService.ts`, `weightedSample.ts` | ✅ shipped |
 | 8 | **Draw chain** (parent-linked roll log) | Measuring whether any of the above works | `randomRoute/eventLogger.ts`, `frontend/src/features/roll/` | ✅ shipped |
 
 Legend: ✅ shipped · 🔶 designed / proposed.
+
+This file is a reference for what the code does *now*. The build history behind it — what shipped when, in what order, and what was deliberately deferred — lives with the roadmap, not here.
 
 ---
 
@@ -40,11 +42,11 @@ Legend: ✅ shipped · 🔶 designed / proposed.
 **Problem it solves.** One film per calendar day, identical for every user, reproducible, never repeating within a year, favouring prestige but staying fresh — *without* a nightly job or per-user state.
 
 **How it works.**
-1. **Eligibility pool** (`repository.ts`): films with a poster that are either award winners/nominees **or** have **both** `imdbRating ≥ 7` and `rtScore ≥ 70` (updated 2026-07-02 — a hard AND gate so non-award picks are unambiguously quality). Excludes anything picked in the last `noRepeatDays = 365`.
+1. **Eligibility pool** (`repository.ts`): films with a poster that are either award winners/nominees **or** have **both** `imdbRating ≥ 7` and `rtScore ≥ 70` (updated 2026-07-02 — a hard AND gate so non-award picks are unambiguously quality). Excludes anything picked in the last `noRepeatDays = 365`, and keeps the top `poolSize = 800` by prestige — the day's winner is an argmax over those 800, not over the whole catalog.
 2. **Prestige score** per film: `oscarWins·4 + cannesWins·3 + berlinWins·3 + ggWins·2 + nominations… + imdbRating + rtScore/10`.
-3. **Daily scoring** (`scorer.ts`): normalize prestige to the pool, then
-   `score = quality + 0.45·underExposure + 0.50·dailySeed`, where `underExposure = 1 − rollCount/maxRolls` (a fairness term damping over-shown films) and `dailySeed` is an **FNV-1a hash** of `"YYYY-MM-DD:filmId"` mapped to [0,1).
-4. Argmax wins; ties break on smaller `id`. The result is frozen into `PickOfDayHistory` so it never changes retroactively.
+3. **Daily scoring** (`scorer.ts`): min–max normalize prestige **within today's pool** (so the scale adapts as the pool shrinks over the year), then
+   `score = quality + 0.45·underExposure + 0.50·dailySeed`, where `underExposure = 1 − rollCount/maxRolls` over a `rollWindowDays = 14` window (a fairness term damping over-shown films) and `dailySeed` is an **FNV-1a hash** of `"YYYY-MM-DD:filmId"` mapped to [0,1).
+4. Argmax wins; ties break on smaller `id`. Jitter (0.5) and under-exposure (0.45) can together outvote quality's implicit 1.0, which is the point — the pick rotates through the deserving pool instead of walking it in prestige order. The result is frozen into `PickOfDayHistory` so it never changes retroactively.
 
 **Why these algorithms.** FNV-1a is a real, fast, well-distributed non-cryptographic hash — the right tool for a deterministic per-day pseudo-random seed (reproducible, cacheable, no RNG state). The `underExposure` term is a lightweight **exploration/fairness** heuristic (same intuition as bandit exploration, not the formal formula — stated honestly).
 
@@ -52,7 +54,7 @@ Legend: ✅ shipped · 🔶 designed / proposed.
 
 ## 2. Natural-language roll — two-stage retrieve-then-rerank
 
-**Feature:** "Describe It" (`/describe`) — free text → four rolled films.
+**Feature:** "Ask AI" (`/ask-ai`) — free text → four rolled films.
 **Where:** `backend/src/routes/naturalRollRoute/`.
 
 **Problem it solves.** Turn an arbitrary sentence ("a dark French thriller from the 80s") into a good, diverse set of real films, in any language, reliably even when an LLM is unavailable.
@@ -64,7 +66,7 @@ prompt → Stage 1: structural extraction → candidate generation (+relaxation)
 ```
 
 - **Stage 1 — structural extraction / slot-filling** (`structuralExtractor.ts`): sentence → typed filters (language, genre, decade range, award body, winner/nominee, …). **Gemini** path (temp 0.1, cached 24h by **SHA-1** of the normalized prompt) with a **pure regex extractor** fallback (`localStructuralExtractor.ts`) used when there's no API key or Gemini fails.
-- **Candidate generation + query relaxation** (`candidateRelaxation.ts`): top-100-by-IMDb matching the filters, then `ORDER BY RANDOM()` sample of 50 (quality-gated, then randomized). If empty, **progressively relax** constraints in a fixed priority order (`genre → category → language → awardYear → decade`) until films are found — the classic IR technique of **query broadening / graceful degradation**, so the user never dead-ends.
+- **Candidate generation + query relaxation** (`candidateRelaxation.ts`): top-100-by-IMDb matching the filters, then `ORDER BY RANDOM()` sample of 50 (quality-gated, then randomized). If empty, **progressively relax** constraints in a fixed priority order — `genresAll → genres → category → language → awardYear → yearMin → yearMax` — until films are found. `genresAll` relaxing first turns require-*all*-genres into require-*any* before any genre is dropped outright. `contentType` is deliberately **absent from that list**: movie vs series is a hard constraint, and relaxing it would answer a question the user didn't ask. This is the classic IR technique of **query broadening / graceful degradation**, so the user never dead-ends.
 - **Stage 2 — rerank** (`reranker.ts`): order candidates by relevance, take top 4. **Gemini rerank** (temp 0.2) with a deterministic **local reranker** fallback (see §3).
 
 The route streams the two phases separately so the UI shows the interpreted chips (`FRENCH · THRILLER · 1980S`) before the picks land.
@@ -87,14 +89,14 @@ score(doc) = Σ_{q ∈ query}  IDF(q) · [ tf(q,doc)·(k+1) ] / [ tf(q,doc) + k�
 
 with `k ≈ 1.5`, `b ≈ 0.75`. It adds the three things flat overlap lacks: **IDF term weighting** (rare words like "noir" dominate generic ones like "film"), **TF saturation**, and **length normalization**. IDF is computed over the ~50 candidates already in hand (local corpus — self-contained, no DB, no global state). The existing `imdbRating/2` prior, underrated boost and gore penalty stay; only the flat overlap term is replaced.
 
-**Why not reuse the existing TF-IDF module (§4)?** Different vocabulary and corpus: `recommender/tfidf.ts` operates on **structured feature tokens** (`genre:Film-Noir`, `director:Kubrick`) for *film-to-film* similarity, whereas the reranker matches **free-text words** against plot/title text. They don't share a vocabulary — forcing the reuse would be a square peg. BM25 over the text corpus is the correct, distinct tool.
+**Why not reuse the existing TF-IDF module (§4)?** Different vocabulary and corpus: `recommender/tfidf/` operates on **structured feature tokens** (`genre:Film-Noir`, `director:Kubrick`) for *film-to-film* similarity, whereas the reranker matches **free-text words** against plot/title text. They don't share a vocabulary — forcing the reuse would be a square peg. BM25 over the text corpus is the correct, distinct tool.
 
 ---
 
 ## 4. TF-IDF + cosine similarity (content-based)
 
 **Feature:** film-to-film similarity for the recommender + a per-user "taste centroid".
-**Where:** `backend/src/lib/recommender/{tfidf,idf,similarity}.ts`.
+**Where:** `backend/src/lib/recommender/tfidf/` (`createFilmTokens`, `buildIdf`, `createTfidfVector`, `calculateCosineSimilarity`, `calculateCentroid`), plus `recommender/idf.ts` (`getCatalogIdf`) and `recommender/similarity.ts` (`tfidfSimilarity`).
 
 **Problem it solves.** Raw genre Jaccard treats a shared "Drama" (on a huge share of the catalog) the same as a shared "Film-Noir" (rare, highly informative). That's wrong.
 
@@ -107,7 +109,7 @@ with `k ≈ 1.5`, `b ≈ 0.75`. It adds the three things flat overlap lacks: **I
 ## 5. Maximal Marginal Relevance (MMR)
 
 **Feature:** diversity rerank so recommendation lists aren't six near-identical films.
-**Where:** `backend/src/lib/recommender/ranking.ts` (`mmrRerank`).
+**Where:** `backend/src/lib/recommender/ranking.ts` (`rankCandidates`).
 
 **How it works.** Greedily build the result set: at each step pick the film maximizing
 
@@ -124,7 +126,7 @@ Relevance is the normalized recommender score; similarity is the **TF-IDF cosine
 ## 6. Thompson sampling multi-armed bandit
 
 **Feature:** learns each user's roll-lane mix (Safe / Hidden Gem / Wild Card) instead of a fixed 70/20/10 split.
-**Where:** `backend/src/routes/randomRoute/bandit.ts` (+ `banditRepository.ts` for DB persistence).
+**Where:** `backend/src/routes/randomRoute/bandit/` — `pickLaneWithThompsonSampling`, `updateLanePosterior`, `PRIOR_POSTERIORS`, and the Beta/Gamma samplers (+ `banditRepository.ts` for DB persistence).
 
 **How it works.** Each lane is an **arm** with a **Beta(α, β)** posterior over "does a roll from this lane earn engagement?" To choose a lane, draw one sample per arm and take the argmax — **Thompson sampling**, explore/exploit with no ε to tune. Cold-start priors reproduce the old Safe-heavy split; engagement (open/save/watch = reward 1, skip = 0) nudges the posteriors; an arm-strength cap gives a sliding memory so it keeps adapting. Posteriors persist server-side for signed-in users (cross-device) and in localStorage for guests.
 
@@ -148,7 +150,7 @@ Relevance is the normalized recommender score; similarity is the **TF-IDF cosine
 **Feature:** every roll is a named decision that points back at the one before it.
 **Where:** `backend/src/routes/randomRoute/eventLogger.ts`, `backend/src/lib/filmFilters/queryParams/parentDrawParam.ts`, `frontend/src/features/roll/`.
 
-**How it works.** A roll writes one event and returns its id as a **draw id**. The client keeps that draw on screen as a *pending roll* (session storage, so it outlives the page you rolled on) and marks what the user does with it — opened, saved, marked seen, or pushed away. The next roll grades it: `engaged`, `rejected`, or `passed`, and sends that verdict up with the parent's draw id and the draw's position in the session. One reading of the verdict feeds three things at once — the decaying genre/type penalty (§6b of Appendix A), the lane bandit's reward (§6), and the chain link in the log.
+**How it works.** A roll writes one event and returns its id as a **draw id**. The client keeps that draw on screen as a *pending roll* (session storage, so it outlives the page you rolled on) and marks what the user does with it — opened, saved, marked seen, or pushed away. The next roll grades it: `engaged`, `rejected`, or `passed`, and sends that verdict up with the parent's draw id and the draw's position in the session. One reading of the verdict feeds three things at once — the decaying genre/type penalty (§A.6b), the lane bandit's reward (§6), and the chain link in the log.
 
 **What it buys.** The event log becomes a chain instead of a pile, so these are single queries and were previously unanswerable:
 
@@ -162,171 +164,28 @@ That is the evaluation set any future ranking work needs. Without it, tuning the
 
 ---
 
-# Appendix A — Smart Roll Engine (full design spec)
+# Appendix A — Smart Roll Engine (design spec)
 
-> The original deep-dive for CineRoll's flagship feature — rolling **one**
-> award-winning title at a time. Retained in full: problem, current code state,
-> target architecture, scoring pipeline, build scope, and deferred items. It is
-> the source of truth for the Smart Roll work and the primary portfolio
-> case-study write-up. Algorithms it introduces (weighted scoring, session
-> diversity cooldowns, Thompson bandit, TF-IDF) are cross-referenced from the
-> catalog above.
+> The design spec for CineRoll's flagship feature — rolling **one** award-winning
+> title at a time. Kept in full: the problem, the target architecture, the scoring
+> pipeline, the build scope and the deferred items. Sections are numbered `A.n` so
+> they never collide with the catalog above, which cross-references them.
+>
+> Sections are the *design*, not a status report. What actually shipped, and in
+> what order, is tracked with the roadmap rather than here — the status line
+> below is the summary.
 
-**Status:** design agreed. Implementation in progress — foundation slice
-(anti-repeat) shipped; scoring pipeline not started.
-**Last updated:** 2026-07-01.
+**Status:** design agreed; largely implemented. Shipped: the eligibility gate
+(A.5), session diversity and reroll learning (A.6), the weighted-scoring pipeline
+and lane blend (A.7), pinned-dimension respect (A.8), and the Thompson bandit
+that replaced the fixed lane split (A.6b). Open: graceful relaxation in the
+scorer (A.10), and the deferred items in A.11.
 
-### Implementation progress
-
-- ✅ **Anti-repeat shuffle-bag (foundation).** Frontend now tracks films served
-  this session and passes them as `excludeIds`, so the roll no longer repeats a
-  title until the reachable pool is exhausted, then resets. Reset-and-retry means
-  the roll never dead-ends on exhaustion.
-  - `frontend/src/lib/home-storage.ts`: `getRolledBag` / `addToRolledBag` /
-    `resetRolledBag`, capped at `MAX_ROLL_SEEN_IDS = 100`.
-  - `frontend/src/app/home-client.tsx`: `handleRoll` builds `excludeIds` from the
-    bag; on `NO_FILMS_FOUND` with a non-empty bag it resets and rolls once more.
-  - **Note:** the bag rides in the query string and the backend caps `excludeIds`
-    at 100, so this is a **capped** window: it's a true shuffle-bag for filter
-    pools ≤ 100 (covers the whole pool, then resets), and a sliding
-    "don't-repeat-recently" window for the broad pool. A true unbounded full-pool
-    shuffle-bag over ~5.7k films would need **server-side session state** — see
-    §13. Deferred deliberately.
-- ✅ **Hard eligibility gate (§5).** The roll (and the reel-pool count) now only
-  admit titles that have IMDb **and** RT (updated 2026-07-01 from "or"), a poster, and ≥1 genre. Scoped to the
-  roll only — browse still lists everything.
-  - `backend/src/routes/randomRoute/eligibility.ts`: `eligibilityConditions()`.
-  - `backend/src/routes/randomRoute/randomRepository.ts`: new `rollConditions()`
-    helper composes eligibility + user exclusions and keeps the count `cacheable`
-    keyed to user-specific exclusions only (constant gate doesn't break caching).
-    Applied across `getRandomFilms`, `getQualityCandidates`, `getRandomCount`,
-    `getPersonalizedPool`. The REEL POOL number now reflects rollable films.
-- ✅ **Weighted-scoring pipeline + 70/20/10 lane blend (§7).** The base roll is no
-  longer a uniform pick. Each candidate is decomposed into normalized signals —
-  `rating` (IMDb+RT), `fame` (award recognition + IMDb-Top membership), `quality`
-  = `0.65·rating + 0.35·fame` (item A: a *composite*, not rating alone), `novelty`
-  = `1 − fame`, `hiddenGem` = `rating·novelty`, and an always-applied `session`
-  factor (§6 cooldown × reroll penalty). The picker then draws a **lane** —
-  **70% Safe** (quality-led trusted pick), **20% Hidden Gem** (`hiddenGem`),
-  **10% Wild Card** (novelty-tilted, floored so it stays surprising) — and
-  weights the pool by that lane's affinity (sharpened, × session), then samples.
-  This *guarantees* a steady gem/wildcard rate instead of hoping a softmax yields
-  one, and replaces the old ε-greedy explore branch (the Wild lane is the explore).
-  Verified distribution: famous classics lead Safe (~37%) but never dominate;
-  gems own the Gem lane (~56%); Wild favors obscure/risky. `fame` is a single
-  shared axis read positively by quality and inversely by novelty — the
-  deliberate tension behind the Safe-vs-Gem split. Taste is neutral on the base
-  path (real taste vector still lives in the personalized path — §4 collapse
-  deferred). The future Roll Modes UI (§11) just pins a lane instead of drawing.
-  - `backend/src/routes/randomRoute/rollScore.ts`: `scoreBreakdown()`, `pickLane()`,
-    `laneWeight()`, `LANE_SPLIT`, plus `normalizedRating` / `fameScore`.
-  - `sessionRollService.ts`: `pickByLane()` — draw lane, weight sample, pick.
-- ✅ **Post-roll action buttons (§11 fast-follow).** The roll card now presents
-  four distinct signals instead of one reroll, each teaching the roll differently:
-  **Not tonight** (session-only weak skip — guest-friendly, no account, no hide;
-  just rolls on with the decaying reroll penalty), **Already seen** (hide +
-  👍/👎 sentiment → taste boost if liked), **Not interested** (permanent hide +
-  strong session penalty on genre/type), **Save for later** (watchlist,
-  strong-positive). Reused existing event types / backend calls — no new
-  endpoints. Only "Not tonight" works without sign-in; the other three keep the
-  existing guest auth-gate. Known limitation: on revisit, an "Already seen" film
-  reflects as hidden (shares `doNotSuggest` with "Not interested") — separating
-  them on reload needs a backend flag (future). Director/actor/mood penalties on
-  "Not interested" remain future (director cooldown exists; actor/mood do not).
-  - `frontend/src/components/home/film-card.tsx`: 2×2 action grid, new `skip`
-    tone, `onNotTonight` prop; "Already seen" = `saveDecision("watched", true)`.
-  - `frontend/src/app/home-client.tsx`: `handleNotTonight`.
-- ✅ **Session diversity model — genre/type/decade/director cooldowns (§6).** The
-  base (non-personalized) roll now draws a `DIVERSITY_SAMPLE_SIZE`-candidate
-  sample and weights each by how different it is from the last few rolls, then
-  `weightedSample`s one. Each dimension is a decaying multiplier (genre last 3,
-  type/decade last 2, director last 5), never a hard ban, so a thin pool
-  self-heals (§10). Honors §8: a dimension the user pinned via filters is not
-  cooled down. The recent-roll window is rebuilt server-side from the tail of the
-  `excludeIds` shuffle-bag (already sent, most-recent-last) — **no new client
-  payload**. Deterministic seed rolls (daily picks) and fresh sessions fall back
-  to the plain uniform pick.
-  - `backend/src/routes/randomRoute/diversity.ts`: `diversityMultiplier()`,
-    decay tables, `pinnedDimensions()`.
-  - `backend/src/routes/randomRoute/sessionRollService.ts`: `getSessionRoll()`
-    orchestration + `getRecentRolls()` window rebuild.
-  - `backend/src/routes/random.ts`: base path now calls `getSessionRoll`.
-- ✅ **Reroll learning (§6).** A skipped title now teaches the roll. The client
-  tracks the shown film and whether the user *engaged* (opened details / saved /
-  marked watched); when the next roll fires, an un-engaged skip earns a decaying
-  penalty on that film's main genre + content type — **weak** for a plain reroll
-  ("not in the mood"), **strong** for an explicit "Not interested". Penalties
-  decay by ×0.5 per roll and drop at a floor, so a skipped kind is avoided for a
-  few rolls then recovers — never a permanent dislike (that's the taste profile).
-  Compounds with the cooldown as a second soft weight; respects §8 pinned dims.
-  - `frontend/src/lib/home-storage.ts`: `getRerollPenalty` / `addRerollPenalty` /
-    `decayRerollPenalties` / `resetRerollPenalty` (sessionStorage, decay+cap).
-  - `frontend/src/app/home-client.tsx`: `currentRollRef` (engaged/rejected),
-    `markCurrentEngaged`, `handleNotInterested`; penalty sent via `fetchRandom`.
-  - `frontend/src/components/home/film-card.tsx`: `onEngage` fired on
-    detail-open / watched / watchlist.
-  - `backend/src/routes/randomRoute/diversity.ts`: `rerollMultiplier()`.
-  - `backend/.../randomQuerySchema.ts` + `queryParamSchemas.ts`: `rerollGenre` /
-    `rerollType` params (compact JSON, parsed leniently).
-- ✅ **TF-IDF + cosine similarity for content-based similarity (§14).** Film-to-
-  film similarity is no longer raw genre Jaccard (which treats a shared "Drama"
-  — on a huge share of the catalog — the same as a shared "Film-Noir"). Each film
-  is now a TF-IDF vector over its feature tokens (genres, director, decade,
-  awards); a token's weight is its inverse document frequency across the whole
-  catalog, so a shared *rare* tag dominates a shared *common* one. Similarity is
-  the cosine of two such vectors. The recommender's MMR diversity reranker uses
-  it, and the same primitive powers a "taste centroid" (mean of a user's liked
-  films) for content-based ranking.
-  - `backend/src/lib/recommender/tfidf.ts`: `filmTokens()`, `buildIdf()` (smoothed
-    `ln((1+N)/(1+df))+1`), `tfidfVector()`, `cosineSimilarity()`, `centroid()`.
-  - `backend/src/lib/recommender/idf.ts`: `getCatalogIdf()` — catalog-wide IDF,
-    memoized (1h TTL) so rarity is measured against the whole library.
-  - `backend/src/lib/recommender/similarity.ts`: `tfidfSimilarity()` (Jaccard kept
-    as documented legacy baseline); `ranking.ts` MMR now uses it.
-  - Tests: `backend/test/tfidf.test.ts` (rare-tag > common-tag, cosine identity/
-    orthogonality, centroid).
-- ✅ **Multi-armed bandit (Thompson sampling) over the roll lanes (§6b).** The
-  fixed 70/20/10 Safe/Gem/Wild split is now a *learned* policy. Each lane is an
-  arm with a Beta(α, β) posterior over "does a roll from this lane earn
-  engagement?"; the lane is chosen by drawing one sample per arm and taking the
-  argmax (Thompson sampling — explore/exploit with no ε to tune). Cold-start
-  priors reproduce the old Safe-heavy split; engagement (open/save/watch = reward
-  1, skip = 0) nudges the posteriors, and an arm-strength cap gives a sliding
-  memory so it keeps adapting. Posteriors persist client-side (localStorage) and
-  ride in the roll query; the backend Thompson-samples the lane and returns it so
-  the client can credit the right arm on the next roll.
-  - `backend/src/routes/randomRoute/bandit.ts`: `thompsonPickLane()`, `updateArm()`,
-    `PRIOR_POSTERIORS`, Beta/Gamma samplers. Replaced `rollScore.pickLane()`.
-  - `sessionRollService.getSessionRoll()` draws via the bandit + returns `lane`;
-    `random.ts` surfaces it; `queryParamSchemas.laneBanditParam` carries posteriors.
-  - `frontend/src/lib/home-storage.ts`: `getLaneBandit()` / `updateLaneBandit()`;
-    `home-client.tsx` credits the outgoing lane on the next roll.
-  - Tests: `backend/test/bandit.test.ts` (learns toward an engaging lane, sliding
-    memory cap, cold-start default).
-- ✅ **Bandit DB persistence for signed-in users (§6b).** Signed-in users' lane
-  posteriors now persist server-side, so the roll keeps learning them across
-  devices; guests keep the same state in localStorage. The DB is authoritative
-  for signed-in users: each base roll loads their posteriors, folds in the
-  previous roll's engagement reward (sent as `banditFeedback`), persists, then
-  Thompson-samples — and echoes the updated posteriors back so the client syncs
-  its local copy. First roll on a fresh device self-heals from the DB.
-  - `backend/prisma/schema.prisma`: `RollLaneBandit` (per-user, `posteriors` Json,
-    default = the cold-start priors) + `User.laneBandit` relation. **Needs a
-    migration: `npm run db:migrate` (user-run).**
-  - `backend/src/routes/randomRoute/banditRepository.ts`: `loadLanePosteriors()` /
-    `persistLanePosteriors()` (validated read → priors on bad data).
-  - `sessionRollService.resolvePosteriors()`: DB for signed-in (+feedback apply
-    + persist), `bandit` query param for guests.
-  - `queryParamSchemas.laneBanditFeedbackParam`; `random.ts` returns `bandit` and
-    marks the signed-in response private/no-store.
-  - `frontend`: `api.ts` `banditFeedback` param + `RandomResult.bandit`;
-    `home-storage.setLaneBandit()`; `home-client.tsx` sends the reward + syncs.
-- ⬜ Graceful relaxation in the scorer (§10). *(The anti-repeat path already has
-  its own reset-and-retry fallback.)*
+**Last updated:** 2026-08-16.
 
 ---
 
-## 1. The one-line pitch (case-study language)
+## A.1 The one-line pitch (case-study language)
 
 > CineRoll uses a **smart roll algorithm** that combines quality filtering,
 > user-selected constraints, session-based diversity, reroll feedback, and
@@ -344,7 +203,7 @@ where it improves the roll and nowhere it doesn't.
 
 ---
 
-## 2. The problem
+## A.2 The problem
 
 The marquee interaction ("One spin. One film. Tonight.") is currently a **uniform
 random pick** over a filtered pool. That produces two failure modes:
@@ -361,9 +220,12 @@ heavyweight recommender or drowning it in UI.
 
 ---
 
-## 3. Current state of the code (what we build on, not beside)
+## A.3 Starting point (what we build on, not beside)
 
-Grounded in the actual backend so we extend rather than duplicate.
+The backend as it stood when this spec was written — recorded so the design
+extends the existing code rather than duplicating it. Most of it has since been
+built on; the roll is no longer uniform. Read this as the baseline, not as
+current behaviour.
 
 | Piece | File | What it does today |
 |---|---|---|
@@ -378,16 +240,17 @@ Grounded in the actual backend so we extend rather than duplicate.
 | Candidate row | `.../randomRoute/types.ts` (`RandomFilmRow`) | Includes `genres[]`, `year`, `contentType`, `director`, `imdbRating`, `rtScore`, award fields, etc. |
 | Event logging | `.../randomRoute/eventLogger.ts` + `routes/events.ts` | Roll events already logged. |
 
-**Two facts that shape everything:**
+**Two facts that shaped everything:**
 
-- **`excludeIds` is fully wired end-to-end in the backend but the frontend passes
-  `undefined`** (`frontend/src/app/home-client.tsx` → `fetchRandom(filters, userId, isPersonalized, undefined)`). Anti-repeat is *dead-wired*. Cheapest, highest-ROI fix.
-- The **weighted-sampler + ε-greedy pattern already exists** — but only in the
-  *personalized* path. The core architectural move is to **promote it to the base roll**.
+- **`excludeIds` was fully wired end-to-end in the backend, but the frontend
+  passed `undefined`.** Anti-repeat was *dead-wired* — the cheapest, highest-ROI
+  fix, and the first thing built (see the implementation log).
+- The **weighted-sampler + ε-greedy pattern already existed** — but only on the
+  *personalized* path. The core architectural move was to **promote it to the base roll**.
 
 ---
 
-## 4. The architectural move
+## A.4 The architectural move
 
 **Collapse the fork** between `getRandomFilm` (uniform) and
 `getPersonalizedRandomFilm` (weighted) into **one pipeline** with a **composable
@@ -421,7 +284,7 @@ Extendable without overengineering: each stage has one job; new rules plug into
 
 ---
 
-## 5. Hard eligibility rules (the "can this even enter the pool?" gate)
+## A.5 Hard eligibility rules (the "can this even enter the pool?" gate)
 
 Applied **before** scoring, in `CandidateFilter` / the SQL `WHERE`. A title is
 eligible only if **all** hold:
@@ -438,7 +301,7 @@ eligible only if **all** hold:
 4. **Has basic metadata:** title, year, type, genres, poster.
 
 **Decision — "at least one" vs "both" rating:** ⚠️ **Superseded 2026-07-01 — the
-gate now requires BOTH** (product owner's explicit call; see §5 item 1). The
+gate now requires BOTH** (product owner's explicit call; see §A.5 item 1). The
 original reasoning below is kept for context on the trade-off that was accepted.
 
 Requiring
@@ -446,14 +309,14 @@ both would gut the pool — per our own data pipeline, **shorts, documentaries, 
 older films frequently lack RT (sometimes both)**. A "both" gate would make the
 Short/Documentary type-rolls nearly empty.
 
-**Quality floor is a *soft weight*, not a hard cut** (see §7). We do **not**
+**Quality floor is a *soft weight*, not a hard cut** (see §A.7). We do **not**
 hard-require IMDb ≥ 6.5 / RT ≥ 65 globally, because that collapses the low-data
 tail (shorts/docs) and produces "the same 50 famous winners." The only hard rating
 rule is "must have at least one score." Everything else is weighting.
 
 ---
 
-## 6. Session diversity model (unifies the genre + reroll ideas)
+## A.6 Session diversity model (unifies the genre + reroll ideas)
 
 Ideas "genre cooldown" and "rejected-genre penalty" are the **same mechanism with
 opposite signs**: *recent-session memory*. Model them once, not twice.
@@ -516,7 +379,7 @@ followed the roll before the next roll fired.
 
 ---
 
-## 7. Weighted scoring (ranking, then controlled randomness)
+## A.7 Weighted scoring (ranking, then controlled randomness)
 
 After hard filters + cooldowns, each candidate gets a score; we then do a
 **weighted random pick** (better titles → higher chance, but not deterministic).
@@ -564,7 +427,7 @@ uniform `uniformSample` explore draw instead. **Both utilities already exist.**
 
 ---
 
-## 8. Filtered roll vs no-filter roll (critical UX rule)
+## A.8 Filtered roll vs no-filter roll (critical UX rule)
 
 **User filter > algorithm preference.** The engine behaves differently by intent:
 
@@ -579,18 +442,18 @@ pin. A pinned dimension is a promise, not a preference.
 
 ---
 
-## 9. The roll logic (pseudocode)
+## A.9 The roll logic (pseudocode)
 
 ```
 function roll(userId, filters, sessionSignal) {
-  const candidates      = getEligibleTitles(filters)          // §5 hard gate
+  const candidates      = getEligibleTitles(filters)          // §A.5 hard gate
   const cleaned         = applyHardRules(candidates, userId)  // dislikes, metadata, excludeIds
   const scored          = cleaned.map(t => ({
                             title: t,
                             score: calculateRollScore(t, userId, sessionSignal, filters)
                           }))
-  const balanced        = avoidTooSimilarResults(scored)      // §6 cooldowns (respecting §8)
-  return weightedRandomPick(balanced)                          // §7 ε-greedy + weighted
+  const balanced        = avoidTooSimilarResults(scored)      // §A.6 cooldowns (respecting §A.8)
+  return weightedRandomPick(balanced)                          // §A.7 ε-greedy + weighted
 }
 ```
 
@@ -599,7 +462,7 @@ controlled randomness.**
 
 ---
 
-## 10. Graceful relaxation (reliability — must-have)
+## A.10 Graceful relaxation (reliability — must-have)
 
 The roll must **never** dead-end on a narrow filter set. When penalties +
 exclusions shrink the pool, relax in a **defined order** — soft first, hard never
@@ -618,7 +481,7 @@ soft penalties → decade spread → type/genre cooldown → anti-repeat →
 
 ---
 
-## 11. Build scope
+## A.11 Build scope
 
 ### v1 — Smart Roll Engine MVP (build now)
 
@@ -643,11 +506,13 @@ session window (client localStorage + compact backend signal).
 Explicitly deferred to avoid overengineering / premature scope. Several of these
 are *new features* or *data projects*, not part of "make the roll smart":
 
-- **Mood/tone model** (dark / light / emotional / funny / slow / intense / …).
-  Genre is often too broad — a comedy can be dark, a drama comforting — so tone
-  would be more useful than genre alone. **But there is no tone data on the
-  catalog today**; building it is a tagging pipeline (LLM pass or heuristics)
-  over ~5.7k titles = its own project. Park it.
+- ~~**Mood/tone model**~~ (dark / light / emotional / funny / slow / intense / …).
+  Genre is often too broad — a comedy can be dark, a drama comforting — so tone is
+  more useful than genre alone. Parked here as its own data project, and since
+  **built**: the `tag-enrich` pipeline writes a controlled mood vocabulary to
+  `Film.moodTags`, alongside free-vocabulary TMDB `keywords` from `build-master`.
+  Both are scored in-process by the Ask AI reranker (§2), never SQL-filtered.
+  Still **not** wired into the roll's scoring — that remains open.
 - **Roll Modes UI** (Tonight's Best / Hidden Gem / Safe Classic / Risky Pick /
   Short & Easy / Award Mood / Surprise Me). High-value and fun — same engine,
   different weight presets — but it's a **product + UI** effort, not core engine.
@@ -673,7 +538,7 @@ are *new features* or *data projects*, not part of "make the roll smart":
 
 ---
 
-## 12. Why this is a real algorithm (not "just random")
+## A.12 Why this is a real algorithm (not "just random")
 
 A naive roll is:
 
@@ -699,11 +564,11 @@ for this project.
 
 ---
 
-## 13. Open questions / tuning notes
+## A.13 Open questions / tuning notes
 
 - Session window size `N` (start ≈ 8) and shuffle-bag reset behavior on filter
   change (reset the bag when the filter set changes vs. persist).
-- Exact decay curves per dimension — start with the tables in §6, tune from logs.
+- Exact decay curves per dimension — start with the tables in §A.6, tune from logs.
 - Should `engaged` inference use the existing `impression` event, or do we need a
   dedicated "roll opened" event? (Prefer reusing existing events first.)
 - Where the penalty stack runs: over a top-N candidate pool in-process (mirrors

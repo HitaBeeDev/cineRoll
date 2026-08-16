@@ -73,3 +73,7 @@ docs/
 *.dump
 .vercel
 .env*
+# ...but the templates carry no secrets and SETUP.md tells you to copy them,
+# so a fresh clone must have them.
+!.env.example
+!**/.env.example
