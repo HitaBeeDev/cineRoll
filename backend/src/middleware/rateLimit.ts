@@ -53,7 +53,9 @@ export class FixedWindowCounter {
 const ipCounter = new FixedWindowCounter(config.rateLimit.windowMs, config.rateLimit.maxPerIp);
 const userCounter = new FixedWindowCounter(config.rateLimit.windowMs, config.rateLimit.maxPerUser);
 
-function getClientIp(req: Request): string {
+/** First hop in X-Forwarded-For, falling back to the socket IP. Exported so
+ *  every per-IP limiter keys on the same value. */
+export function getClientIp(req: Request): string {
   const forwardedFor = req.headers["x-forwarded-for"];
   if (typeof forwardedFor === "string") {
     return forwardedFor.split(",")[0]?.trim() || req.ip || "unknown";

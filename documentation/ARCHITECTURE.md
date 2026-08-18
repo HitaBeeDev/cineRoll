@@ -207,8 +207,8 @@ Indexing is deliberate, not default: GIN `pg_trgm` indexes for typo‑tolerant t
 
 ## 10. Performance, caching & observability
 
-- **Caching:** in‑memory LRU (`lib/cache.ts`) with a Redis‑ready interface for hot reads (random pool counts, recommendations with short TTL + explicit invalidation on signal change, pick‑of‑day daily, film detail). HTTP `Cache‑Control` per endpoint.
-- **Rate limiting:** global per‑IP + per‑user fixed windows; tunable via env.
+- **Caching:** in‑memory LRU (`lib/cache.ts`, per instance — warm instances still hit, but nothing is shared across them) with a Redis‑ready interface for hot reads (random pool counts, recommendations with short TTL + explicit invalidation on signal change, pick‑of‑day daily, film detail). HTTP `Cache‑Control` per endpoint.
+- **Rate limiting:** global per‑IP + per‑user fixed windows, plus stricter sub‑limits on the expensive or spam‑prone paths (natural roll, data export, feedback); tunable via env. All of them share one `FixedWindowCounter` held in process memory — a deliberate choice, not an oversight: on serverless each instance keeps its own counters, so the effective budget is N× the configured one. Accepted for the global limiter (defence‑in‑depth, and a network round‑trip on every request is the worse trade); the natural‑roll limiter is the one where a breach costs real money and is the first candidate for a shared store.
 - **Pagination:** cursor‑based on watchlist/watched; page‑offset on browse (small catalog).
 - **Validation:** Zod at every boundary; env itself is Zod‑validated at boot (`config.ts`).
 - **Ops:** slow‑request + slow‑query logging; `/api/metrics/*` for recommendation CTR and personalized‑vs‑random roll engagement, computed from the `Event` table. `/health` probes the DB (200 up / 503 down). Sentry is wired on both sides (gated on `SENTRY_DSN`); uptime monitoring is planned pre‑launch.

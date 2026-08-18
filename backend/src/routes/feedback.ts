@@ -4,6 +4,7 @@ import { sendFeedbackNotification } from "../lib/feedbackEmail";
 import { prisma } from "../lib/prisma";
 import { getValidated, validate } from "../middleware/validate";
 import { HttpError } from "../middleware/errorHandler";
+import { FixedWindowCounter, getClientIp } from "../middleware/rateLimit";
 
 export const feedbackRouter = Router();
 
@@ -17,39 +18,23 @@ const feedbackBodySchema = z.object({
 }).strict();
 
 type FeedbackBody = z.infer<typeof feedbackBodySchema>;
-type RateLimitBucket = {
-  count: number;
-  resetAt: number;
-};
 
-const rateLimitBuckets = new Map<string, RateLimitBucket>();
-
-function getClientIp(req: Parameters<typeof getValidated>[0]): string {
-  const forwardedFor = req.headers["x-forwarded-for"];
-  if (typeof forwardedFor === "string") {
-    return forwardedFor.split(",")[0]?.trim() || req.ip || "unknown";
-  }
-
-  return req.ip || "unknown";
-}
+/**
+ * A stricter sub-limit on feedback submissions, layered over the global API
+ * limiter: each one writes a row and sends a notification email, so it is a
+ * spam target in a way read endpoints are not.
+ *
+ * SINGLE-INSTANCE ASSUMPTION, as with the natural-roll and export limiters:
+ * the counter lives in process memory, so N instances means an effective N×
+ * budget. It reuses the shared FixedWindowCounter so there is one store to
+ * swap for Redis.
+ */
+const feedbackCounter = new FixedWindowCounter(RATE_LIMIT_WINDOW_MS, RATE_LIMIT_MAX_SUBMISSIONS);
 
 function assertRateLimit(ip: string) {
-  const now = Date.now();
-  const bucket = rateLimitBuckets.get(ip);
-
-  if (!bucket || bucket.resetAt <= now) {
-    rateLimitBuckets.set(ip, {
-      count: 1,
-      resetAt: now + RATE_LIMIT_WINDOW_MS,
-    });
-    return;
-  }
-
-  if (bucket.count + 1 > RATE_LIMIT_MAX_SUBMISSIONS) {
+  if (feedbackCounter.hit(`feedback:${ip}`).limited) {
     throw new HttpError(429, "Too many feedback submissions", "RATE_LIMITED");
   }
-
-  bucket.count += 1;
 }
 
 feedbackRouter.post("/", validate(feedbackBodySchema, "body"), async (req, res) => {
