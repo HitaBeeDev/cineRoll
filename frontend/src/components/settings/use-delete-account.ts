@@ -12,26 +12,34 @@ import { ACCOUNT_DELETED_TOAST_KEY } from "./account-deleted-toast-key";
  *
  * Deletion is irreversible and cascades across every table the account owns, so
  * a single click on an open session is too cheap a gesture for it. The dialog
- * asks for the account's own email typed out: it costs a deliberate five
- * seconds, it cannot be produced by a mis-click, and — unlike re-entering a
- * password — it works for Google-only accounts, which have no password to ask
- * for. `confirmation` is compared case-insensitively and trimmed, because
- * neither casing nor a trailing space says anything about intent.
+ * asks for the account's own email typed out and, when the account has one,
+ * re-verifies its current password on the server. Google-only accounts still
+ * require the deliberate email acknowledgement because they have no local
+ * credential to verify. Email confirmation is case-insensitive and trimmed.
  */
-export function useDeleteAccount(email: string | null) {
+export function useDeleteAccount(email: string | null, hasPassword: boolean) {
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [pending, setPending] = useState(false);
   const [confirmation, setConfirmation] = useState("");
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
   const expected = (email ?? "").trim().toLowerCase();
-  const confirmed = expected.length > 0 && confirmation.trim().toLowerCase() === expected;
+  const confirmed =
+    expected.length > 0 &&
+    confirmation.trim().toLowerCase() === expected &&
+    (!hasPassword || currentPassword.length > 0);
 
   function openChange(nextOpen: boolean) {
     if (pending) return;
     // Cancelling clears the typed email, so re-opening never starts one click
     // away from deletion.
-    if (!nextOpen) setConfirmation("");
+    if (!nextOpen) {
+      setConfirmation("");
+      setCurrentPassword("");
+      setError(null);
+    }
     setOpen(nextOpen);
   }
 
@@ -39,10 +47,12 @@ export function useDeleteAccount(email: string | null) {
     if (pending || !confirmed) return;
     setPending(true);
     try {
-      await deleteAccountRequest();
+      setError(null);
+      await deleteAccountRequest(hasPassword ? currentPassword : undefined);
       window.sessionStorage.setItem(ACCOUNT_DELETED_TOAST_KEY, "1");
       await signOut({ callbackUrl: "/" });
-    } catch {
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Please try again.");
       toast({
         variant: "error",
         title: "Account not deleted",
@@ -58,6 +68,9 @@ export function useDeleteAccount(email: string | null) {
     pending,
     confirmation,
     setConfirmation,
+    currentPassword,
+    setCurrentPassword,
+    error,
     confirmed,
     confirmDelete,
   };

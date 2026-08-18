@@ -1,6 +1,7 @@
 "use client";
 
 import { UserAvatar } from "@/components/user-avatar";
+import { Check } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 export function AvatarTile({
@@ -29,16 +30,21 @@ export function AvatarTile({
       aria-label={label}
       title={label}
       className={cn(
-        "rounded-full p-0.5 ring-2 transition-all duration-150 ease-out",
+        "relative rounded-full p-0.5 ring-2 transition-all duration-150 ease-out",
         "hover:-translate-y-0.5 hover:scale-[1.08] active:scale-95",
         "disabled:cursor-not-allowed disabled:opacity-70",
         "focus-visible:outline-none focus-visible:ring-accent",
         active
-          ? "ring-accent shadow-[0_0_0_4px_rgba(232,69,60,0.12)]"
+          ? "ring-white/70"
           : "ring-transparent hover:ring-white/20",
       )}
     >
       <UserAvatar image={id} name={name} email={email} size={44} />
+      {active && (
+        <span className="absolute -bottom-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full border-2 border-ink-850 bg-accent text-white">
+          <Check className="h-3 w-3" strokeWidth={3} aria-hidden />
+        </span>
+      )}
     </button>
   );
 }

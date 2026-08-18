@@ -47,7 +47,7 @@ export default async function SettingsPage() {
     <main className="flex-1 bg-ink-950 text-fg">
       <AppHeader />
       <div className="mx-auto max-w-5xl px-6 py-10 lg:px-10">
-        <h1 className="font-[family-name:var(--font-display)] text-3xl font-bold text-fg-hi">
+        <h1 className="font-[family-name:var(--font-display)] text-4xl font-bold tracking-tight text-fg-hi">
           Settings
         </h1>
 
@@ -59,8 +59,8 @@ export default async function SettingsPage() {
           <section
             className={`bg-gradient-to-b from-[#101020] to-[#0c0c15] px-6 py-6 ${SETTINGS_CARD}`}
           >
-            <SectionHeading eyebrow="Account" title={name ?? "Your account"} />
-            <div className="mt-4 flex flex-wrap items-center justify-between gap-5">
+            <SectionHeading eyebrow="Account" />
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
               <div className="flex items-center gap-4">
                 <UserAvatar
                   image={image}
@@ -70,9 +70,12 @@ export default async function SettingsPage() {
                   className="transition-transform duration-300 group-hover:scale-[1.04]"
                 />
                 <div className="min-w-0">
-                  {email && <p className="truncate text-sm text-fg-muted">{email}</p>}
+                  <p className="truncate text-base font-semibold text-fg-hi">
+                    {name ?? "Your account"}
+                  </p>
+                  {email && <p className="mt-0.5 truncate text-sm text-fg-dim">{email}</p>}
                   {/* Status row — tiny signals that make the account feel real. */}
-                  <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-fg-faint">
+                  <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-fg-muted">
                     <span className="inline-flex items-center gap-1.5">
                       <KeyRound className="h-3.5 w-3.5" aria-hidden />
                       Signed in with {providerLabel}
@@ -96,57 +99,44 @@ export default async function SettingsPage() {
             </div>
           </section>
 
-          {/* Both columns end on the same line — stretch, not items-start. The
-              slack lands in the password card, which is the one element on the
-              page with somewhere to put it: its footer rule and submit button
-              sit at the bottom edge, level with the card opposite. A picker card
-              given the same treatment would just be a box with a hole in it. */}
-          <div className="grid gap-6 lg:grid-cols-2 lg:items-stretch">
-            <div className="flex flex-col gap-6">
-              {/* Avatar — the playful one */}
-              <section
-                className={`bg-ink-850 px-6 py-6 ${SETTINGS_CARD} hover:border-[#3a2f2c]`}
-              >
-                <SectionHeading
-                  title="Avatar"
-                  aside={
-                    // Not "tap": this card is on desktop too, where there is
-                    // nothing to tap. The picker saves the moment you choose, so
-                    // the slot is worth more as a promise about what happens
-                    // than as a naming of the gesture.
-                    <span className="text-[11px] text-fg-faint">saves instantly</span>
-                  }
-                />
-                <p className="mt-2 text-sm text-fg-muted">
-                  Pick an avatar. It shows up next to your name across CineRoll.
-                </p>
-                <div className="mt-5">
-                  <AvatarPicker
-                    initialImage={image}
-                    name={name ?? null}
-                    email={email ?? null}
-                  />
-                </div>
-              </section>
-
-              <PrivacyDataCard />
-            </div>
-
-            {/* Password — full form */}
-            <section className={`flex h-full flex-col bg-ink-850 px-6 py-6 ${SETTINGS_CARD}`}>
-              <SectionHeading title={hasPassword ? "Password" : "Set a password"} />
+          <div className="grid items-stretch gap-6 lg:grid-cols-2">
+            <section
+              className={`bg-ink-850 px-6 py-6 ${SETTINGS_CARD} hover:border-[#3a2f2c]`}
+            >
+              <SectionHeading
+                title="Avatar"
+                aside={
+                  <span className="text-[11px] text-fg-muted">Changes save automatically</span>
+                }
+              />
               <p className="mt-2 text-sm text-fg-muted">
-                {hasPassword
-                  ? "Update the password you use to sign in."
-                  : "Add a password so you can sign in without Google."}
+                Pick an avatar. It shows up next to your name across CineRoll.
               </p>
-              <PasswordForm hasPassword={hasPassword} />
+              <div className="mt-5">
+                <AvatarPicker
+                  initialImage={image}
+                  name={name ?? null}
+                  email={email ?? null}
+                />
+              </div>
             </section>
+
+            <PrivacyDataCard />
           </div>
+
+          <section className={`bg-ink-850 px-6 py-6 ${SETTINGS_CARD}`}>
+            <SectionHeading title={hasPassword ? "Password" : "Set a password"} />
+            <p className="mt-2 text-sm text-fg-muted">
+              {hasPassword
+                ? "Update the password you use to sign in."
+                : "Add a password so you can sign in without Google."}
+            </p>
+            <PasswordForm hasPassword={hasPassword} />
+          </section>
 
           {/* Last, and full width. Destruction belongs after everything else —
               not beside a primary CTA, halfway up the first screen. */}
-          <DeleteAccountCard email={email ?? null} />
+          <DeleteAccountCard email={email ?? null} hasPassword={hasPassword} />
         </div>
       </div>
     </main>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import { AVATAR_OPTIONS } from "@/lib/avatars/avatar-options";
 import { AVATAR_PREVIEW_COUNT } from "@/lib/avatars/avatar-preview-count";
 import { orderAvatarsForPicker } from "@/lib/avatars/order-avatars-for-picker";
@@ -70,9 +71,10 @@ export function AvatarPicker({
             type="button"
             onClick={toggle}
             aria-expanded={showAll}
-            className="mt-1 self-start text-[13px] font-medium text-fg-muted underline-offset-4 transition-colors hover:text-fg-hi hover:underline focus-visible:outline-none focus-visible:underline"
+            className="mt-1 inline-flex min-h-10 items-center gap-2 self-start rounded-lg border border-edge px-3 text-[13px] font-semibold text-fg-dim transition-colors hover:border-edge-strong hover:bg-white/[0.04] hover:text-fg-hi focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
           >
             {showAll ? "Show fewer" : `Show all avatars (${rest.length} more)`}
+            {showAll ? <ChevronUp className="h-4 w-4" aria-hidden /> : <ChevronDown className="h-4 w-4" aria-hidden />}
           </button>
         </>
       )}

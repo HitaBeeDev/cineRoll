@@ -17,7 +17,7 @@ export function SectionHeading({
   tone = "default",
 }: {
   eyebrow?: string;
-  title: string;
+  title?: string;
   /** Right-aligned meta on the title line, e.g. "saves instantly". */
   aside?: ReactNode;
   tone?: "default" | "danger";
@@ -34,10 +34,12 @@ export function SectionHeading({
           {eyebrow}
         </p>
       )}
-      <div className={cn("flex items-baseline justify-between gap-3", eyebrow && "mt-1.5")}>
-        <h2 className="text-[15px] font-semibold text-fg-hi">{title}</h2>
-        {aside}
-      </div>
+      {(title || aside) && (
+        <div className={cn("flex items-baseline justify-between gap-3", eyebrow && "mt-1.5")}>
+          {title && <h2 className="text-base font-semibold text-fg-hi">{title}</h2>}
+          {aside}
+        </div>
+      )}
     </div>
   );
 }

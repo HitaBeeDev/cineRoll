@@ -11,6 +11,8 @@ type PasswordInputProps = {
   placeholder?: string;
   autoComplete?: string;
   required?: boolean;
+  "aria-describedby"?: string;
+  "aria-invalid"?: boolean;
 };
 
 /** Password field with a show/hide toggle. Shared by the sign-in form and the
@@ -22,6 +24,8 @@ export function PasswordInput({
   placeholder,
   autoComplete,
   required,
+  "aria-describedby": ariaDescribedBy,
+  "aria-invalid": ariaInvalid,
 }: PasswordInputProps) {
   const [visible, setVisible] = useState(false);
 
@@ -35,6 +39,8 @@ export function PasswordInput({
         placeholder={placeholder}
         autoComplete={autoComplete}
         required={required}
+        aria-describedby={ariaDescribedBy}
+        aria-invalid={ariaInvalid}
         className={cn(
           "h-12 w-full rounded-xl border border-[#2b2b3d] bg-[#10101d] pl-4 pr-12",
           "text-sm text-fg-hi placeholder:text-[#777789]",
@@ -44,10 +50,8 @@ export function PasswordInput({
       <button
         type="button"
         onClick={() => setVisible((v) => !v)}
-        // Keep it out of the tab order and screen-reader-labelled; it's a
-        // convenience control, not a form field.
-        tabIndex={-1}
         aria-label={visible ? "Hide password" : "Show password"}
+        aria-pressed={visible}
         className={cn(
           "absolute right-1 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-lg",
           "text-[#8f8fa0] transition-colors hover:text-fg-hi",

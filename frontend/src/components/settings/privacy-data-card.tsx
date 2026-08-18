@@ -1,6 +1,6 @@
 "use client";
 
-import { Cookie, Download } from "lucide-react";
+import { ChevronRight, Cookie, Download } from "lucide-react";
 import { COOKIE_PREFERENCES_EVENT } from "@/components/cookie-consent/preferences-event";
 import { cn } from "@/lib/utils/cn";
 import { SETTINGS_CARD } from "./settings-card-class";
@@ -9,7 +9,7 @@ import { useDownloadMyData } from "./use-download-my-data";
 
 const ROW =
   "flex w-full items-center gap-3 rounded-xl border border-edge bg-ink-900 px-4 py-3 text-left " +
-  "transition-colors hover:border-edge-strong hover:bg-ink-800 " +
+  "group transition-all hover:border-edge-hover hover:bg-ink-750 hover:shadow-sm " +
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 " +
   "disabled:cursor-not-allowed disabled:opacity-60";
 
@@ -30,15 +30,16 @@ export function PrivacyDataCard() {
 
       <div className="mt-5 flex flex-col gap-2.5">
         <button type="button" onClick={() => void download()} disabled={pending} className={cn(ROW)}>
-          <Download className="h-4 w-4 shrink-0 text-fg-faint" aria-hidden />
+          <Download className="h-4 w-4 shrink-0 text-fg-muted transition-colors group-hover:text-fg-hi" aria-hidden />
           <span className="min-w-0">
             <span className="block text-sm font-medium text-fg-hi">
               {pending ? "Preparing…" : "Download my data"}
             </span>
-            <span className="block text-xs text-fg-faint">
-              Watchlist, watched films, lists, and taste profile as JSON.
+            <span className="block text-xs text-fg-muted">
+              Prepares and immediately downloads a JSON copy of your CineRoll data.
             </span>
           </span>
+          <ChevronRight className="ml-auto h-4 w-4 shrink-0 text-fg-muted transition-transform group-hover:translate-x-0.5 group-hover:text-fg-hi" aria-hidden />
         </button>
 
         <button
@@ -46,13 +47,14 @@ export function PrivacyDataCard() {
           onClick={() => window.dispatchEvent(new Event(COOKIE_PREFERENCES_EVENT))}
           className={cn(ROW)}
         >
-          <Cookie className="h-4 w-4 shrink-0 text-fg-faint" aria-hidden />
+          <Cookie className="h-4 w-4 shrink-0 text-fg-muted transition-colors group-hover:text-fg-hi" aria-hidden />
           <span className="min-w-0">
             <span className="block text-sm font-medium text-fg-hi">Cookie preferences</span>
-            <span className="block text-xs text-fg-faint">
-              Choose what gets stored in this browser.
+            <span className="block text-xs text-fg-muted">
+              Review and change your optional analytics consent.
             </span>
           </span>
+          <ChevronRight className="ml-auto h-4 w-4 shrink-0 text-fg-muted transition-transform group-hover:translate-x-0.5 group-hover:text-fg-hi" aria-hidden />
         </button>
       </div>
     </section>

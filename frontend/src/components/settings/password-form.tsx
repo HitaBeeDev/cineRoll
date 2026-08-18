@@ -15,7 +15,11 @@ export function PasswordForm({ hasPassword }: { hasPassword: boolean }) {
     newPassword,
     confirmPassword,
     error,
+    success,
     pending,
+    issue,
+    passwordsMatch,
+    canSubmit,
     setCurrentPassword,
     setNewPassword,
     setConfirmPassword,
@@ -28,10 +32,11 @@ export function PasswordForm({ hasPassword }: { hasPassword: boolean }) {
         e.preventDefault();
         void submit();
       }}
-      className="mt-4 flex h-full flex-col gap-4"
+      className="mt-5 flex flex-col gap-4"
     >
-      {hasPassword && (
-        <div className="space-y-1.5">
+      <div className={`grid items-start gap-4 ${hasPassword ? "lg:grid-cols-3" : "md:grid-cols-2"}`}>
+        {hasPassword && (
+          <div className="space-y-1.5">
           <label
             htmlFor="current-password"
             className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#888899]"
@@ -45,10 +50,10 @@ export function PasswordForm({ hasPassword }: { hasPassword: boolean }) {
             autoComplete="current-password"
             required
           />
-        </div>
-      )}
+          </div>
+        )}
 
-      <div className="space-y-1.5">
+        <div className="space-y-1.5">
         <label
           htmlFor="new-password"
           className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#888899]"
@@ -61,11 +66,20 @@ export function PasswordForm({ hasPassword }: { hasPassword: boolean }) {
           onChange={setNewPassword}
           autoComplete="new-password"
           required
+          aria-describedby="new-password-requirements"
+          aria-invalid={newPassword.length > 0 && issue !== null}
         />
-        <p className="text-xs text-[#7f7f92]">Use at least 8 characters.</p>
-      </div>
+        <div id="new-password-requirements" className="space-y-1 text-xs" aria-live="polite">
+          <p className={newPassword.length >= 8 ? "text-affirm-hi" : "text-fg-muted"}>
+            {newPassword.length >= 8 ? "✓" : "○"} At least 8 characters
+          </p>
+          <p className={/[a-zA-Z]/.test(newPassword) && /[0-9]/.test(newPassword) ? "text-affirm-hi" : "text-fg-muted"}>
+            {/[a-zA-Z]/.test(newPassword) && /[0-9]/.test(newPassword) ? "✓" : "○"} At least one letter and one number
+          </p>
+        </div>
+        </div>
 
-      <div className="space-y-1.5">
+        <div className="space-y-1.5">
         <label
           htmlFor="confirm-password"
           className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-widest text-[#888899]"
@@ -78,19 +92,26 @@ export function PasswordForm({ hasPassword }: { hasPassword: boolean }) {
           onChange={setConfirmPassword}
           autoComplete="new-password"
           required
+          aria-invalid={confirmPassword.length > 0 && !passwordsMatch}
+          {...(confirmPassword.length > 0
+            ? { "aria-describedby": "password-match-status" }
+            : {})}
         />
+        {confirmPassword.length > 0 && (
+          <p id="password-match-status" className={`text-xs ${passwordsMatch ? "text-affirm-hi" : "text-caution"}`} aria-live="polite">
+            {passwordsMatch ? "✓ Passwords match" : "Passwords do not match yet."}
+          </p>
+        )}
+        </div>
       </div>
 
-      {error && <p className="text-sm text-[#f0736a]">{error}</p>}
+      {error && <p role="alert" className="rounded-lg border border-accent/25 bg-accent/10 px-3 py-2 text-sm text-caution">{error}</p>}
+      {success && <p role="status" className="rounded-lg border border-affirm/25 bg-affirm/10 px-3 py-2 text-sm text-affirm-hi">{success}</p>}
 
-      {/* Anchored to the bottom of the card, which is what makes this column
-          end level with the one beside it. The card stretches to the taller
-          column, and a form footer is the one place on this page where the
-          leftover height reads as intentional rather than as a hole. */}
-      <div className="mt-auto flex items-center justify-end border-t border-white/[0.06] pt-4">
+      <div className="flex items-center justify-end border-t border-white/[0.06] pt-4">
         <button
           type="submit"
-          disabled={pending}
+          disabled={!canSubmit}
           className={cn(
             // Accent, like every other primary submit in the app. It was gold,
             // which is the accolade colour and has no business on a routine

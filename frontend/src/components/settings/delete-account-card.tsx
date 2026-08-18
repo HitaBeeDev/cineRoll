@@ -10,12 +10,13 @@ import { DialogHeader } from "@/components/ui/dialog/dialog-header";
 import { DialogTitle } from "@/components/ui/dialog/dialog-title";
 import { DialogTrigger } from "@/components/ui/dialog/dialog-trigger";
 import { cn } from "@/lib/utils/cn";
+import { PasswordInput } from "@/components/auth/password-input";
 import { SectionHeading } from "./section-heading";
 import { useDeleteAccount } from "./use-delete-account";
 
-export function DeleteAccountCard({ email }: { email: string | null }) {
-  const { open, openChange, pending, confirmation, setConfirmation, confirmed, confirmDelete } =
-    useDeleteAccount(email);
+export function DeleteAccountCard({ email, hasPassword }: { email: string | null; hasPassword: boolean }) {
+  const { open, openChange, pending, confirmation, setConfirmation, currentPassword, setCurrentPassword, error, confirmed, confirmDelete } =
+    useDeleteAccount(email, hasPassword);
 
   return (
     <section className="rounded-2xl border border-[#2a1b1f] bg-[#0f0c0f] px-6 py-6">
@@ -91,6 +92,23 @@ export function DeleteAccountCard({ email }: { email: string | null }) {
                 We ask for this so a stray click can&apos;t delete an account.
               </p>
             </div>
+
+            {hasPassword && (
+              <div className="space-y-2">
+                <label htmlFor="delete-current-password" className="block text-sm text-fg-dim">
+                  Confirm your identity with your current password.
+                </label>
+                <PasswordInput
+                  id="delete-current-password"
+                  value={currentPassword}
+                  onChange={setCurrentPassword}
+                  autoComplete="current-password"
+                  required
+                />
+              </div>
+            )}
+
+            {error && <p role="alert" className="text-sm text-caution">{error}</p>}
 
             <DialogFooter>
               <DialogClose asChild disabled={pending}>
