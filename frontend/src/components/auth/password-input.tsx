@@ -42,9 +42,10 @@ export function PasswordInput({
         aria-describedby={ariaDescribedBy}
         aria-invalid={ariaInvalid}
         className={cn(
-          "h-12 w-full rounded-xl border border-[#2b2b3d] bg-[#10101d] pl-4 pr-12",
-          "text-sm text-fg-hi placeholder:text-[#777789]",
-          "transition-colors focus:border-accent/70 focus:outline-none focus:ring-2 focus:ring-accent/15",
+          "h-12 w-full rounded-xl border border-edge bg-ink-950 pl-4 pr-12",
+          "text-sm text-fg-hi placeholder:text-fg-faint",
+          "transition-colors hover:border-edge-strong focus:border-accent/60 focus:outline-none focus:ring-2 focus:ring-accent/20",
+          "aria-[invalid=true]:border-caution/60 aria-[invalid=true]:focus:ring-caution/20",
         )}
       />
       <button
