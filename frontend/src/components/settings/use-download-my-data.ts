@@ -27,8 +27,14 @@ export function useDownloadMyData() {
       const link = document.createElement("a");
       link.href = url;
       link.download = `cineroll-data-${new Date().toISOString().slice(0, 10)}.json`;
+      // In the document and removed after, rather than a detached node: a
+      // detached anchor's click is ignored by Firefox. The URL is revoked on the
+      // next tick, not immediately — revoking in the same task can cancel the
+      // download before the browser has read the blob.
+      document.body.append(link);
       link.click();
-      URL.revokeObjectURL(url);
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 0);
     } catch {
       toast({
         variant: "error",

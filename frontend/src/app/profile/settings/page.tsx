@@ -96,15 +96,17 @@ export default async function SettingsPage() {
             </div>
           </section>
 
-          {/* items-start, not stretch. Matching the two columns' heights meant the
-              shorter one had to find ~300px of something to do, and a form has
-              nothing — it padded the gap between the last field and its button.
-              Cards that end where their content ends read as finished; a column
-              that ends higher than its neighbour is not a defect. */}
-          <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
+          {/* Both columns end on the same line — stretch, not items-start. The
+              slack lands in the password card, which is the one element on the
+              page with somewhere to put it: its footer rule and submit button
+              sit at the bottom edge, level with the card opposite. A picker card
+              given the same treatment would just be a box with a hole in it. */}
+          <div className="grid gap-6 lg:grid-cols-2 lg:items-stretch">
             <div className="flex flex-col gap-6">
               {/* Avatar — the playful one */}
-              <section className={`bg-ink-850 px-6 py-6 ${SETTINGS_CARD} hover:border-[#3a2f2c]`}>
+              <section
+                className={`bg-ink-850 px-6 py-6 ${SETTINGS_CARD} hover:border-[#3a2f2c]`}
+              >
                 <SectionHeading
                   title="Avatar"
                   aside={
@@ -131,7 +133,7 @@ export default async function SettingsPage() {
             </div>
 
             {/* Password — full form */}
-            <section className={`bg-ink-850 px-6 py-6 ${SETTINGS_CARD}`}>
+            <section className={`flex h-full flex-col bg-ink-850 px-6 py-6 ${SETTINGS_CARD}`}>
               <SectionHeading title={hasPassword ? "Password" : "Set a password"} />
               <p className="mt-2 text-sm text-fg-muted">
                 {hasPassword
