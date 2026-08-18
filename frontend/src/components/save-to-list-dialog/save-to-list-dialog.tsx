@@ -64,7 +64,7 @@ export function SaveToListDialog({
                 <p className="mb-3 font-[family-name:var(--font-geist-sans)] text-[11px] font-semibold uppercase tracking-[0.14em] text-[#8a8a9c]">
                   Your lists
                 </p>
-                <ul className="flex max-h-[300px] flex-col gap-2.5 overflow-y-auto">
+                <ul data-lenis-prevent className="flex max-h-[300px] flex-col gap-2.5 overflow-y-auto">
                   {state.lists.map((list) => (
                     <ListRow
                       key={list.id}

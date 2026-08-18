@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion, useMotionValue, useReducedMotion, useSpring } from "framer-motion";
 import { FilmLink } from "@/components/film-link";
 import { trackEvent } from "@/lib/analytics";
 import { cn } from "@/lib/utils/cn";
@@ -25,6 +25,11 @@ export function CardPoster({
 }) {
   const shouldReduceMotion = useReducedMotion();
   const { posterUrl, backdropUrl } = film;
+  // The sheen tracks the pointer exactly (no smoothing on x — a highlight that
+  // lags the cursor reads as a bug), while its opacity is sprung so the light
+  // arrives and leaves rather than switching.
+  const sheenX = useMotionValue(0);
+  const sheenOpacity = useSpring(0, { stiffness: 320, damping: 32 });
 
   return (
     <FilmLink
@@ -59,6 +64,16 @@ export function CardPoster({
     >
       <motion.div
         className="relative h-full w-full origin-top-left overflow-hidden rounded-lg shadow-[0_16px_44px_rgba(0,0,0,0.6)] ring-1 ring-white/5 group-hover:shadow-[0_30px_70px_rgba(0,0,0,0.75)]"
+        onPointerMove={(event) => {
+          if (shouldReduceMotion || event.pointerType !== "mouse") return;
+          const bounds = event.currentTarget.getBoundingClientRect();
+          if (bounds.width === 0) return;
+          const across = (event.clientX - bounds.left) / bounds.width;
+          // Runs the highlight from just off one edge to just off the other.
+          sheenX.set(across * bounds.width * 1.8 - bounds.width * 0.4);
+          sheenOpacity.set(1);
+        }}
+        onPointerLeave={() => sheenOpacity.set(0)}
         initial={shouldReduceMotion ? false : { scale: 1.04, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         {...(shouldReduceMotion
@@ -105,6 +120,17 @@ export function CardPoster({
               No image
             </span>
           </div>
+        )}
+
+        {/* The light passing over the artwork. Sits above the image and below
+            nothing else, and never takes a pointer event — the whole poster is
+            one link. */}
+        {!shouldReduceMotion && (
+          <motion.span
+            aria-hidden
+            className="pointer-events-none absolute inset-y-[-25%] left-0 w-[38%] -skew-x-12 bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.38),transparent)]"
+            style={{ x: sheenX, opacity: sheenOpacity }}
+          />
         )}
       </motion.div>
     </FilmLink>

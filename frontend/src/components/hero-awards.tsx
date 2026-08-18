@@ -1,5 +1,6 @@
 import { Fragment, type ReactNode } from "react";
 import { Trophy, Globe, Award } from "lucide-react";
+import { AwardMedallion } from "@/components/award-medallion";
 
 // Awards are CineRoll's core differentiator, so the hero leads with them.
 // Gold is the universal prestige cue; the icon distinguishes the ceremony.
@@ -52,16 +53,9 @@ export function HeroAwards({ ceremonies }: { ceremonies: HeroCeremony[] }) {
             )}
 
             <div className="flex items-center gap-4">
-              <span
-                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full"
-                style={{
-                  background: `${GOLD}1c`,
-                  color: GOLD,
-                  boxShadow: `inset 0 0 0 1px ${GOLD}3d, 0 0 24px ${GOLD}1f`,
-                }}
-              >
+              <AwardMedallion gold={GOLD} delay={i * 0.12}>
                 {CEREMONY_ICON[c.icon]}
-              </span>
+              </AwardMedallion>
 
               <div>
                 <div className="flex items-baseline gap-2">

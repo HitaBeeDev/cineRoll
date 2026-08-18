@@ -120,6 +120,7 @@ export function BrowseAdvancedPanel({
       )}
 
       <div
+        data-lenis-prevent
         className={cn(
           "mx-auto flex w-full max-w-[100vw] flex-col gap-7 px-4 py-6 sm:max-w-screen-2xl sm:px-6 lg:px-8 xl:px-12",
           compact && "min-h-0 flex-1 overflow-y-auto",

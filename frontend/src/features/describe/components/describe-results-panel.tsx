@@ -25,6 +25,7 @@ export function DescribeResultsPanel(props: DescribeResultsPanelProps) {
     <div
       aria-live="polite"
       aria-busy={props.isProcessing}
+      data-lenis-prevent
       className={cn(
         "min-h-[420px] min-w-0 rounded-lg border border-[#1a1a28] bg-[#0d0d16] lg:min-h-0",
         // The intro sits beside a full-width form; the answer takes the room.

@@ -13,6 +13,7 @@ export function HomeHeroFilters({ hero, filters, genres, hasActiveFilters, onFil
       <div
         ref={filterScroll.ref}
         onScroll={filterScroll.onScroll}
+        data-lenis-prevent
         className="flex min-w-0 flex-col lg:min-h-0 lg:flex-1 lg:overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:w-0"
       >
         <div className="lg:flex lg:grow lg:shrink-0 lg:flex-col lg:justify-center">

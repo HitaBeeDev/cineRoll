@@ -61,7 +61,7 @@ export function RollHistoryDrawer({
             <DrawerHeader count={visibleHistory.length} onClose={onClose} />
 
             {/* Scroll area */}
-            <div className="relative z-10 flex-1 overflow-y-auto pt-2 pb-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <div data-lenis-prevent className="relative z-10 flex-1 overflow-y-auto pt-2 pb-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {visibleHistory.length === 0 ? (
                 <EmptyReel />
               ) : (

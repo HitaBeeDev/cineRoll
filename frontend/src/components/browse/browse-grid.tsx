@@ -1,10 +1,11 @@
-import { motion, useReducedMotion } from "framer-motion";
+import { useReducedMotion } from "framer-motion";
 import { Clapperboard } from "lucide-react";
 import type { FilterState, PaginatedFilms } from "@cineroll/types";
 import { cn } from "@/lib/utils/cn";
-import { FilmTile, FilmTileSkeleton } from "@/components/film-tile";
+import { FilmTileSkeleton } from "@/components/film-tile";
 import { FILM_GRID_CLASS } from "@/components/film-tile/film-grid-class";
 import { BrowsePagination } from "@/components/browse/browse-pagination";
+import { BrowseResultsGrid } from "@/components/browse/browse-results-grid";
 import { PAGE_SIZE } from "@/lib/browse/options/page-size";
 import type { LoadStatus } from "@/lib/browse/options/load-status";
 import { statusFromFilters } from "@/lib/browse/filter-updates/status-from-filters";
@@ -87,26 +88,13 @@ export function BrowseGrid({
 
       {(status === "success" || showStaleGrid) && result && result.films.length > 0 && (
         <div className={cn("transition-opacity duration-150", showStaleGrid && "pointer-events-none opacity-40")}>
-          <div className={GRID_CLASS}>
-            {result.films.map((film, index) => (
-              <motion.div
-                key={film.id}
-                initial={{ opacity: 0, y: shouldReduceMotion || !firstGridPaint ? 0 : 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{
-                  delay: shouldReduceMotion || !firstGridPaint ? 0 : Math.min(index * 0.025, 0.4),
-                  duration: shouldReduceMotion ? 0 : firstGridPaint ? 0.22 : 0.16,
-                  ease: "easeOut",
-                }}
-              >
-                <FilmTile
-                  film={film}
-                  awardBodies={filters.awardBodies}
-                  awardStatus={awardStatus}
-                />
-              </motion.div>
-            ))}
-          </div>
+          <BrowseResultsGrid
+            films={result.films}
+            awardBodies={filters.awardBodies}
+            awardStatus={awardStatus}
+            animateEntrance={!shouldReduceMotion && firstGridPaint}
+            reducedMotion={Boolean(shouldReduceMotion)}
+          />
 
           <BrowsePagination page={page} totalPages={totalPages} onChange={onPageChange} />
         </div>

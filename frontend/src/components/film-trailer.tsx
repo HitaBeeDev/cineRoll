@@ -66,6 +66,27 @@ export function FilmTrailer({
               <div className="absolute inset-0 bg-zinc-900" />
             )}
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.1)_0%,rgba(0,0,0,0.62)_72%)]" />
+            {/* Rings pushing out from the play mark — the visual of a sound
+                starting. Centred with framer's own x/y rather than Tailwind's
+                translate utilities, because the inline transform framer writes
+                for the scale would drop the class-based centring. */}
+            {!shouldReduceMotion &&
+              [0, 1].map((ring) => (
+                <motion.span
+                  key={ring}
+                  aria-hidden
+                  className="pointer-events-none absolute left-1/2 top-1/2 h-20 w-20 rounded-full border border-[var(--film-accent)]"
+                  style={{ x: "-50%", y: "-50%" }}
+                  animate={{ scale: [1, 1.85], opacity: [0.45, 0] }}
+                  transition={{
+                    duration: 2.4,
+                    repeat: Infinity,
+                    ease: "easeOut",
+                    delay: ring * 1.2,
+                  }}
+                />
+              ))}
+
             <span className="absolute left-1/2 top-1/2 flex h-20 w-20 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-[var(--film-accent)] bg-black/48 text-[var(--film-accent)] shadow-[0_0_38px_color-mix(in_srgb,var(--film-accent)_38%,transparent)] backdrop-blur-sm transition-transform duration-200 group-hover:scale-105">
               <Play className="ml-1 h-9 w-9 fill-current" aria-hidden />
             </span>

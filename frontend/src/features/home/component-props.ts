@@ -2,6 +2,8 @@ import type { ReactNode } from "react";
 import type { FilterState } from "@cineroll/types";
 import type { RollFilm } from "@/lib/api";
 import type { PoolViewModel } from "./build-pool-view-model";
+import type { ReelFrameSpec } from "./roll-reel/reel-frame-spec";
+import type { RollPhase } from "./roll-reel/roll-phase";
 
 export type AnimatedPoolCountProps = { value: string };
 export type HomeHeroFiltersProps = {
@@ -40,12 +42,21 @@ export type RollControlsProps = {
 };
 export type HomeControlPanelProps = HomeHeroFiltersProps & RollControlsProps & {
   onOpenHistory: () => void;
+  /** House lights down: the panel steps back while the reel is running. */
+  dimmed: boolean;
+  reducedMotion: boolean | null;
 };
 export type RollResultPanelProps = {
   effectiveCount: number | null;
+  /** The revealed film — held back by the choreography until the reel locks. */
   film: RollFilm | null;
   isAuthenticated: boolean;
+  /** Still needed for the reduced-motion path, which has no reel to wait on. */
   isRolling: boolean;
+  phase: RollPhase;
+  pace: number;
+  showLeader: boolean;
+  reelFrames: ReelFrameSpec[];
   reducedMotion: boolean | null;
   rollAnnouncement: string;
   onClearFilters: () => void;

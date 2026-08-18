@@ -8,6 +8,7 @@ import { PageTransition } from "@/components/page-transition";
 import { Providers } from "@/components/providers";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteFooterGate } from "@/components/site-footer-gate";
+import { SmoothScrollProvider } from "@/components/smooth-scroll-provider";
 import { SITE_URL } from "@/lib/site-url";
 import "./globals.css";
 
@@ -82,15 +83,17 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-ink-900 text-fg-hi">
         <Providers>
-          <Suspense fallback={null}>
-            <AnalyticsPageView />
-          </Suspense>
-          <PageTransition>{children}</PageTransition>
-          <SiteFooterGate>
-            <SiteFooter />
-          </SiteFooterGate>
-          <CookieConsent />
-          <DeferredPwaInstallPrompt />
+          <SmoothScrollProvider>
+            <Suspense fallback={null}>
+              <AnalyticsPageView />
+            </Suspense>
+            <PageTransition>{children}</PageTransition>
+            <SiteFooterGate>
+              <SiteFooter />
+            </SiteFooterGate>
+            <CookieConsent />
+            <DeferredPwaInstallPrompt />
+          </SmoothScrollProvider>
         </Providers>
       </body>
     </html>

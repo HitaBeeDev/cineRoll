@@ -1,3 +1,7 @@
+"use client";
+
+import { motion } from "framer-motion";
+import { CARD_CASCADE } from "@/components/home/film-card/cascade-motion";
 import { formatContentType } from "@/lib/format/format-content-type";
 import { formatCreditLabel } from "@/lib/format/format-credit-label";
 import { formatFilmLength } from "@/lib/format/format-film-length";
@@ -39,12 +43,16 @@ export function CardIdentity({
     .join(" · ");
 
   return (
-    <div className="flex min-w-0 flex-1 flex-col gap-2">
+    // A cascade container as well as the identity column: when the card lands
+    // after a roll these four blocks arrive in reading order rather than all at
+    // once. With no cascade running above it, the labels resolve to nothing and
+    // the column renders exactly as it always did.
+    <motion.div variants={CARD_CASCADE.container} className="flex min-w-0 flex-1 flex-col gap-2">
       {/* The facts a viewer decides on read as one group above the title. The
           type keeps a border because it names a category; the rest is plain
           text, since a bordered box that does nothing on click reads as a
           broken button. */}
-      <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5">
+      <motion.div variants={CARD_CASCADE.item} className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5">
         {contentType && (
           <span className="rounded-[3px] border border-white/25 bg-white/[0.07] px-2 py-[3px] font-[family-name:var(--font-geist-mono)] text-[12px] uppercase tracking-[0.16em] text-fg">
             {contentType}
@@ -53,20 +61,21 @@ export function CardIdentity({
         <p className="font-[family-name:var(--font-geist-mono)] text-[12px] uppercase tracking-[0.14em] text-fg-muted">
           {meta}
         </p>
-      </div>
+      </motion.div>
 
       {/* Title — the payoff of the roll, at display scale so it reads as the
           loudest element in the result column. It stays the loudest thing when
           compact too, just not at a size where a two-line title costs 90px of a
           dialog that has ~490px to spend in total. */}
-      <h2
+      <motion.h2
+        variants={CARD_CASCADE.item}
         className="font-[family-name:var(--font-display)] font-bold leading-[1.05] tracking-tight text-fg-hi"
         style={{
           fontSize: compact ? "clamp(1.5rem, 2vw, 2.1rem)" : "clamp(1.85rem, 2.8vw, 2.85rem)",
         }}
       >
         {film.title}
-      </h2>
+      </motion.h2>
 
       {/* A person's name is content, not a label, so it is set as a name: normal
           case, at reading size. Only the credit word beside it keeps the spaced
@@ -74,22 +83,24 @@ export function CardIdentity({
           capitals, the line was a third shouted row in a column that needs
           somewhere for the eye to rest after the title. */}
       {film.director && (
-        <p className="text-[13px] leading-[1.4] text-fg-dim">
+        <motion.p variants={CARD_CASCADE.item} className="text-[13px] leading-[1.4] text-fg-dim">
           <span className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.2em] text-fg-faint">
             {formatCreditLabel(film)}
           </span>{" "}
           {film.director}
-        </p>
+        </motion.p>
       )}
 
       {awardHighlights.length > 0 && (
-        <RecognitionSummary
-          highlights={awardHighlights}
-          slug={film.slug}
-          filmId={film.id}
-          onEngage={onEngage}
-        />
+        <motion.div variants={CARD_CASCADE.item}>
+          <RecognitionSummary
+            highlights={awardHighlights}
+            slug={film.slug}
+            filmId={film.id}
+            onEngage={onEngage}
+          />
+        </motion.div>
       )}
-    </div>
+    </motion.div>
   );
 }

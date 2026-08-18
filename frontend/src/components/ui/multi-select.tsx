@@ -283,7 +283,7 @@ export function MultiSelect({
               </button>
             </div>
           )}
-          <div className="max-h-60 overflow-y-auto py-1">
+          <div data-lenis-prevent className="max-h-60 overflow-y-auto py-1">
             {filtered.length === 0 ? (
               <p className="px-3 py-2 font-[family-name:var(--font-geist-mono)] text-[12px] text-[#6f6b80]">No matches</p>
             ) : (

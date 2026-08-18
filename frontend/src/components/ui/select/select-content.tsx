@@ -28,6 +28,7 @@ export const SelectContent = React.forwardRef<
     >
       <SelectScrollUpButton />
       <SelectPrimitive.Viewport
+        data-lenis-prevent
         className={cn(
           "max-h-[min(var(--radix-select-content-available-height),28rem)] overflow-y-auto p-1",
           position === "popper" &&

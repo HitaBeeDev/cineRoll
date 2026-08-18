@@ -1,11 +1,12 @@
 "use client";
 
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { usePathname } from "next/navigation";
 import { useFilmActions } from "@/hooks/useFilmActions";
 import { cn } from "@/lib/utils/cn";
 import { blurDataUrl } from "@/lib/images/blur-data-url";
 import type { RollFilm } from "@/lib/api";
+import { CARD_CASCADE } from "@/components/home/film-card/cascade-motion";
 import { getAwardHighlights } from "@/components/home/film-card/awards/get-award-highlights";
 import { getRecognitionRecords } from "@/components/home/film-card/awards/get-recognition-records";
 import { ChannelPill } from "@/components/home/film-card/channel-pill";
@@ -32,6 +33,7 @@ export function FilmCard({
   onSaved,
   onEngage,
   layout = "column",
+  cascade = false,
 }: {
   film: RollFilm;
   isAuthenticated: boolean;
@@ -62,6 +64,13 @@ export function FilmCard({
    * thing on either.
    */
   layout?: "column" | "split";
+  /**
+   * Bring the card's information in in reading order rather than all at once.
+   * Set by the roll panel, where the card is the payoff of a sequence and the
+   * order it assembles in is part of it. Everywhere else the card is simply
+   * present, and a staggered entrance would be a delay with no story.
+   */
+  cascade?: boolean;
 }) {
   const pathname = usePathname();
   // The parent keys this card by film.id, so state resets for each new roll.
@@ -106,7 +115,9 @@ export function FilmCard({
     // the rail runs the full height rather than starting under the header. Given
     // its own row it was a tall block of buttons next to nothing, and the card
     // ended a hundred-odd pixels below where the film had stopped talking.
-    <div
+    <motion.div
+      variants={CARD_CASCADE.container}
+      {...(cascade ? { initial: "hidden" as const, animate: "shown" as const } : {})}
       className={cn(
         "flex flex-col",
         split && "lg:grid lg:grid-cols-[minmax(0,1fr)_22rem] lg:gap-x-4",
@@ -116,7 +127,11 @@ export function FilmCard({
         {/* In `split` the panel around the card owns the pill: it belongs to the
             header row there, where it stays legible while the card scrolls.
             Printing it here too would state the same tag twice. */}
-        {!split && <ChannelPill title={film.title} className="-mx-1 -mt-1 mb-2" />}
+        {!split && (
+          <motion.div variants={CARD_CASCADE.item}>
+            <ChannelPill title={film.title} className="-mx-1 -mt-1 mb-2" />
+          </motion.div>
+        )}
 
         <CardHeader
           film={film}
@@ -149,7 +164,8 @@ export function FilmCard({
             is roughly twice what an eye tracks back across reliably; at ~68
             characters it lands as the two or three lines it was written as. The
             cell keeps its width — the paragraph just stops using all of it. */}
-        <div
+        <motion.div
+          variants={CARD_CASCADE.item}
           className={cn(
             "flex min-w-0 flex-col gap-2 px-4 pt-3",
             split ? "max-w-[68ch] pb-4" : "pb-0",
@@ -173,14 +189,15 @@ export function FilmCard({
           {recognition && recognition.records.length > 0 && (
             <RecognizedFor records={recognition.records} more={recognition.more} />
           )}
-        </div>
+        </motion.div>
       </div>
 
       {/* The controls. A rail with a rule down its left in `split` — the film is
           one thing and what you do about it is another, and at this width the
           two need a stated edge between them. In `column` it is simply the rest
           of the card, in the flow. */}
-      <div
+      <motion.div
+        variants={CARD_CASCADE.item}
         className={cn(
           "flex min-w-0 flex-col gap-3 px-4 pb-4",
           split ? "lg:border-l lg:border-edge-subtle lg:pl-6 lg:pt-3" : "pt-1",
@@ -262,7 +279,7 @@ export function FilmCard({
         {!split && (
           <SecondaryActions film={film} isAuthenticated={isAuthenticated} onEngage={onEngage} />
         )}
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

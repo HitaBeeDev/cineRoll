@@ -1,8 +1,8 @@
-import Image from "next/image";
 import { blurDataUrl } from "@/lib/images/blur-data-url";
 import { tmdbImageUrl } from "@/lib/images/tmdb-image-url";
 import { cn } from "@/lib/utils/cn";
 import type { FilmHeroBackgroundProps } from "../component-props";
+import { HeroBackdrop } from "./hero-backdrop";
 
 export function FilmHeroBackground({
   film,
@@ -12,13 +12,8 @@ export function FilmHeroBackground({
   return (
     <>
       {image.url && (
-        <Image
+        <HeroBackdrop
           src={tmdbImageUrl(image.url, image.size) ?? image.url}
-          alt=""
-          fill
-          priority
-          sizes="100vw"
-          placeholder="blur"
           blurDataURL={blurDataUrl(film.posterColor)}
           className={cn(
             "object-cover object-center",

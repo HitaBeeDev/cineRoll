@@ -1,33 +1,42 @@
-import Link from "next/link";
-import { ArrowLeft, Film } from "lucide-react";
+import type { Metadata } from "next";
 import { AppHeader } from "@/components/app-header";
+import { ErrorPrimaryAction } from "@/components/error-surface/error-primary-action";
+import { ErrorSecondaryAction } from "@/components/error-surface/error-secondary-action";
+import { ErrorSurface } from "@/components/error-surface/error-surface";
 
+export const metadata: Metadata = {
+  title: "Page not found",
+  // A 404 has nothing worth indexing, and every unknown URL renders it.
+  robots: { index: false, follow: true },
+};
+
+/**
+ * The root 404 — reached by any unknown URL, not only a missing film, so the
+ * copy stays about the page rather than about a film. It used to say "Film not
+ * found" on every mistyped route, and it was set in a zinc palette the rest of
+ * the product does not use.
+ */
 export default function NotFound() {
   return (
-    <div className="flex min-h-screen flex-col bg-zinc-950 text-zinc-100">
+    <div className="flex min-h-dvh flex-col bg-ink-900 text-fg-hi">
       <AppHeader />
-      <main className="flex flex-1 flex-col items-center justify-center px-4">
-        <Film className="mb-6 h-14 w-14 text-zinc-700" aria-hidden />
-        <h1 className="mb-2 text-3xl font-bold text-zinc-50">Film not found</h1>
-        <p className="mb-8 max-w-sm text-center text-zinc-400">
-          We couldn&apos;t find that film. It may have been removed or the link is incorrect.
-        </p>
-        <div className="flex flex-col gap-3 sm:flex-row">
-          <Link
-            href="/"
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-ink-900 transition-colors hover:bg-[#d5342b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-          >
-            Roll a random film
-          </Link>
-          <Link
-            href="/browse"
-            className="inline-flex items-center justify-center gap-2 rounded-xl border border-[#222232] px-5 py-2.5 text-sm font-medium text-[#888899] transition-colors hover:border-accent/40 hover:text-fg-hi focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-          >
-            <ArrowLeft className="h-4 w-4" aria-hidden />
-            Back to Browse
-          </Link>
-        </div>
-      </main>
+      <ErrorSurface
+        label="// Off air"
+        heading={
+          <>
+            Nothing
+            <br />
+            <span className="text-accent">on this channel.</span>
+          </>
+        }
+        body="That page does not exist — the link may be wrong, or whatever was here has moved. The archive is still nine thousand films deep."
+        actions={
+          <>
+            <ErrorPrimaryAction href="/">Roll a film</ErrorPrimaryAction>
+            <ErrorSecondaryAction href="/browse">Browse the archive</ErrorSecondaryAction>
+          </>
+        }
+      />
     </div>
   );
 }

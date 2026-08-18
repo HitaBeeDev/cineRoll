@@ -24,6 +24,7 @@ export function MobileNavMenu({
       onClick={onClose}
     >
       <div
+        data-lenis-prevent
         className="flex h-dvh min-h-0 flex-col overflow-y-auto px-5 py-4"
         onClick={(event) => event.stopPropagation()}
       >
