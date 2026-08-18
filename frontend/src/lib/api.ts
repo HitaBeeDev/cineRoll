@@ -1,5 +1,6 @@
 export { changePassword } from "@/lib/api/account-client/change-password";
 export { deleteAccount } from "@/lib/api/account-client/delete-account";
+export { fetchAccountExport } from "@/lib/api/account-client/fetch-account-export";
 export { updateAvatar } from "@/lib/api/account-client/update-avatar";
 export type { ChangePasswordInput } from "@/lib/api/account-client/change-password-input";
 export { fetchMarathon } from "./api/fetch-marathon";

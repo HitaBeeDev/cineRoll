@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { AVATAR_OPTIONS } from "@/lib/avatars/avatar-options";
 import { AVATAR_PREVIEW_COUNT } from "@/lib/avatars/avatar-preview-count";
+import { orderAvatarsForPicker } from "@/lib/avatars/order-avatars-for-picker";
 import { AvatarTile } from "./avatar-tile";
 import { useAvatarPicker } from "./use-avatar-picker";
 
@@ -17,13 +18,25 @@ export function AvatarPicker({
 }) {
   const { selected, pending, choose } = useAvatarPicker(initialImage);
 
-  const selectedIndex = AVATAR_OPTIONS.findIndex((o) => o.id === selected);
-  // Start expanded when the current pick lives past the preview, so its ring is
-  // always visible.
-  const [showAll, setShowAll] = useState(selectedIndex >= AVATAR_PREVIEW_COUNT);
+  // Always starts collapsed. The selected tile is rotated into the head row
+  // instead, so one row is enough to show what you currently have.
+  const [showAll, setShowAll] = useState(false);
+  const [ordered, setOrdered] = useState(() =>
+    orderAvatarsForPicker(AVATAR_OPTIONS, selected, AVATAR_PREVIEW_COUNT),
+  );
 
-  const head = AVATAR_OPTIONS.slice(0, AVATAR_PREVIEW_COUNT);
-  const rest = AVATAR_OPTIONS.slice(AVATAR_PREVIEW_COUNT);
+  // Re-rotate only on collapse, never while the grid is open: reordering tiles
+  // under the cursor mid-choice would make the next click land on a different
+  // avatar than the one being aimed at.
+  function toggle() {
+    setShowAll((open) => {
+      if (open) setOrdered(orderAvatarsForPicker(AVATAR_OPTIONS, selected, AVATAR_PREVIEW_COUNT));
+      return !open;
+    });
+  }
+
+  const head = ordered.slice(0, AVATAR_PREVIEW_COUNT);
+  const rest = ordered.slice(AVATAR_PREVIEW_COUNT);
 
   const renderTile = (option: { id: string; label: string }) => (
     <AvatarTile
@@ -55,9 +68,9 @@ export function AvatarPicker({
 
           <button
             type="button"
-            onClick={() => setShowAll((v) => !v)}
+            onClick={toggle}
             aria-expanded={showAll}
-            className="mt-1 self-start text-[13px] font-medium text-[#9a9aae] underline-offset-4 transition-colors hover:text-fg-hi hover:underline focus-visible:outline-none focus-visible:underline"
+            className="mt-1 self-start text-[13px] font-medium text-fg-muted underline-offset-4 transition-colors hover:text-fg-hi hover:underline focus-visible:outline-none focus-visible:underline"
           >
             {showAll ? "Show fewer" : `Show all avatars (${rest.length} more)`}
           </button>

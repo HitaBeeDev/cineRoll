@@ -6,6 +6,9 @@ import { AppHeader } from "@/components/app-header";
 import { AvatarPicker } from "@/components/settings/avatar-picker";
 import { DeleteAccountCard } from "@/components/settings/delete-account-card";
 import { PasswordForm } from "@/components/settings/password-form";
+import { PrivacyDataCard } from "@/components/settings/privacy-data-card";
+import { SectionHeading } from "@/components/settings/section-heading";
+import { SETTINGS_CARD } from "@/components/settings/settings-card-class";
 import { SignOutButton } from "@/components/sign-out-button";
 import { UserAvatar } from "@/components/user-avatar";
 import { prisma } from "@/lib/prisma";
@@ -16,15 +19,6 @@ export const metadata: Metadata = {
 };
 
 export const dynamic = "force-dynamic";
-
-// Shared card shell — subtle, and it comes alive on hover (lifts a hair, border
-// warms, a soft shadow appears) so the page feels responsive rather than static.
-const CARD =
-  "group rounded-2xl border border-[#1b1b26] transition-all duration-300 ease-out " +
-  "hover:-translate-y-px hover:border-[#2b2b3d] hover:shadow-[0_16px_44px_-28px_rgba(0,0,0,0.9)]";
-
-const KICKER =
-  "font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.2em] text-[#9494a6]";
 
 export default async function SettingsPage() {
   const session = await auth();
@@ -50,104 +44,107 @@ export default async function SettingsPage() {
   const emailVerified = Boolean(user?.emailVerified);
 
   return (
-    <main className="flex-1 bg-[#07070b] text-[#f4f4f5]">
+    <main className="flex-1 bg-ink-950 text-fg">
       <AppHeader />
       <div className="mx-auto max-w-5xl px-6 py-10 lg:px-10">
         <h1 className="font-[family-name:var(--font-display)] text-3xl font-bold text-fg-hi">
           Settings
         </h1>
 
-        {/* items-start, not stretch. Matching the two columns' heights meant the
-            shorter one had to find ~300px of something to do, and a form has
-            nothing — it padded the gap between the last field and its button.
-            Cards that end where their content ends read as finished; a column
-            that ends higher than its neighbour is not a defect. */}
-        <div className="mt-8 grid gap-6 lg:grid-cols-2 lg:items-start">
-          {/* Left column — account + avatar */}
-          <div className="flex flex-col gap-6">
-        {/* Account — a compact profile summary */}
-        <section
-          className={`bg-gradient-to-b from-[#101020] to-[#0c0c15] px-6 py-5 ${CARD}`}
-        >
-          <h2 className={KICKER}>Account</h2>
-          <div className="mt-4 flex items-center gap-4">
-            <UserAvatar
-              image={image}
-              name={name}
-              email={email}
-              size={56}
-              className="transition-transform duration-300 group-hover:scale-[1.04]"
-            />
-            <div className="min-w-0">
-              {name && (
-                <p className="truncate text-base font-semibold text-fg-hi">{name}</p>
-              )}
-              {email && <p className="truncate text-sm text-[#888899]">{email}</p>}
+        <div className="mt-8 flex flex-col gap-6">
+          {/* Account, full width and first. It is what the page is about, and it
+              used to be the quietest block on it while an optional "set a
+              password" form held the visual centre. Width and position give it
+              primacy without another accent-coloured button competing. */}
+          <section
+            className={`bg-gradient-to-b from-[#101020] to-[#0c0c15] px-6 py-6 ${SETTINGS_CARD}`}
+          >
+            <SectionHeading eyebrow="Account" title={name ?? "Your account"} />
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-5">
+              <div className="flex items-center gap-4">
+                <UserAvatar
+                  image={image}
+                  name={name}
+                  email={email}
+                  size={56}
+                  className="transition-transform duration-300 group-hover:scale-[1.04]"
+                />
+                <div className="min-w-0">
+                  {email && <p className="truncate text-sm text-fg-muted">{email}</p>}
+                  {/* Status row — tiny signals that make the account feel real. */}
+                  <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-fg-faint">
+                    <span className="inline-flex items-center gap-1.5">
+                      <KeyRound className="h-3.5 w-3.5" aria-hidden />
+                      Signed in with {providerLabel}
+                    </span>
+                    {memberSince && (
+                      <span className="inline-flex items-center gap-1.5">
+                        <CalendarDays className="h-3.5 w-3.5" aria-hidden />
+                        Member since {memberSince}
+                      </span>
+                    )}
+                    {emailVerified && (
+                      <span className="inline-flex items-center gap-1.5 text-affirm">
+                        <BadgeCheck className="h-3.5 w-3.5" aria-hidden />
+                        Email verified
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <SignOutButton />
             </div>
-          </div>
+          </section>
 
-          {/* Status row — tiny signals that make the account feel real. */}
-          <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-[#7f7f92]">
-            <span className="inline-flex items-center gap-1.5">
-              <KeyRound className="h-3.5 w-3.5 text-[#6f6f82]" aria-hidden />
-              Signed in with {providerLabel}
-            </span>
-            {memberSince && (
-              <span className="inline-flex items-center gap-1.5">
-                <CalendarDays className="h-3.5 w-3.5 text-[#6f6f82]" aria-hidden />
-                Member since {memberSince}
-              </span>
-            )}
-            {emailVerified && (
-              <span className="inline-flex items-center gap-1.5 text-[#5fbf72]">
-                <BadgeCheck className="h-3.5 w-3.5" aria-hidden />
-                Email verified
-              </span>
-            )}
-          </div>
+          {/* items-start, not stretch. Matching the two columns' heights meant the
+              shorter one had to find ~300px of something to do, and a form has
+              nothing — it padded the gap between the last field and its button.
+              Cards that end where their content ends read as finished; a column
+              that ends higher than its neighbour is not a defect. */}
+          <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
+            <div className="flex flex-col gap-6">
+              {/* Avatar — the playful one */}
+              <section className={`bg-ink-850 px-6 py-6 ${SETTINGS_CARD} hover:border-[#3a2f2c]`}>
+                <SectionHeading
+                  title="Avatar"
+                  aside={
+                    // Not "tap": this card is on desktop too, where there is
+                    // nothing to tap. The picker saves the moment you choose, so
+                    // the slot is worth more as a promise about what happens
+                    // than as a naming of the gesture.
+                    <span className="text-[11px] text-fg-faint">saves instantly</span>
+                  }
+                />
+                <p className="mt-2 text-sm text-fg-muted">
+                  Pick an avatar. It shows up next to your name across CineRoll.
+                </p>
+                <div className="mt-5">
+                  <AvatarPicker
+                    initialImage={image}
+                    name={name ?? null}
+                    email={email ?? null}
+                  />
+                </div>
+              </section>
 
-          <div className="mt-5">
-            <SignOutButton />
-          </div>
-        </section>
+              <PrivacyDataCard />
+            </div>
 
-        {/* Avatar — the playful one */}
-        <section className={`bg-[#0d0d16] px-6 py-6 ${CARD} hover:border-[#3a2f2c]`}>
-          <div className="flex items-baseline justify-between gap-3">
-            <h2 className={KICKER}>Avatar</h2>
-            {/* Not "tap": this card is on desktop too, where there is nothing to
-                tap. The picker saves the moment you choose, so the slot is worth
-                more as a promise about what happens than as a naming of the
-                gesture — which the tiles already make obvious. */}
-            <span className="text-[11px] text-[#5a5a6c]">saves instantly</span>
-          </div>
-          <p className="mt-2 text-sm text-[#888899]">
-            Pick an avatar. It shows up next to your name across CineRoll.
-          </p>
-          <div className="mt-5">
-            <AvatarPicker
-              initialImage={image}
-              name={name ?? null}
-              email={email ?? null}
-            />
-          </div>
-        </section>
-          </div>
-
-          {/* Right column — password */}
-          <div className="flex flex-col gap-6">
             {/* Password — full form */}
-            <section className={`bg-[#0d0d16] px-6 py-6 ${CARD}`}>
-              <h2 className={KICKER}>{hasPassword ? "Password" : "Set a password"}</h2>
-              <p className="mt-2 text-sm text-[#888899]">
+            <section className={`bg-ink-850 px-6 py-6 ${SETTINGS_CARD}`}>
+              <SectionHeading title={hasPassword ? "Password" : "Set a password"} />
+              <p className="mt-2 text-sm text-fg-muted">
                 {hasPassword
                   ? "Update the password you use to sign in."
                   : "Add a password so you can sign in without Google."}
               </p>
               <PasswordForm hasPassword={hasPassword} />
             </section>
-            <DeleteAccountCard />
           </div>
+
+          {/* Last, and full width. Destruction belongs after everything else —
+              not beside a primary CTA, halfway up the first screen. */}
+          <DeleteAccountCard email={email ?? null} />
         </div>
       </div>
     </main>

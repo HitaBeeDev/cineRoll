@@ -10,69 +10,109 @@ import { DialogHeader } from "@/components/ui/dialog/dialog-header";
 import { DialogTitle } from "@/components/ui/dialog/dialog-title";
 import { DialogTrigger } from "@/components/ui/dialog/dialog-trigger";
 import { cn } from "@/lib/utils/cn";
+import { SectionHeading } from "./section-heading";
 import { useDeleteAccount } from "./use-delete-account";
 
-export function DeleteAccountCard() {
-  const { open, setOpen, pending, confirmDelete } = useDeleteAccount();
+export function DeleteAccountCard({ email }: { email: string | null }) {
+  const { open, openChange, pending, confirmation, setConfirmation, confirmed, confirmDelete } =
+    useDeleteAccount(email);
 
   return (
-    <section className="rounded-2xl border border-[#3a1f22] bg-[#130d10] px-6 py-6">
-      <div className="flex items-start gap-3">
-        <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-accent/30 bg-accent/10 text-[#f0736a]">
-          <Trash2 className="h-4 w-4" aria-hidden />
+    <section className="rounded-2xl border border-[#2a1b1f] bg-[#0f0c0f] px-6 py-6">
+      <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex items-start gap-3">
+          <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#3a2226] bg-[#170f12] text-accent-soft">
+            <Trash2 className="h-4 w-4" aria-hidden />
+          </div>
+          <div className="min-w-0">
+            <SectionHeading eyebrow="Danger zone" title="Delete your account" tone="danger" />
+            <p className="mt-2 max-w-xl text-sm leading-6 text-fg-muted">
+              Permanently deletes your account, saved films, ratings, watch history, comments, and
+              taste profile. Analytics are anonymized. This cannot be undone.
+            </p>
+          </div>
         </div>
-        <div className="min-w-0">
-          <h2 className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.2em] text-[#f0736a]">
-            Danger Zone
-          </h2>
-          <p className="mt-2 text-sm leading-6 text-[#a8a8b6]">
-            Permanently delete your account, saved films, ratings, watch history,
-            comments, and taste profile. Analytics are anonymized.
-          </p>
-        </div>
-      </div>
 
-      <Dialog open={open} onOpenChange={(nextOpen) => !pending && setOpen(nextOpen)}>
-        <DialogTrigger asChild>
-          <button
-            type="button"
-            className={cn(
-              "mt-5 inline-flex h-11 items-center justify-center rounded-xl border border-accent/40 px-4",
-              "text-sm font-semibold text-[#f0736a] transition-colors hover:border-accent/70 hover:bg-accent/10",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50",
-            )}
-          >
-            Delete My Account
-          </button>
-        </DialogTrigger>
-        <DialogContent className="border-[#3a1f22] bg-[#100d12]">
-          <DialogHeader>
-            <DialogTitle>Delete your account?</DialogTitle>
-            <DialogDescription>
-              This cannot be undone. Your account data will be deleted, and
-              analytics tied to your account will be anonymized.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <DialogClose asChild disabled={pending}>
-              <button
-                type="button"
-                className="h-10 rounded-xl border border-white/10 px-4 text-sm font-medium text-[#c8c8d4] transition-colors hover:border-white/20 hover:text-fg-hi focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20"
-              >
-                Cancel
-              </button>
-            </DialogClose>
+        <Dialog open={open} onOpenChange={openChange}>
+          <DialogTrigger asChild>
+            {/* Neutral until you reach for it. Accent red is the brand colour
+                here — it fills the primary submit on this same page — so
+                spending it on a resting destructive button teaches the eye to
+                read red as "CineRoll", which is exactly the wrong lesson at the
+                moment the warning has to land. */}
             <button
               type="button"
-              disabled={pending}
-              onClick={() => void confirmDelete()}
-              className="h-10 rounded-xl bg-accent px-4 text-sm font-semibold text-white transition-colors hover:bg-[#f2554c] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:cursor-not-allowed disabled:opacity-60"
+              className={cn(
+                "inline-flex h-11 shrink-0 items-center justify-center rounded-xl px-4",
+                "border border-edge-strong text-sm font-semibold text-fg-dim",
+                "transition-colors hover:border-accent/60 hover:bg-accent/10 hover:text-accent-soft",
+                "focus-visible:outline-none focus-visible:border-accent/60 focus-visible:text-accent-soft",
+                "focus-visible:ring-2 focus-visible:ring-accent/40",
+              )}
             >
-              {pending ? "Deleting..." : "Delete account"}
+              Delete my account
             </button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </DialogTrigger>
+
+          <DialogContent className="border-[#3a1f22] bg-[#100d12]">
+            <DialogHeader>
+              <DialogTitle>Delete your account?</DialogTitle>
+              <DialogDescription>
+                This cannot be undone. Your account data will be deleted, and analytics tied to your
+                account will be anonymized.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-2">
+              <label
+                htmlFor="delete-confirmation"
+                className="block text-sm text-fg-muted"
+              >
+                Type <span className="font-medium text-fg-hi">{email}</span> to confirm.
+              </label>
+              <input
+                id="delete-confirmation"
+                type="email"
+                value={confirmation}
+                onChange={(event) => setConfirmation(event.target.value)}
+                disabled={pending}
+                autoComplete="off"
+                autoCapitalize="off"
+                spellCheck={false}
+                aria-describedby="delete-confirmation-hint"
+                className={cn(
+                  "h-11 w-full rounded-xl border border-edge bg-ink-950 px-3 text-sm text-fg-hi",
+                  "placeholder:text-fg-faint transition-colors",
+                  "focus:outline-none focus:border-accent/60 focus:ring-2 focus:ring-accent/30",
+                  "disabled:cursor-not-allowed disabled:opacity-60",
+                )}
+              />
+              <p id="delete-confirmation-hint" className="text-xs text-fg-faint">
+                We ask for this so a stray click can&apos;t delete an account.
+              </p>
+            </div>
+
+            <DialogFooter>
+              <DialogClose asChild disabled={pending}>
+                <button
+                  type="button"
+                  className="h-10 rounded-xl border border-edge px-4 text-sm font-medium text-fg-dim transition-colors hover:border-edge-strong hover:text-fg-hi focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20"
+                >
+                  Cancel
+                </button>
+              </DialogClose>
+              <button
+                type="button"
+                disabled={pending || !confirmed}
+                onClick={() => void confirmDelete()}
+                className="h-10 rounded-xl bg-accent px-4 text-sm font-semibold text-white transition-colors hover:bg-[#f2554c] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                {pending ? "Deleting…" : "Delete account"}
+              </button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
     </section>
   );
 }
