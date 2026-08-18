@@ -12,7 +12,7 @@ Award data arrives as Excel workbooks assembled by Python scripts, one row per _
 
 The pipeline solves this with entity resolution against an external authority: candidate films are matched to TMDB, and the TMDB ID becomes the identity key. Rows that resolve to the same ID are the same film, whatever they are titled. Award records merge onto one canonical row; anything without a confident match goes to a manual recall queue rather than being silently dropped or written half-broken. The result is a catalog where every film carries its complete award history — the foundation everything else stands on.
 
-The full writeup is in [`documentation/ARCHITECTURE.md`](./documentation/ARCHITECTURE.md).
+The full writeup is in [`DOCUMENTATION.md`](./DOCUMENTATION.md).
 
 ## The algorithm layer
 
@@ -27,7 +27,7 @@ Algorithms appear only where they earn their place — matching, ranking, recomm
 | Two-stage retrieve-then-rerank                | "Ask AI" natural-language search, with query relaxation and an LLM ↔ local fallback                  |
 | Deterministic weighted scoring, FNV-1a seeded | Pick of the Day — same film for everyone, all day, no state                                          |
 
-Each one is documented — what problem it solves, why that method, where it lives in the code, and honest shipped/designed status — in [`documentation/algorithms.md`](./documentation/algorithms.md). The recommender has its own end-to-end writeup in [`documentation/RECOMMENDATIONS.md`](./documentation/RECOMMENDATIONS.md), including how changes are measured with A/B experiments.
+Each one is documented — what problem it solves, why that method, where it lives in the code, and honest shipped/designed status — in [`DOCUMENTATION.md`](./DOCUMENTATION.md#algorithms). The recommender has its own end-to-end writeup in the [same file](./DOCUMENTATION.md#the-recommender-in-detail), including how changes are measured with A/B experiments.
 
 ## What it looks like in the product
 
@@ -51,7 +51,7 @@ A few deliberate choices, each with its cost:
 - **One shared types package.** The API contract lives in `packages/types` and compiles into both apps; changing the `Film` shape breaks the build, not production.
 - **One error shape.** Every backend error is `{ "error": "…", "code": "…" }`. There is exactly one format to handle.
 
-Full detail: [`documentation/ARCHITECTURE.md`](./documentation/ARCHITECTURE.md).
+Full detail: [`DOCUMENTATION.md`](./DOCUMENTATION.md#architecture).
 
 ## Repository overview
 
@@ -60,7 +60,6 @@ frontend/        Next.js 16 app (React 19, Auth.js, Tailwind)
 backend/         Express 5 API — routes, algorithm layer (src/lib), Prisma schema
 backend/data/    pipeline scripts + working data (raw award files are private, gitignored)
 packages/types/  @cineroll/types — the shared API contract
-documentation/   architecture, algorithms catalog, recommender writeup, setup
 ```
 
 ## Running it locally
@@ -75,7 +74,7 @@ cp frontend/.env.example frontend/.env.local
 npm run dev                              # backend :4000 + frontend :3000
 ```
 
-Sanity check: `http://localhost:4000/health` returns `{ ok: true, db: "up" }`. The backend's environment is Zod-validated at boot — a bad value throws before Express mounts a route, naming the offender. The full table, including the handful of vars read outside that schema, is in [`documentation/SETUP.md`](./documentation/SETUP.md).
+Sanity check: `http://localhost:4000/health` returns `{ ok: true, db: "up" }`. The backend's environment is Zod-validated at boot — a bad value throws before Express mounts a route, naming the offender. The full table, including the handful of vars read outside that schema, is in [`DOCUMENTATION.md`](./DOCUMENTATION.md#environment-configuration).
 
 ## Testing
 
@@ -91,10 +90,7 @@ The algorithm layer is the most heavily tested part of the codebase, on purpose.
 
 ## Documentation
 
-- [`documentation/ARCHITECTURE.md`](./documentation/ARCHITECTURE.md) — how the system fits together and why (start here).
-- [`documentation/RECOMMENDATIONS.md`](./documentation/RECOMMENDATIONS.md) — the taste/recommender writeup + A/B experiments.
-- [`documentation/algorithms.md`](./documentation/algorithms.md) — every named algorithm, shipped or designed.
-- [`documentation/SETUP.md`](./documentation/SETUP.md) — local dev: prerequisites, every environment variable, tests and checks.
+[`DOCUMENTATION.md`](./DOCUMENTATION.md) — the full technical documentation in one file: overview, features, architecture, technology stack, project structure, installation, environment variables, development workflow, API, database, authentication, algorithms, testing, CI/CD, deployment, security, troubleshooting and known limitations.
 
 ## License
 
