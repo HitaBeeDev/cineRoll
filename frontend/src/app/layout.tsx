@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
+import { Analytics } from "@vercel/analytics/next";
 import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
 import { AnalyticsPageView } from "@/components/analytics-page-view";
 import { CookieConsent } from "@/components/cookie-consent";
@@ -93,6 +94,7 @@ export default function RootLayout({
             </SiteFooterGate>
             <CookieConsent />
             <DeferredPwaInstallPrompt />
+            <Analytics />
           </SmoothScrollProvider>
         </Providers>
       </body>
