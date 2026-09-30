@@ -7,5 +7,5 @@ export const IMAGE_HEIGHT = 630;
 export const FALLBACK_ACCENT = "#D4AF37";
 
 export const RESPONSE_HEADERS = {
-  "Cache-Control": "public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800",
+  "Cache-Control": "public, max-age=86400, s-maxage=604800, stale-while-revalidate=2592000",
 };

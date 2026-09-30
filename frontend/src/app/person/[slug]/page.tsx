@@ -11,6 +11,9 @@ type PersonPageProps = { params: Promise<{ slug: string }> };
 import { fetchPerson } from "@/features/person-detail/person-repository";
 import { getNameHue } from "@/lib/name-avatar/get-name-hue";
 
+// A week — must be a literal; mirrors PERSON_REVALIDATE_SECONDS.
+export const revalidate = 604800;
+
 export async function generateMetadata({
   params,
 }: PersonPageProps): Promise<Metadata> {

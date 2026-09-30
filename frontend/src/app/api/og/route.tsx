@@ -104,7 +104,7 @@ export function GET(request: Request) {
       width: WIDTH,
       height: HEIGHT,
       headers: {
-        "Cache-Control": "public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800",
+        "Cache-Control": "public, max-age=86400, s-maxage=604800, stale-while-revalidate=2592000",
       },
     },
   );

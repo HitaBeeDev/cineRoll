@@ -20,7 +20,8 @@ import { getRankTags } from "@/features/film-detail/get-rank-tags";
 import { pickHeadlineAccolade } from "@/features/film-detail/pick-headline-accolade";
 type FilmPageProps = { params: Promise<{ slug: string }> };
 
-export const revalidate = 3600;
+// A week — must be a literal; mirrors FILM_REVALIDATE_SECONDS.
+export const revalidate = 604800;
 
 export async function generateMetadata({
   params,
