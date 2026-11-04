@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { COLLECTIONS } from "@/features/collections/collections";
+import { fetchListableCollections } from "@/features/collections/fetch-collection-sizes";
 import { TOOLS } from "@/features/tools/tools";
 import { SITE_URL } from "@/lib/site-url";
 
@@ -15,9 +15,15 @@ const PATHS = [
   "/tools",
   ...TOOLS.map((tool) => `/tools/${tool.slug}`),
   "/collections",
-  ...COLLECTIONS.map((collection) => `/collections/${collection.slug}`),
 ];
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  return PATHS.map((path) => ({ url: `${SITE_URL}${path}` }));
+// Rendered per request: the collection sizes behind it are cached API calls,
+// and a build must never depend on the backend.
+export const dynamic = "force-dynamic";
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  // Only collections big enough to have a page; thin ones would 404.
+  const collections = await fetchListableCollections();
+  const paths = [...PATHS, ...collections.map((collection) => `/collections/${collection.slug}`)];
+  return paths.map((path) => ({ url: `${SITE_URL}${path}` }));
 }

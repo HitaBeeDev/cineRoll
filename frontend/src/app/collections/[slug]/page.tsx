@@ -7,6 +7,7 @@ import { JsonLd } from "@/components/json-ld";
 import { AwardPageShell } from "@/features/awards/components/award-page-shell";
 import { COLLECTIONS } from "@/features/collections/collections";
 import { fetchCollectionFilms } from "@/features/collections/fetch-collection-films";
+import { MIN_COLLECTION_FILMS } from "@/features/collections/fetch-collection-sizes";
 import { SITE_URL } from "@/lib/site-url";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -16,9 +17,6 @@ export const revalidate = 86400;
 export function generateStaticParams() {
   return [];
 }
-
-// Below this a collection is too thin to be worth a page.
-const MIN_FILMS = 5;
 
 function findCollection(slug: string) {
   return COLLECTIONS.find((collection) => collection.slug === slug);
@@ -38,8 +36,8 @@ export default async function CollectionPage({ params }: Props) {
   const collection = findCollection((await params).slug);
   if (!collection) notFound();
 
-  const { films, total } = await fetchCollectionFilms(collection.params);
-  if (total < MIN_FILMS) notFound();
+  const { films, total } = await fetchCollectionFilms(collection.params, collection.sort);
+  if (total < MIN_COLLECTION_FILMS) notFound();
 
   const path = `/collections/${collection.slug}`;
 
@@ -54,11 +52,18 @@ export default async function CollectionPage({ params }: Props) {
         <>
           <p>{collection.intro}</p>
           <p>
-            {total} films.{" "}
-            <Link href={collection.related.href} className="text-fg-hi underline underline-offset-4 hover:text-accent">
-              See the {collection.related.label}
-            </Link>
-            .
+            {total > films.length
+              ? `${total} films — showing the ${films.length} with the most wins.`
+              : `${total} films.`}
+            {collection.related && (
+              <>
+                {" "}
+                <Link href={collection.related.href} className="text-fg-hi underline underline-offset-4 hover:text-accent">
+                  See {collection.related.label}
+                </Link>
+                .
+              </>
+            )}
           </p>
         </>
       }

@@ -7,11 +7,15 @@ const COLLECTION_REVALIDATE_SECONDS = 86400;
 const COLLECTION_LIMIT = 100;
 
 /**
- * A collection's films, newest first. Throws on failure, so a backend outage
+ * A collection's films in its own order (`limit` 1 for just the total). Throws on failure, so a backend outage
  * shows the error page and is retried — never cached as an empty collection.
  */
-export async function fetchCollectionFilms(params: Record<string, string>): Promise<PaginatedFilms> {
-  const query = new URLSearchParams({ ...params, sort: "newest", limit: String(COLLECTION_LIMIT) });
+export async function fetchCollectionFilms(
+  params: Record<string, string>,
+  sort: "newest" | "wins",
+  limit = COLLECTION_LIMIT,
+): Promise<PaginatedFilms> {
+  const query = new URLSearchParams({ ...params, sort, limit: String(limit) });
   const response = await fetch(`${API_URL}/api/films?${query}`, {
     next: { revalidate: COLLECTION_REVALIDATE_SECONDS },
   });
