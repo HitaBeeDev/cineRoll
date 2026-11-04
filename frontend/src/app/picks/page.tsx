@@ -22,7 +22,7 @@ export default function PicksPage() {
       <main>
         <AnimatePresence mode="wait">
           {dailyPicks.isLoading ? (
-            <PicksLoading shouldReduceMotion={shouldReduceMotion} />
+            <PicksLoading shouldReduceMotion={shouldReduceMotion} dateLabel={formatPicksDate()} />
           ) : (
             <PicksList
               picks={dailyPicks.picks}

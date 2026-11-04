@@ -14,7 +14,7 @@ export function StatsHero({ stats, viewModel }: StatsHeroProps) {
           <div className="min-w-0">
             <div className="mb-3 h-px w-10 bg-accent" />
             <p className="font-[family-name:var(--font-geist-mono)] text-xs uppercase tracking-[0.22em] text-accent">The CineRoll archive</p>
-            <h1 className="mt-3 max-w-3xl font-[family-name:var(--font-display)] font-bold leading-[0.95] tracking-tight text-[#f4f0f7]" style={{ fontSize: "clamp(2.5rem, 5.5vw, 5.75rem)" }}>Stats &amp; Records</h1>
+            <h1 className="mt-3 max-w-3xl font-[family-name:var(--font-display)] font-bold leading-[0.95] tracking-tight text-[#f4f0f7]" style={{ fontSize: "clamp(2.5rem, 5.5vw, 5.75rem)" }}>Award Stats &amp; Records</h1>
             <p className="mt-5 flex flex-wrap items-baseline gap-x-2 gap-y-1 font-[family-name:var(--font-display)] text-xl font-semibold text-[#d8d4e4] sm:text-2xl"><CountUp value={stats.summary.totalFilms} className="text-[#f4f0f7]" /><span className="text-[#9e9ab0]">films.</span><CountUp value={stats.summary.totalNominations} className="text-[#f4f0f7]" /><span className="text-[#9e9ab0]">nominations.</span><CountUp value={stats.summary.totalWins} className="text-[#f4f0f7]" /><span className="text-[#9e9ab0]">wins.</span></p>
             <p className="mt-4 max-w-xl text-sm leading-7 text-[#a7a4b8] sm:text-base">Explore the films, people, decades, and award bodies that shaped cinema history — across the Oscars, Golden Globes, Cannes, and the Berlinale.</p>
           </div>

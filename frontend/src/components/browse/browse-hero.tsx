@@ -19,7 +19,7 @@ export function BrowseHero() {
             className="font-[family-name:var(--font-display)] font-bold leading-none tracking-tight text-fg-hi"
             style={{ fontSize: "clamp(1.9rem, 3.6vw, 3.25rem)" }}
           >
-            Browse Films
+            Browse Award-Winning Films
           </h1>
         </div>
       </div>

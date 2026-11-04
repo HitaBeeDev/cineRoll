@@ -1,3 +1,4 @@
+import { countryPhrase } from "./country-phrase";
 import type { PlaceKind } from "./place-types";
 
 /** Wording for country vs language pages, so one template serves both. */
@@ -20,12 +21,12 @@ export const PLACE_COPY: Record<
       "Pick a country to see its most awarded films — every film from there that won or was nominated at the Oscars, the Golden Globes, Cannes or the Berlinale, ranked by wins.",
     crumb: "Countries",
     param: "country",
-    h1: (name) => `Award-Winning Films from ${name}`,
-    title: (name) => `Award-Winning Films from ${name}`,
+    h1: (name) => `Award-Winning Films from ${countryPhrase(name)}`,
+    title: (name) => `Award-Winning Films from ${countryPhrase(name)}`,
     description: (name) =>
-      `The most awarded films from ${name} at the Oscars, Golden Globes, Cannes and the Berlinale — ranked by wins.`,
+      `The most awarded films from ${countryPhrase(name)} at the Oscars, Golden Globes, Cannes and the Berlinale — ranked by wins.`,
     lead: (name, count) =>
-      `${count} films from ${name} were recognised at the Oscars, the Golden Globes, Cannes or the Berlinale. A film counts for every country that produced it, so co-productions appear on each of their countries' pages.`,
+      `${count} films from ${countryPhrase(name)} were recognised at the Oscars, the Golden Globes, Cannes or the Berlinale. A film counts for every country that produced it, so co-productions appear on each of their countries' pages.`,
   },
   languages: {
     indexTitle: "Award-Winning Films by Language",

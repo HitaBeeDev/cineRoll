@@ -6,6 +6,8 @@ import { AwardPageShell } from "@/features/awards/components/award-page-shell";
 import { AwardYearNav } from "@/features/awards/components/award-year-nav";
 import { fetchAward } from "@/features/awards/fetch-award";
 import { findAwardBody } from "@/features/awards/find-award-body";
+import { shortCategoryName } from "@/features/awards/short-category-name";
+import { fitTitle } from "@/lib/seo/fit-title";
 
 type Props = { params: Promise<{ body: string; segment: string; year: string }> };
 
@@ -26,7 +28,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!data) return {};
   const winner = data.entries.find((entry) => entry.won);
   return {
-    title: `${data.year} ${data.shortName} ${data.name}: Winner and Nominees`,
+    title: fitTitle(
+      `${data.year} ${data.shortName} ${data.name}: Winner and Nominees`,
+      `${data.year} ${data.shortName} ${shortCategoryName(data.name)} Winner`,
+      `${data.year} ${shortCategoryName(data.name)}`,
+    ),
     description: `${winner ? `${winner.film.title} won the ${data.year} ${data.shortName} ${data.name}. ` : ""}See all ${data.entries.length} nominees.`,
     alternates: { canonical: `/awards/${data.body}/${data.slug}/${data.year}` },
   };

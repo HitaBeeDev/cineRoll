@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import type { Film } from "@cineroll/types";
 import { formatFilmYear } from "@/lib/format/format-film-year";
+import { fitTitle } from "@/lib/seo/fit-title";
 import { SITE_URL } from "@/lib/site-url";
 import { getAwardSeoSummary } from "./award-seo-summary";
 
 export function buildFilmMetadata(film: Film, slug: string): Metadata {
   const filmYear = formatFilmYear(film);
-  const title = `${film.title} (${filmYear})`;
+  // Title first (it's what people search), then the page's angle when it fits.
+  const title = fitTitle(`${film.title} (${filmYear}) — Awards & Nominations`, `${film.title} (${filmYear})`);
   const description = buildDescription(film);
   const socialImage = new URL(
     `/api/og/film/${encodeURIComponent(slug)}`,
