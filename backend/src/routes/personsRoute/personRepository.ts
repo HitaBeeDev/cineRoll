@@ -50,6 +50,12 @@ export async function getPersonFilmRows(name: string) {
   return { directorFilms, nomineeFilms };
 }
 
+/** The exact award-data name stored for a slug, or null when there is no row. */
+export async function findPersonNameBySlug(slug: string): Promise<string | null> {
+  const person = await prisma.person.findUnique({ where: { slug }, select: { name: true } });
+  return person?.name ?? null;
+}
+
 export function getPersonRecord(slug: string) {
   return prisma.person.findUnique({
     where: { slug },

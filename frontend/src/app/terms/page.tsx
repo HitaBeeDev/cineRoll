@@ -6,6 +6,7 @@ import { TermsContent } from "@/features/terms-of-service/components/terms-conte
 const TERMS_UPDATED_AT = "July 4, 2026";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/terms" },
   title: "Terms of Service",
   description:
     "CineRoll terms of service covering acceptable use, accounts, user content ownership, moderation and removal rights, third-party film data, and disclaimers.",

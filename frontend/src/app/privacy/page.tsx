@@ -6,6 +6,7 @@ import { PrivacyPolicyContent } from "@/features/privacy-policy/components/priva
 const PRIVACY_POLICY_UPDATED_AT = "June 19, 2026";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/privacy" },
   title: "Privacy Policy",
   description:
     "CineRoll privacy policy covering account data, film activity, comments, analytics, cookies and local storage, service providers, retention, and deletion.",

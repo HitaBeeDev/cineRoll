@@ -11,6 +11,7 @@ import { pickOfDayRouter } from "./pickOfDay";
 import { randomRouter } from "./random";
 import { recommendationsRouter } from "./recommendations";
 import { rollRouter } from "./roll";
+import { sitemapRouter } from "./sitemap";
 import { statsRouter } from "./stats";
 import { userRouter } from "./user";
 
@@ -28,5 +29,6 @@ router.use("/random", randomRouter);
 router.use("/recommendations", recommendationsRouter);
 router.use("/roll", rollRouter);
 router.use("/pick-of-day", pickOfDayRouter);
+router.use("/sitemap", sitemapRouter);
 router.use("/stats", statsRouter);
 router.use("/user", userRouter);
