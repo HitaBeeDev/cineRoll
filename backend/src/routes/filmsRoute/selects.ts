@@ -36,6 +36,8 @@ export const filmListSelect = Prisma.sql`
 export const filmDetailSelect = {
   id: true,
   slug: true,
+  // Shown on the film page as "Last updated" and used for the sitemap date.
+  updatedAt: true,
   tmdbId: true,
   imdbId: true,
   title: true,

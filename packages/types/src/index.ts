@@ -66,6 +66,8 @@ export interface Film {
   berlinCategories: AwardRecord[];
   isPickOfDay: boolean;
   pickOfDayDate: string | null;
+  /** ISO time the film record last changed (detail payload only). */
+  updatedAt?: string;
 }
 
 export interface RollEvent {

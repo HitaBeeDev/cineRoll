@@ -19,6 +19,7 @@ import { fetchSimilarFilms } from "@/features/film-detail/film-repository/fetch-
 import { fetchFilmLinks } from "@/features/film-detail/film-repository/fetch-film-links";
 import { FilmExploreSection } from "@/features/film-detail/components/film-explore-section";
 import { fetchPlaces } from "@/features/places/fetch-places";
+import { LastUpdated } from "@/components/last-updated";
 import { getRankTags } from "@/features/film-detail/get-rank-tags";
 import { pickHeadlineAccolade } from "@/features/film-detail/pick-headline-accolade";
 type FilmPageProps = { params: Promise<{ slug: string }> };
@@ -89,6 +90,7 @@ export default async function FilmPage({ params }: FilmPageProps) {
           <CastSection cast={film.cast} accent={accent} />
           <SimilarFilmsSection films={similarFilms} />
           <FilmExploreSection film={film} links={filmLinks} countries={countries} languages={languages} />
+          <LastUpdated iso={film.updatedAt} />
           <TrailerSection film={film} />
         </div>
       </div>

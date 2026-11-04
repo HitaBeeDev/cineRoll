@@ -10,6 +10,9 @@ export const metadata: Metadata = {
     "Every winner and nominee at the Oscars, the Golden Globes, the Cannes Film Festival and the Berlinale — by year, by category and by genre.",
 };
 
+// Refreshed daily so the "Last updated" date follows the catalogue.
+export const revalidate = 86400;
+
 export default function AwardsPage() {
   return (
     <AwardPageShell

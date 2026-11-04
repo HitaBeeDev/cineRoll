@@ -10,6 +10,9 @@ export const metadata: Metadata = {
     "The best award-winning films of every decade, from the 1920s to the 2020s — Oscar, Golden Globe, Cannes and Berlinale films ranked by wins.",
 };
 
+// Refreshed daily so the "Last updated" date follows the catalogue.
+export const revalidate = 86400;
+
 export default function DecadesPage() {
   return (
     <AwardPageShell

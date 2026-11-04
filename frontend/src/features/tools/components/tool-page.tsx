@@ -2,6 +2,8 @@ import type { Film } from "@cineroll/types";
 import { AppHeader } from "@/components/app-header";
 import { FilmTile } from "@/components/film-tile";
 import { JsonLd } from "@/components/json-ld";
+import { LastUpdated } from "@/components/last-updated";
+import { fetchCatalogUpdated } from "@/lib/api/fetch-catalog-updated";
 import { SITE_URL } from "@/lib/site-url";
 import type { ToolDefinition } from "../tool-types";
 import { RelatedPages } from "@/features/awards/components/related-pages";
@@ -13,7 +15,7 @@ import { ToolRoller } from "./tool-roller";
  * the heading, the intro, real example films and links to the other tools —
  * so the page answers its query before any JavaScript runs.
  */
-export function ToolPage({
+export async function ToolPage({
   tool,
   examples,
   total,
@@ -23,6 +25,7 @@ export function ToolPage({
   total: number | null;
 }) {
   const count = total ? total.toLocaleString("en-US") : "thousands of";
+  const updatedAt = await fetchCatalogUpdated();
 
   return (
     <main className="min-h-screen bg-ink-950 text-fg-hi">
@@ -59,6 +62,7 @@ export function ToolPage({
               open any result for its full award record.
             </p>
           </div>
+          <LastUpdated iso={updatedAt} className="mt-6" />
         </div>
       </section>
 
