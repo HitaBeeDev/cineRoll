@@ -80,6 +80,13 @@ export function awardElementConditions(query: ListQuery): Prisma.Sql[] {
     awardConditions.push(Prisma.sql`(${Prisma.join(categoryMatches, " OR ")})`);
   }
 
+  if (query.categoryExact && query.categoryExact.length > 0) {
+    const exactMatches = query.categoryExact.map(
+      cat => Prisma.sql`LOWER(award->>'category') = LOWER(${cat})`,
+    );
+    awardConditions.push(Prisma.sql`(${Prisma.join(exactMatches, " OR ")})`);
+  }
+
   if (query.winnerOnly === true) {
     awardConditions.push(Prisma.sql`(award->>'won')::BOOLEAN = true`);
   }

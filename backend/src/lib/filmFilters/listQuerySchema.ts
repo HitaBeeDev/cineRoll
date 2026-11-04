@@ -56,6 +56,10 @@ export const listQueryBaseSchema = z.object({
   imdbRatingMax: z.coerce.number().min(0).max(10).optional(),
   rtScoreMin: z.coerce.number().int().min(0).max(100).optional(),
   category: createCsvParamSchema(120),
+  // Whole-name match, case-insensitive: "Palme d'or" without "Short Film Palme
+  // d'or". `category` stays a substring match — Ask AI relies on "Cinematography"
+  // finding "Best Cinematography".
+  categoryExact: createCsvParamSchema(120),
   winnerOnly: queryBooleanSchema.optional(),
   nominatedOnly: queryBooleanSchema.optional(),
   certificate: z.string().trim().min(1).max(20).optional(),

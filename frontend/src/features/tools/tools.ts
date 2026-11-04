@@ -66,7 +66,8 @@ export const TOOLS: ToolDefinition[] = [
       "The Palme d'Or is the highest prize at the Cannes Film Festival, and the list of winners is one of the best watchlists in cinema. This roll picks one of the {count} Palme d'Or winners at random.",
       "Expect anything from Italian classics and Japanese masterpieces to recent winners like Parasite. Each film page shows the full Cannes record next to its Oscar, Golden Globe and Berlinale history, so you can see how the festival's choice did elsewhere.",
     ],
-    params: { awardBody: "cannes", winnerOnly: "true", category: "Palme d'Or" },
+    // Exact name: `category` would also match the short-film Palmes.
+    params: { awardBody: "cannes", winnerOnly: "true", categoryExact: "Palme d'or" },
   },
   {
     slug: "random-movie-by-decade",
