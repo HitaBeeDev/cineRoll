@@ -28,6 +28,14 @@ export default function AwardsPage() {
           <Link href="/decades" className="text-fg-hi underline underline-offset-4 hover:text-accent">
             by decade
           </Link>
+          ,{" "}
+          <Link href="/countries" className="text-fg-hi underline underline-offset-4 hover:text-accent">
+            country
+          </Link>{" "}
+          or{" "}
+          <Link href="/languages" className="text-fg-hi underline underline-offset-4 hover:text-accent">
+            language
+          </Link>
           .
         </p>
       }
