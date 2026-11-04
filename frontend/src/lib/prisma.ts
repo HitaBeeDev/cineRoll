@@ -9,8 +9,12 @@ function createPrismaClient() {
   // the server certificate never gets used once.
   assertVerifiedDbSsl(process.env["DATABASE_URL"]);
 
+  // Auth and lists only — a tiny pool per serverless instance, released when
+  // idle, so the frontend never competes with the backend for Neon connections.
   const adapter = new PrismaPg({
     connectionString: process.env["DATABASE_URL"],
+    max: 3,
+    idleTimeoutMillis: 10_000,
   });
   return new PrismaClient({ adapter });
 }

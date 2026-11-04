@@ -23,7 +23,7 @@ const envSchema = z.object({
         "(or &sslmode=verify-full) to the connection string. Weaker modes are verified only by " +
         "accident in the current pg release and stop being verified in pg v9",
     }),
-  DATABASE_POOL_SIZE: z.coerce.number().int().positive().default(25),
+  DATABASE_POOL_SIZE: z.coerce.number().int().positive().default(5),
   SLOW_QUERY_THRESHOLD_MS: z.coerce.number().int().nonnegative().default(100),
   SLOW_REQUEST_THRESHOLD_MS: z.coerce.number().int().nonnegative().default(200),
   FRONTEND_URL: z.string().url().default("http://localhost:3000"),
