@@ -2,11 +2,13 @@
 
 import { useEffect, useRef } from "react";
 
-export function useSpaceRollShortcut(onRoll: () => void): void {
+/** Space rolls, unless `enabled` is false (e.g. while the onboarding layer is open). */
+export function useSpaceRollShortcut(onRoll: () => void, enabled = true): void {
   const rollRef = useRef(onRoll);
   useEffect(() => { rollRef.current = onRoll; }, [onRoll]);
 
   useEffect(() => {
+    if (!enabled) return;
     const handleKeyDown = (event: KeyboardEvent) => {
       const tag = document.activeElement?.tagName;
       if (event.code !== "Space" || event.repeat || ["INPUT", "TEXTAREA", "BUTTON"].includes(tag ?? "")) return;
@@ -15,5 +17,5 @@ export function useSpaceRollShortcut(onRoll: () => void): void {
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
+  }, [enabled]);
 }

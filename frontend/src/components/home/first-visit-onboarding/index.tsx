@@ -26,7 +26,15 @@ export function FirstVisitOnboarding({
   });
 
   return (
-    <div className="relative flex min-h-screen flex-col overflow-hidden bg-ink-900 text-fg-hi">
+    // A modal layer over the home page, not a replacement for it: the home page
+    // stays in the HTML underneath (inert while this is open), so search engines
+    // — always first-time visitors — still read what CineRoll is.
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="taste-check-title"
+      className="fixed inset-0 z-[60] flex min-h-screen flex-col overflow-y-auto overflow-x-hidden overscroll-contain bg-ink-900 text-fg-hi"
+    >
       <OnboardingBackdrop />
 
       <OnboardingHeader onSkip={skip} />

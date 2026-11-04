@@ -16,11 +16,11 @@ import { useSpaceRollShortcut } from "../use-space-roll-shortcut";
 import { useTasteSeedSync } from "../use-taste-seed-sync";
 import { HomeExperience } from "./home-experience";
 
-export function HomeClient({ initialOnboarded, hero }: HomeClientProps) {
+export function HomeClient({ initialOnboarded, initialTotalCount, hero }: HomeClientProps) {
   const reducedMotion = useReducedMotion();
   const userId = useSession().data?.user?.id;
   const homeFilters = useHomeFilters();
-  const catalog = useHomeCatalog();
+  const catalog = useHomeCatalog(initialTotalCount);
   const filteredPool = useFilteredFilmCount(homeFilters.filters, homeFilters.hasActiveFilters);
   const personalization = usePersonalizedRoll();
   const onboarding = useHomeOnboarding(initialOnboarded, homeFilters.setFilter);
@@ -34,12 +34,9 @@ export function HomeClient({ initialOnboarded, hero }: HomeClientProps) {
     reducedMotion,
     onCountChange: filteredPool.setFilteredCount,
   });
-  useSpaceRollShortcut(rollEngine.roll);
+  const showOnboarding = onboarding.onboardingState === "show";
+  useSpaceRollShortcut(rollEngine.roll, !showOnboarding);
   const { requestAutoRoll } = useAutoRoll(rollEngine.roll);
-
-  if (onboarding.onboardingState === "show") {
-    return <FirstVisitOnboarding tasteCards={onboarding.tasteCards} tasteCardsStatus={onboarding.tasteCardsStatus} onRetryTasteCards={onboarding.retryTasteCards} onContinue={onboarding.completeOnboarding} />;
-  }
 
   const pool = buildPoolViewModel({
     hasActiveFilters: homeFilters.hasActiveFilters,
@@ -50,7 +47,17 @@ export function HomeClient({ initialOnboarded, hero }: HomeClientProps) {
     reducedMotion,
   });
 
+  // The home page always renders; onboarding is a layer on top of it. Rendering
+  // only the onboarding meant crawlers (always first-time visitors) never saw
+  // the home page at all.
   return (
-    <HomeExperience hero={hero} filters={homeFilters.filters} genres={catalog.genres} hasActiveFilters={homeFilters.hasActiveFilters} pool={pool} film={rollEngine.film} isRolling={rollEngine.isRolling} isSearching={rollEngine.isSearching} reducedMotion={reducedMotion} userId={userId} personalizedRoll={personalization.personalizedRoll} onApplyFilters={homeFilters.applyFilters} onClearTrackedFilters={homeFilters.clearTrackedFilters} onResetFilters={homeFilters.resetFilters} onClearAndRoll={() => { homeFilters.resetFilters(); requestAutoRoll(); }} onTogglePersonalizedRoll={personalization.togglePersonalizedRoll} onRoll={rollEngine.roll} onEngage={rollEngine.markCurrentEngaged} onNotInterested={rollEngine.markCurrentRejected} />
+    <>
+      <div inert={showOnboarding}>
+        <HomeExperience hero={hero} filters={homeFilters.filters} genres={catalog.genres} hasActiveFilters={homeFilters.hasActiveFilters} pool={pool} film={rollEngine.film} isRolling={rollEngine.isRolling} isSearching={rollEngine.isSearching} reducedMotion={reducedMotion} userId={userId} personalizedRoll={personalization.personalizedRoll} onApplyFilters={homeFilters.applyFilters} onClearTrackedFilters={homeFilters.clearTrackedFilters} onResetFilters={homeFilters.resetFilters} onClearAndRoll={() => { homeFilters.resetFilters(); requestAutoRoll(); }} onTogglePersonalizedRoll={personalization.togglePersonalizedRoll} onRoll={rollEngine.roll} onEngage={rollEngine.markCurrentEngaged} onNotInterested={rollEngine.markCurrentRejected} />
+      </div>
+      {showOnboarding && (
+        <FirstVisitOnboarding tasteCards={onboarding.tasteCards} tasteCardsStatus={onboarding.tasteCardsStatus} onRetryTasteCards={onboarding.retryTasteCards} onContinue={onboarding.completeOnboarding} />
+      )}
+    </>
   );
 }

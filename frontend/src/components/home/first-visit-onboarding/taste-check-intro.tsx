@@ -20,9 +20,9 @@ export function TasteCheckIntro({
         {"// Taste check"}
       </p>
 
-      <h1 className="mt-5 font-[family-name:var(--font-display)] text-[clamp(3.15rem,7vw,6rem)] font-bold leading-[0.9] tracking-tight">
+      <h2 id="taste-check-title" className="mt-5 font-[family-name:var(--font-display)] text-[clamp(3.15rem,7vw,6rem)] font-bold leading-[0.9] tracking-tight">
         Which of these have you seen?
-      </h1>
+      </h2>
 
       <p className="mt-5 max-w-md text-base leading-7 text-[#a6a6b5]">
         Pick the films you already know. CineRoll uses this first signal to shape

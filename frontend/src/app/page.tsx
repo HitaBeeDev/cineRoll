@@ -2,14 +2,15 @@ import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { HomeClient } from "@/features/home/components/home-client";
 import { ONBOARDED_COOKIE } from "@/features/home/constants/onboarded-cookie";
+import { fetchArchiveSize } from "@/features/home/fetch-archive-size";
 import { HomeHero } from "./home-hero";
 
 export const metadata: Metadata = {
   // `absolute` opts out of the layout's "%s | CineRoll" template for the
   // landing page, where the brand should lead.
-  title: { absolute: "CineRoll — Roll the dice on award-winning films" },
+  title: { absolute: "CineRoll — Oscar, Cannes, Golden Globe & Berlinale Films" },
   description:
-    "One spin, one film. Roll a random Oscar, Cannes, Golden Globe, or Berlinale winner to watch tonight — or filter by award, genre, decade, and rating.",
+    "Every film nominated at the Oscars, Golden Globes, Cannes and the Berlinale in one place. Roll a random award winner to watch tonight, or browse by award, year, genre and country.",
   alternates: { canonical: "/" },
   openGraph: {
     title: "CineRoll — Roll the dice on award-winning films",
@@ -33,8 +34,10 @@ export const metadata: Metadata = {
 // no blank first paint, no first-visit flash. Reading cookies() opts this route
 // into dynamic rendering, which is what we want for a per-visitor landing page.
 export default async function HomePage() {
-  const onboarded =
-    (await cookies()).get(ONBOARDED_COOKIE)?.value === "true";
+  const [cookieStore, archiveSize] = await Promise.all([cookies(), fetchArchiveSize()]);
+  const onboarded = cookieStore.get(ONBOARDED_COOKIE)?.value === "true";
 
-  return <HomeClient initialOnboarded={onboarded} hero={<HomeHero />} />;
+  return (
+    <HomeClient initialOnboarded={onboarded} initialTotalCount={archiveSize} hero={<HomeHero />} />
+  );
 }

@@ -7,6 +7,8 @@ export type OnboardingState = "show" | "done";
 
 export type HomeClientProps = {
   initialOnboarded: boolean;
+  /** Archive size from the server render; null when the API was unreachable. */
+  initialTotalCount: number | null;
   hero: ReactNode;
 };
 

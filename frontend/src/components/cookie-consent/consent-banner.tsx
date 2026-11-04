@@ -11,7 +11,7 @@ export function ConsentBanner({
   return (
     <section
       aria-label="Cookie consent"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-edge bg-[#08080f]/95 backdrop-blur-md"
+      className="fixed inset-x-0 bottom-0 z-[70] border-t border-edge bg-[#08080f]/95 backdrop-blur-md"
     >
       <div className="mx-auto flex max-w-screen-xl flex-col gap-3.5 px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:px-6">
         <div className="min-w-0">

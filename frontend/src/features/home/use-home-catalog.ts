@@ -3,15 +3,17 @@
 import { useEffect, useState } from "react";
 import { fetchGenres, fetchRandomCount } from "@/lib/api";
 
-export function useHomeCatalog() {
+/** `initialTotalCount` comes from the server render, so the archive size is in
+ *  the first HTML instead of a loading placeholder; the client refresh keeps it current. */
+export function useHomeCatalog(initialTotalCount: number | null = null) {
   const [genres, setGenres] = useState<string[]>([]);
-  const [totalCount, setTotalCount] = useState<number | null>(null);
+  const [totalCount, setTotalCount] = useState<number | null>(initialTotalCount);
 
   useEffect(() => {
     void fetchGenres().then(setGenres).catch(() => setGenres([]));
     void fetchRandomCount()
       .then(({ total }) => setTotalCount(total))
-      .catch(() => setTotalCount(null));
+      .catch(() => {});
   }, []);
 
   return { genres, totalCount };
