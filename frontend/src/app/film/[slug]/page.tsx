@@ -16,6 +16,9 @@ import { SynopsisSection } from "@/features/film-detail/components/synopsis-sect
 import { TrailerSection } from "@/features/film-detail/components/trailer-section";
 import { fetchFilm } from "@/features/film-detail/film-repository/fetch-film";
 import { fetchSimilarFilms } from "@/features/film-detail/film-repository/fetch-similar-films";
+import { fetchFilmLinks } from "@/features/film-detail/film-repository/fetch-film-links";
+import { FilmExploreSection } from "@/features/film-detail/components/film-explore-section";
+import { fetchPlaces } from "@/features/places/fetch-places";
 import { getRankTags } from "@/features/film-detail/get-rank-tags";
 import { pickHeadlineAccolade } from "@/features/film-detail/pick-headline-accolade";
 type FilmPageProps = { params: Promise<{ slug: string }> };
@@ -35,9 +38,13 @@ export async function generateMetadata({
 
 export default async function FilmPage({ params }: FilmPageProps) {
   const { slug } = await params;
-  const [film, similarFilms] = await Promise.all([
+  const [film, similarFilms, filmLinks, countries, languages] = await Promise.all([
     fetchFilm(slug),
     fetchSimilarFilms(slug),
+    fetchFilmLinks(slug),
+    // Only countries/languages with a page get a link; a failure just drops them.
+    fetchPlaces("countries").catch(() => []),
+    fetchPlaces("languages").catch(() => []),
   ]);
   if (!film) notFound();
 
@@ -81,6 +88,7 @@ export default async function FilmPage({ params }: FilmPageProps) {
           <FilmAwardsSection summary={awardSummary} filmTitle={film.title} />
           <CastSection cast={film.cast} accent={accent} />
           <SimilarFilmsSection films={similarFilms} />
+          <FilmExploreSection film={film} links={filmLinks} countries={countries} languages={languages} />
           <TrailerSection film={film} />
         </div>
       </div>

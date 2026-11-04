@@ -1,17 +1,24 @@
 import type { ReactNode } from "react";
 import { AppHeader } from "@/components/app-header";
 import { AwardBreadcrumbs, type Crumb } from "./award-breadcrumbs";
+import { RelatedPages, type RelatedLink } from "./related-pages";
 
-/** Layout every award page shares: header, breadcrumbs, h1, intro, content. */
+/**
+ * Layout every hub page shares: header, breadcrumbs, h1, intro, content, and a
+ * "Related pages" block ending every page.
+ */
 export function AwardPageShell({
   crumbs,
   title,
   intro,
+  related,
   children,
 }: {
   crumbs: Crumb[];
   title: string;
   intro: ReactNode;
+  /** Links that fit this page, shown before the standard hubs. */
+  related?: RelatedLink[];
   children: ReactNode;
 }) {
   return (
@@ -26,7 +33,10 @@ export function AwardPageShell({
           <div className="mt-5 max-w-3xl space-y-4 text-base leading-7 text-[#b4b4c4]">{intro}</div>
         </div>
       </section>
-      <div className="mx-auto max-w-5xl space-y-12 px-6 py-12 lg:px-10">{children}</div>
+      <div className="mx-auto max-w-5xl space-y-12 px-6 py-12 lg:px-10">
+        {children}
+        <RelatedPages current={crumbs.at(-1)?.href ?? ""} links={related ?? []} />
+      </div>
     </main>
   );
 }

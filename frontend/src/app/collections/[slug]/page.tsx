@@ -48,6 +48,9 @@ export default async function CollectionPage({ params }: Props) {
         { label: collection.h1, href: path },
       ]}
       title={collection.h1}
+      related={COLLECTIONS.filter((other) => other.group === collection.group && other.slug !== collection.slug).map(
+        (other) => ({ href: `/collections/${other.slug}`, label: other.h1 }),
+      )}
       intro={
         <>
           <p>{collection.intro}</p>

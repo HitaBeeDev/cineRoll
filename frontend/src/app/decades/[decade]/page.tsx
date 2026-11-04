@@ -54,6 +54,10 @@ export default async function DecadePage({ params }: Props) {
         { label, href: `/decades/${label}` },
       ]}
       title={`The Best Award-Winning Films of the ${label}`}
+      related={[
+        { href: "/tools/random-movie-by-decade", label: "Random movie by decade" },
+        { href: "/collections/most-awarded-films", label: "Most awarded films of all time" },
+      ]}
       intro={
         <>
           <p>

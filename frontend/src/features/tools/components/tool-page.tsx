@@ -4,6 +4,7 @@ import { FilmTile } from "@/components/film-tile";
 import { JsonLd } from "@/components/json-ld";
 import { SITE_URL } from "@/lib/site-url";
 import type { ToolDefinition } from "../tool-types";
+import { RelatedPages } from "@/features/awards/components/related-pages";
 import { ToolLinks } from "./tool-links";
 import { ToolRoller } from "./tool-roller";
 
@@ -79,6 +80,7 @@ export function ToolPage({
         )}
 
         <ToolLinks currentSlug={tool.slug} />
+        <RelatedPages current={`/tools/${tool.slug}`} />
       </div>
     </main>
   );

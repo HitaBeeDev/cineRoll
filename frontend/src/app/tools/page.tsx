@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { AppHeader } from "@/components/app-header";
+import { RelatedPages } from "@/features/awards/components/related-pages";
 import { TOOLS } from "@/features/tools/tools";
 
 export const metadata: Metadata = {
@@ -48,6 +49,9 @@ export default function ToolsIndexPage() {
           </li>
         ))}
       </ul>
+      <div className="mx-auto max-w-4xl px-6 pb-12 lg:px-10">
+        <RelatedPages current="/tools" />
+      </div>
     </main>
   );
 }

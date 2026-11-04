@@ -57,6 +57,10 @@ export default async function AwardCategoryYearPage({ params }: Props) {
         { label: String(data.year), href: `${base}/${data.year}` },
       ]}
       title={`${data.year} ${data.shortName} — ${data.name}`}
+      related={[
+        { href: base, label: `Every ${data.name} winner and nominee` },
+        { href: `/awards/${data.body}/${data.year}`, label: `All ${data.year} ${data.shortName} categories` },
+      ]}
       intro={
         <p>
           {winners.length > 0

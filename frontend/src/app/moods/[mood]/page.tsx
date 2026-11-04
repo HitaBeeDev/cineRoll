@@ -48,6 +48,9 @@ export default async function MoodPage({ params }: Props) {
         { label: mood.name, href: path },
       ]}
       title={`${mood.name} Award-Winning Films`}
+      related={MOODS.filter((other) => other.tag !== mood.tag)
+        .slice(0, 4)
+        .map((other) => ({ href: `/moods/${other.tag}`, label: `${other.name} films` }))}
       intro={
         <>
           <p>{mood.blurb}</p>

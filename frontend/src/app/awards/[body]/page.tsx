@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { AWARD_BODIES } from "@/features/awards/award-bodies";
 import type { AwardBodyPayload } from "@/features/awards/award-types";
 import { AwardPageShell } from "@/features/awards/components/award-page-shell";
 import { AwardSectionTitle } from "@/features/awards/components/award-section-title";
@@ -50,6 +51,10 @@ export default async function AwardBodyPage({ params }: Props) {
         { label: body.shortName, href: `/awards/${body.slug}` },
       ]}
       title={`${body.name}: Winners and Nominees`}
+      related={AWARD_BODIES.filter((other) => other.slug !== body.slug).map((other) => ({
+        href: `/awards/${other.slug}`,
+        label: `${other.shortName} winners and nominees`,
+      }))}
       intro={
         <>
           {body.intro.map((paragraph) => (

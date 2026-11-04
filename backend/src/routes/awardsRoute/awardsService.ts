@@ -178,3 +178,50 @@ export async function getAwardPaths(): Promise<string[]> {
 
   return paths;
 }
+
+export type FilmAwardLink = { href: string; label: string; kind: "year" | "category" | "category-year" | "genre" };
+
+/**
+ * Every award page a film appears on that actually exists (the five-film rule
+ * applied), so a film page can link to them without ever pointing at a 404.
+ */
+export async function getFilmAwardLinks(filmSlug: string): Promise<FilmAwardLink[]> {
+  const links: FilmAwardLink[] = [];
+
+  for (const body of Object.keys(AWARD_BODIES) as AwardBodySlug[]) {
+    const index = await getIndex(body);
+    const { shortName } = AWARD_BODIES[body];
+    const years = new Set(validYears(index));
+
+    for (const [year, bucket] of index.years) {
+      if (bucket.filmSlugs.has(filmSlug) && years.has(year)) {
+        links.push({ href: `/awards/${body}/${year}`, label: `${year} ${shortName}`, kind: "year" });
+      }
+    }
+
+    for (const [slug, bucket] of index.categories) {
+      if (!bucket.filmSlugs.has(filmSlug) || bucket.filmSlugs.size < MIN_FILMS_PER_PAGE) continue;
+      links.push({ href: `/awards/${body}/${slug}`, label: `${shortName}: ${bucket.name}`, kind: "category" });
+
+      const categoryYears = new Set(validCategoryYears(index, slug));
+      for (const [year, entries] of bucket.byYear) {
+        if (categoryYears.has(year) && entries.some(entry => entry.film.slug === filmSlug)) {
+          links.push({
+            href: `/awards/${body}/${slug}/${year}`,
+            label: `${year} ${shortName} ${bucket.name}`,
+            kind: "category-year",
+          });
+        }
+      }
+    }
+
+    for (const slug of validGenres(index)) {
+      const genre = index.genres.get(slug);
+      if (genre?.films.has(filmSlug)) {
+        links.push({ href: `/awards/${body}/${slug}`, label: `${genre.name} films at the ${shortName}`, kind: "genre" });
+      }
+    }
+  }
+
+  return links;
+}

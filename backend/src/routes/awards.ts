@@ -2,6 +2,7 @@ import { Router } from "express";
 import { z } from "zod";
 
 import { setPublicCache } from "../lib/cache";
+import { prisma } from "../lib/prisma";
 import { HttpError } from "../middleware/errorHandler";
 import { AWARD_BODIES, isAwardBodySlug, type AwardBodySlug } from "./awardsRoute/awardBodies";
 import {
@@ -9,6 +10,7 @@ import {
   getAwardCategory,
   getAwardCategoryYear,
   getAwardGenre,
+  getFilmAwardLinks,
   getAwardYear,
 } from "./awardsRoute/awardsService";
 
@@ -32,6 +34,19 @@ export const awardsRouter = Router();
 awardsRouter.get("/", (_req, res) => {
   setPublicCache(res, ONE_DAY);
   res.json(Object.entries(AWARD_BODIES).map(([slug, body]) => ({ slug, ...body })));
+});
+
+// Before "/:body", which would otherwise read "film" as an award name.
+awardsRouter.get("/film/:slug", async (req, res) => {
+  const slug = req.params.slug;
+  const film = await prisma.film.findUnique({
+    where: { slug },
+    select: { originCountries: true, language: true },
+  });
+  if (!film) throw new HttpError(404, `Film not found: ${slug}`, "FILM_NOT_FOUND");
+
+  setPublicCache(res, ONE_DAY);
+  res.json({ awardPages: await getFilmAwardLinks(slug), ...film });
 });
 
 awardsRouter.get("/:body", async (req, res) => {
