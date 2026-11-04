@@ -1,6 +1,7 @@
 import { Router } from "express";
 
 import { setPublicCache } from "../lib/cache";
+import { getAwardPaths } from "./awardsRoute/awardsService";
 import { personSitemapEntries } from "./sitemapRoute/personSitemapEntries";
 import { findFilmSitemapRows, findPersonCreditRows } from "./sitemapRoute/sitemapRepository";
 
@@ -18,4 +19,9 @@ sitemapRouter.get("/films", async (_req, res) => {
 sitemapRouter.get("/persons", async (_req, res) => {
   setPublicCache(res, 86_400);
   res.json(personSitemapEntries(await findPersonCreditRows(MIN_PERSON_CREDITS)));
+});
+
+sitemapRouter.get("/awards", async (_req, res) => {
+  setPublicCache(res, 86_400);
+  res.json(await getAwardPaths());
 });

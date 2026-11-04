@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { autocompleteRouter } from "./autocomplete";
+import { awardsRouter } from "./awards";
 import { eventsRouter } from "./events";
 import { feedbackRouter } from "./feedback";
 import { filmsRouter } from "./films";
@@ -18,6 +19,7 @@ import { userRouter } from "./user";
 export const router = Router();
 
 router.use("/autocomplete", autocompleteRouter);
+router.use("/awards", awardsRouter);
 router.use("/events", eventsRouter);
 router.use("/feedback", feedbackRouter);
 router.use("/films", filmsRouter);
