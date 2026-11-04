@@ -2,11 +2,7 @@ import { Router } from "express";
 
 import { setPublicCache } from "../lib/cache";
 import { personSitemapEntries } from "./sitemapRoute/personSitemapEntries";
-import {
-  findFilmSitemapRows,
-  findPersonCreditRows,
-  findPersonSlugs,
-} from "./sitemapRoute/sitemapRepository";
+import { findFilmSitemapRows, findPersonCreditRows } from "./sitemapRoute/sitemapRepository";
 
 // A person needs more than one award credit to earn a sitemap slot; single-credit
 // pages are thin and would flood the index.
@@ -21,9 +17,5 @@ sitemapRouter.get("/films", async (_req, res) => {
 
 sitemapRouter.get("/persons", async (_req, res) => {
   setPublicCache(res, 86_400);
-  const [rows, personSlugs] = await Promise.all([
-    findPersonCreditRows(MIN_PERSON_CREDITS),
-    findPersonSlugs(),
-  ]);
-  res.json(personSitemapEntries(rows, personSlugs));
+  res.json(personSitemapEntries(await findPersonCreditRows(MIN_PERSON_CREDITS)));
 });

@@ -1,14 +1,11 @@
 import { HttpError } from "../../middleware/errorHandler";
 import { getCastHeadshot } from "./getCastHeadshot";
 import {
-  findCandidateNames,
-  findPersonNameBySlug,
   getPersonAwardRows,
   getPersonFilmRows,
   getPersonRecord,
 } from "./personRepository";
-import { pickCanonicalName } from "./pickCanonicalName";
-import { slugToCandidateName } from "./slug";
+import { getPersonNameIndex } from "./personNameIndex";
 import { FilmRow, PersonFilm } from "./types";
 
 export async function getPersonProfile(slug: string) {
@@ -39,11 +36,9 @@ export async function getPersonProfile(slug: string) {
 }
 
 async function findCanonicalName(slug: string): Promise<string> {
-  // The Person row first: it is the only way back from a slug to an accented or
-  // hyphenated name. The candidate search stays as the fallback for plain names.
-  const storedName = await findPersonNameBySlug(slug);
-  const candidates = storedName ? [] : await findCandidateNames(slugToCandidateName(slug));
-  const canonicalName = pickCanonicalName(slug, storedName, candidates);
+  // Through the slug index: the only way back from "pedro-almodovar" to
+  // "Pedro Almodóvar" is to have slugged every known name first.
+  const canonicalName = (await getPersonNameIndex()).get(slug);
 
   if (!canonicalName) {
     throw new HttpError(404, `Person not found: ${slug}`, "PERSON_NOT_FOUND");

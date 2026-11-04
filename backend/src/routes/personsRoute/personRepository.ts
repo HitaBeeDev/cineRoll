@@ -3,29 +3,27 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "../../lib/prisma";
 import { AwardRow, FilmRow } from "./types";
 
-export async function findCandidateNames(candidate: string): Promise<string[]> {
+/**
+ * Every name a person page can be about: directors plus the nominees in the
+ * Oscar, Golden Globe and Cannes category lists — the same sources the page
+ * reads its credits from.
+ */
+export async function findAllAwardNames(): Promise<string[]> {
   const rows = await prisma.$queryRaw<{ name: string }[]>`
     SELECT DISTINCT name FROM (
-      SELECT "Film"."director" AS name
-      FROM "Film"
-      WHERE "Film"."director" ILIKE ${candidate}
+      SELECT "Film"."director" AS name FROM "Film"
       UNION
       SELECT award->>'nominee'
       FROM "Film", jsonb_array_elements("Film"."oscarCategories") AS award
-      WHERE award->>'nominee' ILIKE ${candidate}
-        AND award->>'nominee' <> 'NaN'
       UNION
       SELECT award->>'nominee'
       FROM "Film", jsonb_array_elements("Film"."ggCategories") AS award
-      WHERE award->>'nominee' ILIKE ${candidate}
-        AND award->>'nominee' <> 'NaN'
       UNION
       SELECT award->>'nominee'
       FROM "Film", jsonb_array_elements("Film"."cannesCategories") AS award
-      WHERE award->>'nominee' ILIKE ${candidate}
-        AND award->>'nominee' <> 'NaN'
     ) all_names
-    WHERE name IS NOT NULL AND name <> ''
+    WHERE name IS NOT NULL AND name <> '' AND name <> 'NaN'
+    ORDER BY name
   `;
 
   return rows.map(row => row.name);
@@ -48,12 +46,6 @@ export async function getPersonFilmRows(name: string) {
   ]);
 
   return { directorFilms, nomineeFilms };
-}
-
-/** The exact award-data name stored for a slug, or null when there is no row. */
-export async function findPersonNameBySlug(slug: string): Promise<string | null> {
-  const person = await prisma.person.findUnique({ where: { slug }, select: { name: true } });
-  return person?.name ?? null;
 }
 
 export function getPersonRecord(slug: string) {

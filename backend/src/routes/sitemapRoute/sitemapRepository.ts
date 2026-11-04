@@ -3,12 +3,6 @@ import { prisma } from "../../lib/prisma";
 export type SitemapEntry = { slug: string; updatedAt: Date };
 export type PersonCreditRow = { name: string; credits: number; updatedAt: Date };
 
-/** Slugs that have a Person row, so their page resolves even for accented names. */
-export async function findPersonSlugs(): Promise<Set<string>> {
-  const rows = await prisma.person.findMany({ select: { slug: true } });
-  return new Set(rows.map(row => row.slug));
-}
-
 /** Every film page, with the real time its row last changed. */
 export function findFilmSitemapRows(): Promise<SitemapEntry[]> {
   return prisma.film.findMany({
