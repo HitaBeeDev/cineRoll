@@ -1,6 +1,8 @@
 import { fitDescription } from "@/lib/seo/fit-description";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { JsonLd } from "@/components/json-ld";
+import { buildItemList } from "@/lib/seo/build-item-list";
 import type { AwardCategoryYearPayload } from "@/features/awards/award-types";
 import { AwardEntryList } from "@/features/awards/components/award-entry-list";
 import { AwardPageShell } from "@/features/awards/components/award-page-shell";
@@ -8,6 +10,7 @@ import { AwardYearNav } from "@/features/awards/components/award-year-nav";
 import { fetchAward } from "@/features/awards/fetch-award";
 import { findAwardBody } from "@/features/awards/find-award-body";
 import { shortCategoryName } from "@/features/awards/short-category-name";
+import { uniqueFilms } from "@/features/awards/unique-films";
 import { fitTitle } from "@/lib/seo/fit-title";
 
 type Props = { params: Promise<{ body: string; segment: string; year: string }> };
@@ -76,6 +79,9 @@ export default async function AwardCategoryYearPage({ params }: Props) {
         </p>
       }
     >
+      <JsonLd
+        data={buildItemList(`${data.year} ${data.shortName} ${data.name} nominees`, `${base}/${data.year}`, uniqueFilms(data.entries))}
+      />
       <AwardEntryList entries={data.entries} category={data.name} />
       <AwardYearNav basePath={base} label={data.name} prev={data.prev} next={data.next} />
     </AwardPageShell>

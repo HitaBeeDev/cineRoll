@@ -7,7 +7,7 @@ import { AuthDialog } from "@/components/auth/auth-dialog";
 import { ShareButton } from "@/components/share-button";
 import { AUTH_GATE_TITLE, useFilmActions } from "@/hooks/useFilmActions";
 import { cn } from "@/lib/utils/cn";
-import { SITE_URL } from "@/lib/site-url";
+import { absoluteUrl } from "@/lib/seo/absolute-url";
 import type { PickActionsProps } from "../component-props";
 
 export function PickActions({ film }: PickActionsProps) {
@@ -59,7 +59,7 @@ export function PickActions({ film }: PickActionsProps) {
         />
       </button>
       <ShareButton
-        url={`${SITE_URL}/film/${film.slug}`}
+        url={absoluteUrl(`/film/${film.slug}`)}
         title={`Watch ${film.title} tonight — CineRoll picked it`}
         label=""
         ariaLabel="Share this pick"

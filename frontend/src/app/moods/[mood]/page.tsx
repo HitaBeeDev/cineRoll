@@ -9,7 +9,7 @@ import { AwardPageShell } from "@/features/awards/components/award-page-shell";
 import { fetchCollectionFilms } from "@/features/collections/fetch-collection-films";
 import { MIN_COLLECTION_FILMS } from "@/features/collections/fetch-collection-sizes";
 import { MOODS } from "@/features/moods/moods";
-import { SITE_URL } from "@/lib/site-url";
+import { buildItemList } from "@/lib/seo/build-item-list";
 
 type Props = { params: Promise<{ mood: string }> };
 
@@ -68,21 +68,7 @@ export default async function MoodPage({ params }: Props) {
         </>
       }
     >
-      <JsonLd
-        data={{
-          "@context": "https://schema.org",
-          "@type": "ItemList",
-          name: `${mood.name} award-winning films`,
-          url: `${SITE_URL}${path}`,
-          numberOfItems: films.length,
-          itemListElement: films.map((film, index) => ({
-            "@type": "ListItem",
-            position: index + 1,
-            url: `${SITE_URL}/film/${film.slug}`,
-            name: film.title,
-          })),
-        }}
-      />
+      <JsonLd data={buildItemList(`${mood.name} award-winning films`, path, films)} />
       <FilmGridSection title={`${mood.name} films, most awarded first`} films={films} />
     </AwardPageShell>
   );

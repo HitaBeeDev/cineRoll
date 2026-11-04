@@ -1,7 +1,7 @@
 import { HeroCTAs } from "@/components/hero-ctas";
 import { buildShareCaption } from "../share-caption";
 import { displayTitle } from "@/lib/utils/display-title";
-import { SITE_URL } from "@/lib/site-url";
+import { absoluteUrl } from "@/lib/seo/absolute-url";
 import type { FilmHeroInfoProps } from "../component-props";
 import { HeroAccolades } from "./hero-accolades";
 import { HeroFilmIdentity } from "./hero-film-identity";
@@ -30,7 +30,7 @@ export function FilmHeroInfo({
           trailerUrl={film.trailerUrl}
           filmId={film.id}
           filmTitle={title}
-          shareUrl={`${SITE_URL}/film/${film.slug}`}
+          shareUrl={absoluteUrl(`/film/${film.slug}`)}
           shareTitle={`Watch ${title} tonight — CineRoll picked it`}
           shareCaption={buildShareCaption(film)}
         />

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { JsonLd } from "@/components/json-ld";
+import { buildLinkItemList } from "@/lib/seo/build-link-item-list";
 import { AWARD_BODIES } from "@/features/awards/award-bodies";
 import type { AwardBodyPayload } from "@/features/awards/award-types";
 import { AwardPageShell } from "@/features/awards/components/award-page-shell";
@@ -78,6 +80,13 @@ export default async function AwardBodyPage({ params }: Props) {
         </>
       }
     >
+      <JsonLd
+        data={buildLinkItemList(
+          `${body.name} categories`,
+          `/awards/${body.slug}`,
+          data.categories.map((category) => ({ path: `/awards/${body.slug}/${category.slug}`, name: category.name })),
+        )}
+      />
       <section aria-labelledby="by-year">
         <AwardSectionTitle id="by-year">By year</AwardSectionTitle>
         <div className="mt-4 space-y-3">

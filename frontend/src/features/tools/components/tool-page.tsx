@@ -4,7 +4,7 @@ import { FilmTile } from "@/components/film-tile";
 import { JsonLd } from "@/components/json-ld";
 import { LastUpdated } from "@/components/last-updated";
 import { fetchCatalogUpdated } from "@/lib/api/fetch-catalog-updated";
-import { SITE_URL } from "@/lib/site-url";
+import { buildWebApplication } from "@/lib/seo/build-web-application";
 import type { ToolDefinition } from "../tool-types";
 import { RelatedPages } from "@/features/awards/components/related-pages";
 import { ToolLinks } from "./tool-links";
@@ -30,17 +30,7 @@ export async function ToolPage({
   return (
     <main className="min-h-screen bg-ink-950 text-fg-hi">
       <JsonLd
-        data={{
-          "@context": "https://schema.org",
-          "@type": "WebApplication",
-          name: tool.h1,
-          url: `${SITE_URL}/tools/${tool.slug}`,
-          description: tool.description,
-          applicationCategory: "EntertainmentApplication",
-          operatingSystem: "Any",
-          isAccessibleForFree: true,
-          offers: { "@type": "Offer", price: "0", priceCurrency: "EUR" },
-        }}
+        data={buildWebApplication({ name: tool.h1, path: `/tools/${tool.slug}`, description: tool.description })}
       />
       <AppHeader />
 

@@ -1,4 +1,4 @@
-import { SITE_URL } from "@/lib/site-url";
+import { absoluteUrl } from "@/lib/seo/absolute-url";
 
 // The sitemap index at the URL already submitted to Search Console and Bing.
 // Each page family has its own child sitemap, so new families (award years,
@@ -7,7 +7,7 @@ const CHILD_SITEMAPS = ["pages", "films", "persons", "awards"];
 
 export function GET() {
   const entries = CHILD_SITEMAPS.map(
-    (name) => `  <sitemap><loc>${SITE_URL}/sitemaps/${name}/sitemap.xml</loc></sitemap>`,
+    (name) => `  <sitemap><loc>${absoluteUrl(`/sitemaps/${name}/sitemap.xml`)}</loc></sitemap>`,
   ).join("\n");
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>

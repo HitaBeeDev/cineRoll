@@ -1,5 +1,5 @@
 import { JsonLd } from "@/components/json-ld";
-import { buildPersonJsonLd } from "../build-person-json-ld";
+import { buildPersonJsonLd } from "@/lib/seo/build-person-json-ld";
 import type { PersonProps } from "../component-props";
 
 export function PersonStructuredData({ person }: PersonProps) {

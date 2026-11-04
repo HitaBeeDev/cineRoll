@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { SITE_URL } from "@/lib/site-url";
+import { absoluteUrl } from "@/lib/seo/absolute-url";
 
 // SEO scrapers and bulk crawlers that send no visitors back. Each crawl walks
 // thousands of film/person pages, and each uncached page wakes the database.
@@ -29,6 +29,6 @@ export default function robots(): MetadataRoute.Robots {
       },
       { userAgent: BLOCKED_BOTS, disallow: "/" },
     ],
-    sitemap: `${SITE_URL}/sitemap.xml`,
+    sitemap: absoluteUrl("/sitemap.xml"),
   };
 }

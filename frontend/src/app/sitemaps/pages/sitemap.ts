@@ -5,7 +5,7 @@ import { fetchListableMoods } from "@/features/moods/fetch-listable-moods";
 import { fetchPlaces } from "@/features/places/fetch-places";
 import type { PlaceKind } from "@/features/places/place-types";
 import { TOOLS } from "@/features/tools/tools";
-import { SITE_URL } from "@/lib/site-url";
+import { absoluteUrl } from "@/lib/seo/absolute-url";
 
 // The hand-built public pages. No lastModified: there is no real date to give,
 // and a fake "now" teaches Google to ignore the dates in every other sitemap.
@@ -47,5 +47,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...moods.map((mood) => `/moods/${mood.tag}`),
     ...placeLists.flat(),
   ];
-  return paths.map((path) => ({ url: `${SITE_URL}${path}` }));
+  return paths.map((path) => ({ url: absoluteUrl(path) }));
 }

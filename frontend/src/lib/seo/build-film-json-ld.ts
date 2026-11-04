@@ -1,8 +1,8 @@
 import type { Film } from "@cineroll/types";
-import { SITE_URL } from "@/lib/site-url";
+import { absoluteUrl } from "./absolute-url";
 
 export function buildFilmJsonLd(film: Film): Record<string, unknown> {
-  const pageUrl = new URL(`/film/${film.slug}`, SITE_URL).toString();
+  const pageUrl = absoluteUrl(`/film/${film.slug}`);
   const isTv = film.contentType.includes("tv");
 
   return {

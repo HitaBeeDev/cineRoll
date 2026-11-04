@@ -9,7 +9,7 @@ import { fetchCollectionFilms } from "@/features/collections/fetch-collection-fi
 import { MIN_COLLECTION_FILMS } from "@/features/collections/fetch-collection-sizes";
 import { DECADES } from "@/features/decades/decades";
 import { parseDecade } from "@/features/decades/parse-decade";
-import { SITE_URL } from "@/lib/site-url";
+import { buildItemList } from "@/lib/seo/build-item-list";
 
 type Props = { params: Promise<{ decade: string }> };
 
@@ -78,21 +78,7 @@ export default async function DecadePage({ params }: Props) {
         </>
       }
     >
-      <JsonLd
-        data={{
-          "@context": "https://schema.org",
-          "@type": "ItemList",
-          name: `The best award-winning films of the ${label}`,
-          url: `${SITE_URL}/decades/${label}`,
-          numberOfItems: films.length,
-          itemListElement: films.map((film, index) => ({
-            "@type": "ListItem",
-            position: index + 1,
-            url: `${SITE_URL}/film/${film.slug}`,
-            name: film.title,
-          })),
-        }}
-      />
+      <JsonLd data={buildItemList(`The best award-winning films of the ${label}`, `/decades/${label}`, films)} />
       <FilmGridSection title={`Most awarded films of the ${label}`} films={films} />
       <nav aria-label="Other decades" className="flex flex-wrap justify-between gap-3">
         {prev ? (

@@ -4,6 +4,7 @@ import { AppHeader } from "@/components/app-header";
 import { buildPersonMetadata } from "@/features/person-detail/build-person-metadata";
 import { AwardHistorySection } from "@/features/person-detail/components/award-history-section";
 import { FilmographySection } from "@/features/person-detail/components/filmography-section";
+import { Breadcrumbs } from "@/components/breadcrumbs/breadcrumbs";
 import { PersonHero } from "@/features/person-detail/components/person-hero";
 import { PersonStructuredData } from "@/features/person-detail/components/person-structured-data";
 import { getAwardBodies } from "@/features/person-detail/get-award-bodies";
@@ -33,6 +34,14 @@ export default async function PersonPage({ params }: PersonPageProps) {
     <main className="min-h-screen bg-[#07070b] text-[#f4f4f5]">
       <PersonStructuredData person={person} />
       <AppHeader />
+      <div className="mx-auto max-w-5xl px-6 pt-5 lg:px-10">
+        <Breadcrumbs
+          crumbs={[
+            { label: "Browse", href: "/browse" },
+            { label: person.name, href: `/person/${person.slug}` },
+          ]}
+        />
+      </div>
       <PersonHero person={person} avatarHue={getNameHue(person.name)} />
 
       <div className="relative bg-[#0a0a10]">

@@ -8,7 +8,7 @@ import { AwardPageShell } from "@/features/awards/components/award-page-shell";
 import { COLLECTIONS } from "@/features/collections/collections";
 import { fetchCollectionFilms } from "@/features/collections/fetch-collection-films";
 import { MIN_COLLECTION_FILMS } from "@/features/collections/fetch-collection-sizes";
-import { SITE_URL } from "@/lib/site-url";
+import { buildItemList } from "@/lib/seo/build-item-list";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -72,21 +72,7 @@ export default async function CollectionPage({ params }: Props) {
         </>
       }
     >
-      <JsonLd
-        data={{
-          "@context": "https://schema.org",
-          "@type": "ItemList",
-          name: collection.h1,
-          url: `${SITE_URL}${path}`,
-          numberOfItems: films.length,
-          itemListElement: films.map((film, index) => ({
-            "@type": "ListItem",
-            position: index + 1,
-            url: `${SITE_URL}/film/${film.slug}`,
-            name: film.title,
-          })),
-        }}
-      />
+      <JsonLd data={buildItemList(collection.h1, path, films)} />
       <FilmGridSection
         title={collection.sort === "newest" ? "Newest first" : collection.sort === "noms" ? "Most nominated first" : "Most awarded first"}
         films={films}

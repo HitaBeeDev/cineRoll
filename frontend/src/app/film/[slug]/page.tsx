@@ -20,6 +20,8 @@ import { fetchFilmLinks } from "@/features/film-detail/film-repository/fetch-fil
 import { FilmExploreSection } from "@/features/film-detail/components/film-explore-section";
 import { fetchPlaces } from "@/features/places/fetch-places";
 import { LastUpdated } from "@/components/last-updated";
+import { formatFilmYear } from "@/lib/format/format-film-year";
+import { Breadcrumbs } from "@/components/breadcrumbs/breadcrumbs";
 import { getRankTags } from "@/features/film-detail/get-rank-tags";
 import { pickHeadlineAccolade } from "@/features/film-detail/pick-headline-accolade";
 type FilmPageProps = { params: Promise<{ slug: string }> };
@@ -63,6 +65,14 @@ export default async function FilmPage({ params }: FilmPageProps) {
         <ShareBanner />
       </Suspense>
       <AppHeader />
+      <div className="px-6 pt-5 sm:px-10 lg:px-16">
+        <Breadcrumbs
+          crumbs={[
+            { label: "Browse", href: "/browse" },
+            { label: `${film.title} (${formatFilmYear(film)})`, href: `/film/${film.slug}` },
+          ]}
+        />
+      </div>
       <FilmHero
         film={film}
         accent={accent}

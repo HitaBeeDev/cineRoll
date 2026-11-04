@@ -4,7 +4,7 @@ import { FilmGridSection } from "@/features/collections/components/film-grid-sec
 import { describeFilmList } from "@/features/collections/describe-film-list";
 import { AwardPageShell } from "@/features/awards/components/award-page-shell";
 import { fetchCollectionFilms } from "@/features/collections/fetch-collection-films";
-import { SITE_URL } from "@/lib/site-url";
+import { buildItemList } from "@/lib/seo/build-item-list";
 import { PLACE_COPY } from "../place-copy";
 import type { Place, PlaceKind } from "../place-types";
 
@@ -37,21 +37,7 @@ export async function PlacePage({ kind, place }: { kind: PlaceKind; place: Place
         </>
       }
     >
-      <JsonLd
-        data={{
-          "@context": "https://schema.org",
-          "@type": "ItemList",
-          name: copy.h1(place.name),
-          url: `${SITE_URL}${path}`,
-          numberOfItems: films.length,
-          itemListElement: films.map((film, index) => ({
-            "@type": "ListItem",
-            position: index + 1,
-            url: `${SITE_URL}/film/${film.slug}`,
-            name: film.title,
-          })),
-        }}
-      />
+      <JsonLd data={buildItemList(copy.h1(place.name), path, films)} />
       <FilmGridSection title="Most awarded first" films={films} />
     </AwardPageShell>
   );

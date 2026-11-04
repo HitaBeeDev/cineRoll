@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { AppHeader } from "@/components/app-header";
 import { LastUpdated } from "@/components/last-updated";
 import { fetchCatalogUpdated } from "@/lib/api/fetch-catalog-updated";
-import { AwardBreadcrumbs, type Crumb } from "./award-breadcrumbs";
+import { Breadcrumbs, type Crumb } from "@/components/breadcrumbs/breadcrumbs";
 import { RelatedPages, type RelatedLink } from "./related-pages";
 
 /**
@@ -31,7 +31,7 @@ export async function AwardPageShell({
       <AppHeader />
       <section className="border-b border-white/10 bg-[#0b0b12]">
         <div className="mx-auto max-w-5xl px-6 py-12 lg:px-10">
-          <AwardBreadcrumbs crumbs={crumbs} />
+          <Breadcrumbs crumbs={crumbs} />
           <h1 className="mt-5 font-[family-name:var(--font-display)] text-4xl font-bold tracking-tight sm:text-5xl">
             {title}
           </h1>

@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { JsonLd } from "@/components/json-ld";
+import { buildItemList } from "@/lib/seo/build-item-list";
 import { awardSegmentCopy } from "@/features/awards/award-segment-copy";
 import { awardSegmentIntro } from "@/features/awards/award-segment-intro";
 import { AwardPageShell } from "@/features/awards/components/award-page-shell";
 import { AwardSegmentView } from "@/features/awards/components/award-segment-view";
 import { findAwardBody } from "@/features/awards/find-award-body";
+import { segmentFilms } from "@/features/awards/segment-films";
 import { type AwardSegment, resolveAwardSegment } from "@/features/awards/resolve-award-segment";
 
 type Props = { params: Promise<{ body: string; segment: string }> };
@@ -51,6 +54,7 @@ export default async function AwardSegmentPage({ params }: Props) {
       related={segmentRelated(resolved, body, awardBody.shortName)}
       intro={awardSegmentIntro(resolved).map((p) => <p key={p.slice(0, 24)}>{p}</p>)}
     >
+      <JsonLd data={buildItemList(copy.h1, `/awards/${body}/${segment}`, segmentFilms(resolved))} />
       <AwardSegmentView segment={resolved} />
     </AwardPageShell>
   );
