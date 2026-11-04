@@ -1,2 +1,2 @@
-// A week — same reasoning as FILM_REVALIDATE_SECONDS.
-export const PERSON_REVALIDATE_SECONDS = 604800;
+// 90 days — same reasoning as FILM_REVALIDATE_SECONDS.
+export const PERSON_REVALIDATE_SECONDS = 7776000;
