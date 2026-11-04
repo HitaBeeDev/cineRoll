@@ -24,6 +24,10 @@ export default function AwardsPage() {
           <Link href="/collections" className="text-fg-hi underline underline-offset-4 hover:text-accent">
             collections
           </Link>
+          , or browse the best films{" "}
+          <Link href="/decades" className="text-fg-hi underline underline-offset-4 hover:text-accent">
+            by decade
+          </Link>
           .
         </p>
       }

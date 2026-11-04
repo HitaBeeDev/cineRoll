@@ -1,4 +1,5 @@
-export type CollectionGroup = "winners" | "cross-award" | "comparison";
+export type CollectionSort = "newest" | "wins" | "noms";
+export type CollectionGroup = "winners" | "cross-award" | "comparison" | "records";
 
 export type Collection = {
   slug: string;
@@ -10,7 +11,7 @@ export type Collection = {
   intro: string;
   /** Films-API query: the collection is exactly the films it returns. */
   params: Record<string, string>;
-  /** How the grid is ordered: "newest" for winners' lists, "wins" for the rest. */
-  sort: "newest" | "wins";
+  /** Grid order: "newest" for winners' lists, "wins" / "noms" for rankings. */
+  sort: CollectionSort;
   related?: { label: string; href: string };
 };

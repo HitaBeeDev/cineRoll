@@ -53,7 +53,7 @@ export default async function CollectionPage({ params }: Props) {
           <p>{collection.intro}</p>
           <p>
             {total > films.length
-              ? `${total} films — showing the ${films.length} with the most wins.`
+              ? `${total} films — showing the ${films.length} with the most ${collection.sort === "noms" ? "nominations" : "wins"}.`
               : `${total} films.`}
             {collection.related && (
               <>

@@ -1,5 +1,6 @@
 import type { PaginatedFilms } from "@cineroll/types";
 import { API_URL } from "@/lib/api/constants/api-url";
+import type { CollectionSort } from "./collection-types";
 
 // A day: collections only change on a seed.
 const COLLECTION_REVALIDATE_SECONDS = 86400;
@@ -12,7 +13,7 @@ const COLLECTION_LIMIT = 100;
  */
 export async function fetchCollectionFilms(
   params: Record<string, string>,
-  sort: "newest" | "wins",
+  sort: CollectionSort,
   limit = COLLECTION_LIMIT,
 ): Promise<PaginatedFilms> {
   const query = new URLSearchParams({ ...params, sort, limit: String(limit) });

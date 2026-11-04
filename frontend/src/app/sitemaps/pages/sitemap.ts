@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { fetchListableCollections } from "@/features/collections/fetch-collection-sizes";
+import { DECADES } from "@/features/decades/decades";
 import { TOOLS } from "@/features/tools/tools";
 import { SITE_URL } from "@/lib/site-url";
 
@@ -15,6 +16,8 @@ const PATHS = [
   "/tools",
   ...TOOLS.map((tool) => `/tools/${tool.slug}`),
   "/collections",
+  "/decades",
+  ...DECADES.map((start) => `/decades/${start}s`),
 ];
 
 // Rendered per request: the collection sizes behind it are cached API calls,

@@ -177,4 +177,28 @@ export const COLLECTIONS: Collection[] = [
       "Films that won at Cannes and at the Golden Globes — a festival prize in May and a Globe the following winter — ranked by total wins.",
     params: { wonAtBodies: "goldenglobe,cannes" },
   },
+  {
+    slug: "most-awarded-films",
+    group: "records",
+    sort: "wins",
+    h1: "The Most Awarded Films of All Time",
+    title: "The Most Awarded Films of All Time",
+    description:
+      "The films with the most wins across the Oscars, the Golden Globes, Cannes and the Berlinale — the 100 most awarded films ever.",
+    intro:
+      "The 100 films with the most wins across the four big awards, counted together: every Oscar, Golden Globe, Cannes prize and Berlinale award a film took home.",
+    params: {},
+  },
+  {
+    slug: "most-nominated-films",
+    group: "records",
+    sort: "noms",
+    h1: "The Most Nominated Films of All Time",
+    title: "The Most Nominated Films of All Time",
+    description:
+      "The films with the most nominations across the Oscars, the Golden Globes, Cannes and the Berlinale — wins or not.",
+    intro:
+      "The 100 films nominated the most times across the four big awards, counted together. Some won almost everything they were up for; some are famous for going home empty-handed.",
+    params: {},
+  },
 ];

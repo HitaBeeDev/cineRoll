@@ -18,6 +18,7 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 const GROUPS: { group: CollectionGroup; title: string }[] = [
+  { group: "records", title: "All-time records" },
   { group: "winners", title: "Every winner of a top prize" },
   { group: "cross-award", title: "Winners at more than one award" },
   { group: "comparison", title: "Where two awards agreed" },
