@@ -22,6 +22,8 @@ export function AboutContent({ archiveSize }: { archiveSize: number | null }) {
           <Link href="/picks" className={LINK_CLASS}>today&apos;s picks</Link>, describe what you
           are in the mood for with <Link href="/ask-ai" className={LINK_CLASS}>Ask AI</Link>, or
           look at the <Link href="/stats" className={LINK_CLASS}>records and statistics</Link>.
+          There are also <Link href="/tools" className={LINK_CLASS}>random film tools</Link> for a
+          random Oscar winner, Palme d&apos;Or winner, or a film by decade, genre or length.
         </p>
       </PolicySection>
 
