@@ -3,9 +3,11 @@ import { SITE_URL } from "@/lib/site-url";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 
-// Rebuild at most every 90 days (each deploy also rebuilds it) — the catalog
-// only changes on a seed, and a rebuild costs ~90 API calls.
-export const revalidate = 7776000;
+// Rendered per request so a backend outage can never fail the build or bake an
+// empty sitemap in. The ~90 API calls behind it are cached for 90 days instead:
+// Next only caches 200 responses, so a failed call is retried on the next hit.
+export const dynamic = "force-dynamic";
+const revalidate = 7776000;
 
 const PAGE_SIZE = 100;
 // Safety cap so a bad `totalPages` can never fan out into thousands of requests.
@@ -31,9 +33,7 @@ async function fetchPage(page: number): Promise<FilmListPage | null> {
 // Page through GET /api/films (capped at 100/page server-side) to collect every slug.
 async function fetchFilmSlugs(): Promise<string[]> {
   const first = await fetchPage(1);
-  // Throw instead of returning [] — with a 90-day cache, an empty sitemap would
-  // stick for months. A failed rebuild keeps serving the last good sitemap.
-  if (!first) throw new Error("sitemap: film list unavailable");
+  if (!first) return [];
 
   const slugs = first.films.map((f) => f.slug);
   const totalPages = Math.min(first.totalPages ?? 1, MAX_PAGES);
