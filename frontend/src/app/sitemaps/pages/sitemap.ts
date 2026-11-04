@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { fetchListableCollections } from "@/features/collections/fetch-collection-sizes";
 import { DECADES } from "@/features/decades/decades";
+import { fetchListableMoods } from "@/features/moods/fetch-listable-moods";
 import { fetchPlaces } from "@/features/places/fetch-places";
 import type { PlaceKind } from "@/features/places/place-types";
 import { TOOLS } from "@/features/tools/tools";
@@ -21,6 +22,7 @@ const PATHS = [
   "/decades",
   "/countries",
   "/languages",
+  "/moods",
   ...DECADES.map((start) => `/decades/${start}s`),
 ];
 
@@ -30,8 +32,9 @@ export const dynamic = "force-dynamic";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Only collections big enough to have a page; thin ones would 404.
-  const [collections, ...placeLists] = await Promise.all([
+  const [collections, moods, ...placeLists] = await Promise.all([
     fetchListableCollections(),
+    fetchListableMoods(),
     ...(["countries", "languages"] as PlaceKind[]).map((kind) =>
       fetchPlaces(kind)
         .then((places) => places.map((place) => `/${kind}/${place.slug}`))
@@ -41,6 +44,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const paths = [
     ...PATHS,
     ...collections.map((collection) => `/collections/${collection.slug}`),
+    ...moods.map((mood) => `/moods/${mood.tag}`),
     ...placeLists.flat(),
   ];
   return paths.map((path) => ({ url: `${SITE_URL}${path}` }));

@@ -19,8 +19,11 @@ describe("buildPersonNameIndex", () => {
     expect(index.get("jean-luc-godard")).toBe("Jean-Luc Godard");
   });
 
-  it("keeps the first spelling when two share a slug", () => {
+  it("prefers the spelling with fewer capitals when two share a slug", () => {
     expect(index.get("federico-fellini")).toBe("Federico Fellini");
+    expect(buildPersonNameIndex(["Pedro ALMODÓVAR", "Pedro Almodóvar"]).get("pedro-almodovar")).toBe(
+      "Pedro Almodóvar",
+    );
   });
 
   it("has no entry for an unknown slug, so the route can 404", () => {
@@ -49,5 +52,20 @@ describe("personSitemapEntries", () => {
     expect(entries).toEqual([
       { slug: "federico-fellini", updatedAt: new Date("2026-06-01T00:00:00Z") },
     ]);
+  });
+});
+
+describe("displayPersonName", () => {
+  it("shows all-caps surnames in normal case", async () => {
+    const { displayPersonName } = await import("../src/routes/personsRoute/displayPersonName");
+    expect(displayPersonName("Pedro ALMODÓVAR")).toBe("Pedro Almodóvar");
+    expect(displayPersonName("Jean-Luc GODARD")).toBe("Jean-Luc Godard");
+    expect(displayPersonName("Agnès VARDA-DEMY")).toBe("Agnès Varda-Demy");
+  });
+
+  it("leaves normal names and short capitals alone", async () => {
+    const { displayPersonName } = await import("../src/routes/personsRoute/displayPersonName");
+    expect(displayPersonName("Martin Luther King Jr")).toBe("Martin Luther King Jr");
+    expect(displayPersonName("Henry VIII")).toBe("Henry VIII");
   });
 });

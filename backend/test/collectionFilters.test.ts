@@ -32,3 +32,13 @@ describe("wonAtBodies", () => {
     expect(predicates({ wonAtBodies: "venice" })).toEqual([]);
   });
 });
+
+describe("moodTag", () => {
+  it("requires every listed mood tag", async () => {
+    const { facetPredicates } = await import("../src/lib/filmFilters/facetPredicates");
+    const sql = facetPredicates(listQuerySchema.parse({ moodTag: "feel-good" }))
+      .map(p => p.sql)
+      .join(" ");
+    expect(sql).toContain('"moodTags"');
+  });
+});

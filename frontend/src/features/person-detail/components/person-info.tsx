@@ -1,10 +1,13 @@
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
+import { buildPersonSummary } from "../build-person-summary";
 import { getPersonBioPreview } from "../person-bio";
 import type { PersonInfoProps } from "../component-props";
 import { PersonStats } from "./person-stats";
 
 export function PersonInfo({ person }: PersonInfoProps) {
+  const summary = buildPersonSummary(person);
+
   return (
     <div className="min-w-0 flex-1">
       <p className="mb-3 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.5em] text-accent">
@@ -17,6 +20,9 @@ export function PersonInfo({ person }: PersonInfoProps) {
         {person.name}
       </h1>
       <PersonStats person={person} />
+      {summary && (
+        <p className="mt-7 max-w-[68ch] text-[0.95rem] leading-[1.8] text-[#b4b4c4]">{summary}</p>
+      )}
       {person.bio && (
         <p className="mt-7 max-w-[68ch] text-[0.9rem] leading-[1.9] text-[#8888a0]">
           {getPersonBioPreview(person.bio, 300)}

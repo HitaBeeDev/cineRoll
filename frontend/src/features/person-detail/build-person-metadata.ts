@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { SITE_URL } from "@/lib/site-url";
+import { buildPersonSummary } from "./build-person-summary";
 import type { PersonData } from "./domain-types";
 import { getPersonBioPreview } from "./person-bio";
 
@@ -23,6 +24,10 @@ export function buildPersonMetadata(
 }
 
 function buildDescription(person: PersonData): string {
+  // Without a bio, the written award summary is the best description we have.
+  const summary = buildPersonSummary(person);
+  if (!person.bio && summary) return summary.length <= 155 ? summary : `${summary.slice(0, 154).trim()}…`;
+
   const awardSummary = person.totalWins > 0
     ? `${person.totalWins} wins from ${person.totalNominations} nominations across the Oscars, Golden Globes, and Cannes.`
     : `${person.totalNominations} nominations across the Oscars, Golden Globes, and Cannes.`;

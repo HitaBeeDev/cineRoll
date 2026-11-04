@@ -35,7 +35,8 @@ model Film {
   types             String[]
   // AI-generated mood/theme/visual-style tags from the tag-enrich pipeline
   // (controlled vocabulary, lowercase). Scored in-process by the natural-roll
-  // reranker — never SQL-filtered, so no index.
+  // reranker, and filtered by the `moodTag` param for the mood pages — those
+  // queries are cached for a day, so a full scan of this small table needs no index.
   moodTags          String[]           @default([])
   // TMDB keywords from build-master ("jazz", "melancholy", "ambition") —
   // free-vocabulary semantic signals, same in-process use as moodTags.

@@ -24,6 +24,13 @@ export function HomeHero() {
         >
           What is CineRoll?
         </Link>
+        <span className="mx-2 text-[#2e2e44]" aria-hidden>·</span>
+        <Link
+          href="/collections"
+          className="rounded-sm text-fg-dim underline decoration-white/20 underline-offset-4 transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
+        >
+          Collections
+        </Link>
       </div>
       <p className="font-[family-name:var(--font-display)] font-bold leading-[1.05] tracking-tight text-fg-hi transition-all duration-300">
         One spin.

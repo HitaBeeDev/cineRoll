@@ -64,6 +64,9 @@ export const listQueryBaseSchema = z.object({
   // d'or". `category` stays a substring match — Ask AI relies on "Cinematography"
   // finding "Best Cinematography".
   categoryExact: createCsvParamSchema(120),
+  // Controlled-vocabulary mood/theme/style tags ("feel-good", "slow-burn"); every
+  // listed tag must be present. Used by the mood pages.
+  moodTag: createCsvParamSchema(40),
   winnerOnly: queryBooleanSchema.optional(),
   nominatedOnly: queryBooleanSchema.optional(),
   certificate: z.string().trim().min(1).max(20).optional(),

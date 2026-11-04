@@ -12,6 +12,7 @@ export function facetPredicates(query: ListQuery): Prisma.Sql[] {
     arrayOverlapPredicate("originCountries", query.country),
     arrayOverlapPredicate("genres", query.genre),
     arrayContainsPredicate("genres", query.genreAll),
+    arrayContainsPredicate("moodTags", query.moodTag),
     exactValuePredicate("certificate", query.certificate),
     tvTypePredicate(query),
   ].filter((predicate): predicate is Prisma.Sql => predicate !== undefined);

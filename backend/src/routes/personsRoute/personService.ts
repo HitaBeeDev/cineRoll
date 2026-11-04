@@ -5,6 +5,7 @@ import {
   getPersonFilmRows,
   getPersonRecord,
 } from "./personRepository";
+import { displayPersonName } from "./displayPersonName";
 import { getPersonNameIndex } from "./personNameIndex";
 import { FilmRow, PersonFilm } from "./types";
 
@@ -22,7 +23,7 @@ export async function getPersonProfile(slug: string) {
   const photoUrl = personRecord?.photoUrl ?? (await getCastHeadshot(canonicalName));
 
   return {
-    name: canonicalName,
+    name: displayPersonName(canonicalName),
     slug,
     photoUrl,
     bio: personRecord?.bio ?? null,

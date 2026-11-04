@@ -36,6 +36,10 @@ export default function AwardsPage() {
           <Link href="/languages" className="text-fg-hi underline underline-offset-4 hover:text-accent">
             language
           </Link>
+          , or{" "}
+          <Link href="/moods" className="text-fg-hi underline underline-offset-4 hover:text-accent">
+            by mood
+          </Link>
           .
         </p>
       }
