@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { COLLECTIONS } from "@/features/collections/collections";
 import { TOOLS } from "@/features/tools/tools";
 import { SITE_URL } from "@/lib/site-url";
 
@@ -13,6 +14,8 @@ const PATHS = [
   "/about",
   "/tools",
   ...TOOLS.map((tool) => `/tools/${tool.slug}`),
+  "/collections",
+  ...COLLECTIONS.map((collection) => `/collections/${collection.slug}`),
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {

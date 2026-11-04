@@ -46,6 +46,10 @@ export const listQueryBaseSchema = z.object({
   // won). Not a count of anything stored — it is derived from the four
   // nomination counts, so its ceiling is the number of bodies in the catalogue.
   ceremonyCount: z.coerce.number().int().min(1).max(4).optional(),
+  // Cross-award winners: won at N or more of the four bodies, or won at every
+  // listed body. Wins, not nominations — ceremonyCount already covers those.
+  minWinningBodies: z.coerce.number().int().min(1).max(4).optional(),
+  wonAtBodies: awardBodiesParam,
   // Inclusive ceremony-year bounds. `awardYear` is the single-year form other
   // surfaces still speak (see foldAwardYear); it is folded into these before
   // anything reads the query.

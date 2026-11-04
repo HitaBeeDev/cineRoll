@@ -1,5 +1,6 @@
 import { Prisma } from "@prisma/client";
 
+import type { AwardBodyValue } from "./constants";
 import { ListQuery } from "./listQuerySchema";
 
 export function rankingPredicates(query: ListQuery): Prisma.Sql[] {
@@ -11,6 +12,8 @@ export function rankingPredicates(query: ListQuery): Prisma.Sql[] {
     imdbTopExcludePredicate(query),
     winsMinPredicate(query),
     winsMaxPredicate(query),
+    minWinningBodiesPredicate(query),
+    wonAtBodiesPredicate(query),
   ].filter((predicate): predicate is Prisma.Sql => predicate !== undefined);
 }
 
@@ -111,4 +114,29 @@ function winsMaxPredicate(query: ListQuery): Prisma.Sql | undefined {
       + "Film"."berlinWins"
     ) <= ${query.winsMax}
   `;
+}
+
+const WINS_COLUMN: Record<AwardBodyValue, Prisma.Sql> = {
+  oscar: Prisma.sql`"Film"."oscarWins"`,
+  goldenglobe: Prisma.sql`"Film"."ggWins"`,
+  cannes: Prisma.sql`"Film"."cannesWins"`,
+  berlin: Prisma.sql`"Film"."berlinWins"`,
+};
+
+/** Won at N or more of the four bodies — the cross-award winners collections. */
+function minWinningBodiesPredicate(query: ListQuery): Prisma.Sql | undefined {
+  if (query.minWinningBodies === undefined) return undefined;
+
+  const flags = Object.values(WINS_COLUMN).map(
+    column => Prisma.sql`(CASE WHEN ${column} > 0 THEN 1 ELSE 0 END)`,
+  );
+  return Prisma.sql`(${Prisma.join(flags, " + ")}) >= ${query.minWinningBodies}`;
+}
+
+/** Won at every listed body ("won at both Cannes and the Oscars"). */
+function wonAtBodiesPredicate(query: ListQuery): Prisma.Sql | undefined {
+  if (!query.wonAtBodies || query.wonAtBodies.length === 0) return undefined;
+
+  const wins = query.wonAtBodies.map(body => Prisma.sql`${WINS_COLUMN[body]} > 0`);
+  return Prisma.sql`(${Prisma.join(wins, " AND ")})`;
 }

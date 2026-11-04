@@ -19,7 +19,12 @@ export default function AwardsPage() {
         <p>
           CineRoll covers the four awards that shape film history: the Oscars, the Golden Globes,
           the Cannes Film Festival and the Berlinale. Pick one to see every ceremony, every
-          category, and every film that won or was nominated.
+          category, and every film that won or was nominated. For the complete winners&apos; lists
+          of the biggest prizes, see the{" "}
+          <Link href="/collections" className="text-fg-hi underline underline-offset-4 hover:text-accent">
+            collections
+          </Link>
+          .
         </p>
       }
     >
