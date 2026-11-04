@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { FilmTile } from "@/components/film-tile";
-import { FILM_GRID_CLASS } from "@/components/film-tile/film-grid-class";
 import { JsonLd } from "@/components/json-ld";
+import { FilmGridSection } from "@/features/collections/components/film-grid-section";
+import { describeFilmList } from "@/features/collections/describe-film-list";
 import { AwardPageShell } from "@/features/awards/components/award-page-shell";
 import { fetchCollectionFilms } from "@/features/collections/fetch-collection-films";
 import { MIN_COLLECTION_FILMS } from "@/features/collections/fetch-collection-sizes";
@@ -63,6 +63,7 @@ export default async function DecadePage({ params }: Props) {
               ? `Here are the ${films.length} that won the most, ranked by total wins.`
               : "Here they are, ranked by total wins."}
           </p>
+          <p>{describeFilmList(films, total).join(" ")}</p>
           <p>
             Can&apos;t choose?{" "}
             <Link href="/tools/random-movie-by-decade" className="text-fg-hi underline underline-offset-4 hover:text-accent">
@@ -88,11 +89,7 @@ export default async function DecadePage({ params }: Props) {
           })),
         }}
       />
-      <div className={FILM_GRID_CLASS}>
-        {films.map((film) => (
-          <FilmTile key={film.id} film={film} />
-        ))}
-      </div>
+      <FilmGridSection title={`Most awarded films of the ${label}`} films={films} />
       <nav aria-label="Other decades" className="flex flex-wrap justify-between gap-3">
         {prev ? (
           <Link href={`/decades/${prev}s`} className={NAV_LINK}>

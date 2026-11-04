@@ -4,7 +4,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/picks" },
   title: "Tonight's Picks: Award-Winning Films to Watch",
   description:
-    "A fresh, hand-curated set of award-winning films to watch tonight, spanning decades and genres — drawn from CineRoll's Oscar, Golden Globe, Cannes, and Berlinale dataset.",
+    "A fresh set of award-winning films to watch tonight, across decades and genres — picked from Oscar, Golden Globe, Cannes and Berlinale winners.",
 };
 
 export default function PicksLayout({

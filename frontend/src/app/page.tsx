@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   // landing page, where the brand should lead.
   title: { absolute: "CineRoll — Oscar, Cannes, Golden Globe & Berlinale Films" },
   description:
-    "Every film nominated at the Oscars, Golden Globes, Cannes and the Berlinale in one place. Roll a random award winner to watch tonight, or browse by award, year, genre and country.",
+    "Every film nominated at the Oscars, Golden Globes, Cannes and the Berlinale. Roll a random award winner for tonight, or browse by award, year and genre.",
   alternates: { canonical: "/" },
   openGraph: {
     title: "CineRoll — Roll the dice on award-winning films",

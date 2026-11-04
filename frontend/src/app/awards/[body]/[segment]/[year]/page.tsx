@@ -1,3 +1,4 @@
+import { fitDescription } from "@/lib/seo/fit-description";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import type { AwardCategoryYearPayload } from "@/features/awards/award-types";
@@ -33,7 +34,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       `${data.year} ${data.shortName} ${shortCategoryName(data.name)} Winner`,
       `${data.year} ${shortCategoryName(data.name)}`,
     ),
-    description: `${winner ? `${winner.film.title} won the ${data.year} ${data.shortName} ${data.name}. ` : ""}See all ${data.entries.length} nominees.`,
+    description: fitDescription(`${winner ? `${winner.film.title} won the ${data.year} ${data.shortName} ${data.name}. ` : ""}See all ${data.entries.length} nominees.`),
     alternates: { canonical: `/awards/${data.body}/${data.slug}/${data.year}` },
   };
 }
@@ -44,6 +45,7 @@ export default async function AwardCategoryYearPage({ params }: Props) {
 
   const awardBody = findAwardBody(data.body)!;
   const winners = data.entries.filter((entry) => entry.won);
+  const others = [...new Set(data.entries.filter((entry) => !entry.won).map((entry) => entry.film.title))];
   const base = `/awards/${data.body}/${data.slug}`;
 
   return (
@@ -61,6 +63,12 @@ export default async function AwardCategoryYearPage({ params }: Props) {
             ? `${winners.map((w) => w.film.title).join(" and ")} won ${data.name} at the ${data.year} ${data.shortName}. `
             : ""}
           All {data.entries.length} nominees are listed below, winner first.
+          {others.length > 0 &&
+            ` The other nominees were ${others.length > 1 ? `${others.slice(0, -1).join(", ")} and ${others.at(-1)}` : others[0]}.`}{" "}
+          Each film links to its complete award history.
+          {data.prev || data.next
+            ? ` The links below go to the ${[data.prev, data.next].filter(Boolean).join(" and ")} ${data.name} ${data.prev && data.next ? "races" : "race"}.`
+            : ""}
         </p>
       }
     >

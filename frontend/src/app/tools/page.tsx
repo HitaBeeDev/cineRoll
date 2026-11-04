@@ -26,6 +26,13 @@ export default function ToolsIndexPage() {
             Can&apos;t pick a film? Each of these rolls one at random from the films recognised at
             the Oscars, the Golden Globes, Cannes and the Berlinale — narrowed the way you want.
           </p>
+          <p className="mt-4 max-w-2xl text-base leading-7 text-[#b4b4c4]">
+            Unlike most random movie generators, these only draw from films that a jury or an
+            academy actually singled out, and they skip titles with weak ratings, so every roll is
+            worth your evening. Roll as often as you like: recent picks are kept out so you
+            don&apos;t see the same film twice in a row, and every result links to the film&apos;s
+            full award history.
+          </p>
         </div>
       </section>
       <ul className="mx-auto grid max-w-4xl gap-3 px-6 py-12 sm:grid-cols-2 lg:px-10">

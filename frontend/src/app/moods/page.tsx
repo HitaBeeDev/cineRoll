@@ -21,10 +21,19 @@ export default async function MoodsPage() {
       crumbs={[{ label: "Moods", href: "/moods" }]}
       title="Award-Winning Films by Mood"
       intro={
+        <>
         <p>
           Not sure what you want, but know how you want to feel? Pick a mood and see the most
           awarded films that match it.
         </p>
+        <p>
+          Every film in CineRoll is tagged with a few moods, themes and styles — feel-good or
+          haunting, slow-burn or tense, black-and-white or epic — based on what the film is like
+          to watch. Each mood page lists the award winners and nominees that carry the tag, most
+          awarded first, so you can go from a feeling to a film in two clicks. Tags are assigned
+          automatically, so treat them as a guide rather than a verdict.
+        </p>
+        </>
       }
     >
       <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">

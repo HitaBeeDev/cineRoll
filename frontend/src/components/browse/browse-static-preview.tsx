@@ -22,6 +22,18 @@ export function BrowseStaticPreview({ preview }: { preview: PaginatedFilms | nul
             {preview ? ` — ${preview.total.toLocaleString("en-US")} titles` : ""}, ranked here by
             most wins. Filter by award, year, genre, country or language to narrow it down.
           </p>
+          <p className="mb-6 max-w-2xl text-sm leading-relaxed text-fg-muted">
+            Every title links to its own page with the complete award record — each nomination
+            and each win, at all four awards — plus cast, ratings and similar films. Search by
+            title or by person to find a director or actor&apos;s award-recognised work, sort by
+            rating, wins or nominations, or let CineRoll roll a random film from whatever you
+            have filtered.
+          </p>
+          {preview && preview.films.length > 0 && (
+            <h2 className="mb-5 font-[family-name:var(--font-geist-mono)] text-[11px] font-semibold uppercase tracking-[0.4em] text-accent">
+              Most awarded first
+            </h2>
+          )}
           {preview && preview.films.length > 0 && (
             <div className={FILM_GRID_CLASS}>
               {preview.films.map((film) => (

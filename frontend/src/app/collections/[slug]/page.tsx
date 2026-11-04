@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { FilmTile } from "@/components/film-tile";
-import { FILM_GRID_CLASS } from "@/components/film-tile/film-grid-class";
 import { JsonLd } from "@/components/json-ld";
+import { FilmGridSection } from "@/features/collections/components/film-grid-section";
+import { describeFilmList } from "@/features/collections/describe-film-list";
 import { AwardPageShell } from "@/features/awards/components/award-page-shell";
 import { COLLECTIONS } from "@/features/collections/collections";
 import { fetchCollectionFilms } from "@/features/collections/fetch-collection-films";
@@ -51,6 +51,7 @@ export default async function CollectionPage({ params }: Props) {
       intro={
         <>
           <p>{collection.intro}</p>
+          <p>{describeFilmList(films, total).join(" ")}</p>
           <p>
             {total > films.length
               ? `${total} films — showing the ${films.length} with the most ${collection.sort === "noms" ? "nominations" : "wins"}.`
@@ -83,11 +84,10 @@ export default async function CollectionPage({ params }: Props) {
           })),
         }}
       />
-      <div className={FILM_GRID_CLASS}>
-        {films.map((film) => (
-          <FilmTile key={film.id} film={film} />
-        ))}
-      </div>
+      <FilmGridSection
+        title={collection.sort === "newest" ? "Newest first" : collection.sort === "noms" ? "Most nominated first" : "Most awarded first"}
+        films={films}
+      />
     </AwardPageShell>
   );
 }

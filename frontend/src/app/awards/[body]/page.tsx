@@ -55,6 +55,12 @@ export default async function AwardBodyPage({ params }: Props) {
           {body.intro.map((paragraph) => (
             <p key={paragraph.slice(0, 24)}>{paragraph}</p>
           ))}
+          <p>
+            CineRoll holds {data.years.length} {body.shortName} ceremonies, from{" "}
+            {data.years[0]?.year} to {data.years.at(-1)?.year}, with{" "}
+            {data.categories.length} categories big enough for their own page
+            {data.genres.length > 0 ? ` and ${data.genres.length} genres` : ""}.
+          </p>
           {headline && (
             <p>
               Start with the top prize:{" "}

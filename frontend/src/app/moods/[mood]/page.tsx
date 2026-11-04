@@ -1,9 +1,10 @@
+import { fitDescription } from "@/lib/seo/fit-description";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { FilmTile } from "@/components/film-tile";
-import { FILM_GRID_CLASS } from "@/components/film-tile/film-grid-class";
 import { JsonLd } from "@/components/json-ld";
+import { FilmGridSection } from "@/features/collections/components/film-grid-section";
+import { describeFilmList } from "@/features/collections/describe-film-list";
 import { AwardPageShell } from "@/features/awards/components/award-page-shell";
 import { fetchCollectionFilms } from "@/features/collections/fetch-collection-films";
 import { MIN_COLLECTION_FILMS } from "@/features/collections/fetch-collection-sizes";
@@ -27,7 +28,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!mood) return {};
   return {
     title: `${mood.name} Award-Winning Films`,
-    description: `${mood.blurb} Oscar, Golden Globe, Cannes and Berlinale films, ranked by wins.`,
+    description: fitDescription(`${mood.blurb} Oscar, Golden Globe, Cannes and Berlinale films, ranked by wins.`),
     alternates: { canonical: `/moods/${mood.tag}` },
   };
 }
@@ -50,6 +51,7 @@ export default async function MoodPage({ params }: Props) {
       intro={
         <>
           <p>{mood.blurb}</p>
+          <p>{describeFilmList(films, total).join(" ")}</p>
           <p>
             {total.toLocaleString("en-US")} films recognised at the Oscars, the Golden Globes,
             Cannes or the Berlinale carry this mood.{" "}
@@ -78,11 +80,7 @@ export default async function MoodPage({ params }: Props) {
           })),
         }}
       />
-      <div className={FILM_GRID_CLASS}>
-        {films.map((film) => (
-          <FilmTile key={film.id} film={film} />
-        ))}
-      </div>
+      <FilmGridSection title={`${mood.name} films, most awarded first`} films={films} />
     </AwardPageShell>
   );
 }

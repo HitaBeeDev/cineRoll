@@ -5,7 +5,7 @@ import { PLACE_COPY } from "@/features/places/place-copy";
 export const metadata: Metadata = {
   alternates: { canonical: "/languages" },
   title: PLACE_COPY.languages.indexTitle,
-  description: PLACE_COPY.languages.indexIntro,
+  description: PLACE_COPY.languages.indexDescription,
 };
 
 // Rendered per request (the list behind it is a cached API call), never at

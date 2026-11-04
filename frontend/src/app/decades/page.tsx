@@ -16,11 +16,19 @@ export default function DecadesPage() {
       crumbs={[{ label: "Decades", href: "/decades" }]}
       title="Award-Winning Films by Decade"
       intro={
+        <>
         <p>
           Pick a decade to see its most awarded films — everything released in those ten years
           that won or was nominated at the Oscars, the Golden Globes, Cannes or the Berlinale,
           ranked by wins.
         </p>
+        <p>
+          Each decade page shows how many films from those years were recognised, which one won
+          the most, and how many won at each of the four awards — a quick way to see how film
+          changed from the studio era of the 1930s through the New Hollywood 1970s to today. For
+          something less planned, the random film by decade tool rolls one for you.
+        </p>
+        </>
       }
     >
       <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">

@@ -13,7 +13,12 @@ export async function PlaceIndexPage({ kind }: { kind: PlaceKind }) {
     <AwardPageShell
       crumbs={[{ label: copy.crumb, href: `/${kind}` }]}
       title={copy.indexTitle}
-      intro={<p>{copy.indexIntro}</p>}
+      intro={
+        <>
+          <p>{copy.indexIntro}</p>
+          <p>{copy.indexMore}</p>
+        </>
+      }
     >
       <ul className="grid gap-x-6 sm:grid-cols-2 lg:grid-cols-3">
         {places.map((place) => (

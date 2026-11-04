@@ -32,11 +32,20 @@ export default async function CollectionsPage() {
       crumbs={[{ label: "Collections", href: "/collections" }]}
       title="Award-Winning Film Collections"
       intro={
+        <>
+        <p>
+          Every list here is built straight from the award records, not picked by hand, so it is
+          complete: if a film won the prize, it is on the list. Where a prize changed its name
+          over the decades — Best Picture was once Outstanding Production, the Golden Bear once
+          had a longer title — every name is included.
+        </p>
         <p>
           Ready-made watchlists from the award records: the complete winners&apos; lists of the
           biggest prizes, the films that won at more than one of the big four awards, and the ones
-          two very different juries both chose.
+          two very different juries both chose. Open any film for its full record at all four
+          awards.
         </p>
+        </>
       }
     >
       {GROUPS.map(({ group, title }) => {

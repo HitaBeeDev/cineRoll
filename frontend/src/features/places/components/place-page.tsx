@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { FilmTile } from "@/components/film-tile";
-import { FILM_GRID_CLASS } from "@/components/film-tile/film-grid-class";
 import { JsonLd } from "@/components/json-ld";
+import { FilmGridSection } from "@/features/collections/components/film-grid-section";
+import { describeFilmList } from "@/features/collections/describe-film-list";
 import { AwardPageShell } from "@/features/awards/components/award-page-shell";
 import { fetchCollectionFilms } from "@/features/collections/fetch-collection-films";
 import { SITE_URL } from "@/lib/site-url";
@@ -24,6 +24,7 @@ export async function PlacePage({ kind, place }: { kind: PlaceKind; place: Place
       intro={
         <>
           <p>{copy.lead(place.name, total.toLocaleString("en-US"))}</p>
+          <p>{describeFilmList(films, total).join(" ")}</p>
           <p>
             {total > films.length
               ? `Here are the ${films.length} with the most wins. `
@@ -51,11 +52,7 @@ export async function PlacePage({ kind, place }: { kind: PlaceKind; place: Place
           })),
         }}
       />
-      <div className={FILM_GRID_CLASS}>
-        {films.map((film) => (
-          <FilmTile key={film.id} film={film} />
-        ))}
-      </div>
+      <FilmGridSection title="Most awarded first" films={films} />
     </AwardPageShell>
   );
 }

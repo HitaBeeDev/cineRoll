@@ -52,6 +52,11 @@ export function ToolPage({
             {tool.intro.map((paragraph) => (
               <p key={paragraph.slice(0, 32)}>{paragraph.replace("{count}", count)}</p>
             ))}
+            <p>
+              Each roll is a fresh random draw from that pool, limited to films that clear a
+              ratings bar on IMDb and Rotten Tomatoes. Press the button again for another, and
+              open any result for its full award record.
+            </p>
           </div>
         </div>
       </section>

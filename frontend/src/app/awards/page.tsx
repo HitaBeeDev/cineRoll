@@ -16,6 +16,14 @@ export default function AwardsPage() {
       crumbs={[{ label: "Awards", href: "/awards" }]}
       title="Film Awards: Winners and Nominees"
       intro={
+        <>
+        <p>
+          Every film in CineRoll was nominated at one of these four. Each award has its own page
+          with every ceremony on record, from the first one to this year&apos;s, and every
+          category — from Best Picture and the Palme d&apos;Or down to the craft and short-film
+          prizes. Winners are always listed first, so a ceremony page doubles as a quick answer to
+          &ldquo;who won that year?&rdquo;.
+        </p>
         <p>
           CineRoll covers the four awards that shape film history: the Oscars, the Golden Globes,
           the Cannes Film Festival and the Berlinale. Pick one to see every ceremony, every
@@ -42,6 +50,7 @@ export default function AwardsPage() {
           </Link>
           .
         </p>
+        </>
       }
     >
       <ul className="grid gap-4 sm:grid-cols-2">

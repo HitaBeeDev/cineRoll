@@ -1,3 +1,4 @@
+import { fitDescription } from "@/lib/seo/fit-description";
 import { fitTitle } from "@/lib/seo/fit-title";
 import type { AwardSegment } from "./resolve-award-segment";
 import { shortCategoryName } from "./short-category-name";
@@ -13,7 +14,7 @@ export function awardSegmentCopy(segment: AwardSegment): {
     return {
       h1: `${year} ${shortName}: Winners and Nominees`,
       title: `${year} ${shortName} Winners and Nominees`,
-      description: `Every winner and nominee at the ${year} ${name} — ${films} films across ${segment.data.categories.length} categories, winners first.`,
+      description: fitDescription(`Every winner and nominee at the ${year} ${name} — ${films} films across ${segment.data.categories.length} categories, winners first.`),
     };
   }
 
@@ -28,7 +29,7 @@ export function awardSegmentCopy(segment: AwardSegment): {
         `${shortCategoryName(name)} Winners (${shortName})`,
         `${shortCategoryName(name)} Winners`,
       ),
-      description: `Every ${shortName} ${name} winner and nominee from ${span}, year by year, with links to each film.`,
+      description: fitDescription(`Every ${shortName} ${name} winner and nominee from ${span}, year by year, with links to each film.`),
     };
   }
 
@@ -36,6 +37,6 @@ export function awardSegmentCopy(segment: AwardSegment): {
   return {
     h1: `Award-Winning ${name} Films at the ${shortName}`,
     title: `${name} Films at the ${shortName}`,
-    description: `${films.length} ${name.toLowerCase()} films recognised at the ${shortName}, ranked by wins: winners and nominees with their full award history.`,
+    description: fitDescription(`${films.length} ${name.toLowerCase()} films recognised at the ${shortName}, ranked by wins: winners and nominees with their full award history.`),
   };
 }
