@@ -11,6 +11,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { SiteFooterGate } from "@/components/site-footer-gate";
 import { SmoothScrollProvider } from "@/components/smooth-scroll-provider";
 import { SITE_URL } from "@/lib/site-url";
+import { SITE_VERIFICATION } from "@/lib/site-verification";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -37,6 +38,7 @@ export const metadata: Metadata = {
   },
   description: "Discover award-winning films with a roll of the dice.",
   applicationName: "CineRoll",
+  verification: SITE_VERIFICATION,
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,

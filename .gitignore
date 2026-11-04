@@ -77,3 +77,6 @@ docs/
 # so a fresh clone must have them.
 !.env.example
 !**/.env.example
+
+# Private SEO plan
+docs/SEO-RANKING-PLAN.md
