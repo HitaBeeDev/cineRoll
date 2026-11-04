@@ -1,9 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { AwardEntry } from "../award-types";
+import { posterAlt } from "@/lib/format/poster-alt";
 
-/** Nominations as a list: poster, film, the nominee named, and a winner mark. */
-export function AwardEntryList({ entries }: { entries: AwardEntry[] }) {
+/**
+ * Nominations as a list: poster, film, the nominee named, and a winner mark.
+ * `category` names the prize in each poster's alt text ("Palme d'Or winner").
+ */
+export function AwardEntryList({ entries, category }: { entries: AwardEntry[]; category?: string }) {
   return (
     <ul className="divide-y divide-white/5">
       {entries.map((entry, index) => (
@@ -11,7 +15,7 @@ export function AwardEntryList({ entries }: { entries: AwardEntry[] }) {
           {entry.film.posterUrl ? (
             <Image
               src={entry.film.posterUrl}
-              alt={`${entry.film.title} poster`}
+              alt={posterAlt(entry.film, `${category ? `${category} ` : ""}${entry.won ? "winner" : "nominee"}`)}
               width={40}
               height={60}
               className="h-[60px] w-[40px] shrink-0 rounded object-cover"

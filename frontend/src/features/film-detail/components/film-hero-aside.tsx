@@ -1,5 +1,6 @@
 import { HeroHeadlineAccolade } from "@/components/hero-headline-accolade";
 import { PosterCard } from "@/components/poster-card";
+import { posterAlt } from "@/lib/format/poster-alt";
 import type { FilmHeroAsideProps } from "../component-props";
 
 export function FilmHeroAside(props: FilmHeroAsideProps) {
@@ -19,6 +20,7 @@ export function FilmHeroAside(props: FilmHeroAsideProps) {
     <PosterCard
       posterUrl={props.film.posterUrl}
       title={props.film.title}
+      alt={posterAlt(props.film)}
       accent={props.accent}
     />
   );

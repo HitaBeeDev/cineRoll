@@ -7,6 +7,7 @@ import { formatGenres } from "@/lib/format/format-genres";
 import { getFilmAwards } from "../get-film-awards";
 import { trackNaturalRollClick } from "@/features/describe/natural-roll-analytics/track-natural-roll-click";
 import { FilmAwardBadges } from "./film-award-badges";
+import { posterAlt } from "@/lib/format/poster-alt";
 
 type FilmCardProps = {
   film: RollFilm;
@@ -36,7 +37,7 @@ export function FilmCard({ film, shouldPreventNavigation }: FilmCardProps) {
       {imageUrl ? (
         <Image
           src={imageUrl}
-          alt={`${film.title} poster`}
+          alt={posterAlt(film)}
           fill
           draggable={false}
           sizes="(min-width: 1024px) 20vw, 50vw"

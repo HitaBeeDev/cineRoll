@@ -4,6 +4,7 @@ import { blurDataUrl } from "@/lib/images/blur-data-url";
 import { tmdbImageUrl } from "@/lib/images/tmdb-image-url";
 import { cn } from "@/lib/utils/cn";
 import type { TasteCardFilm } from "@/lib/api";
+import { posterAlt } from "@/lib/format/poster-alt";
 
 /** A single poster the visitor can toggle as "seen". */
 export function TasteCard({
@@ -33,7 +34,7 @@ export function TasteCard({
       {film.posterUrl ? (
         <Image
           src={tmdbImageUrl(film.posterUrl, "w342") ?? film.posterUrl}
-          alt={`${film.title} poster`}
+          alt={posterAlt(film)}
           fill
           sizes="(max-width: 640px) 45vw, 18vw"
           placeholder="blur"

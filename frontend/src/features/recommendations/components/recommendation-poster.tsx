@@ -8,6 +8,7 @@ import { tmdbImageUrl } from "@/lib/images/tmdb-image-url";
 import { cn } from "@/lib/utils/cn";
 import type { RecommendationPosterProps } from "../recommendation-component-types";
 import { RecommendationActionBar } from "./recommendation-action-bar";
+import { posterAlt } from "@/lib/format/poster-alt";
 
 export function RecommendationPoster({
   recommendation,
@@ -23,7 +24,7 @@ export function RecommendationPoster({
       {posterUrl ? (
         <Image
           src={posterUrl}
-          alt={recommendation.title}
+          alt={posterAlt(recommendation)}
           fill
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
           placeholder="blur"

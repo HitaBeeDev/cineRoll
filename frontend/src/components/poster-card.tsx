@@ -10,10 +10,13 @@ import { tmdbImageUrl } from "@/lib/images/tmdb-image-url";
 export function PosterCard({
   posterUrl,
   title,
+  alt,
   accent,
 }: {
   posterUrl: string;
   title: string;
+  /** Full alt text; defaults to "<title> poster". */
+  alt?: string | undefined;
   accent: string;
 }) {
   return (
@@ -26,7 +29,7 @@ export function PosterCard({
       >
         <Image
           src={tmdbImageUrl(posterUrl, "w500") ?? posterUrl}
-          alt={`${title} poster`}
+          alt={alt ?? `${title} poster`}
           fill
           sizes="307px"
           placeholder="blur"

@@ -2,6 +2,7 @@ import Image from "next/image";
 import type { PickOfDayFilm } from "@/lib/api";
 import { tmdbImageUrl } from "@/lib/images/tmdb-image-url";
 import { cn } from "@/lib/utils/cn";
+import { posterAlt } from "@/lib/format/poster-alt";
 
 /** The pick card's poster, with a placeholder when the film has no poster. */
 export function PickPoster({
@@ -24,7 +25,7 @@ export function PickPoster({
       {film.posterUrl ? (
         <Image
           src={tmdbImageUrl(film.posterUrl, "w342") ?? film.posterUrl}
-          alt={`${film.title} poster`}
+          alt={posterAlt(film)}
           fill
           sizes="(max-width: 640px) 128px, 144px"
           placeholder="blur"

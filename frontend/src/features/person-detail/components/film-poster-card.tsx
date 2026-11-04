@@ -4,6 +4,7 @@ import { blurDataUrl } from "@/lib/images/blur-data-url";
 import { tmdbImageUrl } from "@/lib/images/tmdb-image-url";
 import { getNameInitials } from "@/lib/name-avatar/get-name-initials";
 import type { FilmPosterCardProps } from "../component-props";
+import { posterAlt } from "@/lib/format/poster-alt";
 
 export function FilmPosterCard({ film }: FilmPosterCardProps) {
   return (
@@ -15,7 +16,7 @@ export function FilmPosterCard({ film }: FilmPosterCardProps) {
         {film.posterUrl ? (
           <Image
             src={tmdbImageUrl(film.posterUrl, "w342") ?? film.posterUrl}
-            alt={film.title}
+            alt={posterAlt(film)}
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
             placeholder="blur"

@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { RollFilm } from "@/lib/api/roll-types";
+import { posterAlt } from "@/lib/format/poster-alt";
 
 /** The film a tool roll landed on: poster, the basics, and the way in. */
 export function ToolRollCard({ film }: { film: RollFilm }) {
@@ -11,7 +12,7 @@ export function ToolRollCard({ film }: { film: RollFilm }) {
       {film.posterUrl ? (
         <Image
           src={film.posterUrl}
-          alt={`${film.title} poster`}
+          alt={posterAlt(film)}
           width={120}
           height={180}
           className="h-[150px] w-[100px] shrink-0 rounded-md object-cover sm:h-[180px] sm:w-[120px]"

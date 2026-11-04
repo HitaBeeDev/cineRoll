@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils/cn";
 import { TileMetaLine } from "@/components/film-tile/tile-meta-line";
 import type { HistoryCardProps } from "../component-props";
 import { ReRateButton } from "./re-rate-button";
+import { posterAlt } from "@/lib/format/poster-alt";
 
 export function HistoryCard({
   entry,
@@ -27,7 +28,7 @@ export function HistoryCard({
           {film.posterUrl ? (
             <Image
               src={tmdbImageUrl(film.posterUrl, "w342") ?? film.posterUrl}
-              alt={`${film.title} poster`}
+              alt={posterAlt(film)}
               fill
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 25vw, 20vw"
               placeholder="blur"

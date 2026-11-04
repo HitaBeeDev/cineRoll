@@ -14,6 +14,7 @@ import { getListBadge } from "@/components/film-tile/list-badge";
 import { ImdbIcon } from "@/components/film-tile/imdb-icon";
 import { TileMetaLine } from "@/components/film-tile/tile-meta-line";
 import { TomatoIcon } from "@/components/film-tile/tomato-icon";
+import { posterAlt } from "@/lib/format/poster-alt";
 
 interface FilmTileProps {
   film: Film;
@@ -52,7 +53,7 @@ export function FilmTile({ film, className, awardBodies, awardStatus = "any" }: 
         {film.posterUrl ? (
           <Image
             src={tmdbImageUrl(film.posterUrl, "w342") ?? film.posterUrl}
-            alt={`${film.title} poster`}
+            alt={posterAlt(film)}
             width={342}
             height={513}
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 25vw, 20vw"

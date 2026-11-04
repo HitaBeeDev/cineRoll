@@ -4,6 +4,7 @@ import type { AwardSegment } from "../resolve-award-segment";
 import { AwardEntryList } from "./award-entry-list";
 import { AwardSectionTitle } from "./award-section-title";
 import { AwardYearNav } from "./award-year-nav";
+import { posterAlt } from "@/lib/format/poster-alt";
 
 /** The body of a year, category or genre page under one award. */
 export function AwardSegmentView({ segment }: { segment: AwardSegment }) {
@@ -21,7 +22,7 @@ export function AwardSegmentView({ segment }: { segment: AwardSegment }) {
               </Link>
             </AwardSectionTitle>
             <div className="mt-3">
-              <AwardEntryList entries={category.entries} />
+              <AwardEntryList entries={category.entries} category={category.name} />
             </div>
           </section>
         ))}
@@ -46,7 +47,7 @@ export function AwardSegmentView({ segment }: { segment: AwardSegment }) {
               )}
             </AwardSectionTitle>
             <div className="mt-3">
-              <AwardEntryList entries={entries} />
+              <AwardEntryList entries={entries} category={data.name} />
             </div>
           </section>
         ))}
@@ -61,7 +62,7 @@ export function AwardSegmentView({ segment }: { segment: AwardSegment }) {
           {film.posterUrl ? (
             <Image
               src={film.posterUrl}
-              alt={`${film.title} poster`}
+              alt={posterAlt(film, wins > 0 ? `${wins} ${segment.data.shortName} ${wins === 1 ? "win" : "wins"}` : `${segment.data.shortName} nominee`)}
               width={40}
               height={60}
               className="h-[60px] w-[40px] shrink-0 rounded object-cover"

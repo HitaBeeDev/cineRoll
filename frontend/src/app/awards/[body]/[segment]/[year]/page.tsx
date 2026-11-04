@@ -76,7 +76,7 @@ export default async function AwardCategoryYearPage({ params }: Props) {
         </p>
       }
     >
-      <AwardEntryList entries={data.entries} />
+      <AwardEntryList entries={data.entries} category={data.name} />
       <AwardYearNav basePath={base} label={data.name} prev={data.prev} next={data.next} />
     </AwardPageShell>
   );

@@ -2,6 +2,7 @@ import Image from "next/image";
 import { FilmLink } from "@/components/film-link";
 import { cn } from "@/lib/utils/cn";
 import type { Accent, FilmStat } from "../types";
+import { posterAlt } from "@/lib/format/poster-alt";
 
 type RunnerUpFilmCardProps = { film: FilmStat; rank: number; unit: string; accent: Accent };
 
@@ -10,7 +11,7 @@ export function RunnerUpFilmCard({ film, rank, unit, accent }: RunnerUpFilmCardP
   return (
     <FilmLink slug={film.slug} className="group flex min-w-0 gap-3 rounded-lg border border-white/10 bg-white/[0.025] p-3 transition-colors hover:border-white/20 hover:bg-white/[0.04]">
       <div className="relative h-20 w-[54px] shrink-0 overflow-hidden rounded bg-[#11111a]">
-        {film.posterUrl && <Image src={film.posterUrl} alt={`${film.title} poster`} fill sizes="54px" className="object-cover" />}
+        {film.posterUrl && <Image src={film.posterUrl} alt={posterAlt(film)} fill sizes="54px" className="object-cover" />}
         <span className="absolute left-1 top-1 flex h-5 w-5 items-center justify-center rounded border border-white/15 bg-black/60 font-[family-name:var(--font-display)] text-xs font-bold text-white">{rank}</span>
       </div>
       <div className="flex min-w-0 flex-col justify-between py-0.5">

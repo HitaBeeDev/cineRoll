@@ -3,6 +3,7 @@ import { ArrowUpRight } from "lucide-react";
 import { FilmLink } from "@/components/film-link";
 import { cn } from "@/lib/utils/cn";
 import type { Accent, FilmStat } from "../types";
+import { posterAlt } from "@/lib/format/poster-alt";
 
 type FeaturedFilmCardProps = { film: FilmStat; rank: number; unit: string; accent: Accent };
 
@@ -12,7 +13,7 @@ export function FeaturedFilmCard({ film, rank, unit, accent }: FeaturedFilmCardP
   return (
     <FilmLink slug={film.slug} className="group relative grid overflow-hidden rounded-2xl border border-white/12 bg-white/[0.04] shadow-[0_28px_80px_rgba(0,0,0,0.4)] transition-colors hover:border-white/30 sm:grid-cols-[210px_minmax(0,1fr)]">
       <div className="relative min-h-72 bg-[#11111a] sm:min-h-full">
-        {film.posterUrl ? <Image src={film.posterUrl} alt={`${film.title} poster`} fill sizes="(max-width: 640px) 100vw, 210px" className="object-cover transition-transform duration-500 group-hover:scale-[1.04]" /> : <div className="absolute inset-0 bg-[linear-gradient(135deg,#151520,#0b0b12)]" />}
+        {film.posterUrl ? <Image src={film.posterUrl} alt={posterAlt(film)} fill sizes="(max-width: 640px) 100vw, 210px" className="object-cover transition-transform duration-500 group-hover:scale-[1.04]" /> : <div className="absolute inset-0 bg-[linear-gradient(135deg,#151520,#0b0b12)]" />}
         <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_45%,rgba(8,8,13,0.7)_100%)]" />
         <span className="absolute left-3 top-3 flex h-9 items-center gap-1.5 rounded-md border border-white/15 bg-black/55 px-2.5 font-[family-name:var(--font-geist-mono)] text-xs font-bold uppercase tracking-[0.12em] text-white backdrop-blur-sm">№ {rank}</span>
       </div>

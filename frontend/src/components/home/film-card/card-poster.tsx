@@ -5,6 +5,7 @@ import { trackEvent } from "@/lib/analytics";
 import { cn } from "@/lib/utils/cn";
 import { tmdbImageUrl } from "@/lib/images/tmdb-image-url";
 import type { RollFilm } from "@/lib/api";
+import { posterAlt } from "@/lib/format/poster-alt";
 
 /**
  * The poster anchor on the left of the verdict header. Links to the film's
@@ -95,7 +96,7 @@ export function CardPoster({
         {posterUrl ? (
           <Image
             src={tmdbImageUrl(posterUrl, "w500") ?? posterUrl}
-            alt={film.title}
+            alt={posterAlt(film)}
             fill
             sizes="(max-width: 1024px) 45vw, 200px"
             placeholder="blur"
@@ -106,7 +107,7 @@ export function CardPoster({
         ) : backdropUrl ? (
           <Image
             src={tmdbImageUrl(backdropUrl, "w780") ?? backdropUrl}
-            alt={film.title}
+            alt={posterAlt(film)}
             fill
             sizes="(max-width: 1024px) 45vw, 200px"
             placeholder="blur"
