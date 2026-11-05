@@ -16,8 +16,9 @@ export const metadata: Metadata = {
     "Can't decide what to watch tonight? Pick your streaming services and how long you have, and get one Oscar, Cannes, Golden Globe or Berlinale film you can stream now.",
 };
 
-// A day: the picks below rotate daily, and the streaming data refreshes daily.
-export const revalidate = 86400;
+// An hour. The picks rotate daily, but a render that caught the backend down
+// (e.g. at build time) must not leave the page without them for a whole day.
+export const revalidate = 3600;
 
 const LINK = "text-fg-hi underline decoration-white/25 underline-offset-4 hover:text-accent";
 

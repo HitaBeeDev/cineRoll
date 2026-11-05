@@ -15,6 +15,12 @@ import { getNameHue } from "@/lib/name-avatar/get-name-hue";
 // 90 days — must be a literal; mirrors PERSON_REVALIDATE_SECONDS.
 export const revalidate = 7776000;
 
+// Rendered on first visit, then cached. Without it Next renders a [slug] route
+// per request and ignores `revalidate` (see the film page).
+export function generateStaticParams() {
+  return [];
+}
+
 export async function generateMetadata({
   params,
 }: PersonPageProps): Promise<Metadata> {

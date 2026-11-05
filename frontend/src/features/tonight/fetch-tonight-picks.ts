@@ -8,10 +8,17 @@ import { pickDaily } from "./pick-daily";
  * films only — "tonight" is one sitting.
  */
 export async function fetchTonightPicks(region: string): Promise<{ films: Film[]; pool: number }> {
-  const { films, total } = await fetchCollectionFilms(
-    { streamsIn: region, winnerOnly: "true", imdbRatingMin: "7", contentType: "movie" },
-    "wins",
-    100,
-  );
-  return { films: pickDaily(films, 12, new Date()), pool: total };
+  try {
+    const { films, total } = await fetchCollectionFilms(
+      { streamsIn: region, winnerOnly: "true", imdbRatingMin: "7", contentType: "movie" },
+      "wins",
+      100,
+    );
+    return { films: pickDaily(films, 12, new Date()), pool: total };
+  } catch {
+    // The page is pre-rendered at build time, when the backend may be
+    // unreachable; a failed fetch must not fail the deploy. The picker still
+    // works, and the page's short revalidate brings the picks back.
+    return { films: [], pool: 0 };
+  }
 }

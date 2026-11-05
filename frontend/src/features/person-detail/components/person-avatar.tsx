@@ -20,7 +20,7 @@ export function PersonAvatar({
           fill
           sizes="(max-width: 640px) 128px, 176px"
           className="object-cover object-top"
-          priority
+          preload
         />
       </div>
     );

@@ -27,8 +27,16 @@ import { getRankTags } from "@/features/film-detail/get-rank-tags";
 import { pickHeadlineAccolade } from "@/features/film-detail/pick-headline-accolade";
 type FilmPageProps = { params: Promise<{ slug: string }> };
 
-// 90 days — must be a literal; mirrors FILM_REVALIDATE_SECONDS.
-export const revalidate = 7776000;
+// A week — must be a literal; mirrors FILM_REVALIDATE_SECONDS.
+export const revalidate = 604800;
+
+// Rendered on first visit, then served from the cache. Without this (even an
+// empty list) Next treats a [slug] route as fully dynamic and ignores
+// `revalidate`: every film page was rendered per request, `no-store`, ~0.7 s
+// to first byte — the biggest single cost in its LCP.
+export function generateStaticParams() {
+  return [];
+}
 
 export async function generateMetadata({
   params,

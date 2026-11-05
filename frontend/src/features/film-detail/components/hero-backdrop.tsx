@@ -47,7 +47,9 @@ export function HeroBackdrop({
           src={src}
           alt=""
           fill
-          priority
+          // The film page's LCP element: preloaded from <head>. (`priority` is
+          // deprecated in Next 16 in favour of `preload`.)
+          preload
           sizes="100vw"
           placeholder="blur"
           blurDataURL={blurDataURL}
