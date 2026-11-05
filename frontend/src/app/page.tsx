@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
+import { JsonLd } from "@/components/json-ld";
 import { HomeClient } from "@/features/home/components/home-client";
 import { ONBOARDED_COOKIE } from "@/features/home/constants/onboarded-cookie";
 import { fetchArchiveSize } from "@/features/home/fetch-archive-size";
+import { buildOrganization } from "@/lib/seo/build-organization";
+import { buildWebSite } from "@/lib/seo/build-web-site";
 import { HomeHero } from "./home-hero";
 
 export const metadata: Metadata = {
@@ -38,6 +41,10 @@ export default async function HomePage() {
   const onboarded = cookieStore.get(ONBOARDED_COOKIE)?.value === "true";
 
   return (
-    <HomeClient initialOnboarded={onboarded} initialTotalCount={archiveSize} hero={<HomeHero />} />
+    <>
+      <JsonLd data={buildOrganization()} />
+      <JsonLd data={buildWebSite()} />
+      <HomeClient initialOnboarded={onboarded} initialTotalCount={archiveSize} hero={<HomeHero />} />
+    </>
   );
 }
