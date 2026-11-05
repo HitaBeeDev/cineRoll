@@ -7,6 +7,8 @@ export type CreditRow = {
   source: CreditSource;
   filmId: string;
   filmTitle: string;
+  /** The award category for nominee rows ("Writing", "Best Picture"); null for director and cast. */
+  category: string | null;
 };
 
 /** One person, after credit lines have been split and merged. */

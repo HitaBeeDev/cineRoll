@@ -21,6 +21,12 @@ describe("splitCredit", () => {
     ["Jeff Moss", "Music (Original Song Score)", ["Jeff Moss"]],
     ["(Howard Estabrook)", "Writing", ["Howard Estabrook"]],
     ["Charles LeMaire, Renie", "Costume Design (Black-and-White)", ["Charles LeMaire", "Renie"]],
+    // Merged in from the old search-only parser (5 Nov 2026):
+    ["Seton I. Miller, Fred Niblo, Jr.", "Writing", ["Seton I. Miller", "Fred Niblo, Jr."]],
+    ["Warner Bros. Studio Sound Department, Nathan Levinson, Sound Director", "Sound Recording", ["Nathan Levinson"]],
+    ["Music Score by Victor Young (Thematic Music by Victor Schertzinger)", "Music (Scoring)", ["Victor Young"]],
+    ["Joel Coen / Ethan Coen", "Writing", ["Joel Coen", "Ethan Coen"]],
+    ["Ricky/Rick Schroder", "Best Performance by an Actor in a Limited Series", ["Rick Schroder"]],
   ])("%s → people", (nominee, category, expected) => {
     expect(splitCredit(nominee, "Some Film", category)).toEqual(expected);
   });
@@ -33,6 +39,12 @@ describe("splitCredit", () => {
     ["Rockford Files, The", "Best Television Series - Drama"],
     ["Stranger by the Lake", "Un Certain Regard"],
     ["\"Piccolino\" from \"Top Hat\"", "Dance Direction"],
+    // A company is dropped whole — splitting it on "&" left fake people behind.
+    ["Australian News & Information Bureau", "Documentary (Short Subject)"],
+    ["Charles Guggenheim & Associates, Inc.", "Actor"],
+    // A title filed article-last, even where one-word names are allowed.
+    ["Robe, The", "Actor"],
+    ["NaN", "Writing"],
   ])("%s → nobody", (nominee, category) => {
     expect(splitCredit(nominee, "Stranger by the Lake", category)).toEqual([]);
   });

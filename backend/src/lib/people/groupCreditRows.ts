@@ -1,4 +1,4 @@
-import { splitCreditNames } from "./splitCreditNames";
+import { splitCredit } from "../../routes/personsRoute/splitCredit";
 import type { CreditRow, CreditSource, PersonSuggestion } from "./types";
 
 type Accumulator = {
@@ -9,7 +9,9 @@ type Accumulator = {
 
 /**
  * Turns raw credit rows into one entry per person: credit lines are split into
- * names, names that are really the film's own title are dropped, and the same
+ * names by `splitCredit` — the same parser behind person pages and the persons
+ * sitemap, so search never offers a name that has no page (or misses one that
+ * does) — names that are really the film's own title are dropped, and the same
  * person written two ways ("Steven Spielberg" / "Steven SPIELBERG") merges into
  * a single row counted once per film.
  *
@@ -27,7 +29,7 @@ export const groupCreditRows = (
   for (const row of rows) {
     const filmTitleKey = titleKey(row.filmTitle);
 
-    for (const name of splitCreditNames(row.name)) {
+    for (const name of namesIn(row)) {
       if (!name.toLowerCase().includes(needle)) continue;
       if (titleKey(name) === filmTitleKey) continue;
 
@@ -44,6 +46,20 @@ export const groupCreditRows = (
     .sort(byRelevance(needle))
     .slice(0, limit);
 };
+
+/**
+ * Director and cast rows carry no award category; give them the one that
+ * matches what they are, so a one-word name (Costa-Gavras, Cher) is accepted
+ * the way it is in a directing or acting category.
+ */
+const SOURCE_CATEGORY = { director: "Directing", cast: "Performance" } as const;
+
+const namesIn = (row: CreditRow): string[] =>
+  splitCredit(
+    row.name,
+    row.filmTitle,
+    row.source === "nominee" ? row.category : SOURCE_CATEGORY[row.source],
+  );
 
 const emptyAccumulator = (): Accumulator => ({
   variants: new Map(),

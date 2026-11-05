@@ -31,7 +31,7 @@ export async function fetchCreditRows(
     WITH credits AS (
       ${Prisma.join(selects, " UNION ALL ")}
     )
-    SELECT "name", "source", "filmId", "filmTitle"
+    SELECT "name", "source", "filmId", "filmTitle", "category"
     FROM credits
     WHERE "name" IS NOT NULL AND "name" <> '' AND "name" <> 'NaN'
     ORDER BY CASE WHEN "name" ILIKE ${queryPrefix} THEN 0 ELSE 1 END, "name" ASC
@@ -51,7 +51,8 @@ const directorSelect = (queryLike: string): Prisma.Sql => Prisma.sql`
     "Film"."director" AS "name",
     'director' AS "source",
     "Film"."id" AS "filmId",
-    "Film"."title" AS "filmTitle"
+    "Film"."title" AS "filmTitle",
+    NULL::text AS "category"
   FROM "Film"
   WHERE "Film"."director" ILIKE ${queryLike}
 `;
@@ -62,7 +63,8 @@ const castSelect = (queryLike: string): Prisma.Sql => Prisma.sql`
     "castMember"->>'name' AS "name",
     'cast' AS "source",
     "Film"."id" AS "filmId",
-    "Film"."title" AS "filmTitle"
+    "Film"."title" AS "filmTitle",
+    NULL::text AS "category"
   FROM "Film", jsonb_array_elements("Film"."cast") AS "castMember"
   WHERE "castMember"->>'name' ILIKE ${queryLike}
 `;
@@ -72,7 +74,8 @@ const nomineeSelect = (column: Prisma.Sql, queryLike: string): Prisma.Sql => Pri
     award->>'nominee' AS "name",
     'nominee' AS "source",
     "Film"."id" AS "filmId",
-    "Film"."title" AS "filmTitle"
+    "Film"."title" AS "filmTitle",
+    award->>'category' AS "category"
   FROM "Film", jsonb_array_elements(${column}) AS award
   WHERE award->>'nominee' ILIKE ${queryLike}
 `;
