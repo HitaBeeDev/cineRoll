@@ -72,7 +72,7 @@ export function BrowseFilterBar({
   };
 
   return (
-    <div className="sticky top-14 z-40 max-w-[100vw] border-b border-edge bg-ink-950/92 shadow-[0_18px_50px_rgba(0,0,0,0.28)] backdrop-blur-xl">
+    <div data-vital="browse-filters" className="sticky top-14 z-40 max-w-[100vw] border-b border-edge bg-ink-950/92 shadow-[0_18px_50px_rgba(0,0,0,0.28)] backdrop-blur-xl">
       <div className="mx-auto w-full max-w-[100vw] px-4 sm:max-w-screen-2xl sm:px-6 lg:px-8 xl:px-12">
 
         {/* Primary row — search + ceremony on the left; result and the Advanced

@@ -31,3 +31,34 @@ export function getWebVitalRows(since: Date | null): Promise<WebVitalRow[]> {
     ORDER BY metric, samples DESC
   `;
 }
+
+export type InpInteractionRow = {
+  page: string;
+  interaction: string;
+  samples: bigint;
+  p75: number;
+  poor: bigint;
+};
+
+/**
+ * INP split by the control that caused it (the `data-vital` tag reported with
+ * each sample), so a slow roll button and a slow filter don't blur into one
+ * page-wide number.
+ */
+export function getInpInteractionRows(since: Date | null): Promise<InpInteractionRow[]> {
+  return prisma.$queryRaw<InpInteractionRow[]>`
+    SELECT
+      e.context->>'page' AS page,
+      COALESCE(e.context->>'interaction', 'untagged') AS interaction,
+      COUNT(*)::bigint AS samples,
+      percentile_cont(0.75) WITHIN GROUP (ORDER BY (e.context->>'value')::float8) AS p75,
+      COUNT(*) FILTER (WHERE e.context->>'rating' = 'poor')::bigint AS poor
+    FROM "Event" e
+    WHERE e.type = 'web_vital'
+      AND e.context->>'metric' = 'INP'
+      AND e.context ? 'value'
+      AND (${since}::timestamptz IS NULL OR e."createdAt" >= ${since})
+    GROUP BY page, interaction
+    ORDER BY p75 DESC
+  `;
+}

@@ -64,7 +64,7 @@ export function RollButton({ disabled, effectiveCount, effectiveCountLoading, ha
         />
       </svg>
 
-      <button onClick={onRoll} disabled={disabled} aria-label={label} className={cn("relative flex h-[64px] w-full items-center justify-center rounded-xl", "bg-accent text-ink-900", "font-[family-name:var(--font-geist-mono)] font-bold uppercase", "select-none transition-all duration-150", "hover:bg-[#d5342b] hover:shadow-[0_0_40px_rgba(232,69,60,0.28)]", "active:scale-[0.96]", "disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:shadow-none", "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent", "focus-visible:ring-offset-2 focus-visible:ring-offset-ink-900")}>
+      <button data-vital="home-roll" onClick={onRoll} disabled={disabled} aria-label={label} className={cn("relative flex h-[64px] w-full items-center justify-center rounded-xl", "bg-accent text-ink-900", "font-[family-name:var(--font-geist-mono)] font-bold uppercase", "select-none transition-all duration-150", "hover:bg-[#d5342b] hover:shadow-[0_0_40px_rgba(232,69,60,0.28)]", "active:scale-[0.96]", "disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:shadow-none", "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent", "focus-visible:ring-offset-2 focus-visible:ring-offset-ink-900")}>
         <span className="text-xl tracking-[0.25em]">{isRolling ? "Rolling…" : noMatches ? "No matches" : "Roll"}</span>
       </button>
     </motion.div>

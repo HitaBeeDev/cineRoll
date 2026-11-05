@@ -93,6 +93,8 @@ export function BrowseAdvancedPanel({
 
   const panel = (
     <div
+      // Portalled to <body> when compact, so it can't inherit the bar's tag.
+      data-vital="browse-filters"
       className={cn(
         "border-t border-white/10 bg-ink-900/98",
         // Above the app header (z-50) as well as the filter bar: "full height"

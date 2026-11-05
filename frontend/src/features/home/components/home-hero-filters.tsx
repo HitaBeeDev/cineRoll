@@ -9,7 +9,7 @@ export function HomeHeroFilters({ hero, filters, genres, hasActiveFilters, onFil
   const filterScroll = useScrollOverflow<HTMLDivElement>();
 
   return (
-    <div className="relative flex min-w-0 flex-col lg:min-h-0 lg:flex-1">
+    <div data-vital="home-filters" className="relative flex min-w-0 flex-col lg:min-h-0 lg:flex-1">
       <div
         ref={filterScroll.ref}
         onScroll={filterScroll.onScroll}

@@ -1,4 +1,5 @@
 import { trackEvent } from "@/lib/analytics/track-event";
+import { interactionLabel } from "./interaction-label";
 import { pageType } from "./page-type";
 
 // The three Core Web Vitals Google ranks on; TTFB/FCP are diagnostics, not scored.
@@ -10,6 +11,7 @@ type Metric = {
   value: number;
   rating: "good" | "needs-improvement" | "poor";
   navigationType: string;
+  entries: PerformanceEntry[];
 };
 
 /**
@@ -29,6 +31,10 @@ export function reportWebVital(metric: Metric): void {
       navigationType: metric.navigationType,
       page: pageType(window.location.pathname),
       metricId: metric.id,
+      // INP only: which tagged control was slow, and how it was used.
+      ...(metric.name === "INP"
+        ? { interaction: interactionLabel(metric.entries), interactionType: metric.entries[0]?.name ?? "unknown" }
+        : {}),
     },
   });
 }

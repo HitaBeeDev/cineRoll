@@ -44,6 +44,9 @@ export function FilterSelect({
           opened from reads as a misplacement rather than a fit. `collisionPadding`
           leaves a gutter so "fits" doesn't mean "flush against the edge". */}
       <SelectContent
+        // Radix portals the menu to <body>; tag it so an option pick is still
+        // attributed to "a filter" in the INP data (the page says which).
+        data-vital="filter-option"
         side="bottom"
         align={align}
         sideOffset={6}

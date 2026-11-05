@@ -568,7 +568,7 @@ Plural params are comma-separated (`genre=Drama,Thriller`); booleans are
 | **Discovery** | `GET /random` (the Roll) · `GET /random/count` · `POST /roll` · `GET /pick-of-day` · 🔒 `GET /recommendations` · `POST /natural-roll` (Ask AI, streams NDJSON) |
 | **User** (all 🔒) | `/user/watchlist`, `/user/watched`, `/user/lists` (+ `/films`), `/user/onboarding`, `/user/film-status/:filmId`, `/user/summary`, `/user/progress`, `/user/notifications` (+ `/read`), `DELETE /user/account` |
 | **Games** | `GET /marathon?count=3` |
-| **Analytics** | `POST /events` (batched, 1–25 per call, 16 types) · `GET /metrics/recommendations`, `GET /metrics/rolls`, `GET /metrics/web-vitals` (p75 LCP/INP/CLS per page type, pass/fail vs Google's ceilings, default 28 days) (metrics token) |
+| **Analytics** | `POST /events` (batched, 1–25 per call, 16 types) · `GET /metrics/recommendations`, `GET /metrics/rolls`, `GET /metrics/web-vitals` (p75 LCP/INP/CLS per page type, pass/fail vs Google's ceilings, default 28 days; `inpByInteraction` splits INP by the `data-vital` tag of the slow control; `watched` answers the home roll and browse filters directly) (metrics token) |
 | **Ops** | `GET /health` (no `/api` prefix; probes the DB) · `GET /jobs/watch-providers` (🔒 `CRON_SECRET`; daily Vercel cron — re-checks the stalest 1/7 of films on TMDB, so all are refreshed weekly) |
 
 `GET /films`, `GET /random`, `GET /random/count` and `GET /marathon` share one
