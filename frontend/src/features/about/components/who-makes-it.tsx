@@ -16,10 +16,7 @@ const STACK = [
   "OMDb",
 ];
 
-const LINK_CLASS =
-  "text-fg-hi underline decoration-white/25 underline-offset-4 transition-colors hover:text-accent hover:decoration-accent/60";
-
-/** A studio-style credit: the maker, the toolkit, and a direct way to correct the data. */
+/** A studio-style credit: the maker first, the toolkit tucked into "Built with", and a direct way to correct the data. */
 export function WhoMakesIt() {
   return (
     <div className="grid gap-10 lg:grid-cols-[1.2fr_1fr]">
@@ -27,27 +24,29 @@ export function WhoMakesIt() {
         <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.2em] text-fg-faint">
           Designed and built by
         </p>
-        <p className="mt-3 font-[family-name:var(--font-display)] text-5xl font-bold italic leading-none tracking-tight text-fg-hi sm:text-6xl">
+        <p className="mt-3 font-[family-name:var(--font-display)] text-3xl font-bold italic leading-tight tracking-tight text-fg-hi sm:text-4xl">
           Anahita Amiri
         </p>
-        <p className="mt-6 max-w-xl text-base leading-7 text-fg-dim sm:text-[17px] sm:leading-8">
+        <p className="mt-4 max-w-xl text-base leading-7 text-fg-dim sm:text-[17px] sm:leading-8">
           CineRoll is built and maintained by an independent developer — the award data pipeline,
-          the matching, the site. The code is on{" "}
-          <a href="https://github.com/HitaBeeDev" target="_blank" rel="noopener noreferrer" className={LINK_CLASS}>
-            GitHub
-          </a>
-          .
+          the matching, the site.
         </p>
-        <ul className="mt-6 flex flex-wrap gap-1.5" aria-label="Built with">
-          {STACK.map((tool) => (
-            <li
-              key={tool}
-              className="rounded-full border border-white/10 px-3 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] text-fg-muted"
-            >
-              {tool}
-            </li>
-          ))}
-        </ul>
+        <details className="group mt-6">
+          <summary className="inline-flex cursor-pointer list-none items-center gap-2 rounded-full border border-white/15 px-4 py-2 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.16em] text-fg-muted transition-colors hover:border-accent/50 hover:text-fg-hi focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 [&::-webkit-details-marker]:hidden">
+            Built with
+            <span aria-hidden className="transition-transform duration-200 group-open:rotate-45">+</span>
+          </summary>
+          <ul className="mt-3 flex flex-wrap gap-1.5">
+            {STACK.map((tool) => (
+              <li
+                key={tool}
+                className="rounded-full border border-white/10 px-3 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] text-fg-muted"
+              >
+                {tool}
+              </li>
+            ))}
+          </ul>
+        </details>
       </Reveal>
 
       <Reveal delay={0.1}>
