@@ -85,6 +85,11 @@ const nextConfig: NextConfig = {
   // Hide the dev-only Next.js indicator badge (the floating "N").
   devIndicators: false,
   poweredByHeader: false,
+  // Route changes animate through React's <ViewTransition> (see
+  // components/page-transition.tsx); this flag makes navigations start them.
+  experimental: {
+    viewTransition: true,
+  },
   async redirects() {
     return [
       // The natural-language roll moved from /describe when it became "Ask AI".
