@@ -7,6 +7,7 @@ import { PanelBand } from "@/components/browse/panel-band";
 import { CONTROL_WIDTH } from "@/components/browse/panel-section/control-width";
 import { PanelSection } from "@/components/browse/panel-section/panel-section";
 import { FilterCheckbox } from "@/components/browse/filter-checkbox";
+import { StreamingControl } from "@/components/browse/streaming-control";
 import { countryLabel } from "@/lib/browse/labels/country-label";
 import { languageLabel } from "@/lib/browse/labels/language-label";
 import { reachableOptions } from "@/lib/browse/facet-options/reachable-options";
@@ -64,6 +65,10 @@ export function DetailsBand({
           triggerClassName={CONTROL_WIDTH}
           options={countryOptions}
         />
+      </PanelSection>
+
+      <PanelSection label="Streaming On">
+        <StreamingControl filters={filters} setFilters={setFilters} counts={counts} />
       </PanelSection>
 
       {/* Both booleans state themselves in full, so the caption over them only

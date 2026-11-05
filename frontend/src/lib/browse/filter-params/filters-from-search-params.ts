@@ -52,6 +52,18 @@ function numberParam(value: string | null): number | null {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
+/** A TMDB provider id: a whole number above zero, or nothing. */
+function positiveIntParam(value: string | null): number | null {
+  const parsed = numberParam(value);
+  return parsed != null && Number.isInteger(parsed) && parsed > 0 ? parsed : null;
+}
+
+/** A two-letter country code, upper-cased; anything else is "the viewer's own". */
+function regionParam(value: string | null): string {
+  const upper = value?.trim().toUpperCase() ?? "";
+  return /^[A-Z]{2}$/.test(upper) ? upper : "";
+}
+
 export function filtersFromSearchParams(params: URLSearchParams): FilterState {
   const awardYear      = numberParam(params.get("awardYear"));
   // A bare `awardYear` in an older link is the range [y, y] — the same fold the
@@ -99,6 +111,8 @@ export function filtersFromSearchParams(params: URLSearchParams): FilterState {
     genresMatchAll: genresAll.length > 0,
     languages:     listParam(params.get("language")),
     countries:     listParam(params.get("country")),
+    provider:      positiveIntParam(params.get("provider")),
+    streamingRegion: regionParam(params.get("region")),
     contentTypes:  listParam(params.get("contentType")),
     tvType:        params.get("tvType") ?? "",
     runtimeMin,

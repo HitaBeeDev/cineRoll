@@ -78,6 +78,17 @@ export const listQueryBaseSchema = z.object({
   winsMin: z.coerce.number().int().min(0).max(1000).optional(),
   winsMax: z.coerce.number().int().min(0).max(1000).optional(),
   tvType: z.string().trim().min(1).max(60).optional(),
+  // Streams by subscription on this service (TMDB provider id) in `region`.
+  // `region` alone filters nothing — it only says which country `provider`
+  // means, and which country the providers facet lists. Without a region,
+  // `provider` matches the service in any country.
+  provider: z.coerce.number().int().positive().optional(),
+  region: z
+    .string()
+    .trim()
+    .regex(/^[A-Za-z]{2}$/)
+    .transform(value => value.toUpperCase())
+    .optional(),
   // Drop everything the viewer has already watched. The only filter here whose
   // meaning depends on who is asking: the viewer's identity comes from the
   // bearer token, never from the query, so this is inert for a signed-out

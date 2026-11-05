@@ -1,5 +1,5 @@
 import { Prisma } from "@prisma/client";
-import type { CategoryFacetCount, FacetCount } from "@cineroll/types";
+import type { CategoryFacetCount, FacetCount, ProviderFacetCount } from "@cineroll/types";
 
 import {
   awardElementConditions,
@@ -78,6 +78,38 @@ export function countCountries(query: ListQuery): Promise<FacetCount[]> {
   // originCountries, not countries — the facet has to count what the filter
   // matches on, or every number here would be a promise the filter breaks.
   return countArrayColumn(scopeQueryToFacet(query, "countries"), "originCountries");
+}
+
+type ProviderRow = { value: string; name: string; logoPath: string | null; count: number };
+
+/**
+ * Subscription services in the request's region, counted under the other
+ * filters. Grouped by TMDB id (names drift: "Amazon Prime Video" vs "Prime
+ * Video"), so the most common spelling isn't guaranteed — MAX picks one
+ * consistently. Needs a region: "on Netflix" without a country is a list no
+ * viewer can act on, so no region means no options.
+ */
+export async function countProviders(query: ListQuery): Promise<ProviderFacetCount[]> {
+  if (!query.region) return [];
+  // The lateral aliases r/p are in scope for WHERE, so the region test rides
+  // along as one more condition beside the scoped filters.
+  const where = buildWhereClause(scopeQueryToFacet(query, "providers"), [
+    Prisma.sql`r->>'country' = ${query.region}`,
+    Prisma.sql`p->>'id' IS NOT NULL`,
+  ]);
+
+  const rows = await prisma.$queryRaw<ProviderRow[]>`
+    SELECT p->>'id' AS "value", MAX(p->>'name') AS "name", MAX(p->>'logoPath') AS "logoPath",
+           COUNT(DISTINCT "Film"."id")::INT AS "count"
+    FROM "Film"
+    CROSS JOIN LATERAL jsonb_array_elements(COALESCE("Film"."watchProviders"->'regions', '[]'::jsonb)) AS r
+    CROSS JOIN LATERAL jsonb_array_elements(r->'providers') AS p
+    ${where}
+    GROUP BY p->>'id'
+    ORDER BY MAX(p->>'name') ASC
+  `;
+
+  return rows.map(row => ({ value: row.value, name: row.name, logoPath: row.logoPath, count: Number(row.count) }));
 }
 
 export async function countLanguages(query: ListQuery): Promise<FacetCount[]> {

@@ -146,6 +146,10 @@ export interface FilterState {
    */
   genresMatchAll: boolean;
   countries: string[];
+  /** Streams by subscription on this service (TMDB provider id) in `streamingRegion`. */
+  provider: number | null;
+  /** The country `provider` means ("DE"). "" = the viewer's own, decided in the browser. */
+  streamingRegion: string;
   contentTypes: string[];
   // Runtime bounds in minutes, inclusive; null on either side means "no bound".
   runtimeMin: number | null;
@@ -214,6 +218,12 @@ export interface FacetCount {
  * every selected ceremony, such a category is one selectable value that appears
  * under each of its groups rather than two independent options.
  */
+/** A streaming service in the requested region. `value` is its TMDB provider id, as a string. */
+export interface ProviderFacetCount extends FacetCount {
+  name: string;
+  logoPath: string | null;
+}
+
 export interface CategoryFacetCount extends FacetCount {
   bodies: AwardBodyFilter[];
 }
@@ -238,6 +248,8 @@ export interface FacetCounts {
   releaseYears: FacetCount[];
   languages: FacetCount[];
   countries: FacetCount[];
+  /** Subscription services in the request's `region`, most films first — empty without a region. */
+  providers: ProviderFacetCount[];
 }
 
 export interface ApiError {

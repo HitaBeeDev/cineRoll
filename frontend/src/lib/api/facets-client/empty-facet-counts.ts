@@ -11,4 +11,5 @@ export const EMPTY_FACET_COUNTS: FacetCounts = {
   releaseYears: [],
   languages: [],
   countries: [],
+  providers: [],
 };

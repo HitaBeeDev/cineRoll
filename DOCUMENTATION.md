@@ -576,7 +576,10 @@ filter set: `search`, `person`, `director`, `awardBody`, `winnerOnly`,
 `nominatedOnly`, `category`, `awardYear`, `genre`/`genreAll`, `contentType`,
 `language`, `country`, `certificate`, `tvType`, `decadeMin`/`decadeMax`,
 `imdbRatingMin`/`imdbRatingMax`, `rtScoreMin`, `runtimeMax`, `nominationCount`,
-`winsMax`, `femaleDirectorOnly`, `sort`, `sortOrder`, `page`, `limit`.
+`winsMax`, `femaleDirectorOnly`, `provider` + `region` (streams by subscription on
+that TMDB provider id in that country; `region` alone filters nothing), `sort`,
+`sortOrder`, `page`, `limit`. `GET /films/facets` also returns `providers` for
+the request's `region`.
 
 Example:
 
@@ -1358,7 +1361,8 @@ Either commitlint (use a conventional prefix: `feat:`, `fix:`, `docs:`, …) or
 ## Known Limitations
 
 - **Streaming data is up to a week old.** `watchProviders` is re-checked weekly
-  (daily cron, 1/7 per run), subscription services only; no provider filter yet.
+  (daily cron, 1/7 per run), subscription services only. The `provider` filter
+  matches on TMDB ids, which seed-only records lack until their first refresh.
 - **`moodTags` and `keywords` are in-process only.** Neither is indexed, so neither
   can be SQL-filtered; only the Ask AI reranker reads them. See
   [Future Work](#future-work).

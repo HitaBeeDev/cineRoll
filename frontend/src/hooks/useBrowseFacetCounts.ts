@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { FacetCounts, FilterState } from "@cineroll/types";
 import { EMPTY_FACET_COUNTS, fetchFacetCounts } from "@/lib/api";
+import { rememberProviderNames } from "@/lib/streaming/provider-names";
 
 /** Filters that change how results are presented, not which ones match. */
 const PRESENTATION_KEYS = new Set(["sort", "sortOrder", "page"]);
@@ -34,7 +35,10 @@ export function useBrowseFacetCounts(filters: FilterState): FacetCounts {
     // recount per keystroke. Discrete controls settle inside it either way.
     const timer = window.setTimeout(() => {
       void fetchFacetCounts(request, controller.signal)
-        .then(setCounts)
+        .then((next) => {
+          rememberProviderNames(next.providers);
+          setCounts(next);
+        })
         .catch((error: unknown) => {
           if (controller.signal.aborted) return;
           // A failed recount must not empty the panel: the previous counts stay

@@ -6,17 +6,13 @@ import { useMemo } from "react";
 import type { WatchProviders } from "@cineroll/types";
 import { EditorialSectionLabel } from "@/components/editorial-section-label";
 import { serverDefaultRegion } from "../watch/server-default-region";
+import { regionName } from "@/lib/streaming/region-name";
 import { tmdbWatchUrl } from "../watch/tmdb-watch-url";
 import { useRegionParam } from "../watch/use-region-param";
-import { useViewerRegion } from "../watch/use-viewer-region";
+import { useViewerRegion } from "@/lib/streaming/use-viewer-region";
 import { MetaHeading } from "./meta-heading";
 
-const REGION_NAMES = new Intl.DisplayNames(["en"], { type: "region" });
 const AS_OF = new Intl.DateTimeFormat("en-US", { month: "long", year: "numeric", timeZone: "UTC" });
-
-function regionName(code: string): string {
-  return REGION_NAMES.of(code) ?? code;
-}
 
 /**
  * Subscription services the title streams on, for one country at a time. The

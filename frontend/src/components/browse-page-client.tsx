@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import { useReducedMotion } from "framer-motion";
 import { AppHeader } from "@/components/app-header";
 import { BrowseHero } from "@/components/browse/browse-hero";
@@ -14,6 +14,7 @@ import { useBrowseResults } from "@/hooks/useBrowseResults";
 import { useBrowseAutocomplete } from "@/hooks/useBrowseAutocomplete";
 import { useBrowseRoll } from "@/hooks/useBrowseRoll";
 import { useBrowseRollableCount } from "@/hooks/useBrowseRollableCount";
+import { useStreamingRegion } from "@/lib/streaming/use-streaming-region";
 
 /**
  * Browse page composition root: wires the filter/results/autocomplete/roll hooks
@@ -24,7 +25,12 @@ export function BrowsePageClient() {
   const shouldReduceMotion = useReducedMotion();
 
   const { filters, hasActiveFilters, searchDraft, setSearchDraft, setFilters, resetFilters } = useBrowseFilters();
-  const facets = useBrowseFacetCounts(filters);
+  // The providers facet needs a country even before one is picked: the URL's,
+  // else the viewer's own. Only the facet request gets it — the results don't,
+  // so the grid never refetches when the browser's country resolves.
+  const streamingRegion = useStreamingRegion(filters.streamingRegion);
+  const facetFilters = useMemo(() => ({ ...filters, streamingRegion }), [filters, streamingRegion]);
+  const facets = useBrowseFacetCounts(facetFilters);
   const { result, status, slowLoad, firstGridPaint, retry } = useBrowseResults(filters);
   const autocomplete = useBrowseAutocomplete(filters.search, setFilters);
   const browseRoll = useBrowseRoll(filters);

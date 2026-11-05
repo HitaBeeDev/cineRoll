@@ -5,6 +5,8 @@ import { awardBodyLabel } from "@/lib/browse/labels/award-body-label";
 import { contentTypeLabel } from "@/lib/browse/labels/content-type-label";
 import { countryLabel } from "@/lib/browse/labels/country-label";
 import { languageLabel } from "@/lib/browse/labels/language-label";
+import { providerName } from "@/lib/streaming/provider-names";
+import { regionName } from "@/lib/streaming/region-name";
 import type { FilterDescriptor } from "./filter-descriptor";
 import { ceremonyChipLabel } from "./ceremony-chip-label";
 import { facetChips } from "./facet-chips";
@@ -30,6 +32,12 @@ export const FILTER_DESCRIPTORS: FilterDescriptor[] = [
     toChips: (f, set) => facetChips("language", f.languages, languageLabel, (languages) => ({ languages }), set) },
   { band: "details", isActive: (f) => f.countries.length > 0,
     toChips: (f, set) => facetChips("country", f.countries, countryLabel, (countries) => ({ countries }), set) },
+  { band: "details", isActive: (f) => f.provider != null,
+    toChips: (f, set) => [{
+      key: "provider",
+      label: `On ${providerName(f.provider!)}${f.streamingRegion ? ` (${regionName(f.streamingRegion)})` : ""}`,
+      onRemove: () => set({ provider: null, streamingRegion: "", page: 1 }),
+    }] },
   { band: "awards", isActive: (f) => f.categories.length > 0,
     toChips: (f, set) => facetChips("cat", f.categories, (c) => c, (categories) => ({ categories }), set) },
   { band: "awards", isActive: hasCeremonyYearRange,

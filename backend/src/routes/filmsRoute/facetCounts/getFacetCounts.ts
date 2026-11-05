@@ -10,6 +10,7 @@ import {
   countCountries,
   countGenres,
   countLanguages,
+  countProviders,
   countReleaseYears,
   countTvTypes,
 } from "./facetCountQueries";
@@ -40,6 +41,7 @@ export function getFacetCounts(query: ListQuery): Promise<FacetCounts> {
       releaseYears,
       languages,
       countries,
+      providers,
     ] = await Promise.all([
       countAwardBodies(query),
       countCategories(query),
@@ -50,6 +52,7 @@ export function getFacetCounts(query: ListQuery): Promise<FacetCounts> {
       countReleaseYears(query),
       countLanguages(query),
       countCountries(query),
+      countProviders(query),
     ]);
 
     return {
@@ -62,6 +65,7 @@ export function getFacetCounts(query: ListQuery): Promise<FacetCounts> {
       releaseYears,
       languages,
       countries,
+      providers,
     };
   }
 }

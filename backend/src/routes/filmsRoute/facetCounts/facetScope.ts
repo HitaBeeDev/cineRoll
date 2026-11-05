@@ -14,6 +14,7 @@ export const FACET_KEYS = [
   "releaseYears",
   "languages",
   "countries",
+  "providers",
 ] as const;
 
 export type FacetKey = (typeof FACET_KEYS)[number];
@@ -31,7 +32,8 @@ type OwnedFilterKey =
   | "yearMin"
   | "yearMax"
   | "language"
-  | "country";
+  | "country"
+  | "provider";
 
 /**
  * Which filter each facet is the control for. Counting a facet drops exactly
@@ -52,6 +54,8 @@ const FACET_OWNED_KEYS: Record<FacetKey, readonly OwnedFilterKey[]> = {
   releaseYears: ["yearMin", "yearMax"],
   languages: ["language"],
   countries: ["country"],
+  // `region` stays: it is the country the options are listed for, not a rival choice.
+  providers: ["provider"],
 };
 
 /**
