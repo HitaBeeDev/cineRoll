@@ -62,7 +62,8 @@ export function AboutContent({ archiveSize }: { archiveSize: number | null }) {
           The same film is often listed under different titles by different awards. Each
           nomination is matched to a single TMDB record, so its wins and nominations land on one
           page. When a match is uncertain it goes to a manual review queue instead of being
-          guessed.
+          guessed. The full method and the known gaps are on the{" "}
+          <Link href="/methodology" className={LINK_CLASS}>methodology page</Link>.
         </p>
         <p className="text-xs text-fg-muted">
           This product uses the TMDB API but is not endorsed or certified by TMDB.

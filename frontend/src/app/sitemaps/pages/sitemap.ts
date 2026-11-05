@@ -16,6 +16,7 @@ const PATHS = [
   "/ask-ai",
   "/stats",
   "/about",
+  "/methodology",
   "/tools",
   ...TOOLS.map((tool) => `/tools/${tool.slug}`),
   "/collections",
