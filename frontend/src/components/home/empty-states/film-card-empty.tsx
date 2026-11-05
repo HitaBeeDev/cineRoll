@@ -30,7 +30,7 @@ export function FilmCardEmpty() {
           reading size rather than at the size of the standby furniture around
           it. Everything else in this panel is chrome you skim once. */}
       <p className="max-w-[19rem] font-[family-name:var(--font-geist-mono)] text-[12px] uppercase leading-relaxed tracking-[0.16em] text-[#888899]">
-        One random pick from six decades of Oscar, Cannes &amp; Golden Globe winners.
+        One random pick from six decades of Oscar, Golden Globe, Cannes &amp; Berlinale winners.
       </p>
 
       <StandbyMarquee />
