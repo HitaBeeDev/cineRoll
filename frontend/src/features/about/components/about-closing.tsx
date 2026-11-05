@@ -1,8 +1,7 @@
 import Link from "next/link";
-import { AboutFeedbackButton } from "./about-feedback-button";
 import { AboutReveal } from "./about-reveal";
 
-/** The end card: one clear next step, and a direct way to report a mistake. */
+/** The end card: one clear next step. */
 export function AboutClosing() {
   return (
     <section className="relative overflow-hidden border-t border-white/10 bg-[#07070b]">
@@ -10,7 +9,7 @@ export function AboutClosing() {
         aria-hidden
         className="pointer-events-none absolute left-1/2 top-0 h-64 w-[36rem] -translate-x-1/2 rounded-full bg-accent opacity-[0.08] blur-[90px]"
       />
-      <AboutReveal className="relative mx-auto max-w-3xl px-6 py-24 text-center lg:py-32">
+      <AboutReveal className="relative mx-auto max-w-3xl px-6 py-20 text-center lg:py-24">
         <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.3em] text-fg-faint">
           The end · roll credits
         </p>
@@ -18,8 +17,7 @@ export function AboutClosing() {
           Can&apos;t decide what to watch?
         </h2>
         <p className="mx-auto mt-5 max-w-xl text-base leading-7 text-fg-muted">
-          One roll, one award-winning film. Spotted a wrong award or a film matched to the wrong
-          title? Send a correction — it goes straight back into the data.
+          One roll, one film from the catalogue, chosen at random.
         </p>
         <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
           <Link
@@ -28,7 +26,6 @@ export function AboutClosing() {
           >
             Roll a film
           </Link>
-          <AboutFeedbackButton />
         </div>
       </AboutReveal>
     </section>

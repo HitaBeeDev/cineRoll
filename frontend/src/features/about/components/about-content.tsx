@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AboutChapter } from "./about-chapter";
+import { AboutFeedbackButton } from "./about-feedback-button";
 import { AboutWaysIn } from "./about-ways-in";
 
 const LINK_CLASS =
@@ -19,19 +20,18 @@ export function AboutContent({ archiveSize }: { archiveSize: number | null }) {
       <AboutChapter number="01" title="What it is">
         <p>
           CineRoll holds {size} films and series nominated at the Academy Awards, the Golden
-          Globes, the Cannes Film Festival and the Berlin International Film Festival. Every title
-          carries its full award history: each nomination and each win, at every one of the four.
+          Globes, the Cannes Film Festival and the Berlin International Film Festival. Each title
+          page puts its nominations and wins at all four in one place.
         </p>
         <AboutWaysIn />
       </AboutChapter>
 
-      <AboutChapter number="02" title="How it differs from IMDb and Letterboxd">
+      <AboutChapter number="02" title="Why CineRoll?">
         <p>
-          IMDb lists every film ever made, and the awards sit on each title&apos;s own page.
-          Letterboxd is built for logging what you watch and following other people&apos;s taste.
-          CineRoll starts from the other end: the award records themselves. It only holds films
-          that one of the four juries or academies singled out, and it puts a film&apos;s record at
-          all four side by side.
+          On IMDb, awards are one detail on a title&apos;s page; Letterboxd is built for logging
+          what you watch and following other people&apos;s taste. CineRoll starts from the award
+          records themselves. It only holds films that one of the four juries or academies singled
+          out, and it puts a film&apos;s record at all four side by side.
         </p>
         <blockquote className="border-l-2 border-accent pl-5 font-[family-name:var(--font-display)] text-2xl italic leading-snug text-fg-hi">
           Built for the moment you cannot decide. One roll gives you one film — no endless list
@@ -96,6 +96,13 @@ export function AboutContent({ archiveSize }: { archiveSize: number | null }) {
           </a>
           .
         </p>
+        <p>
+          Found a wrong award or a film matched to the wrong title? Report it. Every report is
+          reviewed, and confirmed fixes go into the data.
+        </p>
+        <div>
+          <AboutFeedbackButton />
+        </div>
       </AboutChapter>
     </div>
   );

@@ -10,7 +10,7 @@ import { DialogTrigger } from "@/components/ui/dialog/dialog-trigger";
 import { SiteFeedbackForm } from "@/components/site-feedback-form";
 
 const FOOTER_TRIGGER_CLASS =
-  "rounded-sm font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.24em] text-fg-muted transition-colors hover:text-accent focus-visible:outline-none focus-visible:text-accent focus-visible:ring-2 focus-visible:ring-accent/50";
+  "rounded-sm font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.14em] text-fg-muted transition-colors hover:text-accent focus-visible:outline-none focus-visible:text-accent focus-visible:ring-2 focus-visible:ring-accent/50";
 
 /** The feedback form in a dialog. Defaults to the footer's "Feedback" link; pages can pass their own trigger look. */
 export function SiteFeedbackDialog({

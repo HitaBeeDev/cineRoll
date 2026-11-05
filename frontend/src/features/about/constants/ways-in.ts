@@ -1,6 +1,6 @@
 /** Every way into the catalogue, as listed on /about. Keep all of these: /about is a crawl path to them. */
 export const WAYS_IN = [
-  { href: "/", label: "Roll a random film", note: "One award-winning film, picked for you." },
+  { href: "/", label: "Roll a random film", note: "One film from the catalogue, chosen at random." },
   { href: "/browse", label: "Browse and filter", note: "By award, year, genre, country or language." },
   { href: "/picks", label: "Today's picks", note: "A fresh set of films every day." },
   { href: "/ask-ai", label: "Ask AI", note: "Describe the mood you are in." },

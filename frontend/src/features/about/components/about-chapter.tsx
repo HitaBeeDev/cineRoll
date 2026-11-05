@@ -16,7 +16,7 @@ export function AboutChapter({
   children: ReactNode;
 }) {
   return (
-    <section className="grid gap-6 border-t border-white/10 py-16 first:border-t-0 lg:grid-cols-[9rem_1fr] lg:gap-10 lg:py-24">
+    <section className="grid gap-6 border-t border-white/10 py-12 first:border-t-0 lg:grid-cols-[9rem_1fr] lg:gap-10 lg:py-16">
       <div className="lg:pt-3">
         <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.2em] text-accent">
           Reel {number}

@@ -6,7 +6,7 @@ export function SiteFooter() {
   return (
     <footer className="max-w-full overflow-x-hidden border-t border-white/10 bg-[#07070b]">
       <div className="mx-auto flex max-w-screen-2xl flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-10 xl:px-12">
-        <p className="max-w-full break-words font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.16em] text-fg-muted sm:tracking-[0.24em]">
+        <p className="max-w-full break-words font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.1em] text-fg-muted sm:tracking-[0.14em]">
           © {new Date().getFullYear()} CineRoll
           <span className="mx-2 text-[#2e2e44]">·</span>
           <a
@@ -18,42 +18,42 @@ export function SiteFooter() {
             Built by Anahita<span className="ml-1 tracking-normal">↗</span>
           </a>
         </p>
-        <nav className="flex min-w-0 flex-wrap items-center gap-5">
+        <nav className="flex min-w-0 flex-wrap items-center gap-x-5 gap-y-2 sm:justify-end">
           <a
             href="https://ko-fi.com/hitabeedev"
             target="_blank"
             rel="noopener noreferrer"
-            className="rounded-sm font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.16em] text-fg-muted transition-colors hover:text-accent focus-visible:outline-none focus-visible:text-accent focus-visible:ring-2 focus-visible:ring-accent/50 sm:tracking-[0.24em]"
+            className="rounded-sm font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.1em] text-fg-muted transition-colors hover:text-accent focus-visible:outline-none focus-visible:text-accent focus-visible:ring-2 focus-visible:ring-accent/50 sm:tracking-[0.14em]"
           >
             Support CineRoll
           </a>
           <Link
             href="/collections"
-            className="rounded-sm font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.16em] text-fg-muted transition-colors hover:text-accent focus-visible:outline-none focus-visible:text-accent focus-visible:ring-2 focus-visible:ring-accent/50 sm:tracking-[0.24em]"
+            className="rounded-sm font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.1em] text-fg-muted transition-colors hover:text-accent focus-visible:outline-none focus-visible:text-accent focus-visible:ring-2 focus-visible:ring-accent/50 sm:tracking-[0.14em]"
           >
             Collections
           </Link>
           <Link
             href="/tools"
-            className="rounded-sm font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.16em] text-fg-muted transition-colors hover:text-accent focus-visible:outline-none focus-visible:text-accent focus-visible:ring-2 focus-visible:ring-accent/50 sm:tracking-[0.24em]"
+            className="rounded-sm font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.1em] text-fg-muted transition-colors hover:text-accent focus-visible:outline-none focus-visible:text-accent focus-visible:ring-2 focus-visible:ring-accent/50 sm:tracking-[0.14em]"
           >
             Random film tools
           </Link>
           <Link
             href="/about"
-            className="rounded-sm font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.16em] text-fg-muted transition-colors hover:text-accent focus-visible:outline-none focus-visible:text-accent focus-visible:ring-2 focus-visible:ring-accent/50 sm:tracking-[0.24em]"
+            className="rounded-sm font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.1em] text-fg-muted transition-colors hover:text-accent focus-visible:outline-none focus-visible:text-accent focus-visible:ring-2 focus-visible:ring-accent/50 sm:tracking-[0.14em]"
           >
             About
           </Link>
           <Link
             href="/privacy"
-            className="rounded-sm font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.16em] text-fg-muted transition-colors hover:text-accent focus-visible:outline-none focus-visible:text-accent focus-visible:ring-2 focus-visible:ring-accent/50 sm:tracking-[0.24em]"
+            className="rounded-sm font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.1em] text-fg-muted transition-colors hover:text-accent focus-visible:outline-none focus-visible:text-accent focus-visible:ring-2 focus-visible:ring-accent/50 sm:tracking-[0.14em]"
           >
             Privacy
           </Link>
           <Link
             href="/terms"
-            className="rounded-sm font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.16em] text-fg-muted transition-colors hover:text-accent focus-visible:outline-none focus-visible:text-accent focus-visible:ring-2 focus-visible:ring-accent/50 sm:tracking-[0.24em]"
+            className="rounded-sm font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.1em] text-fg-muted transition-colors hover:text-accent focus-visible:outline-none focus-visible:text-accent focus-visible:ring-2 focus-visible:ring-accent/50 sm:tracking-[0.14em]"
           >
             Terms
           </Link>

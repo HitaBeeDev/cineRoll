@@ -131,7 +131,7 @@ export function MethodologyContent({
       <PolicySection title="Found a mistake?">
         <p>
           A wrong winner, a missing nomination or a film matched to the wrong title — use the
-          feedback button at the bottom of any page. Corrections go straight back into the data.
+          feedback button at the bottom of any page. Every report is reviewed, and confirmed fixes go into the data.
           More about the project is on the <Link href="/about" className={LINK_CLASS}>about page</Link>,
           and the numbers are on the <Link href="/stats" className={LINK_CLASS}>stats page</Link>.
         </p>
