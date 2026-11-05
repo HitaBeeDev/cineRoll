@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { AppHeader } from "@/components/app-header";
 import { AWARD_BODIES } from "@/features/awards/award-bodies";
 import { AwardBodyCard } from "@/features/awards/components/award-body-card";
-import { AwardsHubExplore } from "@/features/awards/components/awards-hub-explore";
 import { AwardsHubHero } from "@/features/awards/components/awards-hub-hero";
 import { RelatedPages } from "@/features/awards/components/related-pages";
 import { fetchCoverage } from "@/features/methodology/fetch-coverage";
@@ -33,7 +32,7 @@ export default async function AwardsPage() {
     <main className="min-h-screen bg-ink-950 text-fg-hi">
       <AppHeader />
       <AwardsHubHero updatedAt={updatedAt} span={span} />
-      <div className="mx-auto max-w-5xl space-y-16 px-6 py-14 lg:px-10 lg:py-16">
+      <div className="mx-auto max-w-5xl space-y-14 px-6 py-10 lg:px-10 lg:py-12">
         <ul className="grid gap-5 sm:grid-cols-2">
           {AWARD_BODIES.map((body, index) => (
             <li key={body.slug}>
@@ -41,7 +40,6 @@ export default async function AwardsPage() {
             </li>
           ))}
         </ul>
-        <AwardsHubExplore />
         <RelatedPages current="/awards" />
       </div>
     </main>

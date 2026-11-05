@@ -17,7 +17,7 @@ export function MobileNavMenu({
 }) {
   return (
     <div
-      className="fixed inset-0 z-[9999] bg-[#050508] text-fg-hi md:hidden"
+      className="fixed inset-0 z-[9999] bg-[#050508] text-fg-hi lg:hidden"
       role="dialog"
       aria-modal="true"
       aria-label="Primary navigation"

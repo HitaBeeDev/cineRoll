@@ -6,4 +6,5 @@ export const primaryNavItems = [
   { href: "/picks", label: "Daily Picks" },
   { href: "/ask-ai", label: "Ask AI" },
   { href: "/stats", label: "Stats" },
+  { href: "/about", label: "Making Of" },
 ];

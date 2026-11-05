@@ -10,7 +10,7 @@ export function AboutHero() {
       <div className="relative z-10 mx-auto w-full max-w-5xl px-6 pb-14 pt-24 lg:px-10 lg:pt-28">
         <p className="flex items-center gap-3 font-[family-name:var(--font-geist-mono)] text-[11px] font-semibold uppercase tracking-[0.3em] text-accent">
           <span className="h-1.5 w-1.5 rounded-full bg-accent shadow-[0_0_14px_rgba(232,69,60,0.8)]" />
-          About
+          Making Of
         </p>
         <h1 className="mt-6 max-w-3xl font-[family-name:var(--font-display)] text-5xl font-bold leading-[1.02] tracking-tight text-fg-hi sm:text-7xl">
           What is <span className="italic text-accent-soft">CineRoll</span>?

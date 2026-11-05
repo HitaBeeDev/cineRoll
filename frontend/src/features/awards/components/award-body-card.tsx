@@ -7,7 +7,7 @@ type AwardBody = (typeof AWARD_BODIES)[number];
 
 /**
  * One award body as a title card: reel number, name, its live year range and
- * counts, the intro line, and a glyph link that fills on hover. Counts are
+ * counts, a one-line summary, and a glyph link that fills on hover. Counts are
  * omitted, not guessed, when the coverage fetch failed.
  */
 export function AwardBodyCard({
@@ -39,21 +39,19 @@ export function AwardBodyCard({
           )}
         </div>
 
-        <h2 className="mt-5 font-[family-name:var(--font-display)] text-3xl font-bold leading-tight tracking-tight text-fg-hi">
+        <h2 className="mt-4 font-[family-name:var(--font-display)] text-3xl font-bold leading-tight tracking-tight text-fg-hi">
           {body.name}
         </h2>
         {coverage && (
           <p className="mt-2 text-sm tabular-nums text-fg-faint">
-            {coverage.ceremonies.toLocaleString("en-US")} ceremonies ·{" "}
-            {coverage.categories.toLocaleString("en-US")} categories
+            {coverage.ceremonies.toLocaleString("en-US")} years on record ·{" "}
+            {coverage.categories.toLocaleString("en-US")} categories across all years
           </p>
         )}
-        <p className="mt-4 text-[15px] leading-7 text-fg-muted">{body.intro[0]}</p>
+        <p className="mt-4 text-[15px] leading-7 text-fg-muted">{body.summary}</p>
 
-        <span className="mt-auto flex items-center justify-between gap-4 pt-7 text-sm font-medium text-fg-hi">
-          <span className="transition-colors group-hover:text-accent-soft">
-            {body.headline} winners and more
-          </span>
+        <span className="mt-auto flex items-center justify-between gap-4 pt-6 text-sm font-medium text-fg-hi">
+          <span className="transition-colors group-hover:text-accent-soft">{body.explore}</span>
           <span
             aria-hidden
             className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-white/15 text-fg-muted transition-all duration-300 group-hover:translate-x-1 group-hover:border-accent group-hover:bg-accent group-hover:text-white"

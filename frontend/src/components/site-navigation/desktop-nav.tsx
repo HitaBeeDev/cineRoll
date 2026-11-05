@@ -14,7 +14,7 @@ export function DesktopNav({
 }) {
   return (
     <nav
-      className="hidden flex-1 items-center justify-end gap-4 md:flex"
+      className="hidden flex-1 items-center justify-end gap-4 lg:flex"
       aria-label="Primary navigation"
     >
       <div className="flex items-center gap-1">
