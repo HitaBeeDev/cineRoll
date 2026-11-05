@@ -3,6 +3,7 @@
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useState } from "react";
 import type { YearRow } from "../hub/hub-types";
+import { RollingYear } from "./rolling-year";
 import { YearCellCard } from "./year-cell-card";
 import { YearRuler } from "./year-ruler";
 
@@ -46,11 +47,15 @@ export function YearExplorer({ rows }: { rows: YearRow[] }) {
             className="mt-3 font-[family-name:var(--font-display)] text-3xl font-bold tracking-tight text-fg-hi sm:text-4xl"
           >
             What won in{" "}
-            <span className="tabular-nums text-accent-soft" aria-live="polite">
-              {year}
+            <span className="text-accent-soft">
+              <RollingYear year={year} />
             </span>
             ?
           </h2>
+          {/* Announces the change once; kept outside the h2 so its text stays one year. */}
+          <p className="sr-only" aria-live="polite">
+            Showing winners for {year}
+          </p>
         </div>
 
         <div className="flex items-center gap-2">
@@ -97,10 +102,10 @@ export function YearExplorer({ rows }: { rows: YearRow[] }) {
         <motion.ul
           key={year}
           className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: reduceMotion ? 0 : 0.18 }}
+          initial={{ opacity: 0, y: reduceMotion ? 0 : 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: reduceMotion ? 0 : -4 }}
+          transition={reduceMotion ? { duration: 0 } : { duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
         >
           {row?.cells.map((cell) => <YearCellCard key={cell.slug} cell={cell} year={year} />)}
         </motion.ul>
