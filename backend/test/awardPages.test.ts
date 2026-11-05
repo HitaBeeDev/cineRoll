@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import type { AwardRow } from "../src/routes/awardsRoute/awardsRepository";
 import { buildAwardIndex } from "../src/routes/awardsRoute/buildAwardIndex";
 import { canonicalCategory } from "../src/routes/awardsRoute/canonicalCategory";
+import { summarizeCoverage } from "../src/routes/awardsRoute/summarizeCoverage";
 
 const row = (over: Partial<AwardRow>): AwardRow => ({
   filmId: over.slug ?? "f",
@@ -77,5 +78,25 @@ describe("buildAwardIndex genres", () => {
     ]);
     expect(index.genres.get("horror")?.films.get("x")).toMatchObject({ wins: 1, nominations: 2 });
     expect(index.genres.get("thriller")?.films.size).toBe(1);
+  });
+});
+
+describe("summarizeCoverage", () => {
+  const coverage = summarizeCoverage(
+    buildAwardIndex("berlinale", [
+      row({ slug: "a", awardYear: 1952, won: true }),
+      row({ slug: "a", awardYear: 1952, category: "Silver Bear" }),
+      row({ slug: "b", awardYear: 1951 }),
+    ]),
+  );
+
+  it("keeps every year, however thin, oldest first", () => {
+    expect(coverage.years.map(year => year.year)).toEqual([1951, 1952]);
+  });
+
+  it("counts distinct films, nominations and wins", () => {
+    expect(coverage.years[1]).toEqual({ year: 1952, films: 1, nominations: 2, wins: 1 });
+    expect(coverage.films).toBe(2);
+    expect(coverage.categories).toBe(2);
   });
 });

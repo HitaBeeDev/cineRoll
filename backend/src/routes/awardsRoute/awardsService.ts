@@ -1,6 +1,7 @@
 import { AWARD_BODIES, type AwardBodySlug } from "./awardBodies";
 import { findAwardRows } from "./awardsRepository";
 import { type AwardEntry, type AwardIndex, buildAwardIndex } from "./buildAwardIndex";
+import { summarizeCoverage } from "./summarizeCoverage";
 
 /**
  * A page needs at least this many distinct films to exist. Thinner pages are
@@ -62,6 +63,11 @@ function validGenres(index: AwardIndex): string[] {
 
 function categoryName(index: AwardIndex, slug: string): string {
   return index.categories.get(slug)?.name ?? slug;
+}
+
+/** Everything one body has on record, thin years included — for /data and /methodology. */
+export async function getAwardCoverage(body: AwardBodySlug) {
+  return { body, ...AWARD_BODIES[body], ...summarizeCoverage(await getIndex(body)) };
 }
 
 /** The hub for one body: every year and every category with enough films. */

@@ -17,6 +17,7 @@ const PATHS = [
   "/stats",
   "/about",
   "/methodology",
+  "/data",
   "/tools",
   ...TOOLS.map((tool) => `/tools/${tool.slug}`),
   "/collections",

@@ -7,6 +7,7 @@ import { HttpError } from "../middleware/errorHandler";
 import { AWARD_BODIES, isAwardBodySlug, type AwardBodySlug } from "./awardsRoute/awardBodies";
 import {
   getAwardBody,
+  getAwardCoverage,
   getAwardCategory,
   getAwardCategoryYear,
   getAwardGenre,
@@ -52,6 +53,11 @@ awardsRouter.get("/film/:slug", async (req, res) => {
 awardsRouter.get("/:body", async (req, res) => {
   setPublicCache(res, ONE_DAY);
   res.json(await getAwardBody(bodyParam(req.params.body)));
+});
+
+awardsRouter.get("/:body/coverage", async (req, res) => {
+  setPublicCache(res, ONE_DAY);
+  res.json(await getAwardCoverage(bodyParam(req.params.body)));
 });
 
 awardsRouter.get("/:body/years/:year", async (req, res) => {

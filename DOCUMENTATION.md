@@ -563,6 +563,7 @@ Plural params are comma-separated (`genre=Drama,Thriller`); booleans are
 | Group | Endpoints |
 |---|---|
 | **Catalog** | `GET /films` (browse, all shared filters) · `GET /films/:slug` · `GET /films/:slug/similar` · facet lists (`/films/genres`, `/categories`, `/award-years`, `/release-years`, `/certificates`, `/languages`, `/countries`, `/tv-types`) · `GET /films/facets` (counts for the current filter set) · `GET /films/people` · `GET /autocomplete` · `GET /persons/autocomplete`, `GET /persons/:slug` · `GET /stats` |
+| **Award pages** | `GET /awards` · `GET /awards/film/:slug` · `GET /awards/:body` · `/:body/years/:year` · `/:body/categories/:category` (+ `/:year`) · `/:body/genres/:genre` · `GET /awards/:body/coverage` (every ceremony year, no page-size cutoff — for /data and /methodology) |
 | **Discovery** | `GET /random` (the Roll) · `GET /random/count` · `POST /roll` · `GET /pick-of-day` · 🔒 `GET /recommendations` · `POST /natural-roll` (Ask AI, streams NDJSON) |
 | **User** (all 🔒) | `/user/watchlist`, `/user/watched`, `/user/lists` (+ `/films`), `/user/onboarding`, `/user/film-status/:filmId`, `/user/summary`, `/user/progress`, `/user/notifications` (+ `/read`), `DELETE /user/account` |
 | **Games** | `GET /marathon?count=3` |

@@ -75,7 +75,8 @@ export function MethodologyContent({
       <PolicySection title="What is covered">
         <p>
           {size} films and series. Year ranges below are the ceremonies on record right now, read
-          from the live data.
+          from the live data. The decade-by-decade breakdown and the missing years are on the{" "}
+          <Link href="/data" className={LINK_CLASS}>data page</Link>.
         </p>
         <CoverageTable coverage={coverage} />
       </PolicySection>
