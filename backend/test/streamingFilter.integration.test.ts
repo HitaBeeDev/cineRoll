@@ -73,6 +73,11 @@ describe.runIf(process.env['RUN_DB_TESTS'] === '1')('streaming provider filter (
     ]);
   });
 
+  it('streamsIn matches any service in the country, ids or not', async () => {
+    expect(await matchingIds({ streamsIn: 'DE' })).toEqual(['itest_stream_1', 'itest_stream_3']);
+    expect(await matchingIds({ streamsIn: 'FR' })).toEqual([]);
+  });
+
   it('lists nothing without a region', async () => {
     expect(await countProviders(listQuerySchema.parse({}))).toEqual([]);
   });

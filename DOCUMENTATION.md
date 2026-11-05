@@ -576,7 +576,7 @@ filter set: `search`, `person`, `director`, `awardBody`, `winnerOnly`,
 `nominatedOnly`, `category`, `awardYear`, `genre`/`genreAll`, `contentType`,
 `language`, `country`, `certificate`, `tvType`, `decadeMin`/`decadeMax`,
 `imdbRatingMin`/`imdbRatingMax`, `rtScoreMin`, `runtimeMax`, `nominationCount`,
-`winsMax`, `femaleDirectorOnly`, `provider` + `region` (streams by subscription on
+`winsMax`, `femaleDirectorOnly`, `streamsIn` (streams on any subscription service in that country), `provider` + `region` (streams by subscription on
 that TMDB provider id in that country; `region` alone filters nothing), `sort`,
 `sortOrder`, `page`, `limit`. `GET /films/facets` also returns `providers` for
 the request's `region`.

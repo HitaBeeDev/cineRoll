@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { listQuerySchema } from "../src/lib/filmFilters/listQuerySchema";
-import { streamingPredicate } from "../src/lib/filmFilters/streamingPredicate";
+import { streamingPredicate, streamsInPredicate } from "../src/lib/filmFilters/streamingPredicate";
 
 describe("streamingPredicate", () => {
   it("is absent without a provider — region alone filters nothing", () => {
@@ -30,5 +30,13 @@ describe("listQuerySchema provider/region", () => {
   it("rejects a malformed region or provider", () => {
     expect(listQuerySchema.safeParse({ region: "DEU" }).success).toBe(false);
     expect(listQuerySchema.safeParse({ provider: "netflix" }).success).toBe(false);
+  });
+});
+
+describe("streamsInPredicate", () => {
+  it("tests the country alone", () => {
+    expect(streamsInPredicate({})).toBeUndefined();
+    const sql = streamsInPredicate({ streamsIn: "DE" })!;
+    expect(JSON.parse(sql.values[0] as string)).toEqual({ regions: [{ country: "DE" }] });
   });
 });

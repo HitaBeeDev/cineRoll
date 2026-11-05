@@ -83,6 +83,15 @@ export const listQueryBaseSchema = z.object({
   // means, and which country the providers facet lists. Without a region,
   // `provider` matches the service in any country.
   provider: z.coerce.number().int().positive().optional(),
+  // Streams by subscription on ANY service in this country ("Oscar winners
+  // streaming now in Germany"). Needs no provider ids, so seed-only records
+  // count too.
+  streamsIn: z
+    .string()
+    .trim()
+    .regex(/^[A-Za-z]{2}$/)
+    .transform(value => value.toUpperCase())
+    .optional(),
   region: z
     .string()
     .trim()

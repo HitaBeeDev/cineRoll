@@ -3,7 +3,7 @@ import { absoluteUrl } from "@/lib/seo/absolute-url";
 // The sitemap index at the URL already submitted to Search Console and Bing.
 // Each page family has its own child sitemap, so new families (award years,
 // collections) are one line here and none of them nears the 50k-URL limit.
-const CHILD_SITEMAPS = ["pages", "films", "persons", "awards"];
+const CHILD_SITEMAPS = ["pages", "films", "persons", "awards", "streaming"];
 
 export function GET() {
   const entries = CHILD_SITEMAPS.map(

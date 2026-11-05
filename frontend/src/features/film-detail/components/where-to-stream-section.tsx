@@ -2,11 +2,13 @@
 
 import { ExternalLink } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useMemo } from "react";
 import type { WatchProviders } from "@cineroll/types";
 import { EditorialSectionLabel } from "@/components/editorial-section-label";
 import { serverDefaultRegion } from "../watch/server-default-region";
 import { regionName } from "@/lib/streaming/region-name";
+import { STREAMING_REGIONS } from "@/lib/streaming/streaming-regions";
 import { tmdbWatchUrl } from "../watch/tmdb-watch-url";
 import { useRegionParam } from "../watch/use-region-param";
 import { useViewerRegion } from "@/lib/streaming/use-viewer-region";
@@ -120,6 +122,14 @@ export function WhereToStreamSection({
               Rent, buy and all options
               <ExternalLink className="h-3 w-3" aria-hidden />
             </a>
+          )}
+          {(STREAMING_REGIONS as readonly string[]).includes(region) && (
+            <Link
+              href={`/streaming/${region.toLowerCase()}`}
+              className="text-[#9898b8] underline decoration-white/20 underline-offset-4 transition-colors hover:text-accent"
+            >
+              More award films streaming in {regionName(region)}
+            </Link>
           )}
         </div>
       </div>

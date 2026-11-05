@@ -2,7 +2,7 @@ import { Prisma } from "@prisma/client";
 
 import { contentTypeSql } from "./contentTypeSql";
 import { ListQuery } from "./listQuerySchema";
-import { streamingPredicate } from "./streamingPredicate";
+import { streamingPredicate, streamsInPredicate } from "./streamingPredicate";
 
 export function facetPredicates(query: ListQuery): Prisma.Sql[] {
   return [
@@ -17,6 +17,7 @@ export function facetPredicates(query: ListQuery): Prisma.Sql[] {
     exactValuePredicate("certificate", query.certificate),
     tvTypePredicate(query),
     streamingPredicate(query),
+    streamsInPredicate(query),
   ].filter((predicate): predicate is Prisma.Sql => predicate !== undefined);
 }
 

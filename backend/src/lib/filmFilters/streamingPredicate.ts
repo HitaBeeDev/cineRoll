@@ -18,3 +18,13 @@ export function streamingPredicate(query: Pick<ListQuery, "provider" | "region">
 
   return Prisma.sql`"Film"."watchProviders" @> ${JSON.stringify({ regions: [region] })}::jsonb`;
 }
+
+/**
+ * "Streams on any service in `streamsIn`". A region entry only exists when it
+ * lists at least one service (see tmdbWatchRegions / toWatchProviders), so the
+ * country alone is enough to test for.
+ */
+export function streamsInPredicate(query: Pick<ListQuery, "streamsIn">): Prisma.Sql | undefined {
+  if (!query.streamsIn) return undefined;
+  return Prisma.sql`"Film"."watchProviders" @> ${JSON.stringify({ regions: [{ country: query.streamsIn }] })}::jsonb`;
+}
