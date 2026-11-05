@@ -1,11 +1,12 @@
 "use client";
 
 import { ExternalLink } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import type { WatchProviders } from "@cineroll/types";
 import { EditorialSectionLabel } from "@/components/editorial-section-label";
 import { serverDefaultRegion } from "../watch/server-default-region";
 import { tmdbWatchUrl } from "../watch/tmdb-watch-url";
+import { useRegionParam } from "../watch/use-region-param";
 import { useViewerRegion } from "../watch/use-viewer-region";
 import { MetaHeading } from "./meta-heading";
 
@@ -19,7 +20,7 @@ function regionName(code: string): string {
 /**
  * Subscription services the title streams on, for one country at a time. The
  * server renders a fixed default (so the HTML is cacheable and crawlable);
- * after hydration the viewer's own country is picked from their browser.
+ * after hydration `?region=XX` or the viewer's own country takes over.
  */
 export function WhereToStreamSection({
   watchProviders,
@@ -32,18 +33,20 @@ export function WhereToStreamSection({
 }) {
   const regions = useMemo(() => watchProviders?.regions ?? [], [watchProviders]);
   const viewerRegion = useViewerRegion();
-  // What the viewer picked wins; else their own country; else the server default.
-  const [picked, setPicked] = useState<string | null>(null);
+  // ?region= (a shared link or the viewer's pick) wins; else their own
+  // country; else the server default.
+  const [regionParam, setRegionParam] = useRegionParam();
 
   const options = useMemo(() => {
     const codes = new Set(regions.map((entry) => entry.country));
     if (viewerRegion) codes.add(viewerRegion);
+    if (regionParam) codes.add(regionParam);
     return [...codes].sort((a, b) => regionName(a).localeCompare(regionName(b)));
-  }, [regions, viewerRegion]);
+  }, [regions, viewerRegion, regionParam]);
 
   if (regions.length === 0) return null;
 
-  const region = picked ?? viewerRegion ?? serverDefaultRegion(regions);
+  const region = regionParam ?? viewerRegion ?? serverDefaultRegion(regions);
 
   const providers = regions.find((entry) => entry.country === region)?.providers ?? [];
   const asOf = watchProviders?.asOf ? new Date(watchProviders.asOf) : null;
@@ -59,7 +62,7 @@ export function WhereToStreamSection({
           <select
             id="stream-region"
             value={region}
-            onChange={(event) => setPicked(event.target.value)}
+            onChange={(event) => setRegionParam(event.target.value)}
             className="border border-[#25253a] bg-[#0d0d18] px-3 py-2 text-sm text-[#d0d0e8] transition-colors hover:border-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
           >
             {options.map((code) => (
