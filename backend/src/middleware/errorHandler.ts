@@ -6,6 +6,8 @@ export class HttpError extends Error {
     public status: number,
     message: string,
     public code = "HTTP_ERROR",
+    /** Extra fields for the JSON body, e.g. where a moved resource now lives. */
+    public details: Record<string, unknown> = {},
   ) {
     super(message);
   }
@@ -23,7 +25,7 @@ export function errorHandler(
   }
 
   if (err instanceof HttpError) {
-    res.status(err.status).json({ error: err.message, code: err.code });
+    res.status(err.status).json({ ...err.details, error: err.message, code: err.code });
     return;
   }
 

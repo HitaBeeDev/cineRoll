@@ -3,6 +3,7 @@ import { getCastHeadshot } from "./getCastHeadshot";
 import { getDirectorFilms, getPersonRecord } from "./personRepository";
 import { displayPersonName } from "./displayPersonName";
 import { getPersonCreditIndex } from "./personCreditIndex";
+import { resolveRetiredPersonSlug } from "./resolveRetiredPersonSlug";
 import type { AwardCreditRow } from "./personCreditTypes";
 import { AwardRow, FilmRow, PersonFilm } from "./types";
 
@@ -75,6 +76,13 @@ function findCanonicalName(names: Map<string, string>, slug: string): string {
   const canonicalName = names.get(slug);
 
   if (!canonicalName) {
+    // An old credit-line URL (/person/written-by-damien-chazelle) that stood
+    // for one real person: still a 404 here, but it names the page to
+    // redirect to, and the frontend sends a permanent redirect.
+    const redirectTo = resolveRetiredPersonSlug(slug, names);
+    if (redirectTo) {
+      throw new HttpError(404, `Person moved: ${slug}`, "PERSON_MOVED", { redirectTo });
+    }
     throw new HttpError(404, `Person not found: ${slug}`, "PERSON_NOT_FOUND");
   }
 

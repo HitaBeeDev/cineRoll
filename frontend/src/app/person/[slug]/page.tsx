@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { AppHeader } from "@/components/app-header";
 import { buildPersonMetadata } from "@/features/person-detail/build-person-metadata";
 import { AwardHistorySection } from "@/features/person-detail/components/award-history-section";
@@ -25,16 +25,21 @@ export async function generateMetadata({
   params,
 }: PersonPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const person = await fetchPerson(slug);
-  return person
-    ? buildPersonMetadata(person, slug)
+  const lookup = await fetchPerson(slug);
+  // Redirect here, not only in the page: metadata resolves before anything
+  // streams, so this is a real 308 rather than a client-side meta refresh.
+  if (lookup && "movedTo" in lookup) permanentRedirect(`/person/${lookup.movedTo}`);
+  return lookup
+    ? buildPersonMetadata(lookup.person, slug)
     : { title: "Person Not Found" };
 }
 
 export default async function PersonPage({ params }: PersonPageProps) {
   const { slug } = await params;
-  const person = await fetchPerson(slug);
-  if (!person) notFound();
+  const lookup = await fetchPerson(slug);
+  if (!lookup) notFound();
+  if ("movedTo" in lookup) permanentRedirect(`/person/${lookup.movedTo}`);
+  const { person } = lookup;
 
   return (
     <main className="min-h-screen bg-[#07070b] text-[#f4f4f5]">
