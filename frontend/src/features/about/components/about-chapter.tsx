@@ -2,34 +2,37 @@ import type { ReactNode } from "react";
 import { Reveal } from "@/components/cinematic/reveal";
 
 /**
- * One numbered chapter: a reel number and serif heading, then the body set to a
- * readable measure (~70 characters). On wide screens the number sits in its
- * own column, level with the heading.
+ * One numbered chapter of the Making Of tour: a reel label and serif heading
+ * over full-width content. The lede stays at a readable measure (~70
+ * characters); visual blocks use the full width.
  */
 export function AboutChapter({
   number,
   title,
+  lede,
   children,
 }: {
   number: string;
   title: string;
+  lede?: ReactNode;
   children: ReactNode;
 }) {
   return (
-    <section className="grid gap-6 border-t border-white/10 py-12 first:border-t-0 lg:grid-cols-[9rem_1fr] lg:gap-10 lg:py-16">
-      <div className="lg:pt-3">
+    <section className="border-t border-white/10 py-14 first:border-t-0 lg:py-20">
+      <Reveal>
         <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.2em] text-accent">
           Reel {number}
         </p>
-      </div>
-      <Reveal>
-        <h2 className="max-w-2xl font-[family-name:var(--font-display)] text-3xl font-bold leading-tight tracking-tight text-fg-hi sm:text-4xl">
+        <h2 className="mt-3 max-w-3xl font-[family-name:var(--font-display)] text-3xl font-bold leading-tight tracking-tight text-fg-hi sm:text-4xl">
           {title}
         </h2>
-        <div className="mt-6 max-w-2xl space-y-5 text-base leading-7 text-fg-dim sm:text-[17px] sm:leading-8">
-          {children}
-        </div>
+        {lede && (
+          <div className="mt-5 max-w-2xl space-y-4 text-base leading-7 text-fg-dim sm:text-[17px] sm:leading-8">
+            {lede}
+          </div>
+        )}
       </Reveal>
+      <div className="mt-10">{children}</div>
     </section>
   );
 }
