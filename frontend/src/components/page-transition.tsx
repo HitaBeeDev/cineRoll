@@ -41,20 +41,20 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
 
 const PAGE_TRANSITION_CSS = `
 ::view-transition-old(.page-out) {
-  animation: 180ms cubic-bezier(0.4, 0, 1, 1) both cr-page-out;
+  animation: 260ms cubic-bezier(0.4, 0, 1, 1) both cr-page-out;
 }
 ::view-transition-new(.page-in) {
-  animation: 380ms cubic-bezier(0.22, 1, 0.36, 1) 90ms both cr-page-in;
+  animation: 560ms cubic-bezier(0.16, 1, 0.3, 1) 140ms both cr-page-in;
 }
 ::view-transition-group(site-header) {
   animation: none;
   z-index: 100;
 }
 @keyframes cr-page-out {
-  to { opacity: 0; transform: translateY(-6px); filter: blur(3px); }
+  to { opacity: 0; transform: translateY(-16px) scale(0.985); filter: blur(6px); }
 }
 @keyframes cr-page-in {
-  from { opacity: 0; transform: translateY(14px); filter: blur(4px); }
+  from { opacity: 0; transform: translateY(32px) scale(1.01); filter: blur(10px); }
 }
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-old(.page-out) { animation: 120ms ease both cr-fade-out; }
