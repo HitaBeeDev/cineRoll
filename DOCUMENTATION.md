@@ -639,7 +639,8 @@ reads:
   and `short`, which the single-valued `contentType` cannot express.
 - `originCountries` — where a film is *from*. `countries` lists every co-financier
   and filtering on it is what made the country facet wrong; it is display-only.
-- `posterColor`, `watchProviders` (fetched and stored, **not surfaced yet**).
+- `posterColor`.
+- `watchProviders` — `{ asOf, regions: [{ country, providers[] }] }`, subscription services only (TMDB, data by JustWatch). Seeded from master.json `streamingProviders` via `data/lib/watchProviders.ts`; shown on the film page ("Where to stream", viewer's country picked from the browser). Not refreshed yet — `asOf` is the build date.
 
 Two schema decisions that trip people up:
 
@@ -1355,8 +1356,9 @@ Either commitlint (use a conventional prefix: `feat:`, `fix:`, `docs:`, …) or
 
 ## Known Limitations
 
-- **`watchProviders` is dead data.** TMDB streaming availability is fetched and
-  stored on every film but never surfaced in the product.
+- **`watchProviders` goes stale.** Streaming availability is seeded and shown on
+  the film page, but only refreshed when a film is rebuilt — there is no weekly
+  refresh and no provider filter yet.
 - **`moodTags` and `keywords` are in-process only.** Neither is indexed, so neither
   can be SQL-filtered; only the Ask AI reranker reads them. See
   [Future Work](#future-work).

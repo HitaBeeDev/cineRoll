@@ -12,6 +12,7 @@ import { FilmDetailsSection } from "@/features/film-detail/components/film-detai
 import { FilmHero } from "@/features/film-detail/components/film-hero";
 import { FilmStructuredData } from "@/features/film-detail/components/film-structured-data";
 import { SimilarFilmsSection } from "@/features/film-detail/components/similar-films-section";
+import { WhereToStreamSection } from "@/features/film-detail/components/where-to-stream-section";
 import { SynopsisSection } from "@/features/film-detail/components/synopsis-section";
 import { TrailerSection } from "@/features/film-detail/components/trailer-section";
 import { fetchFilm } from "@/features/film-detail/film-repository/fetch-film";
@@ -95,6 +96,11 @@ export default async function FilmPage({ params }: FilmPageProps) {
         />
         <div className="relative mx-auto max-w-6xl space-y-20 px-6 py-20 lg:px-10">
           {film.plot && <SynopsisSection plot={film.plot} accent={accent} />}
+          <WhereToStreamSection
+            watchProviders={film.watchProviders}
+            tmdbId={film.tmdbId}
+            contentType={film.contentType}
+          />
           <FilmDetailsSection film={film} rankTags={getRankTags(film)} />
           <FilmAwardsSection summary={awardSummary} filmTitle={film.title} />
           <CastSection cast={film.cast} accent={accent} />

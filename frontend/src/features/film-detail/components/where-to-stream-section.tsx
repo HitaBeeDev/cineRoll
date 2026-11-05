@@ -1,0 +1,116 @@
+"use client";
+
+import { ExternalLink } from "lucide-react";
+import { useMemo, useState } from "react";
+import type { WatchProviders } from "@cineroll/types";
+import { EditorialSectionLabel } from "@/components/editorial-section-label";
+import { serverDefaultRegion } from "../watch/server-default-region";
+import { tmdbWatchUrl } from "../watch/tmdb-watch-url";
+import { useViewerRegion } from "../watch/use-viewer-region";
+import { MetaHeading } from "./meta-heading";
+
+const REGION_NAMES = new Intl.DisplayNames(["en"], { type: "region" });
+const AS_OF = new Intl.DateTimeFormat("en-US", { month: "long", year: "numeric", timeZone: "UTC" });
+
+function regionName(code: string): string {
+  return REGION_NAMES.of(code) ?? code;
+}
+
+/**
+ * Subscription services the title streams on, for one country at a time. The
+ * server renders a fixed default (so the HTML is cacheable and crawlable);
+ * after hydration the viewer's own country is picked from their browser.
+ */
+export function WhereToStreamSection({
+  watchProviders,
+  tmdbId,
+  contentType,
+}: {
+  watchProviders: WatchProviders | null | undefined;
+  tmdbId: number | null;
+  contentType: string;
+}) {
+  const regions = useMemo(() => watchProviders?.regions ?? [], [watchProviders]);
+  const viewerRegion = useViewerRegion();
+  // What the viewer picked wins; else their own country; else the server default.
+  const [picked, setPicked] = useState<string | null>(null);
+
+  const options = useMemo(() => {
+    const codes = new Set(regions.map((entry) => entry.country));
+    if (viewerRegion) codes.add(viewerRegion);
+    return [...codes].sort((a, b) => regionName(a).localeCompare(regionName(b)));
+  }, [regions, viewerRegion]);
+
+  if (regions.length === 0) return null;
+
+  const region = picked ?? viewerRegion ?? serverDefaultRegion(regions);
+
+  const providers = regions.find((entry) => entry.country === region)?.providers ?? [];
+  const asOf = watchProviders?.asOf ? new Date(watchProviders.asOf) : null;
+
+  return (
+    <section id="where-to-stream">
+      <EditorialSectionLabel>Where to stream</EditorialSectionLabel>
+      <div className="mt-8 space-y-5">
+        <div className="flex flex-wrap items-center gap-3">
+          <label htmlFor="stream-region">
+            <MetaHeading>Country</MetaHeading>
+          </label>
+          <select
+            id="stream-region"
+            value={region}
+            onChange={(event) => setPicked(event.target.value)}
+            className="border border-[#25253a] bg-[#0d0d18] px-3 py-2 text-sm text-[#d0d0e8] transition-colors hover:border-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
+          >
+            {options.map((code) => (
+              <option key={code} value={code}>
+                {regionName(code)}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {providers.length > 0 ? (
+          <ul className="flex flex-wrap gap-2" aria-label={`Streaming services in ${regionName(region)}`}>
+            {providers.map((name) => (
+              <li
+                key={name}
+                className="border border-[#25253a] px-3.5 py-2 text-sm text-[#d0d0e8]"
+              >
+                {name}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-sm text-[#9898b8]">
+            Not on a subscription service in {regionName(region)}. Pick another country, or check
+            rent and buy options below.
+          </p>
+        )}
+
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-[#7c7ca0]">
+          <p>
+            Subscription services only
+            {asOf && !Number.isNaN(asOf.getTime()) && (
+              <>
+                {" "}· checked <time dateTime={asOf.toISOString()}>{AS_OF.format(asOf)}</time>
+              </>
+            )}{" "}
+            · data by JustWatch
+          </p>
+          {tmdbId && (
+            <a
+              href={tmdbWatchUrl(tmdbId, contentType, region)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-[#9898b8] underline decoration-white/20 underline-offset-4 transition-colors hover:text-accent"
+            >
+              Rent, buy and all options
+              <ExternalLink className="h-3 w-3" aria-hidden />
+            </a>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}

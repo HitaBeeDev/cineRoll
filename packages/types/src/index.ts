@@ -14,6 +14,19 @@ export interface AwardRecord {
 
 export type AwardCategory = AwardRecord;
 
+/** Subscription services a title streams on in one country (TMDB, data by JustWatch). */
+export interface WatchRegion {
+  /** ISO 3166-1 alpha-2, e.g. "DE". */
+  country: string;
+  providers: string[];
+}
+
+/** Streaming availability as stored on the film. `asOf` = when TMDB was asked. */
+export interface WatchProviders {
+  asOf: string | null;
+  regions: WatchRegion[];
+}
+
 export interface Film {
   id: string;
   slug: string;
@@ -68,6 +81,8 @@ export interface Film {
   pickOfDayDate: string | null;
   /** ISO time the film record last changed (detail payload only). */
   updatedAt?: string;
+  /** Where it streams by subscription, per country (detail payload only). Null = none known. */
+  watchProviders?: WatchProviders | null;
 }
 
 export interface RollEvent {

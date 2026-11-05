@@ -79,4 +79,5 @@ export const filmDetailSelect = {
   berlinCategories: true,
   isPickOfDay: true,
   pickOfDayDate: true,
+  watchProviders: true,
 } satisfies Prisma.FilmSelect;
