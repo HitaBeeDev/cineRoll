@@ -1,4 +1,5 @@
 import { buildPersonCreditIndex } from "./buildPersonCreditIndex";
+import { loadPersonCreditIndexFromTables } from "./loadPersonCreditIndexFromTables";
 import type { PersonCreditIndex } from "./personCreditTypes";
 import { findAllAwardCreditRows, findAllDirectors } from "./personRepository";
 
@@ -13,9 +14,15 @@ export async function getPersonCreditIndex(): Promise<PersonCreditIndex> {
   if (cache && Date.now() - cache.builtAt < CREDIT_INDEX_TTL_MS) return cache.index;
   if (inFlight) return inFlight; // collapse concurrent rebuilds into one load
 
-  inFlight = Promise.all([findAllAwardCreditRows(), findAllDirectors()])
-    .then(([rows, directors]) => {
-      const index = buildPersonCreditIndex(rows, directors);
+  // The Credit tables when `link-credits --apply` has filled them; otherwise
+  // (before the first apply, or right after a seed) parse the award JSON.
+  inFlight = loadPersonCreditIndexFromTables()
+    .then(async fromTables => {
+      if (fromTables) return fromTables;
+      const [rows, directors] = await Promise.all([findAllAwardCreditRows(), findAllDirectors()]);
+      return buildPersonCreditIndex(rows, directors);
+    })
+    .then(index => {
       cache = { index, builtAt: Date.now() };
       return index;
     })

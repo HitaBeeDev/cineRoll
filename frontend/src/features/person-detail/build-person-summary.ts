@@ -20,6 +20,7 @@ export function buildPersonSummary(person: PersonData): string | null {
     { short: "the Oscars", records: person.oscarRecords },
     { short: "the Golden Globes", records: person.ggRecords },
     { short: "Cannes", records: person.cannesRecords },
+    { short: "the Berlinale", records: person.berlinRecords ?? [] },
   ].filter((body) => body.records.length > 0);
 
   const sentences: string[] = [];

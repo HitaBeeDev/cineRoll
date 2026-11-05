@@ -28,6 +28,8 @@ export type PersonData = {
   oscarRecords: AwardRow[];
   ggRecords: AwardRow[];
   cannesRecords: AwardRow[];
+  /** Optional: payloads cached before Berlinale credits reached person pages lack it. */
+  berlinRecords?: AwardRow[];
   films: FilmRow[];
 };
 

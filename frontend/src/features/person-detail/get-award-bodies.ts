@@ -5,6 +5,7 @@ export function getAwardBodies(person: PersonData): AwardBody[] {
     createAwardBody("Academy Awards", "OSCARS", person.oscarRecords),
     createAwardBody("Golden Globes", "GG", person.ggRecords),
     createAwardBody("Cannes Film Festival", "CANNES", person.cannesRecords),
+    createAwardBody("Berlin International Film Festival", "BERLINALE", person.berlinRecords ?? []),
   ].filter((body) => body.records.length > 0);
 }
 

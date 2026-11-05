@@ -39,6 +39,7 @@
     "oscar-cross-check": "npx tsx data/scripts/oscar-cross-check.ts",
     "rt-audit": "npx tsx data/scripts/rt-audit.ts",
     "person-audit": "npx tsx data/scripts/person-audit.ts",
+    "link-credits": "npx tsx data/scripts/link-credits.ts",
     "votes-backfill": "npx tsx data/scripts/omdb-votes-backfill.ts",
     "move-to-recall": "npx tsx data/scripts/move-to-recall.ts",
     "recall-find": "npx tsx data/scripts/recall-find.ts",

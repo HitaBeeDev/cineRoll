@@ -12,6 +12,9 @@ export function personCreditRowsFromIndex(index: PersonCreditIndex, minCredits: 
   for (const [slug, credits] of index.credits) {
     const name = index.names.get(slug);
     if (!name || credits.length < minCredits) continue;
+    // From the Credit tables, only people verified against TMDB (or by hand)
+    // are invited into the index; unverified pages still work.
+    if (index.verified && !index.verified.has(slug)) continue;
     const updatedAt = credits.reduce(
       (newest, credit) => (new Date(credit.filmUpdatedAt) > newest ? new Date(credit.filmUpdatedAt) : newest),
       new Date(0),

@@ -4,22 +4,25 @@ import { getDirectorFilms, getPersonRecord } from "./personRepository";
 import { displayPersonName } from "./displayPersonName";
 import { getPersonCreditIndex } from "./personCreditIndex";
 import { resolveRetiredPersonSlug } from "./resolveRetiredPersonSlug";
-import type { AwardCreditRow } from "./personCreditTypes";
+import type { AwardCreditRow, PersonCreditIndex } from "./personCreditTypes";
 import { AwardRow, FilmRow, PersonFilm } from "./types";
 
 export async function getPersonProfile(slug: string) {
   const index = await getPersonCreditIndex();
-  const canonicalName = findCanonicalName(index.names, slug);
+  const canonicalName = findCanonicalName(index, slug);
   const credits = index.credits.get(slug) ?? [];
   const [directorFilms, personRecord] = await Promise.all([
-    getDirectorFilms(canonicalName),
+    // From the Credit tables directors are linked per film (co-directors split);
+    // the legacy path still matches the raw director field by name.
+    index.directed ? Promise.resolve(index.directed.get(slug) ?? []) : getDirectorFilms(canonicalName),
     getPersonRecord(slug),
   ]);
   const oscarRows = awardRows(credits, "oscar");
   const ggRows = awardRows(credits, "gg");
   const cannesRows = awardRows(credits, "cannes");
+  const berlinRows = awardRows(credits, "berlin");
   const nomineeFilms = nominatedFilms(credits);
-  const allRecords = [...oscarRows, ...ggRows, ...cannesRows];
+  const allRecords = [...oscarRows, ...ggRows, ...cannesRows, ...berlinRows];
   // Only when the Person row has no picture of its own — the film data is a
   // stand-in for a field that should be filled, not the source of record.
   const photoUrl = personRecord?.photoUrl ?? (await getCastHeadshot(canonicalName));
@@ -34,6 +37,7 @@ export async function getPersonProfile(slug: string) {
     oscarRecords: oscarRows,
     ggRecords: ggRows,
     cannesRecords: cannesRows,
+    berlinRecords: berlinRows,
     films: mergePersonFilms(directorFilms, nomineeFilms),
   };
 }
@@ -70,12 +74,18 @@ function nominatedFilms(credits: AwardCreditRow[]): FilmRow[] {
   return [...films.values()].sort((a, b) => b.releaseYear - a.releaseYear);
 }
 
-function findCanonicalName(names: Map<string, string>, slug: string): string {
+function findCanonicalName(index: PersonCreditIndex, slug: string): string {
+  const { names } = index;
   // Through the slug index: the only way back from "pedro-almodovar" to
   // "Pedro Almodóvar" is to have slugged every known name first.
   const canonicalName = names.get(slug);
 
   if (!canonicalName) {
+    // Another spelling of a known person ("joon-ho-bong" → "bong-joon-ho").
+    const aliasOf = index.aliases?.get(slug);
+    if (aliasOf) {
+      throw new HttpError(404, `Person moved: ${slug}`, "PERSON_MOVED", { redirectTo: aliasOf });
+    }
     // An old credit-line URL (/person/written-by-damien-chazelle) that stood
     // for one real person: still a 404 here, but it names the page to
     // redirect to, and the frontend sends a permanent redirect.

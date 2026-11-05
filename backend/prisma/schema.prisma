@@ -91,6 +91,9 @@ model Film {
 
   // tmdbId is unique only within a media namespace — scope it by contentType so a
   // movie and a series can share the same TMDB number. (NULL tmdbIds stay exempt.)
+  credits   Credit[]
+  directors FilmDirector[]
+
   @@unique([tmdbId, contentType], map: "Film_tmdbId_contentType_key")
   @@index([title], map: "Film_title_idx")
   @@index([releaseYear], map: "Film_year_idx")
@@ -117,11 +120,73 @@ model Person {
   role         String   @default("nominee")
   photoUrl     String?
   bio          String?
+  // "verified" = matched to a TMDB person through the film's own credits, or
+  // confirmed by hand. "unverified" pages still work but stay out of the
+  // sitemap until reviewed (data/needs-review/persons.csv).
+  status       String   @default("unverified")
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
+  credits  CreditPerson[]
+  aliases  PersonAlias[]
+  directed FilmDirector[]
+
   @@index([name], map: "Person_name_idx")
   @@index([name(ops: raw("gin_trgm_ops"))], type: Gin, map: "Person_name_trgm_idx")
+}
+
+/// One nomination, rebuilt from the film's award lists by `link-credits` after
+/// every seed. `nominee` is the credit exactly as the award body recorded it.
+model Credit {
+  id        String   @id @default(cuid())
+  filmId    String
+  film      Film     @relation(fields: [filmId], references: [id], onDelete: Cascade)
+  body      String   // oscar | gg | cannes | berlin
+  awardYear Int
+  category  String
+  won       Boolean
+  nominee   String?
+  createdAt DateTime @default(now())
+
+  people CreditPerson[]
+
+  @@index([filmId])
+  @@index([body, awardYear])
+}
+
+/// Which people a credit names. One nomination can credit several people.
+model CreditPerson {
+  creditId String
+  credit   Credit @relation(fields: [creditId], references: [id], onDelete: Cascade)
+  personId String
+  person   Person @relation(fields: [personId], references: [id], onDelete: Cascade)
+  /// Order the names appear in the credit line.
+  position Int
+  /// "tmdb" (found in the film's TMDB credits), "override" (decided by hand),
+  /// or "name" (same spelling as a known person, not confirmed for this film).
+  matchedBy String
+
+  @@id([creditId, personId])
+  @@index([personId])
+}
+
+/// Who directed a film, split from its director field ("Joel Coen, Ethan Coen"
+/// is two rows). Rebuilt by `link-credits` with the credits.
+model FilmDirector {
+  filmId   String
+  film     Film   @relation(fields: [filmId], references: [id], onDelete: Cascade)
+  personId String
+  person   Person @relation(fields: [personId], references: [id], onDelete: Cascade)
+
+  @@id([filmId, personId])
+  @@index([personId])
+}
+
+/// Other spellings and retired slugs of a person, so old URLs keep resolving.
+model PersonAlias {
+  slug     String @id
+  personId String
+  person   Person @relation(fields: [personId], references: [id], onDelete: Cascade)
 }
 
 model RollEvent {
