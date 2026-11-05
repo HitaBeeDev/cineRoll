@@ -26,8 +26,8 @@ describe("matchTmdbPerson", () => {
   ];
 
   it("finds the person in this film's credits", () => {
-    expect(matchTmdbPerson("John Williams", jaws)).toBe(491);
-    expect(matchTmdbPerson("Steven SPIELBERG", jaws)).toBe(488);
+    expect(matchTmdbPerson("John Williams", jaws)).toEqual({ id: 491, exact: true });
+    expect(matchTmdbPerson("Steven SPIELBERG", jaws)).toEqual({ id: 488, exact: true });
   });
 
   it("does not match a name the film does not credit", () => {
@@ -40,5 +40,32 @@ describe("matchTmdbPerson", () => {
       { id: 2, name: "John Smith" },
     ];
     expect(matchTmdbPerson("John Smith", twins)).toBeNull();
+  });
+
+  it.each([
+    ["Allen Davey", "Allen M. Davey"],
+    ["Werner Heymann", "Werner R. Heymann"],
+    ["Charles Chaplin", "Charlie Chaplin"],
+    ["Samuel Spewack", "Sam Spewack"],
+    ["E. H. Hansen", "Edmund H. Hansen"],
+    ["Albert Basserman", "Albert Bassermann"],
+    ["William Hedgecock", "William Hedgcock"],
+  ])("near-matches %s to %s when nothing matches exactly", (award, tmdb) => {
+    expect(matchTmdbPerson(award, [{ id: 9, name: tmdb }, { id: 10, name: "Somebody Else" }])).toEqual({ id: 9, exact: false });
+  });
+
+  it("does not near-match a different first name or a short surname typo", () => {
+    expect(matchTmdbPerson("Bella Spewack", [{ id: 1, name: "Sam Spewack" }])).toBeNull();
+    expect(matchTmdbPerson("John Lee", [{ id: 1, name: "John Leo" }])).toBeNull();
+  });
+
+  it("prefers an exact match over a near one", () => {
+    const credits = [{ id: 1, name: "Sam Spewack" }, { id: 2, name: "Samuel Spewack" }];
+    expect(matchTmdbPerson("Samuel Spewack", credits)).toEqual({ id: 2, exact: true });
+  });
+
+  it("refuses a near match when two people fit", () => {
+    const credits = [{ id: 1, name: "Charlie Chaplin" }, { id: 2, name: "Chuck Chaplin" }];
+    expect(matchTmdbPerson("Charles Chaplin", credits)).toBeNull();
   });
 });

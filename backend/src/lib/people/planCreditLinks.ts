@@ -20,15 +20,19 @@ export type PlanFilm = {
   tmdbCredits: TmdbCreditPerson[] | null;
 };
 
-/** A decision made by hand in data/person-overrides.json. `film` omitted = every film. */
+/**
+ * A decision made by hand in data/person-overrides.json. `film` omitted =
+ * every film. `primary` settles who keeps the plain slug when two people share
+ * a name (Steve McQueen the director or the actor).
+ */
 export type PersonOverride = { name: string; film?: string } & (
-  | { tmdbPersonId: number; notAPerson?: never }
-  | { notAPerson: true; tmdbPersonId?: never }
+  | { tmdbPersonId: number; primary?: boolean; notAPerson?: never }
+  | { notAPerson: true; tmdbPersonId?: never; primary?: never }
 );
 
 export type ExistingPerson = { id: string; slug: string; name: string; tmdbPersonId: number | null };
 
-export type MatchedBy = "tmdb" | "override" | "name";
+export type MatchedBy = "tmdb" | "tmdb-near" | "override" | "name";
 
 export type PlannedPerson = {
   key: string;
@@ -102,8 +106,8 @@ export function planCreditLinks(
     const override = findOverride(overrides, mention.name, mention.film.slug);
     if (override?.notAPerson) return "skip";
     if (override?.tmdbPersonId) return { key: `tmdb:${override.tmdbPersonId}`, matchedBy: "override" };
-    const tmdbId = mention.film.tmdbCredits ? matchTmdbPerson(mention.name, mention.film.tmdbCredits) : null;
-    return tmdbId ? { key: `tmdb:${tmdbId}`, matchedBy: "tmdb" } : null;
+    const match = mention.film.tmdbCredits ? matchTmdbPerson(mention.name, mention.film.tmdbCredits) : null;
+    return match ? { key: `tmdb:${match.id}`, matchedBy: match.exact ? "tmdb" : "tmdb-near" } : null;
   };
 
   for (const film of films) {
@@ -166,7 +170,8 @@ export function planCreditLinks(
 
   for (const credit of credits) credit.people.sort((a, b) => a.position - b.position);
 
-  return { persons: buildPersons(spellings, existing, credits, directors), credits, directors, review };
+  const primaries = new Set(overrides.filter(o => o.primary && o.tmdbPersonId).map(o => `tmdb:${o.tmdbPersonId}`));
+  return { persons: buildPersons(spellings, existing, credits, directors, primaries), credits, directors, review };
 }
 
 function findOverride(overrides: PersonOverride[], name: string, filmSlug: string): PersonOverride | undefined {
@@ -194,15 +199,17 @@ function candidatesFor(name: string, filmCredits: TmdbCreditPerson[] | null): st
 /**
  * One Person per key. The slug is kept from an existing row (URLs never move);
  * otherwise it comes from the spelling with the fewest capitals ("Pedro
- * Almodóvar" over "Pedro ALMODÓVAR"). When two people want one slug, the one
- * with more credits keeps it and the other gets the TMDB id appended. Every
- * other spelling's slug becomes an alias that redirects.
+ * Almodóvar" over "Pedro ALMODÓVAR"). When two people want one slug, it goes
+ * to the one marked `primary` by hand, else a verified person over an
+ * unverified one, else the one with more credits; the other gets the TMDB id
+ * appended. Every other spelling's slug becomes an alias that redirects.
  */
 function buildPersons(
   spellings: Map<string, Map<string, number>>,
   existing: ExistingPerson[],
   credits: PlannedCredit[],
   directors: Array<{ filmId: string; personKey: string }>,
+  primaries: Set<string>,
 ): PlannedPerson[] {
   const byTmdb = new Map(existing.filter(p => p.tmdbPersonId).map(p => [p.tmdbPersonId!, p]));
   const bySlug = new Map(existing.map(p => [p.slug, p]));
@@ -210,7 +217,10 @@ function buildPersons(
   for (const credit of credits) for (const link of credit.people) weight.set(link.personKey, (weight.get(link.personKey) ?? 0) + 1);
   for (const director of directors) weight.set(director.personKey, (weight.get(director.personKey) ?? 0) + 1);
 
-  const keys = [...spellings.keys()].sort((a, b) => (weight.get(b) ?? 0) - (weight.get(a) ?? 0) || a.localeCompare(b));
+  const rank = (key: string) => (primaries.has(key) ? 0 : key.startsWith("tmdb:") ? 1 : 2);
+  const keys = [...spellings.keys()].sort(
+    (a, b) => rank(a) - rank(b) || (weight.get(b) ?? 0) - (weight.get(a) ?? 0) || a.localeCompare(b),
+  );
   const taken = new Set<string>();
   const usedExisting = new Set<string>();
   const persons: PlannedPerson[] = [];

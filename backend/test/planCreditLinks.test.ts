@@ -64,12 +64,12 @@ describe("planCreditLinks", () => {
 
   it("keeps an unmatched name as an unverified person with review candidates", () => {
     const plan = planCreditLinks(
-      [film({ credits: [credit("Leonard Rosenman", "Music")], tmdbCredits: [{ id: 7, name: "Leonard Rosenmann" }, { id: 8, name: "Somebody Else" }] })],
+      [film({ credits: [credit("Leonard Rosenman", "Music")], tmdbCredits: [{ id: 7, name: "Leonard Bernstein" }, { id: 8, name: "Somebody Else" }] })],
       [],
       [],
     );
     expect(personFor(plan, "name:leonard-rosenman")).toMatchObject({ status: "unverified", tmdbPersonId: null });
-    expect(plan.review[0]?.candidates).toBe("Leonard Rosenmann (#7)");
+    expect(plan.review[0]?.candidates).toBe("Leonard Bernstein (#7)");
   });
 
   it("keeps an existing person's id and slug, and turns other spellings into aliases", () => {
@@ -108,5 +108,22 @@ describe("planCreditLinks", () => {
       [{ id: "old", slug: "john-smith", name: "John Smith", tmdbPersonId: 4 }],
     );
     expect(personFor(plan, "tmdb:5")).toMatchObject({ existingId: null, slug: "john-smith-5" });
+  });
+
+  it("lets a hand-marked primary keep the plain slug, and prefers verified over unverified", () => {
+    const plan = planCreditLinks(
+      [
+        film({ id: "a", slug: "a", title: "A", credits: [credit("Steve McQueen", "Directing"), credit("Steve McQueen", "Best Picture")], tmdbCredits: [{ id: 72757, name: "Steve McQueen" }] }),
+        film({ id: "b", slug: "b", title: "B", credits: [credit("Steve McQueen", "Actor")], tmdbCredits: [{ id: 13565, name: "Steve McQueen" }] }),
+        film({ id: "c", slug: "c", title: "C", credits: [credit("Jack Whitney", "Sound"), credit("Jack Whitney", "Sound", { awardYear: 2021 })], tmdbCredits: [] }),
+        film({ id: "d", slug: "d", title: "D", credits: [credit("Jack Whitney", "Sound")], tmdbCredits: [{ id: 1529487, name: "Jack Whitney" }] }),
+      ],
+      [{ name: "Steve McQueen", film: "b", tmdbPersonId: 13565, primary: true }],
+      [],
+    );
+    expect(personFor(plan, "tmdb:13565")?.slug).toBe("steve-mcqueen");
+    expect(personFor(plan, "tmdb:72757")?.slug).toBe("steve-mcqueen-72757");
+    // Name-only "Jack Whitney" links to the one verified Jack Whitney instead of competing for the slug.
+    expect(personFor(plan, "tmdb:1529487")?.slug).toBe("jack-whitney");
   });
 });

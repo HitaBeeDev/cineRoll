@@ -97,7 +97,7 @@ const PARENTHETICAL_NOTE = /\([^)]*\b(?:by|music|score|lyrics?|from|thematic|hea
 // Words that make a comma-separated part a company, checked before "&"/"and"
 // split it.
 const ORGANISATION =
-  /\b(?:studios?|department|inc\.?|ltd\.?|llc|productions?|pictures|bureau|associates|corporation|company|bros\.?|television|network|entertainment|committee|ministry|institute|foundation|laborator(?:y|ies))\b/i;
+  /\b(?:studios?|department|inc\.?|ltd\.?|llc|productions?|pictures|bureau|associates|corporation|company|bros\.?|television|network|entertainment|committee|ministry|institute|foundation|laborator(?:y|ies)|radio)\b/i;
 
 // "Art Direction: …", "Set Decoration: …" — a label before a colon.
 const LABEL_PREFIX = /^[^:]{1,40}:\s*/;
