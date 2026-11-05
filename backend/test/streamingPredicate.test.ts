@@ -9,7 +9,7 @@ describe("streamingPredicate", () => {
   });
 
   it("puts country and provider in the same region object", () => {
-    const sql = streamingPredicate({ provider: 8, region: "DE" })!;
+    const sql = streamingPredicate({ provider: [8], region: "DE" })!;
     expect(sql.sql).toContain(`"watchProviders" @>`);
     expect(JSON.parse(sql.values[0] as string)).toEqual({
       regions: [{ providers: [{ id: 8 }], country: "DE" }],
@@ -17,19 +17,31 @@ describe("streamingPredicate", () => {
   });
 
   it("matches the service in any country when no region is given", () => {
-    const sql = streamingPredicate({ provider: 8 })!;
+    const sql = streamingPredicate({ provider: [8] })!;
     expect(JSON.parse(sql.values[0] as string)).toEqual({ regions: [{ providers: [{ id: 8 }] }] });
   });
 });
 
 describe("listQuerySchema provider/region", () => {
   it("upper-cases the region and coerces the provider id", () => {
-    expect(listQuerySchema.parse({ provider: "8", region: "de" })).toMatchObject({ provider: 8, region: "DE" });
+    expect(listQuerySchema.parse({ provider: "8", region: "de" })).toMatchObject({ provider: [8], region: "DE" });
+    expect(listQuerySchema.parse({ provider: "8,11" })).toMatchObject({ provider: [8, 11] });
   });
 
   it("rejects a malformed region or provider", () => {
     expect(listQuerySchema.safeParse({ region: "DEU" }).success).toBe(false);
     expect(listQuerySchema.safeParse({ provider: "netflix" }).success).toBe(false);
+  });
+});
+
+describe("streamingPredicate with several services", () => {
+  it("ORs one containment test per service", () => {
+    const sql = streamingPredicate({ provider: [8, 11], region: "US" })!;
+    expect(sql.sql).toContain(" OR ");
+    expect(sql.values.map(value => JSON.parse(value as string))).toEqual([
+      { regions: [{ providers: [{ id: 8 }], country: "US" }] },
+      { regions: [{ providers: [{ id: 11 }], country: "US" }] },
+    ]);
   });
 });
 

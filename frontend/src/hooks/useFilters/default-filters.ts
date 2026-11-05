@@ -18,7 +18,7 @@ export const DEFAULT_FILTERS: FilterState = {
   genres: [],
   genresMatchAll: false,
   countries: [],
-  provider: null,
+  providers: [],
   streamingRegion: "",
   contentTypes: [],
   runtimeMin: null,

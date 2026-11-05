@@ -3,6 +3,7 @@ import { z } from "zod";
 import { awardBodiesParam } from "./queryParams/awardBodiesParam";
 import { createCsvParamSchema } from "./queryParams/createCsvParamSchema";
 import { queryBooleanSchema } from "./queryParams/queryBooleanSchema";
+import { splitCsvQueryValue } from "./queryParams/splitCsvQueryValue";
 import {
   awardYearRangeError,
   type AwardYearRangeQuery,
@@ -78,11 +79,17 @@ export const listQueryBaseSchema = z.object({
   winsMin: z.coerce.number().int().min(0).max(1000).optional(),
   winsMax: z.coerce.number().int().min(0).max(1000).optional(),
   tvType: z.string().trim().min(1).max(60).optional(),
-  // Streams by subscription on this service (TMDB provider id) in `region`.
-  // `region` alone filters nothing — it only says which country `provider`
-  // means, and which country the providers facet lists. Without a region,
-  // `provider` matches the service in any country.
-  provider: z.coerce.number().int().positive().optional(),
+  // Streams by subscription on ANY of these services (TMDB provider ids, CSV —
+  // "the services I pay for") in `region`. `region` alone filters nothing — it
+  // only says which country `provider` means, and which country the providers
+  // facet lists. Without a region, `provider` matches in any country.
+  provider: z
+    .preprocess(
+      // A lone number (internal callers) is a list of one; a query string is CSV.
+      value => (typeof value === "number" ? [value] : splitCsvQueryValue(value)),
+      z.array(z.coerce.number().int().positive()).min(1).max(20),
+    )
+    .optional(),
   // Streams by subscription on ANY service in this country ("Oscar winners
   // streaming now in Germany"). Needs no provider ids, so seed-only records
   // count too.

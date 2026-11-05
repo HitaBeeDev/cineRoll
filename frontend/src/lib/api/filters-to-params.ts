@@ -40,7 +40,7 @@ function appendFacetFilters(
   setList(params, filters.genresMatchAll ? "genreAll" : "genre", filters.genres);
   setList(params, "language", filters.languages);
   setList(params, "country", filters.countries);
-  setNumber(params, "provider", filters.provider);
+  setList(params, "provider", filters.providers?.map(String));
   setTrimmed(params, "region", filters.streamingRegion);
   setList(params, "contentType", filters.contentTypes);
 }

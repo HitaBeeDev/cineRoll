@@ -37,7 +37,9 @@ export function StreamingControl({
   ];
   // A shared link can name a service the current list doesn't (still loading,
   // or nothing left under the other filters) — keep it selectable, not blank.
-  const selected = filters.provider != null ? String(filters.provider) : ANY;
+  // Browse picks one service; a link from /tonight may carry several — the
+  // control shows the first, and the chips list them all.
+  const selected = filters.providers.length > 0 ? String(filters.providers[0]) : ANY;
   if (selected !== ANY && !providerOptions.some((option) => option.value === selected)) {
     providerOptions.push({ value: selected, label: "Selected service" });
   }
@@ -51,7 +53,7 @@ export function StreamingControl({
         className={`${CONTROL_WIDTH} text-fg-hi`}
         onValueChange={(value) =>
           setFilters({
-            provider: value === ANY ? null : Number(value),
+            providers: value === ANY ? [] : [Number(value)],
             // Pin the country the service was picked in, so the link means the same thing to whoever opens it.
             streamingRegion: value === ANY ? "" : region,
             page: 1,
@@ -67,7 +69,7 @@ export function StreamingControl({
           setFilters({
             streamingRegion: value,
             // The same service may not exist in the new country; drop it rather than show an empty grid.
-            provider: null,
+            providers: [],
             page: 1,
           })
         }

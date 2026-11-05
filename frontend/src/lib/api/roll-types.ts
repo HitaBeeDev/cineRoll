@@ -31,6 +31,8 @@ export type RollFilm = Pick<
   | "cannesCategories"
   | "cannesNominations"
   | "cannesWins"
+  | "berlinNominations"
+  | "berlinWins"
 > & {
   oscarCategories: AwardRecord[];
   ggCategories: AwardRecord[];

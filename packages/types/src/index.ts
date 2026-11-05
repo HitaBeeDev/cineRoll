@@ -146,9 +146,9 @@ export interface FilterState {
    */
   genresMatchAll: boolean;
   countries: string[];
-  /** Streams by subscription on this service (TMDB provider id) in `streamingRegion`. */
-  provider: number | null;
-  /** The country `provider` means ("DE"). "" = the viewer's own, decided in the browser. */
+  /** Streams by subscription on ANY of these services (TMDB provider ids) in `streamingRegion`. */
+  providers: number[];
+  /** The country `providers` means ("DE"). "" = the viewer's own, decided in the browser. */
   streamingRegion: string;
   contentTypes: string[];
   // Runtime bounds in minutes, inclusive; null on either side means "no bound".

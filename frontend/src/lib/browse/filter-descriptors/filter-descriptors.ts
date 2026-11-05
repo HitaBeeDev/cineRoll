@@ -32,12 +32,15 @@ export const FILTER_DESCRIPTORS: FilterDescriptor[] = [
     toChips: (f, set) => facetChips("language", f.languages, languageLabel, (languages) => ({ languages }), set) },
   { band: "details", isActive: (f) => f.countries.length > 0,
     toChips: (f, set) => facetChips("country", f.countries, countryLabel, (countries) => ({ countries }), set) },
-  { band: "details", isActive: (f) => f.provider != null,
-    toChips: (f, set) => [{
-      key: "provider",
-      label: `On ${providerName(f.provider!)}${f.streamingRegion ? ` (${regionName(f.streamingRegion)})` : ""}`,
-      onRemove: () => set({ provider: null, streamingRegion: "", page: 1 }),
-    }] },
+  { band: "details", isActive: (f) => f.providers.length > 0,
+    toChips: (f, set) => f.providers.map((id) => ({
+      key: `provider-${id}`,
+      label: `On ${providerName(id)}${f.streamingRegion ? ` (${regionName(f.streamingRegion)})` : ""}`,
+      onRemove: () => {
+        const providers = f.providers.filter((other) => other !== id);
+        set({ providers, streamingRegion: providers.length > 0 ? f.streamingRegion : "", page: 1 });
+      },
+    })) },
   { band: "awards", isActive: (f) => f.categories.length > 0,
     toChips: (f, set) => facetChips("cat", f.categories, (c) => c, (categories) => ({ categories }), set) },
   { band: "awards", isActive: hasCeremonyYearRange,

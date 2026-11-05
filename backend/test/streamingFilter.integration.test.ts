@@ -59,6 +59,10 @@ describe.runIf(process.env['RUN_DB_TESTS'] === '1')('streaming provider filter (
     expect(await matchingIds({ provider: NETFLIX })).toEqual(['itest_stream_1', 'itest_stream_2']);
   });
 
+  it('matches any of several services', async () => {
+    expect(await matchingIds({ provider: `${NETFLIX},${MUBI}`, region: 'US' })).toEqual(['itest_stream_1', 'itest_stream_2']);
+  });
+
   it('combines with the other filters', async () => {
     expect(await matchingIds({ provider: MUBI, region: 'US', genre: 'Comedy' })).toEqual([]);
     expect(await matchingIds({ provider: MUBI, region: 'US', genre: 'Drama' })).toEqual(['itest_stream_1']);

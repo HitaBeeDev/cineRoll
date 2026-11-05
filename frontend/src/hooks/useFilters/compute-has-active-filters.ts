@@ -19,7 +19,7 @@ export function computeHasActiveFilters(filters: FilterState): boolean {
     filters.languages.length > 0 ||
     filters.genres.length > 0 ||
     filters.countries.length > 0 ||
-    filters.provider != null ||
+    filters.providers.length > 0 ||
     filters.contentTypes.length > 0 ||
     filters.runtimeMin != null ||
     filters.runtimeMax != null ||

@@ -11,12 +11,15 @@ import type { ListQuery } from "./listQuerySchema";
  * yet, so they cannot match until refreshed (at most a week).
  */
 export function streamingPredicate(query: Pick<ListQuery, "provider" | "region">): Prisma.Sql | undefined {
-  if (!query.provider) return undefined;
+  if (!query.provider || query.provider.length === 0) return undefined;
 
-  const region: Record<string, unknown> = { providers: [{ id: query.provider }] };
-  if (query.region) region.country = query.region;
-
-  return Prisma.sql`"Film"."watchProviders" @> ${JSON.stringify({ regions: [region] })}::jsonb`;
+  // One containment test per service, OR'd: on any of the viewer's services.
+  const arms = query.provider.map(id => {
+    const region: Record<string, unknown> = { providers: [{ id }] };
+    if (query.region) region.country = query.region;
+    return Prisma.sql`"Film"."watchProviders" @> ${JSON.stringify({ regions: [region] })}::jsonb`;
+  });
+  return Prisma.sql`(${Prisma.join(arms, " OR ")})`;
 }
 
 /**

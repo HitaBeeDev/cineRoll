@@ -10,6 +10,7 @@ const STANDARD: RelatedLink[] = [
   { href: "/countries", label: "Films by country" },
   { href: "/languages", label: "Films by language" },
   { href: "/moods", label: "Films by mood" },
+  { href: "/tonight", label: "What to watch tonight" },
   { href: "/streaming", label: "Streaming now" },
   { href: "/tools", label: "Random film tools" },
 ];

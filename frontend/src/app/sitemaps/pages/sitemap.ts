@@ -13,6 +13,7 @@ const PATHS = [
   "/",
   "/browse",
   "/picks",
+  "/tonight",
   "/ask-ai",
   "/stats",
   "/about",
