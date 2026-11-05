@@ -31,7 +31,7 @@ export const COLLECTIONS: Collection[] = [
     h1: "Every Palme d'Or Winner",
     title: "Every Palme d'Or Winner",
     description:
-      "Every winner of the Palme d'Or, the top prize of the Cannes Film Festival — newest first, with each film's record at the Oscars, Golden Globes and Berlinale.",
+      "Every winner of the Palme d'Or, the top prize at Cannes — newest first, with each film's record at the Oscars, Golden Globes and Berlinale.",
     intro:
       "Every feature film that won the Palme d'Or, the highest prize at the Cannes Film Festival, newest first. Short-film Palmes are left out. In some years the jury split the prize, so those years have two winners.",
     params: { awardBody: "cannes", winnerOnly: "true", categoryExact: "Palme d'or" },

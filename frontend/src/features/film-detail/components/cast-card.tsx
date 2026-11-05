@@ -9,11 +9,12 @@ export function CastCard({ member, accent }: CastCardProps) {
   const initials = getNameInitials(member.name);
   const hue = getNameHue(member.name);
 
-  return (
-    <Link
-      href={`/person/${nameToSlug(member.name)}`}
-      className="group relative flex flex-col overflow-hidden border border-[#1e1e30] bg-[#0d0d18] transition-colors hover:border-accent/30"
-    >
+  // Only people in the award data have a page; linking the rest was a 404 per
+  // actor on every film page. Same card either way, minus the hover cue.
+  const className =
+    "group relative flex flex-col overflow-hidden border border-[#1e1e30] bg-[#0d0d18] transition-colors";
+  const body = (
+    <>
       <div className="relative w-full overflow-hidden" style={{ aspectRatio: "2/3" }}>
         {member.photoUrl ? (
           <Image
@@ -51,6 +52,14 @@ export function CastCard({ member, accent }: CastCardProps) {
           </p>
         )}
       </div>
+    </>
+  );
+
+  return member.hasPage ? (
+    <Link href={`/person/${nameToSlug(member.name)}`} className={`${className} hover:border-accent/30`}>
+      {body}
     </Link>
+  ) : (
+    <div className={className}>{body}</div>
   );
 }

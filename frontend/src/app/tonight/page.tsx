@@ -11,9 +11,9 @@ import { regionName } from "@/lib/streaming/region-name";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/tonight" },
-  title: "What to Watch Tonight — Award Winners You Can Stream",
+  title: "What to Watch Tonight: Award Films to Stream",
   description:
-    "Can't decide what to watch tonight? Pick your streaming services and how long you have, and get one Oscar, Cannes, Golden Globe or Berlinale film you can stream now.",
+    "Can't decide what to watch tonight? Pick your streaming services and how long you have, and get one award-winning film you can stream right now.",
 };
 
 // An hour. The picks rotate daily, but a render that caught the backend down

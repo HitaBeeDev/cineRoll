@@ -2,6 +2,8 @@ export interface CastMember {
   name: string;
   character: string;
   photoUrl: string | null;
+  /** CineRoll has a /person page for them (they appear in the award data). Absent = unknown → no link. */
+  hasPage?: boolean;
 }
 
 export interface AwardRecord {

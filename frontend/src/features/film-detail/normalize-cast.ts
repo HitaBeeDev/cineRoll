@@ -14,5 +14,6 @@ function normalizeCastMember(item: unknown): CastMember {
     name: (member.name as string) ?? "",
     character: (member.character as string) ?? "",
     photoUrl: (member.photoUrl ?? member.profileUrl ?? null) as string | null,
+    hasPage: member.hasPage === true,
   };
 }

@@ -6,9 +6,9 @@ import { fetchDataPage } from "@/features/data-page/fetch-data-page";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/data" },
-  title: "CineRoll Data — Catalogue Size and Award Coverage by Decade",
+  title: "Catalogue Data: Award Coverage by Decade",
   description:
-    "Live numbers for CineRoll: films, nominations and wins on record, Oscar, Golden Globe, Cannes and Berlinale coverage per decade, and the years still missing.",
+    "Live numbers: films, nominations and wins on record, Oscar, Golden Globe, Cannes and Berlinale coverage per decade, and the years still missing.",
 };
 
 // Regenerated at most daily, like the data it reads.
