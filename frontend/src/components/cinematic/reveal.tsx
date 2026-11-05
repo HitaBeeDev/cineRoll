@@ -7,7 +7,7 @@ import type { ReactNode } from "react";
  * Fades its children up once, the first time they scroll into view. Opacity and
  * transform only, so it stays on the compositor; reduced motion skips the move.
  */
-export function AboutReveal({
+export function Reveal({
   children,
   delay = 0,
   className,

@@ -1,6 +1,6 @@
 import { AWARD_BODIES } from "@/features/awards/award-bodies";
 import type { BodyCoverage } from "@/features/methodology/coverage-types";
-import { AboutReveal } from "./about-reveal";
+import { Reveal } from "@/components/cinematic/reveal";
 
 type Stat = { value: string; label: string };
 
@@ -29,7 +29,7 @@ export function AboutStats({
     <section aria-label="CineRoll in numbers" className="border-b border-white/10 bg-[#0a0a10]">
       <dl className="mx-auto grid max-w-5xl grid-cols-2 sm:grid-cols-4">
         {stats.map((stat, index) => (
-          <AboutReveal
+          <Reveal
             key={stat.label}
             delay={index * 0.08}
             className="border-white/10 px-6 py-8 [&:not(:first-child)]:border-l max-sm:[&:nth-child(3)]:border-l-0 max-sm:[&:nth-child(n+3)]:border-t lg:px-10"
@@ -40,7 +40,7 @@ export function AboutStats({
             <dd className="mt-2 font-[family-name:var(--font-display)] text-3xl font-bold tabular-nums text-fg-hi sm:text-4xl">
               {stat.value}
             </dd>
-          </AboutReveal>
+          </Reveal>
         ))}
       </dl>
     </section>

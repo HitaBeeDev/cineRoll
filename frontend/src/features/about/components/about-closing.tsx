@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { AboutReveal } from "./about-reveal";
+import { Reveal } from "@/components/cinematic/reveal";
 
 /** The end card: one clear next step. */
 export function AboutClosing() {
@@ -9,7 +9,7 @@ export function AboutClosing() {
         aria-hidden
         className="pointer-events-none absolute left-1/2 top-0 h-64 w-[36rem] -translate-x-1/2 rounded-full bg-accent opacity-[0.08] blur-[90px]"
       />
-      <AboutReveal className="relative mx-auto max-w-3xl px-6 py-20 text-center lg:py-24">
+      <Reveal className="relative mx-auto max-w-3xl px-6 py-20 text-center lg:py-24">
         <p className="font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.3em] text-fg-faint">
           The end · roll credits
         </p>
@@ -27,7 +27,7 @@ export function AboutClosing() {
             Roll a film
           </Link>
         </div>
-      </AboutReveal>
+      </Reveal>
     </section>
   );
 }

@@ -31,7 +31,7 @@ export function RelatedPages({ current, links = [] }: { current: string; links?:
     <nav aria-labelledby="related-pages" className="border-t border-white/10 pt-10">
       <h2
         id="related-pages"
-        className="font-[family-name:var(--font-geist-mono)] text-[11px] font-semibold uppercase tracking-[0.4em] text-accent"
+        className="font-[family-name:var(--font-geist-mono)] text-[11px] font-semibold uppercase tracking-[0.22em] text-accent"
       >
         Related pages
       </h2>
@@ -40,9 +40,12 @@ export function RelatedPages({ current, links = [] }: { current: string; links?:
           <li key={link.href}>
             <Link
               href={link.href}
-              className="block rounded-md border border-edge px-3 py-1.5 text-sm text-fg-dim transition-colors hover:border-edge-hover hover:text-fg-hi"
+              className="group flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.02] px-4 py-2 text-sm text-fg-dim transition-colors hover:border-accent/50 hover:text-fg-hi focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
             >
               {link.label}
+              <span aria-hidden className="text-fg-faint transition-all group-hover:translate-x-0.5 group-hover:text-accent">
+                →
+              </span>
             </Link>
           </li>
         ))}

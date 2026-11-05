@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { AboutReveal } from "./about-reveal";
+import { Reveal } from "@/components/cinematic/reveal";
 
 /**
  * One numbered chapter: a reel number and serif heading, then the body set to a
@@ -22,14 +22,14 @@ export function AboutChapter({
           Reel {number}
         </p>
       </div>
-      <AboutReveal>
+      <Reveal>
         <h2 className="max-w-2xl font-[family-name:var(--font-display)] text-3xl font-bold leading-tight tracking-tight text-fg-hi sm:text-4xl">
           {title}
         </h2>
         <div className="mt-6 max-w-2xl space-y-5 text-base leading-7 text-fg-dim sm:text-[17px] sm:leading-8">
           {children}
         </div>
-      </AboutReveal>
+      </Reveal>
     </section>
   );
 }

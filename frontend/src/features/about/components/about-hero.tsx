@@ -1,26 +1,11 @@
 import Link from "next/link";
-import { GRAIN_TEXTURE } from "../grain-texture";
-import { AwardNameReel } from "./award-name-reel";
-import { HeroLetterbox } from "./hero-letterbox";
+import { AwardNameReel } from "@/components/cinematic/award-name-reel";
+import { CinematicBackdrop } from "@/components/cinematic/cinematic-backdrop";
 
 export function AboutHero() {
   return (
     <section className="relative isolate overflow-hidden border-b border-white/10 bg-[#07070b]">
-      {/* Projector beam: a warm cone from the top left, fading into the dark. */}
-      <span
-        aria-hidden
-        className="pointer-events-none absolute -left-1/4 -top-1/3 -z-10 h-[140%] w-[90%] rotate-[-18deg] bg-[radial-gradient(ellipse_at_top_left,rgba(232,69,60,0.22),rgba(232,69,60,0.05)_40%,transparent_70%)] blur-2xl"
-      />
-      <span
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_center,transparent_40%,rgba(0,0,0,0.75)_100%)]"
-      />
-      <span
-        aria-hidden
-        className="pointer-events-none absolute inset-0 z-10 opacity-[0.07] mix-blend-overlay"
-        style={{ backgroundImage: GRAIN_TEXTURE, backgroundSize: "220px 220px" }}
-      />
-      <HeroLetterbox />
+      <CinematicBackdrop />
 
       <div className="relative z-10 mx-auto w-full max-w-5xl px-6 pb-14 pt-24 lg:px-10 lg:pt-28">
         <p className="flex items-center gap-3 font-[family-name:var(--font-geist-mono)] text-[11px] font-semibold uppercase tracking-[0.3em] text-accent">

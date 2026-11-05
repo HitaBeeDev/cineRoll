@@ -1,7 +1,12 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { AppHeader } from "@/components/app-header";
 import { AWARD_BODIES } from "@/features/awards/award-bodies";
-import { AwardPageShell } from "@/features/awards/components/award-page-shell";
+import { AwardBodyCard } from "@/features/awards/components/award-body-card";
+import { AwardsHubExplore } from "@/features/awards/components/awards-hub-explore";
+import { AwardsHubHero } from "@/features/awards/components/awards-hub-hero";
+import { RelatedPages } from "@/features/awards/components/related-pages";
+import { fetchCoverage } from "@/features/methodology/fetch-coverage";
+import { fetchCatalogUpdated } from "@/lib/api/fetch-catalog-updated";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/awards" },
@@ -10,66 +15,35 @@ export const metadata: Metadata = {
     "Every winner and nominee at the Oscars, the Golden Globes, the Cannes Film Festival and the Berlinale — by year, by category and by genre.",
 };
 
-// Refreshed daily so the "Last updated" date follows the catalogue.
+// Refreshed daily so the "Last updated" date and coverage follow the catalogue.
 export const revalidate = 86400;
 
-export default function AwardsPage() {
+export default async function AwardsPage() {
+  const [updatedAt, coverage] = await Promise.all([fetchCatalogUpdated(), fetchCoverage()]);
+  const coverageBySlug = new Map(coverage.map((body) => [body.slug, body]));
+  const span =
+    coverage.length > 0
+      ? {
+          firstYear: Math.min(...coverage.map((body) => body.firstYear)),
+          lastYear: Math.max(...coverage.map((body) => body.lastYear)),
+        }
+      : null;
+
   return (
-    <AwardPageShell
-      crumbs={[{ label: "Awards", href: "/awards" }]}
-      title="Film Awards: Winners and Nominees"
-      intro={
-        <>
-        <p>
-          Every film in CineRoll was nominated at one of these four. Each award has its own page
-          with every ceremony on record, from the first one to this year&apos;s, and every
-          category — from Best Picture and the Palme d&apos;Or down to the craft and short-film
-          prizes. Winners are always listed first, so a ceremony page doubles as a quick answer to
-          &ldquo;who won that year?&rdquo;.
-        </p>
-        <p>
-          CineRoll covers the four awards that shape film history: the Oscars, the Golden Globes,
-          the Cannes Film Festival and the Berlinale. Pick one to see every ceremony, every
-          category, and every film that won or was nominated. For the complete winners&apos; lists
-          of the biggest prizes, see the{" "}
-          <Link href="/collections" className="text-fg-hi underline underline-offset-4 hover:text-accent">
-            collections
-          </Link>
-          , or browse the best films{" "}
-          <Link href="/decades" className="text-fg-hi underline underline-offset-4 hover:text-accent">
-            by decade
-          </Link>
-          ,{" "}
-          <Link href="/countries" className="text-fg-hi underline underline-offset-4 hover:text-accent">
-            country
-          </Link>{" "}
-          or{" "}
-          <Link href="/languages" className="text-fg-hi underline underline-offset-4 hover:text-accent">
-            language
-          </Link>
-          , or{" "}
-          <Link href="/moods" className="text-fg-hi underline underline-offset-4 hover:text-accent">
-            by mood
-          </Link>
-          .
-        </p>
-        </>
-      }
-    >
-      <ul className="grid gap-4 sm:grid-cols-2">
-        {AWARD_BODIES.map((body) => (
-          <li key={body.slug}>
-            <Link
-              href={`/awards/${body.slug}`}
-              className="block h-full rounded-lg border border-edge bg-ink-900 p-6 transition-colors hover:border-edge-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
-            >
-              <h2 className="font-[family-name:var(--font-display)] text-2xl font-bold">{body.name}</h2>
-              <p className="mt-2 text-sm leading-6 text-fg-muted">{body.intro[0]}</p>
-              <p className="mt-3 text-sm text-accent">{body.headline} winners and more →</p>
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </AwardPageShell>
+    <main className="min-h-screen bg-ink-950 text-fg-hi">
+      <AppHeader />
+      <AwardsHubHero updatedAt={updatedAt} span={span} />
+      <div className="mx-auto max-w-5xl space-y-16 px-6 py-14 lg:px-10 lg:py-16">
+        <ul className="grid gap-5 sm:grid-cols-2">
+          {AWARD_BODIES.map((body, index) => (
+            <li key={body.slug}>
+              <AwardBodyCard body={body} index={index} coverage={coverageBySlug.get(body.slug)} />
+            </li>
+          ))}
+        </ul>
+        <AwardsHubExplore />
+        <RelatedPages current="/awards" />
+      </div>
+    </main>
   );
 }
