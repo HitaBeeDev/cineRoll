@@ -9,14 +9,22 @@ import { DialogTitle } from "@/components/ui/dialog/dialog-title";
 import { DialogTrigger } from "@/components/ui/dialog/dialog-trigger";
 import { SiteFeedbackForm } from "@/components/site-feedback-form";
 
-export function SiteFeedbackDialog() {
+const FOOTER_TRIGGER_CLASS =
+  "rounded-sm font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.24em] text-fg-muted transition-colors hover:text-accent focus-visible:outline-none focus-visible:text-accent focus-visible:ring-2 focus-visible:ring-accent/50";
+
+/** The feedback form in a dialog. Defaults to the footer's "Feedback" link; pages can pass their own trigger look. */
+export function SiteFeedbackDialog({
+  triggerLabel = "Feedback",
+  triggerClassName = FOOTER_TRIGGER_CLASS,
+}: {
+  triggerLabel?: string;
+  triggerClassName?: string;
+}) {
   const [open, setOpen] = useState(false);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger className="rounded-sm font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.24em] text-fg-muted transition-colors hover:text-accent focus-visible:outline-none focus-visible:text-accent focus-visible:ring-2 focus-visible:ring-accent/50">
-        Feedback
-      </DialogTrigger>
+      <DialogTrigger className={triggerClassName}>{triggerLabel}</DialogTrigger>
       <DialogContent className="border-[#242438] bg-[#0b0b14]">
         <DialogHeader>
           <DialogTitle className="font-[family-name:var(--font-geist-mono)] text-[11px] font-semibold uppercase tracking-[0.45em] text-accent">
