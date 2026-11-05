@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { JsonLd } from "@/components/json-ld";
 import { buildLinkItemList } from "@/lib/seo/build-link-item-list";
+import { findHeadlineCategory } from "@/features/awards/find-headline-category";
 import { AWARD_BODIES } from "@/features/awards/award-bodies";
 import type { AwardBodyPayload } from "@/features/awards/award-types";
 import { AwardPageShell } from "@/features/awards/components/award-page-shell";
@@ -44,7 +45,7 @@ export default async function AwardBodyPage({ params }: Props) {
     const decade = Math.floor(year / 10) * 10;
     decades.set(decade, [...(decades.get(decade) ?? []), year]);
   }
-  const headline = data.categories.find((category) => category.name === body.headline);
+  const headline = findHeadlineCategory(data.categories, body.headline);
 
   return (
     <AwardPageShell
