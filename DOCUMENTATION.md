@@ -429,6 +429,7 @@ variable.
 | `DATABASE_POOL_SIZE` | no (25) | |
 | `GEMINI_API_KEY` | no | Ask AI natural-language roll. Unset is supported: both stages fall back to their local paths, with lower-quality results |
 | `METRICS_TOKEN` | no | bearer token for `/api/metrics/*`; endpoints 503 if unset |
+| `CRON_SECRET` | no | bearer token Vercel cron sends to `/api/jobs/*`; endpoints 503 if unset. `TMDB_API_KEY` is also needed for the streaming refresh |
 | `TMDB_API_KEY`, `OMDB_API_KEY` | no | data-pipeline enrichment only, never at runtime |
 | `RESEND_API_KEY`, `OWNER_EMAIL` | no | feedback email notifications |
 | `SENTRY_DSN`, `SENTRY_DEBUG` | no | error tracking; disabled when unset |
@@ -568,7 +569,7 @@ Plural params are comma-separated (`genre=Drama,Thriller`); booleans are
 | **User** (all 🔒) | `/user/watchlist`, `/user/watched`, `/user/lists` (+ `/films`), `/user/onboarding`, `/user/film-status/:filmId`, `/user/summary`, `/user/progress`, `/user/notifications` (+ `/read`), `DELETE /user/account` |
 | **Games** | `GET /marathon?count=3` |
 | **Analytics** | `POST /events` (batched, 1–25 per call, 15 types) · `GET /metrics/recommendations`, `GET /metrics/rolls` (metrics token) |
-| **Ops** | `GET /health` (no `/api` prefix; probes the DB) |
+| **Ops** | `GET /health` (no `/api` prefix; probes the DB) · `GET /jobs/watch-providers` (🔒 `CRON_SECRET`; daily Vercel cron — re-checks the stalest 1/7 of films on TMDB, so all are refreshed weekly) |
 
 `GET /films`, `GET /random`, `GET /random/count` and `GET /marathon` share one
 filter set: `search`, `person`, `director`, `awardBody`, `winnerOnly`,
@@ -640,7 +641,7 @@ reads:
 - `originCountries` — where a film is *from*. `countries` lists every co-financier
   and filtering on it is what made the country facet wrong; it is display-only.
 - `posterColor`.
-- `watchProviders` — `{ asOf, regions: [{ country, providers[] }] }`, subscription services only (TMDB, data by JustWatch). Seeded from master.json `streamingProviders` via `data/lib/watchProviders.ts`; shown on the film page ("Where to stream", viewer's country picked from the browser). Not refreshed yet — `asOf` is the build date.
+- `watchProviders` — `{ asOf, regions: [{ country, providers[] }] }`, subscription services only (TMDB, data by JustWatch). Seeded from master.json `streamingProviders` via `data/lib/watchProviders.ts`; shown on the film page ("Where to stream", viewer's country picked from the browser). Providers are `{ id, name, logoPath }` (TMDB ids; null on seed-only records). Refreshed weekly by `GET /api/jobs/watch-providers` (`lib/watchRefresh/`); `asOf` = last TMDB check, `regions: []` = checked, streams nowhere. The check writes with raw SQL so `updatedAt` only moves when the services changed. A reseed never overwrites a filled value.
 
 Two schema decisions that trip people up:
 
@@ -1356,9 +1357,8 @@ Either commitlint (use a conventional prefix: `feat:`, `fix:`, `docs:`, …) or
 
 ## Known Limitations
 
-- **`watchProviders` goes stale.** Streaming availability is seeded and shown on
-  the film page, but only refreshed when a film is rebuilt — there is no weekly
-  refresh and no provider filter yet.
+- **Streaming data is up to a week old.** `watchProviders` is re-checked weekly
+  (daily cron, 1/7 per run), subscription services only; no provider filter yet.
 - **`moodTags` and `keywords` are in-process only.** Neither is indexed, so neither
   can be SQL-filtered; only the Ask AI reranker reads them. See
   [Future Work](#future-work).

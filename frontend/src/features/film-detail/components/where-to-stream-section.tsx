@@ -1,6 +1,7 @@
 "use client";
 
 import { ExternalLink } from "lucide-react";
+import Image from "next/image";
 import { useMemo } from "react";
 import type { WatchProviders } from "@cineroll/types";
 import { EditorialSectionLabel } from "@/components/editorial-section-label";
@@ -75,12 +76,24 @@ export function WhereToStreamSection({
 
         {providers.length > 0 ? (
           <ul className="flex flex-wrap gap-2" aria-label={`Streaming services in ${regionName(region)}`}>
-            {providers.map((name) => (
+            {providers.map((provider) => (
               <li
-                key={name}
-                className="border border-[#25253a] px-3.5 py-2 text-sm text-[#d0d0e8]"
+                key={provider.name}
+                className="flex items-center gap-2.5 border border-[#25253a] py-1.5 pl-1.5 pr-3.5 text-sm text-[#d0d0e8]"
               >
-                {name}
+                {provider.logoPath ? (
+                  <Image
+                    src={`https://image.tmdb.org/t/p/w92${provider.logoPath}`}
+                    alt=""
+                    width={24}
+                    height={24}
+                    unoptimized
+                    className="h-6 w-6 rounded-sm"
+                  />
+                ) : (
+                  <span className="h-6 w-1" aria-hidden />
+                )}
+                {provider.name}
               </li>
             ))}
           </ul>

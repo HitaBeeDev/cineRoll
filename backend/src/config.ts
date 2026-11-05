@@ -27,13 +27,15 @@ const envSchema = z.object({
   SLOW_QUERY_THRESHOLD_MS: z.coerce.number().int().nonnegative().default(100),
   SLOW_REQUEST_THRESHOLD_MS: z.coerce.number().int().nonnegative().default(200),
   FRONTEND_URL: z.string().url().default("http://localhost:3000"),
-  // Enrichment-only — not required at runtime
+  // Enrichment, plus the streaming refresh job (which skips if unset)
   TMDB_API_KEY: optionalNonEmptyString,
   OMDB_API_KEY: optionalNonEmptyString,
   // Natural language roll — route returns 503 if unset
   GEMINI_API_KEY: optionalNonEmptyString,
   // Ops metrics — /api/metrics returns 503 if unset, else requires this bearer token
   METRICS_TOKEN: optionalNonEmptyString,
+  // Scheduled jobs (Vercel cron sends it as a bearer token) — /api/jobs returns 503 if unset
+  CRON_SECRET: optionalNonEmptyString,
   // Feedback notifications — feedback still persists if unset
   RESEND_API_KEY: optionalNonEmptyString,
   OWNER_EMAIL: optionalEmail,
@@ -90,6 +92,7 @@ export const config = {
   omdbApiKey: env.OMDB_API_KEY ?? "",
   geminiApiKey: env.GEMINI_API_KEY ?? "",
   metricsToken: env.METRICS_TOKEN ?? "",
+  cronSecret: env.CRON_SECRET ?? "",
   resendApiKey: env.RESEND_API_KEY ?? "",
   ownerEmail: env.OWNER_EMAIL ?? "",
   sentryDsn: env.SENTRY_DSN ?? "",

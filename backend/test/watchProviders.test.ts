@@ -2,11 +2,13 @@ import { describe, expect, it } from "vitest";
 
 import { toWatchProviders } from "../data/lib/watchProviders";
 
+const named = (name: string) => ({ id: null, name, logoPath: null });
+
 describe("toWatchProviders", () => {
   it("keeps well-formed regions with their as-of date", () => {
     expect(
       toWatchProviders([{ country: "DE", providers: ["MUBI", "Netflix"] }], "2026-03-01T00:00:00.000Z"),
-    ).toEqual({ asOf: "2026-03-01T00:00:00.000Z", regions: [{ country: "DE", providers: ["MUBI", "Netflix"] }] });
+    ).toEqual({ asOf: "2026-03-01T00:00:00.000Z", regions: [{ country: "DE", providers: [named("MUBI"), named("Netflix")] }] });
   });
 
   it("drops bad countries, empty regions and duplicate names", () => {
@@ -19,7 +21,7 @@ describe("toWatchProviders", () => {
         ],
         null,
       ),
-    ).toEqual({ asOf: null, regions: [{ country: "FR", providers: ["Canal+"] }] });
+    ).toEqual({ asOf: null, regions: [{ country: "FR", providers: [named("Canal+")] }] });
   });
 
   it("is null when nothing usable is left", () => {

@@ -14,14 +14,26 @@ export interface AwardRecord {
 
 export type AwardCategory = AwardRecord;
 
+/** One streaming service. `id`/`logoPath` are TMDB's; null on records seeded before the refresh job reached them. */
+export interface WatchProvider {
+  id: number | null;
+  name: string;
+  /** TMDB image path ("/abc.jpg"), served from image.tmdb.org. */
+  logoPath: string | null;
+}
+
 /** Subscription services a title streams on in one country (TMDB, data by JustWatch). */
 export interface WatchRegion {
   /** ISO 3166-1 alpha-2, e.g. "DE". */
   country: string;
-  providers: string[];
+  providers: WatchProvider[];
 }
 
-/** Streaming availability as stored on the film. `asOf` = when TMDB was asked. */
+/**
+ * Streaming availability as stored on the film. `asOf` = when TMDB was last
+ * asked. `regions: []` means checked and streaming nowhere — distinct from a
+ * null column, which means never checked.
+ */
 export interface WatchProviders {
   asOf: string | null;
   regions: WatchRegion[];
