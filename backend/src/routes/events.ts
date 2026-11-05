@@ -29,6 +29,7 @@ const eventTypes = [
   "search",
   "filter_apply",
   "pick_of_day_click",
+  "web_vital",
 ] as const;
 
 const eventBodySchema = z.object({

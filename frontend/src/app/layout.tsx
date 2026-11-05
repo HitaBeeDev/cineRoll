@@ -11,6 +11,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { SiteFooterGate } from "@/components/site-footer-gate";
 import { SmoothScrollProvider } from "@/components/smooth-scroll-provider";
 import { SITE_URL } from "@/lib/site-url";
+import { WebVitals } from "@/components/web-vitals";
 import { SITE_VERIFICATION } from "@/lib/site-verification";
 import "./globals.css";
 
@@ -85,6 +86,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} ${playfairDisplay.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-ink-900 text-fg-hi">
+        <WebVitals />
         <Providers>
           <SmoothScrollProvider>
             <Suspense fallback={null}>

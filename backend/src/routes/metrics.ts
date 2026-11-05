@@ -5,6 +5,7 @@ import { getValidated, validate } from "../middleware/validate";
 import { requireMetricsToken } from "./metricsRoute/auth";
 import { getRecommendationMetrics } from "./metricsRoute/recommendationMetricsService";
 import { getRollMetrics } from "./metricsRoute/rollMetricsService";
+import { getWebVitalsMetrics } from "./metricsRoute/webVitalsService";
 
 const metricsQuerySchema = z.object({
   days: z.coerce.number().int().min(1).max(365).optional(),
@@ -25,4 +26,12 @@ metricsRouter.get("/rolls", validate(metricsQuerySchema, "query"), async (req, r
   const { days } = getValidated<MetricsQuery>(req, "query");
 
   res.json(await getRollMetrics(days));
+});
+
+// Field Core Web Vitals (LCP / INP / CLS) per page type, p75 over the last
+// `days` (default 28 — Search Console's window).
+metricsRouter.get("/web-vitals", validate(metricsQuerySchema, "query"), async (req, res) => {
+  const { days } = getValidated<MetricsQuery>(req, "query");
+
+  res.json(await getWebVitalsMetrics(days));
 });
