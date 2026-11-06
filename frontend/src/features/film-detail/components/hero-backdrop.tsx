@@ -48,8 +48,11 @@ export function HeroBackdrop({
           alt=""
           fill
           // The film page's LCP element: preloaded from <head>. (`priority` is
-          // deprecated in Next 16 in favour of `preload`.)
+          // deprecated in Next 16 in favour of `preload`.) `preload` alone no
+          // longer sets fetchpriority, so the preload went out at normal
+          // priority behind the CSS — PageSpeed flagged it (6 Nov 2026).
           preload
+          fetchPriority="high"
           sizes="100vw"
           placeholder="blur"
           blurDataURL={blurDataURL}

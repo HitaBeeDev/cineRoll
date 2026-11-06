@@ -1,4 +1,5 @@
 import { ImageResponse } from "next/og";
+import { SITE_TAGLINE } from "@/lib/seo/site-tagline";
 import { SITE_URL } from "@/lib/site-url";
 
 // Node runtime (not "edge"): Vercel's multi-service deployments don't support
@@ -19,7 +20,7 @@ export function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const title = (searchParams.get("title") ?? "").slice(0, 90);
   const subtitle =
-    (searchParams.get("subtitle") ?? "Discover award-winning films with a roll of the dice.").slice(0, 140);
+    (searchParams.get("subtitle") ?? SITE_TAGLINE).slice(0, 140);
 
   const titleSize = title.length > 40 ? 66 : title.length > 24 ? 82 : 96;
 

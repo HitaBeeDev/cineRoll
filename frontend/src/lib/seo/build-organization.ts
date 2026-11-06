@@ -1,4 +1,5 @@
 import { absoluteUrl } from "./absolute-url";
+import { SITE_DESCRIPTION } from "./site-description";
 
 // CineRoll's own profiles elsewhere. Add new socials here — nowhere else.
 const SAME_AS = [
@@ -16,13 +17,14 @@ export function buildOrganization() {
     "@type": "Organization",
     "@id": absoluteUrl("/#organization"),
     name: "CineRoll",
+    description: SITE_DESCRIPTION,
     url: absoluteUrl("/"),
     logo: absoluteUrl("/icon-512.png"),
     sameAs: SAME_AS,
     founder: {
       "@type": "Person",
       name: "Anahita Amiri",
-      sameAs: ["https://github.com/HitaBeeDev"],
+      sameAs: ["https://github.com/HitaBeeDev", "https://anahita-amiri.dev"],
     },
   };
 }

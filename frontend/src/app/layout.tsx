@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { SITE_DESCRIPTION } from "@/lib/seo/site-description";
 import { Suspense } from "react";
 import { Analytics } from "@vercel/analytics/next";
 import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
@@ -37,7 +38,7 @@ export const metadata: Metadata = {
     default: "CineRoll",
     template: "%s | CineRoll",
   },
-  description: "Discover award-winning films with a roll of the dice.",
+  description: SITE_DESCRIPTION,
   applicationName: "CineRoll",
   verification: SITE_VERIFICATION,
   manifest: "/manifest.webmanifest",
