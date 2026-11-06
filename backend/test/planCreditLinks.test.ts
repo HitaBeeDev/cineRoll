@@ -110,6 +110,35 @@ describe("planCreditLinks", () => {
     expect(personFor(plan, "tmdb:5")).toMatchObject({ existingId: null, slug: "john-smith-5" });
   });
 
+  // Two verified Jane Does (TMDB 9 and 11) plus a name-only one on a film with no
+  // TMDB credits: the name-only one can't pick between them, so stays unverified.
+  const threeJanes = [
+    film({ id: "a", slug: "a", title: "A", credits: [credit("Jane Doe", "Writing"), credit("Jane Doe", "Writing", { awardYear: 2021 })], tmdbCredits: [{ id: 9, name: "Jane Doe" }] }),
+    film({ id: "b", slug: "b", title: "B", credits: [credit("Jane Doe", "Editing")], tmdbCredits: [{ id: 11, name: "Jane Doe" }] }),
+    film({ id: "c", slug: "c", title: "C", credits: [credit("Jane Doe", "Sound")], tmdbCredits: [] }),
+  ];
+
+  it("never hands out a clash slug another existing person row already owns", () => {
+    const plan = planCreditLinks(threeJanes, [], [
+      { id: "v9", slug: "jane-doe", name: "Jane Doe", tmdbPersonId: 9 },
+      { id: "v11", slug: "jane-doe-11", name: "Jane Doe", tmdbPersonId: 11 },
+      // Someone not in this plan at all already holds jane-doe-2.
+      { id: "other", slug: "jane-doe-2", name: "Jane Doe", tmdbPersonId: 12 },
+    ]);
+    const slugs = plan.persons.map(p => p.slug);
+    expect(new Set(slugs).size).toBe(slugs.length);
+    expect(personFor(plan, "name:jane-doe")?.slug).not.toBe("jane-doe-2");
+  });
+
+  it("reuses an unverified person's own earlier row and slug instead of making a new one each run", () => {
+    const plan = planCreditLinks(threeJanes, [], [
+      { id: "v9", slug: "jane-doe", name: "Jane Doe", tmdbPersonId: 9 },
+      { id: "v11", slug: "jane-doe-11", name: "Jane Doe", tmdbPersonId: 11 },
+      { id: "earlier", slug: "jane-doe-7", name: "Jane Doe", tmdbPersonId: null },
+    ]);
+    expect(personFor(plan, "name:jane-doe")).toMatchObject({ existingId: "earlier", slug: "jane-doe-7" });
+  });
+
   it("lets a hand-marked primary keep the plain slug, and prefers verified over unverified", () => {
     const plan = planCreditLinks(
       [

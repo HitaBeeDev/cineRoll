@@ -94,6 +94,12 @@ const nextConfig: NextConfig = {
     return [
       // The natural-language roll moved from /describe when it became "Ask AI".
       { source: "/describe", destination: "/ask-ai", permanent: true },
+      // Retitled to its real name (Mexican, not UK) — keep the old film URL alive.
+      {
+        source: "/film/dangerous-curves-dangerous-curves-uk-1950",
+        destination: "/film/curvas-peligrosas-dangerous-curves-1950",
+        permanent: true,
+      },
     ];
   },
   async headers() {

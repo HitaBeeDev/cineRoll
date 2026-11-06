@@ -239,6 +239,14 @@ function buildPersons(
         row = sameSlug;
       }
     }
+    // An unverified person who lost the plain slug last run sits on a suffixed
+    // slug no lookup above can find. Reuse that row, so the person keeps one row
+    // and one URL across runs instead of a new orphan each time.
+    if (!row && !tmdbPersonId) {
+      row = existing.find(
+        p => !p.tmdbPersonId && !usedExisting.has(p.id) && !taken.has(p.slug) && nameToSlug(p.name) === wanted,
+      );
+    }
     if (row) usedExisting.add(row.id);
 
     // A slug already owned by another row in the table (one this plan doesn't
@@ -247,8 +255,14 @@ function buildPersons(
       const owner = bySlug.get(candidate);
       return owner !== undefined && owner.id !== row?.id;
     };
+    const free = (candidate: string) => !taken.has(candidate) && !ownedByOther(candidate);
     let slug = row?.slug ?? wanted;
-    if (taken.has(slug) || ownedByOther(slug)) slug = `${wanted}-${tmdbPersonId ?? persons.length}`;
+    if (!free(slug)) {
+      // Verified: the TMDB id makes a stable suffix. Unverified: the lowest free
+      // number. Either way, keep going until it clashes with nothing.
+      slug = tmdbPersonId && free(`${wanted}-${tmdbPersonId}`) ? `${wanted}-${tmdbPersonId}` : wanted;
+      for (let n = 2; !free(slug); n++) slug = `${wanted}-${n}`;
+    }
     taken.add(slug);
 
     persons.push({
