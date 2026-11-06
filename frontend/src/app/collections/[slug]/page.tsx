@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { JsonLd } from "@/components/json-ld";
 import { FilmGridSection } from "@/features/collections/components/film-grid-section";
+import { collectionAnswer } from "@/features/collections/collection-answer";
 import { describeFilmList } from "@/features/collections/describe-film-list";
 import { AwardPageShell } from "@/features/awards/components/award-page-shell";
 import { COLLECTIONS } from "@/features/collections/collections";
@@ -40,6 +41,7 @@ export default async function CollectionPage({ params }: Props) {
   if (total < MIN_COLLECTION_FILMS) notFound();
 
   const path = `/collections/${collection.slug}`;
+  const { answer, rules } = await collectionAnswer(collection, films, total);
 
   return (
     <AwardPageShell
@@ -53,7 +55,10 @@ export default async function CollectionPage({ params }: Props) {
       )}
       intro={
         <>
-          <p>{collection.intro}</p>
+          {answer && <p>{answer}</p>}
+          <p>
+            {collection.intro} {rules}
+          </p>
           <p>{describeFilmList(films, total).join(" ")}</p>
           <p>
             {total > films.length

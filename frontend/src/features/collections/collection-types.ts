@@ -14,4 +14,8 @@ export type Collection = {
   /** Grid order: "newest" for winners' lists, "wins" / "noms" for rankings. */
   sort: CollectionSort;
   related?: { label: string; href: string };
+  /** Winners' lists: the award category behind the list ("oscars/best-picture"), read for ceremony years. */
+  topPrize?: { category: string; name: string };
+  /** Cross-award lists: two winners' lists whose overlap is the headline fact ("won both the Palme d'Or and Best Picture"). */
+  overlap?: { collections: [string, string]; label: string };
 };

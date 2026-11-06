@@ -24,7 +24,7 @@ export function describeFilmList(films: Film[], total: number): string[] {
       .filter((film): film is Film => Boolean(film) && totalWins(film as Film) > 0)
       .map((film) => `${film.title} (${totalWins(film)})`);
     sentences.push(
-      `The most awarded is ${top.title} (${top.year}), with ${totalWins(top)} wins${
+      `The most awarded is ${top.title} (${top.year}), with ${totalWins(top)} wins across the four awards${
         followers.length ? `, followed by ${listJoin(followers)}` : ""
       }.`,
     );

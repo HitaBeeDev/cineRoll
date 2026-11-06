@@ -5,6 +5,7 @@ import { AppHeader } from "@/components/app-header";
 import { ShareBanner } from "@/components/share-banner";
 import { buildFilmMetadata } from "@/features/film-detail/build-film-metadata";
 import { FALLBACK_FILM_ACCENT } from "@/features/film-detail/config/fallback-film-accent";
+import { filmAwardAnswer } from "@/features/film-detail/film-award-answer";
 import { computeAwardSummary } from "@/features/film-detail/compute-award-summary";
 import { CastSection } from "@/features/film-detail/components/cast-section";
 import { FilmAwardsSection } from "@/features/film-detail/components/film-awards-section";
@@ -61,6 +62,7 @@ export default async function FilmPage({ params }: FilmPageProps) {
   if (!film) notFound();
 
   const awardSummary = computeAwardSummary(film);
+  const awardAnswer = filmAwardAnswer(film, film.title);
   const accent = film.posterColor ?? FALLBACK_FILM_ACCENT;
   const accentStyle = { "--film-accent": accent } as CSSProperties;
 
@@ -103,6 +105,11 @@ export default async function FilmPage({ params }: FilmPageProps) {
           }}
         />
         <div className="relative mx-auto max-w-6xl space-y-20 px-6 py-20 lg:px-10">
+          {awardAnswer && (
+            // The answer to "<film> awards", first in the page body. Built from
+            // the award rows only (film-award-answer.ts) — no written copy.
+            <p className="max-w-3xl text-[1.05rem] leading-[1.8] text-[#c9c7d6]">{awardAnswer}</p>
+          )}
           {film.plot && <SynopsisSection plot={film.plot} accent={accent} />}
           <WhereToStreamSection
             watchProviders={film.watchProviders}

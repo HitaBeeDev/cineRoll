@@ -21,7 +21,7 @@ export const COLLECTIONS: Collection[] = [
     description:
       "Every film that won the Academy Award for Best Picture, from the first ceremony to today — newest first, with each film's full award history.",
     intro:
-      "Every film that won the top prize at the Academy Awards, newest first. Early winners are listed under the category's older names — Outstanding Production and Outstanding Picture — which the Academy used before Best Picture.",
+      "Every film that won the top prize at the Academy Awards. Early winners are listed under the category's older names — Outstanding Production and Outstanding Picture — which the Academy used before Best Picture.",
     params: {
       awardBody: "oscar",
       winnerOnly: "true",
@@ -29,6 +29,7 @@ export const COLLECTIONS: Collection[] = [
         "Best Picture,Best Motion Picture,Outstanding Picture,Outstanding Production,Outstanding Motion Picture",
     },
     related: { label: "the Best Picture winners and nominees by year", href: "/awards/oscars/best-picture" },
+    topPrize: { category: "oscars/best-picture", name: "Best Picture" },
   },
   {
     slug: "palme-dor-winners",
@@ -39,9 +40,10 @@ export const COLLECTIONS: Collection[] = [
     description:
       "Every winner of the Palme d'Or, the top prize at Cannes — newest first, with each film's record at the Oscars, Golden Globes and Berlinale.",
     intro:
-      "Every feature film that won the Palme d'Or, the highest prize at the Cannes Film Festival, newest first. Short-film Palmes are left out. In some years the jury split the prize, so those years have two winners.",
+      "Every feature film that won the Palme d'Or, the highest prize at the Cannes Film Festival. Short-film Palmes are left out. In some years the jury split the prize, so those years have two winners.",
     params: { awardBody: "cannes", winnerOnly: "true", categoryExact: "Palme d'or" },
     related: { label: "the Palme d'Or winners and nominees by year", href: "/awards/cannes/palme-d-or" },
+    topPrize: { category: "cannes/palme-d-or", name: "the Palme d'Or" },
   },
   {
     slug: "golden-bear-winners",
@@ -52,13 +54,14 @@ export const COLLECTIONS: Collection[] = [
     description:
       "Every film that won the Golden Bear, the top prize of the Berlin International Film Festival — newest first, with each film's full award history.",
     intro:
-      "Every film that won the Golden Bear, the Berlinale's top prize, newest first. Short-film and documentary Golden Bears are left out; this is the main competition award, listed under both of its official names over the years.",
+      "Every film that won the Golden Bear, the Berlinale's top prize. Short-film and documentary Golden Bears are left out; this is the main competition award, listed under both of its official names over the years.",
     params: {
       awardBody: "berlin",
       winnerOnly: "true",
       categoryExact: "Golden Bear,Golden Bear for Best Film",
     },
     related: { label: "the Golden Bear winners and nominees by year", href: "/awards/berlinale/golden-bear" },
+    topPrize: { category: "berlinale/golden-bear", name: "the Golden Bear" },
   },
   {
     slug: "international-feature-winners",
@@ -69,7 +72,7 @@ export const COLLECTIONS: Collection[] = [
     description:
       "Every film that won the Oscar for International Feature Film — formerly Best Foreign Language Film — newest first.",
     intro:
-      "Every film that won the Academy Award for International Feature Film, newest first. Until 2019 the award was called Best Foreign Language Film; both names are included here.",
+      "Every film that won the Academy Award for International Feature Film. Until 2019 the award was called Best Foreign Language Film; both names are included here.",
     params: {
       awardBody: "oscar",
       winnerOnly: "true",
@@ -79,6 +82,7 @@ export const COLLECTIONS: Collection[] = [
       label: "the International Feature winners and nominees by year",
       href: "/awards/oscars/international-feature-film",
     },
+    topPrize: { category: "oscars/international-feature-film", name: "the Oscar for International Feature Film" },
   },
   {
     slug: "won-at-two-awards",
@@ -128,6 +132,7 @@ export const COLLECTIONS: Collection[] = [
       "Cannes and the Academy often disagree. These Palme d'Or winners are the exceptions: the festival's top prize, and at least one Oscar.",
     params: { awardBody: "cannes", winnerOnly: "true", categoryExact: "Palme d'or", wonAtBodies: "oscar" },
     related: { label: "every Palme d'Or winner", href: "/collections/palme-dor-winners" },
+    overlap: { collections: ["palme-dor-winners", "best-picture-winners"], label: "both the Palme d'Or and Best Picture" },
   },
   {
     slug: "golden-bear-and-oscar-winners",
@@ -146,6 +151,7 @@ export const COLLECTIONS: Collection[] = [
       wonAtBodies: "oscar",
     },
     related: { label: "every Golden Bear winner", href: "/collections/golden-bear-winners" },
+    overlap: { collections: ["golden-bear-winners", "best-picture-winners"], label: "both the Golden Bear and Best Picture" },
   },
   {
     slug: "cannes-and-oscar-winners",
@@ -158,6 +164,7 @@ export const COLLECTIONS: Collection[] = [
     intro:
       "Films that won something at Cannes — any prize, not only the Palme d'Or — and at least one Oscar. It is the clearest overlap between European festival taste and Hollywood's.",
     params: { wonAtBodies: "cannes,oscar" },
+    overlap: { collections: ["palme-dor-winners", "best-picture-winners"], label: "both the Palme d'Or and Best Picture" },
   },
   {
     slug: "berlinale-and-oscar-winners",
