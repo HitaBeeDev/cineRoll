@@ -53,6 +53,7 @@ export function MobileNavMenu({
               <Link
                 key={item.href}
                 href={item.href}
+                aria-current={isActiveRoute(pathname, item.href) ? "page" : undefined}
                 className={cn(
                   "rounded-xl px-3 py-3 font-[family-name:var(--font-geist-mono)] text-lg font-bold uppercase tracking-[0.16em]",
                   isActiveRoute(pathname, item.href)

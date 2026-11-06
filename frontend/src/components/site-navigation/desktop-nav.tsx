@@ -22,8 +22,9 @@ export function DesktopNav({
           <Link
             key={item.href}
             href={item.href}
+            aria-current={isActiveRoute(pathname, item.href) ? "page" : undefined}
             className={cn(
-              "px-3.5 py-2",
+              "px-2 py-2 xl:px-3.5",
               "font-[family-name:var(--font-geist-mono)] text-[12px] uppercase tracking-[0.1em]",
               "transition-colors duration-150",
               "focus-visible:outline-none focus-visible:ring-2",

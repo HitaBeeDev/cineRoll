@@ -3,6 +3,7 @@ export const primaryNavItems = [
   { href: "/", label: "Home" },
   { href: "/browse", label: "Browse" },
   { href: "/awards", label: "Awards" },
+  { href: "/collections", label: "Collections" },
   { href: "/picks", label: "Daily Picks" },
   { href: "/ask-ai", label: "Ask AI" },
   { href: "/stats", label: "Stats" },

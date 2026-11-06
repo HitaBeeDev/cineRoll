@@ -1,0 +1,113 @@
+.archive {
+  position: relative;
+  isolation: isolate;
+  background: #07070b;
+}
+
+.hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-bottom: 1px solid rgb(255 255 255 / 9%);
+  background: radial-gradient(ellipse at 90% 100%, #201217 0%, transparent 65%);
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: -50% -15%;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 30% 30%, rgb(232 69 60 / 12%), transparent 55%);
+  animation: archive-light 24s ease-in-out infinite alternate;
+}
+
+.section {
+  position: relative;
+  padding-top: 1rem;
+  border-top: 1px solid rgb(255 255 255 / 10%);
+}
+
+.section::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: 0;
+  width: 5rem;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #e8453c, transparent);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.section[data-entered="true"]::before {
+  animation: archive-divider 1.2s ease-out both;
+}
+
+.card {
+  position: relative;
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 0.65rem;
+  padding: 1.15rem;
+  background: linear-gradient(135deg, #111119, #0b0b11);
+  transition: transform 240ms ease, border-color 240ms ease, box-shadow 240ms ease;
+}
+
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at top right, rgb(232 69 60 / 10%), transparent 70%);
+  opacity: 0;
+  transition: opacity 240ms ease;
+}
+
+.card:focus-visible {
+  outline: 2px solid #e8453c;
+  outline-offset: 4px;
+}
+
+.card:focus-visible::before { opacity: 1; }
+.card:focus-visible .arrow { transform: translateX(4px); color: #ff7068; }
+
+@media (hover: hover) and (pointer: fine) {
+  .card:hover {
+    transform: translateY(-4px);
+    border-color: rgb(232 69 60 / 50%);
+    box-shadow: 0 14px 40px rgb(0 0 0 / 30%), 0 0 25px rgb(232 69 60 / 5%);
+  }
+  .card:hover::before { opacity: 1; }
+  .card:hover .arrow { transform: translateX(4px); color: #ff7068; }
+}
+
+.arrow { transition: transform 240ms ease, color 240ms ease; }
+
+/* Native radio controls keep category switching usable without JavaScript. */
+.browser:has(input[value="records"]:checked) [data-category]:not([data-category="records"]),
+.browser:has(input[value="winners"]:checked) [data-category]:not([data-category="winners"]),
+.browser:has(input[value="cross-award"]:checked) [data-category]:not([data-category="cross-award"]),
+.browser:has(input[value="comparison"]:checked) [data-category]:not([data-category="comparison"]) {
+  display: none;
+}
+
+@keyframes archive-light {
+  from { transform: translate3d(-6%, -3%, 0) rotate(-5deg); }
+  to { transform: translate3d(6%, 4%, 0) rotate(5deg); }
+}
+
+@keyframes archive-divider {
+  0% { opacity: 0; transform: translateX(0); }
+  25% { opacity: 1; }
+  100% { opacity: 0; transform: translateX(min(60vw, 700px)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero::before, .section[data-entered="true"]::before { animation: none; }
+  .card, .arrow, .card::before { transition: none; }
+  .card:hover, .card:focus-visible .arrow, .card:hover .arrow { transform: none; }
+}
