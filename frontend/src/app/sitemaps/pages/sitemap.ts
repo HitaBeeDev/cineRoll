@@ -39,9 +39,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     fetchListableCollections(),
     fetchListableMoods(),
     ...(["countries", "languages"] as PlaceKind[]).map((kind) =>
-      fetchPlaces(kind)
-        .then((places) => places.map((place) => `/${kind}/${place.slug}`))
-        .catch(() => []),
+      fetchPlaces(kind).then((places) => places.map((place) => `/${kind}/${place.slug}`)),
     ),
   ]);
   const paths = [

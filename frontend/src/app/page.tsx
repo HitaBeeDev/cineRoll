@@ -12,7 +12,7 @@ import { HomeHero } from "./home-hero";
 export const metadata: Metadata = {
   // `absolute` opts out of the layout's "%s | CineRoll" template for the
   // landing page, where the brand should lead.
-  title: { absolute: "CineRoll — Oscar, Cannes, Golden Globe & Berlinale Films" },
+  title: { absolute: "CineRoll — Random Movie Picker & Movie Roulette" },
   description: SITE_DESCRIPTION,
   alternates: { canonical: "/" },
   openGraph: {

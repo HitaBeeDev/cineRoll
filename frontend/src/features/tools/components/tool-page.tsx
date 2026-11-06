@@ -5,6 +5,8 @@ import { JsonLd } from "@/components/json-ld";
 import { LastUpdated } from "@/components/last-updated";
 import { fetchCatalogUpdated } from "@/lib/api/fetch-catalog-updated";
 import { buildWebApplication } from "@/lib/seo/build-web-application";
+import { buildItemList } from "@/lib/seo/build-item-list";
+import { Breadcrumbs } from "@/components/breadcrumbs/breadcrumbs";
 import type { ToolDefinition } from "../tool-types";
 import { RelatedPages } from "@/features/awards/components/related-pages";
 import { ToolLinks } from "./tool-links";
@@ -33,9 +35,16 @@ export async function ToolPage({
         data={buildWebApplication({ name: tool.h1, path: `/tools/${tool.slug}`, description: tool.description })}
       />
       <AppHeader />
+      {examples.length > 0 && (
+        <JsonLd data={buildItemList(`Example films: ${tool.name}`, `/tools/${tool.slug}`, examples)} />
+      )}
 
       <section className="border-b border-white/10 bg-[#0b0b12]">
         <div className="mx-auto max-w-4xl px-6 py-14 lg:px-10">
+          <Breadcrumbs crumbs={[
+            { label: "Movie pickers", href: "/tools" },
+            { label: tool.name, href: `/tools/${tool.slug}` },
+          ]} />
           <p className="font-[family-name:var(--font-geist-mono)] text-[11px] font-semibold uppercase tracking-[0.45em] text-accent">
             Random film tools
           </p>

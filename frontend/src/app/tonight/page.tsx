@@ -11,7 +11,7 @@ import { regionName } from "@/lib/streaming/region-name";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/tonight" },
-  title: "What to Watch Tonight: Award Films to Stream",
+  title: "What to Watch Tonight? Find a Movie to Stream",
   description:
     "Can't decide what to watch tonight? Pick your streaming services and how long you have, and get one award-winning film you can stream right now.",
 };
@@ -32,12 +32,17 @@ export default async function TonightPage() {
       crumbs={[{ label: "What to watch tonight", href: "/tonight" }]}
       title="What to watch tonight"
       related={[
+        { href: "/tools/random-award-winning-movie", label: "Movie roulette: roll a random award winner" },
         { href: "/streaming", label: "Award films streaming now, by country" },
         { href: "/picks", label: "Today's picks" },
         { href: "/browse", label: "Browse and filter every film" },
       ]}
       intro={
         <>
+          <p>
+            Not sure what movie to watch tonight? CineRoll picks an award-recognised film that
+            fits your evening. Choose your country, streaming services and available time below.
+          </p>
           <p>
             Scrolling through five apps for half an hour is how a free evening disappears. Tell us
             where you are, which services you already pay for and how much time you have, and you

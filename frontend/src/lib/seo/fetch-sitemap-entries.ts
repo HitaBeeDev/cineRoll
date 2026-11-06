@@ -7,15 +7,11 @@ type SitemapEntry = { slug: string; updatedAt: string };
 // rather than an empty list being saved.
 const SITEMAP_REVALIDATE_SECONDS = 86400;
 
-/** Slugs and real last-changed dates for one page family. Empty on failure. */
+/** Fail the sitemap request on outages rather than publish an empty catalogue. */
 export async function fetchSitemapEntries(kind: "films" | "persons"): Promise<SitemapEntry[]> {
-  try {
-    const response = await fetch(`${API_URL}/api/sitemap/${kind}`, {
-      next: { revalidate: SITEMAP_REVALIDATE_SECONDS },
-    });
-    if (!response.ok) return [];
-    return (await response.json()) as SitemapEntry[];
-  } catch {
-    return [];
-  }
+  const response = await fetch(`${API_URL}/api/sitemap/${kind}`, {
+    next: { revalidate: SITEMAP_REVALIDATE_SECONDS },
+  });
+  if (!response.ok) throw new Error(`Sitemap ${kind}: backend returned ${response.status}`);
+  return (await response.json()) as SitemapEntry[];
 }

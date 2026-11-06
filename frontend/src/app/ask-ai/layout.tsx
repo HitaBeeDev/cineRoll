@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/ask-ai" },
-  title: "Ask AI: Describe a Film, Get an Award Winner",
+  title: "AI Movie Recommendations by Mood & Story",
   description:
-    "Describe the film you're in the mood for and CineRoll finds award-winning matches by mood, theme, era or plot from the Oscars, Cannes and more.",
+    "Ask CineRoll's AI movie recommender what to watch. Describe a mood, story, theme or era to find matching films from the Oscars, Cannes and more.",
 };
 
 export default function AskAiLayout({

@@ -5,7 +5,7 @@ import { fetchListableMoods } from "@/features/moods/fetch-listable-moods";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/moods" },
-  title: "Award-Winning Films by Mood",
+  title: "Find Movies by Mood: Feel-Good, Tense & More",
   description:
     "Find an award-winning film for your mood: feel-good, bittersweet, tense, haunting, slow-burn, twist endings and more.",
 };
@@ -19,7 +19,8 @@ export default async function MoodsPage() {
   return (
     <AwardPageShell
       crumbs={[{ label: "Moods", href: "/moods" }]}
-      title="Award-Winning Films by Mood"
+      title="Find award-winning movies by mood"
+      related={[{ href: "/tools/random-movie-by-mood", label: "Pick a random movie by mood" }]}
       intro={
         <>
         <p>

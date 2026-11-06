@@ -8,12 +8,8 @@ export const dynamic = "force-dynamic";
 
 /** Every award page with enough films to exist, as listed by the backend. */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  try {
-    const response = await fetch(`${API_URL}/api/sitemap/awards`, { next: { revalidate: 86400 } });
-    if (!response.ok) return [];
-    const paths = (await response.json()) as string[];
-    return paths.map((path) => ({ url: absoluteUrl(path) }));
-  } catch {
-    return [];
-  }
+  const response = await fetch(`${API_URL}/api/sitemap/awards`, { next: { revalidate: 86400 } });
+  if (!response.ok) throw new Error(`Sitemap awards: backend returned ${response.status}`);
+  const paths = (await response.json()) as string[];
+  return paths.map((path) => ({ url: absoluteUrl(path) }));
 }

@@ -11,8 +11,9 @@ const STANDARD: RelatedLink[] = [
   { href: "/languages", label: "Films by language" },
   { href: "/moods", label: "Films by mood" },
   { href: "/tonight", label: "What to watch tonight" },
+  { href: "/ask-ai", label: "AI movie recommendations" },
   { href: "/streaming", label: "Streaming now" },
-  { href: "/tools", label: "Random film tools" },
+  { href: "/tools", label: "Movie pickers and random generators" },
 ];
 
 /**

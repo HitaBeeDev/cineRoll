@@ -10,13 +10,13 @@ export const dynamic = "force-dynamic";
 /**
  * /streaming, then every country with at least one service page, then those
  * service pages — the same MIN_STREAMING_FILMS cut the pages 404 under, so the
- * sitemap never lists a page that doesn't exist. A country whose lookup fails
- * is left out this time and retried on the next fetch.
+ * sitemap never lists a page that doesn't exist. A failed lookup fails the
+ * request rather than publishing a successful but incomplete sitemap.
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const perRegion = await Promise.all(
     STREAMING_REGIONS.map(async (region) => {
-      const services = await fetchRegionServices(region).catch(() => []);
+      const services = await fetchRegionServices(region);
       if (services.length === 0) return [];
       const base = `/streaming/${region.toLowerCase()}`;
       return [base, ...services.map((service) => `${base}/${service.slug}`)];

@@ -3,17 +3,25 @@ import Link from "next/link";
 import { AppHeader } from "@/components/app-header";
 import { RelatedPages } from "@/features/awards/components/related-pages";
 import { TOOLS } from "@/features/tools/tools";
+import { DiscoveryPaths } from "@/features/tools/components/discovery-paths";
+import { DISCOVERY_PATHS } from "@/features/tools/discovery-paths";
+import { JsonLd } from "@/components/json-ld";
+import { buildLinkItemList } from "@/lib/seo/build-link-item-list";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/tools" },
-  title: "Random Movie Generators",
+  title: "Movie Pickers & Random Movie Generators",
   description:
-    "Random movie generators for award-winning films: any award winner, a random Oscar winner, a Palme d'Or winner, or a film by decade, genre or length.",
+    "Find your next movie with random movie generators, movie roulette, AI recommendations and streaming picks. Choose by mood, genre, decade, runtime or award.",
 };
 
 export default function ToolsIndexPage() {
   return (
     <main className="min-h-screen bg-ink-950 text-fg-hi">
+      <JsonLd data={buildLinkItemList("Movie pickers and discovery tools", "/tools", [
+        ...TOOLS.map((tool) => ({ path: `/tools/${tool.slug}`, name: tool.h1 })),
+        ...DISCOVERY_PATHS.flatMap((group) => group.links.map((link) => ({ path: link.href, name: link.label }))),
+      ])} />
       <AppHeader />
       <section className="border-b border-white/10 bg-[#0b0b12]">
         <div className="mx-auto max-w-4xl px-6 py-14 lg:px-10">
@@ -21,11 +29,12 @@ export default function ToolsIndexPage() {
             Random film tools
           </p>
           <h1 className="mt-5 font-[family-name:var(--font-display)] text-4xl font-bold tracking-tight sm:text-5xl">
-            Random Movie Generators
+            Movie Pickers &amp; Random Movie Generators
           </h1>
           <p className="mt-5 max-w-2xl text-base leading-7 text-[#b4b4c4]">
-            Can&apos;t pick a film? Each of these rolls one at random from the films recognised at
-            the Oscars, the Golden Globes, Cannes and the Berlinale — narrowed the way you want.
+            What should I watch tonight? Start with movie roulette for a surprise, choose a
+            genre or mood, or let a random movie generator pick an award winner. Each tool below
+            draws from films recognised at the Oscars, Golden Globes, Cannes or the Berlinale.
           </p>
           <p className="mt-4 max-w-2xl text-base leading-7 text-[#b4b4c4]">
             Unlike most random movie generators, these only draw from films that a jury or an
@@ -49,7 +58,8 @@ export default function ToolsIndexPage() {
           </li>
         ))}
       </ul>
-      <div className="mx-auto max-w-4xl px-6 pb-12 lg:px-10">
+      <div className="mx-auto max-w-4xl space-y-12 px-6 pb-12 lg:px-10">
+        <DiscoveryPaths />
         <RelatedPages current="/tools" />
       </div>
     </main>

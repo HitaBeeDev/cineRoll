@@ -34,8 +34,9 @@ export function HomeHero() {
           the broadcast, not a paragraph pasted under it. */}
       <div className="mt-4 max-w-[34rem] font-[family-name:var(--font-geist-mono)] text-[12px] uppercase leading-[1.9] tracking-[0.16em] text-fg-muted group-data-[filtered]/hero:hidden">
         <h1 className="inline font-normal">
-          Award-winning films from the Oscars, Golden Globes, Cannes &amp; Berlinale.
+          Random movie picker for what to watch tonight.
         </h1>{" "}
+        Roll an award-winning film from the Oscars, Golden Globes, Cannes &amp; Berlinale.{" "}
         <Link
           href="/about"
           className="group/about inline-flex items-center gap-1.5 whitespace-nowrap rounded-sm font-bold text-fg-hi transition-colors hover:text-accent-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
@@ -50,7 +51,7 @@ export function HomeHero() {
           one step quieter; hidden with CSS when filters are set, so the links
           stay in the HTML. */}
       <nav
-        aria-label="Collections"
+        aria-label="Movie picks and collections"
         className="mt-3 max-w-[34rem] font-[family-name:var(--font-geist-mono)] text-[11px] uppercase leading-[2] tracking-[0.16em] text-[#888899] group-data-[filtered]/hero:hidden"
       >
         {HOME_COLLECTIONS.map((collection, index) => (
@@ -70,6 +71,10 @@ export function HomeHero() {
 }
 
 const HOME_COLLECTIONS = [
+  { href: "/tonight", label: "What to watch tonight" },
+  { href: "/tools/random-award-winning-movie", label: "Random movie generator" },
+  { href: "/ask-ai", label: "AI movie recommendations" },
+  { href: "/tools", label: "All movie pickers" },
   { href: "/collections/best-picture-winners", label: "Best Picture winners" },
   { href: "/collections/cannes-and-oscar-winners", label: "Won at Cannes & the Oscars" },
   { href: "/collections/won-at-three-awards", label: "Won at three awards" },

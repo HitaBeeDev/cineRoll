@@ -6,9 +6,9 @@ import { STREAMING_REGIONS } from "@/lib/streaming/streaming-regions";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/streaming" },
-  title: "Award-Winning Films Streaming Now, by Country",
+  title: "Where to Watch Award-Winning Movies Online",
   description:
-    "Oscar, Golden Globe, Cannes and Berlinale films you can stream by subscription right now — pick your country to see which services have them.",
+    "Find where to watch award-winning movies online. Choose your country to see Oscar, Golden Globe, Cannes and Berlinale films on subscription streaming services.",
 };
 
 const REGIONS = [...STREAMING_REGIONS]
@@ -19,7 +19,7 @@ export default function StreamingIndexPage() {
   return (
     <AwardPageShell
       crumbs={[{ label: "Streaming", href: "/streaming" }]}
-      title="Award-winning films streaming now"
+      title="Where to watch award-winning movies online"
       intro={
         <>
           <p>
