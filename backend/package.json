@@ -53,7 +53,8 @@
     "missing-apply": "npx tsx data/scripts/missing-apply.ts",
     "missing-awards": "npx tsx data/scripts/missing-awards-apply.ts",
     "reslug": "npx tsx data/scripts/reslug.ts",
-    "master-remove": "npx tsx data/scripts/master-remove.ts"
+    "master-remove": "npx tsx data/scripts/master-remove.ts",
+    "watch-refresh": "npx tsx data/scripts/refresh-watch-providers.ts"
   },
   "keywords": [],
   "author": "",
