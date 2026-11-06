@@ -12,6 +12,27 @@ export function CollectionsMotion({ children }: { children: ReactNode }) {
     if (!element) return;
     const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
     const animations = new Set<Animation>();
+    const images = Array.from(element.querySelectorAll<HTMLElement>("[data-image-drift]"));
+    let frame = 0;
+    const updateImages = () => {
+      frame = 0;
+      if (preference.matches) return;
+      const height = window.innerHeight;
+      for (const image of images) {
+        if (!image.offsetParent) continue;
+        const bounds = image.getBoundingClientRect();
+        if (bounds.bottom < 0 || bounds.top > height) continue;
+        const progress = Math.max(-1, Math.min(1, (bounds.top + bounds.height / 2 - height / 2) / height));
+        image.style.transform = `translate3d(0, ${progress * Number(image.dataset.depth)}px, 0)`;
+      }
+    };
+    const requestUpdate = () => {
+      if (!frame && !preference.matches) frame = requestAnimationFrame(updateImages);
+    };
+    window.addEventListener("scroll", requestUpdate, { passive: true });
+    window.addEventListener("resize", requestUpdate);
+    element.addEventListener("change", requestUpdate);
+    requestUpdate();
     const reveal = (target: Element, delay = 0) => {
       if (preference.matches) return;
       const animation = target.animate(
@@ -34,11 +55,20 @@ export function CollectionsMotion({ children }: { children: ReactNode }) {
     }, { threshold: 0.08 });
     element.querySelectorAll("[data-collection-section]").forEach((section) => observer.observe(section));
     const stopMotion = () => {
-      if (preference.matches) animations.forEach((animation) => animation.cancel());
+      if (preference.matches) {
+        animations.forEach((animation) => animation.cancel());
+        cancelAnimationFrame(frame);
+        frame = 0;
+        images.forEach((image) => image.style.removeProperty("transform"));
+      } else requestUpdate();
     };
     preference.addEventListener("change", stopMotion);
     return () => {
       observer.disconnect();
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", requestUpdate);
+      window.removeEventListener("resize", requestUpdate);
+      element.removeEventListener("change", requestUpdate);
       animations.forEach((animation) => animation.cancel());
       preference.removeEventListener("change", stopMotion);
     };

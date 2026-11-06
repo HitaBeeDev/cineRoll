@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowUpRight } from "lucide-react";
 import { AppHeader } from "@/components/app-header";
 import { Breadcrumbs } from "@/components/breadcrumbs/breadcrumbs";
@@ -9,7 +10,9 @@ import { CollectionsMotion } from "@/features/collections/components/collections
 import { fetchCatalogUpdated } from "@/lib/api/fetch-catalog-updated";
 import styles from "@/features/collections/components/collections.module.css";
 import type { CollectionGroup } from "@/features/collections/collection-types";
-import { fetchListableCollections } from "@/features/collections/fetch-collection-sizes";
+import { fetchCollectionPreviews } from "@/features/collections/fetch-collection-previews";
+import { fetchFilm } from "@/features/film-detail/film-repository/fetch-film";
+import { tmdbImageUrl } from "@/lib/images/tmdb-image-url";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/collections" },
@@ -32,14 +35,41 @@ const GROUPS: { group: CollectionGroup; title: string }[] = [
 ];
 
 export default async function CollectionsPage() {
-  const [collections, updatedAt] = await Promise.all([fetchListableCollections(), fetchCatalogUpdated()]);
+  const [previews, updatedAt] = await Promise.all([fetchCollectionPreviews(), fetchCatalogUpdated()]);
+  const collections = previews.map(({ collection }) => collection);
+  const artwork = new Map(previews.map(({ collection, films }) => [collection.slug, films]));
+  const seen = new Set<string>();
+  const heroCandidates = previews.flatMap(({ films }) => films).filter((film) => {
+    if (!film.posterUrl || seen.has(film.id)) return false;
+    seen.add(film.id);
+    return true;
+  }).slice(0, 3);
+  const heroFilms = await Promise.all(heroCandidates.map(async (film) =>
+    (await fetchFilm(film.slug).catch(() => null)) ?? film,
+  ));
 
   return (
     <main className="min-h-screen bg-ink-950 text-fg-hi">
       <AppHeader />
       <CollectionsMotion>
         <section className={styles.hero}>
-          <div className="mx-auto max-w-6xl px-6 pb-8 pt-6 lg:px-10">
+          <div className={styles.heroMontage} aria-hidden="true">
+            {heroFilms.map((film, index) => (
+              <div key={film.id} className={styles.heroFrame}>
+                <Image
+                  src={tmdbImageUrl(film.backdropUrl ?? film.posterUrl!, "w1280")!}
+                  alt=""
+                  fill
+                  sizes="(max-width: 640px) 100vw, 60vw"
+                  preload={index === 0}
+                  fetchPriority={index === 0 ? "high" : "auto"}
+                  className={styles.heroStill}
+                />
+              </div>
+            ))}
+          </div>
+          <div className={styles.heroShade} aria-hidden="true" />
+          <div className="relative z-10 mx-auto max-w-6xl px-6 pb-8 pt-6 lg:px-10">
             <Breadcrumbs crumbs={[{ label: "Collections", href: "/collections" }]} />
             <p data-hero-reveal className="mt-6 flex items-center gap-3 font-[family-name:var(--font-geist-mono)] text-[11px] uppercase tracking-[0.3em] text-accent">
               <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-accent shadow-[0_0_14px_rgba(232,69,60,0.6)]" />
@@ -87,15 +117,30 @@ export default async function CollectionsPage() {
                   {inGroup.map((collection, index) => (
                     <li key={collection.slug} data-collection-card>
                       <Link href={`/collections/${collection.slug}`} className={styles.card}>
+                        <div className={styles.cardVisual} aria-hidden="true">
+                          <div className={styles.drift} data-image-drift data-depth={index % 2 === 0 ? "12" : "-9"}>
+                            <div className={styles.posterRail}>
+                              {(artwork.get(collection.slug) ?? []).filter((film) => film.posterUrl).slice(0, 3).map((film) => (
+                                <div key={film.id} className={styles.poster}>
+                                  <Image src={film.posterUrl!} alt="" fill sizes="(max-width: 640px) 30vw, 140px" className={styles.posterImage} />
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                          <span className={styles.imageFlare} />
+                          <span className={styles.frameLabel}>FROM THE ARCHIVE / {String(groupIndex + 1).padStart(2, "0")}</span>
+                        </div>
+                        <div className={styles.cardCopy}>
                         <span aria-hidden className="mb-3 font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.2em] text-fg-faint">
                           Collection / {String(groupIndex + 1).padStart(2, "0")}.{String(index + 1).padStart(2, "0")}
                         </span>
                         <h3 className="relative font-[family-name:var(--font-display)] text-xl font-bold leading-tight">{collection.h1}</h3>
-                        <p className="relative mt-2 text-sm leading-6 text-fg-muted">{collection.description}</p>
+                        <p className="relative mt-2 line-clamp-3 text-sm leading-6 text-fg-muted">{collection.description}</p>
                         <span className="relative mt-auto flex items-center justify-between pt-4 text-xs font-medium text-fg-dim">
                           Explore collection
                           <ArrowUpRight aria-hidden className={`${styles.arrow} h-5 w-5 text-accent`} />
                         </span>
+                        </div>
                       </Link>
                     </li>
                   ))}

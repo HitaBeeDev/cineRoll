@@ -15,11 +15,26 @@
 .hero::before {
   content: "";
   position: absolute;
-  z-index: -1;
+  z-index: 2;
   inset: -50% -15%;
   pointer-events: none;
-  background: radial-gradient(ellipse at 30% 30%, rgb(232 69 60 / 12%), transparent 55%);
-  animation: archive-light 24s ease-in-out infinite alternate;
+  background: linear-gradient(115deg, transparent 30%, rgb(255 208 159 / 14%) 45%, transparent 58%);
+  animation: archive-light 16s ease-in-out infinite alternate;
+}
+
+.heroMontage { position: absolute; inset: 0; display: flex; overflow: hidden; }
+.heroFrame { position: relative; flex: 1; min-width: 0; overflow: hidden; }
+.heroFrame:first-child { flex: 1.4; }
+.heroStill { object-fit: cover; opacity: .75; animation: archive-still 26s ease-in-out infinite alternate; }
+.heroFrame:nth-child(2) .heroStill { animation-direction: alternate-reverse; animation-duration: 30s; }
+.heroFrame:nth-child(3) .heroStill { animation-duration: 34s; }
+.heroShade {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgb(7 7 11 / 93%), rgb(7 7 11 / 70%) 42%, rgb(7 7 11 / 15%) 100%),
+    linear-gradient(0deg, #07070b, transparent 45%, rgb(7 7 11 / 10%));
 }
 
 .section {
@@ -52,7 +67,7 @@
   overflow: hidden;
   border: 1px solid rgb(255 255 255 / 10%);
   border-radius: 0.65rem;
-  padding: 1.15rem;
+  padding: 0;
   background: linear-gradient(135deg, #111119, #0b0b11);
   transition: transform 240ms ease, border-color 240ms ease, box-shadow 240ms ease;
 }
@@ -87,6 +102,34 @@
 
 .arrow { transition: transform 240ms ease, color 240ms ease; }
 
+.cardVisual {
+  position: relative;
+  height: 155px;
+  overflow: hidden;
+  flex-shrink: 0;
+  border-bottom: 1px solid rgb(255 255 255 / 10%);
+  background: radial-gradient(ellipse at 60% 30%, #3c2226, #111119 80%);
+}
+.drift { position: absolute; inset: -22px -6px; }
+.posterRail { display: flex; gap: 5px; height: 100%; transform: rotate(-6deg) scale(1.12); }
+.poster { position: relative; flex: 1; min-width: 0; overflow: hidden; }
+.posterImage { object-fit: cover; object-position: center 25%; transition: transform 700ms cubic-bezier(.22,1,.36,1), filter 500ms ease; filter: saturate(.8) brightness(.85); }
+.cardVisual::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(0deg, #111119 0%, transparent 55%); }
+.imageFlare { position: absolute; z-index: 1; inset: 0; pointer-events: none; background: linear-gradient(110deg, transparent 20%, rgb(232 69 60 / 40%) 48%, transparent 75%); transform: translateX(-110%); transition: transform 800ms ease; mix-blend-mode: screen; }
+.frameLabel { position: absolute; z-index: 2; bottom: 10px; left: 18px; font-family: var(--font-geist-mono); font-size: 9px; letter-spacing: .16em; color: #e8d9cd; text-shadow: 0 1px 5px #000; }
+.cardCopy { display: flex; flex: 1; flex-direction: column; padding: 1.15rem; }
+.card:focus-visible .posterImage { transform: scale(1.07); filter: saturate(1) brightness(1); }
+.card:focus-visible .imageFlare { transform: translateX(60%); }
+@media (hover: hover) and (pointer: fine) {
+  .card:hover .posterImage { transform: scale(1.07); filter: saturate(1) brightness(1); }
+  .card:hover .imageFlare { transform: translateX(60%); }
+}
+@media (max-width: 640px) {
+  .heroFrame:not(:first-child) { display: none; }
+  .heroShade { background: linear-gradient(90deg, rgb(7 7 11 / 85%), rgb(7 7 11 / 50%)), linear-gradient(0deg, #07070b, transparent 80%); }
+  .cardVisual { height: 130px; }
+}
+
 /* Native radio controls keep category switching usable without JavaScript. */
 .browser:has(input[value="records"]:checked) [data-category]:not([data-category="records"]),
 .browser:has(input[value="winners"]:checked) [data-category]:not([data-category="winners"]),
@@ -96,8 +139,13 @@
 }
 
 @keyframes archive-light {
-  from { transform: translate3d(-6%, -3%, 0) rotate(-5deg); }
-  to { transform: translate3d(6%, 4%, 0) rotate(5deg); }
+  from { transform: translate3d(-25%, 0, 0) rotate(-5deg); }
+  to { transform: translate3d(25%, 0, 0) rotate(5deg); }
+}
+
+@keyframes archive-still {
+  from { transform: scale(1.06) translateX(-1%); }
+  to { transform: scale(1.18) translateX(2%); }
 }
 
 @keyframes archive-divider {
@@ -110,4 +158,8 @@
   .hero::before, .section[data-entered="true"]::before { animation: none; }
   .card, .arrow, .card::before { transition: none; }
   .card:hover, .card:focus-visible .arrow, .card:hover .arrow { transform: none; }
+  .heroStill { animation: none; }
+  .posterImage, .imageFlare { transition: none; }
+  .card:hover .posterImage, .card:focus-visible .posterImage { transform: none; }
+  .imageFlare { display: none; }
 }
