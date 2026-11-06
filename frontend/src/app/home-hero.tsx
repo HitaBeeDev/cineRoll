@@ -44,6 +44,34 @@ export function HomeHero() {
           <ArrowRight aria-hidden className="h-3 w-3 text-accent transition-transform duration-200 group-hover/about:translate-x-0.5" />
         </Link>
       </div>
+      {/* SEO: the home page's direct links to the key collections — Best
+          Picture and the cross-award lists (checklist item in
+          docs/SEO-RANKING-PLAN.md, keep them). Same voice as the line above,
+          one step quieter; hidden with CSS when filters are set, so the links
+          stay in the HTML. */}
+      <nav
+        aria-label="Collections"
+        className="mt-3 max-w-[34rem] font-[family-name:var(--font-geist-mono)] text-[11px] uppercase leading-[2] tracking-[0.16em] text-[#888899] group-data-[filtered]/hero:hidden"
+      >
+        {HOME_COLLECTIONS.map((collection, index) => (
+          <span key={collection.href}>
+            {index > 0 && <span aria-hidden className="mx-1 text-white/20"> · </span>}
+            <Link
+              href={collection.href}
+              className="whitespace-nowrap rounded-sm underline decoration-white/15 underline-offset-4 transition-colors hover:text-fg-hi focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
+            >
+              {collection.label}
+            </Link>
+          </span>
+        ))}
+      </nav>
     </>
   );
 }
+
+const HOME_COLLECTIONS = [
+  { href: "/collections/best-picture-winners", label: "Best Picture winners" },
+  { href: "/collections/cannes-and-oscar-winners", label: "Won at Cannes & the Oscars" },
+  { href: "/collections/won-at-three-awards", label: "Won at three awards" },
+  { href: "/collections/most-awarded-films", label: "Most awarded films" },
+];
