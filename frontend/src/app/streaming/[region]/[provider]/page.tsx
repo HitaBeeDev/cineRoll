@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { JsonLd } from "@/components/json-ld";
 import { AwardPageShell } from "@/features/awards/components/award-page-shell";
 import { describeFilmList } from "@/features/collections/describe-film-list";
@@ -12,6 +12,7 @@ import { BODY_SECTIONS, HEADLINE_SECTIONS, type StreamingSection } from "@/featu
 import { buildItemList } from "@/lib/seo/build-item-list";
 import { fitDescription } from "@/lib/seo/fit-description";
 import { fitTitle } from "@/lib/seo/fit-title";
+import { adTierSlugBase } from "@/lib/streaming/ad-tier-slug-base";
 import { regionName } from "@/lib/streaming/region-name";
 
 type Props = { params: Promise<{ region: string; provider: string }> };
@@ -52,7 +53,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function StreamingServicePage({ params }: Props) {
   const found = await findService(params);
-  if (!found) notFound();
+  if (!found) {
+    // Ad tiers were folded into their main service; their old URLs were in the sitemap.
+    const { region, provider } = await params;
+    const base = adTierSlugBase(provider);
+    if (base) permanentRedirect(`/streaming/${region.toLowerCase()}/${base}`);
+    notFound();
+  }
   const { region, service } = found;
 
   const scope = { provider: String(service.id), region };

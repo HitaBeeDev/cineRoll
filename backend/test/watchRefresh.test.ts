@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 
 import type { WatchFetchResult } from "../src/lib/watchRefresh/fetchWatchRegions";
 import { type DueFilm, type RefreshDeps, refreshWatchProviders } from "../src/lib/watchRefresh/refreshWatchProviders";
+import { adTierBase } from "../src/lib/watchRefresh/adTierBase";
 import { sameServices } from "../src/lib/watchRefresh/sameServices";
 import { tmdbWatchRegions } from "../src/lib/watchRefresh/tmdbWatchRegions";
 
@@ -34,6 +35,37 @@ describe("tmdbWatchRegions", () => {
 
   it("is empty when TMDB has nothing", () => {
     expect(tmdbWatchRegions({})).toEqual([]);
+  });
+
+  it("folds an ad tier into its main service, keeps it when it is the only way", () => {
+    expect(
+      tmdbWatchRegions({
+        results: {
+          US: {
+            flatrate: [
+              { provider_id: 9, provider_name: "Amazon Prime Video", logo_path: null },
+              { provider_id: 2100, provider_name: "Amazon Prime Video with Ads", logo_path: null },
+              { provider_id: 8, provider_name: "Netflix", logo_path: "/nf.jpg" },
+              { provider_id: 1796, provider_name: "Netflix Standard with Ads", logo_path: null },
+            ],
+          },
+          JP: { flatrate: [{ provider_id: 2100, provider_name: "Amazon Prime Video with Ads", logo_path: null }] },
+        },
+      }),
+    ).toEqual([
+      { country: "JP", providers: [{ id: 2100, name: "Amazon Prime Video with Ads", logoPath: null }] },
+      { country: "US", providers: [{ id: 9, name: "Amazon Prime Video", logoPath: null }, netflix] },
+    ]);
+  });
+});
+
+describe("adTierBase", () => {
+  it("names the main service of an ad tier", () => {
+    expect(adTierBase("Amazon Prime Video with Ads")).toBe("Amazon Prime Video");
+    expect(adTierBase("Netflix Standard with Ads")).toBe("Netflix");
+    expect(adTierBase("Paramount Plus Basic with Ads")).toBe("Paramount Plus");
+    expect(adTierBase("Netflix")).toBeNull();
+    expect(adTierBase("with Ads")).toBeNull();
   });
 });
 

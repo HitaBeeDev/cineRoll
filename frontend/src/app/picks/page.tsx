@@ -1,36 +1,27 @@
-"use client";
-
-import { AnimatePresence, useReducedMotion } from "framer-motion";
-import { useSession } from "next-auth/react";
 import { AppHeader } from "@/components/app-header";
-import { PicksList } from "@/features/daily-picks/components/picks-list";
-import { PicksLoading } from "@/features/daily-picks/components/picks-loading";
+import { JsonLd } from "@/components/json-ld";
+import { PicksPageView } from "@/features/daily-picks/components/picks-page-view";
+import { fetchServerDailyPicks } from "@/features/daily-picks/fetch-server-daily-picks";
 import { formatPicksDate } from "@/features/daily-picks/picks-date/format-picks-date";
-import { useDailyPicks } from "@/features/daily-picks/use-daily-picks";
+import { buildItemList } from "@/lib/seo/build-item-list";
 
-export default function PicksPage() {
-  const shouldReduceMotion = useReducedMotion() === true;
-  const { data: session, status } = useSession();
-  const dailyPicks = useDailyPicks(
-    session?.user?.id,
-    status !== "loading",
-  );
+// An hour: the picks turn over at midnight UTC, and a render that caught the
+// backend down must not leave the page without them for long. The draws
+// themselves are cached for the day (server-seeded-roll.ts).
+export const revalidate = 3600;
+
+export default async function PicksPage() {
+  const now = new Date();
+  const picks = await fetchServerDailyPicks(now);
 
   return (
     <div className="min-h-screen bg-ink-900 text-fg-hi">
       <AppHeader />
+      {picks.length > 0 && (
+        <JsonLd data={buildItemList("Today's picks: award-winning films", "/picks", picks.map((pick) => pick.film))} />
+      )}
       <main>
-        <AnimatePresence mode="wait">
-          {dailyPicks.isLoading ? (
-            <PicksLoading shouldReduceMotion={shouldReduceMotion} dateLabel={formatPicksDate()} />
-          ) : (
-            <PicksList
-              picks={dailyPicks.picks}
-              dateLabel={formatPicksDate()}
-              shouldReduceMotion={shouldReduceMotion}
-            />
-          )}
-        </AnimatePresence>
+        <PicksPageView serverPicks={picks} dateLabel={formatPicksDate(now)} />
       </main>
     </div>
   );

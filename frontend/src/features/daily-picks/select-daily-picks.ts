@@ -1,10 +1,10 @@
-import type { DailyPick, PickDiversity } from "./domain-types";
+import type { DailyPick, PickDiversity, SeededRoll } from "./domain-types";
 import { PICK_SLOTS } from "@/features/daily-picks/pick-slots/pick-slots";
 import { selectPick } from "./select-pick";
 
 export async function selectDailyPicks(
   day: string,
-  userId: string | undefined,
+  roll: SeededRoll,
   /** Called as each slot lands. The slots have to resolve in order — every one
    *  excludes the films the ones before it took — so waiting for all three put
    *  the hero, and therefore the hero's image request, several seconds behind a
@@ -20,7 +20,7 @@ export async function selectDailyPicks(
   };
 
   for (const slot of PICK_SLOTS) {
-    const pick = await selectPick(slot, day, usedIds, diversity, userId);
+    const pick = await selectPick(slot, day, usedIds, diversity, roll);
     if (!pick) continue;
     picks.push(pick);
     recordSelection(pick, usedIds, diversity);

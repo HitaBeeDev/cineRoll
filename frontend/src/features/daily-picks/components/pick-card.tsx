@@ -9,7 +9,8 @@ export function PickCard({ pick, index, dateLabel }: PickCardProps) {
 
   return (
     <motion.article
-      initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 24 }}
+      // The first card is above the fold and in the server HTML: no fade-in.
+      initial={index === 0 ? false : { opacity: 0, y: shouldReduceMotion ? 0 : 24 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.25 }}
       transition={

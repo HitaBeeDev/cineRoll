@@ -1,6 +1,6 @@
-import { fetchSeededRandom, type RollFilm } from "@/lib/api";
+import type { RollFilm } from "@/lib/api";
 import { PICK_SEED_VARIANTS } from "@/features/daily-picks/config/pick-seed-variants";
-import type { DailyPick, PickDiversity, PickSlot } from "./domain-types";
+import type { DailyPick, PickDiversity, PickSlot, SeededRoll } from "./domain-types";
 import { SLOT_FALLBACK_FILTERS } from "@/features/daily-picks/pick-slots/slot-fallback-filters";
 
 export async function selectPick(
@@ -8,16 +8,10 @@ export async function selectPick(
   day: string,
   usedIds: string[],
   diversity: PickDiversity,
-  userId: string | undefined,
+  roll: SeededRoll,
 ): Promise<DailyPick | null> {
-  const seededPick = await findSeededPick(
-    slot,
-    day,
-    usedIds,
-    diversity,
-    userId,
-  );
-  return seededPick ?? findRelaxedPick(slot, day, usedIds, userId);
+  const seededPick = await findSeededPick(slot, day, usedIds, diversity, roll);
+  return seededPick ?? findRelaxedPick(slot, day, usedIds, roll);
 }
 
 async function findSeededPick(
@@ -25,13 +19,13 @@ async function findSeededPick(
   day: string,
   usedIds: string[],
   diversity: PickDiversity,
-  userId: string | undefined,
+  roll: SeededRoll,
 ): Promise<DailyPick | null> {
   let fallback: DailyPick | null = null;
   const seenIds: string[] = [];
 
   for (let variant = 0; variant < PICK_SEED_VARIANTS; variant++) {
-    const film = await fetchSeedVariant(slot, day, variant, [...usedIds, ...seenIds], userId);
+    const film = await rollSeedVariant(slot, day, variant, [...usedIds, ...seenIds], roll);
     if (!film) continue;
     const pick = { film, slot };
     fallback ??= pick;
@@ -41,38 +35,29 @@ async function findSeededPick(
   return fallback;
 }
 
-async function fetchSeedVariant(
+function rollSeedVariant(
   slot: PickSlot,
   day: string,
   variant: number,
   excludeIds: string[],
-  userId: string | undefined,
+  roll: SeededRoll,
 ): Promise<RollFilm | null> {
   const seed = variant === 0
     ? `${day}:${slot.num}`
     : `${day}:${slot.num}:v${variant}`;
-  try {
-    return (await fetchSeededRandom(seed, slot.filters, excludeIds, userId)).film;
-  } catch {
-    return null;
-  }
+  return roll(seed, slot.filters, excludeIds);
 }
 
 async function findRelaxedPick(
   slot: PickSlot,
   day: string,
   usedIds: string[],
-  userId: string | undefined,
+  roll: SeededRoll,
 ): Promise<DailyPick | null> {
   const filters = SLOT_FALLBACK_FILTERS[slot.num];
   for (let index = 0; index < filters.length; index++) {
-    try {
-      const seed = `${day}:${slot.num}:fallback${index}`;
-      const result = await fetchSeededRandom(seed, filters[index], usedIds, userId);
-      return { film: result.film, slot };
-    } catch {
-      continue;
-    }
+    const film = await roll(`${day}:${slot.num}:fallback${index}`, filters[index] ?? {}, usedIds);
+    if (film) return { film, slot };
   }
   return null;
 }

@@ -3,6 +3,7 @@ import { getDailyPicksCacheKey } from "@/features/daily-picks/daily-picks-cache/
 import { restoreDailyPicks } from "@/features/daily-picks/daily-picks-cache/restore-daily-picks";
 import type { DailyPick } from "./domain-types";
 import { getUtcDay } from "@/features/daily-picks/picks-date/get-utc-day";
+import { browserSeededRoll } from "./browser-seeded-roll";
 import { selectDailyPicks } from "./select-daily-picks";
 
 export async function loadDailyPicks(
@@ -20,7 +21,7 @@ export async function loadDailyPicks(
     : null;
   if (cachedPicks) return cachedPicks;
 
-  const picks = await selectDailyPicks(day, userId, onPick);
+  const picks = await selectDailyPicks(day, browserSeededRoll(userId), onPick);
   if (storage) cacheDailyPicks(storage, cacheKey, picks);
   return picks;
 }

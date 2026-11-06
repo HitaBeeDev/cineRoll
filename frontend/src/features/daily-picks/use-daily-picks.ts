@@ -8,41 +8,51 @@ import { loadDailyPicks } from "./load-daily-picks";
 type LoadedPicks = {
   picks: DailyPick[];
   userKey: string;
+  complete: boolean;
 };
 
+/**
+ * The page arrives with today's guest picks from the server. Guests keep them.
+ * A signed-in user gets their own draw (watched and hidden films left out) —
+ * same seeds, so usually the same films — and the server picks stay on screen
+ * until it is complete. Without server picks (backend was down at render) the
+ * browser draws, showing each pick as it lands.
+ */
 export function useDailyPicks(
+  serverPicks: DailyPick[],
   userId: string | undefined,
-  enabled = true,
+  sessionReady: boolean,
 ): DailyPicksController {
   const userKey = userId ?? "guest";
+  const needsOwnPicks = sessionReady && (userId != null || serverPicks.length === 0);
   const [loaded, setLoaded] = useState<LoadedPicks | null>(null);
 
   useEffect(() => {
-    if (!enabled) return;
+    if (!needsOwnPicks) return;
     let active = true;
     const timeoutId = window.setTimeout(async () => {
-      // Show each pick the moment it is chosen rather than after all three: the
-      // slots resolve one after another, and holding the finished ones back put
-      // the first hero image four seconds behind the page.
       const picks = await loadDailyPicks(userId, getBrowserStorage(), (pick) => {
         if (!active) return;
         setLoaded((prev) => ({
           picks: prev?.userKey === userKey ? [...prev.picks, pick] : [pick],
           userKey,
+          complete: false,
         }));
       });
-      if (active) setLoaded({ picks, userKey });
+      if (active) setLoaded({ picks, userKey, complete: true });
     }, 0);
 
     return () => {
       active = false;
       window.clearTimeout(timeoutId);
     };
-  }, [enabled, userId, userKey]);
+  }, [needsOwnPicks, userId, userKey]);
 
-  const hasCurrentPicks = loaded?.userKey === userKey;
+  const own = needsOwnPicks && loaded?.userKey === userKey ? loaded : null;
+  const showOwn = own != null && (own.complete || serverPicks.length === 0);
+  const picks = showOwn ? own.picks : serverPicks;
   return {
-    isLoading: !enabled || !hasCurrentPicks,
-    picks: hasCurrentPicks ? loaded.picks : [],
+    isLoading: picks.length === 0 && !own?.complete,
+    picks,
   };
 }
