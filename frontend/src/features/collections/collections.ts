@@ -1,5 +1,11 @@
 import type { Collection } from "./collection-types";
 
+// The records lists rank films and TV separately: a long-running series piles up
+// Golden Globe nominations season after season, which no film can match.
+// Every film kind (features, documentaries, animation, shorts) counts as a film.
+const FILM_TYPES = "movie,short,animation,documentary";
+const TV_TYPES = "tv-series,tv-mini-series";
+
 /**
  * Curated film collections: one fixed films-API query each, shown as a poster
  * grid. Where a prize was renamed over the years, every historical name is
@@ -184,10 +190,11 @@ export const COLLECTIONS: Collection[] = [
     h1: "The Most Awarded Films of All Time",
     title: "The Most Awarded Films of All Time",
     description:
-      "The films with the most wins across the Oscars, the Golden Globes, Cannes and the Berlinale — the 100 most awarded films ever.",
+      "The 100 films with the most wins across the Oscars, the Golden Globes, Cannes and the Berlinale. Films only — TV series are ranked separately.",
     intro:
-      "The 100 films with the most wins across the four big awards, counted together: every Oscar, Golden Globe, Cannes prize and Berlinale award a film took home.",
-    params: {},
+      "The 100 films with the most wins across the Oscars, the Golden Globes, Cannes and the Berlinale, counted together. Feature films, documentaries, animation and shorts all count; TV series don't — they have their own list.",
+    params: { contentType: FILM_TYPES },
+    related: { label: "the most awarded TV series", href: "/collections/most-awarded-tv-series" },
   },
   {
     slug: "most-nominated-films",
@@ -196,9 +203,23 @@ export const COLLECTIONS: Collection[] = [
     h1: "The Most Nominated Films of All Time",
     title: "The Most Nominated Films of All Time",
     description:
-      "The films with the most nominations across the Oscars, the Golden Globes, Cannes and the Berlinale — wins or not.",
+      "The 100 films with the most nominations across the Oscars, the Golden Globes, Cannes and the Berlinale — wins or not. Films only; TV series are ranked separately.",
     intro:
-      "The 100 films nominated the most times across the four big awards, counted together. Some won almost everything they were up for; some are famous for going home empty-handed.",
-    params: {},
+      "The 100 films nominated the most times across the Oscars, the Golden Globes, Cannes and the Berlinale, counted together. Feature films, documentaries, animation and shorts all count; TV series don't. Some won almost everything they were up for; some are famous for going home empty-handed.",
+    params: { contentType: FILM_TYPES },
+    related: { label: "the most awarded TV series", href: "/collections/most-awarded-tv-series" },
+  },
+  {
+    slug: "most-awarded-tv-series",
+    group: "records",
+    sort: "wins",
+    h1: "The Most Awarded TV Series",
+    title: "The Most Awarded TV Series",
+    description:
+      "The TV series and mini-series with the most wins at the Golden Globes and the Berlinale, ranked by total wins.",
+    intro:
+      "TV series and mini-series ranked by total wins. Nearly all of them come from the Golden Globes: the Oscars and Cannes only award films, and the Berlinale has given a series prize only since 2023.",
+    params: { contentType: TV_TYPES },
+    related: { label: "the most awarded films", href: "/collections/most-awarded-films" },
   },
 ];
