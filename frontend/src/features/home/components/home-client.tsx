@@ -35,6 +35,8 @@ export function HomeClient({ initialOnboarded, initialTotalCount, hero }: HomeCl
     onCountChange: filteredPool.setFilteredCount,
   });
   const showOnboarding = onboarding.onboardingState === "show";
+  // Offered, never imposed: the link appears once the visitor has rolled a film.
+  const offerTasteCheck = onboarding.onboardingState === "offer" && rollEngine.film !== null && !rollEngine.isRolling;
   useSpaceRollShortcut(rollEngine.roll, !showOnboarding);
   const { requestAutoRoll } = useAutoRoll(rollEngine.roll);
 
@@ -47,13 +49,12 @@ export function HomeClient({ initialOnboarded, initialTotalCount, hero }: HomeCl
     reducedMotion,
   });
 
-  // The home page always renders; onboarding is a layer on top of it. Rendering
-  // only the onboarding meant crawlers (always first-time visitors) never saw
-  // the home page at all.
+  // The home page always renders open. The taste check is a layer the visitor
+  // opens from "Tune your rolls" — never on arrival (see OnboardingState).
   return (
     <>
       <div inert={showOnboarding}>
-        <HomeExperience hero={hero} filters={homeFilters.filters} genres={catalog.genres} hasActiveFilters={homeFilters.hasActiveFilters} pool={pool} film={rollEngine.film} isRolling={rollEngine.isRolling} isSearching={rollEngine.isSearching} reducedMotion={reducedMotion} userId={userId} personalizedRoll={personalization.personalizedRoll} onApplyFilters={homeFilters.applyFilters} onClearTrackedFilters={homeFilters.clearTrackedFilters} onResetFilters={homeFilters.resetFilters} onClearAndRoll={() => { homeFilters.resetFilters(); requestAutoRoll(); }} onTogglePersonalizedRoll={personalization.togglePersonalizedRoll} onRoll={rollEngine.roll} onEngage={rollEngine.markCurrentEngaged} onNotInterested={rollEngine.markCurrentRejected} />
+        <HomeExperience hero={hero} filters={homeFilters.filters} genres={catalog.genres} hasActiveFilters={homeFilters.hasActiveFilters} pool={pool} film={rollEngine.film} isRolling={rollEngine.isRolling} isSearching={rollEngine.isSearching} reducedMotion={reducedMotion} userId={userId} personalizedRoll={personalization.personalizedRoll} onApplyFilters={homeFilters.applyFilters} onClearTrackedFilters={homeFilters.clearTrackedFilters} onResetFilters={homeFilters.resetFilters} onClearAndRoll={() => { homeFilters.resetFilters(); requestAutoRoll(); }} onTogglePersonalizedRoll={personalization.togglePersonalizedRoll} onRoll={rollEngine.roll} onEngage={rollEngine.markCurrentEngaged} onNotInterested={rollEngine.markCurrentRejected} onTuneRolls={offerTasteCheck ? onboarding.openTasteCheck : undefined} />
       </div>
       {showOnboarding && (
         <FirstVisitOnboarding tasteCards={onboarding.tasteCards} tasteCardsStatus={onboarding.tasteCardsStatus} onRetryTasteCards={onboarding.retryTasteCards} onContinue={onboarding.completeOnboarding} />

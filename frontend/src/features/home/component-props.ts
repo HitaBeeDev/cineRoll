@@ -37,6 +37,8 @@ export type RollControlsProps = {
   pool: PoolViewModel;
   personalizedRoll: boolean;
   showPersonalizedRoll: boolean;
+  /** Set only while the taste check is on offer (after a first roll); opens it. */
+  onTuneRolls?: (() => void) | undefined;
   onRoll: () => void;
   onTogglePersonalizedRoll: () => void;
 };
@@ -82,6 +84,7 @@ export type HomeExperienceProps = {
   onResetFilters: () => void;
   onClearAndRoll: () => void;
   onTogglePersonalizedRoll: () => void;
+  onTuneRolls?: (() => void) | undefined;
   onRoll: () => void;
   onEngage: () => void;
   onNotInterested: () => void;

@@ -19,7 +19,7 @@ export function HomeControlPanel(props: HomeControlPanelProps) {
       <HeroSpotlight />
       <ChannelHeader onOpenHistory={props.onOpenHistory} />
       <HomeHeroFilters hero={props.hero} filters={props.filters} genres={props.genres} hasActiveFilters={props.hasActiveFilters} onFiltersChange={props.onFiltersChange} onClearFilters={props.onClearFilters} />
-      <RollControls hasActiveFilters={props.hasActiveFilters} isRolling={props.isRolling} isSearching={props.isSearching} pool={props.pool} personalizedRoll={props.personalizedRoll} showPersonalizedRoll={props.showPersonalizedRoll} onRoll={props.onRoll} onTogglePersonalizedRoll={props.onTogglePersonalizedRoll} />
+      <RollControls hasActiveFilters={props.hasActiveFilters} isRolling={props.isRolling} isSearching={props.isSearching} pool={props.pool} personalizedRoll={props.personalizedRoll} showPersonalizedRoll={props.showPersonalizedRoll} onRoll={props.onRoll} onTogglePersonalizedRoll={props.onTogglePersonalizedRoll} onTuneRolls={props.onTuneRolls} />
     </motion.div>
   );
 }

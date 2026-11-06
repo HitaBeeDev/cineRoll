@@ -14,7 +14,7 @@ export function useHomeOnboarding(
   initialOnboarded: boolean,
   setFilter: (updates: Partial<FilterState>) => void,
 ) {
-  const [state, setState] = useState<OnboardingState>(initialOnboarded ? "done" : "show");
+  const [state, setState] = useState<OnboardingState>(initialOnboarded ? "done" : "offer");
   const [tasteCards, setTasteCards] = useState<TasteCardFilm[]>([]);
   const [status, setStatus] = useState<TasteCardsStatus>("idle");
 
@@ -38,8 +38,11 @@ export function useHomeOnboarding(
     setState("done");
   }, [setFilter]);
 
+  const openTasteCheck = useCallback(() => setState("show"), []);
+
   return {
     onboardingState: state,
+    openTasteCheck,
     tasteCards,
     tasteCardsStatus: status,
     retryTasteCards: loadTasteCards,
